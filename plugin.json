@@ -3,18 +3,23 @@
 	"name": "Squinktronix",
 	"author": "Squinktronix",
     "version": "2.0.0",
+	"manualUrl": "https://github.com/squinkylabs/SqHarmony/README.md",
+	"sourceUrl": "https://github.com/squinkylabs/SqHarmony",
+	"changelogUrl": "https://github.com/squinkylabs/SqHarmon/CHANGELOG.md",
 	"modules":
 	[
 		{
 			"slug": "sqt-harmony1",
 			"name": "Harmony 1",
-			"description": "thing",
+			"description": "Harmony Generator",
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/b2/docs/harmony.md",
 			"tags": []
 		},
 		{
 			"slug": "sqt-arpeggiator1",
 			"name": "Arpeggiator 1",
-			"description": "thing",
+			"description": "Apreggiator",
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/b2/docs/arpeggiator.md",
 			"tags": []
 		}
     ]

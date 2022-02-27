@@ -1,23 +1,26 @@
 # Squinktronix Arpeggiator manual
 
-We tried to put all the most needed into at the top of this short document, but if you are so inclined you can find some more esoteric, but useful and non-obvious, at the bottom.
+We tried to put all the most needed info at the top of this short document, but if you are so inclined you can find some more esoteric, but useful and non-obvious, information at the bottom.
 
 ## What it does
 
 It acts like most arpeggiators. All the voltages that come in through the polyphonic V/Oct input are put into a buffer where they are played over and over, every time a clock occurs. The mode control, and other controls, determine in what order the notes are played back.
 
-Sometimes is the manual we will refer to "pitches" and "notes", but the Arpeggiator really just takes in voltages and outputs voltages. There is no quantizer, and the voltages can of course be used for anything you want.
+Sometimes in the manual we will refer to "pitches" and "notes", but the Arpeggiator really just takes in voltages and outputs voltages. There is no quantizer, and the voltages can of course be used for anything you want.
 
 ## TLDR
 
-A very basic application is using a keyboard as input, and outputting a pitch to a synth patch. Patch the V/Oct and Gate output of the MIDI-CV module to the Arpeggiator inputs. Hook up an external clock and you are in business. Make sure the polyphony is set to something reasonable (like 4) (see illo. when ready).
+A very basic application is using a keyboard as input, and outputting a pitch to a synth patch. Patch the V/Oct and Gate output of the MIDI-CV module to the Arpeggiator inputs. Hook up an external clock and you are in business. Make sure the polyphony is set to something reasonable (like 4).
+
+Here is a simple working patch:
+![Simple Patch screen shot](./arp-tldr.png)
 
 ## The modes
 
 The most dramatic, and also typical control is the **Mode** control. It's the drop-down at the top. The modes are:
 
-* **Up** - the input is play from low to high, over and over.
-* **Down** -  the input is play from high to low, over and over.
+* **Up** - the input is played from low to high, over and over.
+* **Down** -  the input is played from high to low, over and over.
 * **Up+down** - the input is played from low to high, then high to low.
 * **Down+up** - the input is played from high to low, then low to high.
 * **Up and down** - like up+down, except the highest and lowest are repeated.
@@ -31,8 +34,8 @@ The most dramatic, and also typical control is the **Mode** control. It's the dr
 
 ## Controls
 
-* **Arpeggiator Mode** - A drop-down menu will open if you click on this control. This well reveal a menu with all the different arpeggiator modes, explained above. After you select one the menu closes and a shortened version of the mode name is shown (to save space).
-* **Hold** - A switch. When Hold is active notes will accumulate in the arpeggiator, and a falling gate will note removed the note. To clear the arpeggiator, turn Hold off and the notes will stop.
+* **Arpeggiator Mode** - A drop-down menu will open if you click on this control. This will reveal a menu with all the different arpeggiator modes, explained above. After you select one the menu closes and a shortened version of the mode name is shown (to save space).
+* **Hold** - A switch. When Hold is active notes will accumulate in the arpeggiator, and a falling gate will not removed the note. To clear the arpeggiator, turn Hold off and the notes will stop.
 * **Length** - Set the size of the input buffer. If length is zero it's not limited, but other settings will only keep that many input notes.
 * **Beats** - Sets the playback repetitions. When zero, does nothing. Other settings will determine the perceived number of beats in the output.
 
