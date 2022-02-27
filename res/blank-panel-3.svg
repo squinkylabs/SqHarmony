@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="135" height="380" viewBox="0 0 135 380">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#707070"/>
+      <stop offset="0.516" stop-color="#202020"/>
+      <stop offset="1" stop-color="#101010"/>
+      <stop offset="1"/>
+    </linearGradient>
+    <clipPath id="clip-blank-panel-3">
+      <rect width="135" height="380"/>
+    </clipPath>
+  </defs>
+  <g id="blank-panel-3" clip-path="url(#clip-blank-panel-3)">
+    <rect width="135" height="380" fill="url(#linear-gradient)"/>
+  </g>
+</svg>

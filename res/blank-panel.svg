@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="135" height="380" viewBox="0 0 135 380">
+  <defs>
+    <linearGradient id="linear-gradient" x1="50%" x2="50%" y1="100%" y2="0%" gradientUnits="objectBoundingBox">
+      <stop offset="100"  style="stop-color:#303030;stop-opacity:1;"/>
+      <stop offset="0" style="stop-color:#000000;stop-opacity:1;"/>
+    </linearGradient>
+    <clipPath id="clip-blank-panel">
+      <rect width="135" height="380"/>
+    </clipPath>
+  </defs>
+  <g id="blank-panel" clip-path="url(#clip-blank-panel)">
+    <rect width="135" height="380" fill="url(#linear-gradient)"/>
+  </g>
+</svg>

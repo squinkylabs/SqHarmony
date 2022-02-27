@@ -1,0 +1,21 @@
+{
+	"slug": "st-plug1",
+	"name": "Squinktronix",
+	"author": "Squinktronix",
+    "version": "2.0.0",
+	"modules":
+	[
+		{
+			"slug": "sqt-harmony1",
+			"name": "Harmony 1",
+			"description": "thing",
+			"tags": []
+		},
+		{
+			"slug": "sqt-arpeggiator1",
+			"name": "Arpeggiator 1",
+			"description": "thing",
+			"tags": []
+		}
+    ]
+}

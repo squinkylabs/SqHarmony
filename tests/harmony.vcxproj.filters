@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\tests">
+      <UniqueIdentifier>{e379055c-8288-4496-b3e5-c2e8b9fac737}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\notes">
+      <UniqueIdentifier>{e1a3b34d-52b0-4cb4-8b27-8bdee3a0a139}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\notes">
+      <UniqueIdentifier>{e70a9d32-e670-4fae-97d4-3d831d28afd1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util">
+      <UniqueIdentifier>{73c1616e-e253-4b99-94f5-6875ed81a8f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util\quant">
+      <UniqueIdentifier>{278c3156-e0b5-4e0b-a52c-a33ccfa2fe2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{13d1077e-bc4b-4008-bcd8-cde2bdaf1d09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util\quant">
+      <UniqueIdentifier>{67c13259-9770-4680-93b7-c245572596a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tests">
+      <UniqueIdentifier>{a8fbdb5a-93e5-4457-affd-67014e946565}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\composites">
+      <UniqueIdentifier>{ab101ea5-4576-4b26-a1bb-e1d9b3af9843}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testHamonyNote.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\PitchKnowledge.CPP">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="testScaleRelativeNote.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testChord.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testChordRelativeNote.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\Chord4.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\ProgressionAnalyzer.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\Style.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\Keysig.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\ScaleRelativeNote.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="testHarmonySong.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\HarmonySong.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\Chord4List.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\RankedChord.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="testHarmonyChords.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testScaleQuantizer.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testNotes.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\quant\NoteConvert.cpp">
+      <Filter>Source Files\util\quant</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\quant\ScaleQuantizer.cpp">
+      <Filter>Source Files\util\quant</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\quant\Scale.cpp">
+      <Filter>Source Files\util\quant</Filter>
+    </ClCompile>
+    <ClCompile Include="testScale.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testHarmonyComposite.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testScaleNotes.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\HarmonyChords.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
+    <ClCompile Include="testKeysig.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testProgressions.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\SqLog.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="testNoteBuffer.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testNoteBufferSorter.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testArpegPlayer.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testArpegComposite.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testArpegRhythmPlayer.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\ArpegPlayer.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="testArepegPlayer2.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testSeqClock.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\AudioMath.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="testGateDelay.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\notes\HarmonyNote.h">
+      <Filter>Header Files\notes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\notes\PitchKnowledge.h">
+      <Filter>Header Files\notes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\notes\Style.h">
+      <Filter>Header Files\notes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\quant\ScaleQuantizer.h">
+      <Filter>Header Files\util\quant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\quant\ScaleNote.h">
+      <Filter>Header Files\util\quant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\quant\FloatNote.h">
+      <Filter>Header Files\util\quant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\quant\MidiNote.h">
+      <Filter>Header Files\util\quant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\quant\NoteConvert.h">
+      <Filter>Header Files\util\quant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\quant\Scale.h">
+      <Filter>Header Files\util\quant</Filter>
+    </ClInclude>
+    <ClInclude Include="testUtil.h">
+      <Filter>Header Files\tests</Filter>
+    </ClInclude>
+    <ClInclude Include="..\composites\Harmony.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\composites\WidgetComposite.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
