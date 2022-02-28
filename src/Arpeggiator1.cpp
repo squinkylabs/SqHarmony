@@ -207,4 +207,4 @@ struct Arpeggiator1Widget : ModuleWidget {
     }
 };
 
-Model* modelArpeggiator1 = createModel<Arpeggiator1Module, Arpeggiator1Widget>("sqt-arpeggiator1");
+Model* modelArpeggiator1 = createModel<Arpeggiator1Module, Arpeggiator1Widget>("sqh-arpeggiator1");

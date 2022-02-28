@@ -68,4 +68,4 @@ void Harmony1Widget::addScore(Harmony1Module *module) {
     addChild(vu);
 }
 
-Model* modelHarmony1 = createModel<Harmony1Module, Harmony1Widget>("sqt-harmony1");
+Model* modelHarmony1 = createModel<Harmony1Module, Harmony1Widget>("sqh-harmony1");
