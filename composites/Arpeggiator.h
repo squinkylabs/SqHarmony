@@ -120,7 +120,7 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
                 onGateChange(ch, gate);
             }     
         }
-    } else
+    } else {
         gateDelay.process(TBase::inputs[GATE_INPUT], gates);
         for (int ch = 0; ch < gates; ++ch) {
             //bool gate = TBase::inputs[GATE_INPUT].getVoltage(ch);
@@ -130,6 +130,7 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
                 onGateChange(ch, gate);
             }
         }
+    }
 
     const float clockVoltageX = TBase::inputs[CLOCK_INPUT].getVoltage(0);
     const float resetVoltage = TBase::inputs[RESET_INPUT].getVoltage(0);
