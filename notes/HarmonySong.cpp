@@ -41,7 +41,7 @@ HarmonySong::HarmonySong(const Options& options, const int* pS) : chordManager(o
     // TRACE("at start of const, size = %d\n", chords_ar.size());
     for (i = 0, done = false; !done; i++) {
         if (pS[i] == 0) {
-            done++;
+            done = true;
         } else {
             auto ch = std::make_shared<RankedChord>(chordManager, pS[i]);
             chords.push_back(ch);
