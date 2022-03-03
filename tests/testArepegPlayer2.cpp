@@ -36,8 +36,6 @@ static void testNewNoteAbove() {
     assertEQ(x.first, 2);
     assertEQ(x.second, 52);
 
-    //
-    printf("about to push new note at 26\n");
     stuff->nb.push_back(10, 100, 4);  // add new note
     x = stuff->ap.clock();
     assertEQ(x.first, 3);
@@ -50,29 +48,35 @@ static void testNewNoteAbove() {
     assertEQ(x.second, 100);
 }
 
-#if 0
+#define assertPair(pair, value) \
+    assertEQ(pair.first, value); \
+    assertEQ(pair.second, value+50);
+
 static void testNewNoteBelow() {
     printf("\n--- testNewNoteBelow\n");
 
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
-    float x = stuff->ap.clock();
-    assertEQ(x, 1);
+    auto x = stuff->ap.clock();
+    assertEQ(x.first, 1);
+    assertEQ(x.second, 1+50);
     x = stuff->ap.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2);
+
 
     printf("about to push new note at 26\n");
-    stuff->nb.push_back(1.1f, 0, 4);  // add new note
+    stuff->nb.push_back(1.1f, 5.5f, 4);  // add new note
     x = stuff->ap.clock();
-    assertEQ(x, 3);
+    assertPair(x, 3);
     x = stuff->ap.clock();
-    assertEQ(x, 4);
+    assertPair(x, 4);
     x = stuff->ap.clock();
-    assertEQ(x, 1);
+    assertPair(x, 1);
 
     x = stuff->ap.clock();
-    assertEQ(x, 1.1f);
+    assertEQ(x.first, 1.1f);
+    assertEQ(x.second, 5.5f);
 }
 
 static void testRemoveNoteAbove() {
@@ -81,18 +85,18 @@ static void testRemoveNoteAbove() {
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
-    float x = stuff->ap.clock();
-    assertEQ(x, 1);
+    auto x = stuff->ap.clock();
+    assertPair(x, 1);
     x = stuff->ap.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2);
 
     printf("about to remove at note at 81\n");
     stuff->nb.removeForChannel(3);
 
     x = stuff->ap.clock();
-    assertEQ(x, 3);
+    assertPair(x, 3);
     x = stuff->ap.clock();
-    assertEQ(x, 1);
+    assertPair(x, 1);
 }
 
 static void testRemoveNoteBelow() {
@@ -101,21 +105,21 @@ static void testRemoveNoteBelow() {
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
-    float x = stuff->ap.clock();
-    assertEQ(x, 1);
+    auto x = stuff->ap.clock();
+    assertPair(x, 1);
     x = stuff->ap.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2);
 
     printf("about to remove at note at 101\n");
     stuff->nb.removeForChannel(0);
 
     x = stuff->ap.clock();
-    assertEQ(x, 3);
+    assertPair(x, 3);
     x = stuff->ap.clock();
-    assertEQ(x, 4);
+    assertPair(x, 4);
 
     x = stuff->ap.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2);
 }
 
 static void testRemoveNextNote() {
@@ -124,18 +128,18 @@ static void testRemoveNextNote() {
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
-    float x = stuff->ap.clock();
-    assertEQ(x, 1);
+    auto x = stuff->ap.clock();
+    assertPair(x, 1);
     x = stuff->ap.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2);
 
     printf("about to remove at note at 124\n");
     stuff->nb.removeForChannel(2);
 
     x = stuff->ap.clock();
-    assertEQ(x, 4);
+    assertPair(x, 4);
     x = stuff->ap.clock();
-    assertEQ(x, 1);
+    assertPair(x, 1);
 }
 
 static void testRemoveLastNote() {
@@ -144,22 +148,22 @@ static void testRemoveLastNote() {
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
-    float x = stuff->ap.clock();
-    assertEQ(x, 1);
+    auto x = stuff->ap.clock();
+    assertPair(x, 1);
     x = stuff->ap.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2);
 
     x = stuff->ap.clock();
-    assertEQ(x, 3);
+    assertPair(x, 3);
 
     // about to play 4, but we remove it
     printf("about to remove at note at 144\n");
     stuff->nb.removeForChannel(3);
 
     x = stuff->ap.clock();
-    assertEQ(x, 1);
+    assertPair(x, 1);
     x = stuff->ap.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2);
 }
 
 static void testRemoveOnlyNote() {
@@ -168,32 +172,31 @@ static void testRemoveOnlyNote() {
     const int numInput = 1;
     float input[] = {4.4f};
     auto stuff = TestStuff::make(input, numInput);
-    float x = stuff->ap.clock();
-    assertEQ(x, 4.4f);
+    auto x = stuff->ap.clock();
+    assertPair(x, 4.4f);
     x = stuff->ap.clock();
-    assertEQ(x, 4.4f);
+    assertPair(x, 4.4f);
 
     printf("about to remove at note at 170\n");
     stuff->nb.removeForChannel(0);
     assert(stuff->nb.empty());
 
     x = stuff->ap.clock();
-    assertEQ(x, 0);
+    assertEQ(x.first, 0);
+    assertEQ(x.second, 0);
     x = stuff->ap.clock();
-    assertEQ(x, 0);
+    assertEQ(x.first, 0);
+    assertEQ(x.second, 0);
 }
-#endif
 
 void testArpegPlayer2() {
     testNewNoteAbove();
     
-#if 0
     testNewNoteBelow();
     testRemoveNoteAbove();
     testRemoveNoteBelow();
     testRemoveNextNote();
     testRemoveLastNote();
     testRemoveOnlyNote();
-#endif
-    printf("finish me tap2\n");
+;
 }

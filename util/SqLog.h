@@ -11,6 +11,7 @@ will print something like
 	[0.123 debug squinkylabs] error: 67
 */
 
+#define __NDBG 
 
 #ifdef __NDBG
 	#define SQDEBUG(format, ...) (void) format
