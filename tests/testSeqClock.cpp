@@ -278,8 +278,6 @@ static void testNoNoteAfterReset() {
     assert(results.didReset);
     assert(!results.didClock);
 
-#if 1
-
     // while we are stopped, time should still not pass, even if clocked
     for (int i = 0; i < 100; ++i) {
         // clock low
@@ -300,12 +298,6 @@ static void testNoNoteAfterReset() {
         assert(!results.didReset);
         assert(!results.didClock);
     }
-
-    // now clock it - should go to zero
-
-    printf("finish this reset test\n");
-    // assert(false);      // finish me
-#endif
 }
 
 template <typename TClock>

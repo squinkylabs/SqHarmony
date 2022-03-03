@@ -12,58 +12,63 @@ static void testArpegPlayerOneNote() {
     assertEQ(x.second, 12);
 }
 
-#if 0
+
+#define assertPair(p, a, b) \
+    assertEQ(p.first, a);   \
+    assertEQ(p.second, b);
+
 static void testArpegPlayerTwoNotes() {
     NoteBuffer nb(4);
-    nb.push_back(5, 0, 55);
-    nb.push_back(100, 0, 56);
+    nb.push_back(5, 99, 55);
+    nb.push_back(100, 8, 56);
     ArpegPlayer ap(&nb);
     ap.setMode(ArpegPlayer::Mode::UP);
 
-    float x = ap.clock();
-    assertEQ(x, 5);
+    auto x = ap.clock();
+    assertPair(x, 5, 99);
 
     x = ap.clock();
-    assertEQ(x, 100);
+    assertPair(x, 100, 8);
 
     // back to start
     x = ap.clock();
-    assertEQ(x, 5);
+    assertPair(x, 5, 99);
 }
 
 static void testArpegPlayerZeroNotes() {
     NoteBuffer nb(1);
-    nb.push_back(5, 0, 55);
+    nb.push_back(5, 111, 55);
     nb.removeForChannel(55);
 
     ArpegPlayer ap(&nb);
-    const float x = ap.clock();
-    assertEQ(x, 0);
+    const auto x = ap.clock();
+    assertPair(x, 0, 0);
 }
 
+
 // no pause, simpler version
-static void testArpegSubx(ArpegPlayer::Mode mode, const float* input, int numInput, const float* expectedOutput, int numOutput) {
+static void testArpegSubx(ArpegPlayer::Mode mode, const std::pair<float, float>* input, int numInput, const std::pair<float, float>* expectedOutput, int numOutput) {
     const int requiredSize = numInput + 2;  // 2 is "just because
     NoteBuffer nb(requiredSize);
     ArpegPlayer ap(&nb);
     ap.setMode(mode);
 
     for (int i = 0; i < numInput; ++i) {
-        nb.push_back(input[i], 0, i);
+        nb.push_back(input[i].first, input[i].second, i);
     }
 
     for (int i = 0; i < numOutput; ++i) {
-        const float expected = expectedOutput[i];
-        const float actual = ap.clock();
+        const auto expected = expectedOutput[i];
+        const auto actual = ap.clock();
         // printf("i=%d actual=%f expected=%f\n", i, actual, expected);
-        assertEQ(actual, expected);
+        assertPair(actual, expected.first, expected.second);
     }
 }
 
 static void testArpegPauseSub2(ArpegPlayer::Mode mode,
                                const float* input,
                                int numInput,
-                               const float* expectedOutputBefore,
+                               const std::pair<float, float>* expectedOutputBefore,
                                int numOutputBefore,
                                bool withClockInBetween
 
@@ -82,10 +87,10 @@ static void testArpegPauseSub2(ArpegPlayer::Mode mode,
 
     // verify initial output
     for (int i = 0; i < numOutputBefore; ++i) {
-        const float expected = expectedOutputBefore[i];
-        const float actual = ap.clock();
+        const auto expected = expectedOutputBefore[i];
+        const auto actual = ap.clock();
         // printf("i=%d actual=%f expected=%f\n", i, actual, expected);
-        assertEQ(actual, expected);
+        assertPair(actual, expected.first, expected.second);
     }
 
     // printf("testArpegPauseSub about to remove input\n");
@@ -100,8 +105,8 @@ static void testArpegPauseSub2(ArpegPlayer::Mode mode,
         // printf("testArpegPauseSub about to send dummy clock\n");
         assert(withClockInBetween);
         // one clock to make it work
-        float x = ap.clock();
-        assertEQ(x, 0);
+        auto x = ap.clock();
+        assertPair(x, 0, 0);
     }
 
     // printf("testArpegPauseSub about to add input back\n");
@@ -113,23 +118,23 @@ static void testArpegPauseSub2(ArpegPlayer::Mode mode,
     // printf("testArpegPauseSub about to play again\n");
     // verify the post o
     for (int i = 0; i < numOutputBefore; ++i) {
-        const float expected = expectedOutputBefore[i];
-        const float actual = ap.clock();
+        const auto expected = expectedOutputBefore[i];
+        const auto actual = ap.clock();
         // printf("i=%d actual=%f expected=%f\n", i, actual, expected);
-        assertEQ(actual, expected);
+        assertPair(actual, expected.first, expected.second);
     }
 }
 
 static void testArpegPauseSub(ArpegPlayer::Mode mode,
-                              const float* input,
+                              const std::pair<float, float>* input,
                               int numInput,
-                              const float* expectedOutput,
+                              const std::pair<float, float>* expectedOutput,
                               int numOutput) {
     testArpegSubx(mode, input, numInput, expectedOutput, numOutput);
 
     printf("\nnow doing - mode\n");
     // everyone should output zero when fed with it
-    float zeros[3] = {0};
+    std::pair<float, float> zeros[3] = { std::make_pair(0.f, 0.f)};
     testArpegSubx(mode, input, 0, zeros, 2);
 
     printf("skipping pause for now\n");
@@ -140,20 +145,54 @@ static void testArpegPauseSub(ArpegPlayer::Mode mode,
 static void testArpegPlayerUp() {
     printf("\n----- testArpegPlayerUp ---\n");
     auto mode = ArpegPlayer::Mode::UP;
-    float input[] = {10, 9, 8};
-    float expectedOutput[] = {8, 9, 10, 8, 9, 10};
+
+  //  float input[] = {10, 9, 8};
+    std::pair<float, float>  input[] = { 
+        std::make_pair(10.f, 101.f),
+        std::make_pair(9.f, 901.f),
+        std::make_pair(8.f, 801.f)
+            };
+
+    std::pair<float, float> expectedOutput[] = {
+        std::make_pair(8.f, 801.f),
+        std::make_pair(9.f, 901.f),
+        std::make_pair(10.f, 101.f),
+        std::make_pair(8.f, 801.f),
+        std::make_pair(9.f, 901.f),
+        std::make_pair(10.f, 101.f) };
+
     testArpegPauseSub(mode, input, 3, expectedOutput, 6);
 
     printf("\n----- testArpegPlayerUp B ---\n");
-    float input2[] = {10};
-    float expectedOutput2[] = {10, 10, 10, 10};
+
+    std::pair<float, float> input2[] = {
+         std::make_pair(10.f, 101.f)
+    };
+    std::pair<float, float> expectedOutput2[] = {
+        std::make_pair(10.f, 101.f),
+        std::make_pair(10.f, 101.f),
+        std::make_pair(10.f, 101.f),
+        std::make_pair(10.f, 101.f)
+    };
+
     testArpegSubx(mode, input2, 1, expectedOutput2, 4);
 
     printf("\n----- testArpegPlayerUp  C ---\n");
-    float input3[] = {10, 11};
-    float expectedOutput3[] = {10, 11, 10, 11};
+    std::pair<float, float>  input3[] = {
+         std::make_pair(10.f, 101.f),
+         std::make_pair(11.f, 111.f)
+    };
+
+    std::pair<float, float>  expectedOutput3[] = {
+        std::make_pair(10.f, 101.f),
+        std::make_pair(11.f, 111.f),
+        std::make_pair(10.f, 101.f),
+        std::make_pair(11.f, 111.f)
+    };
     testArpegSubx(mode, input3, 2, expectedOutput3, 4);
 }
+
+#if 0
 
 static void testArpegPlayerDown() {
     printf("\n----- testArpegPlayerDOWN ---\n");
@@ -495,16 +534,17 @@ static void testArpegPlayerSHUFFLE() {
 }
 
 #endif
+
 void testArpegPlayer() {
     testArpegPlayerOneNote();
 
-    printf("finish me 501\n");
-
-#if 0
     testArpegPlayerTwoNotes();
+    printf("finish me 508\n");
+
     testArpegPlayerZeroNotes();
 
     testArpegPlayerUp();
+#if 0
     testArpegPlayerDown();
     testArpegPlayerUpDown();
     testArpegPlayerDownUp();
