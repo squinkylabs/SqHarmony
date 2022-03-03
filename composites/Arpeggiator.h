@@ -33,7 +33,7 @@ public:
         BEATS_PARAM,   // how we play the pattern back
         HOLD_PARAM,
         SCHEMA_PARAM,
-        POLY_PARAM,
+        POLY_PARAM,     // not used yet?
         RESET_MODE_PARAM,
         GATE_DELAY_PARAM,
         NUM_PARAMS
@@ -45,6 +45,7 @@ public:
         RESET_INPUT,
         HOLD_INPUT,
         MODE_INPUT,
+        CV2_INPUT,
         NUM_INPUTS
     };
 
@@ -52,6 +53,7 @@ public:
         CV_OUTPUT,
         GATE_OUTPUT,
         EOC_OUTPUT,
+        CV2_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -84,7 +86,7 @@ private:
 
     bool lastGate[16]{0};
     bool allGatesLow = true;
-    float sampledPitch[16]{0};
+   // float sampledPitch[16]{0};
     bool lastClock{false};
     void processParams();
 
@@ -137,12 +139,14 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
     auto clockResults = clock.updateOnce(clockVoltageX, true, resetVoltage);
 
     if (clockResults.didReset) {
+        SQDEBUG("did reset");
         clockResults.didClock = true;  // let's force one after this, to get the new value?
         outerPlayer.reset();
     }
 
     const bool processedClock = clock.getClockValue();
     if (clockResults.didClock || processedClock != lastClock) {
+        SQDEBUG("didClock=%d , proc=%d last=%d", clockResults.didClock, processedClock, lastClock);
         lastClock = processedClock;
         onClockChange(clockResults.didClock, processedClock);
     }
@@ -150,13 +154,14 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
 
 template <class TBase>
 inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
-    const float pitch = TBase::inputs[CV_INPUT].getVoltage(channel);
+    const float cv1 = TBase::inputs[CV_INPUT].getVoltage(channel);
+    const float cv2 = TBase::inputs[CV2_INPUT].getVoltage(channel);
     if (gate) {
-        noteBuffer.push_back(pitch, channel);
-        sampledPitch[channel] = pitch;
+        noteBuffer.push_back(cv1, cv2, channel);
+      //  sampledPitch[channel] = pitch;
     } else {
         noteBuffer.removeForChannel(channel);
-        sampledPitch[channel] = 0;
+      //  sampledPitch[channel] = 0;
     }
 
     allGatesLow = true;
@@ -169,16 +174,21 @@ inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
 
 template <class TBase>
 inline void Arpeggiator<TBase>::onClockChange(bool clockFired, bool clockValue) {
+    SQDEBUG("clock fired, value = %d", clockValue);
     if (clockFired) {
-        const float pitch = outerPlayer.clock();
-        TBase::outputs[CV_OUTPUT].setVoltage(pitch, 0);
+        const auto cvs = outerPlayer.clock();
+        TBase::outputs[CV_OUTPUT].setVoltage(cvs.first, 0);
+        TBase::outputs[CV2_OUTPUT].setVoltage(cvs.second, 0);
     }
 
     if (allGatesLow) {
-        clockValue = false;
+       // SQDEBUG("setting clock value low because all low. will force gate low\n");
+       // clockValue = false;
+       SQDEBUG("would mute everything, but I took that out");
     }
     const float clockVoltage = clockValue ? cGateOutHi : 0.f;
 
+    SQDEBUG("setting gate out to %f", clockVoltage);
     TBase::outputs[GATE_OUTPUT].setVoltage(clockVoltage, 0);
 }
 
@@ -210,7 +220,7 @@ inline void Arpeggiator<TBase>::processParams() {
         TBase::params[HOLD_PARAM].value = holdVoltage;
         hold = bool(holdVoltage);
     } else {
-        mode = int(std::round(TBase::params[MODE_PARAM].value));
+        hold = int(std::round(TBase::params[MODE_PARAM].value));
     }
 
     outerPlayer.setLength(beats);

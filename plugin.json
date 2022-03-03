@@ -18,7 +18,7 @@
 		{
 			"slug": "sqh-arpeggiator1",
 			"name": "Arpeggiator 1",
-			"description": "Apreggiator",
+			"description": "Arpeggiator",
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/b2/docs/arpeggiator.md",
 			"tags": ["Arpeggiator", "Polyphonic"]
 		}

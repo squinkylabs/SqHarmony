@@ -5,7 +5,7 @@
 class ArpegRhythmPlayer {
 public:
     ArpegRhythmPlayer(ArpegPlayer* underlying) : player(underlying) {}
-    float clock();
+    std::pair<float, float> clock();
     void reset();
     void setLength(int len) { length = len; }
 
@@ -22,8 +22,8 @@ inline void ArpegRhythmPlayer::reset() {
     counter = 0;
 }
 
-inline float ArpegRhythmPlayer::clock() {
-    float ret = player->clock();
+inline  std::pair<float, float> ArpegRhythmPlayer::clock() {
+    std::pair<float, float> ret = player->clock();
     if (length && (++counter >= length)) {
         player->reset();
         counter = 0;

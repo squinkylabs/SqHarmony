@@ -17,18 +17,18 @@ public:
     int size() const { return siz; }
     bool empty() const { return siz == 0; }
 
-    void push_back(float pitch, int channel);
-    //  void remove(float);
+    void push_back(float cv1, float cv2, int channel);
     void removeForChannel(int channel);
     void removeAtIndex(int index);
     void setHold(bool);
 
     class Data {
     public:
-        Data(float p, int ch) : channel(ch), cv(p) {}
+        Data(float p1, float v1, int ch) : channel(ch), cv1(p1), cv2(v1) {}
         Data() {}
         int channel = 0;
-        float cv = 0;
+        float cv1 = 0;
+        float cv2 = 0;
     };
 
     const Data* begin() const;
@@ -36,7 +36,6 @@ public:
     const Data& at(int index) const;
 
     using RejectFunction = std::function<bool(int index)>;
-   // int findMedian(RejectFunction = nullptr);
 
 private:
     int siz = 0;
@@ -82,14 +81,17 @@ inline void NoteBuffer::onChange(callback callb) {
     cb = callb;
 }
 
-inline void NoteBuffer::push_back(float x, int channel) {
+inline void NoteBuffer::push_back(float v1, float v2, int channel) {
+    // just test for now
+    assert(v1 > 0);
+    assert(v2 > 0);
     if (siz == curCapacity) {
         for (int i = 0; i < siz - 1; ++i) {
             data[i] = data[i + 1];
         }
-        data[siz - 1] = Data(x, channel);
+        data[siz - 1] = Data(v1, v2, channel);
     } else {
-        data[siz] = Data(x, channel);
+        data[siz] = Data(v1, v2, channel);
         siz++;
     }
     callbackMaybe();

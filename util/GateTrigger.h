@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SchmidtTrigger.h"
+#include "SqLog.h"
 #include <assert.h>
 
 
@@ -38,6 +39,9 @@ public:
                 return;
             else
                 _reset = false;
+        }
+        if (newGate != _gate) {
+            SQDEBUG("---- gateTrigger saw transition, v is %f", v);
         }
         _trigger = newGate && !_gate;
         _gate = newGate;

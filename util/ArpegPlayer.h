@@ -27,7 +27,7 @@ public:
 
     /** clock it and get the next note
      */
-    float clock();
+    std::pair<float, float> clock();
 
     void setMode(Mode m);
     static std::vector<std::string> modes() {
@@ -50,8 +50,8 @@ private:
 
     AudioMath::RandomUniformFunc random = {AudioMath::random()};
 
-    float playbackBuffer[4 + 2 * (1 + NoteBuffer::maxCapacity)];
-    float sortBuffer[NoteBuffer::maxCapacity];
+    std::pair<float, float> playbackBuffer[4 + 2 * (1 + NoteBuffer::maxCapacity)];
+    std::pair<float, float>  sortBuffer[NoteBuffer::maxCapacity];
    // bool needUpdate = true;
     int playbackIndex = -1;
     int playbackSize = 0;

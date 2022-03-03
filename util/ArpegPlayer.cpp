@@ -32,7 +32,7 @@ void ArpegPlayer::reset() {
     }
 }
 
-float ArpegPlayer::clock() {
+std::pair<float, float>  ArpegPlayer::clock() {
     // printf("  enter clock index=%d (will use this one) data changed =%d\n", playbackIndex, dataChanged);
 
     // on a data change, let's try to find the next note to play
@@ -40,7 +40,7 @@ float ArpegPlayer::clock() {
         // printf("in clock, detected data change. notes in nb=%d siz=%d\n", noteBuffer->size(), playbackSize);
 
         // remember where we were
-        const float pitchWouldBe = (playbackIndex >= 0) ? playbackBuffer[playbackIndex] : -100;
+        const float pitchWouldBe = (playbackIndex >= 0) ? playbackBuffer[playbackIndex].first : -100;
         const int playbackIndexWouldBe = playbackIndex;
 
         // incorporate the new data
@@ -56,14 +56,14 @@ float ArpegPlayer::clock() {
         bool foundSettings = false;
 
         // 1) if the same note we expected to play is still there, use that
-        if ((playbackIndexWouldBe < playbackSize) && (pitchWouldBe == playbackBuffer[playbackIndexWouldBe])) {
+        if ((playbackIndexWouldBe < playbackSize) && (pitchWouldBe == playbackBuffer[playbackIndexWouldBe].first)) {
             // printf("after reset, use same\n");
             foundSettings = true;
         }
         // 2) if we can find the same note elsewhere, use it
         if (!foundSettings) {
             for (int i = 0; !foundSettings && (i < playbackSize); ++i) {
-                if (playbackBuffer[i] == pitchWouldBe) {
+                if (playbackBuffer[i].first == pitchWouldBe) {
                     //printf("found old pitch at %d\n", i);
                     foundSettings = true;
                     playbackIndex = i;
@@ -99,12 +99,11 @@ float ArpegPlayer::clock() {
     }
 
     if (playbackSize < 1) {
-        return 0;
+        return std::make_pair(0, 0);
     }
     assert(playbackIndex >= 0);
-    const float ret = playbackBuffer[playbackIndex];
-    //  resetInfo.pitchLastPlayed = ret;
-    //  resetInfo.indexLastPlayed = playbackIndex;
+    const auto ret = playbackBuffer[playbackIndex];
+
 
     ++playbackIndex;
     //printf("** inc playback index to %d size =%d\n", playbackIndex, playbackSize);
@@ -187,7 +186,7 @@ void ArpegPlayer::onIndexWrapAround() {
 void ArpegPlayer::copyAndSort() {
     auto input = noteBuffer->begin();
     for (int i = 0; i < noteBuffer->size(); ++i) {
-        sortBuffer[i] = input->cv;
+        sortBuffer[i] = std::make_pair(input->cv1, input->cv2);
         ++input;
     }
     // ascending sort
@@ -210,7 +209,7 @@ void ArpegPlayer::refillPlaybackSHUFFLE() {
            // printf("in inner loop, copy index = %d rand=%d total %d\n", copyIndex, rand, numNotes);
             fflush(stdout);
             if (!didUseNote[rand]) {
-                playbackBuffer[copyIndex] = noteBuffer->at(rand).cv;
+                playbackBuffer[copyIndex] = std::make_pair(noteBuffer->at(rand).cv1, noteBuffer->at(rand).cv2); 
                 done = true;
                 didUseNote[rand] = true;
             }
@@ -357,14 +356,12 @@ void ArpegPlayer::refillPlaybackDOWN_UP_DBL() {
 
 void ArpegPlayer::refillPlaybackDOWNUP() {
     copyAndSort();
-    //printf("update, there are %d\n", noteBuffer->size());
-    // first the "down" part
     for (int i = 0; i < noteBuffer->size(); ++i) {
         const int src = i;
         const int dest = -1 + noteBuffer->size() - i;
         assert(dest >= 0);
         playbackBuffer[dest] = sortBuffer[src];
-        printf("copy %d to %d (%f)\n", src, dest, sortBuffer[src]);
+        //printf("copy %d to %d (%f)\n", src, dest, sortBuffer[src].first);
     }
     const int upwardEntries = noteBuffer->size() - 2;
     //printf("after down, upward entries = %d\n", upwardEntries);
@@ -493,7 +490,8 @@ void ArpegPlayer::refillPlaybackORDER_PLAYED() {
     const int siz = noteBuffer->size();
     playbackSize = siz;
     for (int i = 0; i < siz; ++i) {
-        playbackBuffer[i] = (i + noteBuffer->begin())->cv;
+        auto nbPtr = (i + noteBuffer->begin());
+        playbackBuffer[i] = std::make_pair(nbPtr->cv1, nbPtr->cv2);
         // printf("sorted input[%d] = %f\n", i, sortBuffer[i]);
     }
 }
