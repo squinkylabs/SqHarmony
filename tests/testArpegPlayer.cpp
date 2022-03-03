@@ -12,7 +12,6 @@ static void testArpegPlayerOneNote() {
     assertEQ(x.second, 12);
 }
 
-
 #define assertPair(p, a, b) \
     assertEQ(p.first, a);   \
     assertEQ(p.second, b);
@@ -44,7 +43,6 @@ static void testArpegPlayerZeroNotes() {
     const auto x = ap.clock();
     assertPair(x, 0, 0);
 }
-
 
 // no pause, simpler version
 static void testArpegSubx(ArpegPlayer::Mode mode, const std::pair<float, float>* input, int numInput, const std::pair<float, float>* expectedOutput, int numOutput) {
@@ -134,7 +132,7 @@ static void testArpegPauseSub(ArpegPlayer::Mode mode,
 
     printf("\nnow doing - mode\n");
     // everyone should output zero when fed with it
-    std::pair<float, float> zeros[3] = { std::make_pair(0.f, 0.f)};
+    std::pair<float, float> zeros[3] = {std::make_pair(0.f, 0.f)};
     testArpegSubx(mode, input, 0, zeros, 2);
 
     printf("skipping pause for now\n");
@@ -146,12 +144,11 @@ static void testArpegPlayerUp() {
     printf("\n----- testArpegPlayerUp ---\n");
     auto mode = ArpegPlayer::Mode::UP;
 
-  //  float input[] = {10, 9, 8};
-    std::pair<float, float>  input[] = { 
+    //  float input[] = {10, 9, 8};
+    std::pair<float, float> input[] = {
         std::make_pair(10.f, 101.f),
         std::make_pair(9.f, 901.f),
-        std::make_pair(8.f, 801.f)
-            };
+        std::make_pair(8.f, 801.f)};
 
     std::pair<float, float> expectedOutput[] = {
         std::make_pair(8.f, 801.f),
@@ -159,56 +156,73 @@ static void testArpegPlayerUp() {
         std::make_pair(10.f, 101.f),
         std::make_pair(8.f, 801.f),
         std::make_pair(9.f, 901.f),
-        std::make_pair(10.f, 101.f) };
+        std::make_pair(10.f, 101.f)};
 
     testArpegPauseSub(mode, input, 3, expectedOutput, 6);
 
     printf("\n----- testArpegPlayerUp B ---\n");
 
     std::pair<float, float> input2[] = {
-         std::make_pair(10.f, 101.f)
-    };
+        std::make_pair(10.f, 101.f)};
     std::pair<float, float> expectedOutput2[] = {
         std::make_pair(10.f, 101.f),
         std::make_pair(10.f, 101.f),
         std::make_pair(10.f, 101.f),
-        std::make_pair(10.f, 101.f)
-    };
+        std::make_pair(10.f, 101.f)};
 
     testArpegSubx(mode, input2, 1, expectedOutput2, 4);
 
     printf("\n----- testArpegPlayerUp  C ---\n");
-    std::pair<float, float>  input3[] = {
-         std::make_pair(10.f, 101.f),
-         std::make_pair(11.f, 111.f)
-    };
+    std::pair<float, float> input3[] = {
+        std::make_pair(10.f, 101.f),
+        std::make_pair(11.f, 111.f)};
 
-    std::pair<float, float>  expectedOutput3[] = {
+    std::pair<float, float> expectedOutput3[] = {
         std::make_pair(10.f, 101.f),
         std::make_pair(11.f, 111.f),
         std::make_pair(10.f, 101.f),
-        std::make_pair(11.f, 111.f)
-    };
+        std::make_pair(11.f, 111.f)};
     testArpegSubx(mode, input3, 2, expectedOutput3, 4);
 }
-
-#if 0
 
 static void testArpegPlayerDown() {
     printf("\n----- testArpegPlayerDOWN ---\n");
     const auto mode = ArpegPlayer::Mode::DOWN;
-    float input[] = {10, 9, 8};
-    float expectedOutput[] = {10, 9, 8, 10, 9, 8, 10};
+    std::pair<float, float> input[] = {
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(9, 909),
+        std::make_pair<float, float>(8, 908)};
+
+    std::pair<float, float> expectedOutput[] = {
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(9, 909),
+        std::make_pair<float, float>(8, 908),
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(9, 909),
+        std::make_pair<float, float>(8, 908),
+        std::make_pair<float, float>(10, 910)};
+
     testArpegPauseSub(mode, input, 3, expectedOutput, 7);
 
     printf("\n----- testArpegPlayerDown B ---\n");
-    float input2[] = {10};
-    float expectedOutput2[] = {10, 10, 10, 10};
+    std::pair<float, float> input2[] = {
+        std::make_pair<float, float>(10, 910)};
+    std::pair<float, float> expectedOutput2[] = {
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(10, 910)};
     testArpegSubx(mode, input2, 1, expectedOutput2, 4);
 
     printf("\n----- testArpegPlayerDown  C ---\n");
-    float input3[] = {10, 11};
-    float expectedOutput3[] = {11, 10, 11, 10};
+    std::pair<float, float> input3[] = {
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(11, 911)};
+    std::pair<float, float> expectedOutput3[] = {
+        std::make_pair<float, float>(11, 911),
+        std::make_pair<float, float>(10, 910),
+        std::make_pair<float, float>(11, 911),
+        std::make_pair<float, float>(10, 910)};
     testArpegSubx(mode, input3, 2, expectedOutput3, 4);
 }
 
@@ -216,59 +230,181 @@ static void testArpegPlayerUp_Down() {
     printf("\n----- testArpegPlayerUp_Down 6---\n");
 
     const auto mode = ArpegPlayer::Mode::UP_DOWN_DBL;
-    const float input[] = {10, 9, 8, 7, 6, 5};
-    float expectedOutput[] = {5, 6, 7, 8, 9, 10, 10, 9, 8, 7, 6, 5, 5, 6, 7};
+    const std::pair<float, float> input[] = {
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(6, 16),
+        std::make_pair<float, float>(5, 15)};
+    std::pair<float, float> expectedOutput[] = {
+        std::make_pair<float, float>(5, 15),
+        std::make_pair<float, float>(6, 16),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(6, 16),
+        std::make_pair<float, float>(5, 15),
+        std::make_pair<float, float>(5, 15),
+        std::make_pair<float, float>(6, 16),
+        std::make_pair<float, float>(7, 17)};
+
     testArpegPauseSub(mode, input, 6, expectedOutput, 15);
 
     printf("\n----- testArpegPlayerUp_Down 5---\n");
-    float expectedOutput5[] = {6, 7, 8, 9, 10, 10, 9, 8, 7, 6, 6, 7, 8, 9, 10};
+    std::pair<float, float> expectedOutput5[] = {
+        std::make_pair<float, float>(6, 16),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(6, 16),
+        std::make_pair<float, float>(6, 16),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20)};
     testArpegPauseSub(mode, input, 5, expectedOutput5, 15);
 
     printf("\n----- testArpegPlayerUp_Down 4---\n");
-    float expectedOutput4[] = {7, 8, 9, 10, 10, 9, 8, 7, 7, 8, 9, 10, 10, 9, 8};
+    std::pair<float, float> expectedOutput4[] = {
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(7, 17),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(8, 18)};
     testArpegPauseSub(mode, input, 4, expectedOutput4, 15);
 
     printf("\n----- testArpegPlayerUp_Down 3---\n");
-    float expectedOutput3[] = {8, 9, 10, 10, 9, 8, 8, 9, 10, 10, 9};
+    std::pair<float, float> expectedOutput3[] = {
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(8, 18),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19)
+        };
     testArpegPauseSub(mode, input, 3, expectedOutput3, 11);
 
     printf("\n----- testArpegPlayerUp_Down 2---\n");
-    float expectedOutput2[] = { 9, 10, 10, 9, 9, 10, 10, 9, 9};
+    std::pair<float, float> expectedOutput2[] = {
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19),
+        std::make_pair<float, float>(9, 19)
+        };
     testArpegPauseSub(mode, input, 2, expectedOutput2, 9);
 
     printf("\n----- testArpegPlayerUp_Down 1---\n");
-    float expectedOutput1[] = {
-        10,
-        10,
-        10,
-        10,
+    std::pair<float, float> expectedOutput1[] = {
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(10, 20)
     };
     testArpegPauseSub(mode, input, 1, expectedOutput1, 4);
 }
+
+
 
 static void testArpegPlayerUpDown() {
     printf("\n----- testArpegPlayerUPDOWN ---\n");
 
     const auto mode = ArpegPlayer::Mode::UPDOWN;
-    float input[] = {10, 9, 8, 7};
-    float expectedOutput[] = {7, 8, 9, 10, 9, 8, 7, 8, 9, 10};
+    std::pair<float, float> input[] = {
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(8, 18), 
+        std::make_pair<float, float>(7, 17)
+        };
+    std::pair<float, float> expectedOutput[] = {
+        std::make_pair<float, float>(7, 17), 
+        std::make_pair<float, float>(8, 18), 
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(8, 18), 
+        std::make_pair<float, float>(7, 17), 
+        std::make_pair<float, float>(8, 18), 
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(10, 20)
+        };
     testArpegPauseSub(mode, input, 4, expectedOutput, 10);
 
     printf("\n----- testArpegPlayerUPDown B ---\n");
-    float input2[] = {10};
-    float expectedOutput2[] = {10, 10, 10, 10};
+    std::pair<float, float> input2[] = {
+        std::make_pair<float, float>(10, 20)
+        };
+    std::pair<float, float> expectedOutput2[] = {
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(10, 20)
+        };
     testArpegSubx(mode, input2, 1, expectedOutput2, 4);
 
     printf("\n----- testArpegPlayerUPDown  C ---\n");
-    float input3[] = {10, 11};
-    float expectedOutput3[] = {10, 11, 10, 11, 10};
+    std::pair<float, float> input3[] = {
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(11, 911)
+        };
+    std::pair<float, float> expectedOutput3[] = {
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(11, 911), 
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(11, 911), 
+        std::make_pair<float, float>(10, 20)
+        };
     testArpegSubx(mode, input3, 2, expectedOutput3, 5);
 
     printf("\n----- testArpegPlayerUPDown  D ---\n");
-    float input4[] = {10, 9, 8};
-    float expectedOutput4[] = {8, 9, 10, 9, 8, 9, 10, 9};
+    std::pair<float, float> input4[] = {
+        std::make_pair<float, float>(10, 20),
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(8, 18)
+        };
+    std::pair<float, float> expectedOutput4[] = {
+        std::make_pair<float, float>(8, 18), 
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(8, 18), 
+        std::make_pair<float, float>(9, 19), 
+        std::make_pair<float, float>(10, 20), 
+        std::make_pair<float, float>(9, 19)
+        };
     testArpegSubx(mode, input4, 3, expectedOutput4, 8);
 }
+#if 0
 
 static void testArpegPlayerDownUp() {
     printf("\n----- testArpegPlayerDownUp ---\n");
@@ -544,9 +680,10 @@ void testArpegPlayer() {
     testArpegPlayerZeroNotes();
 
     testArpegPlayerUp();
-#if 0
+
     testArpegPlayerDown();
     testArpegPlayerUpDown();
+#if 0
     testArpegPlayerDownUp();
     testArpegPlayerUp_Down();
     testArpegPlayerDown_Up();
