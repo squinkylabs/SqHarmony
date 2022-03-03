@@ -64,8 +64,6 @@ static void testNewNoteBelow() {
     x = stuff->ap.clock();
     assertPair(x, 2);
 
-
-    printf("about to push new note at 26\n");
     stuff->nb.push_back(1.1f, 5.5f, 4);  // add new note
     x = stuff->ap.clock();
     assertPair(x, 3);
@@ -90,7 +88,6 @@ static void testRemoveNoteAbove() {
     x = stuff->ap.clock();
     assertPair(x, 2);
 
-    printf("about to remove at note at 81\n");
     stuff->nb.removeForChannel(3);
 
     x = stuff->ap.clock();
@@ -110,7 +107,6 @@ static void testRemoveNoteBelow() {
     x = stuff->ap.clock();
     assertPair(x, 2);
 
-    printf("about to remove at note at 101\n");
     stuff->nb.removeForChannel(0);
 
     x = stuff->ap.clock();
@@ -133,7 +129,6 @@ static void testRemoveNextNote() {
     x = stuff->ap.clock();
     assertPair(x, 2);
 
-    printf("about to remove at note at 124\n");
     stuff->nb.removeForChannel(2);
 
     x = stuff->ap.clock();
@@ -157,7 +152,6 @@ static void testRemoveLastNote() {
     assertPair(x, 3);
 
     // about to play 4, but we remove it
-    printf("about to remove at note at 144\n");
     stuff->nb.removeForChannel(3);
 
     x = stuff->ap.clock();
@@ -177,7 +171,6 @@ static void testRemoveOnlyNote() {
     x = stuff->ap.clock();
     assertPair(x, 4.4f);
 
-    printf("about to remove at note at 170\n");
     stuff->nb.removeForChannel(0);
     assert(stuff->nb.empty());
 

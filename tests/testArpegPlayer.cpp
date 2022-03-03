@@ -91,7 +91,6 @@ static void testArpegPauseSub2(ArpegPlayer::Mode mode,
         assertPair(actual, expected.first, expected.second);
     }
 
-    // printf("testArpegPauseSub about to remove input\n");
     // remove the input
     for (int i = 0; i < numInput; ++i) {
         //  nb.push_back(input[i], i);
@@ -130,7 +129,6 @@ static void testArpegPauseSub(ArpegPlayer::Mode mode,
                               int numOutput) {
     testArpegSubx(mode, input, numInput, expectedOutput, numOutput);
 
-    printf("\nnow doing - mode\n");
     // everyone should output zero when fed with it
     std::pair<float, float> zeros[3] = {std::make_pair(0.f, 0.f)};
     testArpegSubx(mode, input, 0, zeros, 2);
