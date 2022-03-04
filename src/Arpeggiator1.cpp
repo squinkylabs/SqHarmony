@@ -107,21 +107,30 @@ struct Arpeggiator1Widget : ModuleWidget {
 
         addLabel(Vec(28, 5), "Arpeggiator");
 
+        float dy = 47;          // 44 a little  too close
         float yOut = 320;
-        float yIn = 260;
+        float yIn2 = yOut -dy ;  
+
+        float yIn1 = yIn2 - dy;
+
         float xLeft = 10;
         float dx = 32;
 
-        //  float y = 40;
-        addInputL(Vec(xLeft, yIn), Comp::CV_INPUT, "CV");
-        addInputL(Vec(xLeft + dx, yIn), Comp::GATE_INPUT, "Gate");
-        addInputL(Vec(xLeft + 2 * dx, yIn), Comp::CLOCK_INPUT, "Clk");
-        addInputL(Vec(xLeft + 3 * dx, yIn), Comp::RESET_INPUT, "Rst");
+        // first row, yIn1
+        addInputL(Vec(xLeft + 0 * dx, yIn1), Comp::CLOCK_INPUT, "Clk");
+        addInputL(Vec(xLeft + 1 * dx, yIn1), Comp::RESET_INPUT, "Rst");
 
-        //  float shift = 20;
+        //  second row
+        addInputL(Vec(xLeft, yIn2), Comp::CV_INPUT, "CV");
+        addInputL(Vec(xLeft + dx, yIn2), Comp::CV2_INPUT, "CV2");
+        addInputL(Vec(xLeft + 2 * dx, yIn2), Comp::GATE_INPUT, "Gate");
+       
+
+        //  third row
         addOutputL(Vec(xLeft, yOut), Comp::CV_OUTPUT, "CV");
-        addOutputL(Vec(xLeft + dx, yOut), Comp::GATE_OUTPUT, "Gate");
-        addOutputL(Vec(xLeft + dx * 2, yOut), Comp::EOC_OUTPUT, "EOC");
+        addOutputL(Vec(xLeft + dx, yOut), Comp::CV2_OUTPUT, "CV2");
+        addOutputL(Vec(xLeft + 2 * dx, yOut), Comp::GATE_OUTPUT, "Gate");
+     //  addOutputL(Vec(xLeft + dx * 2, yOut), Comp::EOC_OUTPUT, "EOC");
 
         const float yMode = 42;
         std::vector<std::string> labels = Comp::modes();
@@ -189,6 +198,8 @@ struct Arpeggiator1Widget : ModuleWidget {
         label->box.pos = v;
         label->text = str;
         label->color = white;
+      //  SQINFO("label size = %f\n", label->fontSize);
+        label->fontSize = 12;       // 13 is default
         addChild(label);
         return label;
     }
