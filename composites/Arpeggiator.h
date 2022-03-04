@@ -114,6 +114,7 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
 
     if (monoGates) {
         // for mono gates, just look at gate[0], but send to to all cv channels
+        //SQDEBUG("gate delay will process mg input=%f", TBase::inputs[GATE_INPUT].getVoltage(0));
         gateDelay.process(TBase::inputs[GATE_INPUT], gates);
         bool gate = gateDelay.getGate(0);
         if (gate != lastGate[0]) {
@@ -123,6 +124,7 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
             }     
         }
     } else {
+        //SQDEBUG("gate delay will process !mg input=%f", TBase::inputs[GATE_INPUT].getVoltage(0));
         gateDelay.process(TBase::inputs[GATE_INPUT], gates);
         for (int ch = 0; ch < gates; ++ch) {
             //bool gate = TBase::inputs[GATE_INPUT].getVoltage(ch);
@@ -181,6 +183,11 @@ inline void Arpeggiator<TBase>::onClockChange(bool clockFired, bool clockValue) 
         TBase::outputs[CV2_OUTPUT].setVoltage(cvs.second, 0);
     }
 
+    if (hiddenPlayer.empty()) {
+        clockValue = false;
+        SQDEBUG("AM muting everything, no notes, clockFired=%d, value=%d", clockFired, clockValue);  
+    }
+
     if (allGatesLow) {
        // SQDEBUG("setting clock value low because all low. will force gate low\n");
        // clockValue = false;
@@ -220,7 +227,7 @@ inline void Arpeggiator<TBase>::processParams() {
         TBase::params[HOLD_PARAM].value = holdVoltage;
         hold = bool(holdVoltage);
     } else {
-        hold = int(std::round(TBase::params[MODE_PARAM].value));
+        hold = bool(std::round(TBase::params[HOLD_PARAM].value));
     }
 
     outerPlayer.setLength(beats);

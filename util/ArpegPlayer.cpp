@@ -1,5 +1,6 @@
 
 #include "ArpegPlayer.h"
+#include "SqLog.h"
 
 ArpegPlayer::ArpegPlayer(NoteBuffer* nb) : noteBuffer(nb) {
     // printf("**** ctor of ArpegPlayer\n");
@@ -7,6 +8,7 @@ ArpegPlayer::ArpegPlayer(NoteBuffer* nb) : noteBuffer(nb) {
         // printf("* ArpegPlayer callback onChange, set dataChange true\n");
         this->dataChanged = true;
     });
+    SQDEBUG("ctor of AP, empty=%d", this->empty());
 }
 
 void ArpegPlayer::setMode(Mode m) {
@@ -30,6 +32,10 @@ void ArpegPlayer::reset() {
         // this is just a test
         // assert(false);
     }
+}
+
+bool ArpegPlayer::empty() const {
+    return playbackSize < 1;
 }
 
 std::pair<float, float>  ArpegPlayer::clock() {
@@ -99,7 +105,7 @@ std::pair<float, float>  ArpegPlayer::clock() {
     }
 
     if (playbackSize < 1) {
-        return std::make_pair(0, 0);
+        return std::make_pair(0.f, 0.f);
     }
     assert(playbackIndex >= 0);
     const auto ret = playbackBuffer[playbackIndex];
@@ -219,6 +225,7 @@ void ArpegPlayer::refillPlaybackSHUFFLE() {
 }
 
 void ArpegPlayer::refillPlaybackUP() {
+    SQDEBUG("ArpegPlayer::refillPlaybackUP()");
     copyAndSort();
     for (int i = 0; i < noteBuffer->size(); ++i) {
         playbackBuffer[i] = sortBuffer[i];
@@ -226,6 +233,7 @@ void ArpegPlayer::refillPlaybackUP() {
     // todo: don't do full reset on playback change
     // playbackIndex = 0;
     playbackSize = noteBuffer->size();
+     SQDEBUG("ArpegPlayer::refillPlaybackUP() leave with size=%d", playbackSize);
    // printf("refillPlaybackUP set index to %d size=%d\n", playbackIndex, playbackSize);
 }
 

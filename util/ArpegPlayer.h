@@ -28,6 +28,7 @@ public:
     /** clock it and get the next note
      */
     std::pair<float, float> clock();
+    bool empty() const;
 
     void setMode(Mode m);
     static std::vector<std::string> modes() {
@@ -52,7 +53,6 @@ private:
 
     std::pair<float, float> playbackBuffer[4 + 2 * (1 + NoteBuffer::maxCapacity)];
     std::pair<float, float>  sortBuffer[NoteBuffer::maxCapacity];
-   // bool needUpdate = true;
     int playbackIndex = -1;
     int playbackSize = 0;
 

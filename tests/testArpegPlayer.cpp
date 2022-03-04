@@ -10,6 +10,7 @@ static void testArpegPlayerOneNote() {
     const auto x = ap.clock();
     assertEQ(x.first, 5);
     assertEQ(x.second, 12);
+    assert(!ap.empty());
 }
 
 #define assertPair(p, a, b) \
@@ -32,6 +33,8 @@ static void testArpegPlayerTwoNotes() {
     // back to start
     x = ap.clock();
     assertPair(x, 5, 99);
+
+    assert(!ap.empty());
 }
 
 static void testArpegPlayerZeroNotes() {
@@ -42,6 +45,7 @@ static void testArpegPlayerZeroNotes() {
     ArpegPlayer ap(&nb);
     const auto x = ap.clock();
     assertPair(x, 0, 0);
+    assert(ap.empty());
 }
 
 // no pause, simpler version

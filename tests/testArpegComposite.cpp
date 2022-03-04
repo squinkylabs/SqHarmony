@@ -19,28 +19,36 @@ void connectInputs(ArpPtr arp, int numInputChannels) {
 }
 
 static void testNoGate() {
+    SQDEBUG("---- testNoGate");
     auto arp = make();
     connectInputs(arp, 1);
     auto args = TestComposite::ProcessArgs();
 
+    // set a cv input, no gate
     arp->inputs[Comp::CV_INPUT].value = 2;
     arp->inputs[Comp::GATE_INPUT].value = 0;
 
     assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 0);
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, 0);
 
+    // now click in the gate
     arp->inputs[Comp::CLOCK_INPUT].value = 10;
+    SQDEBUG("test about to call proc");
     arp->process(args);
 
+    // we should have no output, since no gate
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, 0);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 0);
 }
 
 static void clockCycle(ArpPtr arp) {
+    SQDEBUG("test cycle clock about to set clock low and process");
     auto args = TestComposite::ProcessArgs();
     arp->inputs[Comp::CLOCK_INPUT].value = 0;
     arp->process(args);
+    SQDEBUG("test cycle clock about to set clock higth and process");
     arp->inputs[Comp::CLOCK_INPUT].value = 10;
+    assert(arp->inputs[Comp::CLOCK_INPUT].getVoltage(0) == 10);
     arp->process(args);
 }
 
@@ -69,6 +77,7 @@ static void testHold() {
     auto args = TestComposite::ProcessArgs();
 
     arp->params[Comp::HOLD_PARAM].value = 1;
+    SQDEBUG("Just set hold param to %f", arp->params[Comp::HOLD_PARAM].value);
     arp->inputs[Comp::CV_INPUT].value = 2;
     arp->inputs[Comp::CV2_INPUT].value = 22;
     arp->inputs[Comp::GATE_INPUT].value = 10;
@@ -76,11 +85,14 @@ static void testHold() {
     assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 0);
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, 0);
 
+    SQDEBUG("test about to fire clock, have gate input set high");
     // clock in the gate
     clockCycle(arp);
 
     // now lower the gate input
     arp->inputs[Comp::GATE_INPUT].value = 0;
+
+    SQDEBUG("test about to fire clock, have gate input set low");
     clockCycle(arp);
 
     // with hold on, should still have a gate.
@@ -405,8 +417,8 @@ static void testTriggerDelay(bool delayOn) {
 }
 
 void testArpegComposite() {
-    printf("imp testNoGate\n");
-    //testNoGate();
+    // printf("imp testNoGate\n");
+    testNoGate();
     testGate();
     testHold();
     testNotesBeforeClock();
