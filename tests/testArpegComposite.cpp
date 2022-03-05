@@ -416,6 +416,36 @@ static void testTriggerDelay(bool delayOn) {
     }
 }
 
+static void testReleaseMidClock(bool gatedClock) {
+
+    auto arp = make();
+    connectInputs(arp, 1);
+    auto args = TestComposite::ProcessArgs();
+
+    // high gate
+    arp->inputs[Comp::CV_INPUT].value = 2;
+    arp->inputs[Comp::CV2_INPUT].value = 22;
+    arp->inputs[Comp::GATE_INPUT].value = 10;
+
+    arp->params[Comp::GATE_CLOCKED_PARAM].value = gatedClock ? 1.f : 0.f;
+
+    // clock l then h
+    clockCycle(arp);
+
+    // we expect new note (already tested);
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutHi);
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 2);
+
+    // clock still high, take gate down.
+    arp->inputs[Comp::GATE_INPUT].value = 0;
+    arp->process(args);
+
+    // now expect gate stays high. even without the extra gate logic, it does this.
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutHi);
+
+
+}
+
 void testArpegComposite() {
     // printf("imp testNoGate\n");
     testNoGate();
@@ -429,4 +459,7 @@ void testArpegComposite() {
     testMonoGate();
     testTriggerDelay(false);
     testTriggerDelay(true);
+
+    testReleaseMidClock(false);
+    testReleaseMidClock(true);
 }

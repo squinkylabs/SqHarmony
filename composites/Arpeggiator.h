@@ -9,6 +9,8 @@
 #include "NoteBuffer.h"
 #include "SeqClock.h"
 
+//#define _GCK        // gate clocked
+
 namespace rack {
 namespace engine {
 struct Module;
@@ -36,6 +38,7 @@ public:
         POLY_PARAM,     // not used yet?
         RESET_MODE_PARAM,
         GATE_DELAY_PARAM,
+        GATE_CLOCKED_PARAM,     // if true, gate only changes on clock rising edge.
         NUM_PARAMS
     };
     enum InputIds {
