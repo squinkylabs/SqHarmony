@@ -4,6 +4,7 @@
 //#include "SqHelper.h"
 //#include "SqUI.h"
 #include "rack.hpp"
+#include "SqUI.h"
 
 /**
  * This menu item takes generic lambdas,

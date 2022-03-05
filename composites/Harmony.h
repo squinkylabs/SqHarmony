@@ -29,6 +29,8 @@ public:
     }
 
     enum ParamIds {
+        SCORE_COLOR_PARAM,  // 0 is white notes, 1 is black notes
+        SCORE_GLOW_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

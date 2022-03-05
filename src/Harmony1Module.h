@@ -14,18 +14,15 @@ public:
     Harmony1Module() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         // configParam(PITCH_PARAM, 0, 10, 4, "Initial Pitch");
-        /*
-            BASS_OUTPUT,
-        TENOR_OUTPUT,
-        ALTO_OUTPUT,
-        SOPRANO_OUTPUT,
-        */
+        this->configParam(Comp::SCORE_COLOR_PARAM, 0, 1, 0, "Invert Score colors");
+        this->configParam(Comp::SCORE_GLOW_PARAM, 0, 1, 0, "Score Glow");
+
         this->configOutput(Comp::BASS_OUTPUT, "Bass voice pitch");
         this->configOutput(Comp::TENOR_OUTPUT, "Tenor voice pitch");
         this->configOutput(Comp::ALTO_OUTPUT, "Alto voice pitch");
         this->configOutput(Comp::SOPRANO_OUTPUT, "Soprano voice pitch");
 
-        this->configInput(Comp::CV_INPUT, "Chord root scale degee");
+        this->configInput(Comp::CV_INPUT, "Chord root scale degree");
     }
 
     using Chord = Comp::Chord;

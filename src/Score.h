@@ -24,9 +24,9 @@ class BufferingParent : public Widget {
 public:
     /**
      * @brief Construct a new Buffering Parent object
-     * 
+     *
      * @param childWidget is the widget that will do all the work
-     * @param size the size at which to create/set 
+     * @param size the size at which to create/set
      * @param dd usually will be childWidget, and childWidget will implement Dirty
      */
     BufferingParent(Widget *childWidget, const Vec size, Dirty *dd) {
@@ -51,6 +51,7 @@ private:
     FramebufferWidget *fw = nullptr;
     Dirty *dirtyDetector = nullptr;
 };
+//     return APP->engine->getParamValue(module, paramId) > .5;
 
 class Score : public app::LightWidget, public Dirty {
 public:
@@ -59,7 +60,11 @@ public:
     void draw(const DrawArgs &args) override;
     bool isDirty() const override {
         return scoreIsDirty;
-     }
+    }
+
+    void setWhiteOnBlack(bool b) {
+        whiteOnBlack = b;
+    }
 
 private:
     bool scoreIsDirty = false;
@@ -88,6 +93,7 @@ private:
 
     Harmony1Module *const module;
     std::list<Comp::Chord> chords;
+    bool whiteOnBlack = true;
 
     const std::string noteQuarterUp = u8"\ue1d5";
     const std::string noteQuarterDown = u8"\ue1d6";
@@ -101,6 +107,8 @@ private:
     void drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord);
     void drawMusic(const DrawArgs &args);
     void drawText(const DrawArgs &args);
+    NVGcolor getForegroundColor();
+    NVGcolor getBackgroundColor();
 
     // Y axis pos
     const float topMargin = 36.5f;
@@ -126,6 +134,14 @@ private:
     const float barlineX1 = xClef + 61;  //  small 63 big
     // const float barlineX2 = barlineX1 + 43;     // 40 too small 46 too big
 };
+
+NVGcolor Score::getForegroundColor() {
+    return whiteOnBlack ?  nvgRGB(0xff, 0xff, 0xff)  : nvgRGB(0, 0, 0);
+}
+
+NVGcolor Score::getBackgroundColor() {
+    return whiteOnBlack ?  nvgRGB(0, 0, 0)  : nvgRGB(0xff, 0xff, 0xff);
+}
 
 inline Score::Score(Harmony1Module *m) : module(m) {
 #ifdef _TESTCHORD
@@ -159,7 +175,7 @@ inline void Score::step() {
         }
     }
 #endif
-    LightWidget::step();
+    Widget::step();
 }
 
 inline float Score::noteXPos(int noteNumber) const {
@@ -240,14 +256,14 @@ inline void Score::drawText(const DrawArgs &args) {
 }
 
 inline void Score::drawMusic(const DrawArgs &args) {
-    NVGcolor color = nvgRGB(0, 0, 0);
+    NVGcolor color = getBackgroundColor();
 
     // TODO : USE SIZE
     filledRect(args.vg, color, 0, 0, 200, 200);
 
     prepareFontMusic(args);
 
-    color = nvgRGB(0xff, 0xff, 0xff);
+    color = getForegroundColor();
     // Background text
     nvgFillColor(args.vg, color);
 
@@ -314,7 +330,8 @@ inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chor
 inline void Score::drawStaff(const DrawArgs &args, float yBase) {
     const float x = xStaff;
     const float length = args.clipBox.size.x - 2 * leftMargin;
-    auto color = nvgRGB(0xff, 0xff, 0xff);
+    // auto color = nvgRGB(0xff, 0xff, 0xff);
+    const auto color = getForegroundColor();
     for (int i = 0; i < 5; ++i) {
         float y = yBase - 2.f * float(i) * spaceBetweenLines;
         drawHLine(args.vg, color, x, y, length, .5f);
@@ -322,7 +339,7 @@ inline void Score::drawStaff(const DrawArgs &args, float yBase) {
 }
 
 inline void Score::drawBarLine(const DrawArgs &args, float x, float y) {
-    auto color = nvgRGB(0xff, 0xff, 0xff);
+    auto color = getForegroundColor();
     drawVLine(args.vg, color, x, y, barlineHeight, .5f);
 }
 

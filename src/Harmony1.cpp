@@ -5,6 +5,8 @@
 #include "WidgetComposite.h"
 #include "Harmony1Module.h"
 
+#include "SqMenuItem.h"
+
 struct Harmony1Widget : ModuleWidget {
     Harmony1Widget(Harmony1Module* module) {
         setModule(module);
@@ -23,6 +25,28 @@ struct Harmony1Widget : ModuleWidget {
         addOutputL(Vec(vlx + 3 * vdelta, vy), Comp::SOPRANO_OUTPUT, "S");
 
         addScore(module);
+    }
+
+    void appendContextMenu(Menu* theMenu) override {
+        MenuLabel* spacerLabel = new MenuLabel();
+        theMenu->addChild(spacerLabel);
+
+        SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SCORE_COLOR_PARAM);
+        item->text = "Black notes on white paper";
+        theMenu->addChild(item);
+
+     //   item = new SqMenuItem_BooleanParam2(module, Comp::GATE_DELAY_PARAM);
+     //   item->text = "Gate Delay";
+     //   theMenu->addChild(item);
+    }
+
+    void step() override {
+        ModuleWidget::step();
+        if (module) {
+            bool whiteOnBlack =  APP->engine->getParamValue(module, Comp::SCORE_COLOR_PARAM) < .5;
+          //       SCORE_COLOR_PARAM,  // 0 is white notes, 1 is black notes
+            _score->setWhiteOnBlack(whiteOnBlack);
+        }
     }
 
     void addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
@@ -56,13 +80,17 @@ struct Harmony1Widget : ModuleWidget {
         return label;
     }
     void addScore(Harmony1Module* module);
+    Score* _score = nullptr;
+
+
+
 };
 
 
 void Harmony1Widget::addScore(Harmony1Module *module) {
-    auto score = new Score(module);
+    _score = new Score(module);
     auto size = Vec(120, 100);
-    auto vu = new BufferingParent(score, size, score);
+    auto vu = new BufferingParent(_score, size, _score);
   //  auto vu = new BufferedScore(module);
    // auto vu = new Score(module);
  //   vu->box.size = Vec(120, 100);
