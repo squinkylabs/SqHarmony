@@ -15,16 +15,54 @@ class Harmony1Module;
 
 // #define _TESTCHORD
 
-class Score : public app::LightWidget {
+class Dirty {
 public:
-    Score(Harmony1Module *);
-    void draw(const DrawArgs &args) override;
-    void step() override;
+    virtual bool isDirty() const = 0;
+};
 
-    //  using Comp = Harmony1Module;
-    void onNewChord(Comp::Chord newChord);
+class BufferingParent : public Widget {
+public:
+    /**
+     * @brief Construct a new Buffering Parent object
+     * 
+     * @param childWidget is the widget that will do all the work
+     * @param size the size at which to create/set 
+     * @param dd usually will be childWidget, and childWidget will implement Dirty
+     */
+    BufferingParent(Widget *childWidget, const Vec size, Dirty *dd) {
+        this->box.size = size;
+        childWidget->box.size = size;
+        dbg = childWidget;
+        fw = new FramebufferWidget();
+        this->addChild(fw);
+        fw->addChild(childWidget);
+        dirtyDetector = dd;
+    }
+
+    void step() override {
+        Widget::step();
+        if (dirtyDetector && dirtyDetector->isDirty()) {
+            fw->dirty = true;
+        }
+    }
 
 private:
+    Widget *dbg = nullptr;
+    FramebufferWidget *fw = nullptr;
+    Dirty *dirtyDetector = nullptr;
+};
+
+class Score : public app::LightWidget, public Dirty {
+public:
+    Score(Harmony1Module *);
+    void step() override;
+    void draw(const DrawArgs &args) override;
+    bool isDirty() const override {
+        return scoreIsDirty;
+     }
+
+private:
+    bool scoreIsDirty = false;
     void filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h) const;
     void drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
     void drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
@@ -41,9 +79,9 @@ private:
     };
     /**
      * @brief get info about vertical placement
-     * 
-     * @param note 
-     * @param bassStaff 
+     *
+     * @param note
+     * @param bassStaff
      * @return std::pair<float, bool> first is the y position, second it flag if need ledger line
      */
     YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
@@ -67,10 +105,10 @@ private:
     // Y axis pos
     const float topMargin = 36.5f;
     const float yTrebleStaff = topMargin + 0;
-    const float yBassStaff = yTrebleStaff + 42;  // 28 way too close
+    const float yBassStaff = yTrebleStaff + 42;    // 28 way too close
     const float yTrebleClef = yTrebleStaff - 3.3;  // 3 a little low, 4 way high
-    const float yBassClef = yBassStaff - 10;     // 11 too much
-    const float yNoteInfo = yBassStaff + 12;     // 0 too high
+    const float yBassClef = yBassStaff - 10;       // 11 too much
+    const float yNoteInfo = yBassStaff + 12;       // 0 too high
 
     // X axis pos
     const float leftMargin = 5.5f;
@@ -86,7 +124,7 @@ private:
 
     //  const float barlineX0 = leftMargin;
     const float barlineX1 = xClef + 61;  //  small 63 big
-    //const float barlineX2 = barlineX1 + 43;     // 40 too small 46 too big
+    // const float barlineX2 = barlineX1 + 43;     // 40 too small 46 too big
 };
 
 inline Score::Score(Harmony1Module *m) : module(m) {
@@ -98,14 +136,13 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     ch.pitch[2] = 0;
     ch.pitch[3] = 0;
 
-
     // bass
     ch.pitch[0] = MidiNote::MiddleC - (12);
     ch.pitch[1] = MidiNote::MiddleC;
     ch.pitch[2] = MidiNote::MiddleC + 4;
     ch.pitch[3] = MidiNote::MiddleC + 8;
     chords.push_back(ch);
-   
+
 #endif
 }
 
@@ -113,6 +150,7 @@ inline void Score::step() {
 #ifndef _TESTCHORD
     if (module) {
         if (module->isChordAvailable()) {
+            scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
             if (chords.size() > 8) {
@@ -181,9 +219,11 @@ inline Score::YInfo Score::noteYInfo(const MidiNote &note, bool bassStaff) const
 }
 
 inline void Score::draw(const DrawArgs &args) {
+    INFO("Score::draw");
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     drawMusic(args);
     drawText(args);
+    scoreIsDirty = false;
 }
 
 inline void Score::drawText(const DrawArgs &args) {
@@ -259,7 +299,7 @@ inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chor
     {
         std::stringstream s;
         s << chord.inversion;
-        nvgText(args.vg, x, yNoteInfo+8, s.str().c_str(), NULL);
+        nvgText(args.vg, x, yNoteInfo + 8, s.str().c_str(), NULL);
     }
 #if 0
     std::stringstream s;

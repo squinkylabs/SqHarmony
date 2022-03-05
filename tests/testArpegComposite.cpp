@@ -26,6 +26,7 @@ static void testNoGate() {
 
     // set a cv input, no gate
     arp->inputs[Comp::CV_INPUT].value = 2;
+    arp->inputs[Comp::CV2_INPUT].value = 3;
     arp->inputs[Comp::GATE_INPUT].value = 0;
 
     assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 0);
@@ -39,6 +40,7 @@ static void testNoGate() {
     // we should have no output, since no gate
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, 0);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 0);
+    assertEQ(arp->outputs[Comp::CV2_OUTPUT].value, 0);
 }
 
 static void clockCycle(ArpPtr arp) {
@@ -68,6 +70,7 @@ static void testGate() {
 
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutHi);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 2);
+    assertEQ(arp->outputs[Comp::CV2_OUTPUT].value, 22);
 }
 
 static void testHold() {
@@ -417,7 +420,6 @@ static void testTriggerDelay(bool delayOn) {
 }
 
 static void testReleaseMidClock(bool gatedClock) {
-
     auto arp = make();
     connectInputs(arp, 1);
     auto args = TestComposite::ProcessArgs();
@@ -443,7 +445,44 @@ static void testReleaseMidClock(bool gatedClock) {
     // now expect gate stays high. even without the extra gate logic, it does this.
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutHi);
 
+    // clock goes down, should shut off
+    arp->inputs[Comp::CLOCK_INPUT].value = 0;
+    arp->process(args);
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutLow);
 
+    // clock goes high again, should stay off
+    arp->inputs[Comp::CLOCK_INPUT].value = 10;
+    arp->process(args);
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutLow);
+}
+
+static void testStartMidClock(bool gatedClock) {
+    auto arp = make();
+    connectInputs(arp, 1);
+    auto args = TestComposite::ProcessArgs();
+
+    // start with low gate.
+    arp->inputs[Comp::CV_INPUT].value = 2;
+    arp->inputs[Comp::CV2_INPUT].value = 22;
+    arp->inputs[Comp::GATE_INPUT].value = cGateLow;
+
+    arp->params[Comp::GATE_CLOCKED_PARAM].value = gatedClock ? 1.f : 0.f;
+
+    // clock l cycle, expect still low out.
+    clockCycle(arp);
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutLow);
+    clockCycle(arp);
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutLow);
+
+    // make sure clock is low
+    arp->inputs[Comp::CLOCK_INPUT].value = cGateOutLow;
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutLow);
+
+    // now raise gate
+    arp->inputs[Comp::GATE_INPUT].value = cGateHi;
+    clockCycle(arp);
+
+    assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutLow);
 }
 
 void testArpegComposite() {
@@ -462,4 +501,6 @@ void testArpegComposite() {
 
     testReleaseMidClock(false);
     testReleaseMidClock(true);
+
+    testStartMidClock(false);
 }

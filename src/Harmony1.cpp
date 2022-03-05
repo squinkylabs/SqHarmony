@@ -60,11 +60,16 @@ struct Harmony1Widget : ModuleWidget {
 
 
 void Harmony1Widget::addScore(Harmony1Module *module) {
-    auto vu = new Score(module);
-    vu->box.size = Vec(120, 100);
+    auto score = new Score(module);
+    auto size = Vec(120, 100);
+    auto vu = new BufferingParent(score, size, score);
+  //  auto vu = new BufferedScore(module);
+   // auto vu = new Score(module);
+ //   vu->box.size = Vec(120, 100);
 
     // 9 too far right
     vu->box.pos = Vec(7, 36),
+    INFO("create bp, set width to %f", vu->box.size.x);
     addChild(vu);
 }
 
