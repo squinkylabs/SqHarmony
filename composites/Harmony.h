@@ -135,7 +135,7 @@ inline void Harmony<TBase>::stepn() {
         OutputIds x = OutputIds(portIndex + BASS_OUTPUT);
         const bool connected = Harmony<TBase>::outputs[x].isConnected();
         if (connected) {
-            SQINFO("assign output %d with %d voices", portIndex, 1 + debt);
+            // SQINFO("assign output %d with %d voices", portIndex, 1 + debt);
             Harmony<TBase>::outputs[x].setChannels(1 + debt);
 
             for (int i = 0; i <= debt; ++i) {
@@ -201,10 +201,12 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
 
     // generate a new chord any time the quantizer outputs a new pitch
     if (quantizedNote.get() != lastQuantizedPitch) {
+        #if 0
         printf("got new Q pitch v=%f semis=%f q=%f\n",
                input,
                input * 12,
                quantizedNote.get());
+         #endif
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
 

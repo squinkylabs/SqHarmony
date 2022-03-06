@@ -120,6 +120,7 @@ const Chord4* HarmonyChords::find(
 
 int HarmonyChords::progressionPenalty(
     const Options& options,
+  //  int bestSoFar,
     const Chord4* prevPrev,
     const Chord4* prev,
     const Chord4* current,
@@ -132,8 +133,14 @@ int HarmonyChords::progressionPenalty(
 
     // printf("isProgressionOK about to call can follow\n");
   //  const bool canFollow = current->canFollowThisGuy(options, *prev);
-    int currentPenalty = current->penaltForFollowingThisGuy(options, *prev, show);
+    int currentPenalty = current->penaltForFollowingThisGuy(options, 
+        //bestSoFar, 
+        *prev, show);
     if (!prevPrev) {
+        return currentPenalty;
+    }
+
+    if (currentPenalty < 0) {
         return currentPenalty;
     }
 
@@ -148,75 +155,3 @@ int HarmonyChords::progressionPenalty(
     }
     return currentPenalty;
 }
-
-
-#if 0  // orig, before penalty
-const Chord4* HarmonyChords::find(
-    const Options& options,
-    const Chord4Manager& manager,
-    const Chord4* prevPrev,
-    const Chord4* prev,
-    int root) {
-    if (prev && prevPrev) {
-        printf("find called with prevOrev %s (root %d)\n", prevPrev->toString().c_str(), prevPrev->fetchRoot());
-        printf("  .. prev %s (root %d)\n",
-               prev->toString().c_str(),
-               prev->fetchRoot());
-        printf(" .. and cur root % d\n", root);
-    } else if (prev) {
-        printf("find called with prev %s (root %d) and cur root %d\n",
-               prev->toString().c_str(),
-               prev->fetchRoot(),
-               root);
-    }
-
-    assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
-    assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
-
-    const int ppr = prevPrev ? prevPrev->fetchRoot() : -1;
-    const int pr = prev ? prev->fetchRoot() : -1;
-
-    const int size = manager.size(root);
-    int rankToTry = 0;
-    printf("in find, rank start = %d, size=%d\n", rankToTry, size);
-    for (bool done = false; !done; ++rankToTry) {
-        if (rankToTry >= size) {
-            //assert(false);  // give up
-            printf("find is giving up\n");
-            return nullptr;
-        }
-        const Chord4* currentChord = manager.get2(root, rankToTry);
-        if (progressionOK(options, prevPrev, prev, currentChord)) {
-            printf("find returning rand %d\n", rankToTry);
-            return currentChord;
-        }
-    }
-    return nullptr;
-}
-
-bool HarmonyChords::progressionOK(const Options& options,
-                                  const Chord4* prevPrev,
-                                  const Chord4* prev,
-                                  const Chord4* current) {
-    assert(current);
-    if (!prevPrev && !prev) {
-        return true;  // chord on its own is always ok
-    }
-    // printf("isProgressionOK about to call can follow\n");
-    const bool canFollow = current->canFollowThisGuy(options, *prev);
-    if (!prevPrev || !canFollow) {
-        //  printf("can2 %s to %s ret %d\n", prev->toString().c_str(), current->toString().c_str(), canFollow);
-        return canFollow;
-    }
-
-    const bool firstEqualsThird = (*current == *prevPrev);
-    if (firstEqualsThird) {
-        printf("rejecting %s\n", current->toString().c_str());
-        printf("first = %s\n", prevPrev->toString().c_str());
-        printf("second = %s\n", prev->toString().c_str());
-    }
-    return !firstEqualsThird;
-
-    //return canFollow && !(*current == *prevPrev);
-}
-#endif

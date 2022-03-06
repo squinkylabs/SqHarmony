@@ -14,7 +14,7 @@ struct Harmony1Widget : ModuleWidget {
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-4.svg")));
 
         addLabel(Vec(28, 5), "Harmony");
-        addInputL(Vec(50, 260), Comp::CV_INPUT, "Root");
+        addInputL(Vec(50, 280), Comp::CV_INPUT, "Root");
 
         const float vlx = 12;
         const float vdelta = 30;
@@ -49,9 +49,13 @@ struct Harmony1Widget : ModuleWidget {
         p->text = "Maj";
         addParam(p);
 
-        const float ySwitch = 210;
+        float ySwitch = 200;
         addParam(createParam<CKSSThree>(Vec(xx+50, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
         addLabel(Vec(xx - 30, ySwitch), "Inv. Pref");
+
+        ySwitch += 30;
+        addParam(createParam<CKSSThree>(Vec(xx+50, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
+        addLabel(Vec(xx - 30, ySwitch), "Cnt. Pref");
     }
 
     void appendContextMenu(Menu* theMenu) override {
