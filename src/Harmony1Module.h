@@ -16,6 +16,14 @@ public:
         // configParam(PITCH_PARAM, 0, 10, 4, "Initial Pitch");
         this->configParam(Comp::SCORE_COLOR_PARAM, 0, 1, 0, "Invert Score colors");
         this->configParam(Comp::SCORE_GLOW_PARAM, 0, 1, 0, "Score Glow");
+        this->configParam(Comp::SCHEMA_PARAM, 0, 1, 0, "hidden schema");
+        this->configParam(Comp::KEY_PARAM, 0, 0, 0, "Key: not implemented");
+        this->configParam(Comp::MODE_PARAM, 0, 0, 0, "Mode: not implemented");
+
+        this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"None", "A little", "A lot"});
+        this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "A little", "A lot"});
+     //    INVERSION_PREFERENCE_PARAM,
+     //   CENTER_PREFERENCE_PARAM,
 
         this->configOutput(Comp::BASS_OUTPUT, "Bass voice pitch");
         this->configOutput(Comp::TENOR_OUTPUT, "Tenor voice pitch");

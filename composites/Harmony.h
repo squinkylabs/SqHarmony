@@ -33,6 +33,11 @@ public:
     enum ParamIds {
         SCORE_COLOR_PARAM,  // 0 is white notes, 1 is black notes
         SCORE_GLOW_PARAM,
+        SCHEMA_PARAM,
+        KEY_PARAM,
+        MODE_PARAM,
+        INVERSION_PREFERENCE_PARAM,
+        CENTER_PREFERENCE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -143,10 +148,12 @@ inline void Harmony<TBase>::stepn() {
             debt++;
         }
     }
+#if 0
     SQINFO("final debt = %d", debt);
     for (int i = 0; i < 4; ++i) {
         SQINFO("voice %d output = %d, channel = %d", i, voiceToOutput[i], voiceToChannel[i]);
     }
+#endif
 }
 
 template <class TBase>
@@ -157,11 +164,8 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     c.root = chord->fetchRoot();
     c.inversion = int(chord->inversion(*chordOptions));
 
-    SQINFO("output pitches %s (bass=%d)", chord->toStringShort().c_str(), (int)harmonyNotes[0]);
-  //  fflush(stdout);
+   // SQINFO("output pitches %s (bass=%d)", chord->toStringShort().c_str(), (int)harmonyNotes[0]);
 
-  //    int voiceToOutput[4] = {BASS_OUTPUT, TENOR_OUTPUT, ALTO_OUTPUT, SOPRANO_OUTPUT};
- //   int voiceToChannel[4] = {0};
     for (int i = 0; i < 4; ++i) {
         MidiNote mn(12 + harmonyNotes[i]);  // harmony note and midi note are about the same;
         FloatNote fn;
@@ -169,7 +173,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
         const int outputPort = voiceToOutput[i];
         const int outputChannel = voiceToChannel[i];
         Harmony<TBase>::outputs[outputPort].setVoltage(fn.get(), outputChannel);
-        SQINFO("set output[%d] to %f from base pitch %f", i, fn.get(), fn.get());
+       //SQINFO("set output[%d] to %f from base pitch %f", i, fn.get(), fn.get());
         c.pitch[i] = mn.get();
     }
 
