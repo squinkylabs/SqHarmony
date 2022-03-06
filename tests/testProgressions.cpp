@@ -42,7 +42,7 @@ static void testAtoB(bool show, const char* chordAs, int degA, const char* chord
   //  if (show) {
    //     pa.showAnalysis();
   //  }
-    pa.getPenalty(options);
+    pa.getPenalty(options, ProgressionAnalyzer::MAX_PENALTY);
 
     printf("done with showing penalty\n");
 

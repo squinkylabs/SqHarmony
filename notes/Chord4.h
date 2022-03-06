@@ -96,8 +96,7 @@ public:
     int quality(const Options& options, bool fTalk) const;  // tell how "good" this chord is
                                                             // if ftalk is true, will tell why
 
-    //bool canFollowThisGuy(const Options&, const Chord4& ThisGuy) const;
-    int penaltForFollowingThisGuy(const Options&, const Chord4& ThisGuy, bool show) const;
+    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4& ThisGuy, bool show) const;
 
     const HarmonyNote* fetchNotes() const;  // This returns pointer so you can get at all 4
     const ScaleRelativeNote* fetchSRNNotes() const;

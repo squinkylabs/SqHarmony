@@ -102,7 +102,7 @@ const Chord4* HarmonyChords::find(
         }
         else {
             const Chord4* currentChord = manager.get2(root, rankToTry);
-            const int currentPenalty = progressionPenalty(options, prevPrev, prev, currentChord, show);
+            const int currentPenalty = progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show);
             if (currentPenalty == 0) {
                 printf("found penalty 0\n");
                 return currentChord;
@@ -120,7 +120,7 @@ const Chord4* HarmonyChords::find(
 
 int HarmonyChords::progressionPenalty(
     const Options& options,
-  //  int bestSoFar,
+    int bestSoFar,
     const Chord4* prevPrev,
     const Chord4* prev,
     const Chord4* current,
@@ -134,23 +134,25 @@ int HarmonyChords::progressionPenalty(
     // printf("isProgressionOK about to call can follow\n");
   //  const bool canFollow = current->canFollowThisGuy(options, *prev);
     int currentPenalty = current->penaltForFollowingThisGuy(options, 
-        //bestSoFar, 
+        bestSoFar, 
         *prev, show);
     if (!prevPrev) {
         return currentPenalty;
     }
 
-    if (currentPenalty < 0) {
+    if (currentPenalty > bestSoFar) {
         return currentPenalty;
     }
 
     const bool firstEqualsThird = (*current == *prevPrev);
     
     if (firstEqualsThird) {
+        #if 0
         printf("first equals third\n");
         printf("penalty %s\n", current->toString().c_str());
         printf("first = %s\n", prevPrev->toString().c_str());
         printf("second = %s\n", prev->toString().c_str());
+        #endif
         currentPenalty += ProgressionAnalyzer::PENALTY_FOR_REPEATED_CHORDS;
     }
     return currentPenalty;

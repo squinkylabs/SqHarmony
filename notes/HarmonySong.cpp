@@ -72,7 +72,7 @@ void HarmonySong::analyze(const Options& options) const {
             chords[nChord - 1]->fetch(),
             chords[nChord]->fetch(),
             true);
-        bool f = 0 == p->getPenalty(options);
+        bool f = 0 == p->getPenalty(options, ProgressionAnalyzer::MAX_PENALTY);
         if (!f) {
             assert(false);
         }
@@ -124,7 +124,7 @@ if (nStep == 0)		// if we are starting from top
     int count = 0;
     for (done = ret = false; !done;) {
         //  if (nStep == 0) TRACE("chord 1 %d", count++);
-        if (nStep == 0 || ( 0 < chords[nStep]->penaltyForFollowingThisGuy(options, *chords[nStep - 1], show))) {
+        if (nStep == 0 || ( 0 < chords[nStep]->penaltyForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, *chords[nStep - 1], show))) {
             // if progression is valid to this chord
             // always valid if no prev!
 

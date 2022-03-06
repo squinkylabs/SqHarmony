@@ -573,7 +573,7 @@ bool Chord4::canFollowThisGuy(const Options& options, const Chord4& thisGuy) con
 }
 #endif
 
-int Chord4::penaltForFollowingThisGuy(const Options& options, const Chord4& thisGuy, bool show) const {
+int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4& thisGuy, bool show) const {
     ProgressionAnalyzer analyzer(thisGuy, *this, show);
-    return analyzer.getPenalty(options);
+    return analyzer.getPenalty(options, lowestPenaltySoFar);
 }

@@ -38,7 +38,7 @@ int main(const char**, int) {
    
     testArpegComposite();
 
-#if 0
+#if 1
     printf("testing notes 22\n");
     testNotes();
      printf("testing scales 24\n");

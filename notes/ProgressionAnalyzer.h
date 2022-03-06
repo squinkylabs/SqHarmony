@@ -22,7 +22,7 @@ public:
     static const int MAX_PENALTY = { AVG_PENALTY_PER_RULE * 100};
 
     // 0 means perfect, negative numbers not allowed
-    int getPenalty(const Options&) const;
+    int getPenalty(const Options&, int upperBound) const;
 
 
     static void showAnalysis();

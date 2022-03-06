@@ -65,7 +65,7 @@ public:
     const Chord4& fetch() const;  // get the current chord
     void print() const;           // print the current chord
   //  bool canFollowThisGuy(const Options& options, const RankedChord& TheGuy);
-    int penaltyForFollowingThisGuy(const Options&, const RankedChord& ThisGuy, bool show) const;
+    int penaltyForFollowingThisGuy(const Options&, int lowerBound, const RankedChord& ThisGuy, bool show) const;
 
 private:
     const Chord4Manager& chords;
@@ -81,8 +81,8 @@ inline RankedChord::~RankedChord() {
   //  ChordArray.Del(root);
 }
 
-inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, const RankedChord& theGuy, bool show) const {
-    return fetch().penaltForFollowingThisGuy(options, theGuy.fetch(), show);
+inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, int upperBound, const RankedChord& theGuy, bool show) const {
+    return fetch().penaltForFollowingThisGuy(options, upperBound, theGuy.fetch(), show);
 }
 
 inline void RankedChord::reset() {

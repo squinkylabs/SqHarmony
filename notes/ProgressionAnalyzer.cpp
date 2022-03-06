@@ -32,7 +32,7 @@ if (show)
 #endif
 }
 
-int ProgressionAnalyzer::getPenalty(const Options& options) const {
+int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) const {
 #if 0  // let's get rid of this fake rule
     if (!FakeRuleForDesc(options)) {
         return false;
@@ -40,7 +40,6 @@ int ProgressionAnalyzer::getPenalty(const Options& options) const {
 #endif
     assert(&options);
     assert(this);
-    // assert(!show);
 
     std::stringstream str;
     if (show) {
@@ -56,14 +55,20 @@ int ProgressionAnalyzer::getPenalty(const Options& options) const {
     totalPenalty += p;
     if (p && show) {
         str << "Penalty: RuleForConsecInversions " << p << std::endl;
-       // printf("%s", str.str().c_str());
     }
+
+    if (p >= upperBound) {
+        return p;
+    }
+
 
     p = RuleForLeadingTone();
     totalPenalty += p;
     if (p && show) {
         str << "penalty: RuleForLeadingTone " << p << std::endl;
-       // printf("%s", str.str().c_str());
+    }
+    if (p >= upperBound) {
+        return p;
     }
 
     p = RuleForPara();
@@ -71,32 +76,36 @@ int ProgressionAnalyzer::getPenalty(const Options& options) const {
 
     if (p && show) {
         str << "penalty: RuleForPara " << p << std::endl;
-       // printf("%s", str.str().c_str());
+    }
+    if (p >= upperBound) {
+        return p;
     }
 
     p = RuleForCross();
     totalPenalty += p;
     if (p && show) {
         str << "penalty: RuleForCross " << p << std::endl;
-       // printf("%s", str.str().c_str());
+    }
+    if (p >= upperBound) {
+        return p;
     }
 
     p = Rule4Same();
     totalPenalty += p;
     if (p && show) {
         str << "penalty: Rule4Same " << p << std::endl;
-       // printf("%s", str.str().c_str());
     }
-
-    // what was this??
-    // printf("BUG: returning from get penalty with false\n");
-    // return false;
+    if (p >= upperBound) {
+        return p;
+    }
 
     p = RuleForNoneInCommon(options);
     totalPenalty += p;
     if (p && show) {
         str << "penalty: RuleForNonInCommon " << p << std::endl;
-        //printf("%s", str.str().c_str());
+    }
+    if (p >= upperBound) {
+        return p;
     }
 
     p = ruleForDoubling(options);
@@ -104,12 +113,17 @@ int ProgressionAnalyzer::getPenalty(const Options& options) const {
     if (p && show) {
         str << "penalty: RuleForDoubling " << p << std::endl;
     }
+    if (p >= upperBound) {
+        return p;
+    }
 
     p = RuleForJumpSize();
     totalPenalty += p;
     if (p && show) {
         str << "penalty: RuleForJumpSize " << p << std::endl;
-        //printf("%s", str.str().c_str());
+    }
+    if (p >= upperBound) {
+        return p;
     }
 
     if (show) {
