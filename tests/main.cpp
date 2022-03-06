@@ -62,8 +62,8 @@ int main(const char**, int) {
     testHarmonySong();
      printf("testing h chords\n");
     testHarmonyChords();
-   
+#endif   
     testHarmonyComposite();
-#endif
+
 #endif
 }

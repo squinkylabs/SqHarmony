@@ -58,12 +58,15 @@ public:
     Score(Harmony1Module *);
     void step() override;
     void draw(const DrawArgs &args) override;
+ //   void drawLayer(const DrawArgs &args, int layer) override;
     bool isDirty() const override {
         return scoreIsDirty;
     }
 
     void setWhiteOnBlack(bool b) {
         whiteOnBlack = b;
+        // INFO("set white on block %d", whiteOnBlack );
+        scoreIsDirty = true;
     }
 
 private:
@@ -107,6 +110,8 @@ private:
     void drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord);
     void drawMusic(const DrawArgs &args);
     void drawText(const DrawArgs &args);
+    void drawNotes(const DrawArgs &args);
+
     NVGcolor getForegroundColor();
     NVGcolor getBackgroundColor();
 
@@ -136,11 +141,11 @@ private:
 };
 
 NVGcolor Score::getForegroundColor() {
-    return whiteOnBlack ?  nvgRGB(0xff, 0xff, 0xff)  : nvgRGB(0, 0, 0);
+    return whiteOnBlack ? nvgRGB(0xff, 0xff, 0xff) : nvgRGB(0, 0, 0);
 }
 
 NVGcolor Score::getBackgroundColor() {
-    return whiteOnBlack ?  nvgRGB(0, 0, 0)  : nvgRGB(0xff, 0xff, 0xff);
+    return whiteOnBlack ? nvgRGB(0, 0, 0) : nvgRGB(0xff, 0xff, 0xff);
 }
 
 inline Score::Score(Harmony1Module *m) : module(m) {
@@ -234,12 +239,26 @@ inline Score::YInfo Score::noteYInfo(const MidiNote &note, bool bassStaff) const
     return ret;
 }
 
+#if 0
+// experiment to make notes glow
+inline void Score::drawLayer(const DrawArgs &args, int layer) {
+    if (layer == 1) {
+        prepareFontMusic(args);
+        drawNotes(args);
+        INFO("draw layer 1");
+    }
+    Widget::drawLayer(args, layer);
+}
+#endif
+
 inline void Score::draw(const DrawArgs &args) {
-    INFO("Score::draw");
+    //  INFO("Score::draw");
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     drawMusic(args);
+    drawNotes(args);
     drawText(args);
     scoreIsDirty = false;
+    Widget::draw(args);
 }
 
 inline void Score::drawText(const DrawArgs &args) {
@@ -255,24 +274,7 @@ inline void Score::drawText(const DrawArgs &args) {
     }
 }
 
-inline void Score::drawMusic(const DrawArgs &args) {
-    NVGcolor color = getBackgroundColor();
-
-    // TODO : USE SIZE
-    filledRect(args.vg, color, 0, 0, 200, 200);
-
-    prepareFontMusic(args);
-
-    color = getForegroundColor();
-    // Background text
-    nvgFillColor(args.vg, color);
-
-    drawStaff(args, yTrebleStaff);
-    nvgText(args.vg, xClef, yTrebleClef, gClef.c_str(), NULL);
-
-    drawStaff(args, yBassStaff);
-    nvgText(args.vg, xClef, yBassClef, fClef.c_str(), NULL);
-
+inline void Score::drawNotes(const DrawArgs &args) {
     if (!chords.empty()) {
         // INFO("chords to score %d", int(chords.size()));
         int i = 0;
@@ -296,6 +298,52 @@ inline void Score::drawMusic(const DrawArgs &args) {
             ++i;
         }
     }
+}
+
+inline void Score::drawMusic(const DrawArgs &args) {
+    NVGcolor color = getBackgroundColor();
+
+    // TODO : USE SIZE
+    filledRect(args.vg, color, 0, 0, 200, 200);
+
+    prepareFontMusic(args);
+
+    color = getForegroundColor();
+    // Background text
+    nvgFillColor(args.vg, color);
+
+    drawStaff(args, yTrebleStaff);
+    nvgText(args.vg, xClef, yTrebleClef, gClef.c_str(), NULL);
+
+    drawStaff(args, yBassStaff);
+    nvgText(args.vg, xClef, yBassClef, fClef.c_str(), NULL);
+
+    //   drawNotes(args);
+#if 0
+    if (!chords.empty()) {
+        // INFO("chords to score %d", int(chords.size()));
+        int i = 0;
+        for (auto chord : chords) {
+            const float x = noteXPos(i);
+
+            for (int i = 0; i < 4; ++i) {
+                const bool stemUp = i % 2;
+                auto yInfo = noteYInfo(chord.pitch[i], i < 2);
+
+                for (int i = 0; i < 3; ++i) {
+                    if (yInfo.ledgerPos[i] != 0) {
+                        // printf("drawing ledger at %f\n", yInfo.ledgerPos[i]);
+                        nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
+                    }
+                }
+                const char *note = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
+                // printf("drawing note at %f\n", yInfo.position);
+                nvgText(args.vg, x, yInfo.position, note, NULL);
+            }
+            ++i;
+        }
+    }
+#endif
 
     drawBarLine(args, xStaff, yBassStaff);
     drawBarLine(args, barlineX1, yBassStaff);
