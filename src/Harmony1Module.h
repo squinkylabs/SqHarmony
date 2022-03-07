@@ -20,10 +20,11 @@ public:
         this->configParam(Comp::KEY_PARAM, 0, 0, 0, "Key: not implemented");
         this->configParam(Comp::MODE_PARAM, 0, 0, 0, "Mode: not implemented");
 
+
         this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"None", "A little", "A lot"});
         this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "A little", "A lot"});
-     //    INVERSION_PREFERENCE_PARAM,
-     //   CENTER_PREFERENCE_PARAM,
+        this->configSwitch(Comp::NNIC_PREFERENCE_PARAM, 0, 1, 1, "No Notes in Common rule", {"Disable", "enabled"});
+
 
         this->configOutput(Comp::BASS_OUTPUT, "Bass voice pitch");
         this->configOutput(Comp::TENOR_OUTPUT, "Tenor voice pitch");

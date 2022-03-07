@@ -147,6 +147,9 @@ int ProgressionAnalyzer::RuleForJumpSize() const {
 }
 
 int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
+    assert(false);
+    return 0;           // new handling for inversions
+#if 0
     bool fRet = true;
     if (!options.style->allowConsecInversions()) {
         if ((first.inversion(options) != ROOT_POS_INVERSION) &&
@@ -154,6 +157,7 @@ int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
             fRet = false;
     }
     return fRet ? 0 : AVG_PENALTY_PER_RULE;
+#endif
 }
 
 int  ProgressionAnalyzer::FakeRuleForDesc(const Options& options) const {

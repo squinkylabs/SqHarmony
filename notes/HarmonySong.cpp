@@ -47,9 +47,9 @@ HarmonySong::HarmonySong(const Options& options, const int* pS) : chordManager(o
             chords.push_back(ch);
         }
     }
-    //size = --i;
-    //TRACE ("on HarmonySong const, size = %d, GET = %d, ub = %d\n",
-    //size, chords_ar.GetSize(), chords_ar.GetUpperBound());
+    // size = --i;
+    // TRACE ("on HarmonySong const, size = %d, GET = %d, ub = %d\n",
+    // size, chords_ar.GetSize(), chords_ar.GetUpperBound());
 }
 
 void HarmonySong::print() const {
@@ -61,8 +61,8 @@ void HarmonySong::print() const {
         chords[nChord]->print();
         std::cout << std::endl;
     }
-    //Analyze(dc, r, dy);
-    // Style::print();
+    // Analyze(dc, r, dy);
+    //  Style::print();
 }
 
 void HarmonySong::analyze(const Options& options) const {
@@ -100,7 +100,7 @@ bool HarmonySong::isValid() const {
 bool HarmonySong::Generate(const Options& options, int nStep, bool show) {
     bool done, ret;
     const int size = chords.size();
-    //if (nStep < 5) printf("Just started level %d\n", nStep);
+    // if (nStep < 5) printf("Just started level %d\n", nStep);
 
     chords[nStep]->reset();
 #if 0  // tried to spiff up for regenerate
@@ -121,10 +121,8 @@ if (nStep == 0)		// if we are starting from top
 	}
 #endif
 
-    int count = 0;
-    for (done = ret = false; !done;) {
-        //  if (nStep == 0) TRACE("chord 1 %d", count++);
-        if (nStep == 0 || ( 0 < chords[nStep]->penaltyForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, *chords[nStep - 1], show))) {
+    for (ret = false; !done;) {
+        if (nStep == 0 || (0 < chords[nStep]->penaltyForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, *chords[nStep - 1], show))) {
             // if progression is valid to this chord
             // always valid if no prev!
 
@@ -139,7 +137,7 @@ if (nStep == 0)		// if we are starting from top
                 }
             } else {
                 bool f = Generate(options, nStep + 1, show);  // if not last chord, then go on the next
-                if (f) {                                // if next generated ok, we are recursing back up!
+                if (f) {                                      // if next generated ok, we are recursing back up!
 
                     ret = true;
                     done = true;

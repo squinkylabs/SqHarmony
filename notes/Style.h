@@ -16,10 +16,10 @@ public:
     bool allow2ndInversion();
     bool allow1stInversion();
 
-    bool requireStdDoubling();     // chords required to double root, etc???
-                                   // I think this means double root always!!
-    bool forceDescSop();           // silly test to force melody to descend
-    bool allowConsecInversions();  // allow a first or second inversion to follow another?
+    bool requireStdDoubling();  // chords required to double root, etc???
+                                // I think this means double root always!!
+    bool forceDescSop();        // silly test to force melody to descend
+                                //  bool allowConsecInversions();  // allow a first or second inversion to follow another?
 
     int minSop() const;
     int maxSop() const;
@@ -32,17 +32,35 @@ public:
 
     /** new: setters *****************/
 
-    void setAllowConsecInversions(bool allow);
+    enum class Inversion {
+        DISCOURAGE,
+        DISCOURAGE_CONSECUTIVE,
+        DONT_CARE
+    };
+    void setInversionPreference(Inversion);
+    Inversion getInversionPreference() const;
+
+    enum class Ranges {
+        NORMAL_RANGE,
+        ENCOURAGE_CENTER,
+        NARROW_RANGE
+    };
+    void setRangesPreference(Ranges);
+    Ranges getRangesPreference() const;
+
+    // void setAllowConsecInversions(bool allow);
 
 private:
-    bool _allowConsecInversions = false;
+    // bool _allowConsecInversions = false;
+    Inversion inversionPreference = Inversion::DISCOURAGE_CONSECUTIVE;
+    Ranges rangesPreference = Ranges::NORMAL_RANGE;
 };
 
 using StylePtr = std::shared_ptr<Style>;
 
-inline void Style::setAllowConsecInversions(bool allow) {
-    _allowConsecInversions = allow;
-}
+// inline void Style::setAllowConsecInversions(bool allow) {
+//     _allowConsecInversions = allow;
+// }
 
 /* Recommended min/max for the four voices */
 
@@ -129,16 +147,18 @@ inline bool Style::requireStdDoubling() {
     return true;
 }
 
+#if 0
 inline bool Style::allowConsecInversions() {
     // allow a first inversion to follow another?
     return _allowConsecInversions;
 }
+#endif
 
 inline bool Style::forceDescSop() {
 #if !CRAZY_STYLE
     return false;
 #else
-    //std::cout << "force descend true\n";
+    // std::cout << "force descend true\n";
     return true;
 #endif
 }

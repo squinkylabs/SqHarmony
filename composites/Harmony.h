@@ -38,6 +38,7 @@ public:
         MODE_PARAM,
         INVERSION_PREFERENCE_PARAM,
         CENTER_PREFERENCE_PARAM,
+        NNIC_PREFERENCE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

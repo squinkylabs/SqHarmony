@@ -7,6 +7,40 @@ bool Style::allowVoiceCrossing() {
     return false;
 }
 
+void Style::setInversionPreference(Inversion i) {
+    inversionPreference = i;
+}
+
+Style::Inversion Style::getInversionPreference() const {
+    return inversionPreference;
+}
+
+void Style::setRangesPreference(Ranges r) {
+    rangesPreference = r;
+}
+
+Style::Ranges Style::getRangesPreference() const {
+    return rangesPreference;
+}
+
+/*
+    enum class Inversion {
+        DISCOURAGE,
+        DISCOURAGE_CONSECUTIVE,
+        DONT_CARE
+    };
+    void setInversionPreference(Inversion);
+    Inversion getInversionPreference() const;
+
+    enum class Ranges {
+        NORMAL_RANGE,
+        ENCOURAGE_CENTER,
+        NARROW_RANGE
+    };
+    void setRangetPreference(Ranges);
+    Ranges getRangesPreference() const;
+    */
+
 #if 0
 void Style::print() {
     CString Str;
