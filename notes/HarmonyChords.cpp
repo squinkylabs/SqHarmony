@@ -66,6 +66,7 @@ const Chord4* HarmonyChords::find(
     const Chord4* prevPrev,
     const Chord4* prev,
     int root) {
+#if 0
     if (prev && prevPrev) {
         printf("find called with prevOrev %s (root %d)\n", prevPrev->toString().c_str(), prevPrev->fetchRoot());
         printf("  .. prev %s (root %d)\n",
@@ -78,20 +79,14 @@ const Chord4* HarmonyChords::find(
                prev->fetchRoot(),
                root);
     }
+#endif
 
-    if (prev) {
-        printf("chord 76 called with root = %d, prev = %d\n", root, prev->fetchRoot());
-        fflush(stdout);
-    }
     assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
     assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
 
-  //  const int ppr = prevPrev ? prevPrev->fetchRoot() : -1;
-  //  const int pr = prev ? prev->fetchRoot() : -1;
-
     const int size = manager.size(root);
     int rankToTry = 0;
-    printf("in find, rank start = %d, size=%d\n", rankToTry, size);
+    // printf("in find, rank start = %d, size=%d\n", rankToTry, size);
 
     int lowestPenalty = ProgressionAnalyzer::MAX_PENALTY;
     const Chord4* bestChord = nullptr;
@@ -104,7 +99,7 @@ const Chord4* HarmonyChords::find(
             const Chord4* currentChord = manager.get2(root, rankToTry);
             const int currentPenalty = progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show);
             if (currentPenalty == 0) {
-                printf("found penalty 0\n");
+                // printf("found penalty 0\n");
                 return currentChord;
             }
             // printf("hit a penalty in search %d\n", currentPenalty);
@@ -114,7 +109,7 @@ const Chord4* HarmonyChords::find(
             }
         }
     }
-    printf("didn't find perfect, returning penalty = %d\n", lowestPenalty);
+    // printf("didn't find perfect, returning penalty = %d\n", lowestPenalty);
     return bestChord;
 }
 
@@ -131,8 +126,6 @@ int HarmonyChords::progressionPenalty(
         return 0;  // chord on its own is always ok
     }
 
-    // printf("isProgressionOK about to call can follow\n");
-  //  const bool canFollow = current->canFollowThisGuy(options, *prev);
     int currentPenalty = current->penaltForFollowingThisGuy(options, 
         bestSoFar, 
         *prev, show);

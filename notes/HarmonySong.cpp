@@ -98,8 +98,7 @@ bool HarmonySong::isValid() const {
 }
 
 bool HarmonySong::Generate(const Options& options, int nStep, bool show) {
-    bool done = false;
-    bool ret = false;
+    bool done, ret;
     const int size = chords.size();
     // if (nStep < 5) printf("Just started level %d\n", nStep);
 
@@ -122,7 +121,7 @@ if (nStep == 0)		// if we are starting from top
 	}
 #endif
 
-    for (ret = false; !done;) {
+    for (ret = false, done=false ; !done;) {
         if (nStep == 0 || (0 < chords[nStep]->penaltyForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, *chords[nStep - 1], show))) {
             // if progression is valid to this chord
             // always valid if no prev!

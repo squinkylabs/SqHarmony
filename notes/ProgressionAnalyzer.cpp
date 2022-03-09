@@ -3,12 +3,13 @@
 #include "ProgressionAnalyzer.h"
 
 #include <assert.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <sstream>
 
 #include "Chord4.h"
+#include "SqLog.h"
 
 static bool showAlways = false;
 void ProgressionAnalyzer::showAnalysis() {
@@ -60,7 +61,6 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (p >= upperBound) {
         return p;
     }
-
 
     p = RuleForLeadingTone();
     totalPenalty += p;
@@ -138,7 +138,7 @@ int ProgressionAnalyzer::RuleForJumpSize() const {
     for (int i = BASS; i <= SOP; i++) {
         int jump = first.fetchNotes()[i] - next.fetchNotes()[i];
         // TODO: is 12 right here? should this be 8 instead?
-        if (abs(jump) > 12) {
+        if (abs(jump) > 8) {
             if (show) printf("BIG jump in voice %d\n", i);
             return AVG_PENALTY_PER_RULE;
         }
@@ -147,20 +147,37 @@ int ProgressionAnalyzer::RuleForJumpSize() const {
 }
 
 int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
-    assert(false);
-    return 0;           // new handling for inversions
-#if 0
-    bool fRet = true;
-    if (!options.style->allowConsecInversions()) {
-        if ((first.inversion(options) != ROOT_POS_INVERSION) &&
-            (next.inversion(options) != ROOT_POS_INVERSION))
-            fRet = false;
+    const auto style = options.style;
+
+    if (style->getInversionPreference() == Style::Inversion::DONT_CARE) {
+        return 0;  // if we don't mind consecutive inversions, no penalty
     }
-    return fRet ? 0 : AVG_PENALTY_PER_RULE;
-#endif
+
+    const bool firstChordInverted = first.inversion(options) != ROOT_POS_INVERSION;
+    const bool secondChordInverted = next.inversion(options) != ROOT_POS_INVERSION;
+
+    // bool fRet = true;
+    bool twoInversionInARow = false;
+    if (firstChordInverted && secondChordInverted) {
+        twoInversionInARow = true;
+    }
+
+    int penalty = 0;
+
+
+    if (style->getInversionPreference() == Style::Inversion::DISCOURAGE) {
+        if (secondChordInverted) {
+             penalty += AVG_PENALTY_PER_RULE / 2;    // TODO:
+        }
+    }
+
+    if (twoInversionInARow) {
+        penalty += AVG_PENALTY_PER_RULE;
+    }
+    return penalty;
 }
 
-int  ProgressionAnalyzer::FakeRuleForDesc(const Options& options) const {
+int ProgressionAnalyzer::FakeRuleForDesc(const Options& options) const {
     if (!options.style->forceDescSop()) return true;                // check if rule enabled
     bool ret = (next.fetchNotes()[SOP] < first.fetchNotes()[SOP]);  // For a test, lets make molody descend
     if (show && !ret) printf("failed decrese melody\n");
@@ -176,7 +193,7 @@ int ProgressionAnalyzer::Rule4Same() const {
 
     for (i = 1, di = direction[0]; i <= SOP; i++) {
         if (direction[i] != di) return 0;  // if any direct dif, cool
-                                              // is same ok?
+                                           // is same ok?
     }
     if (show) printf("failing Rule4Same\n");
     return AVG_PENALTY_PER_RULE;
@@ -254,12 +271,12 @@ int ProgressionAnalyzer::RuleForPara() const {
                     {
                         if (show) {
                             printf("-- RuleForPara found direct int=%d->%d dir=%d, vx=%d,%d\n",
-                                         FirstInterval, NextInterval,
-                                         direction[i],
-                                         i, j);
+                                   FirstInterval, NextInterval,
+                                   direction[i],
+                                   i, j);
                             printf("  dir: 0=up, 1=same 2=down\n");
                         }
-                        
+
                         goto SHOWZ;
                     }
                     break;
@@ -299,23 +316,6 @@ int ProgressionAnalyzer::RuleForLeadingTone() const {
     return fRet ? 0 : AVG_PENALTY_PER_RULE;
 }
 
-#if 0
-int ProgressionAnalyzer::RuleForNoneInCommonAndDoubling(const Options& options) const {
-    if (notesInCommon == 0) {
-        return RuleForNoneInCommon2(options);
-    } else {
-        // if we don't need to use the draconian "no notes in common" rule, then we can enforce correct doubling.
-        // this doubling rule could not be resolved sometimes when non in common.
-        const bool correctDoubling = next.isCorrectDoubling(options);
-        return correctDoubling;
-    }
-
-    assert(false);
-    return MAX_PENALTY_PER_RULE;
-}
-#endif
-
-
 int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
     DIREC di;
     int i;
@@ -323,7 +323,11 @@ int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
     if (notesInCommon != 0) {
         return 0;
     }
-   // assert(notesInCommon == 0);
+
+    if (!options.style->getNoNotesInCommon()) {
+        return 0;
+    }
+    // assert(notesInCommon == 0);
 
     // No notes in common: upper 3 move opposite of bass
 
@@ -354,7 +358,6 @@ int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
     assert(next.isAcceptableDoubling(options));
 
     return next.isCorrectDoubling(options) ? 0 : SLIGHTLY_LOWER_PENALTY_PER_RULE;
-    
 }
 
 /*   bool ProgressionAnalyzer::RuleForNoneInCommon()

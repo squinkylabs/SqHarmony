@@ -78,7 +78,6 @@ inline RankedChord::RankedChord(const Chord4Manager& mgr , int rt) : chords(mgr)
 }
 
 inline RankedChord::~RankedChord() {
-  //  ChordArray.Del(root);
 }
 
 inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, int upperBound, const RankedChord& theGuy, bool show) const {

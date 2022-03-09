@@ -17,6 +17,7 @@ public:
 
     static const int PENALTY_FOR_REPEATED_CHORDS = {50};
     static const int AVG_PENALTY_PER_RULE = {100};
+    static const int PENALTY_FOR_WEAK_RULE = { AVG_PENALTY_PER_RULE / 2 };
     static const int SLIGHTLY_HIGHER_PENALTY_PER_RULE = {110};
     static const int SLIGHTLY_LOWER_PENALTY_PER_RULE = {90};
     static const int MAX_PENALTY = { AVG_PENALTY_PER_RULE * 100};

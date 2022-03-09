@@ -1,11 +1,12 @@
 #pragma once
 
+#include "rack.hpp"
 #include <functional>
 #include <random>
 
 
 #include "SqUI.h"
-#include "rack.hpp"
+
 
 #include <history.hpp>
 /**
