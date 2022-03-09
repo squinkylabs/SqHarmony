@@ -23,23 +23,14 @@ Style::Ranges Style::getRangesPreference() const {
     return rangesPreference;
 }
 
-/*
-    enum class Inversion {
-        DISCOURAGE,
-        DISCOURAGE_CONSECUTIVE,
-        DONT_CARE
-    };
-    void setInversionPreference(Inversion);
-    Inversion getInversionPreference() const;
+void Style::setNoNotesInCommon(bool b) {
+    enableNoNotesInCommonRule = b;
+}
 
-    enum class Ranges {
-        NORMAL_RANGE,
-        ENCOURAGE_CENTER,
-        NARROW_RANGE
-    };
-    void setRangetPreference(Ranges);
-    Ranges getRangesPreference() const;
-    */
+bool Style::getNoNotesInCommon() const {
+    return enableNoNotesInCommonRule;
+}
+
 
 #if 0
 void Style::print() {

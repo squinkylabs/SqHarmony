@@ -1,12 +1,15 @@
 #pragma once
 
-#define CRAZY_STYLE 1
+#define CRAZY_STYLE 0
 
 #include <iostream>
 #include <memory>
 
+#include "SqLog.h"
+
 class Style {
 public:
+
     /***** the following methods apply to lowest level: chords generated ****/
 
     int absMaxPitch();          // returns midi note number of max pitch our style allows
@@ -50,10 +53,20 @@ public:
 
     // void setAllowConsecInversions(bool allow);
 
+    // no notes in common == true means use that rule
+    void setNoNotesInCommon(bool);
+    bool getNoNotesInCommon() const;
+
 private:
     // bool _allowConsecInversions = false;
     Inversion inversionPreference = Inversion::DISCOURAGE_CONSECUTIVE;
     Ranges rangesPreference = Ranges::NORMAL_RANGE;
+    bool enableNoNotesInCommonRule = true;
+
+    bool isNarrowRange() const { return rangesPreference == Ranges::NARROW_RANGE; }
+
+    // was 2. make crazy for test
+    static const int dx{1};
 };
 
 using StylePtr = std::shared_ptr<Style>;
@@ -66,60 +79,66 @@ using StylePtr = std::shared_ptr<Style>;
 
 inline int Style::minSop() const {
     // Middle C, C4
-    return 60;
+
+    return isNarrowRange() ? 60 + dx : 60;
 }
 
 inline int Style::maxSop() const {
     // G5
-    return 79;
+    return isNarrowRange() ? 79 - dx : 79;
 }
 
 inline int Style::minAlto() const {
     // 4x12 + 7
     // G3
-    return 55;
+    return isNarrowRange() ? 55 + dx : 55;
 }
 inline int Style::maxAlto() const {
     // 6 * 12 + 2
     // D5
-    return 74;
+    return isNarrowRange() ? 74 - dx : 74;
 }
 inline int Style::minTenor() const {
     // 4 X 12, C3
-    return 48;
+    return isNarrowRange() ? 48 + dx : 48;
 }
 inline int Style::maxTenor() const {
     // 5 X 12 + 9
     // A4
-    return 69;
+    return isNarrowRange() ? 69 - dx : 69;
 }
 inline int Style::minBass() const {
     // 3 X 12 + 3
     // D# 2
-    return 39;
+    return isNarrowRange() ? 39 + dx : 39;
 }
 inline int Style::maxBass() const {
     // C4
-    return 60;
+    return isNarrowRange() ? 60 - dx : 60;
 }
 
 /* Absolute pitch ranges: these are enforced!
  */
 
 inline int Style::absMaxPitch() {
+    int ret = 0;
 #if !CRAZY_STYLE
-    return maxSop() + 5;
+    ret = maxSop() + 5;
 #else
-    return maxSop() + 10;
+    SQWARN("crazy style is on");
+    ret = maxSop() + 10;
 #endif
+    return ret;
 }
 
 inline int Style::absMinPitch() {
+    int ret = 0;
 #if !CRAZY_STYLE
-    return minBass() - 5;
+    ret = minBass() - 5;
 #else
-    return minBass() - 10;
+    ret = minBass() - 10;
 #endif
+    return ret;
 }
 
 #if 0

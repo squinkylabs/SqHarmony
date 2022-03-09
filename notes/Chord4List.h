@@ -27,3 +27,4 @@ inline const Chord4& Chord4List::get(int n) const {
     return *chords[n];
 }
 
+ using Chord4ListPtr = std::shared_ptr<Chord4List>;

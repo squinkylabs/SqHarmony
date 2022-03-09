@@ -62,7 +62,7 @@ static void testAllInC() {
     }
 }
 
-static void testStyle() {
+static void testStyle1() {
     auto style = std::make_shared<Style>();
 
     assert(style->getInversionPreference() == Style::Inversion::DISCOURAGE_CONSECUTIVE);
@@ -74,10 +74,39 @@ static void testStyle() {
     assert(style->getRangesPreference() == Style::Ranges::NORMAL_RANGE);
     style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
     assert(style->getRangesPreference() == Style::Ranges::ENCOURAGE_CENTER);
+
+    assert(style->getNoNotesInCommon() == true);
+    style->setNoNotesInCommon(false);
+    assert(style->getNoNotesInCommon() == false);
+}
+
+static void testStyle2() {
+    auto style = std::make_shared<Style>();
+    const int blw = style->minBass();
+    const int bhw = style->maxBass();
+    const int tlw = style->minTenor();
+    const int thw = style->maxTenor();
+    const int alw = style->minAlto();
+    const int ahw = style->maxAlto();
+    const int slw = style->minSop();
+    const int shw = style->maxSop();
+
+     auto style2 = std::make_shared<Style>();
+     style2->setRangesPreference(Style::Ranges::NARROW_RANGE);
+     assertLT(blw, style2->minBass());
+     assertGT(bhw, style2->maxBass());
+     assertLT(tlw, style2->minTenor());
+     assertGT(thw, style2->maxTenor());
+     assertLT(alw, style2->minAlto());
+     assertGT(ahw, style2->maxAlto());
+     assertLT(slw, style2->minSop());
+     assertGT(shw, style2->maxSop());
+
 }
 
 void testKeysig() {
     testCinC();
     testAllInC();
-    testStyle();
+    testStyle1();
+    testStyle2();
 }

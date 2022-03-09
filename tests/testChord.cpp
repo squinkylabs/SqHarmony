@@ -154,7 +154,6 @@ void specialDumpList() {
 }
 
 static void testInversions() {
-
     // generate a bunch of c major chords
     Options options = makeOptions();
     Chord4 chord(options, 1);
@@ -169,15 +168,15 @@ static void testInversions() {
         switch (chord.inversion(options)) {
             case ROOT_POS_INVERSION:
                 seenRoot = true;
-                assertEQ(int(srn[0]), 1);            // should have 1 in the bottom
+                assertEQ(int(srn[0]), 1);  // should have 1 in the bottom
                 break;
             case FIRST_INVERSION:
                 seenFirst = true;
-                assertEQ(int(srn[0]), 3);            // should have 3 in the bottom
+                assertEQ(int(srn[0]), 3);  // should have 3 in the bottom
                 break;
             case SECOND_INVERSION:
                 seenSecond = true;
-                assertEQ(int(srn[0]), 5);            // should have 5 in the bottom
+                assertEQ(int(srn[0]), 5);  // should have 5 in the bottom
                 break;
             default:
                 assert(false);
@@ -189,20 +188,48 @@ static void testInversions() {
 }
 
 static void testFromString() {
-     Options options = makeOptions();
-     const char* target = "E2A2C3A3";
-     Chord4Ptr chord = Chord4::fromString(options, 6, target);
-     assert(chord);
-     assertEQ(chord->toStringShort(), target);
+    Options options = makeOptions();
+    const char* target = "E2A2C3A3";
+    Chord4Ptr chord = Chord4::fromString(options, 6, target);
+    assert(chord);
+    assertEQ(chord->toStringShort(), target);
 }
 
 // see if that C chord we need for 2-1 is acceptable
 static void testFromString2() {
-     Options options = makeOptions();
-     const char* target = "E2G2C3E3";
-     Chord4Ptr chord = Chord4::fromString(options, 1, target);
-     assert(chord);
-     assertEQ(chord->toStringShort(), target);
+    Options options = makeOptions();
+    const char* target = "E2G2C3E3";
+    Chord4Ptr chord = Chord4::fromString(options, 1, target);
+    assert(chord);
+    assertEQ(chord->toStringShort(), target);
+}
+
+static void testRanges() {
+    int sizeNorm = 0;
+    int sizeNarrow = 0;
+    SQINFO("\n\n ************** enter testRanges");
+    {
+        Options options = makeOptions();
+        Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);
+        options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+        Chord4ListPtr lNarrow = std::make_shared<Chord4List>(options, 1);
+
+        sizeNorm = lNorm->size();
+        sizeNarrow = lNarrow->size();
+        SQINFO("norm has %d, narrow has %d", sizeNorm, sizeNarrow);
+        assert(sizeNarrow < sizeNorm);
+    }
+}
+
+static void allGood(Chord4ListPtr list) {
+
+}
+
+static void testMinMax() {
+   
+    Options options = makeOptions();
+    Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);  // root chord
+
 }
 
 void testChord() {
@@ -218,6 +245,9 @@ void testChord() {
     // TODO: add more tests?
     testFromString();
     testFromString2();
+
+    testRanges();
+    testMinMax();
 
     assert(__numChord4 == 0);
 }

@@ -98,7 +98,8 @@ bool HarmonySong::isValid() const {
 }
 
 bool HarmonySong::Generate(const Options& options, int nStep, bool show) {
-    bool done, ret;
+    bool done = false;
+    bool ret = false;
     const int size = chords.size();
     // if (nStep < 5) printf("Just started level %d\n", nStep);
 

@@ -42,6 +42,7 @@ static void testBasic1() {
 }
 
 static void testAtoB(int a, int b) {
+    SQINFO("testAtoB %d, %d", a, b);
     auto options = makeOptions();
     Chord4Manager mgr(options);
     auto cp = HarmonyChords::findChord(false, options, mgr, a);
