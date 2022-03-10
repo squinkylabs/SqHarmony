@@ -280,5 +280,5 @@ void testHarmonyChords() {
     printf("--- test xyx ----\n");
     // testXtoYtoX();
     printf("--- test rand ---\n");
-    // testRand();
+    testRand();
 }

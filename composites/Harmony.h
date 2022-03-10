@@ -130,6 +130,7 @@ inline void Harmony<TBase>::stepn() {
     assert(ALTO_OUTPUT == (TENOR_OUTPUT + 1));
     assert(SOPRANO_OUTPUT == (ALTO_OUTPUT + 1));
 
+    // figure out the voice to jack assignments
     int nextVoiceToAssign = 0;
     int debt = 0;
     for (int portIndex = 0; portIndex < 4; ++portIndex) {
@@ -155,6 +156,32 @@ inline void Harmony<TBase>::stepn() {
         SQINFO("voice %d output = %d, channel = %d", i, voiceToOutput[i], voiceToChannel[i]);
     }
 #endif
+// NNIC_PREFERENCE_PARAM
+    bool noNotesInCommon =  Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
+    //  OptionsPtr chordOptions;
+    auto style = chordOptions->style;
+    style->setNoNotesInCommon(noNotesInCommon);
+
+//    this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference",
+// {"None", "A little", "A lot"});
+   
+    Style::Ranges range = Style::Ranges::NORMAL_RANGE;
+    const int i = int(std::round(Harmony<TBase>::params[CENTER_PREFERENCE_PARAM].value));
+    switch(i) {
+        case 0:
+            range = Style::Ranges::NORMAL_RANGE;
+            break;
+        case 1:
+            range = Style::Ranges::NARROW_RANGE;
+            break;
+        case 2:
+            range = Style::Ranges::ENCOURAGE_CENTER;
+            break;
+        default:
+            assert(false);
+    }
+
+    style->setRangesPreference(range);
 }
 
 template <class TBase>
