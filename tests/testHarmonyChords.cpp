@@ -8,7 +8,7 @@
 #include "Style.h"
 
 #include "asserts.h"
-#include <random>
+
 
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
@@ -215,43 +215,7 @@ static void testXtoY() {
     }
 }
 
-static int genRandomRoot() {
-    static std::mt19937 generator;
-    static std::uniform_real_distribution<float> distribution{0, 1.0};
 
-    const float f = distribution(generator);
-    int i = int(7 * f);
-    printf("rand = %d\n", i);
-    return i; 
-    //return  distribution(generator)
-}
-
-void testRand() {
-    auto options = makeOptions();
-    Chord4Manager mgr(options);
-
-    int rootA = genRandomRoot();
-    auto chordA =  HarmonyChords::findChord(false, options, mgr, rootA);
-    int rootB = rootA;
-    while (rootB == rootA) {
-        rootB = genRandomRoot();
-    }
-    auto chordB = HarmonyChords::findChord(false, options, mgr, *chordA, genRandomRoot());
-    assert(chordB);
-
-    for (int i=0; i<1000; ++i) {
-        int rootC = rootB;
-        while(rootC == rootB) {
-            rootC = genRandomRoot();
-        }
-        auto thirdChord = HarmonyChords::findChord(false, options, mgr, *chordA, *chordB, rootC);
-        assert(thirdChord);
-
-        chordA = chordB;
-        chordB = thirdChord;
-        rootB = rootC;
-    }
-}
 
 void testHarmonyChords() {
     testFirstChord();
@@ -279,6 +243,5 @@ void testHarmonyChords() {
     // testXtoY();
     printf("--- test xyx ----\n");
     // testXtoYtoX();
-    printf("--- test rand ---\n");
-    testRand();
+  
 }

@@ -66,6 +66,9 @@ const Chord4* HarmonyChords::find(
     const Chord4* prevPrev,
     const Chord4* prev,
     int root) {
+
+    assert(root > 0);
+    assert(root < 8);
 #if 0
     if (prev && prevPrev) {
         printf("find called with prevOrev %s (root %d)\n", prevPrev->toString().c_str(), prevPrev->fetchRoot());

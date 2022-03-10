@@ -15,16 +15,16 @@ extern void testKeysig();
 extern void specialDumpList();
 extern void testProgressions();
 extern void testNoteBuffer();
-//extern void testNoteBufferSorter();
+// extern void testNoteBufferSorter();
 extern void testArpegPlayer();
 extern void testArpegPlayer2();
 extern void testArpegComposite();
 extern void testArpegRhythmPlayer();
 extern void testSeqClock();
 extern void testGateDelay();
+extern void testHarmonyChordsRandom();
 
 int main(const char**, int) {
-    
 #if 0
     specialDumpList();
 #else
@@ -35,34 +35,35 @@ int main(const char**, int) {
     testArpegPlayer2();
     testArpegPlayer();
     testArpegRhythmPlayer();
-   
+
     testArpegComposite();
 
 #if 1
     printf("testing notes 22\n");
     testNotes();
-     printf("testing scales 24\n");
+    printf("testing scales 24\n");
     testScale();
-     printf("testing scale notes 26\n");
+    printf("testing scale notes 26\n");
     testScaleNotes();
     printf("testing scale q\n");
     testScaleQuantizer();
 
     printf("testing h note\n");
     testHarmonyNote();
-     printf("testing srn\n");
+    printf("testing srn\n");
     testScaleRelativeNote();
-     printf("testing crn\n");
+    printf("testing crn\n");
     testChordRelativeNote();
-     printf("testing keysig\n");
+    printf("testing keysig\n");
     testKeysig();
-     printf("testing chord\n");
+    printf("testing chord\n");
     testChord();
-     printf("testing h song\n");
+    printf("testing h song\n");
     testHarmonySong();
-     printf("testing h chords\n");
+    printf("testing h chords\n");
     testHarmonyChords();
-#endif   
+    testHarmonyChordsRandom();
+#endif
     testHarmonyComposite();
 
 #endif
