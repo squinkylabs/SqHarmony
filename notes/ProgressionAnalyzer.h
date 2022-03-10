@@ -12,7 +12,7 @@ enum DIREC {
 
 class ProgressionAnalyzer {
 public:
-    ProgressionAnalyzer(const Chord4& C1, const Chord4& C2, bool fShow);
+    ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fShow);
    // bool isLegal(const Options&) const;
 
     static const int PENALTY_FOR_REPEATED_CHORDS = {50};
@@ -29,8 +29,8 @@ public:
     static void showAnalysis();
 
 private:
-    const Chord4& first;
-    const Chord4& next;
+    const Chord4* const first;
+    const Chord4* const next;
     const int firstRoot;
     const int nextRoot;
 

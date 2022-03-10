@@ -123,7 +123,7 @@ inline int Style::maxBass() const {
 inline int Style::absMaxPitch() {
     int ret = 0;
 #if !CRAZY_STYLE
-    ret = maxSop() + 5;
+    ret = maxSop();     // used to be +5. seemed wrong
 #else
     SQWARN("crazy style is on");
     ret = maxSop() + 10;
@@ -134,7 +134,7 @@ inline int Style::absMaxPitch() {
 inline int Style::absMinPitch() {
     int ret = 0;
 #if !CRAZY_STYLE
-    ret = minBass() - 5;
+    ret = minBass();        // used to be =5, seemed wrong
 #else
     ret = minBass() - 10;
 #endif

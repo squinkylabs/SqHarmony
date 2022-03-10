@@ -91,12 +91,12 @@ public:
      */
     static Chord4Ptr fromString(const Options& options, int degree, const char*);
 
-    bool makeNext(const Options& op);  // returns 0 if made another one
+    bool makeNext(const Options& op);  // returns false if made another one, true if could not
     void print() const;
     int quality(const Options& options, bool fTalk) const;  // tell how "good" this chord is
                                                             // if ftalk is true, will tell why
 
-    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4& ThisGuy, bool show) const;
+    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4* ThisGuy, bool show) const;
 
     const HarmonyNote* fetchNotes() const;  // This returns pointer so you can get at all 4
     const ScaleRelativeNote* fetchSRNNotes() const;
@@ -113,7 +113,8 @@ public:
 private:
     //friend ChordList;  // so he can "construct" us
 
-    bool isChordOk(const Options&);                                      // Tells if the current chord is "good"
+    bool isChordOk(const Options&) const;                                      // Tells if the current chord is "good"
+    bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  //converts from scale rel to chord rel
 
     bool inc(const Options&);  // go to next chord (valid or not), return true if can't

@@ -268,7 +268,7 @@ inline void Score::drawText(const DrawArgs &args) {
     prepareFontText(args);
     int i = 0;
     for (auto chord : chords) {
-        const float x = noteXPos(i);
+        const float x = noteXPos(i) + 1.5;
         drawChordInfo(args, x, chord);
         ++i;
     }
@@ -434,5 +434,5 @@ void Score::prepareFontMusic(const DrawArgs &args) const {
 void Score::prepareFontText(const DrawArgs &args) const {
     // int f = APP->window->uiFont->handle;
     nvgFontFaceId(args.vg, APP->window->uiFont->handle);
-    nvgFontSize(args.vg, 9);
+    nvgFontSize(args.vg, 7);        // TODO: use our own font?
 }

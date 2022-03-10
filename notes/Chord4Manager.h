@@ -19,11 +19,13 @@ public:
         assert(chords.size() == 10);
         return chords[root]->size();
     }
+#if 0 // dangerous
     const Chord4& get(int root, int rank) const {
         assert(!chords.empty());
         assert (root < int(chords.size()));
         return chords[root]->get(rank);
     }
+#endif
 
     // same as get, but can return "not found" (nullptr)
     const Chord4* get2(int root, int rank) const {
@@ -32,7 +34,7 @@ public:
             return nullptr;
         }
 
-        return &chords[root]->get(rank);
+        return chords[root]->get2(rank);
     }
 
 private:

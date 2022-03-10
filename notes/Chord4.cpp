@@ -13,7 +13,7 @@
 #include "ScaleRelativeNote.h"
 #include "Style.h"
 
-//int Chord4::size;
+// int Chord4::size;
 
 int __numChord4 = 0;
 
@@ -54,6 +54,7 @@ Chord4::Chord4() : root(1) {
 
 Chord4::~Chord4() {
     __numChord4--;
+    assert(__numChord4 >= 0);
 }
 
 /*  int Chord4::Quality() const
@@ -247,7 +248,7 @@ void Chord4::makeSrnNotes(const Options& op) {
     }
 }
 
-bool Chord4::isChordOk(const Options& options) {
+bool Chord4::isChordOk(const Options& options) const {
     bool ret = true;
     int i, nPitch;
 
@@ -276,7 +277,7 @@ bool Chord4::isChordOk(const Options& options) {
         }
     } else {
         printf("can't handle yet\n");
-        return true;
+        return false;
     }
 
     bool InvOk;
@@ -312,7 +313,7 @@ bool Chord4::isChordOk(const Options& options) {
         test[nPitch] = true;          // mark that we are here
     }
     if (matches > style->maxUnison()) {
-        //if (b) printf("isChordOk not ok at 287\n");
+        // if (b) printf("isChordOk not ok at 287\n");
         return false;
         // If more unisons in the chord than we allow
     }
@@ -330,12 +331,38 @@ bool Chord4::isChordOk(const Options& options) {
     }
 #else
     if (style->requireStdDoubling() && !isStdDoubling(options)) {
-        //if (b) printf("isChordOk not ok at 300\n");
-        // double root, contain 3 and 5
+        // if (b) printf("isChordOk not ok at 300\n");
+        //  double root, contain 3 and 5
         return false;
     }
 #endif
+    if (!pitchesInRange(options)) {
+        return false;
+    }
     return ret;
+}
+
+bool Chord4::pitchesInRange(const Options& options) const {
+    const HarmonyNote* notes = fetchNotes();
+    auto style = options.style;
+
+    const int bass = notes[0];
+    const int tenor = notes[1];
+    const int alto = notes[2];
+    const int soprano = notes[3];
+    if (bass < style->minBass() || bass > style->maxBass()) {
+        return false;
+    }
+    if (tenor < style->minTenor() || tenor > style->maxTenor()) {
+        return false;
+    }
+    if (alto < style->minAlto() || alto > style->maxAlto()) {
+        return false;
+    }
+    if (soprano < style->minSop() || soprano > style->maxSop()) {
+        return false;
+    }
+    return true;
 }
 
 bool Chord4::isAcceptableDoubling(const Options& options) const {
@@ -493,7 +520,7 @@ bool Chord4::isStdDoubling(const Options& options) {
 /*   ChordRelativeNote Chord4::ChordInterval(Note note)
  */
 ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note) const {
-    //static int dumb = -1;
+    // static int dumb = -1;
     int nt = 0;  // assume bogus
     ChordRelativeNote ret;
 
@@ -513,7 +540,7 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
 bool Chord4::isInChord(const Options& options, HarmonyNote test) const {
     bool ret = false;
 
-    //const bool b = (this->toStringShort() == "E2A2C3A3");
+    // const bool b = (this->toStringShort() == "E2A2C3A3");
 
     const ChordRelativeNote crnX = chordInterval(options, test);
     switch (crnX) {
@@ -532,10 +559,10 @@ bool Chord4::isInChord(const Options& options, HarmonyNote test) const {
 }
 
 /*   int Chord4::Inversion()
-  
+
  */
 INVERSION Chord4::inversion(const Options& options) const {
-    //static int dumb = -1;
+    // static int dumb = -1;
     INVERSION ret;
 
     switch (chordInterval(options, _notes[0])) {
@@ -573,7 +600,7 @@ bool Chord4::canFollowThisGuy(const Options& options, const Chord4& thisGuy) con
 }
 #endif
 
-int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4& thisGuy, bool show) const {
-    ProgressionAnalyzer analyzer(thisGuy, *this, show);
+int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4* thisGuy, bool show) const {
+    ProgressionAnalyzer analyzer(thisGuy, this, show);
     return analyzer.getPenalty(options, lowestPenaltySoFar);
 }

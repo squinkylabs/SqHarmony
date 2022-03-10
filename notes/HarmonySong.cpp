@@ -69,8 +69,8 @@ void HarmonySong::analyze(const Options& options) const {
     const int size = chords.size();
     for (int nChord = 1; nChord < size; nChord++) {
         ProgressionAnalyzer* p = new ProgressionAnalyzer(
-            chords[nChord - 1]->fetch(),
-            chords[nChord]->fetch(),
+            chords[nChord - 1]->fetch2(),
+            chords[nChord]->fetch2(),
             true);
         bool f = 0 == p->getPenalty(options, ProgressionAnalyzer::MAX_PENALTY);
         if (!f) {

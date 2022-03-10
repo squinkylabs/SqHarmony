@@ -19,8 +19,8 @@ void ProgressionAnalyzer::showAnalysis() {
 /*  ProgressionAnalyzer::ProgressionAnalyzer(const Chord4 * const C1, const Chord4 * const C2)
     : First (C1), Next(C2)
  */
-ProgressionAnalyzer::ProgressionAnalyzer(const Chord4& C1, const Chord4& C2, bool fs)
-    : first(C1), next(C2), firstRoot(C1.fetchRoot()), nextRoot(C2.fetchRoot()), show(fs || showAlways) {
+ProgressionAnalyzer::ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fs)
+    : first(C1), next(C2), firstRoot(C1->fetchRoot()), nextRoot(C2->fetchRoot()), show(fs || showAlways) {
     figureMotion();  // init the motion guys
     notesInCommon = InCommon();
 #if 0
@@ -46,9 +46,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (show) {
         str << ".. enter getPenalty." << std::endl;
         str << "first: ";
-        str << first.toString();
+        str << first->toString();
         str << " second: ";
-        str << next.toString() << std::endl;
+        str << next->toString() << std::endl;
     }
 
     int totalPenalty = 0;
@@ -136,7 +136,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
 
 int ProgressionAnalyzer::RuleForJumpSize() const {
     for (int i = BASS; i <= SOP; i++) {
-        int jump = first.fetchNotes()[i] - next.fetchNotes()[i];
+        int jump = first->fetchNotes()[i] - next->fetchNotes()[i];
         // TODO: is 12 right here? should this be 8 instead?
         if (abs(jump) > 8) {
             if (show) printf("BIG jump in voice %d\n", i);
@@ -153,8 +153,8 @@ int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
         return 0;  // if we don't mind consecutive inversions, no penalty
     }
 
-    const bool firstChordInverted = first.inversion(options) != ROOT_POS_INVERSION;
-    const bool secondChordInverted = next.inversion(options) != ROOT_POS_INVERSION;
+    const bool firstChordInverted = first->inversion(options) != ROOT_POS_INVERSION;
+    const bool secondChordInverted = next->inversion(options) != ROOT_POS_INVERSION;
 
     // bool fRet = true;
     bool twoInversionInARow = false;
@@ -179,7 +179,7 @@ int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
 
 int ProgressionAnalyzer::FakeRuleForDesc(const Options& options) const {
     if (!options.style->forceDescSop()) return true;                // check if rule enabled
-    bool ret = (next.fetchNotes()[SOP] < first.fetchNotes()[SOP]);  // For a test, lets make molody descend
+    bool ret = (next->fetchNotes()[SOP] < first->fetchNotes()[SOP]);  // For a test, lets make molody descend
     if (show && !ret) printf("failed decrese melody\n");
     return ret ? 0 : AVG_PENALTY_PER_RULE;
 }
@@ -207,21 +207,21 @@ int ProgressionAnalyzer::RuleForCross() const {
         {
             if (direction[i] == direction[j])  // if similar motion
             {
-                if (first.fetchNotes()[i] > first.fetchNotes()[j])
+                if (first->fetchNotes()[i] > first->fetchNotes()[j])
                     if (show) printf("!! these voices reversed 1.  vx %d to %d!!\n", i, j);
-                if (next.fetchNotes()[i] > next.fetchNotes()[j])
+                if (next->fetchNotes()[i] > next->fetchNotes()[j])
                     if (show) printf("!! these voices reversed 2.  vx %d to %d!!\n", i, j);
 
                 if (direction[i] == DIR_UP)  // if both ascend...
                 {
-                    if (next.fetchNotes()[i] > first.fetchNotes()[j]) {
+                    if (next->fetchNotes()[i] > first->fetchNotes()[j]) {
                         if (show) printf("rules for cross, both asc first[%d] next[%d]\n", j, i);
                         return AVG_PENALTY_PER_RULE;
                     }
                 }
                 if (direction[i] == DIR_DOWN)  // if both DESC...
                 {
-                    if (next.fetchNotes()[j] < first.fetchNotes()[i]) {
+                    if (next->fetchNotes()[j] < first->fetchNotes()[i]) {
                         if (show) printf("rules for cross, both desc ! first[%d] next[%d]\n", i, j);
                         return AVG_PENALTY_PER_RULE;
                     }
@@ -238,7 +238,7 @@ int ProgressionAnalyzer::RuleForPara() const {
     if (show) printf("enter RuleForPara\n");
     for (i = BASS; i <= ALTO; i++) {
         for (j = i + 1; j <= SOP; j++) {
-            const int NextInterval = next.fetchSRNNotes()[i].interval(next.fetchSRNNotes()[j]);
+            const int NextInterval = next->fetchSRNNotes()[i].interval(next->fetchSRNNotes()[j]);
             // figure the interval between these
 #if 0
         if (show) printf("in PAR, interval = %d, vx = %d to %d\n",
@@ -251,7 +251,7 @@ int ProgressionAnalyzer::RuleForPara() const {
                 case 1:  // octave?
 
                     const int FirstInterval =
-                        first.fetchSRNNotes()[i].interval(first.fetchSRNNotes()[j]);
+                        first->fetchSRNNotes()[i].interval(first->fetchSRNNotes()[j]);
                     if (FirstInterval == NextInterval)  // paralel 5 or 12
                     {
                         if (show) {
@@ -260,8 +260,8 @@ int ProgressionAnalyzer::RuleForPara() const {
                         SHOWZ:
                             if (show && false) printf("in Par, vx %d to %d. considering %d to %d, int = %d (first int = %d)\n",
                                                       i, j,
-                                                      int(next.fetchSRNNotes()[i]),
-                                                      int(next.fetchSRNNotes()[j]),
+                                                      int(next->fetchSRNNotes()[i]),
+                                                      int(next->fetchSRNNotes()[j]),
                                                       NextInterval,
                                                       FirstInterval);
                         }
@@ -292,10 +292,10 @@ int ProgressionAnalyzer::RuleForLeadingTone() const {
     bool fRet = true;
 
     for (i = BASS; i <= SOP; i++) {
-        nPitch = first.fetchSRNNotes()[i];                              // get the scale degree of this voice of chord
+        nPitch = first->fetchSRNNotes()[i];                              // get the scale degree of this voice of chord
         if (nPitch == 7) {                                              // if it is leading tone
-            if (next.fetchNotes()[i] != (first.fetchNotes()[i] + 1)) {  // if it doesn't ascend to tonic
-                if (next.fetchNotes()[i] > first.fetchNotes()[i]) {     // and it is ascend..
+            if (next->fetchNotes()[i] != (first->fetchNotes()[i] + 1)) {  // if it doesn't ascend to tonic
+                if (next->fetchNotes()[i] > first->fetchNotes()[i]) {     // and it is ascend..
                                                                         // over simplification: force all lead to asc to tonic or desc
                                                                         // in some cases must be stricter
                     fRet = false;
@@ -354,10 +354,10 @@ int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
 }
 
 int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
-    assert(first.isAcceptableDoubling(options));
-    assert(next.isAcceptableDoubling(options));
+    assert(first->isAcceptableDoubling(options));
+    assert(next->isAcceptableDoubling(options));
 
-    return next.isCorrectDoubling(options) ? 0 : SLIGHTLY_LOWER_PENALTY_PER_RULE;
+    return next->isCorrectDoubling(options) ? 0 : SLIGHTLY_LOWER_PENALTY_PER_RULE;
 }
 
 /*   bool ProgressionAnalyzer::RuleForNoneInCommon()
@@ -400,14 +400,14 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
     HarmonyNote ntFirst(options);
     HarmonyNote ntNext(options);
 
-    for (done = false, ntFirst = first.fetchNotes()[nVoice], ntNext = next.fetchNotes()[nVoice];
+    for (done = false, ntFirst = first->fetchNotes()[nVoice], ntNext = next->fetchNotes()[nVoice];
          !done;) {
         // In this look, we will be movint the first note twords the next note...
 
         if ((int)ntFirst == (int)ntNext) {
             return true;
         }
-        if (next.isInChord(options, ntFirst))  // if while we are moving him, we hit a note
+        if (next->isInChord(options, ntFirst))  // if while we are moving him, we hit a note
                                                // that is in the chord, first, then THAT note must be
                                                // the first one
         {
@@ -427,8 +427,8 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
 void ProgressionAnalyzer::figureMotion() {
     for (int i = BASS; i <= SOP; i++)  // for each voice
     {
-        magMotion[i] = next.fetchNotes()[i] -
-                       first.fetchNotes()[i];  // figure how much it changed
+        magMotion[i] = next->fetchNotes()[i] -
+                       first->fetchNotes()[i];  // figure how much it changed
 
         if (magMotion[i] > 0)
             direction[i] = DIR_UP;
@@ -453,14 +453,14 @@ int ProgressionAnalyzer::InCommon() const {
 
     for (i = 0; i < CHORD_SIZE; i++) {
         //    nPitch = First.FetchNotes()[i];	// get the pitch of this chord member
-        nPitch = first.fetchSRNNotes()[i];  // get the scale degree of this chord member
+        nPitch = first->fetchSRNNotes()[i];  // get the scale degree of this chord member
         test[nPitch] = true;                // mark that we are here
     }
 
     // We have now marked all the pitches in our chord
 
     for (i = matches = 0; i < CHORD_SIZE; i++) {
-        nPitch = next.fetchSRNNotes()[i];
+        nPitch = next->fetchSRNNotes()[i];
         if (test[nPitch]) matches++;
     }
     return matches;

@@ -128,7 +128,7 @@ int HarmonyChords::progressionPenalty(
 
     int currentPenalty = current->penaltForFollowingThisGuy(options, 
         bestSoFar, 
-        *prev, show);
+        prev, show);
     if (!prevPrev) {
         return currentPenalty;
     }

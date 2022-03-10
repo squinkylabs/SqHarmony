@@ -38,7 +38,8 @@ static void testAtoB(bool show, const char* chordAs, int degA, const char* chord
 
 
     printf("about to analyze for display\n");
-    ProgressionAnalyzer pa(*chord1, *chord2, true);
+
+    ProgressionAnalyzer pa(chord1.get(), chord2.get(), true);
   //  if (show) {
    //     pa.showAnalysis();
   //  }

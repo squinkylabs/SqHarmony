@@ -4,7 +4,7 @@
 
 ### Harmony
 
-Made score drawing in Harmony use less GPU resources. Added option for black notes on white paper in score section.
+Made score drawing in Harmony use less GPU resources. Added option for black notes on white paper in score section. Fixed pitches being generated outside correct bounds.
 
 ### Arpeggiator
 

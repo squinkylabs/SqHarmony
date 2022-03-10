@@ -7,8 +7,8 @@
 #include "ScaleRelativeNote.h"
 #include "asserts.h"
 
-static bool verifyChordContains(const Chord4& chord, std::vector<int> degrees) {
-    const ScaleRelativeNote* srn = chord.fetchSRNNotes();
+static bool verifyChordContains(const Chord4* chord, std::vector<int> degrees) {
+    const ScaleRelativeNote* srn = chord->fetchSRNNotes();
     for (int i = 0; i < 4; ++i) {
         const int degree = srn[i];
         const int ct = std::count(degrees.begin(), degrees.end(), degree);
@@ -42,25 +42,25 @@ static void test0() {
 static void testConstructor() {
     Options o = makeOptions();
     Chord4 c(o, 1);
-    assert(verifyChordContains(c, {1, 3, 5}));
+    assert(verifyChordContains(&c, {1, 3, 5}));
 
     Chord4 d(o, 2);
-    assert(verifyChordContains(d, {2, 4, 6}));
+    assert(verifyChordContains(&d, {2, 4, 6}));
 
     Chord4 e(o, 3);
-    assert(verifyChordContains(e, {3, 5, 7}));
+    assert(verifyChordContains(&e, {3, 5, 7}));
 
     Chord4 f(o, 4);
-    assert(verifyChordContains(f, {4, 6, 1}));
+    assert(verifyChordContains(&f, {4, 6, 1}));
 
     Chord4 g(o, 5);
-    assert(verifyChordContains(g, {5, 7, 2}));
+    assert(verifyChordContains(&g, {5, 7, 2}));
 
     Chord4 a(o, 6);
-    assert(verifyChordContains(a, {6, 1, 3}));
+    assert(verifyChordContains(&a, {6, 1, 3}));
 
     Chord4 b(o, 7);
-    assert(verifyChordContains(b, {7, 2, 4}));
+    assert(verifyChordContains(&b, {7, 2, 4}));
 }
 
 static void testRoot() {
@@ -89,7 +89,7 @@ static void testList() {
         assert(__numChord4 > 10);
         assert(l.size() > 10);
 
-        const Chord4& c = l.get(3);
+        const Chord4* c = l.get2(3);
     }
     assert(__numChord4 == 0);
 }
@@ -105,7 +105,7 @@ static void testListSub(int degree) {
     const int size = l.size();
     const Chord4* last = nullptr;
     for (int i = 0; i < size; ++i) {
-        const Chord4& c = l.get(i);
+        const Chord4* c = l.get2(i);
 
         const int root = degree;
         int third = (degree + 2);
@@ -134,16 +134,16 @@ void specialDumpList() {
     const int size = l.size();
 
     for (int i = 0; i < size; ++i) {
-        const Chord4& c = l.get(i);
+        const Chord4* c = l.get2(i);
         if (i == 0) {
             printf("first abs = %d, %d, %d, %d\n",
-                   int(c.fetchNotes()[0]),
-                   int(c.fetchNotes()[1]),
-                   int(c.fetchNotes()[2]),
-                   int(c.fetchNotes()[3]));
+                   int(c->fetchNotes()[0]),
+                   int(c->fetchNotes()[1]),
+                   int(c->fetchNotes()[2]),
+                   int(c->fetchNotes()[3]));
         }
-        assert(c.toStringShort() != "E2A2C3A3");
-        printf("list chord[%d]=%s\n", i, c.toString().c_str());
+        assert(c->toStringShort() != "E2A2C3A3");
+        printf("list chord[%d]=%s\n", i, c->toString().c_str());
     }
 
     printf("bass min=%d bass max=%d\n", o.style->minBass(), o.style->maxBass());
@@ -208,28 +208,47 @@ static void testRanges() {
     int sizeNorm = 0;
     int sizeNarrow = 0;
     SQINFO("\n\n ************** enter testRanges");
-    {
-        Options options = makeOptions();
-        Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);
-        options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
-        Chord4ListPtr lNarrow = std::make_shared<Chord4List>(options, 1);
 
-        sizeNorm = lNorm->size();
-        sizeNarrow = lNarrow->size();
-        SQINFO("norm has %d, narrow has %d", sizeNorm, sizeNarrow);
-        assert(sizeNarrow < sizeNorm);
-    }
+    Options options = makeOptions();
+    Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);
+    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    Chord4ListPtr lNarrow = std::make_shared<Chord4List>(options, 1);
+
+    sizeNorm = lNorm->size();
+    sizeNarrow = lNarrow->size();
+    SQINFO("norm has %d, narrow has %d", sizeNorm, sizeNarrow);
+    assert(sizeNarrow < sizeNorm);
 }
 
-static void allGood(Chord4ListPtr list) {
+static void allGood(Chord4ListPtr list, StylePtr style) {
+    for (int i=0; i<list->size(); ++i)
+     {
+        const Chord4* chord = list->get2(i);
+        const HarmonyNote* notes = chord->fetchNotes();
+      
+        const int bass = notes[0];
+        assertGE(bass, style->minBass());
+        assertLE(bass, style->maxBass());
 
+        const int tenor = notes[1];
+        assertGE(tenor, style->minTenor());
+        assertLE(tenor, style->maxTenor());
+
+        const int alto = notes[2];
+        assertGE(alto, style->minAlto());
+        assertLE(alto, style->maxAlto());
+
+        const int soprano = notes[3];
+        assertGE(soprano, style->minSop());
+        assertLE(soprano, style->maxSop());
+    }
 }
 
 static void testMinMax() {
    
     Options options = makeOptions();
     Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);  // root chord
-
+    allGood(lNorm, options.style);
 }
 
 void testChord() {
