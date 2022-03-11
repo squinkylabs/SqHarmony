@@ -19,10 +19,21 @@ public:
         this->configParam(Comp::SCHEMA_PARAM, 0, 1, 0, "hidden schema");
         this->configParam(Comp::KEY_PARAM, 0, 0, 0, "Key: not implemented");
         this->configParam(Comp::MODE_PARAM, 0, 0, 0, "Mode: not implemented");
-
-
-        this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"None", "A little", "A lot"});
-        this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "A little", "A lot"});
+/*
+       DONT_CARE,
+        DISCOURAGE_CONSECUTIVE,
+        DISCOURAGE
+        */
+        this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"DONT_CARE", "DISCOURAGE_CONSECUTIVE", "DISCOURAGE"});
+        
+        /*
+          enum class Ranges {
+        NORMAL_RANGE,
+        ENCOURAGE_CENTER,       // weight rule
+        NARROW_RANGE            // limit extremes
+    };
+    */
+        this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "ENCOURAGE_CENTER", "NARROW_RANGE"});
         this->configSwitch(Comp::NNIC_PREFERENCE_PARAM, 0, 1, 1, "No Notes in Common rule", {"Disable", "enabled"});
 
 

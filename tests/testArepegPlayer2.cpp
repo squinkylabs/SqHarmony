@@ -23,8 +23,6 @@ private:
 };
 
 static void testNewNoteAbove() {
-    printf("\n--- testNewNoteAbove\n");
-
     float input[] = {1, 2, 3, 4};
     const int numInput = 4;
     auto stuff = TestStuff::make(input, numInput);
@@ -53,8 +51,6 @@ static void testNewNoteAbove() {
     assertEQ(pair.second, value+50);
 
 static void testNewNoteBelow() {
-    printf("\n--- testNewNoteBelow\n");
-
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
@@ -78,8 +74,6 @@ static void testNewNoteBelow() {
 }
 
 static void testRemoveNoteAbove() {
-    printf("\n--- testNewNoteAbove\n");
-
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
@@ -97,8 +91,6 @@ static void testRemoveNoteAbove() {
 }
 
 static void testRemoveNoteBelow() {
-    printf("\n--- testNewNoteBelow\n");
-
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
@@ -119,8 +111,6 @@ static void testRemoveNoteBelow() {
 }
 
 static void testRemoveNextNote() {
-    printf("\n--- testRemoveNextNote\n");
-
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
@@ -138,8 +128,6 @@ static void testRemoveNextNote() {
 }
 
 static void testRemoveLastNote() {
-    printf("\n--- testRemoveLastNote\n");
-
     const int numInput = 4;
     float input[] = {1, 2, 3, 4};
     auto stuff = TestStuff::make(input, numInput);
@@ -161,8 +149,6 @@ static void testRemoveLastNote() {
 }
 
 static void testRemoveOnlyNote() {
-    printf("\n--- testRemoveLastNote\n");
-
     const int numInput = 1;
     float input[] = {4.4f};
     auto stuff = TestStuff::make(input, numInput);

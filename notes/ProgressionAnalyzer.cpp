@@ -16,7 +16,7 @@ void ProgressionAnalyzer::showAnalysis() {
     showAlways = true;
 }
 
-/*  ProgressionAnalyzer::ProgressionAnalyzer(const Chord4 * const C1, const Chord4 * const C2)
+/* ProgressionAnalyzer::ProgressionAnalyzer(const Chord4 * const C1, const Chord4 * const C2)
     : First (C1), Next(C2)
  */
 ProgressionAnalyzer::ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fs)
@@ -117,6 +117,15 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return p;
     }
 
+    p = ruleForSpreading(options);
+    totalPenalty += p;
+    if (p && show) {
+        str << "penalty: RuleForSpreading " << p << std::endl;
+    }
+    if (p >= upperBound) {
+        return p;
+    }
+
     p = RuleForJumpSize();
     totalPenalty += p;
     if (p && show) {
@@ -164,10 +173,9 @@ int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
 
     int penalty = 0;
 
-
     if (style->getInversionPreference() == Style::Inversion::DISCOURAGE) {
         if (secondChordInverted) {
-             penalty += AVG_PENALTY_PER_RULE / 2;    // TODO:
+            penalty += AVG_PENALTY_PER_RULE / 2;  // TODO:
         }
     }
 
@@ -178,13 +186,13 @@ int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
 }
 
 int ProgressionAnalyzer::FakeRuleForDesc(const Options& options) const {
-    if (!options.style->forceDescSop()) return true;                // check if rule enabled
+    if (!options.style->forceDescSop()) return true;                  // check if rule enabled
     bool ret = (next->fetchNotes()[SOP] < first->fetchNotes()[SOP]);  // For a test, lets make molody descend
     if (show && !ret) printf("failed decrese melody\n");
     return ret ? 0 : AVG_PENALTY_PER_RULE;
 }
 
-/*  bool ProgressionAnalyzer::Rule4Same()
+/* bool ProgressionAnalyzer::Rule4Same()
  * check if all 4 vx in same direction
  */
 int ProgressionAnalyzer::Rule4Same() const {
@@ -292,12 +300,12 @@ int ProgressionAnalyzer::RuleForLeadingTone() const {
     bool fRet = true;
 
     for (i = BASS; i <= SOP; i++) {
-        nPitch = first->fetchSRNNotes()[i];                              // get the scale degree of this voice of chord
-        if (nPitch == 7) {                                              // if it is leading tone
+        nPitch = first->fetchSRNNotes()[i];                               // get the scale degree of this voice of chord
+        if (nPitch == 7) {                                                // if it is leading tone
             if (next->fetchNotes()[i] != (first->fetchNotes()[i] + 1)) {  // if it doesn't ascend to tonic
                 if (next->fetchNotes()[i] > first->fetchNotes()[i]) {     // and it is ascend..
-                                                                        // over simplification: force all lead to asc to tonic or desc
-                                                                        // in some cases must be stricter
+                                                                          // over simplification: force all lead to asc to tonic or desc
+                                                                          // in some cases must be stricter
                     fRet = false;
                 } else if (i == SOP) {     // if it is descending in soprano voice.
                     if (firstRoot == 5) {  // and progression from V ...
@@ -360,7 +368,43 @@ int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
     return next->isCorrectDoubling(options) ? 0 : SLIGHTLY_LOWER_PENALTY_PER_RULE;
 }
 
-/*   bool ProgressionAnalyzer::RuleForNoneInCommon()
+
+
+int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
+    int ret = 0;
+
+    if (options.style->pullTogether()) {
+        const int distance = next->fetchNotes()[1] - next->fetchNotes()[0];
+        if (distance > 7) {
+            ret = PENALTY_FOR_FAR_APART;
+        }
+        if (distance > 11) {
+            ret = PENALTY_FOR_VERY_FAR_APART;
+        }
+    }
+
+    return ret;
+}
+
+#if 0
+int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
+    int ret = 0;
+
+    if (options.style->pullTogether()) {
+        const int distance = next->fetchNotes()[3] - next->fetchNotes()[0];
+        if (distance > 15) {
+            ret = PENALTY_FOR_FAR_APART;
+        }
+        if (distance > 20) {
+            ret = PENALTY_FOR_VERY_FAR_APART;
+        }
+    }
+
+    return ret;
+}
+#endif
+
+/* bool ProgressionAnalyzer::RuleForNoneInCommon()
  */
 #if 0
 bool ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
@@ -393,7 +437,7 @@ bool ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
 }
 #endif
 
-/*  bool ProgressionAnalyzer::IsNearestNote(int nVoice)
+/* bool ProgressionAnalyzer::IsNearestNote(int nVoice)
  */
 bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) const {
     bool done;
@@ -408,8 +452,8 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
             return true;
         }
         if (next->isInChord(options, ntFirst))  // if while we are moving him, we hit a note
-                                               // that is in the chord, first, then THAT note must be
-                                               // the first one
+                                                // that is in the chord, first, then THAT note must be
+                                                // the first one
         {
             return false;
         }
@@ -422,7 +466,7 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
     return true;
 }
 
-/*   void ProgressionAnalyzer::FigureMotion()
+/* void ProgressionAnalyzer::FigureMotion()
  */
 void ProgressionAnalyzer::figureMotion() {
     for (int i = BASS; i <= SOP; i++)  // for each voice
@@ -439,7 +483,7 @@ void ProgressionAnalyzer::figureMotion() {
     }
 }
 
-/*   int Chord4::InCommon(const Chord4 * ThisGuy) const
+/*  int Chord4::InCommon(const Chord4 * ThisGuy) const
  *
  * find how many voices are in common (by degree, not abs pitch)
  */
@@ -454,7 +498,7 @@ int ProgressionAnalyzer::InCommon() const {
     for (i = 0; i < CHORD_SIZE; i++) {
         //    nPitch = First.FetchNotes()[i];	// get the pitch of this chord member
         nPitch = first->fetchSRNNotes()[i];  // get the scale degree of this chord member
-        test[nPitch] = true;                // mark that we are here
+        test[nPitch] = true;                 // mark that we are here
     }
 
     // We have now marked all the pitches in our chord

@@ -1,3 +1,4 @@
+#include <map>
 #include <random>
 
 #include "Chord4Manager.h"
@@ -6,19 +7,16 @@
 #include "Style.h"
 #include "asserts.h"
 
-#include <map>
-
 class IntAnalyzer {
 public:
     void add(int i) {
-       // SQINFO("adding %d", i);
+        // SQINFO("adding %d", i);
         auto it = data.find(i);
         if (it == data.end()) {
             data[i] = 1;
         } else {
             data[i] += 1;
         }
-       
     }
     void dump() {
         for (auto it : data) {
@@ -53,8 +51,8 @@ public:
 
     int highest() const { return data.rbegin()->first; }
 
-
     int lowest() const { return data.begin()->first; }
+
 private:
     using container = std::map<int, int>;
     container data;
@@ -106,7 +104,7 @@ static void testGenerator() {
 void testRand(const Options& options) {
     IntAnalyzer penaltyAnalyzer;
     IntAnalyzer rangeAnalyzer;
- //   auto options = makeOptions();
+    //   auto options = makeOptions();
     Chord4Manager mgr(options);
 
     SQINFO("min bass = %d, max sop = %d", options.style->minBass(), options.style->maxSop());
@@ -115,38 +113,38 @@ void testRand(const Options& options) {
 
     int rootA = rand();
     auto chordA = HarmonyChords::findChord(false, options, mgr, rootA);
- //   SQINFO("chord a=%s", chordA->toString().c_str());
+    //   SQINFO("chord a=%s", chordA->toString().c_str());
     int rootB = rootA;
     while (rootB == rootA) {
         rootB = rand();
-    //    SQINFO("b candidate = %d", rootB);
+        //    SQINFO("b candidate = %d", rootB);
     }
-  //  SQINFO("final b = %d", rootB);
- //   SQINFO("will gen with root=%d, prev=%s", rootB, chordA->toString().c_str());
+    //  SQINFO("final b = %d", rootB);
+    //   SQINFO("will gen with root=%d, prev=%s", rootB, chordA->toString().c_str());
     auto chordB = HarmonyChords::findChord(false, options, mgr, *chordA, rootB);
     assert(chordB);
-  //  SQINFO("chord b=%s", chordB->toString().c_str());
+    //  SQINFO("chord b=%s", chordB->toString().c_str());
 
     for (int i = 0; i < 1000; ++i) {
         int rootC = rootB;
         while (rootC == rootB) {
-            //SQINFO("GOT SAME");
+            // SQINFO("GOT SAME");
             rootC = rand();
         }
-      //  SQINFO("going to try b=%d C=%d", rootB, rootC);
+        //  SQINFO("going to try b=%d C=%d", rootB, rootC);
         const Chord4* thirdChord = HarmonyChords::findChord(false, options, mgr, *chordA, *chordB, rootC);
         assert(thirdChord);
 
         rangeAnalyzer.add(thirdChord->fetchNotes()[3]);
         rangeAnalyzer.add(thirdChord->fetchNotes()[0]);
 
-    /*
-        SQINFO("progression a=%s b=%s c=%s",
-               chordA->toString().c_str(),
-               chordB->toString().c_str(),
-               thirdChord->toString().c_str());
-    */
-        const int penalty = HarmonyChords::progressionPenalty(options,1000,chordA, chordB, thirdChord, false);
+        /*
+            SQINFO("progression a=%s b=%s c=%s",
+                   chordA->toString().c_str(),
+                   chordB->toString().c_str(),
+                   thirdChord->toString().c_str());
+        */
+        const int penalty = HarmonyChords::progressionPenalty(options, 1000, chordA, chordB, thirdChord, false);
         penaltyAnalyzer.add(penalty);
 
         chordA = chordB;
@@ -155,18 +153,21 @@ void testRand(const Options& options) {
     }
     SQINFO("Here are penalties");
     penaltyAnalyzer.dump();
-    //SQINFO("Here are pitchextremes");
-    //rangeAnalyzer.dump();
+    // SQINFO("Here are pitchextremes");
+    // rangeAnalyzer.dump();
     SQINFO("Pitch range = %d to %d", rangeAnalyzer.lowest(), rangeAnalyzer.highest());
 }
 
 static void testRand() {
-     auto options = makeOptions();
-     SQINFO("normal options");
-     testRand(options);
-     options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
-      SQINFO("NARROW_RANGE");
-     testRand(options);
+    auto options = makeOptions();
+    SQINFO("normal options");
+    testRand(options);
+    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    SQINFO("NARROW_RANGE");
+    testRand(options);
+     options.style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
+    SQINFO("ENCOURAGE_CENTER");
+    testRand(options);
 }
 
 void testHarmonyChordsRandom() {
@@ -174,5 +175,5 @@ void testHarmonyChordsRandom() {
     testHiLo();
     printf("--- test rand ---\n");
     testRand();
-     assertEQ(__numChord4, 0);
+    assertEQ(__numChord4, 0);
 }

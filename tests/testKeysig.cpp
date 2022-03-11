@@ -91,22 +91,38 @@ static void testStyle2() {
     const int slw = style->minSop();
     const int shw = style->maxSop();
 
-     auto style2 = std::make_shared<Style>();
-     style2->setRangesPreference(Style::Ranges::NARROW_RANGE);
-     assertLT(blw, style2->minBass());
-     assertGT(bhw, style2->maxBass());
-     assertLT(tlw, style2->minTenor());
-     assertGT(thw, style2->maxTenor());
-     assertLT(alw, style2->minAlto());
-     assertGT(ahw, style2->maxAlto());
-     assertLT(slw, style2->minSop());
-     assertGT(shw, style2->maxSop());
+    auto style2 = std::make_shared<Style>();
+    style2->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    assertLT(blw, style2->minBass());
+    assertGT(bhw, style2->maxBass());
+    assertLT(tlw, style2->minTenor());
+    assertGT(thw, style2->maxTenor());
+    assertLT(alw, style2->minAlto());
+    assertGT(ahw, style2->maxAlto());
+    assertLT(slw, style2->minSop());
+    assertGT(shw, style2->maxSop());
+}
 
+static void validateRange(StylePtr style) {
+    // at least one semi of overlap
+    assertGT(style->maxBass(), style->minTenor());
+    assertGT(style->maxTenor(), style->minAlto());
+    assertGT(style->maxAlto(), style->minSop());
+}
+
+void validateRanges() {
+    auto style = std::make_shared<Style>();
+    validateRange(style);
+    style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
+    validateRange(style);
+    style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    validateRange(style);
 }
 
 void testKeysig() {
     testCinC();
     testAllInC();
     testStyle1();
-    testStyle2();
+   // testStyle2();
+    validateRanges();
 }

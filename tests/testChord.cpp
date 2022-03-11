@@ -207,7 +207,6 @@ static void testFromString2() {
 static void testRanges() {
     int sizeNorm = 0;
     int sizeNarrow = 0;
-    SQINFO("\n\n ************** enter testRanges");
 
     Options options = makeOptions();
     Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);
@@ -216,7 +215,6 @@ static void testRanges() {
 
     sizeNorm = lNorm->size();
     sizeNarrow = lNarrow->size();
-    SQINFO("norm has %d, narrow has %d", sizeNorm, sizeNarrow);
     assert(sizeNarrow < sizeNorm);
 }
 

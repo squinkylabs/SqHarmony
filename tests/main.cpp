@@ -39,28 +39,16 @@ int main(const char**, int) {
     testArpegComposite();
 
 #if 1
-    printf("testing notes 22\n");
     testNotes();
-    printf("testing scales 24\n");
     testScale();
-    printf("testing scale notes 26\n");
     testScaleNotes();
-    printf("testing scale q\n");
     testScaleQuantizer();
-
-    printf("testing h note\n");
     testHarmonyNote();
-    printf("testing srn\n");
     testScaleRelativeNote();
-    printf("testing crn\n");
     testChordRelativeNote();
-    printf("testing keysig\n");
     testKeysig();
-    printf("testing chord\n");
     testChord();
-    printf("testing h song\n");
     testHarmonySong();
-    printf("testing h chords\n");
     testHarmonyChords();
     testHarmonyChordsRandom();
 #endif
