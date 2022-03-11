@@ -10,6 +10,14 @@ struct Harmony1Widget : ModuleWidget {
     Harmony1Widget(Harmony1Module* module) {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-4.svg")));
+
+#if 1
+        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-three.svg"));
+        SvgWidget* logo = new SvgWidget();
+        logo->setSvg(svg);
+        addChild(logo);
+#endif
+
         addLabel(Vec(28, 5), "Harmony");
        
         const float vlx = 12;

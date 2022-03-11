@@ -215,8 +215,6 @@ static void testXtoY() {
     }
 }
 
-
-
 void testHarmonyChords() {
     testFirstChord();
     testBasic1();
@@ -244,4 +242,5 @@ void testHarmonyChords() {
     printf("--- test xyx ----\n");
     // testXtoYtoX();
   
+    assertEQ(__numChord4, 0);
 }

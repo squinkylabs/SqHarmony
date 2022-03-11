@@ -65,8 +65,9 @@ private:
 
     bool isNarrowRange() const { return rangesPreference == Ranges::NARROW_RANGE; }
 
-    // was 2. make crazy for test
-    static const int dx{1};
+    // at 5 it's getting noticeably worse, but not awful
+    // at 8 I get assertions. should look into that
+    static const int dx{6};
 };
 
 using StylePtr = std::shared_ptr<Style>;

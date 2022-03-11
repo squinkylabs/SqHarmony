@@ -50,11 +50,24 @@ public:
             assert(data.find(i) != data.end());
         }
     }
-    
+
+    int highest() const { return data.rbegin()->first; }
+
+
+    int lowest() const { return data.begin()->first; }
 private:
     using container = std::map<int, int>;
     container data;
 };
+
+static void testHiLo() {
+    IntAnalyzer a;
+    a.add(100);
+    a.add(200);
+    a.add(150);
+    assertEQ(a.highest(), 200);
+    assertEQ(a.lowest(), 100);
+}
 
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
@@ -90,62 +103,76 @@ static void testGenerator() {
     a.checkExtremes(1, 7, 10.f);
 }
 
-/*
-static int genRandomRoot() {
-    static std::mt19937 generator;
-    static std::uniform_real_distribution<float> distribution{0, 1.0};
-
-    const float f = distribution(generator);
-    // int i = int(7 * f);
-    int i = 1 + int(std::round(6.f * f));
-    printf("rand = %d\n", i);
-    return i;
-    // return  distribution(generator)
-}
-*/
-
-void testRand() {
-    auto options = makeOptions();
+void testRand(const Options& options) {
+    IntAnalyzer penaltyAnalyzer;
+    IntAnalyzer rangeAnalyzer;
+ //   auto options = makeOptions();
     Chord4Manager mgr(options);
+
+    SQINFO("min bass = %d, max sop = %d", options.style->minBass(), options.style->maxSop());
 
     auto rand = getRandFunc();
 
     int rootA = rand();
     auto chordA = HarmonyChords::findChord(false, options, mgr, rootA);
-    SQINFO("chord a=%s", chordA->toString().c_str());
+ //   SQINFO("chord a=%s", chordA->toString().c_str());
     int rootB = rootA;
     while (rootB == rootA) {
         rootB = rand();
-        SQINFO("b candidate = %d", rootB);
+    //    SQINFO("b candidate = %d", rootB);
     }
-    SQINFO("final b = %d", rootB);
-    SQINFO("will gen with root=%d, prev=%s", rootB, chordA->toString().c_str());
+  //  SQINFO("final b = %d", rootB);
+ //   SQINFO("will gen with root=%d, prev=%s", rootB, chordA->toString().c_str());
     auto chordB = HarmonyChords::findChord(false, options, mgr, *chordA, rootB);
     assert(chordB);
-    SQINFO("chord b=%s", chordB->toString().c_str());
+  //  SQINFO("chord b=%s", chordB->toString().c_str());
 
     for (int i = 0; i < 1000; ++i) {
         int rootC = rootB;
         while (rootC == rootB) {
-            SQINFO("GOT SAME");
+            //SQINFO("GOT SAME");
             rootC = rand();
         }
-        SQINFO("going to try b=%d C=%d", rootB, rootC);
-        auto thirdChord = HarmonyChords::findChord(false, options, mgr, *chordA, *chordB, rootC);
+      //  SQINFO("going to try b=%d C=%d", rootB, rootC);
+        const Chord4* thirdChord = HarmonyChords::findChord(false, options, mgr, *chordA, *chordB, rootC);
         assert(thirdChord);
+
+        rangeAnalyzer.add(thirdChord->fetchNotes()[3]);
+        rangeAnalyzer.add(thirdChord->fetchNotes()[0]);
+
+    /*
         SQINFO("progression a=%s b=%s c=%s",
                chordA->toString().c_str(),
                chordB->toString().c_str(),
                thirdChord->toString().c_str());
+    */
+        const int penalty = HarmonyChords::progressionPenalty(options,1000,chordA, chordB, thirdChord, false);
+        penaltyAnalyzer.add(penalty);
 
         chordA = chordB;
         chordB = thirdChord;
         rootB = rootC;
     }
+    SQINFO("Here are penalties");
+    penaltyAnalyzer.dump();
+    //SQINFO("Here are pitchextremes");
+    //rangeAnalyzer.dump();
+    SQINFO("Pitch range = %d to %d", rangeAnalyzer.lowest(), rangeAnalyzer.highest());
+}
+
+static void testRand() {
+     auto options = makeOptions();
+     SQINFO("normal options");
+     testRand(options);
+     options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+      SQINFO("NARROW_RANGE");
+     testRand(options);
 }
 
 void testHarmonyChordsRandom() {
     testGenerator();
+    testHiLo();
     printf("--- test rand ---\n");
-    //testRand();
+    testRand();
+     assertEQ(__numChord4, 0);
 }

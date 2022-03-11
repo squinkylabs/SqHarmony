@@ -42,6 +42,13 @@ public:
         const Chord4& prev,
         int root);
 
+    static int progressionPenalty(const Options& options,
+                                  int bestSoFar,
+                                  const Chord4* prevProv,
+                                  const Chord4* prev,
+                                  const Chord4* current,
+                                  bool show);
+
 private:
     static const Chord4* find(
         bool show,
@@ -50,11 +57,4 @@ private:
         const Chord4* prevProv,
         const Chord4* prev,
         int root);
-
-    static int progressionPenalty(const Options& options,
-                                  int bestSoFar,
-                                  const Chord4* prevProv,
-                                  const Chord4* prev,
-                                  const Chord4* current,
-                                  bool show);
 };
