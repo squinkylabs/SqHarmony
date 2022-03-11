@@ -154,8 +154,9 @@ static void testBassAndSopranoVoiceCount() {
 
 static void test2and2VoiceCount() {
     SQINFO("-------------- test2and2VoiceCount ");
+    
+    
     Comp h;
-
     h.outputs[Comp::TENOR_OUTPUT].channels = 1;
     h.outputs[Comp::SOPRANO_OUTPUT].channels = 1;
       // set to D so we can't get any zeros
@@ -176,6 +177,17 @@ static void test2and2VoiceCount() {
     assertNE(h.outputs[Comp::SOPRANO_OUTPUT].getVoltage(1), 0);
 }
 
+static void testNumChords() {
+    Comp h;
+    int x = h._size();
+    assert(x > 100);            // plenty of chords, by default
+    h.params[Comp::CENTER_PREFERENCE_PARAM].value = float(int(Style::Ranges::NARROW_RANGE));
+
+    int y = h._size();
+    assertLT(y, x);
+
+}
+
 void testHarmonyComposite() {
     test0();
     testQuant1();
@@ -187,4 +199,5 @@ void testHarmonyComposite() {
     testSoprano4VoiceCount();
     testBassAndSopranoVoiceCount();
     test2and2VoiceCount();
+    testNumChords();
 }

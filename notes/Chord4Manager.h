@@ -37,6 +37,10 @@ public:
         return chords[root]->get2(rank);
     }
 
+    int _size() const {
+        return chords[1]->size();
+    }
+
 private:
     // entries for 0 = no=used, 1= root
     // Chord4Ptr p;

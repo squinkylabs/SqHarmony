@@ -68,11 +68,18 @@ public:
         int inversion = 0;  // 0 = root, 1= first 2 = second
     };
 
+    // called from UI thread
     bool isChordAvailable() const {
         return !chordsOut.empty();
     }
+
+    // called from the UI thread
     Chord getChord() {
         return chordsOut.pop();
+    }
+
+    int _size() const {
+        return chordManager->_size();
     }
 
 private:
