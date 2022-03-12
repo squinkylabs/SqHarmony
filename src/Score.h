@@ -71,7 +71,7 @@ public:
 
 private:
     bool scoreIsDirty = false;
-    void filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h) const;
+    void filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const;
     void drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
     void drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
 
@@ -304,8 +304,9 @@ inline void Score::drawMusic(const DrawArgs &args) {
     NVGcolor color = getBackgroundColor();
 
     // TODO : USE SIZE
-    filledRect(args.vg, color, 0, 0, 200, 200);
-
+    //filledRect(args.vg, color, 0, 0, 200, 200, 5);
+    filledRect(args.vg, color, 0, 0, box.size.x, box.size.y, 5);
+    
     prepareFontMusic(args);
 
     color = getForegroundColor();
@@ -411,10 +412,11 @@ void Score::drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, float le
     nvgClosePath(vg);
 }
 
-void Score::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h) const {
+void Score::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const {
     nvgFillColor(vg, color);
     nvgBeginPath(vg);
-    nvgRect(vg, x, y, w, h);
+ //   nvgRect(vg, x, y, w, h);
+    nvgRoundedRect(vg, x, y, w, h, rounding);
     nvgFill(vg);
 }
 

@@ -16,8 +16,8 @@ public:
     // bool isLegal(const Options&) const;
 
     static const int PENALTY_FOR_REPEATED_CHORDS = {50};
-    static const int PENALTY_FOR_FAR_APART = {152};
-    static const int PENALTY_FOR_VERY_FAR_APART = {299};
+    static const int PENALTY_FOR_FAR_APART = {80};
+    static const int PENALTY_FOR_VERY_FAR_APART = {100};
     static const int AVG_PENALTY_PER_RULE = {100};
     static const int PENALTY_FOR_WEAK_RULE = {AVG_PENALTY_PER_RULE / 2};
     static const int SLIGHTLY_HIGHER_PENALTY_PER_RULE = {110};

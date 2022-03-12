@@ -374,11 +374,15 @@ int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
     int ret = 0;
 
     if (options.style->pullTogether()) {
-        const int distance = next->fetchNotes()[1] - next->fetchNotes()[0];
-        if (distance > 7) {
+        // distance from bass to tenor 9 and 13 were ok for this
+        //const int distance = next->fetchNotes()[1] - next->fetchNotes()[0];
+
+        // distance from bass to sop
+        const int distance = next->fetchNotes()[3] - next->fetchNotes()[0];
+        if (distance > 12) {
             ret = PENALTY_FOR_FAR_APART;
         }
-        if (distance > 11) {
+        if (distance > 16) {
             ret = PENALTY_FOR_VERY_FAR_APART;
         }
     }
