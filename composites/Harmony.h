@@ -182,8 +182,10 @@ inline void Harmony<TBase>::stepn() {
 template <class TBase>
 inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     const HarmonyNote* harmonyNotes = chord->fetchNotes();
-    Chord c;
 
+    // Chord c is just used for passing to UI for score drawing.
+    // Does not affect outputs
+    Chord c;
     c.root = chord->fetchRoot();
     c.inversion = int(chord->inversion(*chordOptions));
 

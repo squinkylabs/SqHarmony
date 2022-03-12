@@ -69,7 +69,5 @@ public:
 private:
     float lastValue = 0;
     MidiNote lastQuantizedNote;
-   // const Scale& scale;
-
     ConstOptionsPtr options;
 };

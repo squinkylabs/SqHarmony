@@ -170,10 +170,30 @@ static void testRand() {
     testRand(options);
 }
 
+static void testCMaj() {
+    auto options = makeOptions();
+    Chord4Manager mgr(options);
+
+    const int rootA = 1;
+    auto chordA = HarmonyChords::findChord(false, options, mgr, rootA);
+    const HarmonyNote* hn = chordA->fetchNotes();
+    const ScaleRelativeNote* srn = chordA->fetchSRNNotes();
+    for (int i=0; i<4; ++i) {
+        const int ab = hn[i];
+        const int r = srn[i];
+        SQINFO("chord[%d] = %d, %d(srn)", i, ab, r);
+    }
+    assert(false);
+}
+
 void testHarmonyChordsRandom() {
     testGenerator();
     testHiLo();
     printf("--- test rand ---\n");
     testRand();
+
+    testCMaj();
+    //testCMin();
+    
     assertEQ(__numChord4, 0);
 }
