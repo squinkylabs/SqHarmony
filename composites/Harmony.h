@@ -169,11 +169,14 @@ inline void Harmony<TBase>::stepn() {
     bool noNotesInCommon =  Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
     auto style = chordOptions->style;
     style->setNoNotesInCommon(noNotesInCommon);
-    Style::Ranges range = Style::Ranges(int(std::round(Harmony<TBase>::params[CENTER_PREFERENCE_PARAM].value)));
+    const Style::Ranges range = Style::Ranges(int(std::round(Harmony<TBase>::params[CENTER_PREFERENCE_PARAM].value)));
     if (style->getRangesPreference() != range) {
         style->setRangesPreference(range);
         mustUpdate = true;
     }
+
+    const Style::InversionPreference ip = Style::InversionPreference(int(std::round(Harmony<TBase>::params[INVERSION_PREFERENCE_PARAM].value)));
+    style->setInversionPreference(ip);
 }
 
 template <class TBase>

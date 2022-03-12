@@ -52,7 +52,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     }
 
     int totalPenalty = 0;
-    int p = RuleForConsecInversions(options);
+    int p = RuleForInversions(options);
     totalPenalty += p;
     if (p && show) {
         str << "Penalty: RuleForConsecInversions " << p << std::endl;
@@ -155,10 +155,10 @@ int ProgressionAnalyzer::RuleForJumpSize() const {
     return 0;
 }
 
-int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
+int ProgressionAnalyzer::RuleForInversions(const Options& options) const {
     const auto style = options.style;
 
-    if (style->getInversionPreference() == Style::Inversion::DONT_CARE) {
+    if (style->getInversionPreference() == Style::InversionPreference::DONT_CARE) {
         return 0;  // if we don't mind consecutive inversions, no penalty
     }
 
@@ -173,9 +173,9 @@ int ProgressionAnalyzer::RuleForConsecInversions(const Options& options) const {
 
     int penalty = 0;
 
-    if (style->getInversionPreference() == Style::Inversion::DISCOURAGE) {
+    if (style->getInversionPreference() == Style::InversionPreference::DISCOURAGE) {
         if (secondChordInverted) {
-            penalty += AVG_PENALTY_PER_RULE / 2;  // TODO:
+            penalty += AVG_PENALTY_PER_RULE;
         }
     }
 

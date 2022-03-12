@@ -65,11 +65,11 @@ static void testAllInC() {
 static void testStyle1() {
     auto style = std::make_shared<Style>();
 
-    assert(style->getInversionPreference() == Style::Inversion::DISCOURAGE_CONSECUTIVE);
-    style->setInversionPreference(Style::Inversion::DISCOURAGE);
-    assert(style->getInversionPreference() == Style::Inversion::DISCOURAGE);
-    style->setInversionPreference(Style::Inversion::DONT_CARE);
-    assert(style->getInversionPreference() == Style::Inversion::DONT_CARE);
+    assert(style->getInversionPreference() == Style::InversionPreference::DISCOURAGE_CONSECUTIVE);
+    style->setInversionPreference(Style::InversionPreference::DISCOURAGE);
+    assert(style->getInversionPreference() == Style::InversionPreference::DISCOURAGE);
+    style->setInversionPreference(Style::InversionPreference::DONT_CARE);
+    assert(style->getInversionPreference() == Style::InversionPreference::DONT_CARE);
 
     assert(style->getRangesPreference() == Style::Ranges::NORMAL_RANGE);
     style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);

@@ -12,7 +12,7 @@ struct Harmony1Widget : ModuleWidget {
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-4.svg")));
 
 #if 1
-        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-three.svg"));
+        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
         SvgWidget* logo = new SvgWidget();
         logo->setSvg(svg);
         addChild(logo);

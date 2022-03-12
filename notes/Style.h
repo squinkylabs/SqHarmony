@@ -34,14 +34,14 @@ public:
 
     /** new: setters *****************/
 
-    enum class Inversion {
+    enum class InversionPreference {
         DONT_CARE,
         DISCOURAGE_CONSECUTIVE,
         DISCOURAGE
     };
 
-    void setInversionPreference(Inversion);
-    Inversion getInversionPreference() const;
+    void setInversionPreference(InversionPreference);
+    InversionPreference getInversionPreference() const;
 
     enum class Ranges {
         NORMAL_RANGE,
@@ -61,7 +61,7 @@ public:
 
 private:
     // bool _allowConsecInversions = false;
-    Inversion inversionPreference = Inversion::DISCOURAGE_CONSECUTIVE;
+    InversionPreference inversionPreference = InversionPreference::DISCOURAGE_CONSECUTIVE;
     Ranges rangesPreference = Ranges::NORMAL_RANGE;
     bool enableNoNotesInCommonRule = true;
 

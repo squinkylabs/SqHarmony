@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="135" height="380" viewBox="0 0 135 380">
+  <defs>
+    <clipPath id="clip-pattern-four">
+      <rect width="135" height="380"/>
+    </clipPath>
+  </defs>
+  <g id="pattern-four" clip-path="url(#clip-pattern-four)">
+    <path id="Path_3" data-name="Path 3" d="M373.7,567.6s-.6-294.2,0-327.9-1.4-32.4,27.3-33.4,94,0,94,0" transform="translate(-274 -178.856)" fill="none" stroke="#a00df3" stroke-width="9" opacity="0.2"/>
+    <path id="Path_2" data-name="Path 2" d="M373.7,567.6s-.6-294.2,0-327.9-1.4-32.4,27.3-33.4,94,0,94,0" transform="translate(-255 -160)" fill="none" stroke="#a00df3" stroke-width="9" opacity="0.2"/>
+    <path id="Path_4" data-name="Path 4" d="M373.7,586.556s-.6-313.156,0-346.856-1.4-32.4,27.3-33.4,94,0,94,0" transform="translate(-295 -197.856)" fill="none" stroke="#a00df3" stroke-width="9" opacity="0.2"/>
+    <path id="Path_5" data-name="Path 5" d="M494.733,590.556s.6-317.156,0-350.856,1.4-32.4-27.3-33.4-94,0-94,0" transform="translate(-436 -197.856)" fill="none" stroke="#a00df3" stroke-width="9" opacity="0.2"/>
+    <path id="Path_6" data-name="Path 6" d="M494.733,567.6s.6-294.2,0-327.9,1.4-32.4-27.3-33.4-94,0-94,0" transform="translate(-457 -178.856)" fill="none" stroke="#a00df3" stroke-width="9" opacity="0.2"/>
+    <path id="Path_2-2" data-name="Path 2" d="M494.733,567.6s.6-294.2,0-327.9,1.4-32.4-27.3-33.4-94,0-94,0" transform="translate(-475 -160)" fill="none" stroke="#a00df3" stroke-width="9" opacity="0.2"/>
+  </g>
+</svg>

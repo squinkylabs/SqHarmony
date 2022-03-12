@@ -7,11 +7,11 @@ bool Style::allowVoiceCrossing() {
     return false;
 }
 
-void Style::setInversionPreference(Inversion i) {
+void Style::setInversionPreference(InversionPreference i) {
     inversionPreference = i;
 }
 
-Style::Inversion Style::getInversionPreference() const {
+Style::InversionPreference Style::getInversionPreference() const {
     return inversionPreference;
 }
 

@@ -52,7 +52,7 @@ private:
     int RuleForLeadingTone() const;
     int RuleForPara() const;
     int RuleForCross() const;                                   // vx in similar motion shouldn't cross
-    int RuleForConsecInversions(const Options& options) const;  // rule for two consec chords in first inversion
+    int RuleForInversions(const Options& options) const;  // rule for two consec chords in first inversion
     int RuleForJumpSize() const;
     int FakeRuleForDesc(const Options& options) const;  // force descending melody for torture test!
 
