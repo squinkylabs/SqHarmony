@@ -128,7 +128,11 @@ static void testArpegPauseSub(ArpegPlayer::Mode mode,
     std::pair<float, float> zeros[3] = {std::make_pair(0.f, 0.f)};
     testArpegSubx(mode, input, 0, zeros, 2);
 
-    printf("skipping pause for now\n");
+    static bool b = false;
+    if (!b) {
+        printf("skipping pause for now\n");
+        b = true;
+    }
     // testArpegPauseSub2(mode, input, numInput, expectedOutput, numOutput, true);
     //  testArpegPauseSub2(mode, input, numInput, expectedOutput, numOutput, false);
 }

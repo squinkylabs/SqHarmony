@@ -181,7 +181,10 @@ static void testNumChords() {
     Comp h;
     int x = h._size();
     assert(x > 100);            // plenty of chords, by default
+    SQINFO("test setting to enum narrow %d", int(Style::Ranges::NARROW_RANGE));
     h.params[Comp::CENTER_PREFERENCE_PARAM].value = float(int(Style::Ranges::NARROW_RANGE));
+   // for (int i=0; i < 32; ++i)
+   h.process(TestComposite::ProcessArgs());
 
     int y = h._size();
     assertLT(y, x);

@@ -86,6 +86,7 @@ private:
     void init();
     void outputPitches(const Chord4*);
     void stepn();
+    void updateEverything();
 
     /**
      * input quantization
@@ -110,6 +111,7 @@ private:
     Chord4ManagerPtr chordManager;
     float lastQuantizedPitch = -100;
     int count = 0;
+    bool mustUpdate = false;
 };
 
 template <class TBase>
@@ -163,32 +165,15 @@ inline void Harmony<TBase>::stepn() {
         SQINFO("voice %d output = %d, channel = %d", i, voiceToOutput[i], voiceToChannel[i]);
     }
 #endif
-// NNIC_PREFERENCE_PARAM
+
     bool noNotesInCommon =  Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
-    //  OptionsPtr chordOptions;
     auto style = chordOptions->style;
     style->setNoNotesInCommon(noNotesInCommon);
-
-//    this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference",
-// {"None", "A little", "A lot"});
-   
-    Style::Ranges range = Style::Ranges::NORMAL_RANGE;
-    const int i = int(std::round(Harmony<TBase>::params[CENTER_PREFERENCE_PARAM].value));
-    switch(i) {
-        case 0:
-            range = Style::Ranges::NORMAL_RANGE;
-            break;
-        case 1:
-            range = Style::Ranges::NARROW_RANGE;
-            break;
-        case 2:
-            range = Style::Ranges::ENCOURAGE_CENTER;
-            break;
-        default:
-            assert(false);
+    Style::Ranges range = Style::Ranges(int(std::round(Harmony<TBase>::params[CENTER_PREFERENCE_PARAM].value)));
+    if (style->getRangesPreference() != range) {
+        style->setRangesPreference(range);
+        mustUpdate = true;
     }
-
-    style->setRangesPreference(range);
 }
 
 template <class TBase>
@@ -221,13 +206,16 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
 }
 
 template <class TBase>
+inline void Harmony<TBase>::updateEverything() {
+    chordManager = std::make_shared<Chord4Manager>(*chordOptions);
+    mustUpdate = false;
+}
+
+template <class TBase>
 inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     divn.step();
     //   static int count = 0;
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
-    ++count;
-    // if (count < 20)
-    //     fprintf(stderr, "\n==== process[%d] input = %f this=%p\n", count, input, this);
     assert(chordManager);
     MidiNote mn = inputQuantizer->run(input);
     FloatNote quantizedNote;
@@ -236,12 +224,6 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
 
     // generate a new chord any time the quantizer outputs a new pitch
     if (quantizedNote.get() != lastQuantizedPitch) {
-        #if 0
-        printf("got new Q pitch v=%f semis=%f q=%f\n",
-               input,
-               input * 12,
-               quantizedNote.get());
-         #endif
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
 
@@ -254,34 +236,16 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
         if (octaveJump) {
             printf("\nignoring octave jump\n");
         } else {
-
-        #if 0
-            printf("\n** new Q note m=%d f=%f last=%f ct=%d\n",
-                   mn.get(),
-                   quantizedNote.get(),
-                   lastQuantizedPitch,
-                   count);
-            fflush(stdout);
-        #endif
-
             const bool show = false;
             // If it's our first chord, generate single.
             // TODO: shouldn't we have done this before? What are we outputting?
             if (!chordA) {
-               // printf("process new chords case 1\n");
-               // fflush(stdout);
                 chordA = HarmonyChords::findChord(show, *chordOptions, *chordManager, 1 + scaleNote.getDegree());
                 outputPitches(chordA);
-              //  printf("after process new chords case 1\n");
-             //   fflush(stdout);
             } else if (!chordB) {
-             //   printf("process new chords case 2\n");
-             //   fflush(stdout);
                 chordB = HarmonyChords::findChord(show, *chordOptions, *chordManager, *chordA, 1 + scaleNote.getDegree());
                 outputPitches(chordB);
             } else {
-              //  printf("process new chords case 3\n");
-              //  fflush(stdout);
                 const Chord4* chord = HarmonyChords::findChord(show, *chordOptions, *chordManager, *chordA, *chordB, 1 + scaleNote.getDegree());
                 outputPitches(chord);
                 chordA = chordB;
@@ -290,12 +254,9 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
         }
 
         lastQuantizedPitch = quantizedNote.get();
-
-       // printf("SET lqp to %f\n", lastQuantizedPitch);
-       // fflush(stdout);
     }
-    if (count < 20) {
-        //  fprintf(stderr, "leave proc= process[%d] input = %f\n", count, input);
-        //  fflush(stderr);
+
+    if (mustUpdate) {
+        updateEverything();
     }
 }
