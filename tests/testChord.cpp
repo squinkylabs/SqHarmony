@@ -23,24 +23,33 @@ static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
 
-static KeysigOldPtr makeKeysig() {
-    return std::make_shared<KeysigOld>(Roots::C);
+static KeysigOldPtr makeKeysig(bool minor) {
+    auto ret =  std::make_shared<KeysigOld>(Roots::C);
+    if (minor) {
+        ret->set(MidiNote::C, Scale::Scales::Minor);
+    }
+    return ret;
 }
 
-static Options makeOptions() {
-    Options o(makeKeysig(), makeStyle());
+static Options makeOptions(bool minor) {
+    Options o(makeKeysig(minor), makeStyle());
     return o;
 }
 
-static void test0() {
-    Options o = makeOptions();
+static void test0(bool minor) {
+    Options o = makeOptions(minor);
     assert(__numChord4 == 0);
     Chord4 x(o, 1);
     assert(__numChord4 == 1);
 }
 
-static void testConstructor() {
-    Options o = makeOptions();
+static void test0() {
+    test0(false);
+    test0(true);
+}
+
+static void testConstructor(bool minor) {
+    Options o = makeOptions(minor);
     Chord4 c(o, 1);
     assert(verifyChordContains(&c, {1, 3, 5}));
 
@@ -63,11 +72,16 @@ static void testConstructor() {
     assert(verifyChordContains(&b, {7, 2, 4}));
 }
 
-static void testRoot() {
-    Options o = makeOptions();
+static void testConstructor() {
+    testConstructor(false);
+    testConstructor(true);
+}
+
+static void testRoot(bool minor) {
+    Options o = makeOptions(minor);
     Chord4 x(o, 1);
     x.print();
-    printf("\n");
+    //printf("\n");
     assertEQ(x.fetchRoot(), 1);
 
     // TODO: assert on these or stop printing?
@@ -76,15 +90,18 @@ static void testRoot() {
     for (int i = 0; i < 4; ++i) {
         const int np = (int)notes[i];
         const int hnp = hn[i];
-        printf("chord[%d] = %d (srn), %d (midi)\n", i, (int)notes[i], (int)hn[i]);
+       // printf("chord[%d] = %d (srn), %d (midi)\n", i, (int)notes[i], (int)hn[i]);
     }
-
-    // assert(false);
 }
 
-static void testList() {
+static void testRoot() {
+    testRoot(false);
+    testRoot(true);
+}
+
+static void testList(bool minor) {
     {
-        Options o = makeOptions();
+        Options o = makeOptions(minor);
         Chord4List l(o, 4);
         assert(__numChord4 > 10);
         assert(l.size() > 10);
@@ -94,11 +111,16 @@ static void testList() {
     assert(__numChord4 == 0);
 }
 
-static void testListSub(int degree) {
+static void testList() {
+    testList(false);
+    testList(true);
+}
+
+static void testListSub(bool minor, int degree) {
     assert(degree >= 1);
     assert(degree <= 7);
 
-    Options o = makeOptions();
+    Options o = makeOptions(minor);
 
     // make a list of root chords
     Chord4List l(o, degree);
@@ -117,16 +139,21 @@ static void testListSub(int degree) {
     }
 }
 
-static void testList2() {
-    testListSub(1);
+static void testList2(bool minor) {
+    testListSub(minor, 1);
     for (int degree = 1; degree <= 7; ++degree) {
-        testListSub(degree);
+        testListSub(minor, degree);
     }
 }
 
-void specialDumpList() {
+static void testList2() {
+    testList2(false);
+    testList2(true);
+}
+
+void specialDumpList(bool minor) {
     printf("-- special dump lists, all Am in CMaj\n");
-    Options o = makeOptions();
+    Options o = makeOptions(minor);
     const int degree = 6;
     // make a list of root chords
     Chord4List l(o, degree);
@@ -153,9 +180,9 @@ void specialDumpList() {
     assert(false);
 }
 
-static void testInversions() {
+static void testInversions(bool minor) {
     // generate a bunch of c major chords
-    Options options = makeOptions();
+    Options options = makeOptions(minor);
     Chord4 chord(options, 1);
 
     bool seenFirst = false;
@@ -187,28 +214,41 @@ static void testInversions() {
     }
 }
 
-static void testFromString() {
-    Options options = makeOptions();
+static void testInversions() {
+    testInversions(false);
+    testInversions(true);
+}
+
+static void testFromString(bool minor) {
+    Options options = makeOptions(minor);
     const char* target = "E2A2C3A3";
     Chord4Ptr chord = Chord4::fromString(options, 6, target);
     assert(chord);
     assertEQ(chord->toStringShort(), target);
 }
 
+
 // see if that C chord we need for 2-1 is acceptable
-static void testFromString2() {
-    Options options = makeOptions();
+static void testFromString2(bool minor) {
+    Options options = makeOptions(minor);
     const char* target = "E2G2C3E3";
     Chord4Ptr chord = Chord4::fromString(options, 1, target);
     assert(chord);
     assertEQ(chord->toStringShort(), target);
 }
 
-static void testRanges() {
+static void testFromString() {
+    testFromString(false);
+    testFromString(true);
+     testFromString2(false);
+    testFromString2(true);
+}
+
+static void testRanges(bool minor) {
     int sizeNorm = 0;
     int sizeNarrow = 0;
 
-    Options options = makeOptions();
+    Options options = makeOptions(minor);
     Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);
     options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
     Chord4ListPtr lNarrow = std::make_shared<Chord4List>(options, 1);
@@ -216,6 +256,11 @@ static void testRanges() {
     sizeNorm = lNorm->size();
     sizeNarrow = lNarrow->size();
     assert(sizeNarrow < sizeNorm);
+}
+
+static void testRanges() {
+    testRanges(false);
+    testRanges(true);
 }
 
 static void allGood(Chord4ListPtr list, StylePtr style) {
@@ -242,11 +287,16 @@ static void allGood(Chord4ListPtr list, StylePtr style) {
     }
 }
 
-static void testMinMax() {
+static void testMinMax(bool minor) {
    
-    Options options = makeOptions();
+    Options options = makeOptions(minor);
     Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);  // root chord
     allGood(lNorm, options.style);
+}
+
+static void testMinMax() {
+    testMinMax(false);
+    testMinMax(true);
 }
 
 void testChord() {
@@ -261,7 +311,7 @@ void testChord() {
     // specialDumpList();
     // TODO: add more tests?
     testFromString();
-    testFromString2();
+ //   testFromString2();
 
     testRanges();
     testMinMax();

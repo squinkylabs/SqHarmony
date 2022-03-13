@@ -87,6 +87,7 @@ private:
     void outputPitches(const Chord4*);
     void stepn();
     void updateEverything();
+    void lookForKeysigChange();
 
     /**
      * input quantization
@@ -169,6 +170,7 @@ inline void Harmony<TBase>::stepn() {
     bool noNotesInCommon =  Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
     auto style = chordOptions->style;
     style->setNoNotesInCommon(noNotesInCommon);
+
     const Style::Ranges range = Style::Ranges(int(std::round(Harmony<TBase>::params[CENTER_PREFERENCE_PARAM].value)));
     if (style->getRangesPreference() != range) {
         style->setRangesPreference(range);
@@ -177,6 +179,24 @@ inline void Harmony<TBase>::stepn() {
 
     const Style::InversionPreference ip = Style::InversionPreference(int(std::round(Harmony<TBase>::params[INVERSION_PREFERENCE_PARAM].value)));
     style->setInversionPreference(ip);
+
+    lookForKeysigChange();
+}
+
+template <class TBase>
+inline void Harmony<TBase>::lookForKeysigChange() {
+    const int basePitch = int(std::round((Harmony<TBase>::params[KEY_PARAM].value)));
+    const auto mode = Scale::Scales(int(std::round(Harmony<TBase>::params[MODE_PARAM].value)));
+   // const auto newSetting = std::make_pair(basePitch, mode);
+
+    
+    const auto current = chordOptions->keysig->get();
+    const int currentPitch = current.first.get();
+   if ((current.second != mode) || (currentPitch != basePitch)) {
+       mustUpdate = true;
+       chordOptions->keysig->set(basePitch, mode);
+       quantizerOptions->scale->set(basePitch, mode);
+    }
 }
 
 template <class TBase>
