@@ -24,17 +24,6 @@ ScaleQuantizerPtr ScaleQuantizer::makeTest(int baseMidiPitch, Scale::Scales scal
 ScaleQuantizerPtr ScaleQuantizer::makeTestCMaj() {
     return makeTest(MidiNote::C, Scale::Scales::Major);
 }
-#if 0
-ScaleQuantizerPtr ScaleQuantizer::makeTestCMaj() {
-    auto scale = std::make_shared<Scale>();
-    scale->set(MidiNote::C, Scale::Scales::Major);
-    auto options = std::make_shared<Options>();
-    options->scale = scale;
-    auto quantizer = std::make_shared<ScaleQuantizer>(options);
-    return quantizer;
-}
-#endif
-
 
 MidiNote ScaleQuantizer::run(float voltage) {
     FloatNote fn(voltage);

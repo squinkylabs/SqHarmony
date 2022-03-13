@@ -1,18 +1,18 @@
 #pragma once 
 
 #include <memory>
-class Keysig;
+class KeysigOld;
 class Style;
 
-using KeysigPtr = std::shared_ptr<Keysig>;
+using KeysigOldPtr = std::shared_ptr<KeysigOld>;
 using StylePtr = std::shared_ptr<Style>;
 
 class Options {
 public:
-    Options(KeysigPtr k, StylePtr s) : keysig(k), style(s) {
+    Options(KeysigOldPtr k, StylePtr s) : keysig(k), style(s) {
     }
     
-    KeysigPtr keysig;
+    KeysigOldPtr keysig;
     StylePtr style;
 };
 

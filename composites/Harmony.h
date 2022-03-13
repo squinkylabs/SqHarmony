@@ -6,7 +6,7 @@
 #include "Divider.h"
 #include "FloatNote.h"
 #include "HarmonyChords.h"
-#include "Keysig.h"
+#include "KeysigOld.h"
 #include "NoteConvert.h"
 #include "Options.h"
 #include "Scale.h"
@@ -116,7 +116,7 @@ private:
 
 template <class TBase>
 inline void Harmony<TBase>::init() {
-    auto keysig = std::make_shared<Keysig>(Roots::C);
+    auto keysig = std::make_shared<KeysigOld>(Roots::C);
     auto style = std::make_shared<Style>();
     chordOptions = std::make_shared<Options>(keysig, style);
 

@@ -69,7 +69,7 @@
     <ClCompile Include="..\notes\Style.cpp">
       <Filter>Source Files\notes</Filter>
     </ClCompile>
-    <ClCompile Include="..\notes\Keysig.cpp">
+    <ClCompile Include="..\notes\KeysigOld.cpp">
       <Filter>Source Files\notes</Filter>
     </ClCompile>
     <ClCompile Include="..\notes\ScaleRelativeNote.cpp">

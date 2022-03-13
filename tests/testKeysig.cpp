@@ -1,9 +1,9 @@
 
-#include "Keysig.h"
+#include "KeysigOld.h"
 #include "asserts.h"
 
 static void testCinC() {
-    KeysigPtr ks = std::make_shared<Keysig>(Roots::C);
+    KeysigOldPtr ks = std::make_shared<KeysigOld>(Roots::C);
     StylePtr style = std::make_shared<Style>();
 
     Options op(ks, style);
@@ -14,7 +14,7 @@ static void testCinC() {
 }
 
 static void testAllInC() {
-    KeysigPtr ks = std::make_shared<Keysig>(Roots::C);
+    KeysigOldPtr ks = std::make_shared<KeysigOld>(Roots::C);
     StylePtr style = std::make_shared<Style>();
 
     Options op(ks, style);

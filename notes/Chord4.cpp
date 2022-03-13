@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "Keysig.h"
+#include "KeysigOld.h"
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
 #include "ScaleRelativeNote.h"

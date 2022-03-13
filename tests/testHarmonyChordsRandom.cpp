@@ -3,7 +3,7 @@
 
 #include "Chord4Manager.h"
 #include "HarmonyChords.h"
-#include "Keysig.h"
+#include "KeysigOld.h"
 #include "Style.h"
 #include "asserts.h"
 
@@ -71,8 +71,8 @@ static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
 
-static KeysigPtr makeKeysig() {
-    return std::make_shared<Keysig>(Roots::C);
+static KeysigOldPtr makeKeysig() {
+    return std::make_shared<KeysigOld>(Roots::C);
 }
 
 static Options makeOptions() {
@@ -165,25 +165,52 @@ static void testRand() {
     options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
     SQINFO("NARROW_RANGE");
     testRand(options);
-     options.style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
+    options.style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
     SQINFO("ENCOURAGE_CENTER");
     testRand(options);
 }
 
-static void testCMaj() {
+static void testScales(const MidiNote& base, Scale::Scales mode, const std::vector<int>& expectedPitches) {
+    assert(expectedPitches.size() == 3);
     auto options = makeOptions();
+    auto keysig = options.keysig;
+    keysig->set(base, mode);
     Chord4Manager mgr(options);
 
     const int rootA = 1;
     auto chordA = HarmonyChords::findChord(false, options, mgr, rootA);
     const HarmonyNote* hn = chordA->fetchNotes();
     const ScaleRelativeNote* srn = chordA->fetchSRNNotes();
-    for (int i=0; i<4; ++i) {
+
+    for (int i = 0; i < 4; ++i) {
         const int ab = hn[i];
-        const int r = srn[i];
-        SQINFO("chord[%d] = %d, %d(srn)", i, ab, r);
+        const int abNorm = ab % 12;
+        assert(std::find(expectedPitches.begin(), expectedPitches.end(), abNorm) != expectedPitches.end());
     }
-    assert(false);
+}
+
+static void testCMaj() {
+    const int basePitch = MidiNote::C;
+    MidiNote baseNote(basePitch);
+    testScales(baseNote, Scale::Scales::Major, {0, 4, 7});
+}
+
+static void testCMin() {
+    const int basePitch = MidiNote::C;
+    MidiNote baseNote(basePitch);
+    testScales(baseNote, Scale::Scales::Minor, {0, 3, 7});
+}
+
+static void testDMixo() {
+    const int basePitch = MidiNote::C + 2;
+    MidiNote baseNote(basePitch);
+    testScales(baseNote, Scale::Scales::Mixolydian, {2, 6, 9}); // d major
+}
+
+static void testBPhryg()  {
+    const int basePitch = MidiNote::C + 11;
+    MidiNote baseNote(basePitch);
+    testScales(baseNote, Scale::Scales::Phrygian, {11, 2, 6}); // b min
 }
 
 void testHarmonyChordsRandom() {
@@ -193,7 +220,9 @@ void testHarmonyChordsRandom() {
     testRand();
 
     testCMaj();
-    //testCMin();
-    
+    testCMin();
+    testDMixo();
+    testBPhryg();
+
     assertEQ(__numChord4, 0);
 }

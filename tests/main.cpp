@@ -43,10 +43,10 @@ int main(const char**, int) {
     testScale();
     testScaleNotes();
     testScaleQuantizer();
+    testKeysig();
     testHarmonyNote();
     testScaleRelativeNote();
     testChordRelativeNote();
-    testKeysig();
     testChord();
     testHarmonySong();
     testHarmonyChords();

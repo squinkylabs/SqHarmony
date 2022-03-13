@@ -1,14 +1,14 @@
 
 #include "HarmonyNote.h"
-#include "Keysig.h"
+#include "KeysigOld.h"
 #include "asserts.h"
 
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
 
-static KeysigPtr makeKeysig() {
-    return std::make_shared<Keysig>(Roots::C);
+static KeysigOldPtr makeKeysig() {
+    return std::make_shared<KeysigOld>(Roots::C);
 }
 
 static Options makeOptions() {
