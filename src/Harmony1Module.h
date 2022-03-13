@@ -17,8 +17,8 @@ public:
         this->configParam(Comp::SCORE_COLOR_PARAM, 0, 1, 0, "Invert Score colors");
         this->configParam(Comp::SCORE_GLOW_PARAM, 0, 1, 0, "Score Glow");
         this->configParam(Comp::SCHEMA_PARAM, 0, 1, 0, "hidden schema");
-        this->configParam(Comp::KEY_PARAM, 0, 0, 0, "Key: not implemented");
-        this->configParam(Comp::MODE_PARAM, 0, 0, 0, "Mode: not implemented");
+        this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
+        this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
 /*
        DONT_CARE,
         DISCOURAGE_CONSECUTIVE,

@@ -4,6 +4,9 @@
 #include "MidiNote.h"
 #include "ScaleNote.h"
 
+#include <string>
+#include <vector>
+
 
 class Scale {
 public:
@@ -22,6 +25,10 @@ public:
         WholeStep,
         Chromatic
     };
+
+    static std::vector<std::string> getScaleLabels(bool onlyDiatonic);
+    static std::vector<std::string> getShortScaleLabels(bool);
+    static std::vector<std::string> getRootLabels();
 
     void set(const MidiNote& base, Scales mode);
 

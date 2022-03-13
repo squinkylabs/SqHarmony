@@ -52,21 +52,24 @@ struct Harmony1Widget : ModuleWidget {
         const float yScale = 140;
         const float yMode = yScale;
 
-        std::vector<std::string> labels;
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
             Vec(7, yScale),
             module,
             Comp::KEY_PARAM);
-        p->box.size.x = 30;  // width
+        p->setLabels(Scale::getRootLabels());
+        p->box.size.x = 40;  // width
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
 
         p = createParam<PopupMenuParamWidget>(
-            Vec(47, yMode),
+            Vec(57, yMode),
             module,
             Comp::MODE_PARAM);
-        p->box.size.x = 80;  // width
+        p->setShortLabels(Scale::getShortScaleLabels(true));
+        p->setLabels(Scale::getScaleLabels(true));
+        
+        p->box.size.x = 70;  // width
         p->box.size.y = 22;
         p->text = "Maj";
         addParam(p);
