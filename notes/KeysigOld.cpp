@@ -20,6 +20,10 @@ void KeysigOld::set(const MidiNote& basePitch, Scale::Scales mode) {
     scale->set(basePitch, mode);
 }
 
+std::pair<const MidiNote, Scale::Scales> KeysigOld::get() const {
+   return scale->get();
+}
+
 ScaleRelativeNote KeysigOld::ScaleDeg(HarmonyNote pitch) {
     const int midiPitch = pitch;
     const MidiNote midiNote(midiPitch);

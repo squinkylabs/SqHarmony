@@ -119,10 +119,21 @@ void validateRanges() {
     validateRange(style);
 }
 
+static void testGetSet() {
+    KeysigOld ks(Roots::C);
+
+    const MidiNote mn(3);
+    ks.set(mn, Scale::Scales::Dorian);
+    auto x = ks.get();
+    assertEQ(x.first.get(), mn.get());
+    assert(x.second == Scale::Scales::Dorian);
+}
+
 void testKeysig() {
     testCinC();
     testAllInC();
     testStyle1();
    // testStyle2();
     validateRanges();
+    testGetSet();
 }

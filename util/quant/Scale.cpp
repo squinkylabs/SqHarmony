@@ -12,6 +12,11 @@ void Scale::set(const MidiNote& bs, Scales md) {
     assert(baseNote.get() < 12 && baseNote.get() >= 0);
 }
 
+std::pair<const MidiNote, Scale::Scales> Scale::get() const {
+    return std::make_pair(baseNote, scale);
+}
+
+
 ScaleNote Scale::m2s(const MidiNote& mn) const {
     int scaleBasePitch = baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;

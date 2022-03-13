@@ -31,6 +31,7 @@ public:
     static std::vector<std::string> getRootLabels();
 
     void set(const MidiNote& base, Scales mode);
+    std::pair<const MidiNote, Scales> get() const;
 
     /**
      * @brief convert a scale relative degree to an absolute pitch

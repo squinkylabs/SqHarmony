@@ -22,17 +22,17 @@ using ScalePtr = std::shared_ptr<Scale>;
 class KeysigOld {
     //////////////////////////////////
 public:
+    // This [legacy] constructor always makes a major scale.
+    // It could be fixed, but callin KeysigOld::set is easy.
     ScaleRelativeNote ScaleDeg(HarmonyNote Pitch);  // converts a midi pitch to a Scale degree (1..8)
                                                     // 0 for not a degree
     KeysigOld(Roots rt);
 
     void set(const MidiNote& basePitch, Scale::Scales scale);
+    std::pair<const MidiNote, Scale::Scales> get() const;
 
 private:
     ScalePtr scale;
-  //  const Roots root;
-  //  int nDegreeTable[13];  // maps chromatic pitch (key relative)
-                           // to scale interval
 };
 
 using KeysigPtr = std::shared_ptr<Keysig>;
