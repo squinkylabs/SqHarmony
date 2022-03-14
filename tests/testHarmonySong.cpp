@@ -26,8 +26,6 @@ static void test0(bool minor) {
     int progression[] = { 1,4,5, 0 };
     HarmonySong s(o, progression);
     assert(s.size() == 3);
-  //  printf("\nnow will print song:\n");
-  //  s.print();
 }
 
 static void test0() {

@@ -11,6 +11,7 @@
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
 #include "ScaleRelativeNote.h"
+#include "SqLog.h"
 #include "Style.h"
 
 // int Chord4::size;
@@ -138,7 +139,8 @@ void Chord4::dump() const {
 
 void Chord4::print() const {
     auto str = getString();
-    std::cout << str;
+    SQINFO("%s", str.c_str());
+    //std::cout << str;
 }
 
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
@@ -517,7 +519,7 @@ bool Chord4::isStdDoubling(const Options& options) {
 }
 #endif
 
-/*   ChordRelativeNote Chord4::ChordInterval(Note note)
+/* ChordRelativeNote Chord4::ChordInterval(Note note)
  */
 ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note) const {
     // static int dumb = -1;
@@ -535,7 +537,7 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
     return ret;
 }
 
-/*   bool Chord4::InChord(Note test)
+/* bool Chord4::InChord(Note test)
  */
 bool Chord4::isInChord(const Options& options, HarmonyNote test) const {
     bool ret = false;
@@ -601,6 +603,9 @@ bool Chord4::canFollowThisGuy(const Options& options, const Chord4& thisGuy) con
 #endif
 
 int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4* thisGuy, bool show) const {
+    if (show) {
+        SQINFO("enter Chord4::penaltForFollowingThisGuy");
+    }
     ProgressionAnalyzer analyzer(thisGuy, this, show);
     return analyzer.getPenalty(options, lowestPenaltySoFar);
 }
