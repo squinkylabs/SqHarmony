@@ -54,7 +54,6 @@ static void testBasic1() {
 }
 
 static void testAtoB(int a, int b, bool minor, int bestExpected = 0) {
-
     SQINFO("testAtoB %d, %d", a, b);
 #if 0
     if  (a == 5 && b == 4 && minor) {
@@ -66,9 +65,9 @@ static void testAtoB(int a, int b, bool minor, int bestExpected = 0) {
     Chord4Manager mgr(options);
     const Chord4* cp = HarmonyChords::findChord(false, options, mgr, a);
 
-    //if (print) {
-    //    SQINFO("first chord found is %s", cp->toString().c_str());
-    //}
+    // if (print) {
+    //     SQINFO("first chord found is %s", cp->toString().c_str());
+    // }
 
     auto next = HarmonyChords::findChord(false, options, mgr, *cp, b);
     assert(next);
@@ -253,9 +252,7 @@ void testHarmonyChords() {
     testBasic1();
     testBasic2();
     test3to5();
-    printf("\n--- test 5 to 4 ----\n");
     test5to4();
-    printf("\n--- test 5 to 6 ----\n");
     test5to6();
     test1to2();
 

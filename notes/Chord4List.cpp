@@ -19,9 +19,16 @@ Chord4List::Chord4List(const Options& options, int rt) {
        // Chord4Ptr newChord = std::make_shared<Chord4>(C2);
         Chord4Ptr newChord = std::make_shared<Chord4>();
         *newChord = C2;
+       // assert(newChord->isValid());
+        if (!newChord->isValid()) {
+            chords.clear();
+            assert(chords.empty());
+            return;
+        }
         chords.push_back(newChord);   // put a chord in the list
         done = C2.makeNext(options);  // advance to next chord
     }
+    assert(!chords.empty());        // in theory ok, but don't know if we handle it.
     std::sort(chords.begin(), chords.end(), [options](Chord4Ptr  c1, Chord4Ptr  c2) {
             return compareChords(options, c1, c2);
     });

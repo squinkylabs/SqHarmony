@@ -59,28 +59,36 @@ public:
 
     bool pullTogether() const { return rangesPreference == Ranges::ENCOURAGE_CENTER; }
 
+    void setSpecialTestMode(int amt) {
+        specialTestMode = true;
+        dx = amt;
+    }
+
 private:
     // bool _allowConsecInversions = false;
     InversionPreference inversionPreference = InversionPreference::DISCOURAGE_CONSECUTIVE;
     Ranges rangesPreference = Ranges::NORMAL_RANGE;
     bool enableNoNotesInCommonRule = true;
 
-    bool isNarrowRange() const { return rangesPreference == Ranges::NARROW_RANGE; }
+    bool isNarrowRange() const { 
+        return (rangesPreference == Ranges::NARROW_RANGE) || specialTestMode;
+    }
 
     // at 5 it's getting noticeably worse, but not awful
-    // at 8 I get assertions. should look into that
+    // at 8 I get assertions. should look into that (ranges don't overlap at all)
     // old way 7 crapped out, 6 ok
-    // new way 12 crap, 10 asserts 9 ok
-    static const int dx{9};
+    // new way 12 crap, 10 asserts 9 ok : 9 best for new way
+
+    int dx = 8;
+    //static const int dx{8};
+    bool specialTestMode = false;
 };
 
 using StylePtr = std::shared_ptr<Style>;
 
-// inline void Style::setAllowConsecInversions(bool allow) {
-//     _allowConsecInversions = allow;
-// }
-
 /* Recommended min/max for the four voices */
+
+#if 0 // this is the squeez the extremes alg (works good)
 
 // sop range = 19
 inline int Style::minSop() const {
@@ -135,6 +143,64 @@ inline int Style::maxBass() const {
     //  return isNarrowRange() ? 60 - dx : 60;
     return 60;
 }
+#endif
+
+
+
+#if 0 // this is the squeeze all (didn't work so well)
+
+// sop range = 19
+inline int Style::minSop() const {
+      return isNarrowRange() ? 60 + dx : 60;
+
+}
+
+inline int Style::maxSop() const {
+    // G5
+    return isNarrowRange() ? 79 - dx : 79;
+}
+
+// alto sop overlap = 14
+// alto range = 19
+inline int Style::minAlto() const {
+    // 4x12 + 7
+    // G3
+    return isNarrowRange() ? 55 + dx : 55;
+
+}
+
+inline int Style::maxAlto() const {
+    // 6 * 12 + 2
+    // D5
+    return isNarrowRange() ? 74 - dx : 74;
+}
+
+// tenor alto overlap = 14
+// tenor range = 21
+inline int Style::minTenor() const {
+    // 4 X 12, C3
+    return isNarrowRange() ? 48 + dx : 48;
+}
+
+inline int Style::maxTenor() const {
+    // 5 X 12 + 9
+    // A4
+    return isNarrowRange() ? 69 - dx : 69;
+
+}
+
+// bass tenor overlap = 12
+// bass range = 21
+inline int Style::minBass() const {
+    // 3 X 12 + 3
+    // D# 2
+    return isNarrowRange() ? 39 + dx : 39;
+}
+inline int Style::maxBass() const {
+    // C4
+    return isNarrowRange() ? 60 - dx : 60;
+}
+#endif
 
 /* Absolute pitch ranges: these are enforced!
  */
@@ -185,12 +251,6 @@ inline bool Style::requireStdDoubling() {
     return true;
 }
 
-#if 0
-inline bool Style::allowConsecInversions() {
-    // allow a first inversion to follow another?
-    return _allowConsecInversions;
-}
-#endif
 
 inline bool Style::forceDescSop() {
 #if !CRAZY_STYLE

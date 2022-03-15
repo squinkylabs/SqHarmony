@@ -95,7 +95,7 @@ std::function<int()> getRandFunc() {
 static void testGenerator() {
     auto rand = getRandFunc();
     IntAnalyzer a;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 10000; ++i) {
         a.add(rand());
     }
     a.checkExtremes(1, 7, 10.f);
@@ -108,7 +108,11 @@ void testRand(const Options& options) {
     Chord4Manager mgr(options);
 
     SQINFO("min bass = %d, max sop = %d", options.style->minBass(), options.style->maxSop());
-
+    if (!mgr.isValid()) {
+        SQINFO("can't create manager for this style");
+        assert(false);
+        return;
+    }
     auto rand = getRandFunc();
 
     int rootA = rand();
@@ -158,6 +162,36 @@ void testRand(const Options& options) {
     SQINFO("Pitch range = %d to %d", rangeAnalyzer.lowest(), rangeAnalyzer.highest());
 }
 
+
+static void testValid(int dx) {
+    auto options = makeOptions();
+    options.style->setSpecialTestMode(dx);
+    Chord4Manager mgr(options);
+    if (!mgr.isValid()) {
+        SQINFO("make manager failed in testValid");
+        return;
+    }
+    for (int root = 1; root < 8; ++root) {
+        bool done = false;
+        for (int rank = 0; !done; rank++) {
+            auto ch = mgr.get2(root, rank);
+            if (!ch) {
+                done = true;
+            }
+            else {
+                assert(ch->isAcceptableDoubling(options));
+            }
+        }
+    }
+}
+
+static void testValid() {
+    testValid(8);           // this is the magic bad number
+    for (int i = 0; i < 10; ++i) {
+        testValid(i);
+    }
+}
+
 static void testRand() {
     auto options = makeOptions();
     SQINFO("normal options");
@@ -168,6 +202,14 @@ static void testRand() {
     options.style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
     SQINFO("ENCOURAGE_CENTER");
     testRand(options);
+
+    // 8 and above fails
+    for (int i = 1; i < 8; ++i) {
+        SQINFO("Especial test mode %d", i);
+        options.style->setSpecialTestMode(i);
+        testRand(options);
+    }
+ 
 }
 
 static void testScales(const MidiNote& base, Scale::Scales mode, const std::vector<int>& expectedPitches) {
@@ -214,9 +256,10 @@ static void testBPhryg()  {
 }
 
 void testHarmonyChordsRandom() {
+    // SQWARN("put back test valid");
+    testValid();
     testGenerator();
     testHiLo();
-    printf("--- test rand ---\n");
     testRand();
 
     testCMaj();

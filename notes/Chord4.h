@@ -14,7 +14,7 @@
 
 /**
  * Taxonomy of note types, and when the internal value means.
- * 
+ *
  * Chord4
  *      contains 4 ScaleRelativeNote (the four notes in the chord)
  *      also contains 4 HarmonyNotes (I think abs pitch of the four notes)
@@ -25,14 +25,14 @@
  *              chro -= (int) root;                 // normalize relative to our root
  *              if (chro < 1) chro += 12;     // keep positive
  *              assert(chro > 0 && chro <= 12);
- *             ret.set(nDegreeTable[chro]);  // coerce us into the ScaleRelativeNote       
+ *             ret.set(nDegreeTable[chro]);  // coerce us into the ScaleRelativeNote
  *      contains int root,
  *          1 = tonic
  *          5 = dominant
- *      has ::print methods : 
+ *      has ::print methods :
  *          prints root with just %d
  *          prints 4 notes with HarmonyNote::tellPitchName(), which calls right to PitchKnowledge::nameOfAbs
- * 
+ *
  * Keysig
  *      constructed from Roots rt
  *      fixed to major key
@@ -44,11 +44,11 @@
  *          nDegreeTable[5] = 3;
  * HarmonyNote
  *      Just a type-safe wrapper around an integer midi pitch
- * 
+ *
  * ScaleRelativeNote
  *      contains int pitch 1..8: root, second, third...
- *      print method: 
- * 
+ *      print method:
+ *
  */
 
 #define CHORD_SIZE 4
@@ -86,8 +86,8 @@ public:
      * @brief makes a specific string, ex "E2A2C3A3", BUT:
      *      it can only do this if the chord is "legal" according to options
      *      it is not super fast.
-     * 
-     * @return Chord4Ptr 
+     *
+     * @return Chord4Ptr
      */
     static Chord4Ptr fromString(const Options& options, int degree, const char*);
 
@@ -110,19 +110,20 @@ public:
 
     bool isAcceptableDoubling(const Options& option) const;
     bool isCorrectDoubling(const Options& option) const;
-private:
-    //friend ChordList;  // so he can "construct" us
 
-    bool isChordOk(const Options&) const;                                      // Tells if the current chord is "good"
+    bool isValid() const { return valid; }
+
+private:
+    // friend ChordList;  // so he can "construct" us
+
+    bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
     bool pitchesInRange(const Options&) const;
-    ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  //converts from scale rel to chord rel
+    ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
 
     bool inc(const Options&);  // go to next chord (valid or not), return true if can't
 
     // This is deprecated
-  //  bool isStdDoubling(const Options& options);  // true is root doubled, etc...
-
-
+    //  bool isStdDoubling(const Options& options);  // true is root doubled, etc...
 
     void bumpToNextInChord(const Options& options, HarmonyNote& note);
 
@@ -136,7 +137,7 @@ private:
     std::string getString() const;  // printer helper function.  Gets string ascii representation of chord
 
     // **** guys who allocate storage ******
-    //static int size;
+    // static int size;
 
     ScaleRelativeNote srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid
                                              //   used for analysis
@@ -144,9 +145,8 @@ private:
     int root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
                    // is scale relative
     std::vector<HarmonyNote> _notes;
+    bool valid = false;
 };
-
-
 
 inline int Chord4::fetchRoot() const {
     return root;

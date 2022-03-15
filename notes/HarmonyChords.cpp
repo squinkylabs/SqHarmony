@@ -10,6 +10,7 @@ const Chord4* HarmonyChords::findChord(
     int root) {
     // TODO assert that root is in scale (scale needs size())
     assert(root >= 1);
+    assert(manager.isValid());
 
     // but now we find issues, so let's get the best root pos
     const int size = manager.size(root);
