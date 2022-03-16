@@ -17,6 +17,7 @@ KeysigOld::KeysigOld(Roots rt) {
 }
 
 void KeysigOld::set(const MidiNote& basePitch, Scale::Scales mode) {
+    // note that the ctor is 1 bases for pitch, this guy is zero based.
     scale->set(basePitch, mode);
 }
 

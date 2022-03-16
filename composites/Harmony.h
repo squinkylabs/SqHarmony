@@ -117,16 +117,19 @@ private:
 
 template <class TBase>
 inline void Harmony<TBase>::init() {
+    // Chord options get cmag
     auto keysig = std::make_shared<KeysigOld>(Roots::C);
     auto style = std::make_shared<Style>();
     chordOptions = std::make_shared<Options>(keysig, style);
-
+ 
+    // Input Q get CMaj
     quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     quantizerOptions->scale = std::make_shared<Scale>();
     quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
     inputQuantizer = std::make_shared<ScaleQuantizer>(quantizerOptions);
 
     chordManager = std::make_shared<Chord4Manager>(*chordOptions);
+    assert(chordManager->isValid());
 
     divn.setup(32, [this]() {
         this->stepn();
@@ -160,12 +163,6 @@ inline void Harmony<TBase>::stepn() {
             debt++;
         }
     }
-#if 0
-    SQINFO("final debt = %d", debt);
-    for (int i = 0; i < 4; ++i) {
-        SQINFO("voice %d output = %d, channel = %d", i, voiceToOutput[i], voiceToChannel[i]);
-    }
-#endif
 
     bool noNotesInCommon =  Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
     auto style = chordOptions->style;
@@ -234,11 +231,18 @@ template <class TBase>
 inline void Harmony<TBase>::updateEverything() {
     chordManager = std::make_shared<Chord4Manager>(*chordOptions);
     mustUpdate = false;
+    assert(chordManager->isValid());
+    chordA = nullptr;
+    chordB = nullptr;
 }
 
 template <class TBase>
 inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
+    assert(chordManager->isValid());
     divn.step();
+    if (mustUpdate) {
+        updateEverything();
+    }
     //   static int count = 0;
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
     assert(chordManager);

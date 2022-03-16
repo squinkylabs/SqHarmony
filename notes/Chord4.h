@@ -104,7 +104,9 @@ public:
     int fetchRoot() const;                                      // tell root of chord
     INVERSION inversion(const Options& op) const;               // 0 if root, 1 it 1st inv, etc..
 
+#ifdef _DEBUG
     void dump() const;
+#endif
     std::string toString() const { return getString(); }
     std::string toStringShort() const;
 

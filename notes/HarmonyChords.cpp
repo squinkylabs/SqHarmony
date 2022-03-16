@@ -8,6 +8,9 @@ const Chord4* HarmonyChords::findChord(
     const Options& options,
     const Chord4Manager& manager,
     int root) {
+
+    SQINFO("enter HarmonyChords::findChord");
+    assert(manager.isValid());
     // TODO assert that root is in scale (scale needs size())
     assert(root >= 1);
     assert(manager.isValid());
@@ -20,6 +23,9 @@ const Chord4* HarmonyChords::findChord(
             return nullptr;
         }
         const Chord4* chord = manager.get2(root, rankToTry);
+        assert(chord);
+        assert(chord->isValid());
+        SQINFO("in find chord loop %s", chord->toString().c_str());
 
         // only accept a chord in root position with nice doubling
         if ((chord->inversion(options) == ROOT_POS_INVERSION) &&
@@ -51,6 +57,7 @@ const Chord4* HarmonyChords::findChord(
     assert(ret);        // we should always find something;
     return ret;
 
+    SQINFO("finschord 57");
 #if 0
     a bc // we can never get here now.
 
@@ -84,7 +91,10 @@ const Chord4* HarmonyChords::find(
                root);
     }
 #endif
-
+    assert(manager.isValid());
+    if (prev) assert(prev->isValid());
+    if (prevPrev) assert(prevPrev->isValid());
+ 
     assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
     assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
 

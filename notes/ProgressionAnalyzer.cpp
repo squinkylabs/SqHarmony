@@ -24,13 +24,13 @@ ProgressionAnalyzer::ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, boo
     figureMotion();  // init the motion guys
     notesInCommon = InCommon();
 
+#ifdef _DEBUG
     if (show) {
         SQINFO("*** Const of analyzer, chords are:");
         first->dump();
         next->dump();
-        // first.Dump(afxDump);
-        // next.Dump(afxDump);
     }
+#endif
 }
 
 int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) const {

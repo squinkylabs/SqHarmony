@@ -376,6 +376,7 @@ bool Chord4::pitchesInRange(const Options& options) const {
 bool Chord4::isAcceptableDoubling(const Options& options) const {
     int nRoots = 0, nThirds = 0, nFifths = 0;
 
+
     for (int nVoice = 0; nVoice < CHORD_SIZE; nVoice++)  // loop over all notes in chord
     {
         switch (chordInterval(options, _notes[nVoice])) {
@@ -389,6 +390,7 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
                 nFifths++;
                 break;
             default:
+                SQWARN("dlb of non-diatonic");
                 assert(false);
         }
     }

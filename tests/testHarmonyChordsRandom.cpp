@@ -71,12 +71,25 @@ static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
 
-static KeysigOldPtr makeKeysig() {
-    return std::make_shared<KeysigOld>(Roots::C);
+static KeysigOldPtr makeKeysig(bool minor) {
+    auto ret =  std::make_shared<KeysigOld>(Roots::C);
+    if (minor) {
+        ret->set(MidiNote::C, Scale::Scales::Minor);
+    }
+    return ret;
 }
 
-static Options makeOptions() {
-    Options o(makeKeysig(), makeStyle());
+static Options makeOptions(bool minor) {
+    Options o(makeKeysig(minor), makeStyle());
+    return o;
+}
+
+
+static Options makeOptions(int root, Scale::Scales scale) {
+    auto ks = std::make_shared<KeysigOld>(Roots::C);
+
+    ks->set(root, scale);
+    Options o(ks, makeStyle());
     return o;
 }
 
@@ -164,7 +177,7 @@ void testRand(const Options& options) {
 
 
 static void testValid(int dx) {
-    auto options = makeOptions();
+    auto options = makeOptions(false);
     options.style->setSpecialTestMode(dx);
     Chord4Manager mgr(options);
     if (!mgr.isValid()) {
@@ -192,8 +205,8 @@ static void testValid() {
     }
 }
 
-static void testRand() {
-    auto options = makeOptions();
+static void testRand(int root, Scale::Scales scale) {
+    auto options = makeOptions(root, scale);
     SQINFO("normal options");
     testRand(options);
     options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
@@ -209,12 +222,16 @@ static void testRand() {
         options.style->setSpecialTestMode(i);
         testRand(options);
     }
- 
+}
+
+static void testRand() {
+    testRand(1, Scale::Scales::Major);
+    testRand(1, Scale::Scales::Minor);
 }
 
 static void testScales(const MidiNote& base, Scale::Scales mode, const std::vector<int>& expectedPitches) {
     assert(expectedPitches.size() == 3);
-    auto options = makeOptions();
+    auto options = makeOptions(false);
     auto keysig = options.keysig;
     keysig->set(base, mode);
     Chord4Manager mgr(options);
