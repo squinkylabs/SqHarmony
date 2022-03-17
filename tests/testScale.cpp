@@ -164,6 +164,68 @@ static void tests2mCMajC5() {
     assertEQ(mn.get(), MidiNote::C3 + 2 * 12);
 }
 
+static void validate(const Scale::ScoreInfo& info) {
+
+   for (int i = 0; i < info.numSharps; ++i) {
+       assert(info.sharpsInBassClef);
+       assert(info.sharpsInTrebleClef);
+
+       int t = info.sharpsInTrebleClef[i].get();
+       int b = info.sharpsInBassClef[i].get();
+       assertGT(t, MidiNote::MiddleC + 4);
+       assertLT(t, MidiNote::MiddleC + 19);
+   }
+
+    for (int i = 0; i < info.numFlats; ++i) {
+       assert(info.flatsInBassClef);
+       assert(info.flatsInTrebleClef);
+
+       int t = info.flatsInTrebleClef[i].get();
+       int b = info.flatsInBassClef[i].get();
+       assertGT(t, MidiNote::MiddleC);
+       assertLT(t, MidiNote::MiddleC + 19);
+   }
+}
+
+static void testScore() {
+    Scale scale;
+    scale.set(MidiNote::C, Scale::Scales::Major);
+
+    auto info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 0);
+    assertEQ(info.numSharps, 0);
+    validate(info);
+
+    // gmaj
+    scale.set(MidiNote::C + 7, Scale::Scales::Major);
+    info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 0);
+    assertEQ(info.numSharps, 1);
+    validate(info);
+}
+
+static void testScore2() {
+    Scale scale;
+
+    // E flat is three flat major
+    scale.set(MidiNote::C + 3, Scale::Scales::Major);
+
+    auto info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 3);
+    assertEQ(info.numSharps, 0);
+    validate(info);
+
+    // C Min is the relative minor 
+    scale.set(MidiNote::C, Scale::Scales::Minor);
+    info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 3);
+    assertEQ(info.numSharps, 0);
+    validate(info);
+
+
+}
+
+
 void testScale() {
     testCMaj();
     testAMin();
@@ -179,4 +241,7 @@ void testScale() {
 
     tests2mCMajC4();
     tests2mCMajC5();
+
+    testScore();
+    testScore2();
 }

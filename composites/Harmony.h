@@ -78,6 +78,10 @@ public:
         return chordsOut.pop();
     }
 
+    ConstScalePtr getScale() const {
+        return chordOptions->keysig->getUnderlyingScale();
+    }
+
     int _size() const {
         return chordManager->_size();
     }

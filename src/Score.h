@@ -112,6 +112,8 @@ private:
     void drawText(const DrawArgs &args);
     void drawNotes(const DrawArgs &args);
 
+    void drawKeysig(const DrawArgs& args, ConstScalePtr scale, bool trebleClef, float y);
+
     NVGcolor getForegroundColor();
     NVGcolor getBackgroundColor();
 
@@ -300,6 +302,10 @@ inline void Score::drawNotes(const DrawArgs &args) {
     }
 }
 
+
+inline void Score:: drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebble, float y) {
+}
+
 inline void Score::drawMusic(const DrawArgs &args) {
     NVGcolor color = getBackgroundColor();
 
@@ -318,6 +324,12 @@ inline void Score::drawMusic(const DrawArgs &args) {
 
     drawStaff(args, yBassStaff);
     nvgText(args.vg, xClef, yBassClef, fClef.c_str(), NULL);
+
+    if (module) {
+        auto scale = module->getScale();
+        drawKeysig(args, scale, true, yTrebleStaff);
+        drawKeysig(args, scale, false, yBassStaff);
+    }
 
     //   drawNotes(args);
 #if 0

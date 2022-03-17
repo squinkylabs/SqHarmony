@@ -48,6 +48,7 @@ public:
     using Chord = Comp::Chord;
     bool isChordAvailable() const { return comp->isChordAvailable(); }
     Chord getChord() { return comp->getChord(); }
+    ConstScalePtr getScale() const { return comp->getScale(); }
 
     void process(const ProcessArgs& args) override {
         comp->process(args);

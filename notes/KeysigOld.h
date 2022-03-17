@@ -13,6 +13,7 @@ enum class Roots { C = 1,
              D };
 class Scale;
 using ScalePtr = std::shared_ptr<Scale>;
+using ConstScalePtr = std::shared_ptr<const Scale>;
 
 /**
  * @brief a very limited keysig class. It's from the ancient "Piston" program. the
@@ -30,6 +31,10 @@ public:
 
     void set(const MidiNote& basePitch, Scale::Scales scale);
     std::pair<const MidiNote, Scale::Scales> get() const;
+
+    ConstScalePtr getUnderlyingScale() const {
+        return scale;
+    }
 
 private:
     ScalePtr scale;
