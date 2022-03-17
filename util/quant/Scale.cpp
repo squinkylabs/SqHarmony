@@ -329,19 +329,21 @@ MidiNote Scale::getRelativeMajor() const {
    
 }
 
+
+// how many sharps are in the Major scale based on these
 const int numsharps[12] = {
     0,  // C Maj
-    0,  // C#
-    0,  // D
+    7,  // C#
+    2,  // D
     0,  // D#
-    0,  // E
+    4,  // E
     0,  // F
-    0,  // F#
+    6,  // F#
     1,  // G
     0,  // G#
-    0,  // A
+    3,  // A
     0,  // A#
-    0   // B
+    5   // B
 };
 
 const int numflats[12] = {
@@ -360,7 +362,13 @@ const int numflats[12] = {
 };
 
 const MidiNote sharpsInTreble[12] = {
-    MidiNote(MidiNote::MiddleC + 12 + 5)  // first sharp on F (F#)
+    MidiNote(MidiNote::MiddleC + 12 + 5),  // first sharp on F (F#)
+    MidiNote(MidiNote::MiddleC + 12),  // second sharp on C (C#)
+    MidiNote(MidiNote::MiddleC + 12 + 7),  // third sharp on g (G#)
+    MidiNote(MidiNote::MiddleC + 12 + 2),  // 4 sharp on D (D#)
+    MidiNote(MidiNote::MiddleC + 9),  // 5 sharp on A (A#)
+    MidiNote(MidiNote::MiddleC + 12 + 4),  // 6 sharp on E (E#)
+    MidiNote(MidiNote::MiddleC + 11)  // 7 sharp on B (B#)
 };
 
 const MidiNote flatsInTreble[12] = {

@@ -172,7 +172,7 @@ static void validate(const Scale::ScoreInfo& info) {
        int t = info.sharpsInTrebleClef[i].get();
        int b = info.sharpsInBassClef[i].get();
        assertGT(t, MidiNote::MiddleC + 4);
-       assertLT(t, MidiNote::MiddleC + 19);
+       assertLT(t, MidiNote::MiddleC + 20);
    }
 
     for (int i = 0; i < info.numFlats; ++i) {
@@ -263,6 +263,39 @@ static void testScore3() {
     validate(scale.getScoreInfo(), 1, 0);
     scale.set(MidiNote::F + 1, Scale::Scales::Locrian);
     validate(scale.getScoreInfo(), 1, 0);
+
+    // all the two sharp scales
+    scale.set(MidiNote::D, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::E, Scale::Scales::Dorian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::F + 1, Scale::Scales::Phrygian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::G, Scale::Scales::Lydian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::A, Scale::Scales::Mixolydian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::B, Scale::Scales::Minor);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::C + 1, Scale::Scales::Locrian);
+    validate(scale.getScoreInfo(), 2, 0);
+
+  
+    scale.set(MidiNote::A, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 3, 0);
+
+    scale.set(MidiNote::E, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 4, 0);
+
+    scale.set(MidiNote::B, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 5, 0);
+
+    scale.set(MidiNote::F + 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 6, 0);
+
+    scale.set(MidiNote::C +1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 7, 0);
+
 
     assert(false);
 }
