@@ -165,7 +165,6 @@ static void tests2mCMajC5() {
 }
 
 static void validate(const Scale::ScoreInfo& info) {
-
    for (int i = 0; i < info.numSharps; ++i) {
        assert(info.sharpsInBassClef);
        assert(info.sharpsInTrebleClef);
@@ -185,6 +184,13 @@ static void validate(const Scale::ScoreInfo& info) {
        assertGT(t, MidiNote::MiddleC);
        assertLT(t, MidiNote::MiddleC + 19);
    }
+}
+
+static void validate(const Scale::ScoreInfo& info, int expectedSharps, int expectedFlats) {
+    assert(expectedFlats==0 || expectedSharps==0);
+    assertEQ(info.numFlats, expectedFlats);
+    assertEQ(info.numSharps, expectedSharps);
+    validate(info);    
 }
 
 static void testScore() {
@@ -221,8 +227,44 @@ static void testScore2() {
     assertEQ(info.numFlats, 3);
     assertEQ(info.numSharps, 0);
     validate(info);
+}
 
+static void testScore3() {
+    Scale scale;
 
+    // all the natural modes
+    scale.set(MidiNote::C, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::D, Scale::Scales::Dorian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::E, Scale::Scales::Phrygian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::F, Scale::Scales::Lydian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::G, Scale::Scales::Mixolydian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::A, Scale::Scales::Minor);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::B, Scale::Scales::Locrian);
+    validate(scale.getScoreInfo(), 0, 0);
+
+    // all the one sharp scales
+    scale.set(MidiNote::G, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::A, Scale::Scales::Dorian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::B, Scale::Scales::Phrygian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::C, Scale::Scales::Lydian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::D, Scale::Scales::Mixolydian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::E, Scale::Scales::Minor);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::F + 1, Scale::Scales::Locrian);
+    validate(scale.getScoreInfo(), 1, 0);
+
+    assert(false);
 }
 
 
@@ -244,4 +286,5 @@ void testScale() {
 
     testScore();
     testScore2();
+    testScore3();
 }

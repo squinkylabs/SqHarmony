@@ -299,20 +299,31 @@ MidiNote Scale::getRelativeMajor() const {
             break;
  
         case Scales::Dorian:
+            pitch -= 2;
+            break;
         case Scales::Phrygian:
+            pitch -= 4;
+            break;
         case Scales::Lydian:
+            pitch -= 5;
+            break;
         case Scales::Mixolydian:
-            assert(false);
+            pitch += 5;
+            break;
         case Scales::Minor:
             pitch += 3;
             break;
         case Scales::Locrian:
- 
+            pitch += 1;
+            break; 
         default:
             assert(false);
     }
     if (pitch >= 12) {
         pitch -= 12;
+    }
+    if (pitch < 0) {
+        pitch += 12;
     }
     return MidiNote(pitch);
    

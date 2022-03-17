@@ -127,6 +127,8 @@ private:
     NVGcolor getForegroundColor() const;
     NVGcolor getBackgroundColor() const;
 
+    float insetForKeysig(float keysigWidth) const;
+
     // Y axis pos
     const float topMargin = 36.5f;
     const float yTrebleStaff = topMargin + 0;
@@ -289,10 +291,17 @@ inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) c
     prepareFontText(args);
     int i = 0;
     for (auto chord : chords) {
-        const float x = noteXPos(i) + 1.5;
+        const float x = noteXPos(i) + 1.5 + insetForKeysig(widthOfKeysig);
         drawChordInfo(args, x, chord);
         ++i;
     }
+}
+
+inline float Score::insetForKeysig(float keysigWidth) const {
+    if (keysigWidth < 2) {
+        return 0;               // if no extra space, don't require any
+    }
+    return std::max(keysigWidth - 6, 2.f);
 }
 
 inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
@@ -300,8 +309,8 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
         // INFO("chords to score %d", int(chords.size()));
         int i = 0;
         for (auto chord : chords) {
-            SQINFO("x = %f w=%f", noteXPos(i), keysigWidth);
-            const float x = noteXPos(i) + keysigWidth;
+            // SQINFO("x = %f w=%f", noteXPos(i), keysigWidth);
+            const float x = noteXPos(i) + insetForKeysig(keysigWidth);
 
             for (int i = 0; i < 4; ++i) {
                 const bool stemUp = i % 2;
