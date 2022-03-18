@@ -221,7 +221,7 @@ inline float Score::noteXPos(int noteNumber, float keysigWidth) const {
     // 30 was too much squish. 50 a bit much
     const float delta = deltaXNote * (1.f - (inset / 70.f));
 
-    SQINFO("ksw=%f ins=%f delta=%f delx=%f", keysigWidth, inset, delta, deltaXNote);
+    // SQINFO("ksw=%f ins=%f delta=%f delx=%f", keysigWidth, inset, delta, deltaXNote);
 
     float x = xNote0 + inset + noteNumber * delta;
     if (noteNumber > 3) {
@@ -412,24 +412,27 @@ inline float Score::drawMusicNonNotes(const DrawArgs &args) const {
     drawStaff(args, yBassStaff);
     nvgText(args.vg, xClef, yBassClef, fClef.c_str(), NULL);
 
-    float width = 0;
+    float keysigWidth = 0;
     if (module) {
         auto scale = module->getScale();
         const float a = drawKeysig(args, scale, true, yTrebleStaff);
         const float b = drawKeysig(args, scale, false, yBassStaff);
-        width = std::max(width, a);
-        width = std::max(width, b);
+        keysigWidth = std::max(keysigWidth, a);
+        keysigWidth = std::max(keysigWidth, b);
     }
 
     drawBarLine(args, xStaff, yBassStaff);
-    drawBarLine(args, barlineX1, yBassStaff);
+
+    const float secondBarLineX = 3 + .5f * (noteXPos(3, keysigWidth) + noteXPos(4, keysigWidth));
+   // INFO("x was %f is %f", barlineX1, secondBarLineX);
+    drawBarLine(args, secondBarLineX, yBassStaff);
 
     const float barlineX2 = args.clipBox.size.x - leftMargin;
     drawBarLine(args, barlineX2, yBassStaff);
 
 // bgf: non const - didn't compile. do we want this here?
   //  TransparentWidget::draw(args);
-    return width;
+    return keysigWidth;
 }
 
 inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const {
