@@ -331,16 +331,38 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
     }
 }
 
-inline float Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebble, float y) const {
+inline float Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
     const auto info = scale->getScoreInfo();
     float width = 0;
-    if (info.numFlats) {
+    const MidiNote* accidentals = nullptr;
+    bool areFlats = false;
+    int num = 0;
+    if (info.numFlats == 0 && info.numSharps==0) {
+        // cmaj, we are good.
+    } else if (info.numFlats == 0) {
+        areFlats = false;
+    } else if (info.numSharps == 0) {
+        areFlats = true;
+    } else {
+        areFlats = info.numFlats < info.numSharps;
+    }
+
+    if (areFlats) {
+        accidentals = treble ? info.flatsInTrebleClef : info.flatsInBassClef;
+        num = info.numFlats;
+    } else {
+        accidentals = treble ? info.sharpsInTrebleClef : info.sharpsInBassClef;
+        num = info.numSharps;
+    }
+    
+    const char* character = (areFlats) ? flat.c_str() : sharp.c_str();
+    if (num) {
         float w = 0; 
-        for (int i = 0; i < info.numFlats; ++i) {
+        for (int i = 0; i < num; ++i) {
             const float x = xClef + 11 + w;
-            const auto note = info.flatsInTrebleClef[i];
-            const float yf = noteY(note, false);
-            nvgText(args.vg, x, yf, flat.c_str(), NULL);
+            const int note = accidentals[i].get();
+            const float yf = noteY(note, !treble);
+            nvgText(args.vg, x, yf, character, NULL);
             w += 4;
         }
         width = std::max(width, w);
