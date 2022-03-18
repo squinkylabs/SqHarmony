@@ -348,17 +348,17 @@ const int numsharps[12] = {
 
 const int numflats[12] = {
     0,  // C Maj
-    0,  // C#
+    5,  // D flat
     0,  // D
-    3,  // D# / E flag
+    3,  // D# / E flat
     0,  // E
-    0,  // F
-    0,  // F#
+    1,  // F
+    6,  // F#
     0,  // G
-    0,  // G#
+    4,  // G#
     0,  // A
-    0,  // A#
-    0   // B
+    2,  // B -
+    7   // B
 };
 
 const MidiNote sharpsInTreble[12] = {
@@ -371,21 +371,36 @@ const MidiNote sharpsInTreble[12] = {
     MidiNote(MidiNote::MiddleC + 11)  // 7 sharp on B (B#)
 };
 
+const MidiNote sharpsInBass[12] = {
+    MidiNote(MidiNote::MiddleC - 12 + 5),  // first sharp F#
+    MidiNote(MidiNote::MiddleC - 12),
+    MidiNote(MidiNote::MiddleC - 12 + 7),
+    MidiNote(MidiNote::MiddleC - 12 + 2),
+    MidiNote(MidiNote::MiddleC - 24 + 9),
+    MidiNote(MidiNote::MiddleC - 12 + 4),
+    MidiNote(MidiNote::MiddleC - 24 + 11)
+};
+
 const MidiNote flatsInTreble[12] = {
     MidiNote(MidiNote::MiddleC + 12 - 1),  // first flat is on B (b flat)
     MidiNote(MidiNote::MiddleC + 12 + 4),  // second flat is on E (e flat)
-    MidiNote(MidiNote::MiddleC + 12 - 3)   // second flat is on A (a flat)
-
-};
-
-const MidiNote sharpsInBass[12] = {
-    MidiNote(MidiNote::MiddleC - 12 + 5)  // first sharp F#
+    MidiNote(MidiNote::MiddleC + 12 - 3),   // 3rh flat is on A (a flat)
+    MidiNote(MidiNote::MiddleC + 12 +2),     // 4th is D-
+    MidiNote(MidiNote::MiddleC + 7 ),       // 5th is g
+    MidiNote(MidiNote::MiddleC + 12),       // 6th is C-
+    MidiNote(MidiNote::MiddleC + 5)      // 7th is f-
 };
 
 const MidiNote flatsInBass[12] = {
-    MidiNote(MidiNote::MiddleC - 12 - 1),
-    MidiNote(MidiNote::MiddleC - 12 + 4),
-    MidiNote(MidiNote::MiddleC - 12 - 3)};
+    MidiNote(MidiNote::MiddleC - 12 - 1),       // B-
+    MidiNote(MidiNote::MiddleC - 12 + 4),       // E-
+    MidiNote(MidiNote::MiddleC - 12 - 3),        // A-
+    MidiNote(MidiNote::MiddleC - 12 + 2),         // D-
+    MidiNote(MidiNote::MiddleC - 24 + 7),
+    MidiNote(MidiNote::MiddleC - 12),
+    MidiNote(MidiNote::MiddleC - 24 + 5 + 12)
+};
+
 
 Scale::ScoreInfo Scale::getScoreInfo() const {
     Scale::ScoreInfo ret;

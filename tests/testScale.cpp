@@ -173,6 +173,9 @@ static void validate(const Scale::ScoreInfo& info) {
        int b = info.sharpsInBassClef[i].get();
        assertGT(t, MidiNote::MiddleC + 4);
        assertLT(t, MidiNote::MiddleC + 20);
+
+       assertGE(b, MidiNote::MiddleC - (12 + 5));
+       assertLE(b, MidiNote::MiddleC - 3);
    }
 
     for (int i = 0; i < info.numFlats; ++i) {
@@ -183,11 +186,14 @@ static void validate(const Scale::ScoreInfo& info) {
        int b = info.flatsInBassClef[i].get();
        assertGT(t, MidiNote::MiddleC);
        assertLT(t, MidiNote::MiddleC + 19);
+
+       assertGE(b, MidiNote::MiddleC - (12 + 5));
+       assertLE(b, MidiNote::MiddleC - 3);
    }
 }
 
 static void validate(const Scale::ScoreInfo& info, int expectedSharps, int expectedFlats) {
-    assert(expectedFlats==0 || expectedSharps==0);
+    //assert(expectedFlats==0 || expectedSharps==0);
     assertEQ(info.numFlats, expectedFlats);
     assertEQ(info.numSharps, expectedSharps);
     validate(info);    
@@ -287,17 +293,44 @@ static void testScore3() {
     scale.set(MidiNote::E, Scale::Scales::Major);
     validate(scale.getScoreInfo(), 4, 0);
 
+    // b maj = 5 sharp or 7 flats
     scale.set(MidiNote::B, Scale::Scales::Major);
-    validate(scale.getScoreInfo(), 5, 0);
+    validate(scale.getScoreInfo(), 5, 7);
 
     scale.set(MidiNote::F + 1, Scale::Scales::Major);
-    validate(scale.getScoreInfo(), 6, 0);
+    validate(scale.getScoreInfo(), 6, 6);
 
+    // c# major / d- major
     scale.set(MidiNote::C +1, Scale::Scales::Major);
-    validate(scale.getScoreInfo(), 7, 0);
+    validate(scale.getScoreInfo(), 7, 5);
 
+    // one flat
+    scale.set(MidiNote::F, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 1);
 
-    assert(false);
+    // 2 flat b- major
+    scale.set(MidiNote::B - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 2);
+
+    // 3 flat e- maj
+    scale.set(MidiNote::E - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 3);
+
+    // 4 flats A- major = g# major
+    scale.set(MidiNote::A - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 4);
+
+    //  5 flats d- major . also c# major - 7 sharps
+    scale.set(MidiNote::D - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 7, 5);
+
+    // 6 flats g- major, algo f# mar
+    scale.set(MidiNote::G - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 6, 6);
+
+    // 7 flats c- major. also bmaj = 5 sharps
+    scale.set(MidiNote::C + 12 - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 5, 7);
 }
 
 
