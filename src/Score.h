@@ -78,7 +78,15 @@ private:
     // FontPtr loadFont() const;
     void prepareFontMusic(const DrawArgs &args) const;
     void prepareFontText(const DrawArgs &args) const;
-    float noteXPos(int noteNumber) const;
+
+    /**
+     * @brief figure out the x position to draw a note
+     * 
+     * @param noteNumber is the index of the note - 0..7
+     * @param keysigWidth is the absolute of the keysig drawing - 0 for cmaj
+     * @return float absolute x position
+     */
+    float noteXPos(int noteNumber, float keysigWidth) const;
 
     class YInfo {
     public:
@@ -127,7 +135,7 @@ private:
     NVGcolor getForegroundColor() const;
     NVGcolor getBackgroundColor() const;
 
-    float insetForKeysig(float keysigWidth) const;
+    // float insetForKeysig(float keysigWidth) const;
 
     // Y axis pos
     const float topMargin = 36.5f;
@@ -197,10 +205,28 @@ inline void Score::step() {
     Widget::step();
 }
 
-inline float Score::noteXPos(int noteNumber) const {
-    float x = xNote0 + noteNumber * deltaXNote;
+#if 0
+inline float Score::insetForKeysig(float keysigWidth) const {
+    if (keysigWidth < 2) {
+        return 0;               // if no extra space, don't require any
+    }
+    return std::max(keysigWidth - 6, 2.f);
+}
+#endif
+
+inline float Score::noteXPos(int noteNumber, float keysigWidth) const {
+    // Squeeze notes together a bit to accomodate keysig.
+    const float inset = (keysigWidth >= 2) ? std::max(keysigWidth - 4, 2.f) : 0;
+
+    // 30 was too much squish. 50 a bit much
+    const float delta = deltaXNote * (1.f - (inset / 70.f));
+
+    SQINFO("ksw=%f ins=%f delta=%f delx=%f", keysigWidth, inset, delta, deltaXNote);
+
+    float x = xNote0 + inset + noteNumber * delta;
     if (noteNumber > 3) {
-        x += deltaXNote;
+        // little bump into the next bar
+        x += delta;
     }
     return x;
 }
@@ -291,18 +317,13 @@ inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) c
     prepareFontText(args);
     int i = 0;
     for (auto chord : chords) {
-        const float x = noteXPos(i) + 1.5 + insetForKeysig(widthOfKeysig);
+        const float x = noteXPos(i, widthOfKeysig) + 1.5;
         drawChordInfo(args, x, chord);
         ++i;
     }
 }
 
-inline float Score::insetForKeysig(float keysigWidth) const {
-    if (keysigWidth < 2) {
-        return 0;               // if no extra space, don't require any
-    }
-    return std::max(keysigWidth - 6, 2.f);
-}
+
 
 inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
     if (!chords.empty()) {
@@ -310,7 +331,9 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
         int i = 0;
         for (auto chord : chords) {
             // SQINFO("x = %f w=%f", noteXPos(i), keysigWidth);
-            const float x = noteXPos(i) + insetForKeysig(keysigWidth);
+
+            // note - we could add inset ourself in noteXPos.
+            const float x = noteXPos(i, keysigWidth);
 
             for (int i = 0; i < 4; ++i) {
                 const bool stemUp = i % 2;
