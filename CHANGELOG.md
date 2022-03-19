@@ -4,6 +4,10 @@
 
 ### Harmony
 
+Added all the diatonic modes, and all 12 roots.
+
+Poly outputs (1-N).
+
 Added controls for chord generation.
 
 Made score drawing in Harmony use less GPU resources.
@@ -16,13 +20,15 @@ Fixed pitches being generated outside correct bounds.
 
 Added second CV to Arpeggiator.
 
-Fixed the hold switch. 
+Fixed the hold switch.
 
-Fixed some bugs around deciding when to stop playing channels. 
+Fixed some bugs around deciding when to stop playing channels.
 
-Fixed code bugs reported by staircrusher. 
+Fixed code bugs reported by staircrusher.
 
 Fixed a typo in the Apreggiator module description.
+
+Fixed bug where setting length back to zero did bring back full input size.
 
 ## 2.0.0
 

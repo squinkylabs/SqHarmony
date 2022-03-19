@@ -29,6 +29,18 @@ static void testNoteBufferSize() {
     assertEQ(nb.getCapacity(), 11);
 }
 
+static void testNoteBufferSize0() {
+    NoteBuffer nb(21);
+
+    assertEQ(nb.getCapacity(), 21);
+    consistent(nb);
+
+    // zero is a special case - it should set it to the
+    // default, max.
+    nb.setCapacity(0);
+    assertEQ(nb.getCapacity(), 32);
+}
+
 static void testNoteBufferSizeCB() {
     NoteBuffer nb(10);
     int callbackCount = 0;
@@ -95,7 +107,7 @@ static void testNoteBufferDelay() {
 
 static void testNoteBufferDelay2() {
     NoteBuffer nb(10);
-    nb.push_back(12,13, 9999);
+    nb.push_back(12, 13, 9999);
     nb.push_back(1, 14, 123245);
     assertEQ(nb.size(), 2);
     consistent(nb);
@@ -218,6 +230,7 @@ static void testNoteBufferFindMedian() {
 void testNoteBuffer() {
     testNoteBuffer0();
     testNoteBufferSize();
+    testNoteBufferSize0();
     testNoteBufferSizeCB();
     testNoteBufferSizeCB2();
     testNoteBufferSizeCB3();
@@ -234,5 +247,5 @@ void testNoteBuffer() {
     testNoteBufferRemoveMiddle();
     testNoteBufferRemoveEnd();
 
-  //  testNoteBufferFindMedian();
+    //  testNoteBufferFindMedian();
 }

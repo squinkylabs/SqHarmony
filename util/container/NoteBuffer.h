@@ -70,6 +70,9 @@ inline void NoteBuffer::setHold(bool h) {
 }
 
 inline void NoteBuffer::setCapacity(int size) {
+    if (size == 0) {
+        size = maxCapacity;
+    }
     size = std::min(size, maxCapacity);
     if (size != curCapacity) {
         curCapacity = size;
