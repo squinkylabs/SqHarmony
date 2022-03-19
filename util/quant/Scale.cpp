@@ -1,5 +1,6 @@
 
 #include "Scale.h"
+#include "SqLog.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -142,8 +143,17 @@ int Scale::quantize(int offset) const {
             // if major third, try minor
             if (qDnOne >= 0) return qDnOne;
             break;
+        case 5: 
+            // if it's a perfect fourth, but we don't have one in this scale
+            //raise to tritone
+            if (qUpOne >= 0) return qUpOne;
+            break;
         case 6:
             // if triton, try P 5th
+            if (qUpOne >= 0) return qUpOne;
+            break;
+        case 7:
+            // p5 but we don't have a P5
             if (qUpOne >= 0) return qUpOne;
             break;
         case 8:
@@ -165,6 +175,7 @@ int Scale::quantize(int offset) const {
             if (qDnOne >= 0) return qDnOne;
             break;
         default:
+            SQWARN("got a strange number in Scale::quantize: %d", offset);
             assert(false);
     }
     assert(false);

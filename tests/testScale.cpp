@@ -3,6 +3,8 @@
 #include "Scale.h"
 #include "asserts.h"
 
+#include "SqLog.h"
+
 static void testCMaj() {
     Scale scale;
     scale.set(4, Scale::Scales::Major);
@@ -13,6 +15,33 @@ static void testCMaj() {
     assertEQ(scale.degreeToSemitone(4), 7);   // G
     assertEQ(scale.degreeToSemitone(5), 9);   // A
     assertEQ(scale.degreeToSemitone(6), 11);  // B
+}
+
+static void testNoCrash(const Scale& scale) {
+    for (int i=0; i<11; ++i) {
+        const int x = scale.quantize(i);
+        assertGE(x, 0);
+        assertLE(x, 7);
+      //  assertGE(x, i-1);
+       // assertLE(x, i+1);
+    }
+}
+
+static void testGeneral() {
+    for (int root = 0; root<12; ++root) {
+        for (int mode = 0; mode <= int(Scale::Scales::Chromatic); ++mode) {
+            Scale scale;
+            Scale::Scales emode = Scale::Scales(mode);
+            scale.set(root, emode);
+            for (int testPitch = 0; testPitch < 12; testPitch++) {
+                 const int x = scale.quantize(testPitch);
+
+            }
+        }
+    }
+    //Scale scale;
+   // scale.set(0, Scale::Scales::Lydian);
+   // testNoCrash(scale);
 }
 
 static void testAMin() {
@@ -337,6 +366,7 @@ static void testScore3() {
 void testScale() {
     testCMaj();
     testAMin();
+    testGeneral();
     testChromatic();
 
     testQuantCMaj();
