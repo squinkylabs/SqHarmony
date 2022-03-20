@@ -30,6 +30,8 @@ Fixed a typo in the Apreggiator module description.
 
 Fixed bug where setting length back to zero did bring back full input size.
 
+Used a better shuffling algorithm.
+
 ## 2.0.0
 
 First test version.

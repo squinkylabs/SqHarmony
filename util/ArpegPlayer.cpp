@@ -46,12 +46,10 @@ bool ArpegPlayer::empty() const {
 }
 
 std::pair<float, float> ArpegPlayer::clock() {
-    SQINFO("ArpegPlayer::clock");
-    // printf("  enter clock index=%d (will use this one) data changed =%d\n", playbackIndex, dataChanged);
+    // SQINFO("ArpegPlayer::clock");
 
     // on a data change, let's try to find the next note to play
     if (dataChanged) {
-        // printf("in clock, detected data change. notes in nb=%d siz=%d\n", noteBuffer->size(), playbackSize);
 
         // remember where we were
         const float pitchWouldBe = (playbackIndex >= 0) ? playbackBuffer[playbackIndex].first : -100;
@@ -113,7 +111,7 @@ std::pair<float, float> ArpegPlayer::clock() {
         }
         assert(foundSettings);
         dataChanged = false;
-        SQINFO("end of data change in clock, index=%d", playbackIndex);
+        //SQINFO("end of data change in clock, index=%d", playbackIndex);
     }
 
     if (playbackSize < 1) {
@@ -123,16 +121,16 @@ std::pair<float, float> ArpegPlayer::clock() {
     assert(playbackIndex >= 0);
     const auto ret = playbackBuffer[playbackIndex];
 
-    SQINFO("ArpegPlayer::clock will ret %f,%f from index %d", ret.first, ret.second, playbackIndex);
+    //SQINFO("ArpegPlayer::clock will ret %f,%f from index %d", ret.first, ret.second, playbackIndex);
 
     ++playbackIndex;
     //  assert(playbackIndex >= 0);
-    SQINFO("ArpegPlayer::clock at end index=%d size=%d", playbackIndex, playbackSize);
+    //SQINFO("ArpegPlayer::clock at end index=%d size=%d", playbackIndex, playbackSize);
     if (playbackIndex >= playbackSize) {
-        SQINFO("ArpegPlayer::clock post inc sees wrap %d, %d. refill flag=%d", playbackIndex, playbackSize, reFillOnIndexArmed);
+       // SQINFO("ArpegPlayer::clock post inc sees wrap %d, %d. refill flag=%d", playbackIndex, playbackSize, reFillOnIndexArmed);
         playbackIndex = 0;
         if (reFillOnIndexArmed) {
-            SQINFO("XX wrapped on arm");
+            //SQINFO("XX wrapped on arm");
             reFillOnIndexArmed = false;
             onIndexWrapAround();
         }
@@ -142,7 +140,7 @@ std::pair<float, float> ArpegPlayer::clock() {
 }
 
 void ArpegPlayer::refillPlayback() {
-    SQINFO("ArpegPlayer::refillPlayback nb has %d", noteBuffer->size());
+    //SQINFO("ArpegPlayer::refillPlayback nb has %d", noteBuffer->size());
     switch (mode) {
         case Mode::UP:
             refillPlaybackUP();
@@ -185,13 +183,13 @@ void ArpegPlayer::refillPlayback() {
     }
 
     for (int i = 0; i < playbackSize; ++i) {
-        SQINFO(" after re-fill [%d] = %f", i, playbackBuffer[i].first);
+        //SQINFO(" after re-fill [%d] = %f", i, playbackBuffer[i].first);
     }
     // printf("leave reFill playback, size = %d\n", playbackSize);
 }
 
 void ArpegPlayer::onIndexWrapAround() {
-    SQINFO("on index wrap around");
+    //SQINFO("on index wrap around");
     // most modes don't care
     if (mode == Mode::SHUFFLE) {
         assert(playbackSize == noteBuffer->size());
@@ -216,18 +214,22 @@ void ArpegPlayer::refillPlaybackSHUFFLE() {
         playbackBuffer[copyIndex] = std::make_pair(noteBuffer->at(copyIndex).cv1, noteBuffer->at(copyIndex).cv2);
     };
 
+#if 0
     for (int copyIndex = 0; copyIndex < numNotes; ++copyIndex) {
         SQINFO("before shuffle %f,%f", playbackBuffer[copyIndex].first, playbackBuffer[copyIndex].second);
     };
+#endif
 
     // not sure I trust this, so do it twice
     for (int i = 0; i < 2; ++i) {
         std::shuffle(playbackBuffer, playbackBuffer + numNotes, randomGenerator);
     }
 
+#if 0
     for (int copyIndex = 0; copyIndex < numNotes; ++copyIndex) {
         SQINFO("after shuffle %f,%f", playbackBuffer[copyIndex].first, playbackBuffer[copyIndex].second);
     };
+#endif
 
     playbackSize = numNotes;
 }
@@ -402,14 +404,10 @@ void ArpegPlayer::refillPlaybackDOWNUP() {
         const int dest = -1 + noteBuffer->size() - i;
         assert(dest >= 0);
         playbackBuffer[dest] = sortBuffer[src];
-        // printf("copy %d to %d (%f)\n", src, dest, sortBuffer[src].first);
     }
     const int upwardEntries = noteBuffer->size() - 2;
-    // printf("after down, upward entries = %d\n", upwardEntries);
     if (upwardEntries <= 0) {
         playbackSize = noteBuffer->size();
-        //  playbackIndex = 0;
-        printf("leaving on no upward\n");
         return;
     }
 
@@ -418,11 +416,9 @@ void ArpegPlayer::refillPlaybackDOWNUP() {
         const int src = 1 + i;
         const int dest = i + noteBuffer->size();
         playbackBuffer[dest] = sortBuffer[src];
-        // printf("copy %d to %d (%f)\n", src, dest, sortBuffer[src]);
     }
 
     playbackSize = -2 + 2 * noteBuffer->size();
-    // printf("leaving with playback size = %d\n", playbackSize);
 }
 
 void ArpegPlayer::refillPlaybackINSIDE_OUT() {
@@ -571,30 +567,23 @@ void ArpegPlayer::refillPlaybackREPEAT_BOTTOM() {
     copyAndSort();
     const int siz = noteBuffer->size();
     int dest = 0;
-    // printf("in rep bottom, siz=%d\n", siz);
     if (siz == 0) {
         playbackSize = 0;
-        // playbackIndex = 0;
         return;
     }
     if (siz == 1) {
         playbackSize = 1;
         playbackBuffer[0] = sortBuffer[0];
-        // playbackIndex = 0;
         return;
     }
     for (int i = 0; i < siz - 1; ++i) {
-        // printf("in loop, i=%d\n", i);
         dest = i * 2;
         playbackBuffer[dest] = sortBuffer[0];
-        // printf("copyed 0 to %d (%f)\n", dest, sortBuffer[0]);
 
         int src = 1 + i;
         ++dest;
         playbackBuffer[dest] = sortBuffer[src];
-        // printf("copyed %d to %d (%f)\n", src, dest, sortBuffer[src]);
         assert(src < siz);
     }
     playbackSize = dest + 1;
-    // printf("playback size = %d\n", playbackSize);
 }

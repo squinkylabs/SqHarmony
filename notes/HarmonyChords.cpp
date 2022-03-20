@@ -9,7 +9,7 @@ const Chord4* HarmonyChords::findChord(
     const Chord4Manager& manager,
     int root) {
 
-    SQINFO("enter HarmonyChords::findChord");
+    //SQINFO("enter HarmonyChords::findChord");
     assert(manager.isValid());
     // TODO assert that root is in scale (scale needs size())
     assert(root >= 1);
@@ -25,7 +25,7 @@ const Chord4* HarmonyChords::findChord(
         const Chord4* chord = manager.get2(root, rankToTry);
         assert(chord);
         assert(chord->isValid());
-        SQINFO("in find chord loop %s", chord->toString().c_str());
+        //SQINFO("in find chord loop %s", chord->toString().c_str());
 
         // only accept a chord in root position with nice doubling
         if ((chord->inversion(options) == ROOT_POS_INVERSION) &&
@@ -56,15 +56,6 @@ const Chord4* HarmonyChords::findChord(
     const Chord4* ret = find(show, options, manager, &prevPrev, &prev, root);
     assert(ret);        // we should always find something;
     return ret;
-
-    SQINFO("finschord 57");
-#if 0
-    a bc // we can never get here now.
-
-    ret = find(options, manager, nullptr, &prev, root);
-    printf(ret ? "found in delaxed\n" : "not found at all]n");
-    return ret;
-#endif
 }
 
 const Chord4* HarmonyChords::find(
