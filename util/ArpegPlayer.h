@@ -4,6 +4,7 @@
 #include "NoteBuffer.h"
 
 #include <algorithm>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -25,9 +26,18 @@ public:
     };
     ArpegPlayer(NoteBuffer* nb);
 
-    /** clock it and get the next note
+    /** clock it and return the next note.
+     * At end of index it may reshuffle, but only if reFillOnIndex is true
      */
     std::pair<float, float> clock();
+
+    /**
+     * once called, will cause a re-shuffle to happen at the end of current playback,
+     * assuming in shuffle mode.
+     */
+    void armReShuffle() {
+        reFillOnIndexArmed = true;
+    }
     bool empty() const;
 
     void setMode(Mode m);
@@ -49,12 +59,15 @@ private:
     NoteBuffer* const noteBuffer;
     Mode mode{Mode::UP};
 
-    AudioMath::RandomUniformFunc random = {AudioMath::random()};
+    // use std C here
+   // AudioMath::RandomUniformFunc random = {AudioMath::random()};
+    std::mt19937 randomGenerator{1234567891};
 
     std::pair<float, float> playbackBuffer[4 + 2 * (1 + NoteBuffer::maxCapacity)];
     std::pair<float, float>  sortBuffer[NoteBuffer::maxCapacity];
     int playbackIndex = -1;
     int playbackSize = 0;
+    bool reFillOnIndexArmed = false;
 
     void onIndexWrapAround();
 

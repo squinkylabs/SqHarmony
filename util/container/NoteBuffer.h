@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SqLog.h"
 #include <assert.h>
 #include <functional>
 
@@ -85,9 +86,6 @@ inline void NoteBuffer::onChange(callback callb) {
 }
 
 inline void NoteBuffer::push_back(float v1, float v2, int channel) {
-    // just test for now
-    assert(v1 > 0);
-    assert(v2 > 0);
     if (siz == curCapacity) {
         for (int i = 0; i < siz - 1; ++i) {
             data[i] = data[i + 1];

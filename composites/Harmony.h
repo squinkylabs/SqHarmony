@@ -227,7 +227,6 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
         chordsOut.push(c);
     } else {
         SQWARN("in outputPitches, no room for output\n");
-        //fflush(stdout);
     }
 }
 

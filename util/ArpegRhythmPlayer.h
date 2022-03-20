@@ -6,6 +6,13 @@ class ArpegRhythmPlayer {
 public:
     ArpegRhythmPlayer(ArpegPlayer* underlying) : player(underlying) {}
     std::pair<float, float> clock();
+    /**
+     * once called, will cause a re-shuffle to happen at the end of current playback,
+     * assuming in shuffle mode.
+     */
+    void armReShuffle() {
+        player->armReShuffle();
+    }
     void reset();
     void setLength(int len) { length = len; }
 

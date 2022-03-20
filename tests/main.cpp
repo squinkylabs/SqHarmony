@@ -35,7 +35,6 @@ int main(const char**, int) {
     testArpegPlayer2();
     testArpegPlayer();
     testArpegRhythmPlayer();
-
     testArpegComposite();
 
 #if 1
@@ -53,6 +52,7 @@ int main(const char**, int) {
     testHarmonyChordsRandom();
 #endif
     testHarmonyComposite();
+    printf("put back test progression?\n");
 
 #endif
 }

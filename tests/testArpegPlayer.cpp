@@ -815,7 +815,8 @@ static void testArpegPlayerREPEAT_TOP() {
     testArpegPauseSub(mode, input, 1, expectedOutput1, 3);
 }
 
-static void testArpegPlayerSHUFFLE() {
+static void testArpegPlayerSHUFFLE(bool withTrigger) {
+    SQINFO("\n\n------------ testArpegPlayerSHUFFLE\n");
     const auto mode = ArpegPlayer::Mode::SHUFFLE;
 
     const int numInput = 12;
@@ -848,11 +849,16 @@ static void testArpegPlayerSHUFFLE() {
 
     bool didSee[numInput] = {false};
 
+    SQINFO("-- test will run first loop");
     for (int i = 0; i < numInput; ++i) {
         const auto x = ap.clock();
         assert(x.first > 0);
         assert(x.first < 13);
         outputFirst[i] = x;
+
+        if (withTrigger && (i == 1)) {
+            ap.armReShuffle();      // re-arm while we are in the middle of first pass, so second will see it.
+        }
 
         // now search the input of this one
         for (int j = 0; j < numInput; ++j) {
@@ -862,11 +868,13 @@ static void testArpegPlayerSHUFFLE() {
             }
         }
     }
+    SQINFO("-- test will compare results 1");
     for (int i = 0; i < numInput; ++i) {
         assert(didSee[i]);
-        assert(outputFirst[i].first > 0);
+        assert(outputFirst[i].first > 0); 
     }
 
+    SQINFO("-- test will read second pass");
     for (int i = 0; i < numInput; ++i) {
         const auto x = ap.clock();
         assert(x.first > 0);
@@ -874,13 +882,18 @@ static void testArpegPlayerSHUFFLE() {
         outputSecond[i] = x;
     }
 
+    SQINFO("-- tests will compare results from passes");
     bool anyDifferent = false;
     for (int i = 0; i < numInput; ++i) {
         if (outputFirst[i] != outputSecond[i]) {
             anyDifferent = true;
         }
     }
-    assert(anyDifferent);
+    if (withTrigger) {
+        assert(anyDifferent);
+    } else {
+        assert(!anyDifferent);
+    }
 }
 
 void testArpegPlayer() {
@@ -899,5 +912,7 @@ void testArpegPlayer() {
     testArpegPlayerOrderPlayed();
     testArpegPlayerREPEAT_BOTTOM();
     testArpegPlayerREPEAT_TOP();
-    testArpegPlayerSHUFFLE();
+        // just for now!
+    testArpegPlayerSHUFFLE(true);
+    testArpegPlayerSHUFFLE(false);
 }
