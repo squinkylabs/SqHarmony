@@ -36,6 +36,7 @@ inline void Arpeggiator1Module::addParams() {
 
     this->configSwitch(Comp::HOLD_PARAM, 0, 1, 0, "Hold", {"off", "on"});
 
+    this->configInput(Comp::SHUFFLE_TRIGGER_INPUT, "trigger to re-shuffle the notes (in shuffle mode)");
     this->configInput(Comp::GATE_INPUT, "Gate");
     this->configInput(Comp::CV_INPUT, "V/Oct");
     this->configInput(Comp::CLOCK_INPUT, "Clock");
@@ -114,11 +115,12 @@ struct Arpeggiator1Widget : ModuleWidget {
         float yIn1 = yIn2 - dy;
 
         float xLeft = 10;
-        float dx = 32;
+        float dx = 43;          // 41 too close
 
         // first row, yIn1
         addInputL(Vec(xLeft + 0 * dx, yIn1), Comp::CLOCK_INPUT, "Clk");
         addInputL(Vec(xLeft + 1 * dx, yIn1), Comp::RESET_INPUT, "Rst");
+        addInputL(Vec(xLeft + 2 * dx, yIn1), Comp::SHUFFLE_TRIGGER_INPUT, "strig");
 
         //  second row
         addInputL(Vec(xLeft, yIn2), Comp::CV_INPUT, "CV");
@@ -130,7 +132,6 @@ struct Arpeggiator1Widget : ModuleWidget {
         addOutputL(Vec(xLeft, yOut), Comp::CV_OUTPUT, "CV");
         addOutputL(Vec(xLeft + dx, yOut), Comp::CV2_OUTPUT, "CV2");
         addOutputL(Vec(xLeft + 2 * dx, yOut), Comp::GATE_OUTPUT, "Gate");
-     //  addOutputL(Vec(xLeft + dx * 2, yOut), Comp::EOC_OUTPUT, "EOC");
 
         const float yMode = 42;
         std::vector<std::string> labels = Comp::modes();
