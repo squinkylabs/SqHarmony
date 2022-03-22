@@ -50,7 +50,7 @@ private:
         }
     }
 
-    Data data[maxCapacity];
+    Data data[maxCapacity + 2];
     void removeAll();
 };
 
@@ -77,6 +77,18 @@ inline void NoteBuffer::setCapacity(int size) {
     size = std::min(size, maxCapacity);
     if (size != curCapacity) {
         curCapacity = size;
+      //  siz = std::min(siz, size);      // current size can't be more than we hold
+
+        // if we are shrinking
+        if (siz > size) {
+            const int moveOffset = siz - size;
+            assert(moveOffset > 0);
+            for (int i = 0; i < size; ++i) {
+                data[i] = data[i + moveOffset];
+            }
+            siz = size;
+        }
+
         callbackMaybe();
     }
 }
@@ -86,7 +98,8 @@ inline void NoteBuffer::onChange(callback callb) {
 }
 
 inline void NoteBuffer::push_back(float v1, float v2, int channel) {
-    if (siz == curCapacity) {
+    SQINFO("nb push, siz=%d, cap=%d this=%p", siz, curCapacity, this);
+    if (siz >= curCapacity) {
         for (int i = 0; i < siz - 1; ++i) {
             data[i] = data[i + 1];
         }

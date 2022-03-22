@@ -213,6 +213,51 @@ static void testNoteBufferRemoveEnd() {
     assertEQ((1 + nb.begin())->cv2, 10);
 }
 
+static void testNoteBufferAddPast() {
+    NoteBuffer nb(5);
+
+    nb.push_back(1, 9, 11);
+    nb.push_back(2, 10, 12);
+    nb.push_back(3, 11, 13);
+    assertEQ(nb.size(), 3);
+
+    nb.setCapacity(2);
+    
+    // we should not grow even bigger when we add one.
+    // once we fix the bug this will be impossible, but for now...
+    // This will let us fix the flawed comparison.
+    nb.push_back(4, 5, 6);
+    const int sz = nb.size();
+    assertLT(sz, 4);
+}
+
+static void testNoteBufferReduce() {
+    NoteBuffer nb(5);
+
+    nb.push_back(1, 9, 11);
+    nb.push_back(2, 10, 12);
+    nb.push_back(3, 11, 13);
+    assertEQ(nb.size(), 3);
+
+    assertEQ(nb.begin()->cv1, 1);
+    assertEQ(nb.at(1).cv1, 2);
+    assertEQ(nb.at(2).cv1, 3);
+
+    nb.setCapacity(2);
+
+    assertEQ(nb.size(), 2);
+
+    // we should not grow even bigger when we add one.
+    // once we fix the bug this will be impossible, but for now...
+    // This will let us fix the flawed comparison.
+    nb.push_back(4, 5, 6);
+
+    assertEQ(nb.size(), 2);
+
+    assertEQ(nb.at(0).cv1, 3);
+    assertEQ(nb.at(1).cv1, 4);
+}
+
 #if 0
 static void testNoteBufferFindMedian() {
     NoteBuffer nb(5);
@@ -246,6 +291,9 @@ void testNoteBuffer() {
     testNoteBufferRemoveStart();
     testNoteBufferRemoveMiddle();
     testNoteBufferRemoveEnd();
+
+    testNoteBufferAddPast();
+    testNoteBufferReduce();
 
     //  testNoteBufferFindMedian();
 }

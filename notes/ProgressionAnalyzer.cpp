@@ -185,7 +185,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
 int ProgressionAnalyzer::RuleForJumpSize() const {
     for (int i = BASS; i <= SOP; i++) {
         int jump = first->fetchNotes()[i] - next->fetchNotes()[i];
-        // TODO: is 12 right here? should this be 8 instead?
+        // This was 12 - I changed to 8. I think it was a typo.
         if (abs(jump) > 8) {
             if (show) SQINFO("BIG jump in voice %d", i);
             return AVG_PENALTY_PER_RULE;

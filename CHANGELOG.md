@@ -18,6 +18,8 @@ Fixed pitches being generated outside correct bounds.
 
 ### Arpeggiator
 
+Added shuffle trigger input.
+
 Added second CV to Arpeggiator.
 
 Fixed the hold switch.
@@ -28,7 +30,7 @@ Fixed code bugs reported by staircrusher.
 
 Fixed a typo in the Apreggiator module description.
 
-Fixed bug where setting length back to zero did bring back full input size.
+Fixed bug where setting length back to zero did not bring back full input size.
 
 Used a better shuffling algorithm.
 

@@ -56,7 +56,7 @@ public:
 private:
   
     bool dataChanged = true;
-    NoteBuffer* const noteBuffer;
+    NoteBuffer* const noteBuffer = nullptr;
     Mode mode{Mode::UP};
 
     // use std C here
