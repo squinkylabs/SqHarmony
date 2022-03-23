@@ -74,7 +74,7 @@ static void testGate() {
 }
 
 static void testHold() {
-    //SQNFO("------------ testHold()");
+    // SQNFO("------------ testHold()");
     auto arp = make();
     connectInputs(arp, 1);
     auto args = TestComposite::ProcessArgs();
@@ -490,32 +490,32 @@ static void testShuffleCV() {
     auto arp = make();
     connectInputs(arp, 1);
 
-    arp->inputs[Comp::CV_INPUT].channels = 4;       // make this poly pitch for easier test
-    arp->inputs[Comp::SHUFFLE_TRIGGER_INPUT].channels = 1;      // connect the new shuffle trigger
+    arp->inputs[Comp::CV_INPUT].channels = 4;               // make this poly pitch for easier test
+    arp->inputs[Comp::SHUFFLE_TRIGGER_INPUT].channels = 1;  // connect the new shuffle trigger
     auto args = TestComposite::ProcessArgs();
 
     // start with gate high
     arp->inputs[Comp::CV_INPUT].setVoltage(10, 0);  // 10 v first channel
-    arp->inputs[Comp::CV_INPUT].setVoltage(11, 1);  
+    arp->inputs[Comp::CV_INPUT].setVoltage(11, 1);
     arp->inputs[Comp::CV_INPUT].setVoltage(12, 2);
-    arp->inputs[Comp::CV_INPUT].setVoltage(13, 3); 
-    arp->inputs[Comp::CV2_INPUT].setVoltage(101, 0); 
-    arp->inputs[Comp::CV2_INPUT].setVoltage(111, 1);  
+    arp->inputs[Comp::CV_INPUT].setVoltage(13, 3);
+    arp->inputs[Comp::CV2_INPUT].setVoltage(101, 0);
+    arp->inputs[Comp::CV2_INPUT].setVoltage(111, 1);
     arp->inputs[Comp::CV2_INPUT].setVoltage(121, 2);
-    arp->inputs[Comp::CV2_INPUT].setVoltage(131, 3); 
+    arp->inputs[Comp::CV2_INPUT].setVoltage(131, 3);
     arp->inputs[Comp::GATE_INPUT].setVoltage(cGateOutHi, 0);
     arp->params[Comp::MODE_PARAM].value = float(ArpegPlayer::Mode::SHUFFLE);
-    //SQINFO("--- test will process once to pick up the notes");
+    // SQINFO("--- test will process once to pick up the notes");
     arp->process(args);
 
-    //SQINFO("--- about to clock 4");
-    float output[4] = { 0 };
+    // SQINFO("--- about to clock 4");
+    float output[4] = {0};
     for (int i = 0; i < 4; ++i) {
         clockCycle(arp);
         output[i] = arp->outputs[Comp::CV_OUTPUT].getVoltage(0);
-        //SQINFO("just clocked %d", i);
+        // SQINFO("just clocked %d", i);
     }
-    //SQINFO("--- second time clock 4");
+    // SQINFO("--- second time clock 4");
 
     // second time should be the same, since the shuffle input is connected,
     // but not active.
@@ -525,27 +525,25 @@ static void testShuffleCV() {
         if (output[i] != arp->outputs[Comp::CV_OUTPUT].getVoltage(0)) {
             allTheSame = false;
         }
-        //SQINFO("just clocked %d", i);
+        // SQINFO("just clocked %d", i);
     }
 
     // since trigger input connected, should not re-shuffle each time
     assert(allTheSame);
 
-
     // This time we will activate the trigger, but
     // it won't take effect until next cycle
-    //NFO("\n--- third time clock 4, with trigger");
+    // NFO("\n--- third time clock 4, with trigger");
     allTheSame = true;
     for (int i = 0; i < 4; ++i) {
         clockCycle(arp);
         if (output[i] != arp->outputs[Comp::CV_OUTPUT].getVoltage(0)) {
             allTheSame = false;
         }
-       // SQINFO("just clocked %d", i);
-       
+        // SQINFO("just clocked %d", i);
+
         const float trigV = (i == 0) ? 10.f : 0.f;
         arp->inputs[Comp::SHUFFLE_TRIGGER_INPUT].setVoltage(trigV, 0);
-  
     }
     assert(allTheSame);
 
@@ -555,13 +553,42 @@ static void testShuffleCV() {
         if (output[i] != arp->outputs[Comp::CV_OUTPUT].getVoltage(0)) {
             allTheSame = false;
         }
-        //SQINFO("just clocked %d", i);
-       
-       // const float trigV = (i == 0) ? 10.f : 0.f;
-       // arp->inputs[Comp::SHUFFLE_TRIGGER_INPUT].setVoltage(trigV, 0);
-  
+        // SQINFO("just clocked %d", i);
+
+        // const float trigV = (i == 0) ? 10.f : 0.f;
+        // arp->inputs[Comp::SHUFFLE_TRIGGER_INPUT].setVoltage(trigV, 0);
     }
     assert(!allTheSame);
+    
+}
+
+static void testPullCable() {
+    auto arp = make();
+    connectInputs(arp, 1);
+
+    arp->inputs[Comp::CV_INPUT].channels = 2;  
+    auto args = TestComposite::ProcessArgs();
+
+    // put in some voltages
+    arp->inputs[Comp::CV_INPUT].setVoltage(11, 0);
+    arp->inputs[Comp::CV_INPUT].setVoltage(12, 1);
+    
+
+    // get all the voltages in 
+    arp->process(args);
+
+    arp->inputs[Comp::GATE_INPUT].setVoltage(10, 0);
+
+    // clock should play something
+    clockCycle(arp);
+    assertGT(arp->outputs[Comp::GATE_OUTPUT].getVoltage(0), 5);
+
+    // now pull the gates. should turn off.
+    arp->inputs[Comp::GATE_INPUT].channels = 0;
+    arp->process(args);
+    assertLT(arp->outputs[Comp::GATE_OUTPUT].getVoltage(0), 5);
+
+    assert(false);
 }
 
 void testArpegComposite() {
@@ -578,11 +605,11 @@ void testArpegComposite() {
     testMonoGate();
     testTriggerDelay(false);
     testTriggerDelay(true);
-
     testReleaseMidClock(false);
     testReleaseMidClock(true);
-
     testStartMidClock(false);
-
     testShuffleCV();
+
+    SQWARN("!!!! put back the pull cable test");
+    //testPullCable();
 }

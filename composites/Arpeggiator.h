@@ -119,7 +119,9 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
 
    // SQINFO("gates = %d, connected = %d", gates, TBase::inputs[GATE_INPUT].isConnected());
 
+    int highestGateProcessed = 0;
     if (monoGates) {
+        highestGateProcessed = cvs;
         // for mono gates, just look at gate[0], but send to to all cv channels
         // SQDEBUG("gate delay will process mg input=%f", TBase::inputs[GATE_INPUT].getVoltage(0));
         gateDelay.process(TBase::inputs[GATE_INPUT], gates);
@@ -131,6 +133,7 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
             }
         }
     } else {
+        highestGateProcessed = gates;
         gateDelay.process(TBase::inputs[GATE_INPUT], gates);
         for (int ch = 0; ch < gates; ++ch) {
             const bool gate = gateDelay.getGate(ch);
@@ -138,6 +141,14 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
                 lastGate[ch] = gate;
                 onGateChange(ch, gate);
             }
+        }
+    }
+
+    // optimization: could do this only if connected changes
+    for (int ch= highestGateProcessed; ch<16; ++ch) {
+        if (lastGate[ch]) {
+            lastGate[ch] = false;
+            onGateChange(ch, false);
         }
     }
 
@@ -250,9 +261,7 @@ inline void Arpeggiator<TBase>::processParams() {
 
     outerPlayer.setLength(beats);
     hiddenPlayer.setMode(ArpegPlayer::Mode(mode));
-    if (length) {
-        noteBuffer.setCapacity(length);
-    }
+    noteBuffer.setCapacity(length);
     noteBuffer.setHold(hold);
     clock.setResetMode(resetMode);
     gateDelay.enableDelay(gateDelayEnabled);
