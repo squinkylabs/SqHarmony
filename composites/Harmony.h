@@ -86,6 +86,25 @@ public:
         return chordManager->_size();
     }
 
+    int getOutputChannels(int voice) const {
+        int channels = 0;
+        switch (voice) {
+            case 0:
+                channels = TBase::outputs[BASS_OUTPUT].getChannels();
+                break;
+            case 1:
+                channels = TBase::outputs[TENOR_OUTPUT].getChannels();
+                break;
+            case 2:
+                channels = TBase::outputs[ALTO_OUTPUT].getChannels();
+                break;
+            case 3:
+                channels = TBase::outputs[SOPRANO_OUTPUT].getChannels();
+                break;
+        }
+        return channels;
+    }
+
 private:
     void init();
     void outputPitches(const Chord4*);
@@ -125,7 +144,7 @@ inline void Harmony<TBase>::init() {
     auto keysig = std::make_shared<KeysigOld>(Roots::C);
     auto style = std::make_shared<Style>();
     chordOptions = std::make_shared<Options>(keysig, style);
- 
+
     // Input Q get CMaj
     quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     quantizerOptions->scale = std::make_shared<Scale>();
@@ -142,7 +161,6 @@ inline void Harmony<TBase>::init() {
 
 template <class TBase>
 inline void Harmony<TBase>::stepn() {
-
     assert(TENOR_OUTPUT == (BASS_OUTPUT + 1));
     assert(ALTO_OUTPUT == (TENOR_OUTPUT + 1));
     assert(SOPRANO_OUTPUT == (ALTO_OUTPUT + 1));
@@ -168,7 +186,7 @@ inline void Harmony<TBase>::stepn() {
         }
     }
 
-    bool noNotesInCommon =  Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
+    bool noNotesInCommon = Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
     auto style = chordOptions->style;
     style->setNoNotesInCommon(noNotesInCommon);
 
@@ -188,15 +206,14 @@ template <class TBase>
 inline void Harmony<TBase>::lookForKeysigChange() {
     const int basePitch = int(std::round((Harmony<TBase>::params[KEY_PARAM].value)));
     const auto mode = Scale::Scales(int(std::round(Harmony<TBase>::params[MODE_PARAM].value)));
-   // const auto newSetting = std::make_pair(basePitch, mode);
+    // const auto newSetting = std::make_pair(basePitch, mode);
 
-    
     const auto current = chordOptions->keysig->get();
     const int currentPitch = current.first.get();
-   if ((current.second != mode) || (currentPitch != basePitch)) {
-       mustUpdate = true;
-       chordOptions->keysig->set(basePitch, mode);
-       quantizerOptions->scale->set(basePitch, mode);
+    if ((current.second != mode) || (currentPitch != basePitch)) {
+        mustUpdate = true;
+        chordOptions->keysig->set(basePitch, mode);
+        quantizerOptions->scale->set(basePitch, mode);
     }
 }
 
@@ -210,7 +227,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     c.root = chord->fetchRoot();
     c.inversion = int(chord->inversion(*chordOptions));
 
-   // SQINFO("output pitches %s (bass=%d)", chord->toStringShort().c_str(), (int)harmonyNotes[0]);
+    // SQINFO("output pitches %s (bass=%d)", chord->toStringShort().c_str(), (int)harmonyNotes[0]);
 
     for (int i = 0; i < 4; ++i) {
         MidiNote mn(12 + harmonyNotes[i]);  // harmony note and midi note are about the same;
@@ -219,7 +236,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
         const int outputPort = voiceToOutput[i];
         const int outputChannel = voiceToChannel[i];
         Harmony<TBase>::outputs[outputPort].setVoltage(fn.get(), outputChannel);
-       //SQINFO("set output[%d] to %f from base pitch %f", i, fn.get(), fn.get());
+        // SQINFO("set output[%d] to %f from base pitch %f", i, fn.get(), fn.get());
         c.pitch[i] = mn.get();
     }
 
