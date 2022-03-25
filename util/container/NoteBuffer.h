@@ -98,7 +98,7 @@ inline void NoteBuffer::onChange(callback callb) {
 }
 
 inline void NoteBuffer::push_back(float v1, float v2, int channel) {
-    SQINFO("nb push, siz=%d, cap=%d this=%p", siz, curCapacity, this);
+    // SQINFO("nb push, siz=%d, cap=%d this=%p", siz, curCapacity, this);
     if (siz >= curCapacity) {
         for (int i = 0; i < siz - 1; ++i) {
             data[i] = data[i + 1];

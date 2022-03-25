@@ -210,7 +210,7 @@ void ArpegPlayer::copyAndSort() {
 void ArpegPlayer::refillPlaybackSHUFFLE() {
     assert(this);
     assert(noteBuffer);
-    SQINFO("this = %p, noteBuffer = %p nb->size = %d", this, noteBuffer, noteBuffer->size());
+    // SQINFO("this = %p, noteBuffer = %p nb->size = %d", this, noteBuffer, noteBuffer->size());
 
     const int numNotes = noteBuffer->size();
     // loop, filling up sortBuffer[copyIndex] each time
