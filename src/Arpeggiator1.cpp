@@ -115,7 +115,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         float yIn1 = yIn2 - dy;
 
         float xLeft = 10;
-        float dx = 43;          // 41 too close
+        float dx = 45;          // 41 too close, used 43 for first test
 
         // first row, yIn1
         addInputL(Vec(xLeft + 0 * dx, yIn1), Comp::CLOCK_INPUT, "Clk");

@@ -4,15 +4,17 @@
 
 ### Harmony
 
-Added all the diatonic modes, and all 12 roots.
+Added all the diatonic modes, and all 12 roots. Please read manual for caveats about this feature.
 
-Poly outputs (1-N).
+Tweaked the panel layout to be slightly less bad.
+
+Poly outputs (1-N). Indicators below the port will tell how many channels are patched.
 
 Added controls for chord generation.
 
 Made score drawing in Harmony use less GPU resources.
 
-Added option for black notes on white paper in score section.
+Added option for black notes on white paper in score section. Re-centered the score so it has less blank space at the top.
 
 Fixed pitches being generated outside correct bounds.
 
@@ -20,7 +22,7 @@ Fixed pitches being generated outside correct bounds.
 
 Added shuffle trigger input.
 
-Added second CV to Arpeggiator.
+Added second CV In/Out.
 
 Fixed the hold switch.
 
@@ -32,7 +34,7 @@ Fixed a typo in the Apreggiator module description.
 
 Fixed bug where setting length back to zero did not bring back full input size.
 
-Used a better shuffling algorithm.
+Use a better shuffling algorithm, and better random numbers.
 
 ## 2.0.0
 
