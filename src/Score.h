@@ -138,7 +138,9 @@ private:
     // float insetForKeysig(float keysigWidth) const;
 
     // Y axis pos
-    const float topMargin = 36.5f;
+
+    // topMargin = 36.5f;  is original
+    const float topMargin = 27.5f;
     const float yTrebleStaff = topMargin + 0;
     const float yBassStaff = yTrebleStaff + 42;    // 28 way too close
     const float yTrebleClef = yTrebleStaff - 3.3;  // 3 a little low, 4 way high

@@ -8,13 +8,14 @@
 #include "plugin.hpp"
 
 struct Harmony1Widget : ModuleWidget {
-    const float vlx = 12;
+    const float vlx = 10;
     const float vdelta = 30;
     const float vy = 320;
     Score* _score = nullptr;
     Label* voiceLabels[4] = {};
     int voicesLastTime[4] = {};
     Harmony1Module* const hmodule;
+    void addScore(Harmony1Module* module);
 
     Harmony1Widget(Harmony1Module* module) : hmodule(module) {
         setModule(module);
@@ -35,17 +36,22 @@ struct Harmony1Widget : ModuleWidget {
         addKeysig();
         addOutputs();
 
-        float ySwitch = 176;
-        const float xx = 38;
-        addParam(createParam<CKSSThree>(Vec(xx + 50, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
+        float stagger = 16;
+        float ySwitch = 170;
+        float xx = 34;
+        const float switchInset = 36;
+
+        addParam(createParam<CKSSThree>(Vec(xx + switchInset, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
         addLabel(Vec(xx - 30, ySwitch), "Inv. Pref");
 
-        ySwitch += 30;
-        addParam(createParam<CKSSThree>(Vec(xx + 50, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
+        ySwitch += 34;
+        xx += stagger;
+        addParam(createParam<CKSSThree>(Vec(xx + switchInset, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
         addLabel(Vec(xx - 30, ySwitch), "Cent Pref");
 
-        ySwitch += 30;
-        addParam(createParam<CKSS>(Vec(xx + 50, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
+        ySwitch += 34;
+        xx += stagger;
+        addParam(createParam<CKSS>(Vec(xx + switchInset, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
         addLabel(Vec(xx - 30, ySwitch), "NNIC rule");
     }
 
@@ -55,7 +61,7 @@ struct Harmony1Widget : ModuleWidget {
         addOutputL(Vec(vlx + 2 * vdelta, vy), Comp::ALTO_OUTPUT, "A");
         addOutputL(Vec(vlx + 3 * vdelta, vy), Comp::SOPRANO_OUTPUT, "S");
 
-        const float labelY = vy + 22;
+        const float labelY = vy + 24;
         voiceLabels[0] = addLabel(Vec(vlx + 0 * vdelta, labelY), "");
         voiceLabels[1] = addLabel(Vec(vlx + 1 * vdelta, labelY), "");
         voiceLabels[2] = addLabel(Vec(vlx + 2 * vdelta, labelY), "");
@@ -63,7 +69,7 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void addKeysig() {
-        const float yScale = 140;
+        const float yScale = 136;           // was 140
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -122,73 +128,39 @@ struct Harmony1Widget : ModuleWidget {
         }
     }
 
-#if 0
-    void step() override {
-        ModuleWidget::step();
-        if (module) {
-            // process the menu check ite,
-            bool whiteOnBlack = APP->engine->getParamValue(module, Comp::SCORE_COLOR_PARAM) < .5;
-            _score->setWhiteOnBlack(whiteOnBlack);
-
-            // process the voice indicators
-            for (int i = 0; i < 4; ++i) {
-                const int ch = hmodule->comp->getOutputChannels(i);
-                if ((ch > 1) && (ch != voicesLastTime[i])) {
-                    SqStream str;
-                    str.add(ch);
-                    voiceLabels[i]->text = str.str();
-                    voicesLastTime[i] = ch;
-                    SQINFO("avoices[%d] = %s ch=%d", i, str.str().c_str(), ch);
-                } else {
-                    if (ch < 2) {
-                        if (voicesLastTime[i] > 0) {
-                            voiceLabels[i]->text = "";
-                            SQINFO("bvoices[%d] = \"\" ch=%d", i, ch);
-                        }
-                        voicesLastTime[i] = ch;
-                    }
-                }
-            }
-        }
+    void
+    addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
+        addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
+        Vec vlabel(vec.x, vec.y);
+        vlabel.y -= 18;
+        const float xOffset =  -2 + text.size() * 2.5;  // crude attempt to center text.
+        vlabel.x -= xOffset;
+        addLabel(vlabel, text);
     }
-#endif
 
-void
-addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
-    addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
-    Vec vlabel(vec.x, vec.y);
-    vlabel.y -= 20;
-    const float xOffset = -4 + text.size() * 2.5;  // crude attempt to center text.
-    vlabel.x -= xOffset;
-    addLabel(vlabel, text);
-}
+    void addInputL(const Vec& vec, int outputNumber, const std::string& text) {
+        addInput(createInput<PJ301MPort>(vec, module, outputNumber));
+        Vec vlabel(vec.x, vec.y);
+        vlabel.y -= 20;
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
+        vlabel.x -= xOffset;
+        addLabel(vlabel, text);
+    }
 
-void addInputL(const Vec& vec, int outputNumber, const std::string& text) {
-    addInput(createInput<PJ301MPort>(vec, module, outputNumber));
-    Vec vlabel(vec.x, vec.y);
-    vlabel.y -= 20;
-    const float xOffset = text.size() * 2.5;  // crude attempt to center text.
-    vlabel.x -= xOffset;
-    addLabel(vlabel, text);
-}
-
-Label* addLabel(const Vec& v, const std::string& str) {
-    NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
-    Label* label = new Label();
-    label->box.pos = v;
-    label->text = str;
-    label->color = white;
-    addChild(label);
-    return label;
-}
-
-void addScore(Harmony1Module* module);
-}
-;
+    Label* addLabel(const Vec& v, const std::string& str) {
+        NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
+        Label* label = new Label();
+        label->box.pos = v;
+        label->text = str;
+        label->color = white;
+        addChild(label);
+        return label;
+    }
+};
 
 void Harmony1Widget::addScore(Harmony1Module* module) {
     _score = new Score(module);
-    auto size = Vec(120, 100);
+    auto size = Vec(120, 97);      // was 100
     auto vu = new BufferingParent(_score, size, _score);
 
     vu->box.pos = Vec(7, 26),
