@@ -48,8 +48,8 @@ The most dramatic, and also typical control is the **Mode** control. It's the dr
 * **Mode** - Same as the Mode control, but if the Mode CV input is patched it will override the panel control. CV = 0 is the first mode, going up by one mode each 1/12 of a volt.
 * **Hold** - Same as the hold control, but if the Hold CV input is patched it will override the panel control.
 * **CV** - Pitch input. Polyphonic. All the Channels may feed into the arpeggiator input buffer. This input must be patched to a polyphonic source, or the arpeggiator will not have enough notes to play.
-* **CV2** - A second value that will be carried around with CV. Whatever re-ordering and repeaing is applied to CV will also be applied to CV2. Traditionally might be called "velocity input".
-* **Gate** - Polyphonic gate input. The module will sample the CV input when any gate goes from low to high. If a mono gate it patched, it will sample all the CV inputs on a low to high transition.
+* **CV2** - A second value that will be carried around with CV. Whatever re-ordering and repeating is applied to CV will also be applied to CV2. Traditionally might be called "velocity input".
+* **Gate** - Polyphonic gate input. The module will sample the CV input when any gate goes from low to high. If a mono gate is patched, it will sample all the CV inputs on a low to high transition.
 * **Clk** - The master clock input. Notes are played when the clock is high, advancing to the next note on the next low to high clock transition.
 * **Rst** - reset input. Resets playback to the first step of the arpeggiator. see [below](#More-about-reset-and-clock)
 * **Strig** - shuffle trigger input. When patched, arpeggiator will not re-shuffle once it has played all the "notes", but a low to high transition on this input will force a shuffle at the end of the current loop.
@@ -99,4 +99,8 @@ Depending on you settings, clock and reset will interact. In VCV the behavior or
 
 Arpeggiator supports two different "standards", *classic* reset and *Nord* reset. In the context menu this is "Reset mode II" (on/off). Reset mode II is Nord reset, when it is on, and classic reset when it is off.
 
-In classig
+In classic reset, reset happens as soon as the reset line goes high. Any clocks that come in then or within one millisecond are ignored. The implementation in Arpeggiator only resets on the initial edge of the reset line, holding reset high will not keep Arpeggiator in reset (although maybe it should).
+
+In "Reset mode II", the low to high transition of the reset line does not cause an immediate reset. Instead, a reset is queued up, but does not execute until the next clock. This way, reset is perfectly synchronized with the clock, and there is no ambiguity about which clocks should be honored or ignored. No clocks are ignored in this mode.
+
+This reset mode is often called "Nord mode" because it is how the original Nord Modular synth handled reset.
