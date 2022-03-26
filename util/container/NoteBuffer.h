@@ -60,6 +60,7 @@ inline NoteBuffer::NoteBuffer(int cap) {
 }
 
 inline void NoteBuffer::setHold(bool h) {
+    // SQINFO("set hold (%d) cur=%d", h, holdMode);
     if (holdMode == h) {
         return;
     }
@@ -149,26 +150,7 @@ inline void NoteBuffer::removeAtIndex(int index) {
 }
 
 inline void NoteBuffer::removeAll() {
+    // SQINFO("nb remove all");
     siz = 0;
+    callbackMaybe();
 }
-
-// TODO: get rid of this
-#if 0
- inline int NoteBuffer::findMedian(RejectFunction rejectFun) {
-    float upperBound = 100;
-    float lowerBound = -100;
-    int bestIndex = -1;
-
-    for (int index = 0; index < siz; ++index) {
-        const float x = data[index].cv;
-        if (x < upperBound) {
-            upperBound = x;
-            bestIndex = index;
-        } else if (x > lowerBound) {
-            lowerBound = x;
-            bestIndex = index;
-        }
-    }
-    return bestIndex;
- }
- #endif

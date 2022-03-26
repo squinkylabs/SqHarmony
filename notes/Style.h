@@ -86,122 +86,6 @@ private:
 
 using StylePtr = std::shared_ptr<Style>;
 
-/* Recommended min/max for the four voices */
-
-#if 0 // this is the squeez the extremes alg (works good)
-
-// sop range = 19
-inline int Style::minSop() const {
-    // Middle C, C4
-    //  return isNarrowRange() ? 60 + dx : 60;
-    return 60;
-}
-
-inline int Style::maxSop() const {
-    // G5
-    return isNarrowRange() ? 79 - dx : 79;
-}
-
-// alto sop overlap = 14
-// alto range = 19
-inline int Style::minAlto() const {
-    // 4x12 + 7
-    // G3
-    //  return isNarrowRange() ? 55 + dx : 55;
-    return 55;
-}
-
-inline int Style::maxAlto() const {
-    // 6 * 12 + 2
-    // D5
-    return isNarrowRange() ? 74 - dx : 74;
-}
-
-// tenor alto overlap = 14
-// tenor range = 21
-inline int Style::minTenor() const {
-    // 4 X 12, C3
-    return isNarrowRange() ? 48 + dx : 48;
-}
-
-inline int Style::maxTenor() const {
-    // 5 X 12 + 9
-    // A4
-    // return isNarrowRange() ? 69 - dx : 69;
-    return 69;
-}
-
-// bass tenor overlap = 12
-// bass range = 21
-inline int Style::minBass() const {
-    // 3 X 12 + 3
-    // D# 2
-    return isNarrowRange() ? 39 + dx : 39;
-}
-inline int Style::maxBass() const {
-    // C4
-    //  return isNarrowRange() ? 60 - dx : 60;
-    return 60;
-}
-#endif
-
-
-
-#if 0 // this is the squeeze all (didn't work so well)
-
-// sop range = 19
-inline int Style::minSop() const {
-      return isNarrowRange() ? 60 + dx : 60;
-
-}
-
-inline int Style::maxSop() const {
-    // G5
-    return isNarrowRange() ? 79 - dx : 79;
-}
-
-// alto sop overlap = 14
-// alto range = 19
-inline int Style::minAlto() const {
-    // 4x12 + 7
-    // G3
-    return isNarrowRange() ? 55 + dx : 55;
-
-}
-
-inline int Style::maxAlto() const {
-    // 6 * 12 + 2
-    // D5
-    return isNarrowRange() ? 74 - dx : 74;
-}
-
-// tenor alto overlap = 14
-// tenor range = 21
-inline int Style::minTenor() const {
-    // 4 X 12, C3
-    return isNarrowRange() ? 48 + dx : 48;
-}
-
-inline int Style::maxTenor() const {
-    // 5 X 12 + 9
-    // A4
-    return isNarrowRange() ? 69 - dx : 69;
-
-}
-
-// bass tenor overlap = 12
-// bass range = 21
-inline int Style::minBass() const {
-    // 3 X 12 + 3
-    // D# 2
-    return isNarrowRange() ? 39 + dx : 39;
-}
-inline int Style::maxBass() const {
-    // C4
-    return isNarrowRange() ? 60 - dx : 60;
-}
-#endif
-
 /* Absolute pitch ranges: these are enforced!
  */
 
@@ -210,6 +94,7 @@ inline int Style::absMaxPitch() {
 #if !CRAZY_STYLE
     ret = maxSop();  // used to be +5. seemed wrong
 #else
+     a b c // we won't support this any longer
     SQWARN("crazy style is on");
     ret = maxSop() + 10;
 #endif
@@ -225,13 +110,6 @@ inline int Style::absMinPitch() {
 #endif
     return ret;
 }
-
-#if 0
-inline bool Style::OnlyRootPosition()
-{
-return true;
-}
-#endif
 
 inline bool Style::allow2ndInversion() {
     // module version couldn't handle this being false - it would need backtracking.

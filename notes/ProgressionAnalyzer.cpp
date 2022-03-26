@@ -431,57 +431,6 @@ int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
     return ret;
 }
 
-#if 0
-int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
-    int ret = 0;
-
-    if (options.style->pullTogether()) {
-        const int distance = next->fetchNotes()[3] - next->fetchNotes()[0];
-        if (distance > 15) {
-            ret = PENALTY_FOR_FAR_APART;
-        }
-        if (distance > 20) {
-            ret = PENALTY_FOR_VERY_FAR_APART;
-        }
-    }
-
-    return ret;
-}
-#endif
-
-/* bool ProgressionAnalyzer::RuleForNoneInCommon()
- */
-#if 0
-bool ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
-    DIREC di;
-    int i;
-
-    if (notesInCommon != 0) return true;
-
-    // No notes in common: upper 3 move opposite of bass
-
-    for (di = direction[TENOR], i = ALTO; i <= SOP; i++) {
-        if (di != direction[i]) {
-            if (show) printf("violates notes in common rule 1a\n");
-            return false;
-        }
-    }
-    if (di == direction[BASS]) {
-        if (show) printf("violates notes in common rule 1b\n");
-        return false;
-    }
-
-    // to nearest
-    for (i = BASS; i <= SOP; i++) {
-        if (!IsNearestNote(options, i)) {
-            if (show) printf("violates notes in common rule 1c\n");
-            return false;
-        }
-    }
-    return true;
-}
-#endif
-
 /* bool ProgressionAnalyzer::IsNearestNote(int nVoice)
  */
 bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) const {

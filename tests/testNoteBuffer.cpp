@@ -173,6 +173,24 @@ static void testNoteBufferHoldOff() {
     assertEQ(nb.size(), 2);
 }
 
+static void testNoteBufferHoldCB() {
+    NoteBuffer nb(5);
+    int callbackCount = 0;
+    nb.onChange([&callbackCount](const NoteBuffer* nbcb) {
+        ++callbackCount;
+        });
+    nb.setHold(true);
+    assertEQ(callbackCount, 0);
+    nb.push_back(1, 1, 55);
+    assertEQ(callbackCount, 1);
+    nb.removeForChannel(55);
+    assertEQ(callbackCount, 1);
+
+    nb.setHold(false);      // this should send one more
+
+    assertEQ(callbackCount, 2);
+}
+
 static void testNoteBufferRemoveStart() {
     NoteBuffer nb(5);
     nb.push_back(1, 111, 9);
@@ -294,6 +312,7 @@ void testNoteBuffer() {
 
     testNoteBufferAddPast();
     testNoteBufferReduce();
+    testNoteBufferHoldCB();
 
     //  testNoteBufferFindMedian();
 }

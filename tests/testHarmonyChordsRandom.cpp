@@ -218,7 +218,7 @@ static void testRand(int root, Scale::Scales scale) {
 
     // 8 and above fails
     for (int i = 1; i < 8; ++i) {
-        SQINFO("Especial test mode %d", i);
+        // SQINFO("Especial test mode %d", i);
         options.style->setSpecialTestMode(i);
         testRand(options);
     }

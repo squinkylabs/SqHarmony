@@ -42,7 +42,7 @@ struct Harmony1Widget : ModuleWidget {
         const float switchInset = 36;
 
         addParam(createParam<CKSSThree>(Vec(xx + switchInset, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
-        addLabel(Vec(xx - 30, ySwitch), "Inv. Pref");
+        addLabel(Vec(xx - 30, ySwitch), "Inv Pref");
 
         ySwitch += 34;
         xx += stagger;
@@ -52,7 +52,7 @@ struct Harmony1Widget : ModuleWidget {
         ySwitch += 34;
         xx += stagger;
         addParam(createParam<CKSS>(Vec(xx + switchInset, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
-        addLabel(Vec(xx - 30, ySwitch), "NNIC rule");
+        addLabel(Vec(xx - 30, ySwitch), "NNIC Rule");
     }
 
     void addOutputs() {

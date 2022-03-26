@@ -20,7 +20,7 @@ The score should have a correct key signature on the left. You can't control whe
 
 ### The input
 
-There is a single CV input. It's monophonic, and follows the VCV voltage standards. The input is quantized to the current scale. If it has changed, new output is generated.
+There is a single CV input. It's monophonic, and follows the VCV voltage standards. The input is quantized to the current scale. If the quantized input has changed, new output is generated.
 
 The input is used to determine which chord to generate, 1, 2, 3, 4, 5, 6, or 7. The octave information is ignored. Also ignored are any non-scale notes in the input, they are quantized to the nearest scale note.
 
@@ -33,13 +33,25 @@ If all outputs are not patched, then some outputs will be polyphonic. An unpatch
 * If only the last jack, Soprano, is patched, it will be four voice polyphonic, with Bass on channel 0 up to Soprano on channel 3.
 * if the Bass output is not patched, but Tenor is, it will have to channels.
 
-This "1-CV" feature is new, and is always on.
+This "1-CV" feature is new, and is always on. The number of channels in each output is indicated on the panel.
 
 ### The controls
 
 On the top are two controls that let you pick and diatonic mode and root. For example "C Minor" or "A sharp Dorian". Note that you may only specify accidentals as "sharps" even though it might make more sense in some cases to use flats. For example, if you want B flat you must use A#.
 
 See below for more on using non-major modes with Harmony.
+
+There are three controls in the middle that let you control the chords that are generated:
+
+* **Inv Pref** Give some control on whether generated chords will be in root position, or one of the inversions. The default is to discourage two chords in a row to be inverted. Settings are:
+  * Discourage consecutive. The default. tries to ensure that for any two chords in sequence, at least one is in root position.
+  * Discourage. Harmony will avoid inverted chords, when possible.
+  * Don't care. Harmony will pick the chord inversion that follows the most rules.
+* **Cent Pref**
+  * None. Allows the full, normal pitch range of all voices in the generated chords.
+  * Narrow Range. Limits the pitch range of the four generated voices. Top notes can not go as high, bottom notes can not go as low.
+  * Encourage Center. This will try to minimize the distance between the top and bottom of the chord. Will prefer close chords to open chords.
+* **NNIC Rule** Enabled and disables to voice leading rule that kicks in when two chords have no common notes between them. This is a fairly strict rule, so turning it off can allow more freedom in the generated chords.
 
 ### The context menu
 
@@ -49,9 +61,11 @@ Has a single entry that lets you select white notes on a black background, or bl
 
 Harmony tries to output decent chord progressions regardless of the input. So you feed anything into it and get a plausible output. But if you want it to sound "right" to ears from 1700, you need to spend a little care with the input.
 
-For example, you can patch a knob into the CV input, twist the knob, and get out a sequence of chords. But they won't get great sounding. This is because Harmony will see that your are entering a chord progression of 1, 2, 3, 4, 5, 6 etc.. which is not a chord progression that works well with common practice harmony. It is very difficult to connect this "bizarre" chord progression without breaking any rule.
+For example, you can patch a knob into the CV input, twist the knob, and get out a sequence of chords. But they won't get great sounding. This is because Harmony will see that your are entering a chord progression of 1, 2, 3, 4, 5, 6 etc.. which is not a chord progression that works well with common practice harmony. It is very difficult to connect this "bizarre" chord progression without breaking any rules.
 
 A chord progression of 1-5 is super easy to connect, but 1,2,3,4,5 is very difficult. So try to apply clean, discrete input to Harmony, not slowly changing input. Even if the input moves fast enough that you don't hear 1,2,3,4,5 Harmony heard it and tried to harmonize it. When you settle on the 5 Harmony may have take a tortuous path to get there, and the result won't sound as good as a clean 1-5 input.
+
+Play around with the various front panel controls. Even if you don't undestand exactly what they do, you may get pleasing sounds this way.
 
 ## Using in "other" modes
 
@@ -68,16 +82,16 @@ The bottom line: you may get very interesting and useful results with non-major 
 Other limitations:
 
 * The input quantizer may not work super well with messy input.
-* No panel design.
+* Not finished panel design.
 * When a change is detected on the input a lot of code runs. May cause clicks and pops with low buffer settings.
 
 ## How it works, and what rules does it know
 
-Every time Harmony sees a new note it takes that new note as the scale degree of a chord to be generated. The chord is supposed to sound good following the previous chord.
+Every time Harmony sees a new note it takes that new note as the root scale degree of a chord to be generated. The chord is supposed to sound good following the previous chord.
 
 So Harmony picks chords that it can "legally" make from that scale degree. It evaluates the chord in the context of the previous chord. The one that breaks the fewest rules for voice leading is then used.
 
-The chords may be in any inversion. They will be major, minor or diminished triads, as only one will follow the key signature without accidentals.
+The chords may be in any inversion. They will be major, minor or diminished triads, as only one of these possibilities will follow the key signature without accidentals.
 
 The criteria for a valid chord:
 
@@ -90,7 +104,7 @@ The rules:
 Many of these rules are from Piston's Harmony. A few are ad-hoc, or from from other source.
 
 * Chords should not repeat exactly the same as they were two steps back. ex: if the progression is 1-5-1, the two 1 chords should be voiced differently.
-* For any pair of chords, one of them should be in root position. This may be over-ridden.
+* For any pair of chords, one of them should be in root position. This may be over-ridden from the panel.
 * A leading tone (7th) in a chord must either ascend to the 1, or descend. In addition, in a 5-1 or 5-6 progression a leading tone in the soprano must must ascend to the 1.
 * Parallel fifths and octaves are bad. As are direct fifths and octaves arrived at via similar motion.
 * No voice can cross another voice.
@@ -104,4 +118,3 @@ Many of these rules are from Piston's Harmony. A few are ad-hoc, or from from ot
 * No voice should "jump" more than an octave.
 
 If the progression is an "easy" one, a chord might be quickly found that passes all the rules. In other cases Harmony might have to look at a lot of possibilities to find a good one. It may be that all the chords break a rule, and there is none that can pass. In that case the "best" one is picked.
-

@@ -120,7 +120,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         // first row, yIn1
         addInputL(Vec(xLeft + 0 * dx, yIn1), Comp::CLOCK_INPUT, "Clk");
         addInputL(Vec(xLeft + 1 * dx, yIn1), Comp::RESET_INPUT, "Rst");
-        addInputL(Vec(xLeft + 2 * dx, yIn1), Comp::SHUFFLE_TRIGGER_INPUT, "strig");
+        addInputL(Vec(xLeft + 2 * dx, yIn1), Comp::SHUFFLE_TRIGGER_INPUT, "Strig");
 
         //  second row
         addInputL(Vec(xLeft, yIn2), Comp::CV_INPUT, "CV");
@@ -185,7 +185,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         if (!text.empty()) {
             Vec vlabel(vec.x, vec.y);
             vlabel.y -= 20;
-            const float xOffset = text.size() * 2.5;  // crude attempt to center text.
+            const float xOffset = -4 +text.size() * 2.5;  // crude attempt to center text.
             vlabel.x -= xOffset;
             addLabel(vlabel, text);
         }

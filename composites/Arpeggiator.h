@@ -156,7 +156,6 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
     if (shuffleInputConnected) {
         triggerInputProc.go(TBase::inputs[SHUFFLE_TRIGGER_INPUT].getVoltage(0));
         if (triggerInputProc.trigger()) {
-            SQINFO("got trigger, sending to player to arm shuffle");
             outerPlayer.armReShuffle();
         }
     } else {
