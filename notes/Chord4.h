@@ -14,7 +14,7 @@
 
 /**
  * Taxonomy of note types, and when the internal value means.
- * 
+ *
  * Chord4
  *      contains 4 ScaleRelativeNote (the four notes in the chord)
  *      also contains 4 HarmonyNotes (I think abs pitch of the four notes)
@@ -25,14 +25,14 @@
  *              chro -= (int) root;                 // normalize relative to our root
  *              if (chro < 1) chro += 12;     // keep positive
  *              assert(chro > 0 && chro <= 12);
- *             ret.set(nDegreeTable[chro]);  // coerce us into the ScaleRelativeNote       
+ *             ret.set(nDegreeTable[chro]);  // coerce us into the ScaleRelativeNote
  *      contains int root,
  *          1 = tonic
  *          5 = dominant
- *      has ::print methods : 
+ *      has ::print methods :
  *          prints root with just %d
  *          prints 4 notes with HarmonyNote::tellPitchName(), which calls right to PitchKnowledge::nameOfAbs
- * 
+ *
  * Keysig
  *      constructed from Roots rt
  *      fixed to major key
@@ -44,11 +44,11 @@
  *          nDegreeTable[5] = 3;
  * HarmonyNote
  *      Just a type-safe wrapper around an integer midi pitch
- * 
+ *
  * ScaleRelativeNote
  *      contains int pitch 1..8: root, second, third...
- *      print method: 
- * 
+ *      print method:
+ *
  */
 
 #define CHORD_SIZE 4
@@ -86,18 +86,17 @@ public:
      * @brief makes a specific string, ex "E2A2C3A3", BUT:
      *      it can only do this if the chord is "legal" according to options
      *      it is not super fast.
-     * 
-     * @return Chord4Ptr 
+     *
+     * @return Chord4Ptr
      */
     static Chord4Ptr fromString(const Options& options, int degree, const char*);
 
-    bool makeNext(const Options& op);  // returns 0 if made another one
+    bool makeNext(const Options& op);  // returns false if made another one, true if could not
     void print() const;
     int quality(const Options& options, bool fTalk) const;  // tell how "good" this chord is
                                                             // if ftalk is true, will tell why
 
-    //bool canFollowThisGuy(const Options&, const Chord4& ThisGuy) const;
-    int penaltForFollowingThisGuy(const Options&, const Chord4& ThisGuy, bool show) const;
+    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4* ThisGuy, bool show) const;
 
     const HarmonyNote* fetchNotes() const;  // This returns pointer so you can get at all 4
     const ScaleRelativeNote* fetchSRNNotes() const;
@@ -105,24 +104,28 @@ public:
     int fetchRoot() const;                                      // tell root of chord
     INVERSION inversion(const Options& op) const;               // 0 if root, 1 it 1st inv, etc..
 
+#ifdef _DEBUG
     void dump() const;
+#endif
     std::string toString() const { return getString(); }
     std::string toStringShort() const;
 
     bool isAcceptableDoubling(const Options& option) const;
     bool isCorrectDoubling(const Options& option) const;
-private:
-    //friend ChordList;  // so he can "construct" us
 
-    bool isChordOk(const Options&);                                      // Tells if the current chord is "good"
-    ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  //converts from scale rel to chord rel
+    bool isValid() const { return valid; }
+
+private:
+    // friend ChordList;  // so he can "construct" us
+
+    bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
+    bool pitchesInRange(const Options&) const;
+    ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
 
     bool inc(const Options&);  // go to next chord (valid or not), return true if can't
 
     // This is deprecated
-  //  bool isStdDoubling(const Options& options);  // true is root doubled, etc...
-
-
+    //  bool isStdDoubling(const Options& options);  // true is root doubled, etc...
 
     void bumpToNextInChord(const Options& options, HarmonyNote& note);
 
@@ -136,7 +139,7 @@ private:
     std::string getString() const;  // printer helper function.  Gets string ascii representation of chord
 
     // **** guys who allocate storage ******
-    //static int size;
+    // static int size;
 
     ScaleRelativeNote srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid
                                              //   used for analysis
@@ -144,9 +147,8 @@ private:
     int root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
                    // is scale relative
     std::vector<HarmonyNote> _notes;
+    bool valid = false;
 };
-
-
 
 inline int Chord4::fetchRoot() const {
     return root;

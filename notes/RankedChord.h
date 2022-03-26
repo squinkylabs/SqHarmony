@@ -62,10 +62,10 @@ public:
     ~RankedChord();
     bool makeNext();              // advance to next worst chord
     void reset();                 // set us back to the first chord in rank
-    const Chord4& fetch() const;  // get the current chord
+  //  const Chord4& fetch() const;  // get the current chord
+    const Chord4* fetch2() const;
     void print() const;           // print the current chord
-  //  bool canFollowThisGuy(const Options& options, const RankedChord& TheGuy);
-    int penaltyForFollowingThisGuy(const Options&, const RankedChord& ThisGuy, bool show) const;
+    int penaltyForFollowingThisGuy(const Options&, int lowerBound, const RankedChord& ThisGuy, bool show) const;
 
 private:
     const Chord4Manager& chords;
@@ -78,11 +78,12 @@ inline RankedChord::RankedChord(const Chord4Manager& mgr , int rt) : chords(mgr)
 }
 
 inline RankedChord::~RankedChord() {
-  //  ChordArray.Del(root);
 }
 
-inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, const RankedChord& theGuy, bool show) const {
-    return fetch().penaltForFollowingThisGuy(options, theGuy.fetch(), show);
+inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, int upperBound, const RankedChord& theGuy, bool show) const {
+
+    // fetch made safer
+   return fetch2()->penaltForFollowingThisGuy(options, upperBound, theGuy.fetch2(), show);
 }
 
 inline void RankedChord::reset() {
@@ -104,6 +105,11 @@ inline bool RankedChord::makeNext() {
     return ret;
 }
 
+inline const Chord4* RankedChord::fetch2() const {
+    return chords.get2(root, curRank);
+}
+
+#if 0
 inline const Chord4& RankedChord::fetch() const {
     
   //  const int size = chords.size(root);
@@ -113,8 +119,9 @@ inline const Chord4& RankedChord::fetch() const {
     return chords.get(root, curRank);
     //return *ChordArray[root][CurRank];
 }
+#endif
 
 inline void RankedChord::print() const {
     printf("rank:%3d ", curRank);
-    fetch().print();
+    fetch2()->print();
 }

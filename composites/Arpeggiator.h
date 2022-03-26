@@ -9,6 +9,8 @@
 #include "NoteBuffer.h"
 #include "SeqClock.h"
 
+//#define _GCK        // gate clocked
+
 namespace rack {
 namespace engine {
 struct Module;
@@ -33,9 +35,10 @@ public:
         BEATS_PARAM,   // how we play the pattern back
         HOLD_PARAM,
         SCHEMA_PARAM,
-        POLY_PARAM,
+        POLY_PARAM,  // not used yet?
         RESET_MODE_PARAM,
         GATE_DELAY_PARAM,
+        GATE_CLOCKED_PARAM,  // if true, gate only changes on clock rising edge.
         NUM_PARAMS
     };
     enum InputIds {
@@ -45,6 +48,8 @@ public:
         RESET_INPUT,
         HOLD_INPUT,
         MODE_INPUT,
+        CV2_INPUT,
+        SHUFFLE_TRIGGER_INPUT,
         NUM_INPUTS
     };
 
@@ -52,6 +57,7 @@ public:
         CV_OUTPUT,
         GATE_OUTPUT,
         EOC_OUTPUT,
+        CV2_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -76,7 +82,6 @@ private:
     void onGateChange(int channel, bool gate);
 
     /**
-     *
      * @param clockFired is true when detector decides a clock is rea.
      * @param clockValue is cleaned up clock input
      */
@@ -84,7 +89,7 @@ private:
 
     bool lastGate[16]{0};
     bool allGatesLow = true;
-    float sampledPitch[16]{0};
+    // float sampledPitch[16]{0};
     bool lastClock{false};
     void processParams();
 
@@ -93,6 +98,7 @@ private:
     ArpegRhythmPlayer outerPlayer{&hiddenPlayer};
     SeqClock clock;
     GateDelay gateDelay;
+    GateTrigger triggerInputProc;
 
     const int numModes = {int(modes().size())};
 };
@@ -105,59 +111,91 @@ inline void Arpeggiator<TBase>::init() {
 
 template <class TBase>
 inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args) {
+    // SQINFO("~process (enter)");
     processParams();
     const int gates = TBase::inputs[GATE_INPUT].channels;
     const int cvs = TBase::inputs[CV_INPUT].channels;
     const bool monoGates = (gates == 1) && (cvs > 1);
 
+   // SQINFO("gates = %d, connected = %d", gates, TBase::inputs[GATE_INPUT].isConnected());
+
+    int highestGateProcessed = 0;
     if (monoGates) {
+        highestGateProcessed = cvs;
         // for mono gates, just look at gate[0], but send to to all cv channels
+        // SQDEBUG("gate delay will process mg input=%f", TBase::inputs[GATE_INPUT].getVoltage(0));
         gateDelay.process(TBase::inputs[GATE_INPUT], gates);
-        bool gate = gateDelay.getGate(0);
+        const bool gate = gateDelay.getGate(0);
         if (gate != lastGate[0]) {
             lastGate[0] = gate;
             for (int ch = 0; ch < cvs; ++ch) {
                 onGateChange(ch, gate);
-            }     
+            }
         }
-    } else
+    } else {
+        highestGateProcessed = gates;
         gateDelay.process(TBase::inputs[GATE_INPUT], gates);
         for (int ch = 0; ch < gates; ++ch) {
-            //bool gate = TBase::inputs[GATE_INPUT].getVoltage(ch);
-            bool gate = gateDelay.getGate(ch);
+            const bool gate = gateDelay.getGate(ch);
             if (gate != lastGate[ch]) {
                 lastGate[ch] = gate;
                 onGateChange(ch, gate);
             }
         }
+    }
+
+    // optimization: could do this only if connected changes
+    for (int ch= highestGateProcessed; ch<16; ++ch) {
+        if (lastGate[ch]) {
+            lastGate[ch] = false;
+            onGateChange(ch, false);
+        }
+    }
+
+    const bool shuffleInputConnected = TBase::inputs[SHUFFLE_TRIGGER_INPUT].isConnected();
+    if (shuffleInputConnected) {
+        triggerInputProc.go(TBase::inputs[SHUFFLE_TRIGGER_INPUT].getVoltage(0));
+        if (triggerInputProc.trigger()) {
+            outerPlayer.armReShuffle();
+        }
+    } else {
+        // if no CV, we want it armed "all the time"
+        outerPlayer.armReShuffle();
+    }
 
     const float clockVoltageX = TBase::inputs[CLOCK_INPUT].getVoltage(0);
     const float resetVoltage = TBase::inputs[RESET_INPUT].getVoltage(0);
     auto clockResults = clock.updateOnce(clockVoltageX, true, resetVoltage);
 
     if (clockResults.didReset) {
+        // SQDEBUG("did reset");
         clockResults.didClock = true;  // let's force one after this, to get the new value?
         outerPlayer.reset();
     }
 
     const bool processedClock = clock.getClockValue();
     if (clockResults.didClock || processedClock != lastClock) {
+        // SQDEBUG("didClock=%d , proc=%d last=%d", clockResults.didClock, processedClock, lastClock);
         lastClock = processedClock;
+
         onClockChange(clockResults.didClock, processedClock);
     }
+    // SQINFO("~process (exit)");
 }
 
 template <class TBase>
 inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
-    const float pitch = TBase::inputs[CV_INPUT].getVoltage(channel);
+    // SQINFO("Arpeggiator<TBase>::onGateChange will send CV to nb: %f, %f", cv1, cv2);
+
     if (gate) {
-        noteBuffer.push_back(pitch, channel);
-        sampledPitch[channel] = pitch;
+        const float cv1 = TBase::inputs[CV_INPUT].getVoltage(channel);
+        const float cv2 = TBase::inputs[CV2_INPUT].getVoltage(channel);
+        noteBuffer.push_back(cv1, cv2, channel);
     } else {
         noteBuffer.removeForChannel(channel);
-        sampledPitch[channel] = 0;
     }
 
+    // TODO: get rid of this all gates low stuff
     allGatesLow = true;
     for (int i = 0; i < 16; ++i) {
         if (lastGate[i]) {
@@ -168,16 +206,27 @@ inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
 
 template <class TBase>
 inline void Arpeggiator<TBase>::onClockChange(bool clockFired, bool clockValue) {
+    SQDEBUG("Arpeg::onClockChange, fired = %d value = %d", clockFired, clockValue);
     if (clockFired) {
-        const float pitch = outerPlayer.clock();
-        TBase::outputs[CV_OUTPUT].setVoltage(pitch, 0);
+        const auto cvs = outerPlayer.clock();
+        // SQINFO("will output player out to CV: %f,%f", cvs.first, cvs.second);
+        TBase::outputs[CV_OUTPUT].setVoltage(cvs.first, 0);
+        TBase::outputs[CV2_OUTPUT].setVoltage(cvs.second, 0);
+    }
+
+    if (hiddenPlayer.empty()) {
+        clockValue = false;
+        SQDEBUG("AM muting everything, no notes, clockFired=%d, value=%d", clockFired, clockValue);
     }
 
     if (allGatesLow) {
-        clockValue = false;
+        // SQDEBUG("setting clock value low because all low. will force gate low\n");
+        // clockValue = false;
+        SQDEBUG("would mute everything, but I took that out");
     }
     const float clockVoltage = clockValue ? cGateOutHi : 0.f;
 
+    SQDEBUG("setting gate out to %f", clockVoltage);
     TBase::outputs[GATE_OUTPUT].setVoltage(clockVoltage, 0);
 }
 
@@ -209,14 +258,12 @@ inline void Arpeggiator<TBase>::processParams() {
         TBase::params[HOLD_PARAM].value = holdVoltage;
         hold = bool(holdVoltage);
     } else {
-        mode = int(std::round(TBase::params[MODE_PARAM].value));
+        hold = bool(std::round(TBase::params[HOLD_PARAM].value));
     }
 
     outerPlayer.setLength(beats);
     hiddenPlayer.setMode(ArpegPlayer::Mode(mode));
-    if (length) {
-        noteBuffer.setCapacity(length);
-    }
+    noteBuffer.setCapacity(length);
     noteBuffer.setHold(hold);
     clock.setResetMode(resetMode);
     gateDelay.enableDelay(gateDelayEnabled);

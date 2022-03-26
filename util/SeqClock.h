@@ -115,6 +115,7 @@ inline SeqClock::ClockResults SeqClock::updateOnce(float externalClock, bool run
 
             // either way we generate a clock
             results.didClock = true;
+            SQDEBUG("clock fired in nord mode");
         }
     } else {
         if (resetLockout.hasFired()) {
@@ -122,6 +123,7 @@ inline SeqClock::ClockResults SeqClock::updateOnce(float externalClock, bool run
             clockProcessor.go(externalClock);
             if (clockProcessor.trigger()) {
                 results.didClock = true;
+                SQDEBUG("clock fired in non-nord");
             }
         } else {
             clockProcessor.ignoreInput(externalClock);

@@ -69,7 +69,7 @@
     <ClCompile Include="..\notes\Style.cpp">
       <Filter>Source Files\notes</Filter>
     </ClCompile>
-    <ClCompile Include="..\notes\Keysig.cpp">
+    <ClCompile Include="..\notes\KeysigOld.cpp">
       <Filter>Source Files\notes</Filter>
     </ClCompile>
     <ClCompile Include="..\notes\ScaleRelativeNote.cpp">
@@ -154,6 +154,9 @@
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="testGateDelay.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testHarmonyChordsRandom.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>

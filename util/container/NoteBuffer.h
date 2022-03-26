@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SqLog.h"
 #include <assert.h>
 #include <functional>
 
@@ -17,18 +18,18 @@ public:
     int size() const { return siz; }
     bool empty() const { return siz == 0; }
 
-    void push_back(float pitch, int channel);
-    //  void remove(float);
+    void push_back(float cv1, float cv2, int channel);
     void removeForChannel(int channel);
     void removeAtIndex(int index);
     void setHold(bool);
 
     class Data {
     public:
-        Data(float p, int ch) : channel(ch), cv(p) {}
+        Data(float p1, float v1, int ch) : channel(ch), cv1(p1), cv2(v1) {}
         Data() {}
         int channel = 0;
-        float cv = 0;
+        float cv1 = 0;
+        float cv2 = 0;
     };
 
     const Data* begin() const;
@@ -36,7 +37,6 @@ public:
     const Data& at(int index) const;
 
     using RejectFunction = std::function<bool(int index)>;
-   // int findMedian(RejectFunction = nullptr);
 
 private:
     int siz = 0;
@@ -50,7 +50,7 @@ private:
         }
     }
 
-    Data data[maxCapacity];
+    Data data[maxCapacity + 2];
     void removeAll();
 };
 
@@ -60,6 +60,7 @@ inline NoteBuffer::NoteBuffer(int cap) {
 }
 
 inline void NoteBuffer::setHold(bool h) {
+    // SQINFO("set hold (%d) cur=%d", h, holdMode);
     if (holdMode == h) {
         return;
     }
@@ -71,9 +72,24 @@ inline void NoteBuffer::setHold(bool h) {
 }
 
 inline void NoteBuffer::setCapacity(int size) {
+    if (size == 0) {
+        size = maxCapacity;
+    }
     size = std::min(size, maxCapacity);
     if (size != curCapacity) {
         curCapacity = size;
+      //  siz = std::min(siz, size);      // current size can't be more than we hold
+
+        // if we are shrinking
+        if (siz > size) {
+            const int moveOffset = siz - size;
+            assert(moveOffset > 0);
+            for (int i = 0; i < size; ++i) {
+                data[i] = data[i + moveOffset];
+            }
+            siz = size;
+        }
+
         callbackMaybe();
     }
 }
@@ -82,14 +98,15 @@ inline void NoteBuffer::onChange(callback callb) {
     cb = callb;
 }
 
-inline void NoteBuffer::push_back(float x, int channel) {
-    if (siz == curCapacity) {
+inline void NoteBuffer::push_back(float v1, float v2, int channel) {
+    // SQINFO("nb push, siz=%d, cap=%d this=%p", siz, curCapacity, this);
+    if (siz >= curCapacity) {
         for (int i = 0; i < siz - 1; ++i) {
             data[i] = data[i + 1];
         }
-        data[siz - 1] = Data(x, channel);
+        data[siz - 1] = Data(v1, v2, channel);
     } else {
-        data[siz] = Data(x, channel);
+        data[siz] = Data(v1, v2, channel);
         siz++;
     }
     callbackMaybe();
@@ -133,26 +150,7 @@ inline void NoteBuffer::removeAtIndex(int index) {
 }
 
 inline void NoteBuffer::removeAll() {
+    // SQINFO("nb remove all");
     siz = 0;
+    callbackMaybe();
 }
-
-// TODO: get rid of this
-#if 0
- inline int NoteBuffer::findMedian(RejectFunction rejectFun) {
-    float upperBound = 100;
-    float lowerBound = -100;
-    int bestIndex = -1;
-
-    for (int index = 0; index < siz; ++index) {
-        const float x = data[index].cv;
-        if (x < upperBound) {
-            upperBound = x;
-            bestIndex = index;
-        } else if (x > lowerBound) {
-            lowerBound = x;
-            bestIndex = index;
-        }
-    }
-    return bestIndex;
- }
- #endif

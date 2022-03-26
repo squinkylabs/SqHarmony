@@ -24,7 +24,4 @@ static void testInterval() {
 void testScaleRelativeNote() {
     test0();
     testInterval();
-
-    // meaningless?
-    // assert(false);          // test absolute pitch
 }

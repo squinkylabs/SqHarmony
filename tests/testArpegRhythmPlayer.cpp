@@ -2,7 +2,8 @@
 #include "ArpegRhythmPlayer.h"
 #include "asserts.h"
 
-static void testArpegRPSub(int length, float* input, int numInput, float* expectedOutput, int numOutput) {
+
+static void testArpegRPSub(int length, const float* input, int numInput, const float* expectedOutput, int numOutput) {
     NoteBuffer nb(20);
     ArpegPlayer ap(&nb);
     ap.setMode(ArpegPlayer::Mode::UP);
@@ -12,14 +13,15 @@ static void testArpegRPSub(int length, float* input, int numInput, float* expect
     arp.setLength(length);
 
     for (int i = 0; i < numInput; ++i) {
-        nb.push_back(input[i], i);
+        nb.push_back(input[i], input[i]+11, i);
     }
 
     for (int i = 0; i < numOutput; ++i) {
         const float expected = expectedOutput[i];
-        const float actual = arp.clock();
+        const auto actual = arp.clock();
         //printf("i=%d actual=%f expected=%f\n", i, actual, expected);
-        assertEQ(actual, expected);
+        assertEQ(actual.first, expected);
+        assertEQ(actual.second, expected+11);
     }
 }
 
@@ -47,6 +49,10 @@ static void testArpegRhythmPlayer2() {
     testArpegRPSub(2, input, 3, expectedOutput, 3);
 }
 
+#define assertPair(p, a, b) \
+    assertEQ(p.first, a);   \
+    assertEQ(p.second, b);
+
 static void testArpegRhythmPlayerReset() {
     NoteBuffer nb(20);
     ArpegPlayer ap(&nb);
@@ -59,27 +65,26 @@ static void testArpegRhythmPlayerReset() {
     arp.setLength(len);
 
     for (int i = 0; i < numInput; ++i) {
-        nb.push_back(input[i], i);
+        nb.push_back(input[i], input[i] + 3, i);
     }
 
-    float x = arp.clock();
-    assertEQ(x, 1);
+    auto x = arp.clock();
+    assertEQ(x.first, 1);
     x = arp.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2, 5);
     arp.reset();
 
     x = arp.clock();
-    assertEQ(x, 1);
+    assertPair(x, 1, 4);
     x = arp.clock();
-    assertEQ(x, 2);
+    assertPair(x, 2, 5);
      x = arp.clock();
-    assertEQ(x, 3);
+    assertPair(x, 3, 6);
 }
 
 
 
 void testArpegRhythmPlayer() {
-
     testArpegRhythmPlayer0();
     testArpegRhythmPlayer1();
     testArpegRhythmPlayer2();

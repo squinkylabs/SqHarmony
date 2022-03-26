@@ -2,7 +2,7 @@
 #include "Chord4.h"
 #include "Chord4Manager.h"
 #include "HarmonyChords.h"
-#include "Keysig.h"
+#include "KeysigOld.h"
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
 #include "asserts.h"
@@ -11,8 +11,8 @@ static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
 
-static KeysigPtr makeKeysig() {
-    return std::make_shared<Keysig>(Roots::C);
+static KeysigOldPtr makeKeysig() {
+    return std::make_shared<KeysigOld>(Roots::C);
 }
 
 static Options makeOptions() {
@@ -38,11 +38,12 @@ static void testAtoB(bool show, const char* chordAs, int degA, const char* chord
 
 
     printf("about to analyze for display\n");
-    ProgressionAnalyzer pa(*chord1, *chord2, true);
+
+    ProgressionAnalyzer pa(chord1.get(), chord2.get(), true);
   //  if (show) {
    //     pa.showAnalysis();
   //  }
-    pa.getPenalty(options);
+    pa.getPenalty(options, ProgressionAnalyzer::MAX_PENALTY);
 
     printf("done with showing penalty\n");
 

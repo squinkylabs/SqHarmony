@@ -9,7 +9,7 @@
 /**
  * @brief wrapper around an absolute MIDI pitch
  * 
- * as per the midi spec, 60 is C3
+ * As per the midi spec, 60 is C3
  * Note that C3 is an octave below 0 v in VCV spec.
  */
 class HarmonyNote {

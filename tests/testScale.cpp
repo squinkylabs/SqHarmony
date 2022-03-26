@@ -3,6 +3,8 @@
 #include "Scale.h"
 #include "asserts.h"
 
+#include "SqLog.h"
+
 static void testCMaj() {
     Scale scale;
     scale.set(4, Scale::Scales::Major);
@@ -13,6 +15,33 @@ static void testCMaj() {
     assertEQ(scale.degreeToSemitone(4), 7);   // G
     assertEQ(scale.degreeToSemitone(5), 9);   // A
     assertEQ(scale.degreeToSemitone(6), 11);  // B
+}
+
+static void testNoCrash(const Scale& scale) {
+    for (int i=0; i<11; ++i) {
+        const int x = scale.quantize(i);
+        assertGE(x, 0);
+        assertLE(x, 7);
+      //  assertGE(x, i-1);
+       // assertLE(x, i+1);
+    }
+}
+
+static void testGeneral() {
+    for (int root = 0; root<12; ++root) {
+        for (int mode = 0; mode <= int(Scale::Scales::Chromatic); ++mode) {
+            Scale scale;
+            Scale::Scales emode = Scale::Scales(mode);
+            scale.set(root, emode);
+            for (int testPitch = 0; testPitch < 12; testPitch++) {
+                 const int x = scale.quantize(testPitch);
+
+            }
+        }
+    }
+    //Scale scale;
+   // scale.set(0, Scale::Scales::Lydian);
+   // testNoCrash(scale);
 }
 
 static void testAMin() {
@@ -164,9 +193,180 @@ static void tests2mCMajC5() {
     assertEQ(mn.get(), MidiNote::C3 + 2 * 12);
 }
 
+static void validate(const Scale::ScoreInfo& info) {
+   for (int i = 0; i < info.numSharps; ++i) {
+       assert(info.sharpsInBassClef);
+       assert(info.sharpsInTrebleClef);
+
+       int t = info.sharpsInTrebleClef[i].get();
+       int b = info.sharpsInBassClef[i].get();
+       assertGT(t, MidiNote::MiddleC + 4);
+       assertLT(t, MidiNote::MiddleC + 20);
+
+       assertGE(b, MidiNote::MiddleC - (12 + 5));
+       assertLE(b, MidiNote::MiddleC - 3);
+   }
+
+    for (int i = 0; i < info.numFlats; ++i) {
+       assert(info.flatsInBassClef);
+       assert(info.flatsInTrebleClef);
+
+       int t = info.flatsInTrebleClef[i].get();
+       int b = info.flatsInBassClef[i].get();
+       assertGT(t, MidiNote::MiddleC);
+       assertLT(t, MidiNote::MiddleC + 19);
+
+       assertGE(b, MidiNote::MiddleC - (12 + 5));
+       assertLE(b, MidiNote::MiddleC - 3);
+   }
+}
+
+static void validate(const Scale::ScoreInfo& info, int expectedSharps, int expectedFlats) {
+    //assert(expectedFlats==0 || expectedSharps==0);
+    assertEQ(info.numFlats, expectedFlats);
+    assertEQ(info.numSharps, expectedSharps);
+    validate(info);    
+}
+
+static void testScore() {
+    Scale scale;
+    scale.set(MidiNote::C, Scale::Scales::Major);
+
+    auto info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 0);
+    assertEQ(info.numSharps, 0);
+    validate(info);
+
+    // gmaj
+    scale.set(MidiNote::C + 7, Scale::Scales::Major);
+    info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 0);
+    assertEQ(info.numSharps, 1);
+    validate(info);
+}
+
+static void testScore2() {
+    Scale scale;
+
+    // E flat is three flat major
+    scale.set(MidiNote::C + 3, Scale::Scales::Major);
+
+    auto info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 3);
+    assertEQ(info.numSharps, 0);
+    validate(info);
+
+    // C Min is the relative minor 
+    scale.set(MidiNote::C, Scale::Scales::Minor);
+    info = scale.getScoreInfo();
+    assertEQ(info.numFlats, 3);
+    assertEQ(info.numSharps, 0);
+    validate(info);
+}
+
+static void testScore3() {
+    Scale scale;
+
+    // all the natural modes
+    scale.set(MidiNote::C, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::D, Scale::Scales::Dorian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::E, Scale::Scales::Phrygian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::F, Scale::Scales::Lydian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::G, Scale::Scales::Mixolydian);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::A, Scale::Scales::Minor);
+    validate(scale.getScoreInfo(), 0, 0);
+    scale.set(MidiNote::B, Scale::Scales::Locrian);
+    validate(scale.getScoreInfo(), 0, 0);
+
+    // all the one sharp scales
+    scale.set(MidiNote::G, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::A, Scale::Scales::Dorian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::B, Scale::Scales::Phrygian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::C, Scale::Scales::Lydian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::D, Scale::Scales::Mixolydian);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::E, Scale::Scales::Minor);
+    validate(scale.getScoreInfo(), 1, 0);
+    scale.set(MidiNote::F + 1, Scale::Scales::Locrian);
+    validate(scale.getScoreInfo(), 1, 0);
+
+    // all the two sharp scales
+    scale.set(MidiNote::D, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::E, Scale::Scales::Dorian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::F + 1, Scale::Scales::Phrygian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::G, Scale::Scales::Lydian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::A, Scale::Scales::Mixolydian);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::B, Scale::Scales::Minor);
+    validate(scale.getScoreInfo(), 2, 0);
+    scale.set(MidiNote::C + 1, Scale::Scales::Locrian);
+    validate(scale.getScoreInfo(), 2, 0);
+
+  
+    scale.set(MidiNote::A, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 3, 0);
+
+    scale.set(MidiNote::E, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 4, 0);
+
+    // b maj = 5 sharp or 7 flats
+    scale.set(MidiNote::B, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 5, 7);
+
+    scale.set(MidiNote::F + 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 6, 6);
+
+    // c# major / d- major
+    scale.set(MidiNote::C +1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 7, 5);
+
+    // one flat
+    scale.set(MidiNote::F, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 1);
+
+    // 2 flat b- major
+    scale.set(MidiNote::B - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 2);
+
+    // 3 flat e- maj
+    scale.set(MidiNote::E - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 3);
+
+    // 4 flats A- major = g# major
+    scale.set(MidiNote::A - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 0, 4);
+
+    //  5 flats d- major . also c# major - 7 sharps
+    scale.set(MidiNote::D - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 7, 5);
+
+    // 6 flats g- major, algo f# mar
+    scale.set(MidiNote::G - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 6, 6);
+
+    // 7 flats c- major. also bmaj = 5 sharps
+    scale.set(MidiNote::C + 12 - 1, Scale::Scales::Major);
+    validate(scale.getScoreInfo(), 5, 7);
+}
+
+
 void testScale() {
     testCMaj();
     testAMin();
+    testGeneral();
     testChromatic();
 
     testQuantCMaj();
@@ -179,4 +379,8 @@ void testScale() {
 
     tests2mCMajC4();
     tests2mCMajC5();
+
+    testScore();
+    testScore2();
+    testScore3();
 }

@@ -19,6 +19,13 @@ public:
 
     static const int C3 = 60;  // C3 is 60 in midi spec.
     static const int C = 0;
+    static const int D = 2;
+    static const int E = 4;
+    static const int F = 5;
+    static const int G = 7;
+    static const int A = 9;
+    static const int B = 11;
+    
     static const int MiddleC = 60 + 12;
 
 private:

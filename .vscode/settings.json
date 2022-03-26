@@ -58,6 +58,8 @@
         "xlocmes": "cpp",
         "xlocmon": "cpp",
         "xloctime": "cpp",
-        "cstdarg": "cpp"
+        "cstdarg": "cpp",
+        "map": "cpp",
+        "xtree": "cpp"
     }
 }

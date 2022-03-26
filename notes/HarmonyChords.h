@@ -11,14 +11,14 @@ using Chord4Ptr = std::shared_ptr<Chord4>;
 class HarmonyChords {
 public:
     /**
-     * @brief 
-     * 
-     * @param options 
-     * @param manager 
-     * @param prev 
+     * @brief
+     *
+     * @param options
+     * @param manager
+     * @param prev
      * @param root 1 = root, 2 = 2nd
      * @return Chord4*. could be null.
-     * 
+     *
      * caller does not "own" the chord returned, it is owned my manager
      */
     static const Chord4* findChord(
@@ -42,6 +42,13 @@ public:
         const Chord4& prev,
         int root);
 
+    static int progressionPenalty(const Options& options,
+                                  int bestSoFar,
+                                  const Chord4* prevProv,
+                                  const Chord4* prev,
+                                  const Chord4* current,
+                                  bool show);
+
 private:
     static const Chord4* find(
         bool show,
@@ -50,17 +57,4 @@ private:
         const Chord4* prevProv,
         const Chord4* prev,
         int root);
-
-
-    static int progressionPenalty(const Options& options,
-                              const Chord4* prevProv,
-                              const Chord4* prev,
-                              const Chord4* current,
-                              bool show);
-#if 0
-    static bool progressionOK(const Options& options,
-                              const Chord4* prevProv,
-                              const Chord4* prev,
-                              const Chord4* current);
-#endif
 };

@@ -7,13 +7,14 @@
 #include <iostream>
 #include <sstream>
 
-#include "Keysig.h"
+#include "KeysigOld.h"
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
 #include "ScaleRelativeNote.h"
+#include "SqLog.h"
 #include "Style.h"
 
-//int Chord4::size;
+// int Chord4::size;
 
 int __numChord4 = 0;
 
@@ -21,7 +22,7 @@ int __numChord4 = 0;
  */
 Chord4::Chord4(const Options& options, int nRoot) : root(nRoot) {
     __numChord4++;
-    int temp;
+    assert(root > 0 && root < 8);
 
     for (int i = 0; i < CHORD_SIZE; ++i) {
         _notes.push_back(HarmonyNote(options));
@@ -29,36 +30,41 @@ Chord4::Chord4(const Options& options, int nRoot) : root(nRoot) {
     assert(_notes.size() == CHORD_SIZE);
     // now _notes has 4 notes, they are all the same path - the min pitch specificied by the style
 
-    for (temp = 0; temp < CHORD_SIZE; temp++) {
-        while (_notes[temp] < options.style->absMinPitch()) {
-            ++_notes[temp];
+    for (int index = 0; index < CHORD_SIZE; index++) {
+        while (_notes[index] < options.style->absMinPitch()) {
+            ++_notes[index];
         }
-        if (!isInChord(options, _notes[temp])) {
-            bumpToNextInChord(options, _notes[temp]);
+        if (!isInChord(options, _notes[index])) {
+            bumpToNextInChord(options, _notes[index]);
         }
         // speed up makeNext by getting this far
     }
 
-    // printf("in ctor 40: %s\n", toString().c_str());
-
     if (!isChordOk(options)) {
-        temp = makeNext(options);  // Start on valid chord
+        const bool error = makeNext(options);  // Start on valid chord
+        if (error) {
+            assert(!valid);
+            return;  // if we can't make a valid chord, signal an error
+        }
     }
-    //  printf("in ctor 45: %s\n", toString().c_str());
+    valid = true;
 }
 
 // TODO: get rid of this!
 Chord4::Chord4() : root(1) {
+    valid = true;
     __numChord4++;
 }
 
 Chord4::~Chord4() {
     __numChord4--;
+    assert(__numChord4 >= 0);
 }
 
 /*  int Chord4::Quality() const
  */
 int Chord4::quality(const Options& options, bool fTalk) const {
+    assert(valid);
     int ret;
     int nTotalDivergence = divergence(options);
 
@@ -107,6 +113,7 @@ int Chord4::divergence(const Options& options) const {
  */
 
 std::string Chord4::getString() const {
+    assert(valid);
     std::stringstream s;
     assert(_notes.size() == CHORD_SIZE);
 
@@ -120,6 +127,7 @@ std::string Chord4::getString() const {
 }
 
 std::string Chord4::toStringShort() const {
+    assert(valid);
     std::stringstream s;
     assert(_notes.size() == CHORD_SIZE);
 
@@ -137,7 +145,8 @@ void Chord4::dump() const {
 
 void Chord4::print() const {
     auto str = getString();
-    std::cout << str;
+    SQINFO("%s", str.c_str());
+    // std::cout << str;
 }
 
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
@@ -175,7 +184,7 @@ void Chord4::bumpToNextInChord(const Options& options, HarmonyNote& note) {
 #endif
 }
 
-/*   bool Chord4::inc()
+/* bool Chord4::inc()
  */
 bool Chord4::inc(const Options& options) {
     int nVoice;
@@ -247,7 +256,7 @@ void Chord4::makeSrnNotes(const Options& op) {
     }
 }
 
-bool Chord4::isChordOk(const Options& options) {
+bool Chord4::isChordOk(const Options& options) const {
     bool ret = true;
     int i, nPitch;
 
@@ -276,7 +285,7 @@ bool Chord4::isChordOk(const Options& options) {
         }
     } else {
         printf("can't handle yet\n");
-        return true;
+        return false;
     }
 
     bool InvOk;
@@ -312,7 +321,7 @@ bool Chord4::isChordOk(const Options& options) {
         test[nPitch] = true;          // mark that we are here
     }
     if (matches > style->maxUnison()) {
-        //if (b) printf("isChordOk not ok at 287\n");
+        // if (b) printf("isChordOk not ok at 287\n");
         return false;
         // If more unisons in the chord than we allow
     }
@@ -330,16 +339,43 @@ bool Chord4::isChordOk(const Options& options) {
     }
 #else
     if (style->requireStdDoubling() && !isStdDoubling(options)) {
-        //if (b) printf("isChordOk not ok at 300\n");
-        // double root, contain 3 and 5
+        // if (b) printf("isChordOk not ok at 300\n");
+        //  double root, contain 3 and 5
         return false;
     }
 #endif
+    if (!pitchesInRange(options)) {
+        return false;
+    }
     return ret;
+}
+
+bool Chord4::pitchesInRange(const Options& options) const {
+    const HarmonyNote* notes = fetchNotes();
+    auto style = options.style;
+
+    const int bass = notes[0];
+    const int tenor = notes[1];
+    const int alto = notes[2];
+    const int soprano = notes[3];
+    if (bass < style->minBass() || bass > style->maxBass()) {
+        return false;
+    }
+    if (tenor < style->minTenor() || tenor > style->maxTenor()) {
+        return false;
+    }
+    if (alto < style->minAlto() || alto > style->maxAlto()) {
+        return false;
+    }
+    if (soprano < style->minSop() || soprano > style->maxSop()) {
+        return false;
+    }
+    return true;
 }
 
 bool Chord4::isAcceptableDoubling(const Options& options) const {
     int nRoots = 0, nThirds = 0, nFifths = 0;
+
 
     for (int nVoice = 0; nVoice < CHORD_SIZE; nVoice++)  // loop over all notes in chord
     {
@@ -354,6 +390,7 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
                 nFifths++;
                 break;
             default:
+                SQWARN("dlb of non-diatonic");
                 assert(false);
         }
     }
@@ -490,10 +527,10 @@ bool Chord4::isStdDoubling(const Options& options) {
 }
 #endif
 
-/*   ChordRelativeNote Chord4::ChordInterval(Note note)
+/* ChordRelativeNote Chord4::ChordInterval(Note note)
  */
 ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note) const {
-    //static int dumb = -1;
+    // static int dumb = -1;
     int nt = 0;  // assume bogus
     ChordRelativeNote ret;
 
@@ -508,12 +545,12 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
     return ret;
 }
 
-/*   bool Chord4::InChord(Note test)
+/* bool Chord4::InChord(Note test)
  */
 bool Chord4::isInChord(const Options& options, HarmonyNote test) const {
     bool ret = false;
 
-    //const bool b = (this->toStringShort() == "E2A2C3A3");
+    // const bool b = (this->toStringShort() == "E2A2C3A3");
 
     const ChordRelativeNote crnX = chordInterval(options, test);
     switch (crnX) {
@@ -531,11 +568,11 @@ bool Chord4::isInChord(const Options& options, HarmonyNote test) const {
     return ret;
 }
 
-/*   int Chord4::Inversion()
-  
+/* int Chord4::Inversion()
+
  */
 INVERSION Chord4::inversion(const Options& options) const {
-    //static int dumb = -1;
+    // static int dumb = -1;
     INVERSION ret;
 
     switch (chordInterval(options, _notes[0])) {
@@ -561,7 +598,7 @@ if (notes[0] != dumb)
     return ret;
 }
 
-/*   bool Chord4::CanFollowThisGuy(const Chord4 * const ThisGuy) const;
+/* bool Chord4::CanFollowThisGuy(const Chord4 * const ThisGuy) const;
  */
 #if 0
 bool Chord4::canFollowThisGuy(const Options& options, const Chord4& thisGuy) const {
@@ -573,7 +610,12 @@ bool Chord4::canFollowThisGuy(const Options& options, const Chord4& thisGuy) con
 }
 #endif
 
-int Chord4::penaltForFollowingThisGuy(const Options& options, const Chord4& thisGuy, bool show) const {
-    ProgressionAnalyzer analyzer(thisGuy, *this, show);
-    return analyzer.getPenalty(options);
+int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4* thisGuy, bool show) const {
+    assert(valid);
+    assert(thisGuy->valid);
+    if (show) {
+        SQINFO("enter Chord4::penaltForFollowingThisGuy");
+    }
+    ProgressionAnalyzer analyzer(thisGuy, this, show);
+    return analyzer.getPenalty(options, lowestPenaltySoFar);
 }

@@ -35,7 +35,7 @@ static void testNoDelay() {
 }
 
 static void testWithDelay(unsigned channel, unsigned otherChannel) {
-    SQINFO("---- testWithDelay(%d, %d)", channel, otherChannel);
+ //   SQINFO("---- testWithDelay(%d, %d)", channel, otherChannel);
     assert(channel < 16);
     assert(otherChannel < 16);
     assert(channel != otherChannel);

@@ -145,7 +145,7 @@
     <ClCompile Include="..\notes\Chord4List.cpp" />
     <ClCompile Include="..\notes\HarmonyChords.cpp" />
     <ClCompile Include="..\notes\HarmonySong.cpp" />
-    <ClCompile Include="..\notes\Keysig.cpp" />
+    <ClCompile Include="..\notes\KeysigOld.cpp" />
     <ClCompile Include="..\notes\PitchKnowledge.CPP" />
     <ClCompile Include="..\notes\ProgressionAnalyzer.cpp" />
     <ClCompile Include="..\notes\RankedChord.cpp" />
@@ -162,6 +162,7 @@
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
+    <ClCompile Include="testHarmonyChordsRandom.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
     <ClCompile Include="testChord.cpp" />
     <ClCompile Include="testChordRelativeNote.cpp" />

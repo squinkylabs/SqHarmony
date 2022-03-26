@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MidiNote.h"
+#include "Scale.h"
 
 #include <memory>
 
@@ -34,7 +35,7 @@
  *  make the Scale object, and make it changeable on audio thread.
  *  Quantizer gets a ref to the Scale.
  */
-class Scale;
+//class Scale;
 class ScaleQuantizer;
 using ConstScalePtr = std::shared_ptr<const Scale>;
 using ScalePtr = std::shared_ptr<Scale>;
@@ -69,7 +70,5 @@ public:
 private:
     float lastValue = 0;
     MidiNote lastQuantizedNote;
-   // const Scale& scale;
-
     ConstOptionsPtr options;
 };

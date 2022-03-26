@@ -1,20 +1,24 @@
 
 #pragma once
 
-#include "Chord4.h"
-
 #include <assert.h>
+
 #include <vector>
+
+#include "Chord4.h"
 
 class Chord4List {
 public:
     Chord4List(const Options& options, int root);
-    int size() const;               // how many chords are in list
-    const Chord4& get(int n) const;  // Get chord number n
+
+    int size() const;  // how many chords are in list
+
+    // If there is an error constructing chords, this is how we signal it.
+    bool isValid() const { return !chords.empty(); }
+
+    const Chord4* get2(int n) const;
 
 private:
-    //int nElements;
-    //Chord4* chordList;
     std::vector<Chord4Ptr> chords;
 };
 
@@ -22,8 +26,16 @@ inline int Chord4List::size() const {
     return chords.size();
 }
 
-inline const Chord4& Chord4List::get(int n) const {
+inline const Chord4* Chord4List::get2(int n) const {
+    assert(isValid());
+    if (!isValid()) {
+        return nullptr;
+    }
+    // SQINFO("Chord4List::get2 n=%d size=%d", n, int(size()));
+    if (n >= size()) {
+        return nullptr;
+    }
     assert(n < size());
-    return *chords[n];
+    return chords[n].get();
 }
-
+using Chord4ListPtr = std::shared_ptr<Chord4List>;
