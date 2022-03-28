@@ -116,6 +116,8 @@ public:
 
     bool isValid() const { return valid; }
 
+    int rank=0;             // lower rank is "better". Unique index into the chord lists.
+
 private:
     // friend ChordList;  // so he can "construct" us
 

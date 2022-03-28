@@ -62,7 +62,6 @@ public:
     ~RankedChord();
     bool makeNext();              // advance to next worst chord
     void reset();                 // set us back to the first chord in rank
-  //  const Chord4& fetch() const;  // get the current chord
     const Chord4* fetch2() const;
     void print() const;           // print the current chord
     int penaltyForFollowingThisGuy(const Options&, int lowerBound, const RankedChord& ThisGuy, bool show) const;
@@ -92,8 +91,6 @@ inline void RankedChord::reset() {
 
 inline bool RankedChord::makeNext() {
     bool ret;
-
-
     const int size = chords.size(root);
     assert(size >= 1);
     if (curRank >= (size - 1)) {
@@ -108,18 +105,6 @@ inline bool RankedChord::makeNext() {
 inline const Chord4* RankedChord::fetch2() const {
     return chords.get2(root, curRank);
 }
-
-#if 0
-inline const Chord4& RankedChord::fetch() const {
-    
-  //  const int size = chords.size(root);
-   // printf("RankedChord fetch size = %d, curRank = %d\n", size, CurRank);
-
-  //  return ChordArray[root].get(CurRank);
-    return chords.get(root, curRank);
-    //return *ChordArray[root][CurRank];
-}
-#endif
 
 inline void RankedChord::print() const {
     printf("rank:%3d ", curRank);
