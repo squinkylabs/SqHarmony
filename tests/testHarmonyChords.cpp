@@ -128,9 +128,27 @@ static void test2to1() {
     testAtoB(2, 1, true);
 }
 
+#if 1
 static void test1to1() {
     printf("\n-- test 1 to 1  --\n");
-    #if 0
+    auto options = makeOptions(false);
+    assertEQ(__numChord4, 0);
+    {
+         SQINFO("now1 ref = %d", __numChord4);
+        Chord4Ptr chordA = Chord4::fromString(options, 1, "C2G2E3G3");
+         SQINFO("now2 ref = %d", __numChord4);
+        Chord4Ptr chordB = Chord4::fromString(options, 2, "D2A2F3A3");
+         SQINFO("now3 ref = %d", __numChord4);
+        //chordA = std::make_shared<Chord4>(*chordB);
+         auto chordC = std::make_shared<Chord4>(*chordB);
+        SQINFO("now4 ref = %d", __numChord4);
+    }
+    assertEQ(__numChord4, 0);
+}
+#else
+static void test1to1() {
+    printf("\n-- test 1 to 1  --\n");
+
     // We are having problems with this simple 2-1 progression
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
@@ -144,13 +162,12 @@ static void test1to1() {
         assertEQ(next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false), 0);
         SQINFO("next= %s", next->toString().c_str());
         chordA = std::make_shared<Chord4>(*next);
-        //chordA = next;
+        // chordA = next;
     }
-    #endif
-    SQINFO("finish 1 to 1 no repet test");
-  //assert(false);        // finish me
 
+    SQINFO("finish 1 to 1 no repet test");
 }
+#endif
 
 static void test2to1a() {
     printf("\n-- test 2 to 1 a --\n");

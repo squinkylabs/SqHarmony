@@ -61,6 +61,11 @@ Chord4::~Chord4() {
     assert(__numChord4 >= 0);
 }
 
+Chord4::Chord4(const Chord4& other) {
+    *this = other;
+    __numChord4++;
+}
+
 /*  int Chord4::Quality() const
  */
 int Chord4::quality(const Options& options, bool fTalk) const {

@@ -81,6 +81,7 @@ public:
     // TODO: get rid of this default ctor
     Chord4();
     ~Chord4();
+    Chord4(const Chord4&);
 
     /**
      * @brief makes a specific string, ex "E2A2C3A3", BUT:

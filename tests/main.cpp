@@ -24,6 +24,7 @@ extern void testSeqClock();
 extern void testGateDelay();
 extern void testHarmonyChordsRandom();
 extern void testRingBuffer();
+extern void testChord4Manager();
 
 int main(const char**, int) {
 #if 0
@@ -49,6 +50,7 @@ int main(const char**, int) {
     testScaleRelativeNote();
     testChordRelativeNote();
     testChord();
+    testChord4Manager();
     testHarmonySong();
     testHarmonyChords();
     testHarmonyChordsRandom();
