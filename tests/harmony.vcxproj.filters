@@ -159,6 +159,9 @@
     <ClCompile Include="testHarmonyChordsRandom.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="testRingBuffer.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">

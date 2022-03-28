@@ -128,6 +128,30 @@ static void test2to1() {
     testAtoB(2, 1, true);
 }
 
+static void test1to1() {
+    printf("\n-- test 1 to 1  --\n");
+    #if 0
+    // We are having problems with this simple 2-1 progression
+    auto options = makeOptions(false);
+    Chord4Manager mgr(options);
+    Chord4Ptr chordA = Chord4::fromString(options, 1, "C2G2E3G3");
+    assert(chordA);
+    SQINFO("rist= %s", chordA->toString().c_str());
+
+    for (int i = 0; i < 4; ++i) {
+        auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 1);
+        assert(next);
+        assertEQ(next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false), 0);
+        SQINFO("next= %s", next->toString().c_str());
+        chordA = std::make_shared<Chord4>(*next);
+        //chordA = next;
+    }
+    #endif
+    SQINFO("finish 1 to 1 no repet test");
+  //assert(false);        // finish me
+
+}
+
 static void test2to1a() {
     printf("\n-- test 2 to 1 a --\n");
     // We are having problems with this simple 2-1 progression
@@ -271,6 +295,7 @@ void testHarmonyChords() {
     // testXtoY();
     printf("--- test xyx ----\n");
     // testXtoYtoX();
+    test1to1();
 
     assertEQ(__numChord4, 0);
 }

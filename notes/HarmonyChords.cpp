@@ -86,8 +86,9 @@ const Chord4* HarmonyChords::find(
     if (prev) assert(prev->isValid());
     if (prevPrev) assert(prevPrev->isValid());
  
-    assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
-    assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
+    // new experiment: allow two same in a row
+  //  assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
+  //  assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
 
     const int size = manager.size(root);
     int rankToTry = 0;

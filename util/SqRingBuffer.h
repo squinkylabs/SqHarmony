@@ -1,5 +1,6 @@
 #pragma once
 #include <assert.h>
+#include <stdint.h>
 
 #include "SqLog.h"
 
@@ -27,11 +28,18 @@ public:
     {
         assert(!b);
     }
-
+    int size() const;
     void push(T);
     T pop();
     bool full() const;
     bool empty() const;
+
+    /**
+     * @brief retrieve by index
+     * last one pushed == index 0.
+     * one before that is index 1. 
+     */
+    T at(int index) const;
 
     void _dump();
 
@@ -56,10 +64,8 @@ inline void SqRingBuffer<uint16_t, 3>::_dump() {
     }
 }
 
-
 template <typename T, int SIZE>
 inline void SqRingBuffer<T, SIZE>::push(T value)
-
 {
     assert(!full());
     memory[inIndex] = value;
@@ -81,6 +87,37 @@ template <typename T, int SIZE>
 inline bool SqRingBuffer<T, SIZE>::full() const
 {
     return (inIndex == outIndex) && couldBeFull;
+}
+
+template <typename T, int SIZE>
+inline int SqRingBuffer<T, SIZE>::size() const
+{
+    //return (inIndex == outIndex) && !couldBeFull;
+    if (empty()) {
+        return 0;
+    }
+    if (full()) {
+        return SIZE;
+    }
+    int x = inIndex - outIndex;
+    if (x < 0) {
+        x += SIZE;
+    }
+    return x;
+}
+
+template <typename T, int SIZE>
+inline T SqRingBuffer<T, SIZE>::at(int x) const
+{
+    assert(size() > x);
+    assert(x >= 0);
+    
+    int index = inIndex - 1;
+    index -= x;
+    if (index < 0) {
+        index += SIZE;
+    }
+    return memory[index];
 }
 
 template <typename T, int SIZE>

@@ -170,6 +170,7 @@
     <ClCompile Include="testKeysig.cpp" />
     <ClCompile Include="testNoteBufferSorter.cpp" />
     <ClCompile Include="testProgressions.cpp" />
+    <ClCompile Include="testRingBuffer.cpp" />
     <ClCompile Include="testScale.cpp" />
     <ClCompile Include="testScaleNotes.cpp" />
     <ClCompile Include="testScaleQuantizer.cpp" />

@@ -23,11 +23,13 @@ extern void testArpegRhythmPlayer();
 extern void testSeqClock();
 extern void testGateDelay();
 extern void testHarmonyChordsRandom();
+extern void testRingBuffer();
 
 int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testRingBuffer();
     testGateDelay();
     testSeqClock();
     testNoteBuffer();
