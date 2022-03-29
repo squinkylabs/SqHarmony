@@ -140,5 +140,33 @@ inline void SqRingBuffer<T, SIZE>::advance(int &p)
     if (++p >= SIZE) p = 0;
 }
 
+template <int SIZE>
+class SqChordHistory {
+public:
+    SqChordHistory() : rb(true) {}
+    void onNewChord(int rank, int root) {
+        const auto h = hash(rank, root);
+        rb.push(h);
+    }
+    bool haveSeen(int rank, int root) const {
+        const auto h = hash(rank, root);
+        for (int i=0; i< rb.size(); ++i) {
+            if (rb.at(i) == h) {
+                return true;
+            }
+        }
+        return false;
+    }
+private:
+    SqRingBuffer<int, SIZE> rb;
+
+    static int hash(int rank, int root) {
+        assert(rank < 8);
+        assert(rank >= 1);
+        assert(rank >= 0);
+        assert(rank < 1000);
+        return (rank << 4) | root;
+    }
+};
 
 

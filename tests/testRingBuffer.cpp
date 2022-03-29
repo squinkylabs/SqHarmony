@@ -152,6 +152,14 @@ static void testOverflow() {
     assertEQ(rb.at(2), 11);
 }
 
+static void testChordHistory() {
+    SqChordHistory<2> h;
+    h.onNewChord(1, 200);
+    assert(h.haveSeen(1, 200));
+    assert(!h.haveSeen(1, 201));
+    assert(!h.haveSeen(2, 200));
+}
+
 void testRingBuffer() {
     testConstruct<SqRingBuffer<int, 4>>();
     testConstruct<SqRingBuffer<char *, 1>>();
@@ -163,8 +171,10 @@ void testRingBuffer() {
 
     testOne<SqRingBuffer<const char *, 1>>();
     testAt();
-    
+
     testAt2();
     testOverflow();
     //   testOne<AtomicRingBuffer<const char *, 1 >>();
+
+    testChordHistory();
 }
