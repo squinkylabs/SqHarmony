@@ -5,7 +5,7 @@
 
 template <typename TRingBufer>
 static void testConstruct() {
-    TRingBufer rb;
+    TRingBufer rb(false);
     assert(rb.empty());
     assert(!rb.full());
     assertEQ(rb.size(), 0);
@@ -13,7 +13,7 @@ static void testConstruct() {
 
 template <typename TRingBufer>
 static void testSimpleAccess() {
-    TRingBufer rb;
+    TRingBufer rb(false);
     rb.push(55);
     assert(!rb.empty());
     assert(!rb.full());
@@ -28,7 +28,7 @@ static void testSimpleAccess() {
 
 template <typename TRingBufer>
 static void testMultiAccess() {
-    TRingBufer rb;
+    TRingBufer rb(false);
     rb.push(1234);
     rb.push(5678);
     assert(!rb.empty());
@@ -52,7 +52,7 @@ static void testMultiAccess() {
 
 template <typename TRingBufer>
 static void testWrap() {
-    TRingBufer rb;
+    TRingBufer rb(false);
     rb.push(1234);
     rb.push(5678);
     rb.pop();
@@ -73,7 +73,7 @@ static void testWrap() {
 
 template <typename TRingBufer>
 static void testFull() {
-    TRingBufer rb;
+    TRingBufer rb(false);
     rb.push(1234);
     rb.push(5678);
     rb.pop();
@@ -100,7 +100,7 @@ static void testFull() {
 template <typename TRingBufer>
 static void testOne() {
     const char *p = "foo";
-    TRingBufer rb;
+    TRingBufer rb(false);
     rb.push(p);
     assert(!rb.empty());
     assert(rb.full());
@@ -121,7 +121,7 @@ void _testRingBuffer() {
 }
 
 static void testAt() {
-    SqRingBuffer<int, 3> rb;
+    SqRingBuffer<int, 3> rb(false);
     rb.push(10);
     assertEQ(rb.at(0), 10);
     rb.push(11);
@@ -130,7 +130,7 @@ static void testAt() {
 }
 
 static void testAt2() {
-    SqRingBuffer<int, 3> rb;
+    SqRingBuffer<int, 3> rb(false);
     rb.push(10);
     rb.push(11);
     rb.pop();
@@ -138,6 +138,18 @@ static void testAt2() {
     rb.push(13);
     assertEQ(rb.at(0), 13);
     assertEQ(rb.at(1), 12);
+}
+
+static void testOverflow() {
+    SqRingBuffer<int, 3> rb(true);
+    rb.push(10);
+    rb.push(11);
+    rb.push(12);
+    rb.push(13);
+    assertEQ(rb.size(), 3);
+    assertEQ(rb.at(0), 13);
+    assertEQ(rb.at(1), 12);
+    assertEQ(rb.at(2), 11);
 }
 
 void testRingBuffer() {
@@ -153,5 +165,6 @@ void testRingBuffer() {
     testAt();
     
     testAt2();
+    testOverflow();
     //   testOne<AtomicRingBuffer<const char *, 1 >>();
 }

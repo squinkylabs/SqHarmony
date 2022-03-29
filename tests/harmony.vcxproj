@@ -163,13 +163,13 @@
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
+    <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
     <ClCompile Include="testChord.cpp" />
     <ClCompile Include="testChordRelativeNote.cpp" />
     <ClCompile Include="testHarmonyComposite.cpp" />
     <ClCompile Include="testKeysig.cpp" />
-    <ClCompile Include="testNoteBufferSorter.cpp" />
     <ClCompile Include="testProgressions.cpp" />
     <ClCompile Include="testRingBuffer.cpp" />
     <ClCompile Include="testScale.cpp" />

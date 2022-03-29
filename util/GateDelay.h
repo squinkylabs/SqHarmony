@@ -37,7 +37,7 @@ private:
 };
 
 // Turn the ring buffer into a delay line by pushing enough zeros into it
-inline GateDelay::GateDelay() {
+inline GateDelay::GateDelay() : delay(false) {
     // SQINFO("ctor of gate delay here is buffer");
     // ringBuffer._dump();
     for (int i = 0; i < size; ++i) {

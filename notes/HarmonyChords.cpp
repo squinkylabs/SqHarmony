@@ -1,15 +1,14 @@
 #include "HarmonyChords.h"
-#include "ProgressionAnalyzer.h"
 
 #include "Chord4Manager.h"
+#include "ProgressionAnalyzer.h"
 
 const Chord4* HarmonyChords::findChord(
     bool show,
     const Options& options,
     const Chord4Manager& manager,
     int root) {
-
-    //SQINFO("enter HarmonyChords::findChord");
+    // SQINFO("enter HarmonyChords::findChord");
     assert(manager.isValid());
     // TODO assert that root is in scale (scale needs size())
     assert(root >= 1);
@@ -25,7 +24,7 @@ const Chord4* HarmonyChords::findChord(
         const Chord4* chord = manager.get2(root, rankToTry);
         assert(chord);
         assert(chord->isValid());
-        //SQINFO("in find chord loop %s", chord->toString().c_str());
+        // SQINFO("in find chord loop %s", chord->toString().c_str());
 
         // only accept a chord in root position with nice doubling
         if ((chord->inversion(options) == ROOT_POS_INVERSION) &&
@@ -43,7 +42,7 @@ const Chord4* HarmonyChords::findChord(
     const Chord4Manager& manager,
     const Chord4& prev,
     int root) {
-    return find(show, options, manager, nullptr, &prev, root);
+    return find(show, options, manager, nullptr, &prev, root, nullptr);
 }
 
 const Chord4* HarmonyChords::findChord(
@@ -53,8 +52,8 @@ const Chord4* HarmonyChords::findChord(
     const Chord4& prevPrev,
     const Chord4& prev,
     int root) {
-    const Chord4* ret = find(show, options, manager, &prevPrev, &prev, root);
-    assert(ret);        // we should always find something;
+    const Chord4* ret = find(show, options, manager, &prevPrev, &prev, root, nullptr);
+    assert(ret);  // we should always find something;
     return ret;
 }
 
@@ -64,10 +63,11 @@ const Chord4* HarmonyChords::find(
     const Chord4Manager& manager,
     const Chord4* prevPrev,
     const Chord4* prev,
-    int root) {
-
+    int root,
+    ChordHistory* history) {
     assert(root > 0);
     assert(root < 8);
+    assert(!history);
 #if 0
     if (prev && prevPrev) {
         printf("find called with prevOrev %s (root %d)\n", prevPrev->toString().c_str(), prevPrev->fetchRoot());
@@ -85,10 +85,10 @@ const Chord4* HarmonyChords::find(
     assert(manager.isValid());
     if (prev) assert(prev->isValid());
     if (prevPrev) assert(prevPrev->isValid());
- 
+
     // new experiment: allow two same in a row
-  //  assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
-  //  assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
+    //  assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
+    //  assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
 
     const int size = manager.size(root);
     int rankToTry = 0;
@@ -100,8 +100,7 @@ const Chord4* HarmonyChords::find(
     for (bool done = false; !done; ++rankToTry) {
         if (rankToTry >= size) {
             done = true;
-        }
-        else {
+        } else {
             const Chord4* currentChord = manager.get2(root, rankToTry);
             const int currentPenalty = progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show);
             if (currentPenalty == 0) {
@@ -119,6 +118,18 @@ const Chord4* HarmonyChords::find(
     return bestChord;
 }
 
+const Chord4* HarmonyChords::findChord2(
+    bool show,
+    int root,
+    const Options& options,
+    const Chord4Manager& manager,
+    ChordHistory* history,
+    const Chord4* prevPrev,
+    const Chord4* prev) {
+    
+    return find(show, options, manager, prev, prevPrev, root, history);
+}
+
 int HarmonyChords::progressionPenalty(
     const Options& options,
     int bestSoFar,
@@ -132,9 +143,9 @@ int HarmonyChords::progressionPenalty(
         return 0;  // chord on its own is always ok
     }
 
-    int currentPenalty = current->penaltForFollowingThisGuy(options, 
-        bestSoFar, 
-        prev, show);
+    int currentPenalty = current->penaltForFollowingThisGuy(options,
+                                                            bestSoFar,
+                                                            prev, show);
     if (!prevPrev) {
         return currentPenalty;
     }
@@ -144,14 +155,14 @@ int HarmonyChords::progressionPenalty(
     }
 
     const bool firstEqualsThird = (*current == *prevPrev);
-    
+
     if (firstEqualsThird) {
-        #if 0
+#if 0
         printf("first equals third\n");
         printf("penalty %s\n", current->toString().c_str());
         printf("first = %s\n", prevPrev->toString().c_str());
         printf("second = %s\n", prev->toString().c_str());
-        #endif
+#endif
         currentPenalty += ProgressionAnalyzer::PENALTY_FOR_REPEATED_CHORDS;
     }
     return currentPenalty;

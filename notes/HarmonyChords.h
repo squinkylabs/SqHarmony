@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SqRingBuffer.h"
 #include <memory>
 
 class Chord4;
@@ -42,6 +43,16 @@ public:
         const Chord4& prev,
         int root);
 
+    using ChordHistory = SqRingBuffer<int, 8>;
+    static const Chord4* findChord2(
+        bool show,
+        int root,
+        const Options& options,
+        const Chord4Manager& manager,
+        ChordHistory* history,
+        const Chord4* prevPrev,
+        const Chord4* prev);
+
     static int progressionPenalty(const Options& options,
                                   int bestSoFar,
                                   const Chord4* prevProv,
@@ -56,5 +67,6 @@ private:
         const Chord4Manager& manager,
         const Chord4* prevProv,
         const Chord4* prev,
-        int root);
+        int root,
+        ChordHistory* history);
 };

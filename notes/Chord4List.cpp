@@ -32,6 +32,7 @@ Chord4List::Chord4List(const Options& options, int rt) {
             return compareChords(options, c1, c2);
     });
 
+    // Now that we are sorted, add the ranks
     int rank=0;
     for (auto it : chords) {
         it->rank = rank++;

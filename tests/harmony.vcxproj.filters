@@ -129,9 +129,6 @@
     <ClCompile Include="testNoteBuffer.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testNoteBufferSorter.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="testArpegPlayer.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
@@ -163,6 +160,9 @@
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="testChord4Manager.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testHarmonyChords2.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>

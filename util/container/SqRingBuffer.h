@@ -16,18 +16,13 @@ template <typename T, int SIZE>
 class SqRingBuffer
 {
 public:
-    SqRingBuffer()
+    SqRingBuffer(bool allowOverflow) : _allowOverflow(allowOverflow)
     {
         for (int i = 0; i < SIZE; ++i) {
             memory[i] = 0;
         }
     }
 
-    // this constructor does not try to initialize
-    SqRingBuffer(bool b)
-    {
-        assert(!b);
-    }
     int size() const;
     void push(T);
     T pop();
@@ -44,10 +39,20 @@ public:
     void _dump();
 
 private:
+
+#if 0
+    // this constructor does not try to initialize
+    SqRingBuffer(bool b)
+    {
+        assert(!b);
+    }
+#endif
+
     T memory[SIZE];
     bool couldBeFull = false;           // full and empty are ambiguous, both are in--out
     int inIndex = 0;
     int outIndex = 0;
+    const bool _allowOverflow;
 
     /** Move up 'p' (a buffer index), wrap around if we hit the end
      * (this is the core of the circular ring buffer).
@@ -67,7 +72,10 @@ inline void SqRingBuffer<uint16_t, 3>::_dump() {
 template <typename T, int SIZE>
 inline void SqRingBuffer<T, SIZE>::push(T value)
 {
-    assert(!full());
+    assert(_allowOverflow || !full());
+    if (full()) {
+        pop();
+    }
     memory[inIndex] = value;
     advance(inIndex);
     couldBeFull = true;
