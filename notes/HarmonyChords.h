@@ -43,7 +43,10 @@ public:
         const Chord4& prev,
         int root);
 
-    using ChordHistory = SqRingBuffer<int, 8>;
+
+    // This is what we will use to avoid duplicated chords.
+    using ChordHistory = SqChordHistory<8>;
+
     static const Chord4* findChord2(
         bool show,
         int root,

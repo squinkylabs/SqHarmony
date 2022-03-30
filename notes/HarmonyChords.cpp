@@ -67,7 +67,7 @@ const Chord4* HarmonyChords::find(
     ChordHistory* history) {
     assert(root > 0);
     assert(root < 8);
-    assert(!history);
+
 #if 0
     if (prev && prevPrev) {
         printf("find called with prevOrev %s (root %d)\n", prevPrev->toString().c_str(), prevPrev->fetchRoot());
@@ -86,6 +86,8 @@ const Chord4* HarmonyChords::find(
     if (prev) assert(prev->isValid());
     if (prevPrev) assert(prevPrev->isValid());
 
+    if (!prev) assert(!prevPrev);
+
     // new experiment: allow two same in a row
     //  assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
     //  assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
@@ -99,12 +101,21 @@ const Chord4* HarmonyChords::find(
 
     for (bool done = false; !done; ++rankToTry) {
         if (rankToTry >= size) {
-            done = true;
+        done = true;
         } else {
             const Chord4* currentChord = manager.get2(root, rankToTry);
-            const int currentPenalty = progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show);
+            bool isRepeat = false;
+            if (history) {
+                isRepeat = history->haveSeen(currentChord->rank, root);
+            }
+
+            // if bad repeating chord, don't evaluate, just give terrible scored
+            const int currentPenalty = isRepeat ? ProgressionAnalyzer::MAX_PENALTY : progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show);
             if (currentPenalty == 0) {
                 // printf("found penalty 0\n");
+                if (history) {
+                    history->onNewChord(currentChord->rank, root);
+                }
                 return currentChord;
             }
             // printf("hit a penalty in search %d\n", currentPenalty);
@@ -115,6 +126,9 @@ const Chord4* HarmonyChords::find(
         }
     }
     // printf("didn't find perfect, returning penalty = %d\n", lowestPenalty);
+    if (history) {
+        history->onNewChord(bestChord->rank, root);
+    }
     return bestChord;
 }
 
@@ -126,8 +140,7 @@ const Chord4* HarmonyChords::findChord2(
     ChordHistory* history,
     const Chord4* prevPrev,
     const Chord4* prev) {
-    
-    return find(show, options, manager, prev, prevPrev, root, history);
+    return find(show, options, manager,prevPrev, prev, root, history);
 }
 
 int HarmonyChords::progressionPenalty(

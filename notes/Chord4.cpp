@@ -61,10 +61,16 @@ Chord4::~Chord4() {
     assert(__numChord4 >= 0);
 }
 
+void Chord4::addRef() {
+    __numChord4++;
+}
+
+#if 0
 Chord4::Chord4(const Chord4& other) {
     *this = other;
     __numChord4++;
 }
+#endif
 
 /*  int Chord4::Quality() const
  */
@@ -122,12 +128,22 @@ std::string Chord4::getString() const {
     std::stringstream s;
     assert(_notes.size() == CHORD_SIZE);
 
+    s << toStringShort();
+     s << " Root: ";
+    s << root;
+    s << " rank: ";
+    s << rank;
+    
+
+#if 0
+
     s << "Root: ";
     s << root;
     s << "  ";
     for (int i = 0; i < CHORD_SIZE; i++) {
         s << _notes[i].tellPitchName();
     }
+#endif
     return s.str();
 }
 

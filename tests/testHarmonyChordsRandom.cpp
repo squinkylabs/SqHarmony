@@ -141,6 +141,7 @@ void testRand(const Options& options) {
     assert(chordB);
     //  SQINFO("chord b=%s", chordB->toString().c_str());
 
+    HarmonyChords::ChordHistory* history = nullptr;
     for (int i = 0; i < 1000; ++i) {
         int rootC = rootB;
         while (rootC == rootB) {

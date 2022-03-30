@@ -154,10 +154,10 @@ static void testOverflow() {
 
 static void testChordHistory() {
     SqChordHistory<2> h;
-    h.onNewChord(1, 200);
-    assert(h.haveSeen(1, 200));
-    assert(!h.haveSeen(1, 201));
-    assert(!h.haveSeen(2, 200));
+    h.onNewChord(200, 1);
+    assert(h.haveSeen(200, 1));
+    assert(!h.haveSeen(201, 1));
+    assert(!h.haveSeen(200, 2));
 }
 
 void testRingBuffer() {

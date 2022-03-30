@@ -141,6 +141,7 @@ static void test1to1() {
          SQINFO("now3 ref = %d", __numChord4);
         //chordA = std::make_shared<Chord4>(*chordB);
          auto chordC = std::make_shared<Chord4>(*chordB);
+         chordC->addRef();
         SQINFO("now4 ref = %d", __numChord4);
     }
     assertEQ(__numChord4, 0);

@@ -8,6 +8,8 @@
 #include "Style.h"
 #include "asserts.h"
 
+#include <set>
+
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
@@ -95,15 +97,32 @@ static void testHistory1() {
     Chord4Manager mgr(options);
 
     // using ChordHistory = SqRingBuffer<int, 8>;
-    HarmonyChords::ChordHistory history(true);
-    HarmonyChords::findChord2(
-        false,
-        1,
-        options,
-        mgr,
-        &history,
-        nullptr,
-        nullptr);
+    HarmonyChords::ChordHistory history;
+    std::set<std::string> results;
+    const Chord4* prev = nullptr;
+    const Chord4* prevPrev = nullptr;
+    for (int i = 0; i < 12; ++i) {
+        auto chord = HarmonyChords::findChord2(
+            false,
+            1,
+            options,
+            mgr,
+            &history,
+            prevPrev,
+            prev);
+       
+        SQINFO("[%d] %s", i, chord->toString().c_str());
+        std::string s = chord->toStringShort();
+        if (results.find(s) != results.end()) {
+            assert(false);
+        }
+        results.insert(s);
+        prevPrev = prev;
+        prev = chord;
+    }
+    // use prev and prevPrev, above.
+    // extend toString to dump ranks, inversion
+    assert(false);
 }
 
 void testHarmonyChords2() {

@@ -161,8 +161,8 @@ private:
     SqRingBuffer<int, SIZE> rb;
 
     static int hash(int rank, int root) {
-        assert(rank < 8);
-        assert(rank >= 1);
+        assert(root < 8);
+        assert(root >= 1);
         assert(rank >= 0);
         assert(rank < 1000);
         return (rank << 4) | root;
