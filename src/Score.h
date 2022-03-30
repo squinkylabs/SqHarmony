@@ -43,6 +43,7 @@ public:
         Widget::step();
         if (dirtyDetector && dirtyDetector->isDirty()) {
             fw->dirty = true;
+            SQINFO("set dirty true 46");
         }
     }
 
@@ -64,9 +65,11 @@ public:
     }
 
     void setWhiteOnBlack(bool b) {
-        whiteOnBlack = b;
-        // INFO("set white on block %d", whiteOnBlack );
-        scoreIsDirty = true;
+        if (whiteOnBlack != b) {
+            whiteOnBlack = b;
+            INFO("set white on block %d", whiteOnBlack);
+            scoreIsDirty = true;
+        }
     }
 
 private:
@@ -81,7 +84,7 @@ private:
 
     /**
      * @brief figure out the x position to draw a note
-     * 
+     *
      * @param noteNumber is the index of the note - 0..7
      * @param keysigWidth is the absolute of the keysig drawing - 0 for cmaj
      * @return float absolute x position
@@ -187,20 +190,47 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     ch.pitch[2] = MidiNote::MiddleC + 4;
     ch.pitch[3] = MidiNote::MiddleC + 8;
     chords.push_back(ch);
+    chords.push_back(ch);
+    chords.push_back(ch);
+    chords.push_back(ch);
+    chords.push_back(ch);
+    chords.push_back(ch);
+    chords.push_back(ch);
+    chords.push_back(ch);
+    chords.push_back(ch);
 
 #endif
 }
 
+
+
 inline void Score::step() {
 #ifndef _TESTCHORD
     if (module) {
+        static int ct = 0;
         if (module->isChordAvailable()) {
             scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
+
+            /*
+                class Chord {
+    public:
+        MidiNote pitch[4];  // the four patches
+        int root = 0;       // 1..8
+        int inversion = 0;  // 0 = root, 1= first 2 = second
+    };
+    */
+            SQINFO("**** UI found a chord #%d ct=%d ch=%d,%d,%d,%d*****", (int)chords.size(), ct, 
+                ch.pitch[0].get(),
+                ch.pitch[1].get(),
+                ch.pitch[2].get(),
+                ch.pitch[3].get()
+            );
             if (chords.size() > 8) {
                 chords.pop_front();
             }
+            ++ct;
         }
     }
 #endif
@@ -303,12 +333,14 @@ inline void Score::drawLayer(const DrawArgs &args, int layer) {
 #endif
 
 inline void Score::draw(const DrawArgs &args) {
-    //  INFO("Score::draw");
+    INFO("Score::draw clip=szx %f, szy %f, %f, %f", args.clipBox.size.x, args.clipBox.size.y, args.clipBox.pos.x, args.clipBox.pos.y);
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const float width = drawMusicNonNotes(args);
     drawNotes(args, width);
     drawChordNumbers(args, width);
+    // SQINFO("clear dirty at end of draw was %d", scoreIsDirty);
     scoreIsDirty = false;
+
     Widget::draw(args);
 }
 
@@ -319,23 +351,22 @@ inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) c
     prepareFontText(args);
     int i = 0;
     for (auto chord : chords) {
+       // SQINFO("draw chord number %d size=%d", i, (int)chords.size());
         const float x = noteXPos(i, widthOfKeysig) + 1.5;
         drawChordInfo(args, x, chord);
         ++i;
     }
 }
 
-
-
 inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
     if (!chords.empty()) {
         // INFO("chords to score %d", int(chords.size()));
         int i = 0;
         for (auto chord : chords) {
-            // SQINFO("x = %f w=%f", noteXPos(i), keysigWidth);
-
             // note - we could add inset ourself in noteXPos.
             const float x = noteXPos(i, keysigWidth);
+
+            //SQINFO("x = %f", noteXPos(i, keysigWidth));
 
             for (int i = 0; i < 4; ++i) {
                 const bool stemUp = i % 2;
@@ -348,7 +379,7 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
                     }
                 }
                 const char *note = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
-                // printf("drawing note at %f\n", yInfo.position);
+                // INFO("drawing note at %f, %f\n", x, yInfo.position);
                 nvgText(args.vg, x, yInfo.position, note, NULL);
             }
             ++i;
@@ -359,10 +390,10 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
 inline float Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
     const auto info = scale->getScoreInfo();
     float width = 0;
-    const MidiNote* accidentals = nullptr;
+    const MidiNote *accidentals = nullptr;
     bool areFlats = false;
     int num = 0;
-    if (info.numFlats == 0 && info.numSharps==0) {
+    if (info.numFlats == 0 && info.numSharps == 0) {
         // cmaj, we are good.
     } else if (info.numFlats == 0) {
         areFlats = false;
@@ -379,10 +410,10 @@ inline float Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool t
         accidentals = treble ? info.sharpsInTrebleClef : info.sharpsInBassClef;
         num = info.numSharps;
     }
-    
-    const char* character = (areFlats) ? flat.c_str() : sharp.c_str();
+
+    const char *character = (areFlats) ? flat.c_str() : sharp.c_str();
     if (num) {
-        float w = 0; 
+        float w = 0;
         for (int i = 0; i < num; ++i) {
             const float x = xClef + 11 + w;
             const int note = accidentals[i].get();
@@ -426,14 +457,14 @@ inline float Score::drawMusicNonNotes(const DrawArgs &args) const {
     drawBarLine(args, xStaff, yBassStaff);
 
     const float secondBarLineX = 3 + .5f * (noteXPos(3, keysigWidth) + noteXPos(4, keysigWidth));
-   // INFO("x was %f is %f", barlineX1, secondBarLineX);
+    // INFO("x was %f is %f", barlineX1, secondBarLineX);
     drawBarLine(args, secondBarLineX, yBassStaff);
 
     const float barlineX2 = args.clipBox.size.x - leftMargin;
     drawBarLine(args, barlineX2, yBassStaff);
 
-// bgf: non const - didn't compile. do we want this here?
-  //  TransparentWidget::draw(args);
+    // bgf: non const - didn't compile. do we want this here?
+    //  TransparentWidget::draw(args);
     return keysigWidth;
 }
 
@@ -442,11 +473,13 @@ inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chor
         std::stringstream s;
         s << chord.root;
         nvgText(args.vg, x, yNoteInfo, s.str().c_str(), NULL);
+        //SQINFO("draw %s at x=%f y=%f", s.str().c_str(), x, yNoteInfo);
     }
     {
         std::stringstream s;
         s << chord.inversion;
         nvgText(args.vg, x, yNoteInfo + 8, s.str().c_str(), NULL);
+      
     }
 #if 0
     std::stringstream s;

@@ -5,6 +5,7 @@
 #include "Chord4Manager.h"
 #include "Divider.h"
 #include "FloatNote.h"
+#include "GateTrigger.h"
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
 #include "NoteConvert.h"
@@ -39,10 +40,12 @@ public:
         INVERSION_PREFERENCE_PARAM,
         CENTER_PREFERENCE_PARAM,
         NNIC_PREFERENCE_PARAM,
+        RETRIGGER_CV_AND_NOTE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
         CV_INPUT,
+        TRIGGER_INPUT,
         NUM_INPUTS
     };
 
@@ -133,6 +136,8 @@ private:
     const Chord4* chordB = nullptr;
     OptionsPtr chordOptions;
     Chord4ManagerPtr chordManager;
+    HarmonyChords::ChordHistory chordHistory;
+    GateTrigger triggerInputProc;
     float lastQuantizedPitch = -100;
     int count = 0;
     bool mustUpdate = false;
@@ -241,6 +246,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     }
 
     if (!chordsOut.full()) {
+        SQINFO("push a chord");
         chordsOut.push(c);
     } else {
         SQWARN("in outputPitches, no room for output\n");
@@ -263,7 +269,11 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     if (mustUpdate) {
         updateEverything();
     }
-    //   static int count = 0;
+
+    triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
+    const bool t = triggerInputProc.trigger();
+    if (t) SQINFO("got a trigger");
+
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
     assert(chordManager);
     MidiNote mn = inputQuantizer->run(input);
@@ -272,20 +282,42 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     Harmony<TBase>::outputs[QUANTIZER_OUTPUT].setVoltage(quantizedNote.get(), 0);
 
     // generate a new chord any time the quantizer outputs a new pitch
-    if (quantizedNote.get() != lastQuantizedPitch) {
-        ScaleNote scaleNote;
-        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
+    if ((quantizedNote.get() != lastQuantizedPitch) || triggerInputProc.trigger()) {
+            ScaleNote scaleNote;
+            NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
 
-        bool octaveJump = false;
-        if (chordB) {
-            octaveJump = (chordB->fetchRoot() == (1 + scaleNote.getDegree()));
-        } else if (chordA) {
-            octaveJump = (chordA->fetchRoot() == (1 + scaleNote.getDegree()));
-        }
-        if (octaveJump) {
-            printf("\nignoring octave jump\n");
-        } else {
-            const bool show = false;
+            SQINFO("generating");
+#if 0
+            bool octaveJump = false;
+            if (chordB) {
+                octaveJump = (chordB->fetchRoot() == (1 + scaleNote.getDegree()));
+            } else if (chordA) {
+                octaveJump = (chordA->fetchRoot() == (1 + scaleNote.getDegree()));
+            }
+            if (octaveJump) {
+                SQINFO("\nignoring octave jump\n");
+            } else {
+#endif
+            {
+                const bool show = false;
+
+                const Chord4* chord = HarmonyChords::findChord2(
+                    show,
+                    1 + scaleNote.getDegree(),
+                    *chordOptions,
+                    *chordManager,
+                  //  &chordHistory,
+                    nullptr,
+                    chordA, chordB);
+                if (chord) {
+                outputPitches(chord);
+                chordA = chordB;
+                chordB = chord;
+               // SQINFO("gen new %s", chord->toString().c_str());
+                } else {
+                    SQWARN("got no chord");
+                }
+#if 0
             // If it's our first chord, generate single.
             // TODO: shouldn't we have done this before? What are we outputting?
             if (!chordA) {
@@ -300,10 +332,11 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 chordA = chordB;
                 chordB = chord;
             }
-        }
+#endif
+            }
 
-        lastQuantizedPitch = quantizedNote.get();
-    }
+            lastQuantizedPitch = quantizedNote.get();
+        }
 
     if (mustUpdate) {
         updateEverything();

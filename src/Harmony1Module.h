@@ -13,26 +13,22 @@ public:
 
     Harmony1Module() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
-        // configParam(PITCH_PARAM, 0, 10, 4, "Initial Pitch");
+
+
+     /*           INVERSION_PREFERENCE_PARAM,
+        CENTER_PREFERENCE_PARAM,
+        NNIC_PREFERENCE_PARAM,
+        RETRIGGER_CV_AND_NOTE_PARAM, */
         this->configParam(Comp::SCORE_COLOR_PARAM, 0, 1, 0, "Invert Score colors");
         this->configParam(Comp::SCORE_GLOW_PARAM, 0, 1, 0, "Score Glow");
         this->configParam(Comp::SCHEMA_PARAM, 0, 1, 0, "hidden schema");
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
         this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
-/*
-       DONT_CARE,
-        DISCOURAGE_CONSECUTIVE,
-        DISCOURAGE
-        */
+        this->configParam(Comp::RETRIGGER_CV_AND_NOTE_PARAM, 0, 1, 1, "Retrigger CV and Note");
+
+
+
         this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"DONT_CARE", "DISCOURAGE_CONSECUTIVE", "DISCOURAGE"});
-        
-        /*
-          enum class Ranges {
-        NORMAL_RANGE,
-        ENCOURAGE_CENTER,       // weight rule
-        NARROW_RANGE            // limit extremes
-    };
-    */
         this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "ENCOURAGE_CENTER", "NARROW_RANGE"});
         this->configSwitch(Comp::NNIC_PREFERENCE_PARAM, 0, 1, 1, "No Notes in Common rule", {"Disable", "enabled"});
 
@@ -43,6 +39,7 @@ public:
         this->configOutput(Comp::SOPRANO_OUTPUT, "Soprano voice pitch");
 
         this->configInput(Comp::CV_INPUT, "Chord root scale degree");
+        this->configInput(Comp::TRIGGER_INPUT, "Trigger");
     }
 
     using Chord = Comp::Chord;

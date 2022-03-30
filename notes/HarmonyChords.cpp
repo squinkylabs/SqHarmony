@@ -68,6 +68,8 @@ const Chord4* HarmonyChords::find(
     assert(root > 0);
     assert(root < 8);
 
+  //  SQINFO("\n---------------------- find pp=%p p=%p r = %d", prevPrev, prev, root);
+
 #if 0
     if (prev && prevPrev) {
         printf("find called with prevOrev %s (root %d)\n", prevPrev->toString().c_str(), prevPrev->fetchRoot());
@@ -101,16 +103,19 @@ const Chord4* HarmonyChords::find(
 
     for (bool done = false; !done; ++rankToTry) {
         if (rankToTry >= size) {
-        done = true;
+           // SQINFO("rankToTry=%d size=%d done", rankToTry, size);
+            done = true;
         } else {
             const Chord4* currentChord = manager.get2(root, rankToTry);
             bool isRepeat = false;
             if (history) {
                 isRepeat = history->haveSeen(currentChord->rank, root);
+                //SQINFO("isRepeat = %d", isRepeat);
             }
 
             // if bad repeating chord, don't evaluate, just give terrible scored
             const int currentPenalty = isRepeat ? ProgressionAnalyzer::MAX_PENALTY : progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show);
+           // SQINFO("curPen=%d", currentPenalty);
             if (currentPenalty == 0) {
                 // printf("found penalty 0\n");
                 if (history) {
@@ -125,8 +130,10 @@ const Chord4* HarmonyChords::find(
             }
         }
     }
+   // assert(bestChord);
     // printf("didn't find perfect, returning penalty = %d\n", lowestPenalty);
-    if (history) {
+    if (history && bestChord) {
+       // SQINFO("will add to hist, bc = %p", bestChord);
         history->onNewChord(bestChord->rank, root);
     }
     return bestChord;

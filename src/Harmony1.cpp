@@ -32,6 +32,8 @@ struct Harmony1Widget : ModuleWidget {
 
         addInputL(Vec(vlx, 280), Comp::CV_INPUT, "Root");
         addScore(module);
+        addInputL(Vec(vlx + 1 * vdelta, 280), Comp::TRIGGER_INPUT, "Trig");
+        addScore(module);
 
         addKeysig();
         addOutputs();
@@ -101,6 +103,10 @@ struct Harmony1Widget : ModuleWidget {
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SCORE_COLOR_PARAM);
         item->text = "Black notes on white paper";
+        theMenu->addChild(item);
+
+        item = new SqMenuItem_BooleanParam2(module, Comp::RETRIGGER_CV_AND_NOTE_PARAM);
+        item->text = "Retrig. on notes and CV";
         theMenu->addChild(item);
     }
 
