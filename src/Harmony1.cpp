@@ -33,7 +33,7 @@ struct Harmony1Widget : ModuleWidget {
         addInputL(Vec(vlx, 280), Comp::CV_INPUT, "Root");
         addScore(module);
         addInputL(Vec(vlx + 1 * vdelta, 280), Comp::TRIGGER_INPUT, "Trig");
-        addScore(module);
+       // addScore(module);
 
         addKeysig();
         addOutputs();
