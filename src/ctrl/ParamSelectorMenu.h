@@ -25,12 +25,19 @@ public:
     }
 };
 
+using Module = ::rack::engine::Module;
 /**
  * @brief a menu item that opens up more options
  *
  */
 class ParamSelectorMenu : public ::rack::ui::MenuItem {
 public:
+    ParamSelectorMenu(
+        const std::string& name,
+        const std::vector<std::string> items,
+        Module* module,
+        int paramterId);
+    // This is a lower level ctor - not hard-coded to any param stuff
     ParamSelectorMenu(
         const std::string& name,
         const std::vector<std::string> items,
@@ -43,7 +50,11 @@ private:
     const std::string name;
     const std::vector<std::string> itemNames;
     std::function<void(int)> valueSetter;
-    std::string initName;
+    int initialValue = 0;
+
+    // to support param version
+    Module* module = nullptr;
+    int paramId = -1;
 };
 
 inline ParamSelectorMenu::ParamSelectorMenu(
@@ -52,8 +63,23 @@ inline ParamSelectorMenu::ParamSelectorMenu(
     int initialSelection,
     std::function<void(int)> valueSetter) : name(name), itemNames(items), valueSetter(valueSetter) {
     this->text = name;
-    this->initName = itemNames[initialSelection];
+    initialValue = initialSelection;
 }
+
+inline ParamSelectorMenu::ParamSelectorMenu(
+    const std::string& name,
+    const std::vector<std::string> items,
+    Module* module,
+    int parameterId) : name(name), itemNames(items), module(module), paramId(parameterId) {
+
+    this->text = name;
+    float v = 0;
+    if (module) {
+        v = module->paramQuantities[paramId]->getValue();
+    }
+    initialValue = int(std::round(v));
+}
+
 
 ::rack::ui::Menu* ParamSelectorMenu::createChildMenu() {
     ::rack::ui::Menu* menu = new ::rack::ui::Menu();
@@ -61,10 +87,21 @@ inline ParamSelectorMenu::ParamSelectorMenu(
         &rack::ui::MenuLabel::text,
         name);
     menu->addChild(label);
-    float value = 0;
+
+    auto setter = this->valueSetter;
+    if (module) {
+        // for the "high level" case we need to make a setter function
+        auto mod = module;
+        auto pid = paramId;
+        assert(paramId >= 0);
+        setter = [mod, pid](int value) {
+            mod->paramQuantities[pid]->setValue(float(value));
+        };
+    }
+    int value = 0;
     for (auto it : itemNames) {
-        const bool bSelected = it == initName;
-        auto item = ParamSelectorMenuItem::make(value, it, bSelected, valueSetter);
+        const bool bSelected = value == initialValue;
+        auto item = ParamSelectorMenuItem::make(value, it, bSelected, setter);
         value += 1;
         menu->addChild(item);
     }

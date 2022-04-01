@@ -1,6 +1,6 @@
-#include "ParamSelectorMenu.h"
 #include "Harmony.h"
 #include "Harmony1Module.h"
+#include "ParamSelectorMenu.h"
 #include "PopupMenuParamWidget.h"
 #include "Score.h"
 #include "SqMenuItem.h"
@@ -34,7 +34,7 @@ struct Harmony1Widget : ModuleWidget {
         addInputL(Vec(vlx, 280), Comp::CV_INPUT, "Root");
         addScore(module);
         addInputL(Vec(vlx + 1 * vdelta, 280), Comp::TRIGGER_INPUT, "Trig");
-       // addScore(module);
+        // addScore(module);
 
         addKeysig();
         addOutputs();
@@ -72,7 +72,7 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void addKeysig() {
-        const float yScale = 136;           // was 140
+        const float yScale = 136;  // was 140
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -110,21 +110,27 @@ struct Harmony1Widget : ModuleWidget {
         item->text = "Retrig. on notes and CV";
         theMenu->addChild(item);
 
+#if 1
+        auto psm = new ParamSelectorMenu("History Depth",
+                                         {"0", "1", "2", "3", "4", "5", "6", "7", "8"},
+                                         module,
+                                         Comp::HISTORY_SIZE_PARAM);
+#else  // using low-level API
         int initValue = 0;
         if (module) {
             initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
         }
         INFO("setting up, init = %d", initValue);
-        auto psm = new ParamSelectorMenu("History Depth", 
-            {"0", "1", "2", "3", "4", "5", "6", "7", "8"},
-            initValue,
-            [this](int x) {
-                SQINFO("value setter got %d", x);
-                if (module) {
-                    module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->setValue(x);
-                }
-            }
-            );
+        auto psm = new ParamSelectorMenu("History Depth",
+                                         {"0", "1", "2", "3", "4", "5", "6", "7", "8"},
+                                         initValue,
+                                         [this](int x) {
+                                             SQINFO("value setter got %d", x);
+                                             if (module) {
+                                                 module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->setValue(x);
+                                             }
+                                         });
+#endif
         theMenu->addChild(psm);
     }
 
@@ -157,7 +163,7 @@ struct Harmony1Widget : ModuleWidget {
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 18;
-        const float xOffset =  -2 + text.size() * 2.5;  // crude attempt to center text.
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
     }
@@ -184,7 +190,7 @@ struct Harmony1Widget : ModuleWidget {
 
 void Harmony1Widget::addScore(Harmony1Module* module) {
     _score = new Score(module);
-    auto size = Vec(120, 97);      // was 100
+    auto size = Vec(120, 97);  // was 100
     auto vu = new BufferingParent(_score, size, _score);
 
     vu->box.pos = Vec(7, 26),
