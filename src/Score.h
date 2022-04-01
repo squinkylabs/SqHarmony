@@ -43,7 +43,7 @@ public:
         Widget::step();
         if (dirtyDetector && dirtyDetector->isDirty()) {
             fw->dirty = true;
-            SQINFO("set dirty true 46");
+            //SQINFO("set dirty true 46");
         }
     }
 
@@ -207,11 +207,11 @@ inline Score::Score(Harmony1Module *m) : module(m) {
 inline void Score::step() {
 #ifndef _TESTCHORD
     if (module) {
-        static int ct = 0;
         if (module->isChordAvailable()) {
             scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
+           // SQINFO("push chord now %d", chords.size());
 
             /*
                 class Chord {
@@ -220,17 +220,22 @@ inline void Score::step() {
         int root = 0;       // 1..8
         int inversion = 0;  // 0 = root, 1= first 2 = second
     };
-    */
+ 
+
             SQINFO("**** UI found a chord #%d ct=%d ch=%d,%d,%d,%d*****", (int)chords.size(), ct, 
                 ch.pitch[0].get(),
                 ch.pitch[1].get(),
                 ch.pitch[2].get(),
                 ch.pitch[3].get()
             );
+        */
             if (chords.size() > 8) {
-                chords.pop_front();
+                while(chords.size() > 1) {
+                    chords.pop_front();
+                }
+                // SQINFO("pop chord now %d", chords.size());
             }
-            ++ct;
+
         }
     }
 #endif

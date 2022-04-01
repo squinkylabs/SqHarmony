@@ -246,7 +246,6 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     }
 
     if (!chordsOut.full()) {
-        SQINFO("push a chord");
         chordsOut.push(c);
     } else {
         SQWARN("in outputPitches, no room for output\n");
@@ -270,9 +269,12 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
         updateEverything();
     }
 
-    triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
-    const bool t = triggerInputProc.trigger();
-    if (t) SQINFO("got a trigger");
+    const bool triggerConnected = Harmony<TBase>::inputs[TRIGGER_INPUT].isConnected();
+    bool t = false;
+    if (triggerConnected) {
+        triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
+        t = triggerInputProc.trigger();
+    }
 
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
     assert(chordManager);
@@ -281,12 +283,17 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     NoteConvert::m2f(quantizedNote, mn);
     Harmony<TBase>::outputs[QUANTIZER_OUTPUT].setVoltage(quantizedNote.get(), 0);
 
-    // generate a new chord any time the quantizer outputs a new pitch
-    if ((quantizedNote.get() != lastQuantizedPitch) || triggerInputProc.trigger()) {
-            ScaleNote scaleNote;
-            NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
+    const bool pitchChanged = (quantizedNote.get() != lastQuantizedPitch);
+    const bool triggerOnBoth = Harmony<TBase>::params[RETRIGGER_CV_AND_NOTE_PARAM].value > .5;
+    if (!triggerConnected || triggerOnBoth) {
+         t |= pitchChanged;
+    }
 
-            SQINFO("generating");
+    // generate a new chord any time the quantizer outputs a new pitch
+    if (t) {
+        ScaleNote scaleNote;
+        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
+
 #if 0
             bool octaveJump = false;
             if (chordB) {
@@ -298,25 +305,25 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 SQINFO("\nignoring octave jump\n");
             } else {
 #endif
-            {
-                const bool show = false;
+        {
+            const bool show = false;
 
-                const Chord4* chord = HarmonyChords::findChord2(
-                    show,
-                    1 + scaleNote.getDegree(),
-                    *chordOptions,
-                    *chordManager,
-                  //  &chordHistory,
-                    nullptr,
-                    chordA, chordB);
-                if (chord) {
+            const Chord4* chord = HarmonyChords::findChord2(
+                show,
+                1 + scaleNote.getDegree(),
+                *chordOptions,
+                *chordManager,
+                //  &chordHistory,
+                nullptr,
+                chordA, chordB);
+            if (chord) {
                 outputPitches(chord);
                 chordA = chordB;
                 chordB = chord;
-               // SQINFO("gen new %s", chord->toString().c_str());
-                } else {
-                    SQWARN("got no chord");
-                }
+                // SQINFO("gen new %s", chord->toString().c_str());
+            } else {
+                SQWARN("got no chord");
+            }
 #if 0
             // If it's our first chord, generate single.
             // TODO: shouldn't we have done this before? What are we outputting?
@@ -333,10 +340,10 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 chordB = chord;
             }
 #endif
-            }
-
-            lastQuantizedPitch = quantizedNote.get();
         }
+
+        lastQuantizedPitch = quantizedNote.get();
+    }
 
     if (mustUpdate) {
         updateEverything();
