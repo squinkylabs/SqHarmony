@@ -110,11 +110,19 @@ struct Harmony1Widget : ModuleWidget {
         item->text = "Retrig. on notes and CV";
         theMenu->addChild(item);
 
+        int initValue = 0;
+        if (module) {
+            initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
+        }
+        INFO("setting up, init = %d", initValue);
         auto psm = new ParamSelectorMenu("History Depth", 
-            {"0", "1", "2", "3", "4", "4", "6", "7", "8"},
-            2,
-            [](float x) {
-                SQINFO("value setter got %f", x);
+            {"0", "1", "2", "3", "4", "5", "6", "7", "8"},
+            initValue,
+            [this](int x) {
+                SQINFO("value setter got %d", x);
+                if (module) {
+                    module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->setValue(x);
+                }
             }
             );
         theMenu->addChild(psm);

@@ -25,6 +25,7 @@ public:
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
         this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
         this->configParam(Comp::RETRIGGER_CV_AND_NOTE_PARAM, 0, 1, 1, "Retrigger CV and Note");
+        this->configParam(Comp::HISTORY_SIZE_PARAM, 0, 8, 0, "History Size");
 
 
 

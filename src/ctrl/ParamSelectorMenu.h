@@ -35,14 +35,14 @@ public:
         const std::string& name,
         const std::vector<std::string> items,
         int initialSelection,
-        std::function<void(float)> valueSetter);
+        std::function<void(int)> valueSetter);
 
     ::rack::ui::Menu* createChildMenu() override;
 
 private:
     const std::string name;
     const std::vector<std::string> itemNames;
-    std::function<void(float)> valueSetter;
+    std::function<void(int)> valueSetter;
     std::string initName;
 };
 
@@ -50,7 +50,7 @@ inline ParamSelectorMenu::ParamSelectorMenu(
     const std::string& name,
     const std::vector<std::string> items,
     int initialSelection,
-    std::function<void(float)> valueSetter) : name(name), itemNames(items), valueSetter(valueSetter) {
+    std::function<void(int)> valueSetter) : name(name), itemNames(items), valueSetter(valueSetter) {
     this->text = name;
     this->initName = itemNames[initialSelection];
 }
