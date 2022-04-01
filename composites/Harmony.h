@@ -41,6 +41,7 @@ public:
         CENTER_PREFERENCE_PARAM,
         NNIC_PREFERENCE_PARAM,
         RETRIGGER_CV_AND_NOTE_PARAM,
+        HISTORY_SIZE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

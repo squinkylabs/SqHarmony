@@ -1,3 +1,4 @@
+#include "ParamSelectorMenu.h"
 #include "Harmony.h"
 #include "Harmony1Module.h"
 #include "PopupMenuParamWidget.h"
@@ -108,6 +109,15 @@ struct Harmony1Widget : ModuleWidget {
         item = new SqMenuItem_BooleanParam2(module, Comp::RETRIGGER_CV_AND_NOTE_PARAM);
         item->text = "Retrig. on notes and CV";
         theMenu->addChild(item);
+
+        auto psm = new ParamSelectorMenu("History Depth", 
+            {"0", "1", "2", "3", "4", "4", "6", "7", "8"},
+            2,
+            [](float x) {
+                SQINFO("value setter got %f", x);
+            }
+            );
+        theMenu->addChild(psm);
     }
 
     void step() override {
