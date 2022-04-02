@@ -1,5 +1,13 @@
 # Changelog for Squinktronix plugins
 
+## 2.0.2
+
+### Harmony
+
+Added trigger input for Harmony.
+
+Added repetition avoidance.
+
 ## 2.0.1
 
 ### Harmony
