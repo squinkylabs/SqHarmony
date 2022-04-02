@@ -19,6 +19,13 @@ public:
     bool empty() const;
     void setSize(int);
 
+    /**
+     * @brief retrieve by index
+     * last one pushed == index 0.
+     * one before that is index 1. 
+     */
+    int at(int index) const;
+
     const int MAX_SIZE = 16;
 
 private:
@@ -46,6 +53,11 @@ inline bool SqRingBuffer2::full() const {
 inline void SqRingBuffer2::push(int x) {
     assert((size() < _size) || _allowOverflow);
 
+    if (size() >= _size) {
+        pop();
+    }
+    assert(size() < _size);
+    
     data[inIndex] = x;
     advance(inIndex);
 }
@@ -79,4 +91,18 @@ inline void SqRingBuffer2::setSize(int x) {
         pop();
     }
     _size = x;
+}
+
+
+inline int SqRingBuffer2::at(int x) const
+{
+    assert(size() > x);
+    assert(x >= 0);
+    
+    int index = inIndex - 1;
+    index -= x;
+    if (index < 0) {
+        index += (_size + 1);
+    }
+    return data[index];
 }

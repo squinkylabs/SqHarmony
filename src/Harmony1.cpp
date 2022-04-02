@@ -99,8 +99,24 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void appendContextMenu(Menu* theMenu) override {
-        MenuLabel* spacerLabel = new MenuLabel();
-        theMenu->addChild(spacerLabel);
+       // MenuLabel* spacerLabel = new MenuLabel();
+        theMenu->addChild(new MenuLabel());
+        if (module) {
+            std::vector<std::string> labels = {"off", "2", "3", "4", "5", "6", "7", "8"};
+            float initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
+            int intValue = int(initValue);
+            SqStream s;
+            s.add("Repetition avoidance ");
+            s.add(labels[intValue]);
+
+            auto psm = new ParamSelectorMenu(s.str(),
+                                             labels,
+                                             module,
+                                             Comp::HISTORY_SIZE_PARAM);
+            theMenu->addChild(psm);
+        }
+
+        
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SCORE_COLOR_PARAM);
         item->text = "Black notes on white paper";
@@ -109,29 +125,6 @@ struct Harmony1Widget : ModuleWidget {
         item = new SqMenuItem_BooleanParam2(module, Comp::RETRIGGER_CV_AND_NOTE_PARAM);
         item->text = "Retrig. on notes and CV";
         theMenu->addChild(item);
-
-#if 1
-        auto psm = new ParamSelectorMenu("History Depth",
-                                         {"0", "1", "2", "3", "4", "5", "6", "7", "8"},
-                                         module,
-                                         Comp::HISTORY_SIZE_PARAM);
-#else  // using low-level API
-        int initValue = 0;
-        if (module) {
-            initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
-        }
-        INFO("setting up, init = %d", initValue);
-        auto psm = new ParamSelectorMenu("History Depth",
-                                         {"0", "1", "2", "3", "4", "5", "6", "7", "8"},
-                                         initValue,
-                                         [this](int x) {
-                                             SQINFO("value setter got %d", x);
-                                             if (module) {
-                                                 module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->setValue(x);
-                                             }
-                                         });
-#endif
-        theMenu->addChild(psm);
     }
 
     void step() override {

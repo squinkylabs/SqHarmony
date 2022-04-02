@@ -227,6 +227,40 @@ static void testRingBuffer2ChangeSize2() {
     assertEQ(rb.size(), 1);
 }
 
+
+static void test2At() {
+    SqRingBuffer2 rb(false, 3);
+    rb.push(10);
+    assertEQ(rb.at(0), 10);
+    rb.push(11);
+    assertEQ(rb.at(0), 11);
+    assertEQ(rb.at(1), 10);
+}
+
+static void test2At2() {
+    SqRingBuffer2 rb(false, 4);
+    rb.push(10);
+    rb.push(11);
+    rb.pop();
+    rb.push(12);
+    rb.push(13);
+    assertEQ(rb.at(0), 13);
+    assertEQ(rb.at(1), 12);
+}
+
+static void test2Overflow() {
+    SqRingBuffer2 rb(true, 3);
+    rb.push(10);
+    rb.push(11);
+    rb.push(12);
+    rb.push(13);
+    assertEQ(rb.size(), 3);
+    assertEQ(rb.at(0), 13);
+    assertEQ(rb.at(1), 12);
+    assertEQ(rb.at(2), 11);
+}
+
+
 void testRingBuffer() {
     testConstruct<SqRingBuffer<int, 4>>();
     testConstruct<SqRingBuffer<char *, 1>>();
@@ -250,4 +284,7 @@ void testRingBuffer() {
     testRingBuffer2Wrap();
     testRingBuffer2ChangeSize();
     testRingBuffer2ChangeSize2();
+    test2At();
+    test2At2();
+    test2Overflow();
 }
