@@ -1,6 +1,7 @@
 
 //#include "AtomicRingBuffer.h"
 #include "SqRingBuffer.h"
+#include "SqRingBuffer2.h"
 #include "asserts.h"
 
 template <typename TRingBufer>
@@ -160,6 +161,72 @@ static void testChordHistory() {
     assert(!h.haveSeen(200, 2));
 }
 
+static void testRingBuffer2basic() {
+    SqRingBuffer2 rb(false, 4);
+    assert(rb.empty());
+    assert(!rb.full());
+}
+
+static void testRingBuffer2basic2() {
+    SqRingBuffer2 rb(false, 4);
+    rb.push(2);
+    assert(!rb.empty());
+    assert(!rb.full());
+}
+
+static void testRingBuffer2basic3() {
+    SqRingBuffer2 rb(false, 4);
+    rb.push(1);
+    rb.push(2);
+    rb.push(3);
+    assert(!rb.full());
+    rb.push(4);
+    assert(rb.full());
+    assert(!rb.empty());
+    assertEQ(rb.size(), 4);
+}
+
+static void testRingBuffer2Wrap() {
+    SqRingBuffer2 rb(false, 4);
+    rb.push(1);
+    assertEQ(rb.size(), 1);
+    rb.push(2);
+    assertEQ(rb.size(), 2);
+    rb.push(3);
+    assertEQ(rb.size(), 3);
+    rb.pop();
+    assertEQ(rb.size(), 2);
+    rb.push(4);
+    assertEQ(rb.size(), 3);
+    assert(!rb.full());
+
+    rb.push(5);
+    assertEQ(rb.size(), 4);
+    auto i = rb.size();
+    assert(rb.full());
+}
+
+static void testRingBuffer2ChangeSize() {
+    SqRingBuffer2 rb(false, 4);
+    rb.setSize(1);
+    assert(rb.empty());
+    assert(!rb.full());
+    rb.push(0);
+    assert(!rb.empty());
+    assert(rb.full());
+}
+
+static void testRingBuffer2ChangeSize2() {
+    SqRingBuffer2 rb(false, 4);
+    rb.push(0);
+    rb.push(0);
+    rb.push(0);
+    rb.setSize(1);
+    assert(!rb.empty());
+    assert(rb.full());
+    assertEQ(rb.size(), 1);
+}
+
 void testRingBuffer() {
     testConstruct<SqRingBuffer<int, 4>>();
     testConstruct<SqRingBuffer<char *, 1>>();
@@ -177,4 +244,10 @@ void testRingBuffer() {
     //   testOne<AtomicRingBuffer<const char *, 1 >>();
 
     testChordHistory();
+    testRingBuffer2basic();
+    testRingBuffer2basic2();
+    testRingBuffer2basic3();
+    testRingBuffer2Wrap();
+    testRingBuffer2ChangeSize();
+    testRingBuffer2ChangeSize2();
 }
