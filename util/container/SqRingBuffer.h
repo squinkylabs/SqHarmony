@@ -1,5 +1,6 @@
 #pragma once
 #include <assert.h>
+#include <stdint.h>
 
 #include "SqLog.h"
 
@@ -15,31 +16,43 @@ template <typename T, int SIZE>
 class SqRingBuffer
 {
 public:
-    SqRingBuffer()
+    SqRingBuffer(bool allowOverflow) : _allowOverflow(allowOverflow)
     {
         for (int i = 0; i < SIZE; ++i) {
             memory[i] = 0;
         }
     }
 
-    // this constructor does not try to initialize
-    SqRingBuffer(bool b)
-    {
-        assert(!b);
-    }
-
+    int size() const;
     void push(T);
     T pop();
     bool full() const;
     bool empty() const;
 
+    /**
+     * @brief retrieve by index
+     * last one pushed == index 0.
+     * one before that is index 1. 
+     */
+    T at(int index) const;
+
     void _dump();
 
 private:
+
+#if 0
+    // this constructor does not try to initialize
+    SqRingBuffer(bool b)
+    {
+        assert(!b);
+    }
+#endif
+
     T memory[SIZE];
     bool couldBeFull = false;           // full and empty are ambiguous, both are in--out
     int inIndex = 0;
     int outIndex = 0;
+    const bool _allowOverflow;
 
     /** Move up 'p' (a buffer index), wrap around if we hit the end
      * (this is the core of the circular ring buffer).
@@ -56,12 +69,13 @@ inline void SqRingBuffer<uint16_t, 3>::_dump() {
     }
 }
 
-
 template <typename T, int SIZE>
 inline void SqRingBuffer<T, SIZE>::push(T value)
-
 {
-    assert(!full());
+    assert(_allowOverflow || !full());
+    if (full()) {
+        pop();
+    }
     memory[inIndex] = value;
     advance(inIndex);
     couldBeFull = true;
@@ -84,6 +98,37 @@ inline bool SqRingBuffer<T, SIZE>::full() const
 }
 
 template <typename T, int SIZE>
+inline int SqRingBuffer<T, SIZE>::size() const
+{
+    //return (inIndex == outIndex) && !couldBeFull;
+    if (empty()) {
+        return 0;
+    }
+    if (full()) {
+        return SIZE;
+    }
+    int x = inIndex - outIndex;
+    if (x < 0) {
+        x += SIZE;
+    }
+    return x;
+}
+
+template <typename T, int SIZE>
+inline T SqRingBuffer<T, SIZE>::at(int x) const
+{
+    assert(size() > x);
+    assert(x >= 0);
+    
+    int index = inIndex - 1;
+    index -= x;
+    if (index < 0) {
+        index += SIZE;
+    }
+    return memory[index];
+}
+
+template <typename T, int SIZE>
 inline bool SqRingBuffer<T, SIZE>::empty() const
 {
     return (inIndex == outIndex) && !couldBeFull;
@@ -95,5 +140,33 @@ inline void SqRingBuffer<T, SIZE>::advance(int &p)
     if (++p >= SIZE) p = 0;
 }
 
+template <int SIZE>
+class SqChordHistory {
+public:
+    SqChordHistory() : rb(true) {}
+    void onNewChord(int rank, int root) {
+        const auto h = hash(rank, root);
+        rb.push(h);
+    }
+    bool haveSeen(int rank, int root) const {
+        const auto h = hash(rank, root);
+        for (int i=0; i< rb.size(); ++i) {
+            if (rb.at(i) == h) {
+                return true;
+            }
+        }
+        return false;
+    }
+private:
+    SqRingBuffer<int, SIZE> rb;
+
+    static int hash(int rank, int root) {
+        assert(root < 8);
+        assert(root >= 1);
+        assert(rank >= 0);
+        assert(rank < 1000);
+        return (rank << 4) | root;
+    }
+};
 
 

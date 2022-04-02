@@ -5,6 +5,11 @@
 #include "Chord4.h"
 #include "Chord4List.h"
 
+/**
+ * @brief holds all the chords for the scale we are in
+ * 
+ */
+
 using Chord4ListPtr = std::shared_ptr<Chord4List>;
 class Chord4Manager {
 public:
@@ -31,13 +36,6 @@ public:
         assert(chords.size() == 10);
         return chords[root]->size();
     }
-#if 0  // dangerous
-    const Chord4& get(int root, int rank) const {
-        assert(!chords.empty());
-        assert (root < int(chords.size()));
-        return chords[root]->get(rank);
-    }
-#endif
 
     // same as get, but can return "not found" (nullptr)
     const Chord4* get2(int root, int rank) const {
@@ -58,7 +56,6 @@ public:
 
 private:
     // entries for 0 = no=used, 1= root
-    // Chord4Ptr p;
     std::vector<Chord4ListPtr> chords;
 };
 

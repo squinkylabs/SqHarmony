@@ -23,11 +23,15 @@ extern void testArpegRhythmPlayer();
 extern void testSeqClock();
 extern void testGateDelay();
 extern void testHarmonyChordsRandom();
+extern void testHarmonyChords2();
+extern void testRingBuffer();
+extern void testChord4Manager();
 
 int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testRingBuffer();
     testGateDelay();
     testSeqClock();
     testNoteBuffer();
@@ -47,8 +51,10 @@ int main(const char**, int) {
     testScaleRelativeNote();
     testChordRelativeNote();
     testChord();
+    testChord4Manager();
     testHarmonySong();
     testHarmonyChords();
+    testHarmonyChords2();
     testHarmonyChordsRandom();
 #endif
     testHarmonyComposite();

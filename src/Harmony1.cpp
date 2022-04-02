@@ -1,5 +1,6 @@
 #include "Harmony.h"
 #include "Harmony1Module.h"
+#include "ParamSelectorMenu.h"
 #include "PopupMenuParamWidget.h"
 #include "Score.h"
 #include "SqMenuItem.h"
@@ -32,6 +33,8 @@ struct Harmony1Widget : ModuleWidget {
 
         addInputL(Vec(vlx, 280), Comp::CV_INPUT, "Root");
         addScore(module);
+        addInputL(Vec(vlx + 1 * vdelta, 280), Comp::TRIGGER_INPUT, "Trig");
+        // addScore(module);
 
         addKeysig();
         addOutputs();
@@ -69,7 +72,7 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void addKeysig() {
-        const float yScale = 136;           // was 140
+        const float yScale = 136;  // was 140
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -96,11 +99,31 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void appendContextMenu(Menu* theMenu) override {
-        MenuLabel* spacerLabel = new MenuLabel();
-        theMenu->addChild(spacerLabel);
+       // MenuLabel* spacerLabel = new MenuLabel();
+        theMenu->addChild(new MenuLabel());
+        if (module) {
+            std::vector<std::string> labels = {"off", "2", "3", "4", "5", "6", "7", "8"};
+            float initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
+            int intValue = int(initValue);
+            SqStream s;
+            s.add("Repetition avoidance ");
+            s.add(labels[intValue]);
+
+            auto psm = new ParamSelectorMenu(s.str(),
+                                             labels,
+                                             module,
+                                             Comp::HISTORY_SIZE_PARAM);
+            theMenu->addChild(psm);
+        }
+
+        
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SCORE_COLOR_PARAM);
         item->text = "Black notes on white paper";
+        theMenu->addChild(item);
+
+        item = new SqMenuItem_BooleanParam2(module, Comp::RETRIGGER_CV_AND_NOTE_PARAM);
+        item->text = "Retrig. on notes and CV";
         theMenu->addChild(item);
     }
 
@@ -133,7 +156,7 @@ struct Harmony1Widget : ModuleWidget {
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 18;
-        const float xOffset =  -2 + text.size() * 2.5;  // crude attempt to center text.
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
     }
@@ -160,7 +183,7 @@ struct Harmony1Widget : ModuleWidget {
 
 void Harmony1Widget::addScore(Harmony1Module* module) {
     _score = new Score(module);
-    auto size = Vec(120, 97);      // was 100
+    auto size = Vec(120, 97);  // was 100
     auto vu = new BufferingParent(_score, size, _score);
 
     vu->box.pos = Vec(7, 26),

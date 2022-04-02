@@ -72,7 +72,7 @@ static StylePtr makeStyle() {
 }
 
 static KeysigOldPtr makeKeysig(bool minor) {
-    auto ret =  std::make_shared<KeysigOld>(Roots::C);
+    auto ret = std::make_shared<KeysigOld>(Roots::C);
     if (minor) {
         ret->set(MidiNote::C, Scale::Scales::Minor);
     }
@@ -83,7 +83,6 @@ static Options makeOptions(bool minor) {
     Options o(makeKeysig(minor), makeStyle());
     return o;
 }
-
 
 static Options makeOptions(int root, Scale::Scales scale) {
     auto ks = std::make_shared<KeysigOld>(Roots::C);
@@ -142,6 +141,7 @@ void testRand(const Options& options) {
     assert(chordB);
     //  SQINFO("chord b=%s", chordB->toString().c_str());
 
+    HarmonyChords::ChordHistory* history = nullptr;
     for (int i = 0; i < 1000; ++i) {
         int rootC = rootB;
         while (rootC == rootB) {
@@ -175,7 +175,6 @@ void testRand(const Options& options) {
     SQINFO("Pitch range = %d to %d", rangeAnalyzer.lowest(), rangeAnalyzer.highest());
 }
 
-
 static void testValid(int dx) {
     auto options = makeOptions(false);
     options.style->setSpecialTestMode(dx);
@@ -190,8 +189,7 @@ static void testValid(int dx) {
             auto ch = mgr.get2(root, rank);
             if (!ch) {
                 done = true;
-            }
-            else {
+            } else {
                 assert(ch->isAcceptableDoubling(options));
             }
         }
@@ -199,7 +197,7 @@ static void testValid(int dx) {
 }
 
 static void testValid() {
-    testValid(8);           // this is the magic bad number
+    testValid(8);  // this is the magic bad number
     for (int i = 0; i < 10; ++i) {
         testValid(i);
     }
@@ -229,60 +227,12 @@ static void testRand() {
     testRand(1, Scale::Scales::Minor);
 }
 
-static void testScales(const MidiNote& base, Scale::Scales mode, const std::vector<int>& expectedPitches) {
-    assert(expectedPitches.size() == 3);
-    auto options = makeOptions(false);
-    auto keysig = options.keysig;
-    keysig->set(base, mode);
-    Chord4Manager mgr(options);
-
-    const int rootA = 1;
-    auto chordA = HarmonyChords::findChord(false, options, mgr, rootA);
-    const HarmonyNote* hn = chordA->fetchNotes();
-    const ScaleRelativeNote* srn = chordA->fetchSRNNotes();
-
-    for (int i = 0; i < 4; ++i) {
-        const int ab = hn[i];
-        const int abNorm = ab % 12;
-        assert(std::find(expectedPitches.begin(), expectedPitches.end(), abNorm) != expectedPitches.end());
-    }
-}
-
-static void testCMaj() {
-    const int basePitch = MidiNote::C;
-    MidiNote baseNote(basePitch);
-    testScales(baseNote, Scale::Scales::Major, {0, 4, 7});
-}
-
-static void testCMin() {
-    const int basePitch = MidiNote::C;
-    MidiNote baseNote(basePitch);
-    testScales(baseNote, Scale::Scales::Minor, {0, 3, 7});
-}
-
-static void testDMixo() {
-    const int basePitch = MidiNote::C + 2;
-    MidiNote baseNote(basePitch);
-    testScales(baseNote, Scale::Scales::Mixolydian, {2, 6, 9}); // d major
-}
-
-static void testBPhryg()  {
-    const int basePitch = MidiNote::C + 11;
-    MidiNote baseNote(basePitch);
-    testScales(baseNote, Scale::Scales::Phrygian, {11, 2, 6}); // b min
-}
-
 void testHarmonyChordsRandom() {
     // SQWARN("put back test valid");
     testValid();
     testGenerator();
     testHiLo();
     testRand();
-
-    testCMaj();
-    testCMin();
-    testDMixo();
-    testBPhryg();
 
     assertEQ(__numChord4, 0);
 }

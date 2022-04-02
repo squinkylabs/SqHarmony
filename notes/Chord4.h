@@ -82,6 +82,9 @@ public:
     Chord4();
     ~Chord4();
 
+    // just for hacky debugging support
+    void addRef();
+
     /**
      * @brief makes a specific string, ex "E2A2C3A3", BUT:
      *      it can only do this if the chord is "legal" according to options
@@ -114,6 +117,8 @@ public:
     bool isCorrectDoubling(const Options& option) const;
 
     bool isValid() const { return valid; }
+
+    int rank=0;             // lower rank is "better". Unique index into the chord lists.
 
 private:
     // friend ChordList;  // so he can "construct" us
