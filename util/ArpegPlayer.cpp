@@ -27,18 +27,9 @@ void ArpegPlayer::setMode(Mode m) {
     dataChanged = true;
 }
 
-// int debug = 0;
 void ArpegPlayer::reset() {
-    // printf("**AP::reset called, set index to -1 debug=%d\n", debug);
     playbackIndex = -1;  // force start at start
     dataChanged = true;
-    // resetInfo.indexLastPlayed = -1;
-
-    static int times = 0;
-    if (++times > 4) {
-        // this is just a test
-        // assert(false);
-    }
 }
 
 bool ArpegPlayer::empty() const {
@@ -46,8 +37,6 @@ bool ArpegPlayer::empty() const {
 }
 
 std::pair<float, float> ArpegPlayer::clock() {
-    // SQINFO("ArpegPlayer::clock");
-
     // on a data change, let's try to find the next note to play
     if (dataChanged) {
 
@@ -181,11 +170,6 @@ void ArpegPlayer::refillPlayback() {
         default:
             assert(false);
     }
-
-    for (int i = 0; i < playbackSize; ++i) {
-        //SQINFO(" after re-fill [%d] = %f", i, playbackBuffer[i].first);
-    }
-    // printf("leave reFill playback, size = %d\n", playbackSize);
 }
 
 void ArpegPlayer::onIndexWrapAround() {
@@ -237,31 +221,6 @@ void ArpegPlayer::refillPlaybackSHUFFLE() {
 
     playbackSize = numNotes;
 }
-
-#if 0  // old version
-void ArpegPlayer::refillPlaybackSHUFFLE() {
-    SQINFO("ArpegPlayer::refillPlaybackSHUFFLE");
-    bool didUseNote[NoteBuffer::maxCapacity] = {false};
-
-    const int numNotes = noteBuffer->size();
-    // loop, filling up sortBuffer[copyIndex] each time
-    // Note: could use std::shuffle instead
-    for (int copyIndex = 0; copyIndex < numNotes; ++copyIndex) {
-        for (bool done = false; !done;) {
-            int rand = int(std::round(numNotes * random()));
-            if (rand >= numNotes) {
-                rand = numNotes - 1;
-            }
-            if (!didUseNote[rand]) {
-                playbackBuffer[copyIndex] = std::make_pair(noteBuffer->at(rand).cv1, noteBuffer->at(rand).cv2); 
-                done = true;
-                didUseNote[rand] = true;
-            }
-        }
-    }
-    playbackSize = numNotes;
-}
-#endif
 
 void ArpegPlayer::refillPlaybackUP() {
     SQDEBUG("ArpegPlayer::refillPlaybackUP()");
@@ -384,10 +343,6 @@ void ArpegPlayer::refillPlaybackDOWN_UP_DBL() {
     }
 
     for (int i = 1; i < downwardEntries; ++i) {
-        // wrong
-        // const int dest = i + noteBuffer->size() + 1;
-        // const int src = noteBuffer->size() - (i + 1);
-
         const int src = 0 + i;
         const int dest = i + noteBuffer->size();
         playbackBuffer[dest] = sortBuffer[src];

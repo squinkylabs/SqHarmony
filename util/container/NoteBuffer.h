@@ -36,7 +36,7 @@ public:
     const Data* end() const;
     const Data& at(int index) const;
 
-    using RejectFunction = std::function<bool(int index)>;
+   // using RejectFunction = std::function<bool(int index)>;
 
 private:
     int siz = 0;
