@@ -78,17 +78,32 @@ static void testBPhryg() {
     testScales(baseNote, Scale::Scales::Phrygian, {11, 2, 6});  // b min
 }
 
-static void testHistory1() {
-    /*
-        static const Chord4* findChord2(
-        bool show,
-        int root,
-        const Options& options,
-        const Chord4Manager& manager,
-        ChordHistory& history,
-        const Chord4* prevPrev,
-        const Chord4* prev);
-        */
+static void testHistory(int setting) {
+
+    int minRepeat = 0;
+    int maxRepeat = 0;
+    //int depth = 1;
+    switch(setting) {
+        case 1:
+            minRepeat = 1;
+            maxRepeat = 6;
+            break;
+        case 4:
+            minRepeat = 4;
+            maxRepeat = 8;
+            break;
+        case 8:
+            minRepeat = 8;
+            maxRepeat = 12;
+            break;
+        case 13:
+            minRepeat = 13;
+            maxRepeat = 16;
+            break;
+       
+        default:
+            assert(false);
+    }
     auto options = makeOptions(false);
     auto keysig = options.keysig;
     const int basePitch = MidiNote::C;
@@ -99,12 +114,14 @@ static void testHistory1() {
     HarmonyChords::ChordHistory history;
     HarmonyChords::ChordHistory* historyPtr;
     historyPtr = &history;
-    history.setSize(12);
+    history.setSize(setting);
 
 
     std::set<std::string> results;
     const Chord4* prev = nullptr;
     const Chord4* prevPrev = nullptr;
+
+    int repeat = -1;
     for (int i = 0; i < 20; ++i) {
         auto chord = HarmonyChords::findChord2(
             false,
@@ -115,11 +132,14 @@ static void testHistory1() {
             prevPrev,
             prev);
        
-        SQINFO("[%d] %s", i, chord->toString().c_str());
+      //  SQINFO("[%d] %s", i, chord->toString().c_str());
         std::string s = chord->toStringShort();
         if (results.find(s) != results.end()) {
-           // assert(false);
-            SQINFO("got a dupe! hp = %p", historyPtr);
+
+            // SQINFO("got a dupe! hp = %p", historyPtr);
+            if (repeat < 0) {
+                repeat = i;
+            }
 
             // with no history, do cycle of 4.
             // with def hist (4) get 8
@@ -132,7 +152,15 @@ static void testHistory1() {
     }
     // use prev and prevPrev, above.
     // extend toString to dump ranks, inversion
-    assert(false);
+    assertGE(repeat, minRepeat);
+    assertLE(repeat, maxRepeat);
+}
+
+static void  testHistory1() {
+    testHistory(1);
+    testHistory(4);
+    testHistory(8);
+    testHistory(13);
 }
 
 void testHarmonyChords2() {
@@ -140,8 +168,6 @@ void testHarmonyChords2() {
     testCMin();
     testDMixo();
     testBPhryg();
-
     testHistory1();
-
     assertEQ(__numChord4, 0);
 }

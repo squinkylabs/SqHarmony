@@ -849,7 +849,7 @@ static void testArpegPlayerSHUFFLE(bool withTrigger) {
 
     bool didSee[numInput] = {false};
 
-    SQINFO("-- test will run first loop");
+    // SQINFO("-- test will run first loop");
     for (int i = 0; i < numInput; ++i) {
         const auto x = ap.clock();
         assert(x.first > 0);
@@ -868,13 +868,13 @@ static void testArpegPlayerSHUFFLE(bool withTrigger) {
             }
         }
     }
-    SQINFO("-- test will compare results 1");
+    //SQINFO("-- test will compare results 1");
     for (int i = 0; i < numInput; ++i) {
         assert(didSee[i]);
         assert(outputFirst[i].first > 0); 
     }
 
-    SQINFO("-- test will read second pass");
+    //SQINFO("-- test will read second pass");
     for (int i = 0; i < numInput; ++i) {
         const auto x = ap.clock();
         assert(x.first > 0);

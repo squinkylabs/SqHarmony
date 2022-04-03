@@ -196,10 +196,11 @@ static void testLabels() {
     // interprets history size
     assertEQ(Comp::getHistoryLabels().size(), 4);
     assertEQ(Comp::getHistoryLabels()[0], "off");
-    assertEQ(Comp::getHistoryLabels()[0], "4");
-    assertEQ(Comp::getHistoryLabels()[0], "8");
-    assertEQ(Comp::getHistoryLabels()[0], "13");
+    assertEQ(Comp::getHistoryLabels()[1], "4");
+    assertEQ(Comp::getHistoryLabels()[2], "8");
+    assertEQ(Comp::getHistoryLabels()[3], "13");
 }
+
 void testHarmonyComposite() {
     test0();
     testQuant1();

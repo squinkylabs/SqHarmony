@@ -112,6 +112,7 @@ public:
     int _size() const {
         return chordManager->_size();
     }
+
 private:
     void init();
     void outputPitches(const Chord4*);
@@ -195,8 +196,25 @@ inline void Harmony<TBase>::stepn() {
         }
     }
 
-    int historySize = int( std::round(Harmony<TBase>::params[HISTORY_SIZE_PARAM].value));
-    historySize = std::max(historySize, 1);         // off is still size of one, it has no effect
+    const int rawHistorySize = int(std::round(Harmony<TBase>::params[HISTORY_SIZE_PARAM].value));
+    int historySize = 1;
+    switch (rawHistorySize) {
+        case 0:
+            historySize = 1;
+            break;
+        case 1:
+            historySize = 4;
+            break;
+        case 2:
+            historySize = 8;
+            break;
+        case 3:
+            historySize = 13;
+            break;
+        default:
+            assert(false);
+    }
+
     chordHistory.setSize(historySize);
 
     bool noNotesInCommon = Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
@@ -256,7 +274,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     if (!chordsOut.full()) {
         chordsOut.push(c);
     } else {
-        SQWARN("in outputPitches, no room for output\n");
+       // SQWARN("in outputPitches, no room for output\n");
     }
 }
 
@@ -294,7 +312,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     const bool pitchChanged = (quantizedNote.get() != lastQuantizedPitch);
     const bool triggerOnBoth = Harmony<TBase>::params[RETRIGGER_CV_AND_NOTE_PARAM].value > .5;
     if (!triggerConnected || triggerOnBoth) {
-         t |= pitchChanged;
+        t |= pitchChanged;
     }
 
     // generate a new chord any time the quantizer outputs a new pitch

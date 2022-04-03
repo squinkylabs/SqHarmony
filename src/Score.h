@@ -338,7 +338,7 @@ inline void Score::drawLayer(const DrawArgs &args, int layer) {
 #endif
 
 inline void Score::draw(const DrawArgs &args) {
-    INFO("Score::draw clip=szx %f, szy %f, %f, %f", args.clipBox.size.x, args.clipBox.size.y, args.clipBox.pos.x, args.clipBox.pos.y);
+    // INFO("Score::draw clip=szx %f, szy %f, %f, %f", args.clipBox.size.x, args.clipBox.size.y, args.clipBox.pos.x, args.clipBox.pos.y);
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const float width = drawMusicNonNotes(args);
     drawNotes(args, width);
