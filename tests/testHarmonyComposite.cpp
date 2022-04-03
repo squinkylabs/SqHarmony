@@ -191,6 +191,15 @@ static void testNumChords() {
 
 }
 
+static void testLabels() {
+    // I this test fails may need to re-code how composite
+    // interprets history size
+    assertEQ(Comp::getHistoryLabels().size(), 4);
+    assertEQ(Comp::getHistoryLabels()[0], "off");
+    assertEQ(Comp::getHistoryLabels()[0], "4");
+    assertEQ(Comp::getHistoryLabels()[0], "8");
+    assertEQ(Comp::getHistoryLabels()[0], "13");
+}
 void testHarmonyComposite() {
     test0();
     testQuant1();
@@ -203,4 +212,5 @@ void testHarmonyComposite() {
     testBassAndSopranoVoiceCount();
     test2and2VoiceCount();
     testNumChords();
+    testLabels();
 }

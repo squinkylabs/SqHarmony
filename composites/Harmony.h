@@ -86,10 +86,6 @@ public:
         return chordOptions->keysig->getUnderlyingScale();
     }
 
-    int _size() const {
-        return chordManager->_size();
-    }
-
     int getOutputChannels(int voice) const {
         int channels = 0;
         switch (voice) {
@@ -109,6 +105,13 @@ public:
         return channels;
     }
 
+    static std::vector<std::string> getHistoryLabels() {
+        return {"off", "4", "8", "13"};
+    }
+
+    int _size() const {
+        return chordManager->_size();
+    }
 private:
     void init();
     void outputPitches(const Chord4*);

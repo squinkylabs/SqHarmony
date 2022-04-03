@@ -96,25 +96,35 @@ static void testHistory1() {
     keysig->set(basePitch, mode);
     Chord4Manager mgr(options);
 
-    // using ChordHistory = SqRingBuffer<int, 8>;
     HarmonyChords::ChordHistory history;
+    HarmonyChords::ChordHistory* historyPtr;
+    historyPtr = &history;
+    history.setSize(12);
+
+
     std::set<std::string> results;
     const Chord4* prev = nullptr;
     const Chord4* prevPrev = nullptr;
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 20; ++i) {
         auto chord = HarmonyChords::findChord2(
             false,
             1,
             options,
             mgr,
-            &history,
+            historyPtr,
             prevPrev,
             prev);
        
         SQINFO("[%d] %s", i, chord->toString().c_str());
         std::string s = chord->toStringShort();
         if (results.find(s) != results.end()) {
-            assert(false);
+           // assert(false);
+            SQINFO("got a dupe! hp = %p", historyPtr);
+
+            // with no history, do cycle of 4.
+            // with def hist (4) get 8
+            // with (8) get 10
+            // 15 on 12
         }
         results.insert(s);
         prevPrev = prev;

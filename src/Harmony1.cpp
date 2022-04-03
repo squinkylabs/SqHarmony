@@ -102,7 +102,8 @@ struct Harmony1Widget : ModuleWidget {
        // MenuLabel* spacerLabel = new MenuLabel();
         theMenu->addChild(new MenuLabel());
         if (module) {
-            std::vector<std::string> labels = {"off", "2", "3", "4", "5", "6", "7", "8"};
+           // std::vector<std::string> labels = {"off", "4", "8", "13"};
+           std::vector<std::string> labels = Comp::getHistoryLabels();
             float initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
             int intValue = int(initValue);
             SqStream s;

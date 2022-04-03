@@ -14,25 +14,17 @@ public:
     Harmony1Module() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
 
-
-     /*           INVERSION_PREFERENCE_PARAM,
-        CENTER_PREFERENCE_PARAM,
-        NNIC_PREFERENCE_PARAM,
-        RETRIGGER_CV_AND_NOTE_PARAM, */
-        this->configParam(Comp::SCORE_COLOR_PARAM, 0, 1, 0, "Invert Score colors");
+        this->configParam(Comp::SCORE_COLOR_PARAM, 0, 1, 1, "Invert Score colors");
         this->configParam(Comp::SCORE_GLOW_PARAM, 0, 1, 0, "Score Glow");
         this->configParam(Comp::SCHEMA_PARAM, 0, 1, 0, "hidden schema");
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
         this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
         this->configParam(Comp::RETRIGGER_CV_AND_NOTE_PARAM, 0, 1, 1, "Retrigger CV and Note");
-        this->configParam(Comp::HISTORY_SIZE_PARAM, 0, 8, 0, "History Size");
+        this->configParam(Comp::HISTORY_SIZE_PARAM, 0, 4, 0, "History Size");
 
-
-
-        this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"DONT_CARE", "DISCOURAGE_CONSECUTIVE", "DISCOURAGE"});
+        this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 1, "Inversion preference", {"DONT_CARE", "DISCOURAGE_CONSECUTIVE", "DISCOURAGE"});
         this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "ENCOURAGE_CENTER", "NARROW_RANGE"});
         this->configSwitch(Comp::NNIC_PREFERENCE_PARAM, 0, 1, 1, "No Notes in Common rule", {"Disable", "enabled"});
-
 
         this->configOutput(Comp::BASS_OUTPUT, "Bass voice pitch");
         this->configOutput(Comp::TENOR_OUTPUT, "Tenor voice pitch");
