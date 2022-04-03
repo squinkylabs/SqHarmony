@@ -87,6 +87,7 @@ inline void SqRingBuffer2::advance(int &x) const {
 
 inline void SqRingBuffer2::setSize(int x) {
     assert(x < MAX_SIZE);
+    assert(x > 0);
     while (size() > x) {
         pop();
     }

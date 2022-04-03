@@ -195,6 +195,10 @@ inline void Harmony<TBase>::stepn() {
         }
     }
 
+    int historySize = int( std::round(Harmony<TBase>::params[HISTORY_SIZE_PARAM].value));
+    historySize = std::max(historySize, 1);         // off is still size of one, it has no effect
+    chordHistory.setSize(historySize);
+
     bool noNotesInCommon = Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
     auto style = chordOptions->style;
     style->setNoNotesInCommon(noNotesInCommon);
@@ -317,8 +321,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 1 + scaleNote.getDegree(),
                 *chordOptions,
                 *chordManager,
-                //  &chordHistory,
-                nullptr,
+                &chordHistory,
                 chordA, chordB);
             if (chord) {
                 outputPitches(chord);
