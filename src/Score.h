@@ -67,7 +67,7 @@ public:
     void setWhiteOnBlack(bool b) {
         if (whiteOnBlack != b) {
             whiteOnBlack = b;
-            INFO("set white on block %d", whiteOnBlack);
+            // INFO("set white on black %d", whiteOnBlack);
             scoreIsDirty = true;
         }
     }

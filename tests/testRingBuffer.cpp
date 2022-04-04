@@ -1,5 +1,5 @@
 
-//#include "AtomicRingBuffer.h"
+#include "AtomicRingBuffer.h"
 #include "SqRingBuffer.h"
 #include "SqRingBuffer2.h"
 #include "asserts.h"
@@ -309,11 +309,40 @@ static void testRingBuffer2Size1() {
     assertEQ(rb.pop(), 12);
 }
 
+static void testAtomicRingBufferFull() {
+    AtomicRingBuffer<int, 12> rb;
+    for (int i = 0; i < 5; ++i) {
+        rb.push(i);
+    }
+    assert(!rb.full());
+    assert(!rb.empty());
+
+     for (int i = 0; i < 5; ++i) {
+        int x = rb.pop();
+        assertEQ(x, i);
+    }
+    assert(rb.empty());
+
+    for (int i = 0; i < 12; ++i) {
+        rb.push(i + 100);
+    }
+    assert(!rb.empty());
+    assert(rb.full());
+
+    for (int i = 0; i < 12; ++i) {
+        int x = rb.pop();
+        assertEQ(x, i + 100);
+    }
+    assert(rb.empty());
+
+
+}
+
 void testRingBuffer() {
     testConstruct<SqRingBuffer<int, 4>>();
     testConstruct<SqRingBuffer<char *, 1>>();
-    //  testConstruct<AtomicRingBuffer<int, 4>>();
-    // testConstruct<AtomicRingBuffer<char *, 1>>();
+    // testConstruct<AtomicRingBuffer<int, 4>>();
+    //  testConstruct<AtomicRingBuffer<char *, 1>>();
 
     _testRingBuffer<SqRingBuffer<int, 4>>();
     //   _testRingBuffer<AtomicRingBuffer<int, 4>>();
@@ -340,4 +369,5 @@ void testRingBuffer() {
 
     testChordHistory();
     testChordHistoryOverflow();
+    testAtomicRingBufferFull();
 }

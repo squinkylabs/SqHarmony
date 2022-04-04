@@ -258,7 +258,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     c.root = chord->fetchRoot();
     c.inversion = int(chord->inversion(*chordOptions));
 
-    // SQINFO("output pitches %s (bass=%d)", chord->toStringShort().c_str(), (int)harmonyNotes[0]);
+    // SQINFO("output pitches %s (root=%d) root+4=%d", chord->toStringShort().c_str(), c.root, c.root+4);
 
     for (int i = 0; i < 4; ++i) {
         MidiNote mn(12 + harmonyNotes[i]);  // harmony note and midi note are about the same;
@@ -319,6 +319,12 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     if (t) {
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
+#if 0
+        SQINFO("trigger input=%f  input+5th=%f q=%d, q+7=%d this=%p", 
+            input,input + 7.f / 12.f,  
+            mn.get(), mn.get()+7, 
+            this );
+#endif
 
 #if 0
             bool octaveJump = false;
