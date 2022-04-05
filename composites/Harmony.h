@@ -42,6 +42,8 @@ public:
         NNIC_PREFERENCE_PARAM,
         RETRIGGER_CV_AND_NOTE_PARAM,
         HISTORY_SIZE_PARAM,
+        TRANSPOSE_STEPS_PARAM,
+        TRIGGER_DELAY_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

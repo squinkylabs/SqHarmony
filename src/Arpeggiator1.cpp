@@ -159,7 +159,6 @@ struct Arpeggiator1Widget : ModuleWidget {
         addLabel(Vec(knobLeft - 8, yKnob - 28), "Length");
 
         auto param2 = createParam<RoundBigBlackSnapKnob>(Vec(knobLeft + 22 + dx2, yKnob), module, Comp::BEATS_PARAM);
-        ;
         addParam(param2);
         addLabel(Vec(knobLeft + 22 + dx2, yKnob - 28), "Beats");
 

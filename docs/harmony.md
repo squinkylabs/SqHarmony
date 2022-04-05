@@ -55,7 +55,9 @@ There are three controls in the middle that let you control the chords that are 
 
 ### The context menu
 
-Has a single entry that lets you select white notes on a black background, or black notes on a white background.
+* Repetition avoidance. When enabled will prevent Harmony from re-using a chord. Most useful in conjunction with the Trig input.
+* Black notes on white paper. Will reverse the colors used to draw the score.
+* Retrig. on notes and CV. Only has an effect when the Trig input is used. When off, ony trig input will generate a new chord, not CV change.
 
 ## Getting good results
 
@@ -76,6 +78,14 @@ In a major key, the leading tone (major 7) really wants to "resolve" to the toni
 Another example: the triad on the 5th scale degree (the dominant) is a very strong and stable chord in a major key. But in some modes, like Phrygian, the triad on the 5th is a diminished chord, and will have a much different role.
 
 The bottom line: you may get very interesting and useful results with non-major modes. Or they may sound somewhat broken to you. They would for sure sound strange to Bach.
+
+## Using The Trig input and Repetition avoidance
+
+Harmony will normally only generate a new chord when the input changes by at least a half step. But you may want to force it to generate a new chord even when there is no change. Or you may want to prevent excessive chords from being generated from a noisy CV input.
+
+If the Root input stays constant, you use the Trig input to generate more varitions on the same chord. For example, if the Root input is E, you will generate an E chord (if the mode you are in includes E). New inputs on the trigger input will cause Harmony to generate more E chords, but with different voicings. This can sound really good against a drone.
+
+Alternatively, the input may be changing two often, or not when you want it to. You often can solve this with an external Sample and Hold, but you can also use the Trig input. Make sure _retrig on notes and CV_ is off, and problem solved.
 
 ## Current Limitations
 

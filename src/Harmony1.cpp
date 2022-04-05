@@ -39,23 +39,28 @@ struct Harmony1Widget : ModuleWidget {
         addKeysig();
         addOutputs();
 
-        float stagger = 16;
+        float stagger = 30;
         float ySwitch = 170;
-        float xx = 34;
-        const float switchInset = 36;
+        float xx = vlx;
+     //   const float switchInset = 36;
 
-        addParam(createParam<CKSSThree>(Vec(xx + switchInset, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
-        addLabel(Vec(xx - 30, ySwitch), "Inv Pref");
+        addParam(createParam<CKSSThree>(Vec(xx, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
+        //addLabel(Vec(xx - 30, ySwitch), "Inv Pref");
 
-        ySwitch += 34;
+       // ySwitch += 34;
         xx += stagger;
-        addParam(createParam<CKSSThree>(Vec(xx + switchInset, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
-        addLabel(Vec(xx - 30, ySwitch), "Cent Pref");
+        addParam(createParam<CKSSThree>(Vec(xx, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
+       // addLabel(Vec(xx - 30, ySwitch), "Cent Pref");
 
-        ySwitch += 34;
+       // ySwitch += 34;
         xx += stagger;
-        addParam(createParam<CKSS>(Vec(xx + switchInset, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
-        addLabel(Vec(xx - 30, ySwitch), "NNIC Rule");
+        addParam(createParam<CKSS>(Vec(xx, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
+      //  addLabel(Vec(xx - 30, ySwitch), "NNIC Rule");
+
+// RoundBlackSnapKnob
+        auto param = createParam<RoundBlackKnob>(Vec(90, 240), module, Comp::TRANSPOSE_STEPS_PARAM);
+        addParam(param);
+        addLabel(Vec(77, 212), "X-pose");
     }
 
     void addOutputs() {
@@ -116,8 +121,6 @@ struct Harmony1Widget : ModuleWidget {
                                              Comp::HISTORY_SIZE_PARAM);
             theMenu->addChild(psm);
         }
-
-        
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SCORE_COLOR_PARAM);
         item->text = "Black notes on white paper";
