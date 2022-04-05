@@ -17,13 +17,16 @@ public:
     Accidental getAccidental() const { return accidental; }
     void transposeDegree(int amt) {
         scaleDegree += amt;
-        while (scaleDegree > 7) {
+        // only seven degrees in a diatonic scale
+        // Actually, this whole algorithm is assuming a seven note scale.
+        // Would need to pass in the scale to make it work with others.
+        while (scaleDegree > 6) {
             octave++;
-            scaleDegree -= 8;
+            scaleDegree -= 7;
         }
         while (scaleDegree < 0) {
             octave--;
-            scaleDegree += 8;
+            scaleDegree += 7;
         }
     }
 

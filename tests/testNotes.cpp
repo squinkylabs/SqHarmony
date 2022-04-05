@@ -156,19 +156,63 @@ static void testScaleNoteTrans() {
 }
 
 static void testScaleNoteTrans2() {
-    ScaleNote sn(7, 5);
+    ScaleNote sn(6, 5);
     sn.transposeDegree(1);
     assertEQ(sn.getDegree(), 0);
     assertEQ(sn.getOctave(), 6);
 }
 
-
 static void testScaleNoteTrans3() {
-    ScaleNote sn(0, 5); 
-    sn.transposeDegree(-7);
+    ScaleNote sn(0, 5);
+    sn.transposeDegree(-6);
     assertEQ(sn.getDegree(), 1);
     assertEQ(sn.getOctave(), 4);
 }
+
+static void testScaleNoteTrans4() {
+    Scale scale;
+    scale.set(MidiNote::C, Scale::Scales::Major);
+    ScaleNote sn(0, 4);  // start at middle C
+    MidiNote mn;
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC);
+
+    // second degree of CMaj is D
+    sn.transposeDegree(1);
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC + 2);
+
+    // third degree of CMaj is E
+    sn.transposeDegree(1);
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC + 2 + 2);
+
+     // fourth degree of CMaj is F
+    sn.transposeDegree(1);
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC + 5);
+
+    // fifth degree of CMaj is G
+    sn.transposeDegree(1);
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC + 7);
+
+    // sixth degree of CMaj is A
+    sn.transposeDegree(1);
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC + 9);
+
+    // seventy degree of CMaj is B
+    sn.transposeDegree(1);
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC + 11);
+
+    // 8th degree of CMaj is C up an octave
+    sn.transposeDegree(1);
+    NoteConvert::s2m(mn, scale, sn);
+    assertEQ(mn.get(), MidiNote::MiddleC + 12);
+}
+
 static void testScaleNoteToMidiD4() {
     Scale scale;
     scale.set(MidiNote::C, Scale::Scales::Major);
@@ -263,9 +307,11 @@ void testNotes() {
     testScaleNoteToMidiC5();
     testScaleNoteToMidiD4();
     testScaleNoteToMidiCsharp5();
+
     testScaleNoteTrans();
     testScaleNoteTrans2();
     testScaleNoteTrans3();
+    testScaleNoteTrans4();
 
     testMidiStaffX();
     testMidiStaffE();

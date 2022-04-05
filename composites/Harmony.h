@@ -306,21 +306,24 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
 
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
     assert(chordManager);
-    const MidiNote quantizedInput = inputQuantizer->run(input);
+    MidiNote quantizedInput = inputQuantizer->run(input);
   
 
     // now we could do xpose here if we convert to srn, then add, then convert back
     const int xposeSteps = int(std::round(Harmony<TBase>::params[TRANSPOSE_STEPS_PARAM].value));
     if (xposeSteps) {
+        const int x = quantizedInput.get();
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
-        assert(false);      // finish me
+        scaleNote.transposeDegree(xposeSteps);
+        NoteConvert::s2m(quantizedInput, *quantizerOptions->scale, scaleNote);
+        if (t) {
+            SQINFO("xpose %d steps. midi %d, %d xpose-midi=%d", xposeSteps, x, quantizedInput.get(), quantizedInput.get() - x );
+        }
     }
 
     FloatNote quantizedFloatNote;
     NoteConvert::m2f(quantizedFloatNote, quantizedInput);
-
-    
 
     // we don't need quantized note here, could use midi note
     const bool pitchChanged = (quantizedFloatNote.get() != lastQuantizedPitch);

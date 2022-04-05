@@ -77,17 +77,10 @@ static void tests2fCMajC4() {
 
 
 void testScaleNotes() {
-   
 
     testf2sCMajC4();
     testf2sCMajCsharp5();
-    
     tests2fCMajC4();
-
-
     testm2sRoundTrip();
     testf2sRoundTrip();
-
-
-
 }
