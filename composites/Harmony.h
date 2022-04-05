@@ -53,7 +53,7 @@ public:
     };
 
     enum OutputIds {
-        QUANTIZER_OUTPUT,
+        xQUANTIZER_OUTPUT,
         BASS_OUTPUT,
         TENOR_OUTPUT,
         ALTO_OUTPUT,
@@ -306,12 +306,24 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
 
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
     assert(chordManager);
-    MidiNote mn = inputQuantizer->run(input);
-    FloatNote quantizedNote;
-    NoteConvert::m2f(quantizedNote, mn);
-    Harmony<TBase>::outputs[QUANTIZER_OUTPUT].setVoltage(quantizedNote.get(), 0);
+    const MidiNote quantizedInput = inputQuantizer->run(input);
+  
 
-    const bool pitchChanged = (quantizedNote.get() != lastQuantizedPitch);
+    // now we could do xpose here if we convert to srn, then add, then convert back
+    const int xposeSteps = int(std::round(Harmony<TBase>::params[TRANSPOSE_STEPS_PARAM].value));
+    if (xposeSteps) {
+        ScaleNote scaleNote;
+        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
+        assert(false);      // finish me
+    }
+
+    FloatNote quantizedFloatNote;
+    NoteConvert::m2f(quantizedFloatNote, quantizedInput);
+
+    
+
+    // we don't need quantized note here, could use midi note
+    const bool pitchChanged = (quantizedFloatNote.get() != lastQuantizedPitch);
     const bool triggerOnBoth = Harmony<TBase>::params[RETRIGGER_CV_AND_NOTE_PARAM].value > .5;
     if (!triggerConnected || triggerOnBoth) {
         t |= pitchChanged;
@@ -320,7 +332,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     // generate a new chord any time the quantizer outputs a new pitch
     if (t) {
         ScaleNote scaleNote;
-        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
+        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
 #if 0
         SQINFO("trigger input=%f  input+5th=%f q=%d, q+7=%d this=%p", 
             input,input + 7.f / 12.f,  
@@ -375,7 +387,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
 #endif
         }
 
-        lastQuantizedPitch = quantizedNote.get();
+        lastQuantizedPitch = quantizedFloatNote.get();
     }
 
     if (mustUpdate) {

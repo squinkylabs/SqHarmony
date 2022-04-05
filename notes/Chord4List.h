@@ -23,7 +23,7 @@ private:
 };
 
 inline int Chord4List::size() const {
-    return chords.size();
+    return int(chords.size());
 }
 
 inline const Chord4* Chord4List::get2(int n) const {

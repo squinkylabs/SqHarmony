@@ -148,6 +148,27 @@ static void testScaleNoteToMidiCsharp5() {
     assertEQ(m.get(), MidiNote::C3 + (2 * 12) + 1);
 }
 
+static void testScaleNoteTrans() {
+    ScaleNote sn(3, 5);
+    assertEQ(sn.getDegree(), 3);
+    sn.transposeDegree(1);
+    assertEQ(sn.getDegree(), 4);
+}
+
+static void testScaleNoteTrans2() {
+    ScaleNote sn(7, 5);
+    sn.transposeDegree(1);
+    assertEQ(sn.getDegree(), 0);
+    assertEQ(sn.getOctave(), 6);
+}
+
+
+static void testScaleNoteTrans3() {
+    ScaleNote sn(0, 5); 
+    sn.transposeDegree(-7);
+    assertEQ(sn.getDegree(), 1);
+    assertEQ(sn.getOctave(), 4);
+}
 static void testScaleNoteToMidiD4() {
     Scale scale;
     scale.set(MidiNote::C, Scale::Scales::Major);
@@ -231,7 +252,7 @@ void testNotes() {
 
     testMidiToFloat();
     testMidiToFloat3();
-    //testFloatToMidi2();
+    // testFloatToMidi2();
     testFloatToMidiC5();
     testFloatMidiRoundTrip1();
     testFloatMidiRoundTrip2();
@@ -242,6 +263,9 @@ void testNotes() {
     testScaleNoteToMidiC5();
     testScaleNoteToMidiD4();
     testScaleNoteToMidiCsharp5();
+    testScaleNoteTrans();
+    testScaleNoteTrans2();
+    testScaleNoteTrans3();
 
     testMidiStaffX();
     testMidiStaffE();
@@ -250,7 +274,7 @@ void testNotes() {
     testMidiStaffC2();
     testMidiStaffC3();
     testMidiStaffLowA();
-   // testMidiBassStaffA();
+    // testMidiBassStaffA();
     testMidiStaffAll(false);
     testMidiStaffAll(true);
 }

@@ -24,7 +24,7 @@ public:
         return chords[n];
     }
     int size() const {
-        return chords.size();
+        return int(chords.size());
     }
     bool Generate(const Options& options, int Nlevel, bool show);  // ret true if ok!
 private:

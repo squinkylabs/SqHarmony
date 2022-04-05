@@ -21,6 +21,8 @@ public:
         this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
         this->configParam(Comp::RETRIGGER_CV_AND_NOTE_PARAM, 0, 1, 1, "Retrigger CV and Note");
         this->configParam(Comp::HISTORY_SIZE_PARAM, 0, 4, 0, "History Size");
+        this->configParam(Comp::TRANSPOSE_STEPS_PARAM, -7, 7, 0, "Transpose degrees");
+        this->configParam(Comp::TRIGGER_DELAY_PARAM, 0, 1, 1, "Trigger delay");
 
         this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 1, "Inversion preference", {"DONT_CARE", "DISCOURAGE_CONSECUTIVE", "DISCOURAGE"});
         this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "ENCOURAGE_CENTER", "NARROW_RANGE"});

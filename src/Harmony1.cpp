@@ -42,23 +42,23 @@ struct Harmony1Widget : ModuleWidget {
         float stagger = 30;
         float ySwitch = 170;
         float xx = vlx;
-     //   const float switchInset = 36;
+        //   const float switchInset = 36;
 
         addParam(createParam<CKSSThree>(Vec(xx, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
-        //addLabel(Vec(xx - 30, ySwitch), "Inv Pref");
+        // addLabel(Vec(xx - 30, ySwitch), "Inv Pref");
 
-       // ySwitch += 34;
+        // ySwitch += 34;
         xx += stagger;
         addParam(createParam<CKSSThree>(Vec(xx, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
-       // addLabel(Vec(xx - 30, ySwitch), "Cent Pref");
+        // addLabel(Vec(xx - 30, ySwitch), "Cent Pref");
 
-       // ySwitch += 34;
+        // ySwitch += 34;
         xx += stagger;
         addParam(createParam<CKSS>(Vec(xx, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
-      //  addLabel(Vec(xx - 30, ySwitch), "NNIC Rule");
+        //  addLabel(Vec(xx - 30, ySwitch), "NNIC Rule");
 
-// RoundBlackSnapKnob
-        auto param = createParam<RoundBlackKnob>(Vec(90, 240), module, Comp::TRANSPOSE_STEPS_PARAM);
+        // RoundBlackSnapKnob
+        auto param = createParam<RoundBlackSnapKnob>(Vec(90, 240), module, Comp::TRANSPOSE_STEPS_PARAM);
         addParam(param);
         addLabel(Vec(77, 212), "X-pose");
     }
@@ -104,11 +104,11 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void appendContextMenu(Menu* theMenu) override {
-       // MenuLabel* spacerLabel = new MenuLabel();
+        // MenuLabel* spacerLabel = new MenuLabel();
         theMenu->addChild(new MenuLabel());
         if (module) {
-           // std::vector<std::string> labels = {"off", "4", "8", "13"};
-           std::vector<std::string> labels = Comp::getHistoryLabels();
+            // std::vector<std::string> labels = {"off", "4", "8", "13"};
+            std::vector<std::string> labels = Comp::getHistoryLabels();
             float initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
             int intValue = int(initValue);
             SqStream s;
@@ -128,6 +128,10 @@ struct Harmony1Widget : ModuleWidget {
 
         item = new SqMenuItem_BooleanParam2(module, Comp::RETRIGGER_CV_AND_NOTE_PARAM);
         item->text = "Retrig. on notes and CV";
+        theMenu->addChild(item);
+
+        item = new SqMenuItem_BooleanParam2(module, Comp::TRIGGER_DELAY_PARAM);
+        item->text = "Trigger delay";
         theMenu->addChild(item);
     }
 
