@@ -188,6 +188,7 @@
     <ClCompile Include="testScaleRelativeNote.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
+    <ClCompile Include="testTempo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\composites\Harmony.h" />

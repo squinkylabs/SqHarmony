@@ -1,5 +1,9 @@
 # Changelog for Squinktronix plugins
 
+## 2.0.3
+
+Added X-pose and trigger delay for Harmony.
+
 ## 2.0.2
 
 ### Harmony
