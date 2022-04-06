@@ -5,6 +5,7 @@
 #include "Chord4Manager.h"
 #include "Divider.h"
 #include "FloatNote.h"
+#include "GateDelay.h"
 #include "GateTrigger.h"
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
@@ -145,6 +146,7 @@ private:
     Chord4ManagerPtr chordManager;
     HarmonyChords::ChordHistory chordHistory;
     GateTrigger triggerInputProc;
+    GateDelay gateDelay;
     float lastQuantizedPitch = -100;
     int count = 0;
     bool mustUpdate = false;
@@ -165,6 +167,7 @@ inline void Harmony<TBase>::init() {
 
     chordManager = std::make_shared<Chord4Manager>(*chordOptions);
     assert(chordManager->isValid());
+
 
     divn.setup(32, [this]() {
         this->stepn();
@@ -218,6 +221,9 @@ inline void Harmony<TBase>::stepn() {
     }
 
     chordHistory.setSize(historySize);
+
+    const bool gateDelayEnabled = bool(std::round(Harmony<TBase>::params[TRIGGER_DELAY_PARAM].value));
+    gateDelay.enableDelay(gateDelayEnabled);
 
     bool noNotesInCommon = Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
     auto style = chordOptions->style;
@@ -300,8 +306,17 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     const bool triggerConnected = Harmony<TBase>::inputs[TRIGGER_INPUT].isConnected();
     bool t = false;
     if (triggerConnected) {
-        triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
+
+#if 0
+       triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
         t = triggerInputProc.trigger();
+#else
+
+        gateDelay.process(Harmony<TBase>::inputs[TRIGGER_INPUT], 1);
+        bool gate = gateDelay.getGate(0);
+        triggerInputProc.go(gate ? 10.f : 0.f );
+        t = triggerInputProc.trigger();
+#endif
     }
 
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
