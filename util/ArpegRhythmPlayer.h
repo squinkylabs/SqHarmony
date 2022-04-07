@@ -6,6 +6,7 @@ class ArpegRhythmPlayer {
 public:
     ArpegRhythmPlayer(ArpegPlayer* underlying) : player(underlying) {}
     std::pair<float, float> clock();
+    std::tuple<bool, float, float> clock2();
     /**
      * once called, will cause a re-shuffle to happen at the end of current playback,
      * assuming in shuffle mode.
@@ -31,6 +32,16 @@ inline void ArpegRhythmPlayer::reset() {
 
 inline  std::pair<float, float> ArpegRhythmPlayer::clock() {
     std::pair<float, float> ret = player->clock();
+    if (length && (++counter >= length)) {
+        player->reset();
+        counter = 0;
+    }
+    return ret;
+}
+
+
+inline  std::tuple<bool, float, float> ArpegRhythmPlayer::clock2() {
+    std::tuple<bool, float, float> ret = player->clock2();
     if (length && (++counter >= length)) {
         player->reset();
         counter = 0;

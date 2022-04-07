@@ -31,6 +31,15 @@ public:
      */
     std::pair<float, float> clock();
 
+     /** 
+      * clock it and return the next note.
+      * At end of index it may reshuffle, but only if reFillOnIndex is true
+      * tuple 0: if false ignore
+      * tuple 1: cv 1
+      * tuple 2: cv 2
+      */
+    std::tuple<bool, float, float> clock2();
+
     /**
      * once called, will cause a re-shuffle to happen at the end of current playback,
      * assuming in shuffle mode.

@@ -27,23 +27,24 @@ static void testNewNoteAbove() {
     const int numInput = 4;
     auto stuff = TestStuff::make(input, numInput);
 
-    auto x = stuff->ap.clock();
-    assertEQ(x.first, 1);
-    assertEQ(x.second, 51);
-    x = stuff->ap.clock();
-    assertEQ(x.first, 2);
-    assertEQ(x.second, 52);
+    auto x = stuff->ap.clock2();
+    assert(std::get<0>(x));
+    assertEQ(std::get<1>(x), 1);
+    assertEQ(std::get<2>(x), 51);
+    x = stuff->ap.clock2();
+    assertEQ(std::get<1>(x), 2);
+    assertEQ(std::get<2>(x), 52);
 
     stuff->nb.push_back(10, 100, 4);  // add new note
-    x = stuff->ap.clock();
-    assertEQ(x.first, 3);
-    assertEQ(x.second, 50 + 3);
-    x = stuff->ap.clock();
-    assertEQ(x.first, 4);
-    assertEQ(x.second, 50+4);
-    x = stuff->ap.clock();
-    assertEQ(x.first, 10);
-    assertEQ(x.second, 100);
+    x = stuff->ap.clock2();
+    assertEQ(std::get<1>(x), 3);
+    assertEQ(std::get<2>(x), 50 + 3);
+    x = stuff->ap.clock2();
+    assertEQ(std::get<1>(x), 4);
+    assertEQ(std::get<2>(x), 50+4);
+    x = stuff->ap.clock2();
+    assertEQ(std::get<1>(x), 10);
+    assertEQ(std::get<2>(x), 100);
 }
 
 #define assertPair(pair, value) \

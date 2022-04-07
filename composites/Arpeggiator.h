@@ -206,12 +206,17 @@ inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
 
 template <class TBase>
 inline void Arpeggiator<TBase>::onClockChange(bool clockFired, bool clockValue) {
-    SQDEBUG("Arpeg::onClockChange, fired = %d value = %d", clockFired, clockValue);
+    // SQDEBUG("Arpeg::onClockChange, fired = %d value = %d", clockFired, clockValue);
     if (clockFired) {
-        const auto cvs = outerPlayer.clock();
-        // SQINFO("will output player out to CV: %f,%f", cvs.first, cvs.second);
-        TBase::outputs[CV_OUTPUT].setVoltage(cvs.first, 0);
-        TBase::outputs[CV2_OUTPUT].setVoltage(cvs.second, 0);
+        const auto cvs = outerPlayer.clock2();
+        if (std::get<0>(cvs)) {
+            // SQINFO("will output player out to CV: cv1=%f, cv2=%f", std::get<1>(cvs), std::get<2>(cvs));
+            TBase::outputs[CV_OUTPUT].setVoltage(std::get<1>(cvs), 0);
+            TBase::outputs[CV2_OUTPUT].setVoltage(std::get<2>(cvs), 0);
+        }
+        else {
+          //  SQINFO("ignoring clock on empty");
+        }
     }
 
     if (hiddenPlayer.empty()) {

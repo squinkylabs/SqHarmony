@@ -56,7 +56,7 @@ void HarmonySong::print() const {
     int nChord;
 
     assert(this);
-    const int size = chords.size();
+    const int size = int(chords.size());
     for (nChord = 0; nChord < size; nChord++) {
         chords[nChord]->print();
         std::cout << std::endl;
@@ -66,7 +66,7 @@ void HarmonySong::print() const {
 }
 
 void HarmonySong::analyze(const Options& options) const {
-    const int size = chords.size();
+    const int size = int(chords.size());
     for (int nChord = 1; nChord < size; nChord++) {
         ProgressionAnalyzer* p = new ProgressionAnalyzer(
             chords[nChord - 1]->fetch2(),
@@ -99,7 +99,7 @@ bool HarmonySong::isValid() const {
 
 bool HarmonySong::Generate(const Options& options, int nStep, bool show) {
     bool done, ret;
-    const int size = chords.size();
+    const int size = int(chords.size());
     // if (nStep < 5) printf("Just started level %d\n", nStep);
 
     chords[nStep]->reset();
