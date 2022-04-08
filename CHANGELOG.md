@@ -1,5 +1,9 @@
 # Changelog for Squinktronix plugins
 
+## 2.0.4
+
+Arpeg droop bug
+
 ## 2.0.3
 
 Added X-pose and trigger delay for Harmony.
