@@ -1,8 +1,12 @@
 # Changelog for Squinktronix plugins
 
+## 2.0.5
+
+Clock+Gate delay for Arpeggiator.
+
 ## 2.0.4
 
-Arpeg droop bug
+Arpeggiator pitch droop bug fixed.
 
 ## 2.0.3
 

@@ -95,6 +95,25 @@ The Length setting can really be useful when the hold switch is on. When hold is
 
 And, remember, when length is at its default, "0", it is really something very large, like 32.
 
+## More about clock and gate delay
+
+Many modules have a "gate delay" feature. Often it's on by default. Consider this case:
+
+* A "synth" module will "play" a note when the gate goes high.
+* For some synths, the pitch CV is only sampled when the note starts (when the gate goes high).
+* Gate and CV with both change on the same sample at the output of the MIDI-CV module.
+* It the user patches something to modify the pitch, like the VCV Octave module, it sill add a one sample delay to the pitch CV.
+
+In this case the correct pitch comes in one sample after the gate. So a synth module like this would capture then wrong CV, and the user would need to a) realize this, and b) find a one sample delay and patch that into the gate signal to equalize the delays.
+
+So we (and others) build a delay into our modules to delay the gate, and avoid these issues. A fixed delay of 5 samples is perfect. Undetectable, but will cover many patching delays.
+
+With Arpeggiator it's a little more complicated. Arpeggiator does sample the input pitch when the gate goes high, but it plays notes and its output when the clock input rises. So there are several ways that Arpeggiator could output the "wrong" thing if there are any delays between the CV, Gate, and Clock.
+
+For this reason, Arpeggiator has "Gate+Clock Delay". What this does is delay the gate input by 5 sample, but also delays the clock input by 10 samples. This will tend to correct for any mismatched delays between the three signals.
+
+Because the is a new feature, it is off by default in Arpeggiator. But if anything wonky happens, turn it on. It may fix it and is unlikely to hurt anything.
+
 ## More about reset and clock
 
 Depending on you settings, clock and reset will interact. In VCV the behavior or reset has always been a source of controversy and improper operation.

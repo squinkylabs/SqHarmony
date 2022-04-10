@@ -191,14 +191,12 @@ struct Arpeggiator1Widget : ModuleWidget {
     }
 
     Label* addLabel(const Vec& v, const std::string& str) {
-        // NVGcolor white = nvgRGB(0, 0, 0);
         NVGcolor white = nvgRGB(0xf0, 0xF0, 0xF0);
 
         Label* label = new Label();
         label->box.pos = v;
         label->text = str;
         label->color = white;
-      //  SQINFO("label size = %f\n", label->fontSize);
         label->fontSize = 12;       // 13 is default
         addChild(label);
         return label;
@@ -213,7 +211,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         theMenu->addChild(item);
 
         item = new SqMenuItem_BooleanParam2(module, Comp::GATE_DELAY_PARAM);
-        item->text = "Gate Delay";
+        item->text = "Gate+Clock Delay";
         theMenu->addChild(item);
     }
 };
