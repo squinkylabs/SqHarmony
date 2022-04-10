@@ -5,7 +5,7 @@
 
 
 static void testInit() {
-    GateDelay gd;
+    GateDelay<5> gd;
     Input input;
 
     for (int i=0; i<16; ++i) {
@@ -18,7 +18,7 @@ static void testNoDelay(unsigned channel, unsigned otherChannel) {
     assert(otherChannel < 16);
     assert(channel != otherChannel);
 
-    GateDelay gd;
+    GateDelay<5> gd;
     Input input;
 
     input.setVoltage(10, channel);
@@ -40,7 +40,7 @@ static void testWithDelay(unsigned channel, unsigned otherChannel) {
     assert(otherChannel < 16);
     assert(channel != otherChannel);
 
-    GateDelay gd;
+    GateDelay<5> gd;
     gd.enableDelay(true);
     Input input;
 
@@ -78,8 +78,43 @@ static void testWithDelay() {
      }
 }
 
+static void testDelay2() {
+    const int channel = 6;
+    GateDelay<2> gd;
+    gd.enableDelay(true);
+    Input input;
+
+    input.setVoltage(10, channel);
+    gd.process(input, 16);
+    assert(!gd.getGate(channel));
+   
+    gd.process(input, 16);
+    assert(!gd.getGate(channel));
+   
+    gd.process(input, 16);
+    assert(gd.getGate(channel));
+}
+
+static void testDelay2OneChannel() {
+    GateDelay<2> gd;
+    gd.enableDelay(true);
+    Input input;
+
+    input.setVoltage(10, 0);
+    gd.process(input, 1);
+    assert(!gd.getGate(0));
+
+    gd.process(input, 1);
+    assert(!gd.getGate(0));
+
+    gd.process(input, 1);
+    assert(gd.getGate(0));
+}
+
 void testGateDelay() {
     testInit();
     testNoDelay();
     testWithDelay();
+    testDelay2();
+    testDelay2OneChannel();
 }

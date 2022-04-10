@@ -97,7 +97,7 @@ private:
     ArpegPlayer hiddenPlayer{&noteBuffer};
     ArpegRhythmPlayer outerPlayer{&hiddenPlayer};
     SeqClock clock;
-    GateDelay gateDelay;
+    GateDelay<5> gateDelay;
     GateTrigger triggerInputProc;
 
     const int numModes = {int(modes().size())};

@@ -146,7 +146,7 @@ private:
     Chord4ManagerPtr chordManager;
     HarmonyChords::ChordHistory chordHistory;
     GateTrigger triggerInputProc;
-    GateDelay gateDelay;
+    GateDelay<5> gateDelay;
     float lastQuantizedPitch = -100;
     int count = 0;
     bool mustUpdate = false;
