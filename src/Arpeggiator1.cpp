@@ -32,7 +32,7 @@ inline void Arpeggiator1Module::addParams() {
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::POLY_PARAM, 0, 1, 0, "Poly");
     this->configParam(Comp::RESET_MODE_PARAM, 0, 1, 1, "Reset Mode");
-    this->configParam(Comp::GATE_DELAY_PARAM, 0, 1, 1, "Gate Delay");
+    this->configParam(Comp::GATE_DELAY_PARAM, 0, 1, 0, "Gate+clock Delay");
 
     this->configSwitch(Comp::HOLD_PARAM, 0, 1, 0, "Hold", {"off", "on"});
 

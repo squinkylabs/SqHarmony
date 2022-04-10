@@ -97,7 +97,8 @@ private:
     ArpegPlayer hiddenPlayer{&noteBuffer};
     ArpegRhythmPlayer outerPlayer{&hiddenPlayer};
     SeqClock clock;
-    GateDelay<5> gateDelay;
+    GateDelay<5> gateOnlyDelay;
+    GateDelay<10> clockOnlyDelay;
     GateTrigger triggerInputProc;
 
     const int numModes = {int(modes().size())};
@@ -124,8 +125,9 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
         highestGateProcessed = cvs;
         // for mono gates, just look at gate[0], but send to to all cv channels
         // SQDEBUG("gate delay will process mg input=%f", TBase::inputs[GATE_INPUT].getVoltage(0));
-        gateDelay.process(TBase::inputs[GATE_INPUT], gates);
-        const bool gate = gateDelay.getGate(0);
+        gateOnlyDelay.process(TBase::inputs[GATE_INPUT], gates);
+        const bool gate = gateOnlyDelay.getGate(0);
+        // SQINFO("mono gate saw %d", gate);
         if (gate != lastGate[0]) {
             lastGate[0] = gate;
             for (int ch = 0; ch < cvs; ++ch) {
@@ -134,9 +136,10 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
         }
     } else {
         highestGateProcessed = gates;
-        gateDelay.process(TBase::inputs[GATE_INPUT], gates);
+        gateOnlyDelay.process(TBase::inputs[GATE_INPUT], gates);
         for (int ch = 0; ch < gates; ++ch) {
-            const bool gate = gateDelay.getGate(ch);
+            const bool gate = gateOnlyDelay.getGate(ch);
+            // SQINFO("poly gate saw %d", gate);
             if (gate != lastGate[ch]) {
                 lastGate[ch] = gate;
                 onGateChange(ch, gate);
@@ -163,7 +166,10 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
         outerPlayer.armReShuffle();
     }
 
-    const float clockVoltageX = TBase::inputs[CLOCK_INPUT].getVoltage(0);
+  //  const float clockVoltageX = TBase::inputs[CLOCK_INPUT].getVoltage(0);
+    clockOnlyDelay.process(TBase::inputs[CLOCK_INPUT], 1);
+    const float clockVoltageX = clockOnlyDelay.getGate(0) ? 10.f : 0.f;
+    // SQINFO("clock V = %f", clockVoltageX);
     const float resetVoltage = TBase::inputs[RESET_INPUT].getVoltage(0);
     auto clockResults = clock.updateOnce(clockVoltageX, true, resetVoltage);
 
@@ -242,7 +248,7 @@ inline void Arpeggiator<TBase>::processParams() {
     //   const bool hold = bool(std::round(TBase::params[HOLD_PARAM].value));
 
     const bool resetMode = bool(std::round(TBase::params[RESET_MODE_PARAM].value));
-    const bool gateDelayEnabled = bool(std::round(TBase::params[GATE_DELAY_PARAM].value));
+    const bool delayEnabled = bool(std::round(TBase::params[GATE_DELAY_PARAM].value));
 
     int mode = 0;
     if (TBase::inputs[MODE_INPUT].isConnected()) {
@@ -271,5 +277,6 @@ inline void Arpeggiator<TBase>::processParams() {
     noteBuffer.setCapacity(length);
     noteBuffer.setHold(hold);
     clock.setResetMode(resetMode);
-    gateDelay.enableDelay(gateDelayEnabled);
+    gateOnlyDelay.enableDelay(delayEnabled);
+    clockOnlyDelay.enableDelay(delayEnabled);
 }
