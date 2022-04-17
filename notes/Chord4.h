@@ -10,6 +10,7 @@
 
 #include "ChordRelativeNote.h"
 #include "HarmonyNote.h"
+#include "RefMonitor.h"
 #include "ScaleRelativeNote.h"
 
 /**
@@ -54,7 +55,8 @@
 #define CHORD_SIZE 4
 #define OCTAVE_SPAN 1
 
-extern int __numChord4;
+//extern int __numChord4;
+extern RefMonitor theRefMonitor;
 
 class Options;
 using Chord4Ptr = std::shared_ptr<Chord4>;
@@ -74,6 +76,10 @@ class Chord4 {
 public:
     Chord4(const Options& options, int nDegree);  // pass scale degree in constructor
                                                   // This construct will advance us to valid guy
+    Chord4(const Chord4&) = delete;
+
+    // can't delete this - we use it to make a chord list
+   // const Chord4& operator = (const Chord4&) = delete;
 
     bool operator==(const Chord4& that) const {
         return _notes == that._notes;
@@ -83,7 +89,7 @@ public:
     ~Chord4();
 
     // just for hacky debugging support
-    void addRef();
+   // void addRef();
 
     /**
      * @brief makes a specific string, ex "E2A2C3A3", BUT:
@@ -121,6 +127,7 @@ public:
     int rank=0;             // lower rank is "better". Unique index into the chord lists.
 
 private:
+    bool alive = true;
     // friend ChordList;  // so he can "construct" us
 
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"

@@ -20,16 +20,18 @@ struct Harmony1Widget : ModuleWidget {
 
     Harmony1Widget(Harmony1Module* module) : hmodule(module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-4.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-5.svg")));
 
-#if 1
-        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
+#if 0
+      //  auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
+        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/gradient.svg")); 
         SvgWidget* logo = new SvgWidget();
         logo->setSvg(svg);
         addChild(logo);
 #endif
 
         addLabel(Vec(28, 5), "Harmony");
+        addLabel(Vec(22, 350), "Squinktronix");
 
         addInputL(Vec(vlx, 280), Comp::CV_INPUT, "Root");
         addScore(module);

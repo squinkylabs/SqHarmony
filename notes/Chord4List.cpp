@@ -13,16 +13,26 @@ static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
     return q1 > q2;
 }
 
+Chord4List::~Chord4List() {
+    SQINFO("dtor of chord list %p", this);
+    chords.clear();
+    SQINFO("dtor of chord list for rid of all, %d", int(chords.size()));
+}
+
 Chord4List::Chord4List(const Options& options, int rt) {
+     SQINFO("ctor of chord list %p", this);
     Chord4 referenceChord(options, rt);
+    theRefMonitor.validate(&referenceChord);
     for (bool done=false; !done; ) {
         Chord4Ptr newChord = std::make_shared<Chord4>();
+        SQINFO("about to assign %p to %p", &referenceChord, newChord.get());
         *newChord = referenceChord;
         if (!newChord->isValid()) {
             chords.clear();
             assert(chords.empty());
             return;
         }
+        theRefMonitor.validate(newChord.get());
         chords.push_back(newChord);   // put a chord in the list
         done = referenceChord.makeNext(options);  // advance to next chord
     }
@@ -37,4 +47,5 @@ Chord4List::Chord4List(const Options& options, int rt) {
     for (auto it : chords) {
         it->rank = rank++;
     }
+     SQINFO("ctor of chord list done %p", this);
 }

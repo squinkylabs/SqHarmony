@@ -49,7 +49,7 @@ static void validateRank(int root) {
     for (bool bDone = false; !bDone; ) {
         auto p = m.get2(root, num);
         if (p) {
-            assertEQ(p->rank, num)
+            assertEQ(p->rank, num);
             ++num;
         }
         else {

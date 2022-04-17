@@ -38,9 +38,9 @@ static Options makeOptions(bool minor) {
 
 static void test0(bool minor) {
     Options o = makeOptions(minor);
-    assert(__numChord4 == 0);
+    assert(theRefMonitor.get() == 0);
     Chord4 x(o, 1);
-    assert(__numChord4 == 1);
+    assert(theRefMonitor.get() == 1);
 }
 
 static void test0() {
@@ -103,12 +103,14 @@ static void testList(bool minor) {
     {
         Options o = makeOptions(minor);
         Chord4List l(o, 4);
-        assert(__numChord4 > 10);
+      //  assert(__numChord4 > 10);
+        assert(theRefMonitor.get() > 10);
         assert(l.size() > 10);
 
         const Chord4* c = l.get2(3);
     }
-    assert(__numChord4 == 0);
+   // assert(__numChord4 == 0);
+    assert(theRefMonitor.get() == 0);
 }
 
 static void testList() {
@@ -301,8 +303,18 @@ static void testMinMax() {
     testMinMax(true);
 }
 
+#if 0
+static void testLeaks() {
+    Options options = makeOptions(false);
+    Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);  // root chord
+    ConstChord4Ptr chord = lNorm->get2(0);
+    assert(chord);
+}
+#endif
+
 void testChord() {
-    assert(__numChord4 == 0);
+   // assert(__numChord4 == 0);
+    assert(theRefMonitor.get() == 0);
     test0();
     testRoot();
     testConstructor();
@@ -318,5 +330,6 @@ void testChord() {
     testRanges();
     testMinMax();
 
-    assert(__numChord4 == 0);
+ 
+     assert(theRefMonitor.get() == 0);
 }

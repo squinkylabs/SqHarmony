@@ -31,6 +31,10 @@ public:
     Harmony() : TBase() {
         init();
     }
+    ~Harmony() {
+        assert(!processing);
+        SQINFO("dtor of h composite %p", this);
+    }
 
     enum ParamIds {
         SCORE_COLOR_PARAM,  // 0 is white notes, 1 is black notes
@@ -150,6 +154,8 @@ private:
     float lastQuantizedPitch = -100;
     int count = 0;
     bool mustUpdate = false;
+
+    std::atomic<bool> processing{false};
 };
 
 template <class TBase>
@@ -167,7 +173,6 @@ inline void Harmony<TBase>::init() {
 
     chordManager = std::make_shared<Chord4Manager>(*chordOptions);
     assert(chordManager->isValid());
-
 
     divn.setup(32, [this]() {
         this->stepn();
@@ -282,7 +287,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     if (!chordsOut.full()) {
         chordsOut.push(c);
     } else {
-       // SQWARN("in outputPitches, no room for output\n");
+        // SQWARN("in outputPitches, no room for output\n");
     }
 }
 
@@ -297,6 +302,8 @@ inline void Harmony<TBase>::updateEverything() {
 
 template <class TBase>
 inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
+    assert(!processing);
+    processing = true;
     assert(chordManager->isValid());
     divn.step();
     if (mustUpdate) {
@@ -306,7 +313,6 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     const bool triggerConnected = Harmony<TBase>::inputs[TRIGGER_INPUT].isConnected();
     bool t = false;
     if (triggerConnected) {
-
 #if 0
        triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
         t = triggerInputProc.trigger();
@@ -314,7 +320,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
 
         gateDelay.process(Harmony<TBase>::inputs[TRIGGER_INPUT], 1);
         bool gate = gateDelay.getGate(0);
-        triggerInputProc.go(gate ? 10.f : 0.f );
+        triggerInputProc.go(gate ? 10.f : 0.f);
         t = triggerInputProc.trigger();
 #endif
     }
@@ -322,7 +328,6 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
     assert(chordManager);
     MidiNote quantizedInput = inputQuantizer->run(input);
-  
 
     // now we could do xpose here if we convert to srn, then add, then convert back
     const int xposeSteps = int(std::round(Harmony<TBase>::params[TRANSPOSE_STEPS_PARAM].value));
@@ -333,7 +338,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
         scaleNote.transposeDegree(xposeSteps);
         NoteConvert::s2m(quantizedInput, *quantizerOptions->scale, scaleNote);
         if (t) {
-            SQINFO("xpose %d steps. midi %d, %d xpose-midi=%d", xposeSteps, x, quantizedInput.get(), quantizedInput.get() - x );
+            SQINFO("xpose %d steps. midi %d, %d xpose-midi=%d", xposeSteps, x, quantizedInput.get(), quantizedInput.get() - x);
         }
     }
 
@@ -404,11 +409,11 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
             }
 #endif
         }
-
         lastQuantizedPitch = quantizedFloatNote.get();
     }
 
     if (mustUpdate) {
         updateEverything();
     }
+    processing = false;
 }

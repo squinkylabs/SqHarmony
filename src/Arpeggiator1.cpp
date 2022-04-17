@@ -95,11 +95,11 @@ struct RoundSmallBlackSnapKnob : RoundSmallBlackKnob {
 struct Arpeggiator1Widget : ModuleWidget {
     Arpeggiator1Widget(Arpeggiator1Module* module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-4.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-5.svg")));
 
       
 
-#if 1
+#if 0
         auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
         SvgWidget* logo = new SvgWidget();
         logo->setSvg(svg);
@@ -107,6 +107,7 @@ struct Arpeggiator1Widget : ModuleWidget {
 #endif
 
         addLabel(Vec(28, 5), "Arpeggiator");
+         addLabel(Vec(22, 350), "Squinktronix");
 
         float dy = 47;          // 44 a little  too close
         float yOut = 320;

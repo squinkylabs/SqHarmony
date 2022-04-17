@@ -169,5 +169,6 @@ void testHarmonyChords2() {
     testDMixo();
     testBPhryg();
     testHistory1();
-    assertEQ(__numChord4, 0);
+   // assertEQ(__numChord4, 0);
+    assert(theRefMonitor.get() == 0);
 }

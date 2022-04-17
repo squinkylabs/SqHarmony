@@ -293,5 +293,6 @@ void testHarmonyChords() {
     // this isn't a real test
     //test1to1();
 
-    assertEQ(__numChord4, 0);
+    //assertEQ(__numChord4, 0);
+    assert(theRefMonitor.get() == 0);
 }

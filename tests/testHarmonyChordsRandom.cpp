@@ -235,5 +235,5 @@ void testHarmonyChordsRandom() {
     testHiLo();
     testRand();
 
-    assertEQ(__numChord4, 0);
+    assert(theRefMonitor.get() == 0);
 }

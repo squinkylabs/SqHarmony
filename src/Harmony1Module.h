@@ -11,6 +11,9 @@ class Harmony1Module : public Module {
 public:
     std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);
 
+    ~Harmony1Module() {
+        INFO("-- dtor of HarmonyModule %p", this);
+    }
     Harmony1Module() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
 

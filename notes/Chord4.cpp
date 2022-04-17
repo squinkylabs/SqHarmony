@@ -10,18 +10,24 @@
 #include "KeysigOld.h"
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
+#include "RefMonitor.h"
 #include "ScaleRelativeNote.h"
 #include "SqLog.h"
 #include "Style.h"
 
-// int Chord4::size;
-
-int __numChord4 = 0;
+RefMonitor theRefMonitor;
 
 /*  Chord4::Chord4(int nRoot)
  */
 Chord4::Chord4(const Options& options, int nRoot) : root(nRoot) {
-    __numChord4++;
+  //  SQINFO("ctor1 of chord4 %p", this);
+    theRefMonitor.increment(this);
+   // __numChord4++;
+    static bool firstTime = true;
+    if (firstTime) {
+        theRefMonitor.dump();
+        firstTime = false;
+    }
     assert(root > 0 && root < 8);
 
     for (int i = 0; i < CHORD_SIZE; ++i) {
@@ -52,18 +58,27 @@ Chord4::Chord4(const Options& options, int nRoot) : root(nRoot) {
 
 // TODO: get rid of this!
 Chord4::Chord4() : root(1) {
+  //   SQINFO("ctor def of chord4 %p", this);
     valid = true;
-    __numChord4++;
+    //__numChord4++;
+    theRefMonitor.increment(this);
 }
 
 Chord4::~Chord4() {
-    __numChord4--;
-    assert(__numChord4 >= 0);
+  //  SQINFO("dtor of chord4 %p", this);
+    if (!alive) {
+        SQINFO("!!! possible dbl delete of chord4 %p am %s", this, toString().c_str());
+        assert(false);
+    }
+    alive = false;
+    theRefMonitor.decrement (this);
 }
 
+#if 0
 void Chord4::addRef() {
     __numChord4++;
 }
+#endif
 
 #if 0
 Chord4::Chord4(const Chord4& other) {
