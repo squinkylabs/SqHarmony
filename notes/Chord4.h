@@ -54,7 +54,8 @@
 #define CHORD_SIZE 4
 #define OCTAVE_SPAN 1
 
-extern int __numChord4;
+//extern int __numChord4;
+extern std::atomic<int> __numChord4;
 
 class Options;
 using Chord4Ptr = std::shared_ptr<Chord4>;
