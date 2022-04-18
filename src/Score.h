@@ -108,7 +108,7 @@ private:
 
     Harmony1Module *const module;
     std::list<Comp::Chord> chords;
-    bool whiteOnBlack = true;
+    bool whiteOnBlack = false;      // default to black notes for better look in module browser
 
     const std::string noteQuarterUp = u8"\ue1d5";
     const std::string noteQuarterDown = u8"\ue1d6";
