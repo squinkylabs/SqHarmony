@@ -95,7 +95,7 @@ struct RoundSmallBlackSnapKnob : RoundSmallBlackKnob {
 struct Arpeggiator1Widget : ModuleWidget {
     Arpeggiator1Widget(Arpeggiator1Module* module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-5.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/arpeggiator.svg")));
 
       
 
@@ -106,37 +106,43 @@ struct Arpeggiator1Widget : ModuleWidget {
         addChild(logo);
 #endif
 
+#ifdef _LAB
         addLabel(Vec(28, 5), "Arpeggiator");
+#endif
 
-        float dy = 47;          // 44 a little  too close
+       // float dy = 47;          // 44 a little  too close
+
         float yOut = 320;
-        float yIn2 = yOut -dy ;  
+        float yIn2 = 256;  
+        float yIn1 = 212;
 
-        float yIn1 = yIn2 - dy;
+      //  float xLeft = 10;
+      //  float dx = 45;          // 41 too close, used 43 for first test
 
-        float xLeft = 10;
-        float dx = 45;          // 41 too close, used 43 for first test
+        const float x1 = 19;
+        const float x2 = 63.3;
+        const float x3 = 108;
 
         // first row, yIn1
-        addInputL(Vec(xLeft + 0 * dx, yIn1), Comp::CLOCK_INPUT, "Clk");
-        addInputL(Vec(xLeft + 1 * dx, yIn1), Comp::RESET_INPUT, "Rst");
-        addInputL(Vec(xLeft + 2 * dx, yIn1), Comp::SHUFFLE_TRIGGER_INPUT, "Strig");
+        addInputL(Vec(x1, yIn1), Comp::CLOCK_INPUT, "Clk");
+        addInputL(Vec(x2, yIn1), Comp::RESET_INPUT, "Rst");
+        addInputL(Vec(x3, yIn1), Comp::SHUFFLE_TRIGGER_INPUT, "Strig");
 
         //  second row
-        addInputL(Vec(xLeft, yIn2), Comp::CV_INPUT, "CV");
-        addInputL(Vec(xLeft + dx, yIn2), Comp::CV2_INPUT, "CV2");
-        addInputL(Vec(xLeft + 2 * dx, yIn2), Comp::GATE_INPUT, "Gate");
+        addInputL(Vec(x1, yIn2), Comp::CV_INPUT, "CV");
+        addInputL(Vec(x2, yIn2), Comp::CV2_INPUT, "CV2");
+        addInputL(Vec(x3, yIn2), Comp::GATE_INPUT, "Gate");
        
 
         //  third row
-        addOutputL(Vec(xLeft, yOut), Comp::CV_OUTPUT, "CV");
-        addOutputL(Vec(xLeft + dx, yOut), Comp::CV2_OUTPUT, "CV2");
-        addOutputL(Vec(xLeft + 2 * dx, yOut), Comp::GATE_OUTPUT, "Gate");
+        addOutputL(Vec(x1, yOut), Comp::CV_OUTPUT, "CV");
+        addOutputL(Vec(x2, yOut), Comp::CV2_OUTPUT, "CV2");
+        addOutputL(Vec(x3, yOut), Comp::GATE_OUTPUT, "Gate");
 
         const float yMode = 42;
         std::vector<std::string> labels = Comp::modes();
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(38, yMode),
+            Vec(54, yMode),
             module,
             Comp::MODE_PARAM);
         p->box.size.x = 80;  // width
@@ -146,7 +152,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         p->setShortLabels(Comp::shortModes());
         addParam(p);
 
-        addInputL(Vec(xLeft, yMode), Comp::MODE_INPUT);
+        addInputL(Vec(x1, yMode), Comp::MODE_INPUT);
 
         // RoundBigBlackKnob
         //
@@ -156,31 +162,39 @@ struct Arpeggiator1Widget : ModuleWidget {
 
         auto param = createParam<RoundBigBlackSnapKnob>(Vec(knobLeft, yKnob), module, Comp::LENGTH_PARAM);
         addParam(param);
+    #ifdef _LAB
         addLabel(Vec(knobLeft - 8, yKnob - 28), "Length");
-
+#endif
         auto param2 = createParam<RoundBigBlackSnapKnob>(Vec(knobLeft + 22 + dx2, yKnob), module, Comp::BEATS_PARAM);
         addParam(param2);
+#ifdef _LAB
         addLabel(Vec(knobLeft + 22 + dx2, yKnob - 28), "Beats");
-
-        float yHold = 70;
-        addParam(createParam<CKSS>(Vec(knobLeft + 30, yHold + 10), module, Comp::HOLD_PARAM));
+#endif
+       // float yHold = 70;
+        addParam(createParam<CKSS>(Vec(54, 79), module, Comp::HOLD_PARAM));
+#ifdef _LAB
         addLabel(Vec(knobLeft + 46, yHold + 9), "Hold");
-        addInputL(Vec(10, yHold + 8), Comp::HOLD_INPUT, "");
+#endif
+        addInputL(Vec(x1, 77), Comp::HOLD_INPUT, "");
     }
 
     void addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
         // assert(module);
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         const float xOffset = -4 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
+    
         addLabel(vlabel, text);
+#endif
     }
 
     void addInputL(const Vec& vec, int outputNumber, const std::string& text = "") {
         // assert(module);
         addInput(createInput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
         if (!text.empty()) {
             Vec vlabel(vec.x, vec.y);
             vlabel.y -= 20;
@@ -188,6 +202,7 @@ struct Arpeggiator1Widget : ModuleWidget {
             vlabel.x -= xOffset;
             addLabel(vlabel, text);
         }
+#endif
     }
 
     Label* addLabel(const Vec& v, const std::string& str) {
