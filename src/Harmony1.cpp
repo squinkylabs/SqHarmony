@@ -20,7 +20,7 @@ struct Harmony1Widget : ModuleWidget {
 
     Harmony1Widget(Harmony1Module* module) : hmodule(module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-5.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/harmony.svg")));
 
 #if 0
         auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
@@ -29,51 +29,44 @@ struct Harmony1Widget : ModuleWidget {
         addChild(logo);
 #endif
 
+#ifdef _LAB
         addLabel(Vec(28, 5), "Harmony");
-
-        addInputL(Vec(vlx, 280), Comp::CV_INPUT, "Root");
+#endif
+        addInputL(Vec(34, 259.76), Comp::CV_INPUT, "Root");
         addScore(module);
-        addInputL(Vec(vlx + 1 * vdelta, 280), Comp::TRIGGER_INPUT, "Trig");
+        addInputL(Vec(93, 259.79), Comp::TRIGGER_INPUT, "Trig");
         // addScore(module);
 
         addKeysig();
         addOutputs();
 
-        float stagger = 30;
-        float ySwitch = 170;
-        float xx = vlx;
-        //   const float switchInset = 36;
+        float ySwitch = 193;
 
-        addParam(createParam<CKSSThree>(Vec(xx, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
-        // addLabel(Vec(xx - 30, ySwitch), "Inv Pref");
+        addParam(createParam<CKSSThree>(Vec(14, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
+        addParam(createParam<CKSSThree>(Vec(38, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
+        addParam(createParam<CKSS>(Vec(66, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
 
-        // ySwitch += 34;
-        xx += stagger;
-        addParam(createParam<CKSSThree>(Vec(xx, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
-        // addLabel(Vec(xx - 30, ySwitch), "Cent Pref");
-
-        // ySwitch += 34;
-        xx += stagger;
-        addParam(createParam<CKSS>(Vec(xx, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
-        //  addLabel(Vec(xx - 30, ySwitch), "NNIC Rule");
 
         // RoundBlackSnapKnob
-        auto param = createParam<RoundBlackSnapKnob>(Vec(90, 240), module, Comp::TRANSPOSE_STEPS_PARAM);
+        auto param = createParam<RoundBlackSnapKnob>(Vec(109, 196), module, Comp::TRANSPOSE_STEPS_PARAM);
         addParam(param);
+#ifdef _LAB
         addLabel(Vec(77, 212), "X-pose");
+#endif
     }
 
     void addOutputs() {
-        addOutputL(Vec(vlx + 0 * vdelta, vy), Comp::BASS_OUTPUT, "B");
-        addOutputL(Vec(vlx + 1 * vdelta, vy), Comp::TENOR_OUTPUT, "T");
-        addOutputL(Vec(vlx + 2 * vdelta, vy), Comp::ALTO_OUTPUT, "A");
-        addOutputL(Vec(vlx + 3 * vdelta, vy), Comp::SOPRANO_OUTPUT, "S");
+        const float y = 317;
+        addOutputL(Vec(19, y), Comp::BASS_OUTPUT, "B");
+        addOutputL(Vec(46, y), Comp::TENOR_OUTPUT, "T");
+        addOutputL(Vec(79, y), Comp::ALTO_OUTPUT, "A");
+        addOutputL(Vec(109, y), Comp::SOPRANO_OUTPUT, "S");
 
-        const float labelY = vy + 24;
-        voiceLabels[0] = addLabel(Vec(vlx + 0 * vdelta, labelY), "");
-        voiceLabels[1] = addLabel(Vec(vlx + 1 * vdelta, labelY), "");
-        voiceLabels[2] = addLabel(Vec(vlx + 2 * vdelta, labelY), "");
-        voiceLabels[3] = addLabel(Vec(vlx + 3 * vdelta, labelY), "");
+        const float labelY = 341;
+        voiceLabels[0] = addLabel(Vec(19, labelY), "");
+        voiceLabels[1] = addLabel(Vec(46, labelY), "");
+        voiceLabels[2] = addLabel(Vec(79, labelY), "");
+        voiceLabels[3] = addLabel(Vec(109, labelY), "");
     }
 
     void addKeysig() {
@@ -162,20 +155,24 @@ struct Harmony1Widget : ModuleWidget {
     void
     addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 18;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
+#endif
     }
 
     void addInputL(const Vec& vec, int outputNumber, const std::string& text) {
         addInput(createInput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
+#endif
     }
 
     Label* addLabel(const Vec& v, const std::string& str) {
@@ -191,10 +188,10 @@ struct Harmony1Widget : ModuleWidget {
 
 void Harmony1Widget::addScore(Harmony1Module* module) {
     _score = new Score(module);
-    auto size = Vec(120, 97);  // was 100
+    auto size = Vec(134, 109);  // was 100
     auto vu = new BufferingParent(_score, size, _score);
 
-    vu->box.pos = Vec(7, 26),
+    vu->box.pos = Vec(8, 28),
     addChild(vu);
 }
 

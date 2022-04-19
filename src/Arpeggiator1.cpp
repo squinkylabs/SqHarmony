@@ -97,8 +97,6 @@ struct Arpeggiator1Widget : ModuleWidget {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/arpeggiator.svg")));
 
-      
-
 #if 0
         auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
         SvgWidget* logo = new SvgWidget();
@@ -110,14 +108,9 @@ struct Arpeggiator1Widget : ModuleWidget {
         addLabel(Vec(28, 5), "Arpeggiator");
 #endif
 
-       // float dy = 47;          // 44 a little  too close
-
         float yOut = 320;
-        float yIn2 = 256;  
+        float yIn2 = 256;
         float yIn1 = 212;
-
-      //  float xLeft = 10;
-      //  float dx = 45;          // 41 too close, used 43 for first test
 
         const float x1 = 19;
         const float x2 = 63.3;
@@ -132,7 +125,6 @@ struct Arpeggiator1Widget : ModuleWidget {
         addInputL(Vec(x1, yIn2), Comp::CV_INPUT, "CV");
         addInputL(Vec(x2, yIn2), Comp::CV2_INPUT, "CV2");
         addInputL(Vec(x3, yIn2), Comp::GATE_INPUT, "Gate");
-       
 
         //  third row
         addOutputL(Vec(x1, yOut), Comp::CV_OUTPUT, "CV");
@@ -154,23 +146,16 @@ struct Arpeggiator1Widget : ModuleWidget {
 
         addInputL(Vec(x1, yMode), Comp::MODE_INPUT);
 
-        // RoundBigBlackKnob
-        //
-        float yKnob = 150;
-        float knobLeft = 14;  // 20 too far right
-        float dx2 = 40;
-
-        auto param = createParam<RoundBigBlackSnapKnob>(Vec(knobLeft, yKnob), module, Comp::LENGTH_PARAM);
+        auto param = createParam<RoundBigBlackSnapKnob>(Vec(86, 131), module, Comp::LENGTH_PARAM);
         addParam(param);
-    #ifdef _LAB
+#ifdef _LAB
         addLabel(Vec(knobLeft - 8, yKnob - 28), "Length");
 #endif
-        auto param2 = createParam<RoundBigBlackSnapKnob>(Vec(knobLeft + 22 + dx2, yKnob), module, Comp::BEATS_PARAM);
+        auto param2 = createParam<RoundBigBlackSnapKnob>(Vec(19, 131), module, Comp::BEATS_PARAM);
         addParam(param2);
 #ifdef _LAB
         addLabel(Vec(knobLeft + 22 + dx2, yKnob - 28), "Beats");
 #endif
-       // float yHold = 70;
         addParam(createParam<CKSS>(Vec(54, 79), module, Comp::HOLD_PARAM));
 #ifdef _LAB
         addLabel(Vec(knobLeft + 46, yHold + 9), "Hold");
@@ -186,7 +171,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         vlabel.y -= 20;
         const float xOffset = -4 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
-    
+
         addLabel(vlabel, text);
 #endif
     }
@@ -198,7 +183,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         if (!text.empty()) {
             Vec vlabel(vec.x, vec.y);
             vlabel.y -= 20;
-            const float xOffset = -4 +text.size() * 2.5;  // crude attempt to center text.
+            const float xOffset = -4 + text.size() * 2.5;  // crude attempt to center text.
             vlabel.x -= xOffset;
             addLabel(vlabel, text);
         }
@@ -212,7 +197,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         label->box.pos = v;
         label->text = str;
         label->color = white;
-        label->fontSize = 12;       // 13 is default
+        label->fontSize = 12;  // 13 is default
         addChild(label);
         return label;
     }
