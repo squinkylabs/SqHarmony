@@ -56,7 +56,7 @@ public:
     enum OutputIds {
         CV_OUTPUT,
         GATE_OUTPUT,
-        EOC_OUTPUT,
+        EOC_OUTPUT_unused,
         CV2_OUTPUT,
         NUM_OUTPUTS
     };

@@ -2,6 +2,7 @@
 #include "Arpeggiator.h"
 #include "PopupMenuParamWidget.h"
 #include "SqMenuItem.h"
+#include "SqStream.h"
 #include "WidgetComposite.h"
 #include "plugin.hpp"
 
@@ -26,27 +27,75 @@ private:
 
 inline void Arpeggiator1Module::addParams() {
     const auto numModes = Comp::modes().size();
-    this->configParam(Comp::MODE_PARAM, 0, numModes - 1, 0, "Arpeggiator Mode");
-    this->configParam(Comp::LENGTH_PARAM, 0, 12, 0, "Note Buffer Length");
-    this->configParam(Comp::BEATS_PARAM, 0, 12, 0, "Number of Beats");
+    class ModeParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            int value = int((std::round(getValue())));
+            return ((value >= 0) && value < int(labels.size())) ? labels[value] : "";
+        }
+
+    private:
+        std::vector<std::string> labels = Comp::modes();
+    };
+    this->configParam<ModeParam>(Comp::MODE_PARAM, 0, numModes - 1, 0, "Arpeggiator Mode");
+
+    //
+    class LimitParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            const int value = int((std::round(getValue())));
+            std::string tip;
+            if (value <= 0) {
+                // value = 32;
+                tip = "(natural:32)";
+            } else {
+                SqStream s;
+                s.add(value);
+                tip = s.str();
+            }
+            return tip;
+        }
+    };
+    this->configParam<LimitParam>(Comp::LENGTH_PARAM, 0, 16, 0, "Note Buffer Length");
+
+    class BeatsParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            const int value = int((std::round(getValue())));
+            std::string tip;
+            if (value <= 0) {
+                tip = "(natural)";
+            } else {
+                SqStream s;
+                s.add(value);
+                tip = s.str();
+            }
+
+            return tip;
+        }
+    };
+
+    this->configParam<BeatsParam>(Comp::BEATS_PARAM, 0, 16, 0, "Number of Beats");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::POLY_PARAM, 0, 1, 0, "Poly");
     this->configParam(Comp::RESET_MODE_PARAM, 0, 1, 1, "Reset Mode");
     this->configParam(Comp::GATE_DELAY_PARAM, 0, 1, 0, "Gate+clock Delay");
 
-    this->configSwitch(Comp::HOLD_PARAM, 0, 1, 0, "Hold", {"off", "on"});
+    this->configSwitch(Comp::HOLD_PARAM, 0, 1, 0, "Hold", {"off - notes stop when gate goes low", "on - notes stay active until hold turned off"});
 
     this->configInput(Comp::SHUFFLE_TRIGGER_INPUT, "trigger to re-shuffle the notes (in shuffle mode)");
-    this->configInput(Comp::GATE_INPUT, "Gate");
-    this->configInput(Comp::CV_INPUT, "V/Oct");
+    this->configInput(Comp::GATE_INPUT, "Gate (polyphonic)");
+    this->configInput(Comp::CV_INPUT, "CV 1 (polyphonic)");
+    this->configInput(Comp::CV2_INPUT, "CV 2 (polyphonic)");
     this->configInput(Comp::CLOCK_INPUT, "Clock");
-    this->configInput(Comp::RESET_INPUT, "Reset");
-    this->configInput(Comp::HOLD_INPUT, "Hold");
-    this->configInput(Comp::MODE_INPUT, "Mode");
+    this->configInput(Comp::RESET_INPUT, "Reset (choose mode in menu)");
+    this->configInput(Comp::HOLD_INPUT, "Hold - overrides control when patched");
+    this->configInput(Comp::MODE_INPUT, "Mode - overrides control when patched");
 
-    this->configOutput(Comp::CV_OUTPUT, "V/Oct");
+    this->configOutput(Comp::CV_OUTPUT, "CV 1");
+    this->configOutput(Comp::CV2_OUTPUT, "CV 2");
     this->configOutput(Comp::GATE_OUTPUT, "Gate");
-    this->configOutput(Comp::EOC_OUTPUT, "End of pattern");
+   // this->configOutput(Comp::EOC_OUTPUT, "End of pattern");
 }
 
 #if 0
