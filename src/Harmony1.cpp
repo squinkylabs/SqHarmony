@@ -55,11 +55,14 @@ struct Harmony1Widget : ModuleWidget {
         addOutputL(Vec(79, y), Comp::ALTO_OUTPUT, "A");
         addOutputL(Vec(109, y), Comp::SOPRANO_OUTPUT, "S");
 
-        const float labelY = 341;
+        const float labelY = 337;
         voiceLabels[0] = addLabel(Vec(19, labelY), "");
-        voiceLabels[1] = addLabel(Vec(46, labelY), "");
+        voiceLabels[1] = addLabel(Vec(49, labelY), "");
         voiceLabels[2] = addLabel(Vec(79, labelY), "");
         voiceLabels[3] = addLabel(Vec(109, labelY), "");
+        for (int i=0; i<4; ++i) {
+            voiceLabels[i]->fontSize = 11;
+        }
     }
 
     void addKeysig() {
@@ -131,6 +134,7 @@ struct Harmony1Widget : ModuleWidget {
             // process the voice indicators
             for (int i = 0; i < 4; ++i) {
                 const int ch = hmodule->comp->getOutputChannels(i);
+                //INFO("chan[%d] = %d", i, ch);
                 if (ch != voicesLastTime[i]) {
                     voicesLastTime[i] = ch;
                     std::string newLabel;
