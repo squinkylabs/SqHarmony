@@ -22,25 +22,18 @@ struct Harmony1Widget : ModuleWidget {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/harmony.svg")));
 
-#if 0
-        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
-        SvgWidget* logo = new SvgWidget();
-        logo->setSvg(svg);
-        addChild(logo);
-#endif
-
 #ifdef _LAB
         addLabel(Vec(28, 5), "Harmony");
 #endif
-        addInputL(Vec(34, 259.76), Comp::CV_INPUT, "Root");
+        addInputL(Vec(34, 257.76), Comp::CV_INPUT, "Root");
         addScore(module);
-        addInputL(Vec(93, 259.79), Comp::TRIGGER_INPUT, "Trig");
+        addInputL(Vec(93, 257.79), Comp::TRIGGER_INPUT, "Trig");
         // addScore(module);
 
         addKeysig();
         addOutputs();
 
-        float ySwitch = 193;
+        float ySwitch = 187;
 
         addParam(createParam<CKSSThree>(Vec(14, ySwitch), module, Comp::INVERSION_PREFERENCE_PARAM));
         addParam(createParam<CKSSThree>(Vec(38, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
@@ -48,7 +41,7 @@ struct Harmony1Widget : ModuleWidget {
 
 
         // RoundBlackSnapKnob
-        auto param = createParam<RoundBlackSnapKnob>(Vec(109, 196), module, Comp::TRANSPOSE_STEPS_PARAM);
+        auto param = createParam<RoundBlackSnapKnob>(Vec(102, 190), module, Comp::TRANSPOSE_STEPS_PARAM);
         addParam(param);
 #ifdef _LAB
         addLabel(Vec(77, 212), "X-pose");
@@ -58,7 +51,7 @@ struct Harmony1Widget : ModuleWidget {
     void addOutputs() {
         const float y = 317;
         addOutputL(Vec(19, y), Comp::BASS_OUTPUT, "B");
-        addOutputL(Vec(46, y), Comp::TENOR_OUTPUT, "T");
+        addOutputL(Vec(49, y), Comp::TENOR_OUTPUT, "T");
         addOutputL(Vec(79, y), Comp::ALTO_OUTPUT, "A");
         addOutputL(Vec(109, y), Comp::SOPRANO_OUTPUT, "S");
 
@@ -70,11 +63,11 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void addKeysig() {
-        const float yScale = 136;  // was 140
+        const float yScale = 135;  
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(7, yScale),
+            Vec(8, yScale),
             module,
             Comp::KEY_PARAM);
         p->setLabels(Scale::getRootLabels());
@@ -84,7 +77,7 @@ struct Harmony1Widget : ModuleWidget {
         addParam(p);
 
         p = createParam<PopupMenuParamWidget>(
-            Vec(57, yMode),
+            Vec(74, yMode),
             module,
             Comp::MODE_PARAM);
         p->setShortLabels(Scale::getShortScaleLabels(true));
@@ -188,7 +181,7 @@ struct Harmony1Widget : ModuleWidget {
 
 void Harmony1Widget::addScore(Harmony1Module* module) {
     _score = new Score(module);
-    auto size = Vec(134, 109);  // was 100
+    auto size = Vec(134, 100); 
     auto vu = new BufferingParent(_score, size, _score);
 
     vu->box.pos = Vec(8, 28),
