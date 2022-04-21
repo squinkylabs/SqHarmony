@@ -16,7 +16,7 @@ If the hold mode is enabled, and the length set low (like 8) is acts more like a
 
 A very basic application is using a keyboard as input, and outputting a pitch to a synth patch. Patch the V/Oct and Gate output of the MIDI-CV module to the Arpeggiator inputs. Hook up an external clock and you are in business. Make sure the polyphony is set to something reasonable (like 4).
 
-Here is a simple working patch. Please excuse the (for now) out-dated panel image:
+Here is a simple working patch. In this example we went for the super cliché, and used CV2 for keyboard velocity, and routed this to a simple VCA to control the volume from the velocity.
 ![Simple Patch screen shot](./arp-tldr.png)
 
 ## The modes
@@ -130,5 +130,8 @@ This reset mode is often called "Nord mode" because it is how the original Nord 
 
 ## Block diagram
 
+Aside from being nice looking, it may help understand what's going in. For one thing, you can see that the not buffer holds all the recent notes/voltages that were input. And that input of data is controlled only by CV and Gate. That is all totally independent of the arpeggiation, which is applied as data is copied from the note buffer to the playback buffer. There data is played over and over until something happens to make Arpeggiator copy from the note buffer again.
+
+You can also see the reset logic only resets the playback buffer, it does not effect the note buffer.
 ![Arpeggiator block diagram](./arpeggiator.svg)
 
