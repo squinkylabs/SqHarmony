@@ -12,14 +12,14 @@
 			"slug": "sqh-harmony1",
 			"name": "Harmony 1",
 			"description": "Harmony Generator",
-			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/b4/docs/harmony.md",
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/harmony.md",
 			"tags": []
 		},
 		{
 			"slug": "sqh-arpeggiator1",
 			"name": "Arpeggiator 1",
 			"description": "Arpeggiator",
-			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/b4/docs/arpeggiator.md",
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/arpeggiator.md",
 			"tags": ["Arpeggiator", "Polyphonic"]
 		}
     ]
