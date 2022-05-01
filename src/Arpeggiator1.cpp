@@ -2,6 +2,7 @@
 #include "Arpeggiator.h"
 #include "PopupMenuParamWidget.h"
 #include "SqMenuItem.h"
+#include "SqStream.h"
 #include "WidgetComposite.h"
 #include "plugin.hpp"
 
@@ -26,27 +27,75 @@ private:
 
 inline void Arpeggiator1Module::addParams() {
     const auto numModes = Comp::modes().size();
-    this->configParam(Comp::MODE_PARAM, 0, numModes - 1, 0, "Arpeggiator Mode");
-    this->configParam(Comp::LENGTH_PARAM, 0, 12, 0, "Note Buffer Length");
-    this->configParam(Comp::BEATS_PARAM, 0, 12, 0, "Number of Beats");
+    class ModeParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            int value = int((std::round(getValue())));
+            return ((value >= 0) && value < int(labels.size())) ? labels[value] : "";
+        }
+
+    private:
+        std::vector<std::string> labels = Comp::modes();
+    };
+    this->configParam<ModeParam>(Comp::MODE_PARAM, 0, numModes - 1, 0, "Arpeggiator Mode");
+
+    //
+    class LimitParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            const int value = int((std::round(getValue())));
+            std::string tip;
+            if (value <= 0) {
+                // value = 32;
+                tip = "(natural:32)";
+            } else {
+                SqStream s;
+                s.add(value);
+                tip = s.str();
+            }
+            return tip;
+        }
+    };
+    this->configParam<LimitParam>(Comp::LENGTH_PARAM, 0, 16, 0, "Note Buffer Length");
+
+    class BeatsParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            const int value = int((std::round(getValue())));
+            std::string tip;
+            if (value <= 0) {
+                tip = "(natural)";
+            } else {
+                SqStream s;
+                s.add(value);
+                tip = s.str();
+            }
+
+            return tip;
+        }
+    };
+
+    this->configParam<BeatsParam>(Comp::BEATS_PARAM, 0, 16, 0, "Number of Beats");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::POLY_PARAM, 0, 1, 0, "Poly");
     this->configParam(Comp::RESET_MODE_PARAM, 0, 1, 1, "Reset Mode");
-    this->configParam(Comp::GATE_DELAY_PARAM, 0, 1, 1, "Gate Delay");
+    this->configParam(Comp::GATE_DELAY_PARAM, 0, 1, 0, "Gate+clock Delay");
 
-    this->configSwitch(Comp::HOLD_PARAM, 0, 1, 0, "Hold", {"off", "on"});
+    this->configSwitch(Comp::HOLD_PARAM, 0, 1, 0, "Hold", {"off - notes stop when gate goes low", "on - notes stay active until hold turned off"});
 
     this->configInput(Comp::SHUFFLE_TRIGGER_INPUT, "trigger to re-shuffle the notes (in shuffle mode)");
-    this->configInput(Comp::GATE_INPUT, "Gate");
-    this->configInput(Comp::CV_INPUT, "V/Oct");
+    this->configInput(Comp::GATE_INPUT, "Gate (polyphonic)");
+    this->configInput(Comp::CV_INPUT, "CV 1 (polyphonic)");
+    this->configInput(Comp::CV2_INPUT, "CV 2 (polyphonic)");
     this->configInput(Comp::CLOCK_INPUT, "Clock");
-    this->configInput(Comp::RESET_INPUT, "Reset");
-    this->configInput(Comp::HOLD_INPUT, "Hold");
-    this->configInput(Comp::MODE_INPUT, "Mode");
+    this->configInput(Comp::RESET_INPUT, "Reset (choose mode in menu)");
+    this->configInput(Comp::HOLD_INPUT, "Hold - overrides control when patched");
+    this->configInput(Comp::MODE_INPUT, "Mode - overrides control when patched");
 
-    this->configOutput(Comp::CV_OUTPUT, "V/Oct");
+    this->configOutput(Comp::CV_OUTPUT, "CV 1");
+    this->configOutput(Comp::CV2_OUTPUT, "CV 2");
     this->configOutput(Comp::GATE_OUTPUT, "Gate");
-    this->configOutput(Comp::EOC_OUTPUT, "End of pattern");
+   // this->configOutput(Comp::EOC_OUTPUT, "End of pattern");
 }
 
 #if 0
@@ -95,48 +144,46 @@ struct RoundSmallBlackSnapKnob : RoundSmallBlackKnob {
 struct Arpeggiator1Widget : ModuleWidget {
     Arpeggiator1Widget(Arpeggiator1Module* module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel-4.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/arpeggiator.svg")));
 
-      
-
-#if 1
+#if 0
         auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
         SvgWidget* logo = new SvgWidget();
         logo->setSvg(svg);
         addChild(logo);
 #endif
 
+#ifdef _LAB
         addLabel(Vec(28, 5), "Arpeggiator");
+#endif
 
-        float dy = 47;          // 44 a little  too close
         float yOut = 320;
-        float yIn2 = yOut -dy ;  
+        float yIn2 = 256;
+        float yIn1 = 212;
 
-        float yIn1 = yIn2 - dy;
-
-        float xLeft = 10;
-        float dx = 45;          // 41 too close, used 43 for first test
+        const float x1 = 19;
+        const float x2 = 63.3;
+        const float x3 = 108;
 
         // first row, yIn1
-        addInputL(Vec(xLeft + 0 * dx, yIn1), Comp::CLOCK_INPUT, "Clk");
-        addInputL(Vec(xLeft + 1 * dx, yIn1), Comp::RESET_INPUT, "Rst");
-        addInputL(Vec(xLeft + 2 * dx, yIn1), Comp::SHUFFLE_TRIGGER_INPUT, "Strig");
+        addInputL(Vec(x1, yIn1), Comp::CLOCK_INPUT, "Clk");
+        addInputL(Vec(x2, yIn1), Comp::RESET_INPUT, "Rst");
+        addInputL(Vec(x3, yIn1), Comp::SHUFFLE_TRIGGER_INPUT, "Strig");
 
         //  second row
-        addInputL(Vec(xLeft, yIn2), Comp::CV_INPUT, "CV");
-        addInputL(Vec(xLeft + dx, yIn2), Comp::CV2_INPUT, "CV2");
-        addInputL(Vec(xLeft + 2 * dx, yIn2), Comp::GATE_INPUT, "Gate");
-       
+        addInputL(Vec(x1, yIn2), Comp::CV_INPUT, "CV");
+        addInputL(Vec(x2, yIn2), Comp::CV2_INPUT, "CV2");
+        addInputL(Vec(x3, yIn2), Comp::GATE_INPUT, "Gate");
 
         //  third row
-        addOutputL(Vec(xLeft, yOut), Comp::CV_OUTPUT, "CV");
-        addOutputL(Vec(xLeft + dx, yOut), Comp::CV2_OUTPUT, "CV2");
-        addOutputL(Vec(xLeft + 2 * dx, yOut), Comp::GATE_OUTPUT, "Gate");
+        addOutputL(Vec(x1, yOut), Comp::CV_OUTPUT, "CV");
+        addOutputL(Vec(x2, yOut), Comp::CV2_OUTPUT, "CV2");
+        addOutputL(Vec(x3, yOut), Comp::GATE_OUTPUT, "Gate");
 
         const float yMode = 42;
         std::vector<std::string> labels = Comp::modes();
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(38, yMode),
+            Vec(54, yMode),
             module,
             Comp::MODE_PARAM);
         p->box.size.x = 80;  // width
@@ -146,61 +193,60 @@ struct Arpeggiator1Widget : ModuleWidget {
         p->setShortLabels(Comp::shortModes());
         addParam(p);
 
-        addInputL(Vec(xLeft, yMode), Comp::MODE_INPUT);
+        addInputL(Vec(x1, yMode), Comp::MODE_INPUT);
 
-        // RoundBigBlackKnob
-        //
-        float yKnob = 150;
-        float knobLeft = 14;  // 20 too far right
-        float dx2 = 40;
-
-        auto param = createParam<RoundBigBlackSnapKnob>(Vec(knobLeft, yKnob), module, Comp::LENGTH_PARAM);
+        auto param = createParam<RoundBigBlackSnapKnob>(Vec(86, 131), module, Comp::LENGTH_PARAM);
         addParam(param);
+#ifdef _LAB
         addLabel(Vec(knobLeft - 8, yKnob - 28), "Length");
-
-        auto param2 = createParam<RoundBigBlackSnapKnob>(Vec(knobLeft + 22 + dx2, yKnob), module, Comp::BEATS_PARAM);
-        ;
+#endif
+        auto param2 = createParam<RoundBigBlackSnapKnob>(Vec(19, 131), module, Comp::BEATS_PARAM);
         addParam(param2);
+#ifdef _LAB
         addLabel(Vec(knobLeft + 22 + dx2, yKnob - 28), "Beats");
-
-        float yHold = 70;
-        addParam(createParam<CKSS>(Vec(knobLeft + 30, yHold + 10), module, Comp::HOLD_PARAM));
+#endif
+        addParam(createParam<CKSS>(Vec(54, 79), module, Comp::HOLD_PARAM));
+#ifdef _LAB
         addLabel(Vec(knobLeft + 46, yHold + 9), "Hold");
-        addInputL(Vec(10, yHold + 8), Comp::HOLD_INPUT, "");
+#endif
+        addInputL(Vec(x1, 77), Comp::HOLD_INPUT, "");
     }
 
     void addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
         // assert(module);
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         const float xOffset = -4 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
+
         addLabel(vlabel, text);
+#endif
     }
 
     void addInputL(const Vec& vec, int outputNumber, const std::string& text = "") {
         // assert(module);
         addInput(createInput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
         if (!text.empty()) {
             Vec vlabel(vec.x, vec.y);
             vlabel.y -= 20;
-            const float xOffset = -4 +text.size() * 2.5;  // crude attempt to center text.
+            const float xOffset = -4 + text.size() * 2.5;  // crude attempt to center text.
             vlabel.x -= xOffset;
             addLabel(vlabel, text);
         }
+#endif
     }
 
     Label* addLabel(const Vec& v, const std::string& str) {
-        // NVGcolor white = nvgRGB(0, 0, 0);
         NVGcolor white = nvgRGB(0xf0, 0xF0, 0xF0);
 
         Label* label = new Label();
         label->box.pos = v;
         label->text = str;
         label->color = white;
-      //  SQINFO("label size = %f\n", label->fontSize);
-        label->fontSize = 12;       // 13 is default
+        label->fontSize = 12;  // 13 is default
         addChild(label);
         return label;
     }
@@ -214,7 +260,7 @@ struct Arpeggiator1Widget : ModuleWidget {
         theMenu->addChild(item);
 
         item = new SqMenuItem_BooleanParam2(module, Comp::GATE_DELAY_PARAM);
-        item->text = "Gate Delay";
+        item->text = "Gate+Clock Delay";
         theMenu->addChild(item);
     }
 };

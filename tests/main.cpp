@@ -26,11 +26,13 @@ extern void testHarmonyChordsRandom();
 extern void testHarmonyChords2();
 extern void testRingBuffer();
 extern void testChord4Manager();
+extern void testTempo();
 
 int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testTempo();
     testRingBuffer();
     testGateDelay();
     testSeqClock();

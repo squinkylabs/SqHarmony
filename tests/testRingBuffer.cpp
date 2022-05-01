@@ -1,5 +1,5 @@
 
-//#include "AtomicRingBuffer.h"
+#include "AtomicRingBuffer.h"
 #include "SqRingBuffer.h"
 #include "SqRingBuffer2.h"
 #include "asserts.h"
@@ -154,11 +154,28 @@ static void testOverflow() {
 }
 
 static void testChordHistory() {
-    SqChordHistory<2> h;
+    SqChordHistory h;
     h.onNewChord(200, 1);
     assert(h.haveSeen(200, 1));
     assert(!h.haveSeen(201, 1));
     assert(!h.haveSeen(200, 2));
+}
+
+static void testChordHistoryOverflow() {
+    SqChordHistory h;  // default only 4
+    h.onNewChord(200, 1);
+    h.onNewChord(200, 2);
+    h.onNewChord(200, 3);
+    h.onNewChord(200, 4);
+    h.onNewChord(200, 5);
+
+    assert(h.haveSeen(200, 5));
+    assert(h.haveSeen(200, 4));
+    assert(h.haveSeen(200, 3));
+    assert(h.haveSeen(200, 2));
+
+    // this one pushed out (overflow)
+    assert(!h.haveSeen(200, 1));
 }
 
 static void testRingBuffer2basic() {
@@ -184,6 +201,18 @@ static void testRingBuffer2basic3() {
     assert(rb.full());
     assert(!rb.empty());
     assertEQ(rb.size(), 4);
+}
+
+static void testRingBuffer2basic4() {
+    SqRingBuffer2 rb(false, 4);
+    rb.push(1);
+    rb.push(2);
+    assertEQ(rb.pop(), 1);
+    rb.push(3);
+    rb.push(4);
+    assertEQ(rb.pop(), 2);
+    assertEQ(rb.pop(), 3);
+    assertEQ(rb.size(), 1);
 }
 
 static void testRingBuffer2Wrap() {
@@ -227,7 +256,6 @@ static void testRingBuffer2ChangeSize2() {
     assertEQ(rb.size(), 1);
 }
 
-
 static void test2At() {
     SqRingBuffer2 rb(false, 3);
     rb.push(10);
@@ -260,12 +288,61 @@ static void test2Overflow() {
     assertEQ(rb.at(2), 11);
 }
 
+static void testRingBuffer2Size1() {
+    SqRingBuffer2 rb(true, 3);
+    rb.setSize(1);
+    assert(!rb.full());
+    assert(rb.empty());
+    rb.push(10);
+    assert(rb.full());
+    assert(!rb.empty());
+    assertEQ(rb.pop(), 10);
+    assert(!rb.full());
+    assert(rb.empty());
+
+    rb.push(11);
+    assert(rb.full());
+    assertEQ(rb.pop(), 11);
+
+    rb.push(12);
+    assert(rb.full());
+    assertEQ(rb.pop(), 12);
+}
+
+static void testAtomicRingBufferFull() {
+    AtomicRingBuffer<int, 12> rb;
+    for (int i = 0; i < 5; ++i) {
+        rb.push(i);
+    }
+    assert(!rb.full());
+    assert(!rb.empty());
+
+     for (int i = 0; i < 5; ++i) {
+        int x = rb.pop();
+        assertEQ(x, i);
+    }
+    assert(rb.empty());
+
+    for (int i = 0; i < 12; ++i) {
+        rb.push(i + 100);
+    }
+    assert(!rb.empty());
+    assert(rb.full());
+
+    for (int i = 0; i < 12; ++i) {
+        int x = rb.pop();
+        assertEQ(x, i + 100);
+    }
+    assert(rb.empty());
+
+
+}
 
 void testRingBuffer() {
     testConstruct<SqRingBuffer<int, 4>>();
     testConstruct<SqRingBuffer<char *, 1>>();
-    //  testConstruct<AtomicRingBuffer<int, 4>>();
-    // testConstruct<AtomicRingBuffer<char *, 1>>();
+    // testConstruct<AtomicRingBuffer<int, 4>>();
+    //  testConstruct<AtomicRingBuffer<char *, 1>>();
 
     _testRingBuffer<SqRingBuffer<int, 4>>();
     //   _testRingBuffer<AtomicRingBuffer<int, 4>>();
@@ -277,14 +354,20 @@ void testRingBuffer() {
     testOverflow();
     //   testOne<AtomicRingBuffer<const char *, 1 >>();
 
-    testChordHistory();
     testRingBuffer2basic();
     testRingBuffer2basic2();
     testRingBuffer2basic3();
+
     testRingBuffer2Wrap();
     testRingBuffer2ChangeSize();
     testRingBuffer2ChangeSize2();
     test2At();
     test2At2();
     test2Overflow();
+    testRingBuffer2basic4();
+    testRingBuffer2Size1();
+
+    testChordHistory();
+    testChordHistoryOverflow();
+    testAtomicRingBufferFull();
 }

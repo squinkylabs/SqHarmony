@@ -56,7 +56,7 @@ public:
     enum OutputIds {
         CV_OUTPUT,
         GATE_OUTPUT,
-        EOC_OUTPUT,
+        EOC_OUTPUT_unused,
         CV2_OUTPUT,
         NUM_OUTPUTS
     };
@@ -97,7 +97,8 @@ private:
     ArpegPlayer hiddenPlayer{&noteBuffer};
     ArpegRhythmPlayer outerPlayer{&hiddenPlayer};
     SeqClock clock;
-    GateDelay gateDelay;
+    GateDelay<5> gateOnlyDelay;
+    GateDelay<10> clockOnlyDelay;
     GateTrigger triggerInputProc;
 
     const int numModes = {int(modes().size())};
@@ -124,8 +125,9 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
         highestGateProcessed = cvs;
         // for mono gates, just look at gate[0], but send to to all cv channels
         // SQDEBUG("gate delay will process mg input=%f", TBase::inputs[GATE_INPUT].getVoltage(0));
-        gateDelay.process(TBase::inputs[GATE_INPUT], gates);
-        const bool gate = gateDelay.getGate(0);
+        gateOnlyDelay.process(TBase::inputs[GATE_INPUT], gates);
+        const bool gate = gateOnlyDelay.getGate(0);
+        // SQINFO("mono gate saw %d", gate);
         if (gate != lastGate[0]) {
             lastGate[0] = gate;
             for (int ch = 0; ch < cvs; ++ch) {
@@ -134,9 +136,10 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
         }
     } else {
         highestGateProcessed = gates;
-        gateDelay.process(TBase::inputs[GATE_INPUT], gates);
+        gateOnlyDelay.process(TBase::inputs[GATE_INPUT], gates);
         for (int ch = 0; ch < gates; ++ch) {
-            const bool gate = gateDelay.getGate(ch);
+            const bool gate = gateOnlyDelay.getGate(ch);
+            // SQINFO("poly gate saw %d", gate);
             if (gate != lastGate[ch]) {
                 lastGate[ch] = gate;
                 onGateChange(ch, gate);
@@ -163,7 +166,10 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
         outerPlayer.armReShuffle();
     }
 
-    const float clockVoltageX = TBase::inputs[CLOCK_INPUT].getVoltage(0);
+  //  const float clockVoltageX = TBase::inputs[CLOCK_INPUT].getVoltage(0);
+    clockOnlyDelay.process(TBase::inputs[CLOCK_INPUT], 1);
+    const float clockVoltageX = clockOnlyDelay.getGate(0) ? 10.f : 0.f;
+    // SQINFO("clock V = %f", clockVoltageX);
     const float resetVoltage = TBase::inputs[RESET_INPUT].getVoltage(0);
     auto clockResults = clock.updateOnce(clockVoltageX, true, resetVoltage);
 
@@ -206,12 +212,17 @@ inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
 
 template <class TBase>
 inline void Arpeggiator<TBase>::onClockChange(bool clockFired, bool clockValue) {
-    SQDEBUG("Arpeg::onClockChange, fired = %d value = %d", clockFired, clockValue);
+    // SQDEBUG("Arpeg::onClockChange, fired = %d value = %d", clockFired, clockValue);
     if (clockFired) {
-        const auto cvs = outerPlayer.clock();
-        // SQINFO("will output player out to CV: %f,%f", cvs.first, cvs.second);
-        TBase::outputs[CV_OUTPUT].setVoltage(cvs.first, 0);
-        TBase::outputs[CV2_OUTPUT].setVoltage(cvs.second, 0);
+        const auto cvs = outerPlayer.clock2();
+        if (std::get<0>(cvs)) {
+            // SQINFO("will output player out to CV: cv1=%f, cv2=%f", std::get<1>(cvs), std::get<2>(cvs));
+            TBase::outputs[CV_OUTPUT].setVoltage(std::get<1>(cvs), 0);
+            TBase::outputs[CV2_OUTPUT].setVoltage(std::get<2>(cvs), 0);
+        }
+        else {
+          //  SQINFO("ignoring clock on empty");
+        }
     }
 
     if (hiddenPlayer.empty()) {
@@ -237,7 +248,7 @@ inline void Arpeggiator<TBase>::processParams() {
     //   const bool hold = bool(std::round(TBase::params[HOLD_PARAM].value));
 
     const bool resetMode = bool(std::round(TBase::params[RESET_MODE_PARAM].value));
-    const bool gateDelayEnabled = bool(std::round(TBase::params[GATE_DELAY_PARAM].value));
+    const bool delayEnabled = bool(std::round(TBase::params[GATE_DELAY_PARAM].value));
 
     int mode = 0;
     if (TBase::inputs[MODE_INPUT].isConnected()) {
@@ -266,5 +277,6 @@ inline void Arpeggiator<TBase>::processParams() {
     noteBuffer.setCapacity(length);
     noteBuffer.setHold(hold);
     clock.setResetMode(resetMode);
-    gateDelay.enableDelay(gateDelayEnabled);
+    gateOnlyDelay.enableDelay(delayEnabled);
+    clockOnlyDelay.enableDelay(delayEnabled);
 }

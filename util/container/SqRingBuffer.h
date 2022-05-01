@@ -140,6 +140,7 @@ inline void SqRingBuffer<T, SIZE>::advance(int &p)
     if (++p >= SIZE) p = 0;
 }
 
+#if 0
 template <int SIZE>
 class SqChordHistory {
 public:
@@ -168,5 +169,6 @@ private:
         return (rank << 4) | root;
     }
 };
+#endif
 
 

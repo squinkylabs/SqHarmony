@@ -14,6 +14,7 @@
 #include "SqLog.h"
 #include "SqRingBuffer.h"
 
+template <int SIZE=5>
 class GateDelay {
 public:
     GateDelay();
@@ -24,12 +25,8 @@ public:
 private:
     SchmidtTrigger inputCondition[16];
     bool gates[16]{false};
-    static const int size = 5;
 
-
-    // unsigned delay
-    // template <typename T, int SIZE>
-    SqRingBuffer<unsigned, size+1> delay;
+    SqRingBuffer<unsigned, SIZE+1> delay;
     bool doDelay = false;
     
     void processDelay(Input&, unsigned numChannels);
@@ -37,26 +34,26 @@ private:
 };
 
 // Turn the ring buffer into a delay line by pushing enough zeros into it
-inline GateDelay::GateDelay() : delay(false) {
-    // SQINFO("ctor of gate delay here is buffer");
-    // ringBuffer._dump();
-    for (int i = 0; i < size; ++i) {
+template <int SIZE>
+inline GateDelay<SIZE>::GateDelay() : delay(false) {
+    for (int i = 0; i < SIZE; ++i) {
         delay.push(0);
-        // SQINFO("ctor of gate dela pushed one here is buffer");
-        //ringBuffer._dump();
     }
 }
 
-inline bool GateDelay::getGate(unsigned channel) {
+template <int SIZE>
+inline bool GateDelay<SIZE>::getGate(unsigned channel) {
     assert(channel <= 16);
     return gates[channel];
 }
 
-inline void GateDelay::enableDelay(bool enabled) {
+template <int SIZE>
+inline void GateDelay<SIZE>::enableDelay(bool enabled) {
     doDelay = enabled;
 }
 
-inline void GateDelay::process(Input& input, unsigned numChannels) {
+template <int SIZE>
+inline void GateDelay<SIZE>::process(Input& input, unsigned numChannels) {
     if (doDelay) {
         processDelay(input, numChannels);
     } else {
@@ -64,7 +61,8 @@ inline void GateDelay::process(Input& input, unsigned numChannels) {
     }
 }
 
-inline void GateDelay::processDelay(Input& input, unsigned numChannels) {
+template <int SIZE>
+inline void GateDelay<SIZE>::processDelay(Input& input, unsigned numChannels) {
     assert(numChannels <= 16);
     unsigned x = 0;
     for (unsigned i = 0; i < numChannels; ++i) {
@@ -83,7 +81,8 @@ inline void GateDelay::processDelay(Input& input, unsigned numChannels) {
     delay.push(x);
 }
 
-inline void GateDelay::processNoDelay(Input& input, unsigned numChannels) {
+template <int SIZE>
+inline void GateDelay<SIZE>::processNoDelay(Input& input, unsigned numChannels) {
     assert(numChannels <= 16);
     for (unsigned i = 0; i < numChannels; ++i) {
         // auto x = input.getVoltage(i);

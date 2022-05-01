@@ -1,5 +1,25 @@
 # Changelog for Squinktronix plugins
 
+## 2.0.5
+
+Clock+Gate delay for Arpeggiator.
+
+## 2.0.4
+
+Arpeggiator pitch droop bug fixed.
+
+## 2.0.3
+
+Added X-pose and trigger delay for Harmony.
+
+## 2.0.2
+
+### Harmony
+
+Added trigger input for Harmony.
+
+Added repetition avoidance.
+
 ## 2.0.1
 
 ### Harmony

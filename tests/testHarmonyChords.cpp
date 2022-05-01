@@ -54,7 +54,7 @@ static void testBasic1() {
 }
 
 static void testAtoB(int a, int b, bool minor, int bestExpected = 0) {
-    SQINFO("testAtoB %d, %d", a, b);
+    // SQINFO("testAtoB %d, %d", a, b);
 #if 0
     if  (a == 5 && b == 4 && minor) {
         SQINFO("BUG CASE 5-4 minor");
@@ -122,13 +122,13 @@ static void test1to2() {
 static void test2to1() {
     // failing when first chord is D2A2F3A3
     // new doubling probably makes this possible, but we should be able to recover, even so.
-    printf("\n-- test 2 to 1 --\n");
+
     //  ProgressionAnalyzer::showAnalysis();
     testAtoB(2, 1, false);
     testAtoB(2, 1, true);
 }
 
-#if 1
+#if 0
 static void test1to1() {
     printf("\n-- test 1 to 1  --\n");
     auto options = makeOptions(false);
@@ -146,32 +146,9 @@ static void test1to1() {
     }
     assertEQ(__numChord4, 0);
 }
-#else
-static void test1to1() {
-    printf("\n-- test 1 to 1  --\n");
-
-    // We are having problems with this simple 2-1 progression
-    auto options = makeOptions(false);
-    Chord4Manager mgr(options);
-    Chord4Ptr chordA = Chord4::fromString(options, 1, "C2G2E3G3");
-    assert(chordA);
-    SQINFO("rist= %s", chordA->toString().c_str());
-
-    for (int i = 0; i < 4; ++i) {
-        auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 1);
-        assert(next);
-        assertEQ(next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false), 0);
-        SQINFO("next= %s", next->toString().c_str());
-        chordA = std::make_shared<Chord4>(*next);
-        // chordA = next;
-    }
-
-    SQINFO("finish 1 to 1 no repet test");
-}
 #endif
 
 static void test2to1a() {
-    printf("\n-- test 2 to 1 a --\n");
     // We are having problems with this simple 2-1 progression
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
@@ -184,7 +161,6 @@ static void test2to1a() {
 }
 
 static void test2to1b() {
-    printf("\n-- test 2 to 1 b --\n");
     // We are having problems with this simple 2-1 progression
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
@@ -313,7 +289,9 @@ void testHarmonyChords() {
     // testXtoY();
     printf("--- test xyx ----\n");
     // testXtoYtoX();
-    test1to1();
+
+    // this isn't a real test
+    //test1to1();
 
     assertEQ(__numChord4, 0);
 }

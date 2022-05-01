@@ -43,7 +43,7 @@ public:
         Widget::step();
         if (dirtyDetector && dirtyDetector->isDirty()) {
             fw->dirty = true;
-            //SQINFO("set dirty true 46");
+            // SQINFO("set dirty true 46");
         }
     }
 
@@ -67,7 +67,7 @@ public:
     void setWhiteOnBlack(bool b) {
         if (whiteOnBlack != b) {
             whiteOnBlack = b;
-            INFO("set white on block %d", whiteOnBlack);
+            // INFO("set white on black %d", whiteOnBlack);
             scoreIsDirty = true;
         }
     }
@@ -108,7 +108,7 @@ private:
 
     Harmony1Module *const module;
     std::list<Comp::Chord> chords;
-    bool whiteOnBlack = true;
+    bool whiteOnBlack = false;  // default to black notes for better look in module browser
 
     const std::string noteQuarterUp = u8"\ue1d5";
     const std::string noteQuarterDown = u8"\ue1d6";
@@ -198,11 +198,78 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     chords.push_back(ch);
     chords.push_back(ch);
     chords.push_back(ch);
+#else
+    if (!module) {
+
+        Comp::Chord c;
+        c.inversion = 0;
+        c.root = 1;
+        c.pitch[0] = 60;
+        c.pitch[1] = 72; 
+        c.pitch[2] = 76; 
+        c.pitch[3] = 79; 
+        chords.push_back(c);
+
+        c.inversion = 0;
+        c.root = 3;
+        c.pitch[0] = 64;
+        c.pitch[1] = 71;
+        c.pitch[2] = 76;
+        c.pitch[3] = 79;
+        chords.push_back(c);
+
+        c.inversion = 1;
+        c.root = 2;
+        c.pitch[0] = 65;
+        c.pitch[1] = 69;
+        c.pitch[2] = 74;
+        c.pitch[3] = 77;
+        chords.push_back(c);
+
+        c.inversion = 0;
+        c.root = 7;
+        c.pitch[0] = 59;
+        c.pitch[1] = 71;
+        c.pitch[2] = 74;
+        c.pitch[3] = 77;
+        chords.push_back(c);
+
+        c.inversion = 1;
+        c.root = 3;
+        c.pitch[0] = 55;
+        c.pitch[1] = 71;
+        c.pitch[2] = 76;
+        c.pitch[3] = 79;
+        chords.push_back(c);
+
+        c.inversion = 0;
+        c.root = 4;
+        c.pitch[0] = 53;
+        c.pitch[1] = 72;
+        c.pitch[2] = 77;
+        c.pitch[3] = 81;
+        chords.push_back(c);
+
+        c.inversion = 0;
+        c.root = 5;
+        c.pitch[0] = 55;
+        c.pitch[1] = 71;
+        c.pitch[2] = 74;
+        c.pitch[3] = 79;
+        chords.push_back(c);
+
+        c.inversion = 0;
+        c.root = 1;
+        c.pitch[0] = 60;
+        c.pitch[1] = 67;
+        c.pitch[2] = 72;
+        c.pitch[3] = 76;
+        chords.push_back(c);
+
+    }
 
 #endif
 }
-
-
 
 inline void Score::step() {
 #ifndef _TESTCHORD
@@ -211,31 +278,12 @@ inline void Score::step() {
             scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
-           // SQINFO("push chord now %d", chords.size());
-
-            /*
-                class Chord {
-    public:
-        MidiNote pitch[4];  // the four patches
-        int root = 0;       // 1..8
-        int inversion = 0;  // 0 = root, 1= first 2 = second
-    };
- 
-
-            SQINFO("**** UI found a chord #%d ct=%d ch=%d,%d,%d,%d*****", (int)chords.size(), ct, 
-                ch.pitch[0].get(),
-                ch.pitch[1].get(),
-                ch.pitch[2].get(),
-                ch.pitch[3].get()
-            );
-        */
             if (chords.size() > 8) {
-                while(chords.size() > 1) {
+                while (chords.size() > 1) {
                     chords.pop_front();
                 }
                 // SQINFO("pop chord now %d", chords.size());
             }
-
         }
     }
 #endif
@@ -338,7 +386,8 @@ inline void Score::drawLayer(const DrawArgs &args, int layer) {
 #endif
 
 inline void Score::draw(const DrawArgs &args) {
-    INFO("Score::draw clip=szx %f, szy %f, %f, %f", args.clipBox.size.x, args.clipBox.size.y, args.clipBox.pos.x, args.clipBox.pos.y);
+    // INFO("Score::draw clip=szx %f, szy %f, %f, %f", args.clipBox.size.x, args.clipBox.size.y, args.clipBox.pos.x, args.clipBox.pos.y);
+    INFO("----- in draw %p, chords=%d", this, int(chords.size()));
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const float width = drawMusicNonNotes(args);
     drawNotes(args, width);
@@ -356,7 +405,7 @@ inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) c
     prepareFontText(args);
     int i = 0;
     for (auto chord : chords) {
-       // SQINFO("draw chord number %d size=%d", i, (int)chords.size());
+        // SQINFO("draw chord number %d size=%d", i, (int)chords.size());
         const float x = noteXPos(i, widthOfKeysig) + 1.5;
         drawChordInfo(args, x, chord);
         ++i;
@@ -371,7 +420,7 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
             // note - we could add inset ourself in noteXPos.
             const float x = noteXPos(i, keysigWidth);
 
-            //SQINFO("x = %f", noteXPos(i, keysigWidth));
+            // SQINFO("x = %f", noteXPos(i, keysigWidth));
 
             for (int i = 0; i < 4; ++i) {
                 const bool stemUp = i % 2;
@@ -478,13 +527,12 @@ inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chor
         std::stringstream s;
         s << chord.root;
         nvgText(args.vg, x, yNoteInfo, s.str().c_str(), NULL);
-        //SQINFO("draw %s at x=%f y=%f", s.str().c_str(), x, yNoteInfo);
+        // SQINFO("draw %s at x=%f y=%f", s.str().c_str(), x, yNoteInfo);
     }
     {
         std::stringstream s;
         s << chord.inversion;
         nvgText(args.vg, x, yNoteInfo + 8, s.str().c_str(), NULL);
-      
     }
 #if 0
     std::stringstream s;

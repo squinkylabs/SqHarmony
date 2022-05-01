@@ -5,6 +5,7 @@
 #include "Chord4Manager.h"
 #include "Divider.h"
 #include "FloatNote.h"
+#include "GateDelay.h"
 #include "GateTrigger.h"
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
@@ -42,6 +43,8 @@ public:
         NNIC_PREFERENCE_PARAM,
         RETRIGGER_CV_AND_NOTE_PARAM,
         HISTORY_SIZE_PARAM,
+        TRANSPOSE_STEPS_PARAM,
+        TRIGGER_DELAY_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -51,7 +54,7 @@ public:
     };
 
     enum OutputIds {
-        QUANTIZER_OUTPUT,
+        xQUANTIZER_OUTPUT,
         BASS_OUTPUT,
         TENOR_OUTPUT,
         ALTO_OUTPUT,
@@ -86,10 +89,6 @@ public:
         return chordOptions->keysig->getUnderlyingScale();
     }
 
-    int _size() const {
-        return chordManager->_size();
-    }
-
     int getOutputChannels(int voice) const {
         int channels = 0;
         switch (voice) {
@@ -107,6 +106,14 @@ public:
                 break;
         }
         return channels;
+    }
+
+    static std::vector<std::string> getHistoryLabels() {
+        return {"off", "4", "8", "13"};
+    }
+
+    int _size() const {
+        return chordManager->_size();
     }
 
 private:
@@ -139,6 +146,7 @@ private:
     Chord4ManagerPtr chordManager;
     HarmonyChords::ChordHistory chordHistory;
     GateTrigger triggerInputProc;
+    GateDelay<5> gateDelay;
     float lastQuantizedPitch = -100;
     int count = 0;
     bool mustUpdate = false;
@@ -159,6 +167,7 @@ inline void Harmony<TBase>::init() {
 
     chordManager = std::make_shared<Chord4Manager>(*chordOptions);
     assert(chordManager->isValid());
+
 
     divn.setup(32, [this]() {
         this->stepn();
@@ -191,6 +200,30 @@ inline void Harmony<TBase>::stepn() {
             debt++;
         }
     }
+
+    const int rawHistorySize = int(std::round(Harmony<TBase>::params[HISTORY_SIZE_PARAM].value));
+    int historySize = 1;
+    switch (rawHistorySize) {
+        case 0:
+            historySize = 1;
+            break;
+        case 1:
+            historySize = 4;
+            break;
+        case 2:
+            historySize = 8;
+            break;
+        case 3:
+            historySize = 13;
+            break;
+        default:
+            assert(false);
+    }
+
+    chordHistory.setSize(historySize);
+
+    const bool gateDelayEnabled = bool(std::round(Harmony<TBase>::params[TRIGGER_DELAY_PARAM].value));
+    gateDelay.enableDelay(gateDelayEnabled);
 
     bool noNotesInCommon = Harmony<TBase>::params[NNIC_PREFERENCE_PARAM].value > .5;
     auto style = chordOptions->style;
@@ -233,7 +266,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     c.root = chord->fetchRoot();
     c.inversion = int(chord->inversion(*chordOptions));
 
-    // SQINFO("output pitches %s (bass=%d)", chord->toStringShort().c_str(), (int)harmonyNotes[0]);
+    // SQINFO("output pitches %s (root=%d) root+4=%d", chord->toStringShort().c_str(), c.root, c.root+4);
 
     for (int i = 0; i < 4; ++i) {
         MidiNote mn(12 + harmonyNotes[i]);  // harmony note and midi note are about the same;
@@ -249,7 +282,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     if (!chordsOut.full()) {
         chordsOut.push(c);
     } else {
-        SQWARN("in outputPitches, no room for output\n");
+       // SQWARN("in outputPitches, no room for output\n");
     }
 }
 
@@ -273,27 +306,57 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     const bool triggerConnected = Harmony<TBase>::inputs[TRIGGER_INPUT].isConnected();
     bool t = false;
     if (triggerConnected) {
-        triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
+
+#if 0
+       triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
         t = triggerInputProc.trigger();
+#else
+
+        gateDelay.process(Harmony<TBase>::inputs[TRIGGER_INPUT], 1);
+        bool gate = gateDelay.getGate(0);
+        triggerInputProc.go(gate ? 10.f : 0.f );
+        t = triggerInputProc.trigger();
+#endif
     }
 
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
     assert(chordManager);
-    MidiNote mn = inputQuantizer->run(input);
-    FloatNote quantizedNote;
-    NoteConvert::m2f(quantizedNote, mn);
-    Harmony<TBase>::outputs[QUANTIZER_OUTPUT].setVoltage(quantizedNote.get(), 0);
+    MidiNote quantizedInput = inputQuantizer->run(input);
+  
 
-    const bool pitchChanged = (quantizedNote.get() != lastQuantizedPitch);
+    // now we could do xpose here if we convert to srn, then add, then convert back
+    const int xposeSteps = int(std::round(Harmony<TBase>::params[TRANSPOSE_STEPS_PARAM].value));
+    if (xposeSteps) {
+        const int x = quantizedInput.get();
+        ScaleNote scaleNote;
+        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
+        scaleNote.transposeDegree(xposeSteps);
+        NoteConvert::s2m(quantizedInput, *quantizerOptions->scale, scaleNote);
+        if (t) {
+            SQINFO("xpose %d steps. midi %d, %d xpose-midi=%d", xposeSteps, x, quantizedInput.get(), quantizedInput.get() - x );
+        }
+    }
+
+    FloatNote quantizedFloatNote;
+    NoteConvert::m2f(quantizedFloatNote, quantizedInput);
+
+    // we don't need quantized note here, could use midi note
+    const bool pitchChanged = (quantizedFloatNote.get() != lastQuantizedPitch);
     const bool triggerOnBoth = Harmony<TBase>::params[RETRIGGER_CV_AND_NOTE_PARAM].value > .5;
     if (!triggerConnected || triggerOnBoth) {
-         t |= pitchChanged;
+        t |= pitchChanged;
     }
 
     // generate a new chord any time the quantizer outputs a new pitch
     if (t) {
         ScaleNote scaleNote;
-        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, mn);
+        NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
+#if 0
+        SQINFO("trigger input=%f  input+5th=%f q=%d, q+7=%d this=%p", 
+            input,input + 7.f / 12.f,  
+            mn.get(), mn.get()+7, 
+            this );
+#endif
 
 #if 0
             bool octaveJump = false;
@@ -314,8 +377,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 1 + scaleNote.getDegree(),
                 *chordOptions,
                 *chordManager,
-                //  &chordHistory,
-                nullptr,
+                &chordHistory,
                 chordA, chordB);
             if (chord) {
                 outputPitches(chord);
@@ -343,7 +405,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
 #endif
         }
 
-        lastQuantizedPitch = quantizedNote.get();
+        lastQuantizedPitch = quantizedFloatNote.get();
     }
 
     if (mustUpdate) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SqRingBuffer.h"
+#include "SqRingBuffer2.h"
 #include <memory>
 
 class Chord4;
@@ -45,7 +45,7 @@ public:
 
 
     // This is what we will use to avoid duplicated chords.
-    using ChordHistory = SqChordHistory<8>;
+    using ChordHistory = SqChordHistory;
 
     static const Chord4* findChord2(
         bool show,

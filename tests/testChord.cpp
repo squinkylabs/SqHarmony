@@ -11,7 +11,7 @@ static bool verifyChordContains(const Chord4* chord, std::vector<int> degrees) {
     const ScaleRelativeNote* srn = chord->fetchSRNNotes();
     for (int i = 0; i < 4; ++i) {
         const int degree = srn[i];
-        const int ct = std::count(degrees.begin(), degrees.end(), degree);
+        const int ct = int(std::count(degrees.begin(), degrees.end(), degree));
         if (ct != 1) {
             return false;
         }

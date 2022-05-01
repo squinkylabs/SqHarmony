@@ -16,7 +16,8 @@
 
 // int Chord4::size;
 
-int __numChord4 = 0;
+//int __numChord4 = 0;
+std::atomic<int> __numChord4{0};
 
 /*  Chord4::Chord4(int nRoot)
  */

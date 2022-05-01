@@ -28,7 +28,7 @@ public:
 
     // verifies a uniform distribution
     void checkExtremes(int start, int end, float pctTolerance) {
-        dump();
+        // dump();
         assertEQ(data.begin()->first, 1);
         assertEQ(data.rbegin()->first, 7);
         const int middle = (start + end) / 2;
@@ -119,7 +119,8 @@ void testRand(const Options& options) {
     //   auto options = makeOptions();
     Chord4Manager mgr(options);
 
-    SQINFO("min bass = %d, max sop = %d", options.style->minBass(), options.style->maxSop());
+    //SQINFO("min bass = %d, max sop = %d", options.style->minBass(), options.style->maxSop());
+    
     if (!mgr.isValid()) {
         SQINFO("can't create manager for this style");
         assert(false);
@@ -168,11 +169,11 @@ void testRand(const Options& options) {
         chordB = thirdChord;
         rootB = rootC;
     }
-    SQINFO("Here are penalties");
-    penaltyAnalyzer.dump();
+    //SQINFO("Here are penalties");
+    //penaltyAnalyzer.dump();
+
     // SQINFO("Here are pitchextremes");
-    // rangeAnalyzer.dump();
-    SQINFO("Pitch range = %d to %d", rangeAnalyzer.lowest(), rangeAnalyzer.highest());
+    // SQINFO("Pitch range = %d to %d", rangeAnalyzer.lowest(), rangeAnalyzer.highest());
 }
 
 static void testValid(int dx) {

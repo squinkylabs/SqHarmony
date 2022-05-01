@@ -87,6 +87,7 @@ inline void SqRingBuffer2::advance(int &x) const {
 
 inline void SqRingBuffer2::setSize(int x) {
     assert(x < MAX_SIZE);
+    assert(x > 0);
     while (size() > x) {
         pop();
     }
@@ -106,3 +107,37 @@ inline int SqRingBuffer2::at(int x) const
     }
     return data[index];
 }
+
+
+class SqChordHistory {
+public:
+    SqChordHistory() : rb(true, 4)  {
+
+    }
+    void onNewChord(int rank, int root) {
+        const auto h = hash(rank, root);
+        rb.push(h);
+    }
+    bool haveSeen(int rank, int root) const {
+        const auto h = hash(rank, root);
+        for (int i=0; i< rb.size(); ++i) {
+            if (rb.at(i) == h) {
+                return true;
+            }
+        }
+        return false;
+    }
+    void setSize(int x) {
+        rb.setSize(x);
+    }
+private:
+    SqRingBuffer2 rb;
+
+    static int hash(int rank, int root) {
+        assert(root < 8);
+        assert(root >= 1);
+        assert(rank >= 0);
+        assert(rank < 1000);
+        return (rank << 4) | root;
+    }
+};

@@ -51,3 +51,12 @@ DISTRIBUTABLES += $(wildcard LICENSE*) res
 # This makefile from VCV has many compiler flags and command 
 # line variables. You should/must use this file.
 include $(RACK_DIR)/plugin.mk
+
+# ---- for ASAN on linux, just uncomment
+# using the static library is a hack for getting the libraries to load.
+# Trying other hacks first is a good idea. Building Rack.exe with asan is a pretty easy way
+# ASAN_FLAGS = -fsanitize=address -fno-omit-frame-pointer -Wno-format-security
+# FLAGS += $(ASAN_FLAGS)
+# LDFLAGS += $(ASAN_FLAGS)
+# CFLAGS +=  $(ASAN_FLAGS)
+# LDFLAGS += -static-libasan

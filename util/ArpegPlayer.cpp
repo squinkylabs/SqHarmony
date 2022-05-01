@@ -37,9 +37,13 @@ bool ArpegPlayer::empty() const {
 }
 
 std::pair<float, float> ArpegPlayer::clock() {
+    const auto x = clock2();
+    return std::make_pair(std::get<1>(x), std::get<2>(x));
+}
+
+std::tuple<bool, float, float> ArpegPlayer::clock2() {
     // on a data change, let's try to find the next note to play
     if (dataChanged) {
-
         // remember where we were
         const float pitchWouldBe = (playbackIndex >= 0) ? playbackBuffer[playbackIndex].first : -100;
         const int playbackIndexWouldBe = playbackIndex;
@@ -100,26 +104,27 @@ std::pair<float, float> ArpegPlayer::clock() {
         }
         assert(foundSettings);
         dataChanged = false;
-        //SQINFO("end of data change in clock, index=%d", playbackIndex);
+        // SQINFO("end of data change in clock, index=%d", playbackIndex);
     }
 
     if (playbackSize < 1) {
-        return std::make_pair(0.f, 0.f);
+        // SQINFO("nothing to play, will ret zero");
+        return std::make_tuple(false, 0.f, 0.f);
     }
     // 3/19 -1 happens now. seems valid
     assert(playbackIndex >= 0);
-    const auto ret = playbackBuffer[playbackIndex];
+    const std::tuple<bool, float, float> ret = std::make_tuple(true, playbackBuffer[playbackIndex].first, playbackBuffer[playbackIndex].second);
 
-    //SQINFO("ArpegPlayer::clock will ret %f,%f from index %d", ret.first, ret.second, playbackIndex);
+    // SQINFO("ArpegPlayer::clock will ret %d,%f,%f from index %d", std::get<0>(ret), std::get<1>(ret), std::get<2>(ret), playbackIndex);
 
     ++playbackIndex;
     //  assert(playbackIndex >= 0);
-    //SQINFO("ArpegPlayer::clock at end index=%d size=%d", playbackIndex, playbackSize);
+    // SQINFO("ArpegPlayer::clock at end index=%d size=%d", playbackIndex, playbackSize);
     if (playbackIndex >= playbackSize) {
-       // SQINFO("ArpegPlayer::clock post inc sees wrap %d, %d. refill flag=%d", playbackIndex, playbackSize, reFillOnIndexArmed);
+        // SQINFO("ArpegPlayer::clock post inc sees wrap %d, %d. refill flag=%d", playbackIndex, playbackSize, reFillOnIndexArmed);
         playbackIndex = 0;
         if (reFillOnIndexArmed) {
-            //SQINFO("XX wrapped on arm");
+            // SQINFO("XX wrapped on arm");
             reFillOnIndexArmed = false;
             onIndexWrapAround();
         }
@@ -129,7 +134,7 @@ std::pair<float, float> ArpegPlayer::clock() {
 }
 
 void ArpegPlayer::refillPlayback() {
-    //SQINFO("ArpegPlayer::refillPlayback nb has %d", noteBuffer->size());
+    // SQINFO("ArpegPlayer::refillPlayback nb has %d", noteBuffer->size());
     switch (mode) {
         case Mode::UP:
             refillPlaybackUP();
@@ -173,8 +178,8 @@ void ArpegPlayer::refillPlayback() {
 }
 
 void ArpegPlayer::onIndexWrapAround() {
-    //SQINFO("on index wrap around");
-    // most modes don't care
+    // SQINFO("on index wrap around");
+    //  most modes don't care
     if (mode == Mode::SHUFFLE) {
         assert(playbackSize == noteBuffer->size());
         refillPlaybackSHUFFLE();
