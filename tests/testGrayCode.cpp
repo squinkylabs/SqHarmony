@@ -93,6 +93,15 @@ static void testDifferByOne1() {
     assert(y == false);
 }
 
+static void testDifferByOne2() {
+    const unsigned numBits = 2;
+    std::vector<uint16_t> x;
+    x.push_back(0);  // a little artificial, since first entry is always 0 in "normal" use..
+    x.push_back(1);
+    x.push_back(3);
+    const auto y = GcUtils::onlyDifferByOneBit(4, numBits, x);
+    assert(y == true);
+}
 
 static void testNumBitsDifferent0() {
     assert(0 == GcUtils::numBitsDifferent(1, 0, 0));
@@ -201,13 +210,11 @@ static void testUtils() {
     testTransitionData1();
     testTransitionData2();
 
-    SQINFO("put back thye differ by one tests");
-
     testDifferByOneEmpty();
     testDifferByOne0();
     testDifferByOne1();
+    testDifferByOne2();
 
-       
     testTransitionDataWrap0();
     testTransitionDataWrap1();
     testDump();
@@ -219,8 +226,19 @@ static void testUtils() {
 
 
 void gc_fill() {
-    SQINFO("about to generate");
+    SQINFO("test: about to generate");
+
+    /** retults:
+    * nBits 1, unbalcanced, state size is 2, var=2,2, shortest run = 1
+    * Bits 1, balcanced, state size is 2, var=2,2, shortest run = 1
+    * nBits 2, unbalcanced,state size =4 var=2,2, shortest run = 2
+    * nBits 2, balanced,state size =4 var=2,2, shortest run = 2
+    * nBits 4, unbalanced, state size = 16, var = 2,8, shortest run = 2;
+    * nBits 4, balance, var=4,4 shortest run = 2;
+    * 
+    */
     GcGenerator gc(4, true);
+   // GcGenerator gc(4, true);
     gc.dump();
 }
 

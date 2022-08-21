@@ -33,7 +33,8 @@ public:
      */
     static std::pair<unsigned, unsigned> getTranstionDataWithWrap(unsigned numBits, std::vector<uint16_t>& data);
 
-    static void dumpBinary(unsigned nBits, unsigned data);
+    static void dumpBinary(unsigned int nBits, unsigned data);
+    static void dumpBinary(unsigned int nBits, const std::vector<uint16_t>& data);
 
     /**
      * @brief Get the Shortest Run of bits.
@@ -59,6 +60,13 @@ inline void GcUtils::dumpBinary(unsigned nBits, unsigned data) {
     }
 }
 
+inline void GcUtils::dumpBinary(unsigned nBits, const std::vector<uint16_t>& data) {
+    for (auto x:data) {
+        dumpBinary(nBits, x);
+        printf("\n");
+    }
+}
+
 inline bool GcUtils::onlyDifferByOneBit(unsigned totalCount, unsigned numBits, const std::vector<uint16_t>& data) {
     if (data.size() < 2) {
         return false;
@@ -71,7 +79,7 @@ inline bool GcUtils::onlyDifferByOneBit(unsigned totalCount, unsigned numBits, c
     }
 
     // if array is full, need to test wrap around
-    if (data.size() >= (totalCount - 1)) {
+    if (data.size() >= (totalCount)) {
         const auto num = numBitsDifferent(numBits, data.front(), data.back());
         if (num != 1) {
             return false;
@@ -80,29 +88,6 @@ inline bool GcUtils::onlyDifferByOneBit(unsigned totalCount, unsigned numBits, c
 
     return true;
 }
-
-#if 0
-inline bool GcUtils::onlyDifferByOneBit(unsigned totalCount, unsigned numBits, const std::vector<uint16_t>& data1, unsigned candidate) {
-    if (data1.empty()) {
-        return false;
-    }
-
-    const auto num = numBitsDifferent(numBits, data1.back(), candidate);
-    if (num != 1) {
-        return false;
-    }
-
-    // if candidate could be last element we need to look at wrap around
-    if (data1.size() >= (totalCount - 1)) {
-        const auto num = numBitsDifferent(numBits, data1.front(), candidate);
-        if (num != 1) {
-            return false;
-        }
-    }
-
-    return true;  // ignoring total count
-}
-#endif
 
 inline unsigned GcUtils::numBitsDifferent(unsigned numBits, unsigned a, unsigned b) {
     unsigned count = 0;
@@ -172,7 +157,7 @@ inline int GcUtils::getShortestRun(unsigned numBits, const std::vector<uint16_t>
     if (data.empty()) {
         return -1;
     }
-    SQINFO("enter");
+    //SQINFO("enter");
 
     const auto indexMax = data.size() * 2;
 
@@ -212,6 +197,6 @@ inline int GcUtils::getShortestRun(unsigned numBits, const std::vector<uint16_t>
           
         }
     }
-    SQINFO("exit");
+    //SQINFO("exit");
     return shortestRun;
 }
