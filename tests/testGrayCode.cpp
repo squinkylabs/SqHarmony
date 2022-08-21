@@ -59,18 +59,27 @@ static void testShortestRun2() {
 }
 
 // static bool onlyDifferByOneBit(unsigned totalCount, const std::vector<uint16_t>& data1, unsigned candidate);
+
+
 static void testDifferByOneEmpty() {
     const unsigned numBits = 4;
     std::vector<uint16_t> x;
-    const auto y = GcUtils::onlyDifferByOneBit(6, numBits, x, 1);
+    auto y = GcUtils::onlyDifferByOneBit(6, numBits, x);
     assert(y == false);
+
+    x.push_back(1);
+    y = GcUtils::onlyDifferByOneBit(6, numBits, x);
+    assert(y == false);
+
 }
+
 
 static void testDifferByOne0() {
     const unsigned numBits = 5;
     std::vector<uint16_t> x;
     x.push_back(0);
-    const auto y = GcUtils::onlyDifferByOneBit(6, numBits, x, 1);
+    x.push_back(1);
+    const auto y = GcUtils::onlyDifferByOneBit(6, numBits, x);
     assert(y == true);
 }
 
@@ -79,9 +88,12 @@ static void testDifferByOne1() {
     std::vector<uint16_t> x;
     x.push_back(1);  // a little artificial, since first entry is always 0 in "normal" use..
     x.push_back(3);
-    const auto y = GcUtils::onlyDifferByOneBit(3, numBits, x, 1);
+    x.push_back(1);
+    const auto y = GcUtils::onlyDifferByOneBit(3, numBits, x);
     assert(y == false);
 }
+
+
 static void testNumBitsDifferent0() {
     assert(0 == GcUtils::numBitsDifferent(1, 0, 0));
     assert(0 == GcUtils::numBitsDifferent(4, 0xa, 0xa));
@@ -188,9 +200,14 @@ static void testUtils() {
     testTransitionData0();
     testTransitionData1();
     testTransitionData2();
+
+    SQINFO("put back thye differ by one tests");
+
     testDifferByOneEmpty();
     testDifferByOne0();
     testDifferByOne1();
+
+       
     testTransitionDataWrap0();
     testTransitionDataWrap1();
     testDump();

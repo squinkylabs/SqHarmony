@@ -7,7 +7,13 @@ class GcUtils {
 public:
     static unsigned numBitsDifferent(unsigned numBits, unsigned a, unsigned b);
 
-    static bool onlyDifferByOneBit(unsigned totalCount, unsigned numBits, const std::vector<uint16_t>& data1, unsigned candidate);
+    /**
+     * @brief tests that the element at the back of the array only has one bit difference
+     * from the previous one. if data is full, then also tests for wrap around
+     */
+    static bool onlyDifferByOneBit(unsigned totalCount, unsigned numBits, const std::vector<uint16_t>& data);
+
+//    static bool onlyDifferByOneBit(unsigned totalCount, unsigned numBits, const std::vector<uint16_t>& data1, unsigned candidate);
 
     /**
      * Analyze a vector of data + a word for high and low counts of bit transitions.
@@ -39,7 +45,7 @@ public:
      * @param data - is the array to search for runs
      * @return length of shortest run, or -1 if can't evaluate
      */
-    static int getShortestRun(unsigned numBits, std::vector<uint16_t>& data);
+    static int getShortestRun(unsigned numBits, const std::vector<uint16_t>& data);
 
     template <typename T>
     static T getWithRollover(const std::vector<T>& v, unsigned index);
@@ -53,6 +59,29 @@ inline void GcUtils::dumpBinary(unsigned nBits, unsigned data) {
     }
 }
 
+inline bool GcUtils::onlyDifferByOneBit(unsigned totalCount, unsigned numBits, const std::vector<uint16_t>& data) {
+    if (data.size() < 2) {
+        return false;
+    }
+
+    // look at the last two in the array
+    const auto num = numBitsDifferent(numBits, data.back(), data[data.size()-2]);
+    if (num != 1) {
+        return false;
+    }
+
+    // if array is full, need to test wrap around
+    if (data.size() >= (totalCount - 1)) {
+        const auto num = numBitsDifferent(numBits, data.front(), data.back());
+        if (num != 1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+#if 0
 inline bool GcUtils::onlyDifferByOneBit(unsigned totalCount, unsigned numBits, const std::vector<uint16_t>& data1, unsigned candidate) {
     if (data1.empty()) {
         return false;
@@ -73,6 +102,7 @@ inline bool GcUtils::onlyDifferByOneBit(unsigned totalCount, unsigned numBits, c
 
     return true;  // ignoring total count
 }
+#endif
 
 inline unsigned GcUtils::numBitsDifferent(unsigned numBits, unsigned a, unsigned b) {
     unsigned count = 0;
@@ -132,51 +162,13 @@ inline std::pair<unsigned, unsigned> GcUtils::getTranstionDataWithWrap(unsigned 
     return ret;
 }
 
-#if 0 // first version
-inline int GcUtils::getShortestRun(unsigned numBits, std::vector<uint16_t>& data) {
-    if (data.empty()) {
-        return -1;
-    }
-
-    data.push_back(data.front());
-
-    int shortestRun = int(data.size());
-    for (unsigned bit = 0; bit < numBits; ++bit) {
-        const auto mask = 1 << bit;
-        // SQINFO("-- top of loop, bit %d mask = %x", bit, mask);
-        int runCounter = 0;
-        unsigned last = -1;
-        bool firstTime = true;
-
-        for (auto i = 0; i < data.size(); ++i) {
-            auto d = data[i];
-            auto x = d & mask;
-            // SQINFO("top of inner loop i=%d, d=%x x=%x firstTime=%d", i, d, x, firstTime);
-            if (!firstTime) {
-                // assert(false);
-                if (x != last) {
-                    shortestRun = std::min(shortestRun, runCounter);
-                    // SQINFO("found change in bit pattern, captured short=%d i=%d", shortestRun, i);
-                    runCounter = 0;
-                }
-            }
-            last = x;
-            firstTime = false;
-            runCounter++;
-        }
-    }
-    data.pop_back();
-    return shortestRun;
-}
-#endif
-
 template <typename T>
 inline T GcUtils::getWithRollover(const std::vector<T>& v, unsigned index) {
     const auto i = index % v.size();
     return v[i];
 }
 
-inline int GcUtils::getShortestRun(unsigned numBits, std::vector<uint16_t>& data) {
+inline int GcUtils::getShortestRun(unsigned numBits, const std::vector<uint16_t>& data) {
     if (data.empty()) {
         return -1;
     }

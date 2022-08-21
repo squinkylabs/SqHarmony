@@ -42,10 +42,11 @@ inline bool GcGenerator::canThisFollow(NumType candidate) const {
         return true;
     }
 
-    const auto differByOne = GcUtils::onlyDifferByOneBit(numEntries, nBits, state, candidate);
-    if (!differByOne) {
-        return false;
-    }
+    assert(false);  // get rid of candidate stuff
+  //  const auto differByOne = GcUtils::onlyDifferByOneBit(numEntries, nBits, state, candidate);
+ //   if (!differByOne) {
+ //       return false;
+//    }
 
     for (unsigned x : state) {
         if (x == candidate) {
