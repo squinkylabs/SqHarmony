@@ -1,7 +1,6 @@
-#include "asserts.h"
 #include "GcGenerator.h"
 #include "GcUtils.h"
-
+#include "asserts.h"
 
 static void testGetWithRollover() {
     std::vector<uint16_t> x;
@@ -14,9 +13,9 @@ static void testGetWithRollover() {
     assert(y == 200);
     y = GcUtils::getWithRollover(x, 2);
     assert(y == 100);
-     y = GcUtils::getWithRollover(x, 3);
+    y = GcUtils::getWithRollover(x, 3);
     assert(y == 200);
-     y = GcUtils::getWithRollover(x, 4);
+    y = GcUtils::getWithRollover(x, 4);
     assert(y == 100);
 }
 
@@ -28,7 +27,7 @@ static void testShortestRun0() {
 
     x.push_back(1);
     y = GcUtils::getShortestRun(4, x);
-    assert(y == 1);         // infinite loop of "1" -> just linear length
+    assert(y == 1);  // infinite loop of "1" -> just linear length
     assert(x.size() == 1);
 }
 
@@ -55,11 +54,132 @@ static void testShortestRun2() {
     x.push_back(0);
     auto y = GcUtils::getShortestRun(1, x);
     assert(y == 2);
+}
 
+static void testShortestRun25() {
+    printf("--- start testShortestRun25\n");
+    std::vector<uint16_t> x;
+    x.push_back(0);
+    x.push_back(1);
+    x.push_back(1);
+    x.push_back(1);
+    x.push_back(0);
+    x.push_back(0);
+    x.push_back(0);
+    x.push_back(0);
+    auto y = GcUtils::getShortestRun(1, x);
+    assert(y == 3);
+}
+
+static void testShortestRun26() {
+    printf("--- start testShortestRun26\n");
+    std::vector<uint16_t> x;
+    x.push_back(1);
+    x.push_back(0);
+    x.push_back(0);
+    x.push_back(0);
+    x.push_back(1);
+    x.push_back(1);
+    x.push_back(1);
+    x.push_back(1);
+    auto y = GcUtils::getShortestRun(1, x);
+    assert(y == 3);
+}
+
+static void testShortestRun27() {
+    printf("--- xstart testShortestRun27\n");
+    /*
+     0 0 0 0 hex=0
+     0 0 0 1 hex=1
+     0 0 1 1 hex=3
+     0 1 1 1 hex=7
+     0 1 1 0 hex=6
+     1 1 1 0 hex=e
+     1 1 1 1 hex=f
+     1 0 1 1 hex=b
+     1 0 0 1 hex=9
+     1 1 0 1 hex=d
+     0 1 0 1 hex=5
+     0 1 0 0 hex=4
+     1 1 0 0 hex=c
+     1 0 0 0 hex=8
+     1 0 1 0 hex=a
+     0 0 1 0 hex=2
+     */
+    std::vector<uint16_t> x;
+  
+    // when this zero is in, we fail
+    x.push_back(0x0);
+    x.push_back(0x1);
+    x.push_back(0x1);
+    x.push_back(0x1);
+    x.push_back(0x0);
+    x.push_back(0x0);
+    x.push_back(0x1);
+    x.push_back(0x1);
+    x.push_back(0x1);
+    x.push_back(0x1);
+    x.push_back(0x0);
+    x.push_back(0x0);
+ //   x.push_back(0x0);
+ //   x.push_back(0x0);
+   // x.push_back(0x0);
+
+    GcUtils::dumpBinary(1, x);
+    printf("done dump init\n");
+    auto y = GcUtils::getShortestRun(1, x);
+    //auto y = GcUtils::getShortestRun(4, x);
+    assert(y == 2);
+}
+
+
+static void testShortestRun3() {
+    printf("--- xstart testShortestRun30\n");
+    /*
+     0 0 0 0 hex=0
+     0 0 0 1 hex=1
+     0 0 1 1 hex=3
+     0 1 1 1 hex=7
+     0 1 1 0 hex=6
+     1 1 1 0 hex=e
+     1 1 1 1 hex=f
+     1 0 1 1 hex=b
+     1 0 0 1 hex=9
+     1 1 0 1 hex=d
+     0 1 0 1 hex=5
+     0 1 0 0 hex=4
+     1 1 0 0 hex=c
+     1 0 0 0 hex=8
+     1 0 1 0 hex=a
+     0 0 1 0 hex=2
+     */
+    std::vector<uint16_t> x;
+  
+
+    x.push_back(0x0);
+    x.push_back(0x1);
+    x.push_back(0x3);
+    x.push_back(0x7);
+    x.push_back(0x6);
+    x.push_back(0xe);
+    x.push_back(0xf);
+    x.push_back(0xb);
+    x.push_back(0x9);
+    x.push_back(0x5);
+    x.push_back(0x4);
+    x.push_back(0xc);
+    x.push_back(0x8);
+    x.push_back(0xa);
+    x.push_back(0x2);
+
+    GcUtils::dumpBinary(1, x);
+    printf("done dump init\n");
+    auto y = GcUtils::getShortestRun(1, x);
+    //auto y = GcUtils::getShortestRun(4, x);
+    assert(y == 2);
 }
 
 // static bool onlyDifferByOneBit(unsigned totalCount, const std::vector<uint16_t>& data1, unsigned candidate);
-
 
 static void testDifferByOneEmpty() {
     const unsigned numBits = 4;
@@ -70,9 +190,7 @@ static void testDifferByOneEmpty() {
     x.push_back(1);
     y = GcUtils::onlyDifferByOneBit(6, numBits, x);
     assert(y == false);
-
 }
-
 
 static void testDifferByOne0() {
     const unsigned numBits = 5;
@@ -194,15 +312,6 @@ static void testTransitionData2() {
     assert(y.second == 0);
 }
 
-static void testDump() {
-    printf("\n");
-    GcUtils::dumpBinary(12, 0xfa);
-    printf("\n");
-    GcUtils::dumpBinary(12, 1);
-    printf("\n");
-    GcUtils::dumpBinary(12, 2);
-    printf("\n");
-}
 static void testUtils() {
     testNumBitsDifferent0();
     testNumBitsDifferent1();
@@ -217,35 +326,37 @@ static void testUtils() {
 
     testTransitionDataWrap0();
     testTransitionDataWrap1();
-    testDump();
+
     testGetWithRollover();
     testShortestRun0();
     testShortestRun1();
     testShortestRun2();
+    testShortestRun25();
+    testShortestRun26();
+    testShortestRun27();
+    testShortestRun3();
 }
-
 
 void gc_fill() {
     SQINFO("test: about to generate");
 
     /** retults:
-    * nBits 1, unbalcanced, state size is 2, var=2,2, shortest run = 1
-    * Bits 1, balcanced, state size is 2, var=2,2, shortest run = 1
-    * nBits 2, unbalcanced,state size =4 var=2,2, shortest run = 2
-    * nBits 2, balanced,state size =4 var=2,2, shortest run = 2
-    * nBits 4, unbalanced, state size = 16, var = 2,8, shortest run = 2;
-    * nBits 4, balance, var=4,4 shortest run = 2;
-    * 
-    */
-    GcGenerator gc(4, true);
-   // GcGenerator gc(4, true);
+     * nBits 1, unbalcanced, state size is 2, var=2,2, shortest run = 1
+     * Bits 1, balcanced, state size is 2, var=2,2, shortest run = 1
+     * nBits 2, unbalcanced,state size =4 var=2,2, shortest run = 2
+     * nBits 2, balanced,state size =4 var=2,2, shortest run = 2
+     * nBits 4, unbalanced, state size = 16, var = 2,8, shortest run = 2;
+     * nBits 4, balance, var=4,4 shortest run = 2;
+     * (4, true, 3) faile
+     *
+     */
+    GcGenerator gc(4, false);
+    // GcGenerator gc(4, true);
     gc.dump();
 }
-
 
 void testGrayCode() {
     testUtils();
     gc_fill();
-   // assert(false);
-
+    // assert(false);
 }

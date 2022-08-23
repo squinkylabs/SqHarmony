@@ -1,12 +1,14 @@
 #pragma once
 
+#include <algorithm>
+#include <cmath>
 #include <vector>
 
 #include "GcUtils.h"
 class GcGenerator {
 public:
     using NumType = uint16_t;  // let's limit ourselves to 16 bit
-    GcGenerator(unsigned nBits, bool balanced);
+    GcGenerator(unsigned nBits, bool wantBalanced, int minShortRun = -1);
     void dump();
 
 private:
@@ -20,13 +22,17 @@ private:
     unsigned numEntries;
     const bool wantBalanced;
     unsigned farthestBacktrack = 1000;
+    const int minShortRun;
+    int shortestSeen = 1000;
 
     unsigned getCandidate(int bit);
+    bool isFinalStateOk();
 };
 
-inline GcGenerator::GcGenerator(unsigned nBits, bool balanced) : nBits(nBits), wantBalanced(balanced) {
+inline GcGenerator::GcGenerator(unsigned nBits, bool balanced, int minRun) : nBits(nBits), wantBalanced(balanced), minShortRun(minRun) {
     numEntries = unsigned(std::round(std::pow<int>(2, nBits)));
     printf("gcgen ctor, nBits=%d numEnt=%d\n", nBits, numEntries);
+    printf(" minShortTurn=%d\n", minShortRun);
 
     const auto success = addTheRemainingEntries(123);
     assert(success);
@@ -38,9 +44,10 @@ inline GcGenerator::GcGenerator(unsigned nBits, bool balanced) : nBits(nBits), w
 
 inline bool GcGenerator::isThisStateValid() const {
     //  SQINFO("can this follow (%d) size =%d", candidate, state.size());
+#ifdef _LOG
     printf("isThisStateValid called on:\n");
     GcUtils::dumpBinary(nBits, state);
-
+#endif
     // if we are the first guess, we are fine
     if (state.size() < 2) {
         return true;
@@ -48,7 +55,9 @@ inline bool GcGenerator::isThisStateValid() const {
 
     const auto differByOne = GcUtils::onlyDifferByOneBit(numEntries, nBits, state);
     if (!differByOne) {
+#ifdef _LOG
         printf("not valid, differ by one failed\n");
+#endif
         return false;
     }
 
@@ -56,7 +65,9 @@ inline bool GcGenerator::isThisStateValid() const {
     for (unsigned i = 0; i < state.size() - 1; ++i) {
         const auto x = state[i];
         if (x == candidate) {
-             printf("not valid, two entries same: %x, %x\n", x, candidate);
+#ifdef _LOG
+            printf("not valid, two entries same: %x, %x\n", x, candidate);
+#endif
             return false;
         }
     }
@@ -73,35 +84,57 @@ inline unsigned GcGenerator::getCandidate(int bit) {
     return last ^ mask;
 }
 
-inline bool GcGenerator::addTheRemainingEntries(int marker) {
-    printf("addAnotherENtry called size=%zd\n", state.size());
-    // first, make next entry
-
-    // TODO: we don't need a special case here?
-    if (state.size() == numEntries) {
-        if (!wantBalanced) {
-            return true;
-        }
+inline bool GcGenerator::isFinalStateOk() {
+    if (wantBalanced) {
         const auto dist = GcUtils::getTranstionDataWithWrap(nBits, state);  // this won't look for round abouts!
         const bool isBalanced = dist.first == dist.second;
         if (!isBalanced) {
-            printf("\not balanced, dist = %d,%d\n", dist.first, dist.second);
-            // dump();
+#if defined(_LOG) || 0
+            printf("not balanced, dist = %d,%d\n", dist.first, dist.second);
+#endif
             return false;
         }
-        // if they are all made, we are good
+    }
+    // if they are all made, we are good
+    if (minShortRun >= 0) {
+        const auto shortRun = GcUtils::getShortestRun(nBits, state);
+        if (shortRun < minShortRun) {
+            if (shortRun < shortestSeen) {
+                printf("shortest run = %d, min= %d\n", shortRun, minShortRun);
+                shortestSeen = shortRun;
+            }
+#if defined(_LOG) || 0
+            printf("shortest run = %d, min= %d\n", shortRun, minShortRun);
+#endif
+            return false;
+        }
+        assert(shortRun >= minShortRun);
+    }
 
-        return true;
+    return true;
+}
+
+inline bool GcGenerator::addTheRemainingEntries(int marker) {
+#ifdef _LOG
+    printf("addAnotherENtry called size=%zd\n", state.size());
+#endif
+
+
+    if (state.size() == numEntries) {
+        return isFinalStateOk();
     }
 
     // loop, searching for something to try.
     for (unsigned i = 0; i < nBits; ++i) {
-       
         const auto candidate = getCandidate(i);
-         printf("calling get Candidate from loop i=%d level=%zd cand=%x\n", i, state.size(), candidate);
+#ifdef _LOG
+        printf("calling get Candidate from loop i=%d level=%zd cand=%x\n", i, state.size(), candidate);
+#endif
         state.push_back(candidate);
         if (isThisStateValid()) {
+#ifdef _LOG
             printf("state valid, size=%zd\n", state.size());
+#endif
             const bool ok = addTheRemainingEntries(678);
             if (ok) {
                 //  SQINFO("that succeeded\n");
@@ -110,46 +143,27 @@ inline bool GcGenerator::addTheRemainingEntries(int marker) {
                 // SQINFO("guess failed %x level = %d i=%d", candidate, state.size(), i);
                 assert(!state.empty());
                 state.pop_back();  // pop off the failed candidate
-
                 if (state.size() < farthestBacktrack) {
                     farthestBacktrack = unsigned(state.size());
                     printf("backtrack to %d\n", farthestBacktrack);
                 }
             }
         } else {
+#ifdef _LOG
             printf("state bad, size=%zd\n", state.size());
+#endif
             state.pop_back();
         }
-        /*
-        if (canThisFollow(candidate)) {
-            state.push_back(candidate);
-            // if this candidate looks possible, let's recurse into it
-            const bool ok = addTheRemainingEntries(678);
-            if (ok) {
-                //  SQINFO("that succeeded\n");
-                return true;
-            } else {
-                //SQINFO("guess failed %x level = %d i=%d", candidate, state.size(), i);
-                assert(!state.empty());
-                state.pop_back();  // pop off the failed candidate
-
-                if (state.size() < farthestBacktrack) {
-                    farthestBacktrack = unsigned(state.size());
-                    SQINFO("backtrack to %d", farthestBacktrack);
-                }
-            }
-        }
-        */
     }
 
     // if we got here, this whole stage can't complete.
+#ifdef _LOG
     if (state.empty()) {
         printf("giving up on level %zd marker = %d", state.size(), marker);
     } else {
         printf("giving up on level %zd marker = %d top=%x", state.size(), marker, state.back());
     }
-    // assert(!state.empty());
-    //  state.pop_back();
+#endif
     return false;
 }
 

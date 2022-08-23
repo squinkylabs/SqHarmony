@@ -1,5 +1,6 @@
 
 #pragma once
+#include <assert.h>
 #include <vector>
 #include "SqLog.h"
 
@@ -157,7 +158,7 @@ inline int GcUtils::getShortestRun(unsigned numBits, const std::vector<uint16_t>
     if (data.empty()) {
         return -1;
     }
-    //SQINFO("enter");
+   // printf("--- enter get shortest run ----\n");
 
     const auto indexMax = data.size() * 2;
 
@@ -179,12 +180,14 @@ inline int GcUtils::getShortestRun(unsigned numBits, const std::vector<uint16_t>
             // ignore the first data point - no past to compare it to
             if (i != 0) {
                 // is there a change in the bit
+               // printf("run loop i=%2d, x =%x lastX=%2x runCounter = %2d, haveSeenChange=%1d shortest=%2d\n",
+               //     i, x, lastX, runCounter, haveSeenChange, shortestRun);
                 if (x != lastX) {
                     if (haveSeenChange) {
                         shortestRun = std::min(shortestRun, runCounter);
                         // SQINFO("found change in bit pattern, captured short=%d i=%d", shortestRun, i);
                       
-                        runCounter = 1;
+                        runCounter = 0;
                     }
                     else {
                         runCounter = 0;
@@ -194,6 +197,7 @@ inline int GcUtils::getShortestRun(unsigned numBits, const std::vector<uint16_t>
                 ++runCounter;
             }
             lastX = x;
+           // printf("  bottom of loop, i=%2d, runCounter=%2d, shortest=%2d\n", i, runCounter, shortestRun);
           
         }
     }
