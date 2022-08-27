@@ -31,8 +31,8 @@ extern void testTempo();
 extern void testGrayCode();
 
 int main(const char**, int) {
-    testGrayCode();
-    std::exit(0);
+  //  testGrayCode();
+  //  std::exit(0);
 #if 0
     specialDumpList();
 #else
