@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <cstdlib>
 extern void testHarmonyNote();
 extern void testScaleRelativeNote();
 extern void testChord();
@@ -27,8 +28,11 @@ extern void testHarmonyChords2();
 extern void testRingBuffer();
 extern void testChord4Manager();
 extern void testTempo();
+extern void testGrayCode();
 
 int main(const char**, int) {
+  //  testGrayCode();
+  //  std::exit(0);
 #if 0
     specialDumpList();
 #else

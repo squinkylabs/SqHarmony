@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/quant;../notes;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/quant;../notes;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/quant;../notes;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/quant;../notes;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -169,6 +169,7 @@
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
+    <ClCompile Include="testGrayCode.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="..\notes\HarmonyNote.h" />
     <ClInclude Include="..\notes\PitchKnowledge.h" />
     <ClInclude Include="..\notes\Style.h" />
+    <ClInclude Include="..\util\gray_code\GcUtils.h" />
     <ClInclude Include="..\util\quant\Scale.h" />
     <ClInclude Include="..\util\quant\ScaleNote.h" />
     <ClInclude Include="..\util\quant\ScaleQuantizer.h" />

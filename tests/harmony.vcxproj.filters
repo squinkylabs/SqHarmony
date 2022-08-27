@@ -40,6 +40,9 @@
     <Filter Include="Header Files\composites">
       <UniqueIdentifier>{ab101ea5-4576-4b26-a1bb-e1d9b3af9843}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\util\gray_code">
+      <UniqueIdentifier>{33bc1beb-6b98-40ec-a0ad-ed4a23df653a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -168,6 +171,9 @@
     <ClCompile Include="testTempo.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="testGrayCode.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">
@@ -205,6 +211,9 @@
     </ClInclude>
     <ClInclude Include="..\composites\WidgetComposite.h">
       <Filter>Header Files\composites</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\gray_code\GcUtils.h">
+      <Filter>Header Files\util\gray_code</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
