@@ -33,7 +33,6 @@ static void testNoGate() {
 
     // now click in the gate
     arp->inputs[Comp::CLOCK_INPUT].value = 10;
-    SQDEBUG("test about to call proc");
     arp->process(args);
 
     // we should have no output, since no gate
