@@ -105,7 +105,6 @@ static void testMonoConnectVoiceCount() {
 }
 
 static void testSoprano4VoiceCount() {
-    SQINFO("--- testSoprano4VoiceCount");
     Comp h;
 
     // patch only soprano
@@ -131,7 +130,6 @@ static void testSoprano4VoiceCount() {
 }
 
 static void testBassAndSopranoVoiceCount() {
-    SQINFO("-------------- testBassAndSopranoVoiceCount ");
     Comp h;
 
     h.outputs[Comp::SOPRANO_OUTPUT].channels = 1;
@@ -155,9 +153,6 @@ static void testBassAndSopranoVoiceCount() {
 }
 
 static void test2and2VoiceCount() {
-    SQINFO("-------------- test2and2VoiceCount ");
-    
-    
     Comp h;
     h.outputs[Comp::TENOR_OUTPUT].channels = 1;
     h.outputs[Comp::SOPRANO_OUTPUT].channels = 1;
@@ -183,7 +178,6 @@ static void testNumChords() {
     Comp h;
     int x = h._size();
     assert(x > 100);            // plenty of chords, by default
-    SQINFO("test setting to enum narrow %d", int(Style::Ranges::NARROW_RANGE));
     h.params[Comp::CENTER_PREFERENCE_PARAM].value = float(int(Style::Ranges::NARROW_RANGE));
    // for (int i=0; i < 32; ++i)
    h.process(TestComposite::ProcessArgs());
@@ -206,9 +200,7 @@ static void testLabels() {
 * test 0 = not clocks at all
 * test 1 = one clock, no delay
  */
-static void testTrigger(int whichTest) {
-    SQINFO("-------------- trigger ");
-    
+static void testTrigger(int whichTest) {    
     Comp h;
 
     const bool delay = (whichTest == 2);

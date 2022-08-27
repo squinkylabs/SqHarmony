@@ -7,6 +7,7 @@
  * 
  */
 #include "AudioMath.h"
+#include "SqLog.h"
 
 #if defined(_MSC_VER)
 #define __attribute__(x)
