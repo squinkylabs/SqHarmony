@@ -105,12 +105,11 @@ static void testMonoConnectVoiceCount() {
 }
 
 static void testSoprano4VoiceCount() {
-    SQINFO("--- testSoprano4VoiceCount");
     Comp h;
 
     // patch only soprano
     h.outputs[Comp::SOPRANO_OUTPUT].channels = 1;
-      // set to D so we can't get any zeros
+    // set to D so we can't get any zeros
     h.inputs[Comp::CV_INPUT].setVoltage(2.f / 12.f, 0);
 
     for (int i = 0; i < 50; ++i) {
@@ -123,7 +122,6 @@ static void testSoprano4VoiceCount() {
     assertEQ(h.outputs[Comp::ALTO_OUTPUT].getChannels(), 0);
     assertEQ(h.outputs[Comp::SOPRANO_OUTPUT].getChannels(), 4);
 
-
     assertNE(h.outputs[Comp::SOPRANO_OUTPUT].getVoltage(0), 0);
     assertNE(h.outputs[Comp::SOPRANO_OUTPUT].getVoltage(1), 0);
     assertNE(h.outputs[Comp::SOPRANO_OUTPUT].getVoltage(2), 0);
@@ -131,12 +129,11 @@ static void testSoprano4VoiceCount() {
 }
 
 static void testBassAndSopranoVoiceCount() {
-    SQINFO("-------------- testBassAndSopranoVoiceCount ");
     Comp h;
 
     h.outputs[Comp::SOPRANO_OUTPUT].channels = 1;
     h.outputs[Comp::BASS_OUTPUT].channels = 1;
-      // set to D so we can't get any zeros
+    // set to D so we can't get any zeros
     h.inputs[Comp::CV_INPUT].setVoltage(2.f / 12.f, 0);
 
     for (int i = 0; i < 50; ++i) {
@@ -155,13 +152,10 @@ static void testBassAndSopranoVoiceCount() {
 }
 
 static void test2and2VoiceCount() {
-    SQINFO("-------------- test2and2VoiceCount ");
-    
-    
     Comp h;
     h.outputs[Comp::TENOR_OUTPUT].channels = 1;
     h.outputs[Comp::SOPRANO_OUTPUT].channels = 1;
-      // set to D so we can't get any zeros
+    // set to D so we can't get any zeros
     h.inputs[Comp::CV_INPUT].setVoltage(2.f / 12.f, 0);
 
     for (int i = 0; i < 50; ++i) {
@@ -182,15 +176,13 @@ static void test2and2VoiceCount() {
 static void testNumChords() {
     Comp h;
     int x = h._size();
-    assert(x > 100);            // plenty of chords, by default
-    SQINFO("test setting to enum narrow %d", int(Style::Ranges::NARROW_RANGE));
+    assert(x > 100);  // plenty of chords, by default
     h.params[Comp::CENTER_PREFERENCE_PARAM].value = float(int(Style::Ranges::NARROW_RANGE));
-   // for (int i=0; i < 32; ++i)
-   h.process(TestComposite::ProcessArgs());
+
+    h.process(TestComposite::ProcessArgs());
 
     int y = h._size();
     assertLT(y, x);
-
 }
 
 static void testLabels() {
@@ -203,12 +195,10 @@ static void testLabels() {
     assertEQ(Comp::getHistoryLabels()[3], "13");
 }
 /*
-* test 0 = not clocks at all
-* test 1 = one clock, no delay
+ * test 0 = not clocks at all
+ * test 1 = one clock, no delay
  */
 static void testTrigger(int whichTest) {
-    SQINFO("-------------- trigger ");
-    
     Comp h;
 
     const bool delay = (whichTest == 2);
@@ -249,30 +239,29 @@ static void testTrigger(int whichTest) {
     const float z = h.outputs[Comp::BASS_OUTPUT].value;
 
     switch (whichTest) {
-    case 0:
-        assertEQ(x, 0);
-        assertEQ(y, 0);
-        assertEQ(z, 0);
-        break;
-    case 1:         // no delay one trigger
-        assertEQ(x, 0);
-        assertNE(x, y);
-        assertEQ(y, z);
-        break;
-    case 2:
-        assertEQ(x, 0);
-        assertEQ(y, 0);
-        assertNE(y, z);
-        break;
-    default:
-        assert(false);
+        case 0:
+            assertEQ(x, 0);
+            assertEQ(y, 0);
+            assertEQ(z, 0);
+            break;
+        case 1:  // no delay one trigger
+            assertEQ(x, 0);
+            assertNE(x, y);
+            assertEQ(y, z);
+            break;
+        case 2:
+            assertEQ(x, 0);
+            assertEQ(y, 0);
+            assertNE(y, z);
+            break;
+        default:
+            assert(false);
     }
-
 }
 
 void testHarmonyComposite() {
     test0();
-  //  testQuant1();
+    //  testQuant1();
     testRunABit();
     testOctave();
     testSemiUpDown();

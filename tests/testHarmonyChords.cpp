@@ -283,11 +283,9 @@ void testHarmonyChords() {
     test2to1b();
 
     test1to2to1();
-    printf("--- test 3 ----\n");
     printf("put back 3 seq\n");
     // testThreeSequence();
     // testXtoY();
-    printf("--- test xyx ----\n");
     // testXtoYtoX();
 
     // this isn't a real test

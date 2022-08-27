@@ -19,7 +19,6 @@ void connectInputs(ArpPtr arp, int numInputChannels) {
 }
 
 static void testNoGate() {
-    SQDEBUG("---- testNoGate");
     auto arp = make();
     connectInputs(arp, 1);
     auto args = TestComposite::ProcessArgs();
@@ -79,7 +78,6 @@ static void testGate() {
 }
 
 static void testHold() {
-    SQINFO("------------ testHold()");
     auto arp = make();
     connectInputs(arp, 1);
     auto args = TestComposite::ProcessArgs();
@@ -106,7 +104,6 @@ static void testHold() {
     // with hold on, should still have a gate.
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutHi);
 
-    SQINFO("----- now remove the hold switch -----");
 
     arp->params[Comp::HOLD_PARAM].value = 0;    // turn hold off
     arp->process(args);
@@ -433,7 +430,6 @@ static void testNoDelay2() {
 }
 
 static void testDelay2() {
-    SQINFO("---- testDelay2 ----");
     // clock, then gate after 1, then cv after another.
     // should still see correct  output, as above
     auto arp = make();

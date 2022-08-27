@@ -49,7 +49,6 @@ static void testAtoB(bool show, const char* chordAs, int degA, const char* chord
 
     if (callFinder) {
         auto chordManager = std::make_shared<Chord4Manager>(options);
-        printf("-- now will call findChord\n");
         auto chordB = HarmonyChords::findChord(show, options, *chordManager, *chord1, 2);
         assert(chordB);
         printf("find chord ret %s\n", chordB->toString().c_str());

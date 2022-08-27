@@ -816,7 +816,6 @@ static void testArpegPlayerREPEAT_TOP() {
 }
 
 static void testArpegPlayerSHUFFLE(bool withTrigger) {
-    SQINFO("\n\n------------ testArpegPlayerSHUFFLE\n");
     const auto mode = ArpegPlayer::Mode::SHUFFLE;
 
     const int numInput = 12;
@@ -882,7 +881,6 @@ static void testArpegPlayerSHUFFLE(bool withTrigger) {
         outputSecond[i] = x;
     }
 
-    SQINFO("-- tests will compare results from passes");
     bool anyDifferent = false;
     for (int i = 0; i < numInput; ++i) {
         if (outputFirst[i] != outputSecond[i]) {

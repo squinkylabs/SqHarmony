@@ -42,7 +42,6 @@ static void testArpegRhythmPlayer1() {
 
 // testArpegRPSub(int length, float* input, int numInput, float* expectedOutput, int numOutput)
 static void testArpegRhythmPlayer2() {
-    printf("\n---- testArpegRhythmPlayer2 ----\n");
     float input[] = {1, 2, 3};
     float expectedOutput[] = {1, 2, 1};
 
