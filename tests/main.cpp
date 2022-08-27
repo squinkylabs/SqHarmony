@@ -68,3 +68,22 @@ int main(const char**, int) {
 
 #endif
 }
+
+#include <nanovg.h>
+
+// crazy linker issue
+#if !defined(__PLUGIN)
+NVGcolor nvgRGB(unsigned char r, unsigned char g, unsigned char b) {
+    return nvgRGBA(r, g, b, 255);
+}
+
+NVGcolor nvgRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    NVGcolor color;
+    // Use longer initialization to suppress warning.
+    color.r = r / 255.0f;
+    color.g = g / 255.0f;
+    color.b = b / 255.0f;
+    color.a = a / 255.0f;
+    return color;
+}
+#endif
