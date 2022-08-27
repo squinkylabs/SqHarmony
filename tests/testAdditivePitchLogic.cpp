@@ -3,34 +3,39 @@
 #include "asserts.h"
 
 template <unsigned N>
-inline  bool areAtHarmonics(const AdditivePitchLogic<N>& l) {
+inline void assertAreAtHarmonics(const AdditivePitchLogic<N>& l) {
     const float base = l.getPitch(0);
     const float base2 = l.getPitch(1);
-    // 2 is oct and 5th
+
+    assertEQ(base2, (base + 1));
+    assertGT(l.getPitch(2), base2);
+
     const float base4 = l.getPitch(3);
+    assertEQ(base4, (base + 2));
+
+    assertLT(l.getPitch(2), base4);
+    assertGT(l.getPitch(4), base4);
+
+    const float base8 = l.getPitch(7);
+    assertEQ(base8, (base + 3));
+
+    assertLT(l.getPitch(4), base8);
 
 
-   
-    if (base2 != (base +1)) {
-        SQINFO("base 2 = %f 2base=%f", base2, base + 1);
-        return false;
+
+    const float base16 = l.getPitch(15);
+    assertEQ(base16, (base + 4));
+
+    for (unsigned i=1; i<N; ++i) {
+        assertGT(l.getPitch(i), l.getPitch(i - 1));
     }
-
-    if (base4 != (base + 2)) {
-        SQINFO("base 4 = %f 4base=%f", base4, base + 2);
-        return false;
-    }
-
-    assert(false);
-
-    return true;
 }
 
 static void testAdditivePitchLogic_initialPitch() {
     const static unsigned N = 16;
     AdditivePitchLogic<N> l;
     assertEQ(l.getPitch(0), 0.f);
-    assert(areAtHarmonics(l));
+    assertAreAtHarmonics(l);
 }
 
 static void testAdditivePitchLogic_cv(float cv) {
