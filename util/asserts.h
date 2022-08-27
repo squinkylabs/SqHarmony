@@ -1,21 +1,21 @@
 #pragma once
 
 //#include "simd.h"
-#include "AudioMath.h"
+//#include "AudioMath.h"
+#include "sq_rack.h"
 
 #include <assert.h>
 #include <iostream>
 
 extern int _mdb;        // MIDI reverence count
 
-
-
+#define _SIMD
 /** returns true if m is a valid mask for vector operations expecting a mask
  * defined for non-debug
  *
  */
 #ifdef _SIMD
-inline bool isMask(float_4 m)
+inline bool isMask(rack::simd::float_4 m)
 {
     float_4 nm = ~m;
     return (
