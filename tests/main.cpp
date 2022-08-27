@@ -29,6 +29,7 @@ extern void testRingBuffer();
 extern void testChord4Manager();
 extern void testTempo();
 extern void testGrayCode();
+extern void testAdditivePitchLogic();
 
 int main(const char**, int) {
   //  testGrayCode();
@@ -36,6 +37,7 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testAdditivePitchLogic();
     testTempo();
     testRingBuffer();
     testGateDelay();

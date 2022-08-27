@@ -164,6 +164,7 @@
     <ClCompile Include="..\util\quant\ScaleQuantizer.cpp" />
     <ClCompile Include="..\util\SqLog.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="testAdditivePitchLogic.cpp" />
     <ClCompile Include="testArepegPlayer2.cpp" />
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
