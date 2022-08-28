@@ -31,6 +31,9 @@ private:
 template <unsigned N>
 inline float AdditivePitchLogic<N>::getPitch(int harmonic) const {
   //  assert(!_dirty);
+    if (harmonic >= N) {
+        return 0;
+    }
     const auto lgh = std::log2(float(harmonic + 1));
     // SQINFO("harm=%d, log=%f", harmonic, lgh);
     return lgh + _cv;
