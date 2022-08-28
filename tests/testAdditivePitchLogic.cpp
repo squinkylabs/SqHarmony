@@ -59,17 +59,34 @@ static void testAdditivePitchLogic_outOfRange() {
     const static unsigned N = 9;
     AdditivePitchLogic<N> l;
     assertEQ(l.getPitch(N), 0);
-    assertEQ(l.getPitch(N+1), 0);
-    assertNE(l.getPitch(N-1), 0);
+    assertEQ(l.getPitch(N + 1), 0);
+    assertNE(l.getPitch(N - 1), 0);
 
     l.setCV(1.3f);
     assertEQ(l.getPitch(N), 0);
-    assertEQ(l.getPitch(N+1), 0);
-    assertNE(l.getPitch(N-1), 0);
+    assertEQ(l.getPitch(N + 1), 0);
+    assertNE(l.getPitch(N - 1), 0);
+}
+
+static void testAdditivePitchLogic_octave() {
+    const static unsigned N = 20;
+    AdditivePitchLogic<N> l;
+    l.setCV(0);
+    l.setOctave(1);
+    assertEQ(l.getPitch(0), 1);
+    assertAreAtHarmonics(l);
+
+    l.setOctave(-2);
+    assertEQ(l.getPitch(0), -2);
+    assertAreAtHarmonics(l);
+    l.setCV(-2);
+    assertEQ(l.getPitch(0), -4);
+    assertAreAtHarmonics(l);
 }
 
 void testAdditivePitchLogic() {
     testAdditivePitchLogic_initialPitch();
     testAdditivePitchLogic_cv();
     testAdditivePitchLogic_outOfRange();
+    testAdditivePitchLogic_octave();
 }

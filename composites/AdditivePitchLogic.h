@@ -25,6 +25,7 @@ public:
     void setOffset(float offset);
 private:
     float _cv{0};
+    float _octave{0};
 //    bool _dirty{false};
 };
 
@@ -36,7 +37,7 @@ inline float AdditivePitchLogic<N>::getPitch(int harmonic) const {
     }
     const auto lgh = std::log2(float(harmonic + 1));
     // SQINFO("harm=%d, log=%f", harmonic, lgh);
-    return lgh + _cv;
+    return lgh + _cv + _octave;
 }
 
 template <unsigned N>
@@ -46,5 +47,13 @@ inline void AdditivePitchLogic<N>::setCV(float cv) {
     }
 
     _cv = cv;
+   // _dirty = true;
+}
+
+template <unsigned N>
+inline void AdditivePitchLogic<N>::setOctave(int octave) {
+  
+
+    _octave = float(octave);
    // _dirty = true;
 }
