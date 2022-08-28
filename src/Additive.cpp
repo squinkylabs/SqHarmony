@@ -1,9 +1,16 @@
+#include "Additive.h"
+#include "WidgetComposite.h"
 #include "plugin.hpp"
 #include "rack.hpp"
 
+
+using Comp = Additive<WidgetComposite>;
 #define _LAB
 
 class AdditiveModule : public Module {
+public:
+private:
+    std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);
 };
 
 class AdditiveWidget : public ModuleWidget {

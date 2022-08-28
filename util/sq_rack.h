@@ -14,7 +14,7 @@
 #pragma warning (push)
 // turn off some MSVC warnings that are triggered by rack.hpp
 #pragma warning(disable: 4244 4305 4267)
-#endif
+
 
 #define __ATOMIC_ACQUIRE 0
 #define __ATOMIC_RELEASE 0
@@ -37,6 +37,7 @@ inline size_t  __atomic_sub_fetch (volatile size_t *, size_t, int) {
 // Some constants that VCV needs that MSVC doesn't have
 #define M_PI AudioMath::Pi
 #define M_SQRT2 1.41421356237309504880
+#endif
 
 
 #include "rack.hpp"
