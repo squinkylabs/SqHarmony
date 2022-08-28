@@ -200,14 +200,13 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     chords.push_back(ch);
 #else
     if (!module) {
-
         Comp::Chord c;
         c.inversion = 0;
         c.root = 1;
         c.pitch[0] = 60;
-        c.pitch[1] = 72; 
-        c.pitch[2] = 76; 
-        c.pitch[3] = 79; 
+        c.pitch[1] = 72;
+        c.pitch[2] = 76;
+        c.pitch[3] = 79;
         chords.push_back(c);
 
         c.inversion = 0;
@@ -265,7 +264,6 @@ inline Score::Score(Harmony1Module *m) : module(m) {
         c.pitch[2] = 72;
         c.pitch[3] = 76;
         chords.push_back(c);
-
     }
 
 #endif

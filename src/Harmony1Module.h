@@ -28,7 +28,7 @@ public:
         private:
             std::vector<std::string> labels = Scale::getScaleLabels(true);
         };
-     //   this->configParam<RootParam>(Comp::MODE_PARAM, 0, numModes - 1, 0, "Arpeggiator Mode");
+        //   this->configParam<RootParam>(Comp::MODE_PARAM, 0, numModes - 1, 0, "Arpeggiator Mode");
         class RootParam : public ParamQuantity {
         public:
             std::string getDisplayValueString() override {
@@ -39,7 +39,7 @@ public:
         private:
             std::vector<std::string> labels = Scale::getRootLabels();
         };
-     
+
         this->configParam<RootParam>(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
         this->configParam<ModeParam>(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
         this->configParam(Comp::RETRIGGER_CV_AND_NOTE_PARAM, 0, 1, 1, "Retrigger CV and Note");

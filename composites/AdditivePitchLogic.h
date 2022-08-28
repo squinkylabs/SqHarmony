@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cmath>
 #include <assert.h>
+
+#include <cmath>
 
 #include "SqLog.h"
 
@@ -23,16 +24,16 @@ public:
     void setEvenOffset(float offset);
     void setOddOffset(float offset);
     void setOffset(float offset);
+
 private:
     float _cv{0};
     float _octave{0};
     float _semitone{0};
-//    bool _dirty{false};
 };
 
 template <unsigned N>
 inline float AdditivePitchLogic<N>::getPitch(int harmonic) const {
-  //  assert(!_dirty);
+    //  assert(!_dirty);
     if (harmonic >= N) {
         return 0;
     }

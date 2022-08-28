@@ -95,7 +95,7 @@ inline void Arpeggiator1Module::addParams() {
     this->configOutput(Comp::CV_OUTPUT, "CV 1");
     this->configOutput(Comp::CV2_OUTPUT, "CV 2");
     this->configOutput(Comp::GATE_OUTPUT, "Gate");
-   // this->configOutput(Comp::EOC_OUTPUT, "End of pattern");
+    // this->configOutput(Comp::EOC_OUTPUT, "End of pattern");
 }
 
 #if 0

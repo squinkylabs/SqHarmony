@@ -39,7 +39,6 @@ struct Harmony1Widget : ModuleWidget {
         addParam(createParam<CKSSThree>(Vec(38, ySwitch), module, Comp::CENTER_PREFERENCE_PARAM));
         addParam(createParam<CKSS>(Vec(66, ySwitch), module, Comp::NNIC_PREFERENCE_PARAM));
 
-
         // RoundBlackSnapKnob
         auto param = createParam<RoundBlackSnapKnob>(Vec(102, 190), module, Comp::TRANSPOSE_STEPS_PARAM);
         addParam(param);
@@ -60,13 +59,13 @@ struct Harmony1Widget : ModuleWidget {
         voiceLabels[1] = addLabel(Vec(49, labelY), "");
         voiceLabels[2] = addLabel(Vec(79, labelY), "");
         voiceLabels[3] = addLabel(Vec(109, labelY), "");
-        for (int i=0; i<4; ++i) {
+        for (int i = 0; i < 4; ++i) {
             voiceLabels[i]->fontSize = 11;
         }
     }
 
     void addKeysig() {
-        const float yScale = 135;  
+        const float yScale = 135;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -134,7 +133,7 @@ struct Harmony1Widget : ModuleWidget {
             // process the voice indicators
             for (int i = 0; i < 4; ++i) {
                 const int ch = hmodule->comp->getOutputChannels(i);
-                //INFO("chan[%d] = %d", i, ch);
+                // INFO("chan[%d] = %d", i, ch);
                 if (ch != voicesLastTime[i]) {
                     voicesLastTime[i] = ch;
                     std::string newLabel;
@@ -185,7 +184,7 @@ struct Harmony1Widget : ModuleWidget {
 
 void Harmony1Widget::addScore(Harmony1Module* module) {
     _score = new Score(module);
-    auto size = Vec(134, 100); 
+    auto size = Vec(134, 100);
     auto vu = new BufferingParent(_score, size, _score);
 
     vu->box.pos = Vec(8, 28),
