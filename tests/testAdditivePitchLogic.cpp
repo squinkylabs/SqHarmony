@@ -21,12 +21,10 @@ inline void assertAreAtHarmonics(const AdditivePitchLogic<N>& l) {
 
     assertLT(l.getPitch(4), base8);
 
-
-
     const float base16 = l.getPitch(15);
     assertEQ(base16, (base + 4));
 
-    for (unsigned i=1; i<N; ++i) {
+    for (unsigned i = 1; i < N; ++i) {
         assertGT(l.getPitch(i), l.getPitch(i - 1));
     }
 }
@@ -39,7 +37,11 @@ static void testAdditivePitchLogic_initialPitch() {
 }
 
 static void testAdditivePitchLogic_cv(float cv) {
-    assert(false);
+    const static unsigned N = 6;
+    AdditivePitchLogic<N> l;
+    l.setCV(cv);
+    assertEQ(l.getPitch(0), cv);
+    assertAreAtHarmonics(l);
 }
 
 static void testAdditivePitchLogic_cv() {
