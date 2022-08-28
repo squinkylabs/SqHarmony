@@ -29,6 +29,7 @@ private:
     float _cv{0};
     float _octave{0};
     float _semitone{0};
+    float _stretch{0};
 };
 
 template <unsigned N>
@@ -37,7 +38,11 @@ inline float AdditivePitchLogic<N>::getPitch(int harmonic) const {
     if (harmonic >= N) {
         return 0;
     }
-    const auto lgh = std::log2(float(harmonic + 1));
+
+    float stretchedHarmonic = float(harmonic) * (1.f + .1f * _stretch);
+    //const auto lgh = std::log2(float(harmonic + 1));
+    const auto lgh = std::log2(stretchedHarmonic + 1);
+
     // SQINFO("harm=%d, log=%f", harmonic, lgh);
     return lgh + _cv + _octave + (_semitone / 12);
 }
@@ -55,4 +60,9 @@ inline void AdditivePitchLogic<N>::setOctave(int octave) {
 template <unsigned N>
 inline void AdditivePitchLogic<N>::setSemitone(int semi) {
     _semitone = float(semi);
+}
+
+template <unsigned N>
+inline void AdditivePitchLogic<N>::setStretch(float stretch) {
+    _stretch = stretch;
 }

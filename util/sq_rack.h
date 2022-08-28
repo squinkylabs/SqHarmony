@@ -42,6 +42,7 @@ inline size_t  __atomic_sub_fetch (volatile size_t *, size_t, int) {
 
 #include "rack.hpp"
 using float_4 = rack::simd::float_4;
+using namespace rack::simd;
 
 #if defined(_MSC_VER)
 #pragma warning (pop)

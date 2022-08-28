@@ -85,7 +85,7 @@ static void testAdditivePitchLogic_octave() {
 }
 
 static void testAdditivePitchLogic_semi() {
-     const static unsigned N = 20;
+    const static unsigned N = 20;
     AdditivePitchLogic<N> l;
     AdditivePitchLogic<N> l2;
     l.setCV(0);
@@ -103,18 +103,39 @@ static void testAdditivePitchLogic_semi() {
     assertAreAtHarmonics(l);
 }
 
-
 static void testAdditivePitchLogic_semi2() {
     const static unsigned N = 20;
     AdditivePitchLogic<N> l;
     AdditivePitchLogic<N> l2;
-   
-    for (int i= -12; i < 12; ++i) {
+
+    for (int i = -12; i < 12; ++i) {
         l.setSemitone(i);
         l2.setSemitone(i + 1);
         assertGT(l2.getPitch(0), l.getPitch(0));
-         assertAreAtHarmonics(l);
+        assertAreAtHarmonics(l);
     }
+}
+
+static void testAdditivePitchLogic_stretch() {
+    const static unsigned N = 16;
+    AdditivePitchLogic<N> l;
+    AdditivePitchLogic<N> l2;
+
+    assertEQ(l.getPitch(0), l2.getPitch(0));
+
+    l.setStretch(.2f);
+    assertEQ(l.getPitch(0), l2.getPitch(0));
+}
+
+static void testAdditivePitchLogic_stretch2() {
+    const static unsigned N = 16;
+    AdditivePitchLogic<N> l;
+    AdditivePitchLogic<N> l2;
+
+    l.setStretch(.2f);
+    assertGT(l.getPitch(1), l2.getPitch(1));
+    l.setStretch(-1);
+    assertLT(l.getPitch(1), l2.getPitch(1));
 }
 
 void testAdditivePitchLogic() {
@@ -124,4 +145,8 @@ void testAdditivePitchLogic() {
     testAdditivePitchLogic_octave();
     testAdditivePitchLogic_semi();
     testAdditivePitchLogic_semi2();
+
+    testAdditivePitchLogic_stretch();
+    testAdditivePitchLogic_stretch2();
+    // TODO: more stretch tests
 }
