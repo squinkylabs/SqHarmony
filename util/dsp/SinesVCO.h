@@ -16,6 +16,7 @@ float_4 secondOrderApprox(float_4 x)
 }
 #endif
 
+#if 0
 inline float_4 secondOrderApprox(float_4 phase) {
         // Quadratic approximation of sine, slightly richer harmonics
         float_4 halfPhase = (phase < 0.5f);
@@ -24,6 +25,7 @@ inline float_4 secondOrderApprox(float_4 phase) {
         v *= rack::simd::ifelse(halfPhase, 1.f, -1.f);
         return v;
 }
+#endif
 
 template <typename T>
 class SinesVCO

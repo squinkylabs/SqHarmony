@@ -27,6 +27,13 @@ private:
 
 void AdditiveModule::addParams() {
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");  // invisible - just for the future.
+    this->configParam(Comp::OCTAVE_PARAM, -4, 4, 0, "Octave");
+    this->configParam(Comp::SEMI_PARAM, -12, 12, 0, "Semitone");
+    this->configParam(Comp::FINE_PARAM, -1, 1, 0, "fine tune");
+    this->configParam(Comp::STRETCH_PARAM, -1, 1, 0, "stretch tuning");
+    
+    this->configParam(Comp::EVENOFFSET_PARAM, -1, 1, 0, "pitch offset even harmonics");
+    this->configParam(Comp::ODDOFFSET_PARAM,  -1, 1, 0, "pitch offset odd harmonics");
 }
 
 //---------------------------------
@@ -106,7 +113,7 @@ void AdditiveWidget::addIO() {
 }
 
 void AdditiveWidget::addControls() {
-    auto param = createParam<RoundBlackSnapKnob>(position(0, 0), module, Comp::OCTAVE_PARAM);
+    ParamWidget* param = createParam<RoundBlackSnapKnob>(position(0, 0), module, Comp::OCTAVE_PARAM);
     addParam(param);
     addLabel(labelPos(0, 0), "oct");
 
@@ -114,19 +121,19 @@ void AdditiveWidget::addControls() {
     addParam(param);
     addLabel(labelPos(0, 1), "semi");
 
-    param = createParam<RoundBlackSnapKnob>(position(0, 2), module, Comp::FINE_PARAM);
+    param = createParam<RoundBlackKnob>(position(0, 2), module, Comp::FINE_PARAM);
     addParam(param);
     addLabel(labelPos(0, 2), "fine");
 
-    param = createParam<RoundBlackSnapKnob>(position(1, 0), module, Comp::STRETCH_PARAM);
+    param = createParam<RoundBlackKnob>(position(1, 0), module, Comp::STRETCH_PARAM);
     addParam(param);
     addLabel(labelPos(1, 0), "strch");
 
-    param = createParam<RoundBlackSnapKnob>(position(1, 1), module, Comp::EVENOFFSET_PARAM);
+    param = createParam<RoundBlackKnob>(position(1, 1), module, Comp::EVENOFFSET_PARAM);
     addParam(param);
     addLabel(labelPos(1, 1), "e shft");
 
-    param = createParam<RoundBlackSnapKnob>(position(1, 2), module, Comp::ODDOFFSET_PARAM);
+    param = createParam<RoundBlackKnob>(position(1, 2), module, Comp::ODDOFFSET_PARAM);
     addParam(param);
     addLabel(labelPos(1, 2), "o shft");
 }

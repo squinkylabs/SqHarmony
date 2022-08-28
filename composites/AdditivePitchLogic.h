@@ -11,12 +11,13 @@ class AdditivePitchLogic {
 public:
     /** returns the aggregate pitch in VCV standard volts.
      */
-    float getPitch(int harmonic) const;
+    float getPitch(unsigned harmonic) const;
 
     // VC is VCV standard
     void setCV(float cv);
     void setOctave(int oct);
     void setSemitone(int semi);
+    void setFine(float fine);
 
     // 0 is no stretch, 1 is max, -1 is max "unstretch"
     void setStretch(float stretch);
@@ -30,10 +31,11 @@ private:
     float _octave{0};
     float _semitone{0};
     float _stretch{0};
+    float _fine{0};
 };
 
 template <unsigned N>
-inline float AdditivePitchLogic<N>::getPitch(int harmonic) const {
+inline float AdditivePitchLogic<N>::getPitch(unsigned harmonic) const {
     //  assert(!_dirty);
     if (harmonic >= N) {
         return 0;
@@ -44,7 +46,7 @@ inline float AdditivePitchLogic<N>::getPitch(int harmonic) const {
     const auto lgh = std::log2(stretchedHarmonic + 1);
 
     // SQINFO("harm=%d, log=%f", harmonic, lgh);
-    return lgh + _cv + _octave + (_semitone / 12);
+    return lgh + _cv + _octave + (_semitone / 12) + (_fine / 12);
 }
 
 template <unsigned N>
@@ -60,6 +62,11 @@ inline void AdditivePitchLogic<N>::setOctave(int octave) {
 template <unsigned N>
 inline void AdditivePitchLogic<N>::setSemitone(int semi) {
     _semitone = float(semi);
+}
+
+template <unsigned N>
+inline void AdditivePitchLogic<N>::setFine(float fine) {
+    _fine = fine;
 }
 
 template <unsigned N>
