@@ -39,10 +39,12 @@ public:
         addLabel(Vec(20, 12), "Additive", 24);
 #endif
         addControls();
+        addIO();
     }
 
 private:
     void addControls();
+    void addIO();
 #ifdef _LAB
     Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
         NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
@@ -59,41 +61,74 @@ private:
 #endif
 };
 
-
-const int dx = 37;
+const int dx = 40;
 const int dy = 60;
 const float labelDy = 22;
 const float y0 = 60;
+const float x0 = 14;
 
 Vec position(int row, int col) {
-    float x = col * dx + 20;
+    float x = col * dx + x0;
     float y = (row * dy) + y0;
     return Vec(x, y);
 }
 
 Vec labelPos(int row, int col) {
-    float x = col * dx + 20;
+    float x = col * dx + x0;
     float y = (row * dy) + y0 - labelDy;
     return Vec(x, y);
 }
 
+const float jackDx = 40;
+const float jackX0 = 18;
+const float jackY0 = 330;
+const float jackLabelDy = 22;
+
+Vec jackPosition(int row, int col) {
+    float x = col * jackDx + jackX0;
+    float y = jackY0;
+    return Vec(x, y);
+}
+
+Vec jackLabelPosition(int row, int col) {
+    float x = col * jackDx + jackX0;
+    x -= 3;
+    float y = jackY0 - jackLabelDy;
+    return Vec(x, y);
+}
+
+void AdditiveWidget::addIO() {
+    addInput(createInput<PJ301MPort>(jackPosition(0, 0), module, Comp::CV_INPUT));
+    addLabel(jackLabelPosition(0, 0), "V/Oct");
+
+    addOutput(createOutput<PJ301MPort>(jackPosition(0, 2), module, Comp::AUDIO_OUTPUT));
+    addLabel(jackLabelPosition(0, 2), "Out");
+}
+
 void AdditiveWidget::addControls() {
-    auto param = createParam<RoundBlackSnapKnob>(position(0,0), module, Comp::OCTAVE_PARAM);
+    auto param = createParam<RoundBlackSnapKnob>(position(0, 0), module, Comp::OCTAVE_PARAM);
     addParam(param);
-    addLabel(labelPos(0,0), "oct");
+    addLabel(labelPos(0, 0), "oct");
 
-    param = createParam<RoundBlackSnapKnob>(position(0,1), module, Comp::SEMI_PARAM);
+    param = createParam<RoundBlackSnapKnob>(position(0, 1), module, Comp::SEMI_PARAM);
     addParam(param);
-    addLabel(labelPos(0,1), "semi");
+    addLabel(labelPos(0, 1), "semi");
 
-    param = createParam<RoundBlackSnapKnob>(position(0,2), module, Comp::FINE_PARAM);
+    param = createParam<RoundBlackSnapKnob>(position(0, 2), module, Comp::FINE_PARAM);
     addParam(param);
-    addLabel(labelPos(0,2), "fine");
+    addLabel(labelPos(0, 2), "fine");
 
-    param = createParam<RoundBlackSnapKnob>(position(1,0), module, Comp::STRETCH_PARAM);
+    param = createParam<RoundBlackSnapKnob>(position(1, 0), module, Comp::STRETCH_PARAM);
     addParam(param);
-    addLabel(labelPos(1, 0), "stretch");
+    addLabel(labelPos(1, 0), "strch");
 
+    param = createParam<RoundBlackSnapKnob>(position(1, 1), module, Comp::EVENOFFSET_PARAM);
+    addParam(param);
+    addLabel(labelPos(1, 1), "e shft");
+
+    param = createParam<RoundBlackSnapKnob>(position(1, 2), module, Comp::ODDOFFSET_PARAM);
+    addParam(param);
+    addLabel(labelPos(1, 2), "o shft");
 }
 
 rack::Model* modelAdditive = createModel<AdditiveModule, AdditiveWidget>("sqh-additive");
