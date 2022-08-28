@@ -1,13 +1,14 @@
 
 #pragma once
 #include "sq_rack.h"
+#include "SinesVCO.h"
 
 using Module = ::rack::engine::Module;
 
 template <class TBase>
 class Additive : public TBase {
 public:
-    // Additive();
+    Additive();
     Additive(Module *);
 
     enum ParamIds {
@@ -34,8 +35,17 @@ public:
     enum LightIds {
         NUM_LIGHTS
     };
+
+private:
+    const static int numSines = 16;
+    const static int numSines4 = numSines / 3;
+    SinesVCO<float_4> sines[numSines4];
 };
 
 template <class TBase>
 Additive<TBase>::Additive(Module *module) : TBase(module) {
+}
+
+template <class TBase>
+Additive<TBase>::Additive() {
 }

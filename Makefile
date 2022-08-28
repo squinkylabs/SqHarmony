@@ -6,6 +6,7 @@ RACK_DIR ?= ../..
 # Specify extra directories to search for include files.
 FLAGS += -I./dsp
 FLAGS += -I./composites
+FLAGS += -I./util/dsp
 FLAGS += -I./util/quant
 FLAGS += -I./util/container
 FLAGS += -I./util
