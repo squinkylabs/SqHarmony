@@ -47,7 +47,9 @@ private:
     Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
         NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
         Label* label = new Label();
-        label->box.pos = v - 1.5f * str.size();
+        auto adjustedPos = v;
+        adjustedPos.x -= 1.5f * str.size();
+        label->box.pos = adjustedPos;
         label->text = str;
         label->color = white;
         label->fontSize = fontSize;
@@ -57,15 +59,21 @@ private:
 #endif
 };
 
+
+const int dx = 37;
+const int dy = 60;
+const float labelDy = 22;
+const float y0 = 60;
+
 Vec position(int row, int col) {
-    float x = col * 37 + 20;
-    float y = row * 30 + 50;
+    float x = col * dx + 20;
+    float y = (row * dy) + y0;
     return Vec(x, y);
 }
 
 Vec labelPos(int row, int col) {
-    float x = col * 37 + 20;
-    float y = row * 30 + 30;
+    float x = col * dx + 20;
+    float y = (row * dy) + y0 - labelDy;
     return Vec(x, y);
 }
 
@@ -77,6 +85,14 @@ void AdditiveWidget::addControls() {
     param = createParam<RoundBlackSnapKnob>(position(0,1), module, Comp::SEMI_PARAM);
     addParam(param);
     addLabel(labelPos(0,1), "semi");
+
+    param = createParam<RoundBlackSnapKnob>(position(0,2), module, Comp::FINE_PARAM);
+    addParam(param);
+    addLabel(labelPos(0,2), "fine");
+
+    param = createParam<RoundBlackSnapKnob>(position(1,0), module, Comp::STRETCH_PARAM);
+    addParam(param);
+    addLabel(labelPos(1, 0), "stretch");
 
 }
 
