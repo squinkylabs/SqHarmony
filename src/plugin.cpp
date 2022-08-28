@@ -7,4 +7,5 @@ void init(rack::Plugin* p) {
 
 	p->addModel(modelHarmony1);
 	p->addModel(modelArpeggiator1);
+	p->addModel(modelAdditive);
 }

@@ -21,6 +21,13 @@
 			"description": "Arpeggiator",
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/arpeggiator.md",
 			"tags": ["Arpeggiator", "Polyphonic"]
+		},
+		{
+			"slug": "sqh-additive",
+			"name": "Additive Synth",
+			"description": "Additive",
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/additive.md",
+			"tags": ["Oscillator", "Polyphonic"]
 		}
     ]
 }

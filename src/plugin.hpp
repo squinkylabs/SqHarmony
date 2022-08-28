@@ -6,3 +6,4 @@ extern Plugin* pluginInstance;
 
 extern Model* modelHarmony1;
 extern Model* modelArpeggiator1;
+extern Model* modelAdditive;
