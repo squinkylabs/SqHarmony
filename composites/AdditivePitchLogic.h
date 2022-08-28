@@ -73,3 +73,13 @@ template <unsigned N>
 inline void AdditivePitchLogic<N>::setStretch(float stretch) {
     _stretch = stretch;
 }
+
+template <unsigned N>
+ void AdditivePitchLogic<N>::setEvenOffset(float offset) {
+
+}
+
+ template <unsigned N>
+void AdditivePitchLogic<N>::setOddOffset(float offset) {
+
+}

@@ -71,6 +71,15 @@ void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
     const float cv = TBase::inputs[CV_INPUT].value;
     apl.setCV(cv);
 
+    const float stretch = TBase::params[STRETCH_PARAM].value;
+    apl.setStretch(stretch);
+
+     const float eo = TBase::params[EVENOFFSET_PARAM].value;
+    apl.setEvenOffset(eo);
+
+   const float oo = TBase::params[ODDOFFSET_PARAM].value;
+    apl.setOddOffset(oo);
+
     // send pitch to sines
     const float sampleRate = TBase::engineGetSampleRate();
     for (auto bank = 0; bank < numSines4; ++bank) {
