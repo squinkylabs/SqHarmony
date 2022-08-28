@@ -84,9 +84,44 @@ static void testAdditivePitchLogic_octave() {
     assertAreAtHarmonics(l);
 }
 
+static void testAdditivePitchLogic_semi() {
+     const static unsigned N = 20;
+    AdditivePitchLogic<N> l;
+    AdditivePitchLogic<N> l2;
+    l.setCV(0);
+    l.setOctave(1);
+    l.setSemitone(0);
+    assertEQ(l.getPitch(0), 1);
+    assertAreAtHarmonics(l);
+
+    l.setSemitone(12);
+    assertEQ(l.getPitch(0), 2);
+    assertAreAtHarmonics(l);
+
+    l.setSemitone(-12);
+    assertEQ(l.getPitch(0), 0);
+    assertAreAtHarmonics(l);
+}
+
+
+static void testAdditivePitchLogic_semi2() {
+    const static unsigned N = 20;
+    AdditivePitchLogic<N> l;
+    AdditivePitchLogic<N> l2;
+   
+    for (int i= -12; i < 12; ++i) {
+        l.setSemitone(i);
+        l2.setSemitone(i + 1);
+        assertGT(l2.getPitch(0), l.getPitch(0));
+         assertAreAtHarmonics(l);
+    }
+}
+
 void testAdditivePitchLogic() {
     testAdditivePitchLogic_initialPitch();
     testAdditivePitchLogic_cv();
     testAdditivePitchLogic_outOfRange();
     testAdditivePitchLogic_octave();
+    testAdditivePitchLogic_semi();
+    testAdditivePitchLogic_semi2();
 }
