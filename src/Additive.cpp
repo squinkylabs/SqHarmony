@@ -29,11 +29,11 @@ void AdditiveModule::addParams() {
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");  // invisible - just for the future.
     this->configParam(Comp::OCTAVE_PARAM, -4, 4, 0, "Octave");
     this->configParam(Comp::SEMI_PARAM, -12, 12, 0, "Semitone");
-    this->configParam(Comp::FINE_PARAM, -1, 1, 0, "fine tune");
+    this->configParam(Comp::FINE_PARAM, -1, 1, 0, "fine tune", " semitones");
     this->configParam(Comp::STRETCH_PARAM, -1, 1, 0, "stretch tuning");
     
-    this->configParam(Comp::EVENOFFSET_PARAM, -1, 1, 0, "pitch offset even harmonics");
-    this->configParam(Comp::ODDOFFSET_PARAM,  -1, 1, 0, "pitch offset odd harmonics");
+    this->configParam(Comp::EVENOFFSET_PARAM, -1, 1, 0, "pitch offset even harmonics", " semitones");
+    this->configParam(Comp::ODDOFFSET_PARAM,  -1, 1, 0, "pitch offset odd harmonics", " semitones");
 }
 
 //---------------------------------

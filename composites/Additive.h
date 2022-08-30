@@ -1,6 +1,8 @@
 
 #pragma once
 #include "AdditivePitchLogic.h"
+#include "AdditiveGainLogic.h"
+
 #include "SinesVCO.h"
 #include "sq_rack.h"
 
