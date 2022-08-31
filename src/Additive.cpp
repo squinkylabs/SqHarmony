@@ -41,7 +41,7 @@ class AdditiveWidget : public ModuleWidget {
 public:
     AdditiveWidget(AdditiveModule*& module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel.svg")));
 #ifdef _LAB
         addLabel(Vec(20, 12), "Additive", 24);
 #endif
@@ -54,13 +54,14 @@ private:
     void addIO();
 #ifdef _LAB
     Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
-        NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
+        //NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
+        NVGcolor black = nvgRGB(0, 0, 0);
         Label* label = new Label();
         auto adjustedPos = v;
         adjustedPos.x -= 1.5f * str.size();
         label->box.pos = adjustedPos;
         label->text = str;
-        label->color = white;
+        label->color = black;
         label->fontSize = fontSize;
         addChild(label);
         return label;
@@ -68,6 +69,8 @@ private:
 #endif
 };
 
+
+const float columnSpace = 10;
 const int dx = 40;
 const int dy = 60;
 const float labelDy = 22;
@@ -76,12 +79,18 @@ const float x0 = 14;
 
 Vec position(int row, int col) {
     float x = col * dx + x0;
+    if (col > 2) {
+        x += columnSpace;
+    }
     float y = (row * dy) + y0;
     return Vec(x, y);
 }
 
 Vec labelPos(int row, int col) {
     float x = col * dx + x0;
+     if (col > 2) {
+        x += columnSpace;
+    }
     float y = (row * dy) + y0 - labelDy;
     return Vec(x, y);
 }
@@ -136,6 +145,18 @@ void AdditiveWidget::addControls() {
     param = createParam<RoundBlackKnob>(position(1, 2), module, Comp::ODDOFFSET_PARAM);
     addParam(param);
     addLabel(labelPos(1, 2), "o shft");
+
+    param = createParam<RoundBlackKnob>(position(0, 3), module, Comp::SLOPE_PARAM);
+    addParam(param);
+    addLabel(labelPos(0, 3), "slope");
+
+    param = createParam<RoundBlackKnob>(position(0, 4), module, Comp::EVENLEVEL_PARAM);
+    addParam(param);
+    addLabel(labelPos(0, 4), "even");
+
+    param = createParam<RoundBlackKnob>(position(0, 5), module, Comp::ODDLEVEL_PARAM);
+    addParam(param);
+    addLabel(labelPos(0, 5), "odd");
 }
 
 rack::Model* modelAdditive = createModel<AdditiveModule, AdditiveWidget>("sqh-additive");

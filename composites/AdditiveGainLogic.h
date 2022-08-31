@@ -1,8 +1,9 @@
 #pragma once
 
+#include <string>
+
 #include "AudioMath.h"
 #include "SqLog.h"
-#include <string>
 
 template <unsigned N>
 class AdditiveGainLogic {
@@ -24,15 +25,28 @@ public:
     const float defaultLevel = .8f;
 
     void dump(const std::string& s) const;
+
+    static bool isEven(unsigned harmonic) {
+        if (harmonic == 0) {
+            return false;
+        }
+        return harmonic & 1;
+    }
+    static bool isOdd(unsigned harmonic) {
+        if (harmonic == 0) {
+            return false;
+        }
+        return !isEven(harmonic);
+    }
+
 private:
     float harmonicLevels[N];
     float _slope = 1;
-   
 };
 
 template <unsigned N>
 inline AdditiveGainLogic<N>::AdditiveGainLogic() {
-    for (unsigned i=0; i<N; ++i) {
+    for (unsigned i = 0; i < N; ++i) {
         harmonicLevels[i] = defaultLevel;
     }
 }
@@ -41,13 +55,21 @@ template <unsigned N>
 inline void AdditiveGainLogic<N>::setHarmonic(unsigned harmonic, float value) {
     if (harmonic >= N) {
         return;
-    } 
+    }
     harmonicLevels[harmonic] = value;
 }
 
 template <unsigned N>
 inline void AdditiveGainLogic<N>::setSlope(float value) {
     _slope = value;
+}
+
+template <unsigned N>
+inline void AdditiveGainLogic<N>::setEven(float) {
+}
+
+template <unsigned N>
+inline void AdditiveGainLogic<N>::setOdd(float) {
 }
 
 template <unsigned N>
@@ -59,8 +81,8 @@ inline float AdditiveGainLogic<N>::getLevel(unsigned harmonic) const {
     float value = harmonicLevels[harmonic];
 
     const float slopeAttenuationDB = harmonic * (1 - _slope);
-    const float slopeGain = (float) AudioMath::gainFromDb(-slopeAttenuationDB);
-   // SQINFO("slope=%f, harm=%d slopeGain =%f sadb=%f", _slope, harmonic, slopeGain, slopeAttenuationDB);
+    const float slopeGain = (float)AudioMath::gainFromDb(-slopeAttenuationDB);
+    // SQINFO("slope=%f, harm=%d slopeGain =%f sadb=%f", _slope, harmonic, slopeGain, slopeAttenuationDB);
     value *= slopeGain;
     return value;
 }
@@ -68,7 +90,7 @@ inline float AdditiveGainLogic<N>::getLevel(unsigned harmonic) const {
 template <unsigned N>
 inline void AdditiveGainLogic<N>::dump(const std::string& s) const {
     SQINFO("dumping AGL %s", s.c_str());
-    for (unsigned i=0; i<N; ++i) {
+    for (unsigned i = 0; i < N; ++i) {
         SQINFO("hlev[%d] = %f", i, harmonicLevels[i]);
     }
     SQINFO("slope=%f", _slope);

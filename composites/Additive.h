@@ -22,6 +22,25 @@ public:
         STRETCH_PARAM,
         EVENOFFSET_PARAM,
         ODDOFFSET_PARAM,
+        EVENLEVEL_PARAM,
+        ODDLEVEL_PARAM,
+        SLOPE_PARAM,
+        H0_PARAM,
+        H1_PARAM,
+        H2_PARAM,
+        H3_PARAM,
+        H4_PARAM,
+        H5_PARAM,
+        H6_PARAM,
+        H7_PARAM,
+        H8_PARAM,
+        H9_PARAM,
+        H10_PARAM,
+        H11_PARAM,
+        H12_PARAM,
+        H13_PARAM,
+        H14_PARAM,
+        H15_PARAM,
         NUM_PARAMS
     };
 
@@ -47,6 +66,11 @@ private:
     const static int numHarmonics = 16;
     SinesVCO<float_4> sines[numSines4];
     AdditivePitchLogic<numHarmonics> apl;
+    AdditiveGainLogic<numHarmonics> agl;
+
+    void processPitchInfo();
+    void processGainInfo();
+
 };
 
 template <class TBase>
@@ -58,9 +82,8 @@ Additive<TBase>::Additive() {
 }
 
 template <class TBase>
-void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
-
-    // Round up all the pitch info
+inline void Additive<TBase>::processPitchInfo() {
+   // Round up all the pitch info
     const int oct = int(std::round(TBase::params[OCTAVE_PARAM].value));
     apl.setOctave(oct);
 
@@ -92,6 +115,19 @@ void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
         }
         sines[bank].setPitch(x, sampleRate);
     }
+
+}
+
+template <class TBase>
+inline void Additive<TBase>::processGainInfo() {
+    
+}
+
+template <class TBase>
+void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
+
+    processPitchInfo();
+    processGainInfo();
 
     // process the sines:
     float results = 0;
