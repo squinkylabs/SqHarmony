@@ -61,6 +61,7 @@ static void testAdditiveGainLogic_isEven() {
 }
 
 static void testAdditiveGainLogic_Even() {
+    SQINFO("--- testAdditiveGainLogic_Even");
     const static unsigned N = 16;
     AdditiveGainLogic<N> l;
     l.setEven(0);
@@ -68,8 +69,10 @@ static void testAdditiveGainLogic_Even() {
         const auto x = l.getLevel(i);
         const auto isEven = AdditiveGainLogic<N>::isEven(i);
         if (isEven) {
+            SQINFO("%d: even, %f", i, x);
             assertEQ(x, 0);
         } else {
+            SQINFO("%d: odd, %f", i, x);
             assertEQ(x, l.defaultLevel);
         }
     }

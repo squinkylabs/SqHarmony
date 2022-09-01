@@ -141,11 +141,12 @@ inline void Additive<TBase>::processAudio(const typename TBase::ProcessArgs& arg
     const float_4 deltaT(args.sampleTime);
     for (auto bank = 0; bank < numSines4; ++bank) {
         auto out = sines[bank].process(deltaT);
+        const unsigned baseHarmonic = bank * 4;
         assert(numSines4 == 4);
-        results += out[0];
-        results += out[1];
-        results += out[2];
-        results += out[3];
+        results += (out[0] * agl.getLevel(baseHarmonic + 0));
+        results += (out[1] * agl.getLevel(baseHarmonic + 1));
+        results += (out[2] * agl.getLevel(baseHarmonic + 2));
+        results += (out[3] * agl.getLevel(baseHarmonic + 3));
     }
 
     TBase::outputs[AUDIO_OUTPUT].setVoltage(results);

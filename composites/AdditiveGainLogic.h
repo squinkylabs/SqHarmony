@@ -42,6 +42,8 @@ public:
 private:
     float harmonicLevels[N];
     float _slope = 1;
+    float _even = 1;
+    float _odd = 1;
 };
 
 template <unsigned N>
@@ -65,11 +67,13 @@ inline void AdditiveGainLogic<N>::setSlope(float value) {
 }
 
 template <unsigned N>
-inline void AdditiveGainLogic<N>::setEven(float) {
+inline void AdditiveGainLogic<N>::setEven(float even) {
+    _even = even;
 }
 
 template <unsigned N>
-inline void AdditiveGainLogic<N>::setOdd(float) {
+inline void AdditiveGainLogic<N>::setOdd(float odd) {
+    _odd = odd;
 }
 
 template <unsigned N>
@@ -84,6 +88,13 @@ inline float AdditiveGainLogic<N>::getLevel(unsigned harmonic) const {
     const float slopeGain = (float)AudioMath::gainFromDb(-slopeAttenuationDB);
     // SQINFO("slope=%f, harm=%d slopeGain =%f sadb=%f", _slope, harmonic, slopeGain, slopeAttenuationDB);
     value *= slopeGain;
+
+    if (isEven(harmonic)) {
+        value *= _even;
+    }
+    if (isOdd(harmonic)) {
+        value *= _odd;
+    }
     return value;
 }
 
