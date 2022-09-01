@@ -167,12 +167,28 @@ void AdditiveWidget::addControls() {
     addParam(param);
     addLabel(labelPos(0, 5), "odd");
 
-    const float yHarm = 280;
+    const float yHarm = 160;
     const float xHarm0 = 18;
     const float dxHarm = 20;
+    const float dyHarm = 24;
+
     for (unsigned i = 0; i < Comp::numHarmonics; ++i) {
-        SQINFO("in loop %d x=%f y=%f", i, xHarm0 + dxHarm * i, yHarm);
         param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm), module, Comp::H0_PARAM + i);
+        addParam(param);
+
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+dyHarm), module, Comp::MA0_PARAM + i);
+        addParam(param);
+
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 2* dyHarm), module, Comp::MB0_PARAM + i);
+        addParam(param);
+
+          param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 3* dyHarm), module, Comp::MC0_PARAM + i);
+        addParam(param);
+
+          param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 4* dyHarm), module, Comp::MD0_PARAM + i);
+        addParam(param);
+
+          param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 5* dyHarm), module, Comp::ME0_PARAM + i);
         addParam(param);
     }
 }
