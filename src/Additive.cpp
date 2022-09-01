@@ -31,9 +31,19 @@ void AdditiveModule::addParams() {
     this->configParam(Comp::SEMI_PARAM, -12, 12, 0, "Semitone");
     this->configParam(Comp::FINE_PARAM, -1, 1, 0, "fine tune", " semitones");
     this->configParam(Comp::STRETCH_PARAM, -1, 1, 0, "stretch tuning");
-    
+
     this->configParam(Comp::EVENOFFSET_PARAM, -1, 1, 0, "pitch offset even harmonics", " semitones");
-    this->configParam(Comp::ODDOFFSET_PARAM,  -1, 1, 0, "pitch offset odd harmonics", " semitones");
+    this->configParam(Comp::ODDOFFSET_PARAM, -1, 1, 0, "pitch offset odd harmonics", " semitones");
+
+    this->configParam(Comp::EVENLEVEL_PARAM, 0, 1, 1, "even harmonic level");
+    this->configParam(Comp::ODDLEVEL_PARAM, 0, 1, 1, "odd harmonic level");
+    this->configParam(Comp::SLOPE_PARAM, 0, 1, 1, "harmonic roll-off");
+
+    for (unsigned i = 0; i < Comp::numHarmonics; ++i) {
+        char buffer[256];
+        sprintf(buffer, "harmonic %d level", i);
+        this->configParam(Comp::H0_PARAM + i, 0, 1, 1, buffer);
+    }
 }
 
 //---------------------------------
@@ -54,7 +64,7 @@ private:
     void addIO();
 #ifdef _LAB
     Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
-        //NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
+        // NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
         NVGcolor black = nvgRGB(0, 0, 0);
         Label* label = new Label();
         auto adjustedPos = v;
@@ -68,7 +78,6 @@ private:
     }
 #endif
 };
-
 
 const float columnSpace = 10;
 const int dx = 40;
@@ -88,7 +97,7 @@ Vec position(int row, int col) {
 
 Vec labelPos(int row, int col) {
     float x = col * dx + x0;
-     if (col > 2) {
+    if (col > 2) {
         x += columnSpace;
     }
     float y = (row * dy) + y0 - labelDy;
@@ -157,6 +166,15 @@ void AdditiveWidget::addControls() {
     param = createParam<RoundBlackKnob>(position(0, 5), module, Comp::ODDLEVEL_PARAM);
     addParam(param);
     addLabel(labelPos(0, 5), "odd");
+
+    const float yHarm = 280;
+    const float xHarm0 = 18;
+    const float dxHarm = 20;
+    for (unsigned i = 0; i < Comp::numHarmonics; ++i) {
+        SQINFO("in loop %d x=%f y=%f", i, xHarm0 + dxHarm * i, yHarm);
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm), module, Comp::H0_PARAM + i);
+        addParam(param);
+    }
 }
 
 rack::Model* modelAdditive = createModel<AdditiveModule, AdditiveWidget>("sqh-additive");

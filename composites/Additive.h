@@ -1,8 +1,7 @@
 
 #pragma once
-#include "AdditivePitchLogic.h"
 #include "AdditiveGainLogic.h"
-
+#include "AdditivePitchLogic.h"
 #include "SinesVCO.h"
 #include "sq_rack.h"
 
@@ -60,17 +59,18 @@ public:
 
     void process(const typename TBase::ProcessArgs& args) override;
 
-private:
     const static int numSines = 16;
     const static int numSines4 = numSines / 4;
     const static int numHarmonics = 16;
+
+private:
     SinesVCO<float_4> sines[numSines4];
     AdditivePitchLogic<numHarmonics> apl;
     AdditiveGainLogic<numHarmonics> agl;
 
     void processPitchInfo();
     void processGainInfo();
-
+    void processAudio(const typename TBase::ProcessArgs& args);
 };
 
 template <class TBase>
@@ -83,7 +83,7 @@ Additive<TBase>::Additive() {
 
 template <class TBase>
 inline void Additive<TBase>::processPitchInfo() {
-   // Round up all the pitch info
+    // Round up all the pitch info
     const int oct = int(std::round(TBase::params[OCTAVE_PARAM].value));
     apl.setOctave(oct);
 
@@ -99,10 +99,10 @@ inline void Additive<TBase>::processPitchInfo() {
     const float stretch = TBase::params[STRETCH_PARAM].value;
     apl.setStretch(stretch);
 
-     const float eo = TBase::params[EVENOFFSET_PARAM].value;
+    const float eo = TBase::params[EVENOFFSET_PARAM].value;
     apl.setEvenOffset(eo);
 
-   const float oo = TBase::params[ODDOFFSET_PARAM].value;
+    const float oo = TBase::params[ODDOFFSET_PARAM].value;
     apl.setOddOffset(oo);
 
     // send pitch to sines
@@ -115,26 +115,33 @@ inline void Additive<TBase>::processPitchInfo() {
         }
         sines[bank].setPitch(x, sampleRate);
     }
-
 }
 
 template <class TBase>
 inline void Additive<TBase>::processGainInfo() {
-    
+    // Round up all the level info
+    const float even = TBase::params[EVENLEVEL_PARAM].value;
+    agl.setEven(even);
+
+    const float odd = TBase::params[ODDLEVEL_PARAM].value;
+    agl.setOdd(odd);
+
+    const float slope = TBase::params[SLOPE_PARAM].value;
+    agl.setSlope(slope);
+
+    for (unsigned i = 0; i < numHarmonics; ++i) {
+        agl.setHarmonic(i, TBase::params[H0_PARAM + i].value);
+    }
 }
 
 template <class TBase>
-void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
-
-    processPitchInfo();
-    processGainInfo();
-
+inline void Additive<TBase>::processAudio(const typename TBase::ProcessArgs& args) {
     // process the sines:
     float results = 0;
     const float_4 deltaT(args.sampleTime);
     for (auto bank = 0; bank < numSines4; ++bank) {
         auto out = sines[bank].process(deltaT);
-        assert(numSines4 ==4);
+        assert(numSines4 == 4);
         results += out[0];
         results += out[1];
         results += out[2];
@@ -142,4 +149,11 @@ void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
     }
 
     TBase::outputs[AUDIO_OUTPUT].setVoltage(results);
+}
+
+template <class TBase>
+void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
+    processPitchInfo();
+    processGainInfo();
+    processAudio(args);
 }
