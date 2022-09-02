@@ -166,6 +166,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="testAdditive.cpp" />
     <ClCompile Include="testAdditiveGainLogic.cpp" />
+    <ClCompile Include="testAdditiveModLogic.cpp" />
     <ClCompile Include="testAdditivePitchLogic.cpp" />
     <ClCompile Include="testArepegPlayer2.cpp" />
     <ClCompile Include="testArpegComposite.cpp" />

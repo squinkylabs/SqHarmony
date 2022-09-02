@@ -33,6 +33,7 @@ extern void testAdditivePitchLogic();
 extern void testSines();
 extern void testAdditive();
 extern void testAdditiveGainLogic();
+extern void testAdditiveModLogic();
 
 int main(const char**, int) {
   //  testGrayCode();
@@ -40,6 +41,7 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();
     testSines();
