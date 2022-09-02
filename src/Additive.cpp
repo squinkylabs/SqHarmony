@@ -122,12 +122,25 @@ Vec jackLabelPosition(int row, int col) {
     return Vec(x, y);
 }
 
+const float yHarm = 160;
+const float xHarm0 = 60;
+const float xADSR0 = 20;
+const float dxHarm = 20;
+const float dyHarm = 24;
+
 void AdditiveWidget::addIO() {
     addInput(createInput<PJ301MPort>(jackPosition(0, 0), module, Comp::CV_INPUT));
     addLabel(jackLabelPosition(0, 0), "V/Oct");
 
     addOutput(createOutput<PJ301MPort>(jackPosition(0, 2), module, Comp::AUDIO_OUTPUT));
     addLabel(jackLabelPosition(0, 2), "Out");
+
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm), module, Comp::ADSR0_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + dyHarm), module, Comp::ADSR1_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 2 * dyHarm), module, Comp::ADSR2_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 3 * dyHarm), module, Comp::MOD0_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 4 * dyHarm), module, Comp::MOD1_INPUT));
+
 }
 
 void AdditiveWidget::addControls() {
@@ -167,28 +180,23 @@ void AdditiveWidget::addControls() {
     addParam(param);
     addLabel(labelPos(0, 5), "odd");
 
-    const float yHarm = 160;
-    const float xHarm0 = 18;
-    const float dxHarm = 20;
-    const float dyHarm = 24;
-
     for (unsigned i = 0; i < Comp::numHarmonics; ++i) {
         param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm), module, Comp::H0_PARAM + i);
         addParam(param);
 
-        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+dyHarm), module, Comp::MA0_PARAM + i);
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm + dyHarm), module, Comp::MA0_PARAM + i);
         addParam(param);
 
-        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 2* dyHarm), module, Comp::MB0_PARAM + i);
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm + 2 * dyHarm), module, Comp::MB0_PARAM + i);
         addParam(param);
 
-          param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 3* dyHarm), module, Comp::MC0_PARAM + i);
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm + 3 * dyHarm), module, Comp::MC0_PARAM + i);
         addParam(param);
 
-          param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 4* dyHarm), module, Comp::MD0_PARAM + i);
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm + 4 * dyHarm), module, Comp::MD0_PARAM + i);
         addParam(param);
 
-          param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm+ 5* dyHarm), module, Comp::ME0_PARAM + i);
+        param = createParam<Trimpot>(Vec(xHarm0 + dxHarm * i, yHarm + 5 * dyHarm), module, Comp::ME0_PARAM + i);
         addParam(param);
     }
 }

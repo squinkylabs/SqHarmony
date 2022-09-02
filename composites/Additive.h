@@ -35,6 +35,11 @@ public:
 
     enum InputIds {
         CV_INPUT,
+        ADSR0_INPUT,
+        ADSR1_INPUT,
+        ADSR2_INPUT,
+        MOD0_INPUT,
+        MOD1_INPUT,
         NUM_INPUTS
     };
 
