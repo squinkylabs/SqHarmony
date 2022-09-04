@@ -1,7 +1,6 @@
-#include "asserts.h"
-
 #include "Additive.h"
 #include "TestComposite.h"
+#include "asserts.h"
 
 using Comp = Additive<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
@@ -21,6 +20,10 @@ static void testAdditive0() {
     CompPtr a = makeComp();
 }
 
+static void testAdditiveParams() {
+    CompPtr a = makeComp();
+    assertGT(a->params.size(), Comp::NUM_PARAMS);
+}
 
 static void testAdditiveInit() {
     CompPtr a = makeComp();
@@ -30,6 +33,7 @@ static void testAdditiveInit() {
 }
 
 static void testAdditiveHasOutput() {
+    SQINFO("---- testAdditiveHasOutput ");
     CompPtr a = makeComp();
     auto args = TestComposite::ProcessArgs();
     a->process(args);
@@ -39,7 +43,7 @@ static void testAdditiveHasOutput() {
 
 void testAdditive() {
     testAdditive0();
+    testAdditiveParams();
     testAdditiveInit();
     testAdditiveHasOutput();
-    
 }
