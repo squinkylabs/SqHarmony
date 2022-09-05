@@ -9,8 +9,6 @@
 
 using Module = ::rack::engine::Module;
 
-#define _LOG 0
-
 template <class TBase>
 class Additive : public TBase {
 public:

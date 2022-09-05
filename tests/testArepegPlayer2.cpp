@@ -41,15 +41,15 @@ static void testNewNoteAbove() {
     assertEQ(std::get<2>(x), 50 + 3);
     x = stuff->ap.clock2();
     assertEQ(std::get<1>(x), 4);
-    assertEQ(std::get<2>(x), 50+4);
+    assertEQ(std::get<2>(x), 50 + 4);
     x = stuff->ap.clock2();
     assertEQ(std::get<1>(x), 10);
     assertEQ(std::get<2>(x), 100);
 }
 
-#define assertPair(pair, value) \
+#define assertPair(pair, value)  \
     assertEQ(pair.first, value); \
-    assertEQ(pair.second, value+50);
+    assertEQ(pair.second, value + 50);
 
 static void testNewNoteBelow() {
     const int numInput = 4;
@@ -57,7 +57,7 @@ static void testNewNoteBelow() {
     auto stuff = TestStuff::make(input, numInput);
     auto x = stuff->ap.clock();
     assertEQ(x.first, 1);
-    assertEQ(x.second, 1+50);
+    assertEQ(x.second, 1 + 50);
     x = stuff->ap.clock();
     assertPair(x, 2);
 
@@ -171,12 +171,12 @@ static void testRemoveOnlyNote() {
 
 void testArpegPlayer2() {
     testNewNoteAbove();
-    
+
     testNewNoteBelow();
     testRemoveNoteAbove();
     testRemoveNoteBelow();
     testRemoveNextNote();
     testRemoveLastNote();
     testRemoveOnlyNote();
-;
+    ;
 }

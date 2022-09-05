@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+
 #include <cstdlib>
 extern void testHarmonyNote();
 extern void testScaleRelativeNote();
@@ -36,8 +37,8 @@ extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
 
 int main(const char**, int) {
-  //  testGrayCode();
-  //  std::exit(0);
+    //  testGrayCode();
+    //  std::exit(0);
 #if 0
     specialDumpList();
 #else

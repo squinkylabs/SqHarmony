@@ -24,7 +24,7 @@ static StylePtr makeStyle() {
 }
 
 static KeysigOldPtr makeKeysig(bool minor) {
-    auto ret =  std::make_shared<KeysigOld>(Roots::C);
+    auto ret = std::make_shared<KeysigOld>(Roots::C);
     if (minor) {
         ret->set(MidiNote::C, Scale::Scales::Minor);
     }
@@ -81,7 +81,7 @@ static void testRoot(bool minor) {
     Options o = makeOptions(minor);
     Chord4 x(o, 1);
     x.print();
-    //printf("\n");
+    // printf("\n");
     assertEQ(x.fetchRoot(), 1);
 
     // TODO: assert on these or stop printing?
@@ -90,7 +90,7 @@ static void testRoot(bool minor) {
     for (int i = 0; i < 4; ++i) {
         const int np = (int)notes[i];
         const int hnp = hn[i];
-       // printf("chord[%d] = %d (srn), %d (midi)\n", i, (int)notes[i], (int)hn[i]);
+        // printf("chord[%d] = %d (srn), %d (midi)\n", i, (int)notes[i], (int)hn[i]);
     }
 }
 
@@ -229,7 +229,6 @@ static void testFromString(bool minor) {
     assertEQ(chord->toStringShort(), target);
 }
 
-
 // see if that C chord we need for 2-1 is acceptable
 static void testFromString2(bool minor) {
     Options options = makeOptions(minor);
@@ -242,7 +241,7 @@ static void testFromString2(bool minor) {
 static void testFromString() {
     testFromString(false);
     testFromString(true);
-     testFromString2(false);
+    testFromString2(false);
     testFromString2(true);
 }
 
@@ -266,11 +265,10 @@ static void testRanges() {
 }
 
 static void allGood(Chord4ListPtr list, StylePtr style) {
-    for (int i=0; i<list->size(); ++i)
-     {
+    for (int i = 0; i < list->size(); ++i) {
         const Chord4* chord = list->get2(i);
         const HarmonyNote* notes = chord->fetchNotes();
-      
+
         const int bass = notes[0];
         assertGE(bass, style->minBass());
         assertLE(bass, style->maxBass());
@@ -290,7 +288,6 @@ static void allGood(Chord4ListPtr list, StylePtr style) {
 }
 
 static void testMinMax(bool minor) {
-   
     Options options = makeOptions(minor);
     Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);  // root chord
     allGood(lNorm, options.style);
@@ -313,7 +310,7 @@ void testChord() {
     // specialDumpList();
     // TODO: add more tests?
     testFromString();
- //   testFromString2();
+    //   testFromString2();
 
     testRanges();
     testMinMax();

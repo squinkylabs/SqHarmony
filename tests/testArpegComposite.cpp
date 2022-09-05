@@ -43,15 +43,15 @@ static void testNoGate() {
 
 /**
  * @brief do a full clock cycle, leave click high, processed
- * 
- * @param arp 
+ *
+ * @param arp
  */
 static void clockCycle(ArpPtr arp) {
-  //  SQDEBUG("test cycle clock about to set clock low and process");
+    //  SQDEBUG("test cycle clock about to set clock low and process");
     auto args = TestComposite::ProcessArgs();
     arp->inputs[Comp::CLOCK_INPUT].value = 0;
     arp->process(args);
- //   SQDEBUG("test cycle clock about to set clock high and process");
+    //   SQDEBUG("test cycle clock about to set clock high and process");
     arp->inputs[Comp::CLOCK_INPUT].value = 10;
     assert(arp->inputs[Comp::CLOCK_INPUT].getVoltage(0) == 10);
     arp->process(args);
@@ -82,7 +82,7 @@ static void testHold() {
     auto args = TestComposite::ProcessArgs();
 
     arp->params[Comp::HOLD_PARAM].value = 1;
-   // SQDEBUG("Just set hold param to %f", arp->params[Comp::HOLD_PARAM].value);
+    // SQDEBUG("Just set hold param to %f", arp->params[Comp::HOLD_PARAM].value);
     arp->inputs[Comp::CV_INPUT].value = 2;
     arp->inputs[Comp::CV2_INPUT].value = 22;
     arp->inputs[Comp::GATE_INPUT].value = 10;
@@ -90,29 +90,27 @@ static void testHold() {
     assertEQ(arp->outputs[Comp::CV_OUTPUT].value, 0);
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, 0);
 
-  //  SQDEBUG("test about to fire clock, have gate input set high");
+    //  SQDEBUG("test about to fire clock, have gate input set high");
     // clock in the gate
     clockCycle(arp);
 
     // now lower the gate input
     arp->inputs[Comp::GATE_INPUT].value = 0;
 
-   // SQDEBUG("test about to fire clock, have gate input set low");
+    // SQDEBUG("test about to fire clock, have gate input set low");
     clockCycle(arp);
 
     // with hold on, should still have a gate.
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutHi);
 
-
-    arp->params[Comp::HOLD_PARAM].value = 0;    // turn hold off
+    arp->params[Comp::HOLD_PARAM].value = 0;  // turn hold off
     arp->process(args);
-    arp->process(args);                         // make sure it gets seen.
+    arp->process(args);  // make sure it gets seen.
 
     clockCycle(arp);
 
     // with hold of, gate should go away
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].value, cGateOutLow);
-
 }
 
 static void testNotesBeforeClock() {
@@ -411,7 +409,7 @@ static void testNoDelay2() {
     // 7v in
     arp->inputs[Comp::CV_INPUT].setVoltage(7, 0);
     arp->inputs[Comp::CV2_INPUT].setVoltage(77, 0);
-    arp->inputs[Comp::GATE_INPUT].setVoltage(0, 0); 
+    arp->inputs[Comp::GATE_INPUT].setVoltage(0, 0);
 
     arp->process(args);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 0);
@@ -441,7 +439,7 @@ static void testDelay2() {
     arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
     arp->inputs[Comp::CV_INPUT].setVoltage(1, 0);
     arp->inputs[Comp::CV2_INPUT].setVoltage(11, 0);
-    arp->inputs[Comp::GATE_INPUT].setVoltage(0, 0);  
+    arp->inputs[Comp::GATE_INPUT].setVoltage(0, 0);
 
     // process 0: all low
     arp->process(args);
@@ -469,7 +467,6 @@ static void testDelay2() {
     arp->inputs[Comp::CV_INPUT].setVoltage(4, 0);
     arp->inputs[Comp::CV2_INPUT].setVoltage(44, 0);
 
-
     // process three more times
     // process 3,4,5
     arp->process(args);
@@ -485,7 +482,7 @@ static void testDelay2() {
         arp->process(args);
         const float x = arp->outputs[Comp::CV_OUTPUT].getVoltage(0);
         const float y = arp->outputs[Comp::GATE_OUTPUT].getVoltage(0);
-       // SQINFO("i = %d, x = %f", i, x);
+        // SQINFO("i = %d, x = %f", i, x);
         const float expected = (i >= 5) ? 4.f : 0.f;
         assertEQ(x, expected);
 
@@ -496,7 +493,6 @@ static void testDelay2() {
     arp->process(args);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 4);
 #endif
-
 }
 
 static void testTriggerDelay(bool delayOn) {
@@ -524,7 +520,6 @@ static void testTriggerDelay(bool delayOn) {
 
     if (delayOn) {
         for (int i = 0; i < 8; ++i) {
-
             arp->process(args);
             const float x = arp->outputs[Comp::CV_OUTPUT].getVoltage(0);
             const float expected = i < 5 ? 0.f : 2.f;
@@ -532,7 +527,6 @@ static void testTriggerDelay(bool delayOn) {
         }
         return;
     }
-  
 
     // should have caught the first voltage
     if (delayOn) {
@@ -682,23 +676,20 @@ static void testShuffleCV() {
         // arp->inputs[Comp::SHUFFLE_TRIGGER_INPUT].setVoltage(trigV, 0);
     }
     assert(!allTheSame);
-    
 }
 
 static void testPullCable() {
-
     auto arp = make();
     connectInputs(arp, 1);
 
-    arp->inputs[Comp::CV_INPUT].channels = 2;  
+    arp->inputs[Comp::CV_INPUT].channels = 2;
     auto args = TestComposite::ProcessArgs();
 
     // put in some voltages
     arp->inputs[Comp::CV_INPUT].setVoltage(11, 0);
     arp->inputs[Comp::CV_INPUT].setVoltage(12, 1);
-    
 
-    // get all the voltages in 
+    // get all the voltages in
     arp->process(args);
 
     arp->inputs[Comp::GATE_INPUT].setVoltage(10, 0);
@@ -730,7 +721,7 @@ void testArpegComposite() {
     testReset(false);
     testReset(true);  // nord mode
     testMonoGate();
-  
+
     testReleaseMidClock(false);
     testReleaseMidClock(true);
     testStartMidClock(false);
@@ -742,5 +733,5 @@ void testArpegComposite() {
     testTriggerDelay(true);
 
     SQWARN("!!!! put back the pull cable test");
-    //testPullCable();
+    // testPullCable();
 }

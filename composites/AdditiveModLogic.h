@@ -5,7 +5,7 @@
 #include "AudioMath.h"
 #include "SqLog.h"
 
-#define _LOG 0
+//#define _LOG 1
 
 template <unsigned N>
 class AdditiveModLogic {
@@ -30,61 +30,38 @@ inline AdditiveModLogic<N>::AdditiveModLogic() {
     assert(numADSR == 3);
 }
 
-
 template <unsigned N>
 inline float AdditiveModLogic<N>::getCombinedADSR(unsigned harmonic) const {
 #ifdef _LOG
     if (harmonic == _LOG) {
-        SQINFO("get combined harm=%d", harmonic);
+        SQINFO("AdditiveModLogic<N>::getCombinedADSR harm=%d", harmonic);
     }
 #endif
     float value = 1;
 
-    for (unsigned i = 0; i < numADSR; ++i) {     
+    for (unsigned i = 0; i < numADSR; ++i) {
 #ifdef _LOG
-    if (harmonic == _LOG) {
-        SQINFO(" for adsr %d, is connected %d", i, adsrConnected[i]);
-
-    }
+        if (harmonic == _LOG) {
+            SQINFO(" for adsr %d, is connected %d (value=%f)", i, adsrConnected[i], value);
+        }
 #endif
         if (adsrConnected[i]) {
             float x = adsrValue[i] * harmonicTrimADSR[i][harmonic];
             value *= x;
-        }
-    }
-    return value;
-}
-
-#if 0
-template <unsigned N>
-inline float AdditiveModLogic<N>::getCombinedADSR(unsigned harmonic) const {
 #ifdef _LOG
-    if (harmonic == _LOG) {
-        SQINFO("get combined harm=%d", harmonic);
-    }
-#endif
-    bool first = true;
-    float value = 0;
-
-    for (unsigned i = 0; i < numADSR; ++i) {     
-#ifdef _LOG
-    if (harmonic == _LOG) {
-        SQINFO(" for adsr %d, is connected %d", i, adsrConnected[i]);
-
-    }
-#endif
-        if (adsrConnected[i]) {
-            if (first) {
-                first = false;
-                value = 1;
+            if (harmonic == _LOG) {
+                SQINFO(" adsr value = %f, trim = %f, value = %f", adsrValue[i], harmonicTrimADSR[i][harmonic], value);
             }
-            float x = adsrValue[i] * harmonicTrimADSR[i][harmonic];
-            value *= x;
+#endif
         }
     }
+#ifdef _LOG
+    if (harmonic == _LOG) {
+        SQINFO(" leaveing get combined, value = %f", value);
+    }
+#endif
     return value;
 }
-#endif
 
 template <unsigned N>
 void AdditiveModLogic<N>::setADSRValue(unsigned adsr, float value, bool connected) {
@@ -94,11 +71,10 @@ void AdditiveModLogic<N>::setADSRValue(unsigned adsr, float value, bool connecte
 
 #ifdef _LOG
     if (true) {
-        SQINFO("55 setting adsr connected to %d for %d", connected, adsr);
+        SQINFO("AdditiveModLogic<N>::setADSRValue adsr=%d, value=%f, connected=%d", adsr, value, connected);
     }
 #endif
 }
-    
 
 template <unsigned N>
 void AdditiveModLogic<N>::setADSRTrimValue(unsigned adsr, unsigned harmonic, float value) {
