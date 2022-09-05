@@ -254,12 +254,12 @@ inline void Additive<TBase>::processAudio(const typename TBase::ProcessArgs& arg
         auto out = sines[bank].process(deltaT);
         const unsigned baseHarmonic = bank * 4;
         assert(numSines4 == 4);
-        SQINFO("in loop out = %s", toStr(out).c_str());
+      //  SQINFO("in loop out = %s", toStr(out).c_str());
         results += (out[0] * aml.getCombinedADSR(baseHarmonic + 0));
         results += (out[1] * aml.getCombinedADSR(baseHarmonic + 1));
         results += (out[2] * aml.getCombinedADSR(baseHarmonic + 2));
         results += (out[3] * aml.getCombinedADSR(baseHarmonic + 3));
-        SQINFO("in proc look base=baseHarmonic %d, results=%f", baseHarmonic, results);
+      //  SQINFO("in proc look base=baseHarmonic %d, results=%f", baseHarmonic, results);
     }
 
     TBase::outputs[AUDIO_OUTPUT].setVoltage(results);

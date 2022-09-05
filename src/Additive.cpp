@@ -43,7 +43,21 @@ void AdditiveModule::addParams() {
         char buffer[256];
         sprintf(buffer, "harmonic %d level", i);
         this->configParam(Comp::H0_PARAM + i, 0, 1, 1, buffer);
+        sprintf(buffer, "harmonic %d control from adsr 1", i);
+        this->configParam(Comp::MA0_PARAM + i, 0, 1, 0, buffer);
+        sprintf(buffer, "harmonic %d control from adsr 2", i);
+        this->configParam(Comp::MB0_PARAM + i, 0, 1, 0, buffer);
+        sprintf(buffer, "harmonic %d control from adsr 3", i);
+        this->configParam(Comp::MC0_PARAM + i, 0, 1, 0, buffer);
     }
+
+    this->configInput(Comp::CV_INPUT, "V/8");
+    this->configOutput(Comp::AUDIO_OUTPUT, "Audio");
+    this->configInput(Comp::ADSR0_INPUT, "ADSR 1");
+    this->configInput(Comp::ADSR1_INPUT, "ADSR 2");
+    this->configInput(Comp::ADSR2_INPUT, "ADSR 3");
+    this->configInput(Comp::MOD0_INPUT, "Mod 1");
+    this->configInput(Comp::MOD1_INPUT, "Mod 2");
 }
 
 //---------------------------------
@@ -135,12 +149,11 @@ void AdditiveWidget::addIO() {
     addOutput(createOutput<PJ301MPort>(jackPosition(0, 2), module, Comp::AUDIO_OUTPUT));
     addLabel(jackLabelPosition(0, 2), "Out");
 
-    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm), module, Comp::ADSR0_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + dyHarm), module, Comp::ADSR1_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 2 * dyHarm), module, Comp::ADSR2_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 3 * dyHarm), module, Comp::MOD0_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 4 * dyHarm), module, Comp::MOD1_INPUT));
-
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 1 * dyHarm), module, Comp::ADSR0_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 2 * dyHarm), module, Comp::ADSR1_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 3 * dyHarm), module, Comp::ADSR2_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 4 * dyHarm), module, Comp::MOD0_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(xADSR0, yHarm + 5 * dyHarm), module, Comp::MOD1_INPUT));
 }
 
 void AdditiveWidget::addControls() {
