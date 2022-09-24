@@ -43,6 +43,9 @@
     <Filter Include="Header Files\util\gray_code">
       <UniqueIdentifier>{33bc1beb-6b98-40ec-a0ad-ed4a23df653a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\util\gray_code">
+      <UniqueIdentifier>{4f8ff142-0156-475b-9e53-e481d10a2464}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -188,6 +191,12 @@
     </ClCompile>
     <ClCompile Include="testAdditiveModLogic.cpp">
       <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testGrayCode2.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\gray_code\LargeGapGrayCode.cpp">
+      <Filter>Source Files\util\gray_code</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
