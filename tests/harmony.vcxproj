@@ -159,6 +159,7 @@
     <ClCompile Include="..\notes\Style.cpp" />
     <ClCompile Include="..\util\ArpegPlayer.cpp" />
     <ClCompile Include="..\util\AudioMath.cpp" />
+    <ClCompile Include="..\util\gray_code\LargeGapGrayCode.cpp" />
     <ClCompile Include="..\util\quant\NoteConvert.cpp" />
     <ClCompile Include="..\util\quant\Scale.cpp" />
     <ClCompile Include="..\util\quant\ScaleQuantizer.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
+    <ClCompile Include="testGrayCode2.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />

@@ -30,6 +30,7 @@ extern void testRingBuffer();
 extern void testChord4Manager();
 extern void testTempo();
 extern void testGrayCode();
+extern void testGrayCode2();
 extern void testAdditivePitchLogic();
 extern void testSines();
 extern void testAdditive();
@@ -37,8 +38,8 @@ extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
 
 int main(const char**, int) {
-    //  testGrayCode();
-    //  std::exit(0);
+      testGrayCode2();
+      std::exit(0);
 #if 0
     specialDumpList();
 #else
