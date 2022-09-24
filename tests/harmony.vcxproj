@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/quant;../notes;.;../../../dep/include;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/dsp;../util/quant;../notes;.;../../../dep/include;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/quant;../notes;.;../../../dep/include;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/dsp;../util/quant;../notes;.;../../../dep/include;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,6 +164,10 @@
     <ClCompile Include="..\util\quant\ScaleQuantizer.cpp" />
     <ClCompile Include="..\util\SqLog.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="testAdditive.cpp" />
+    <ClCompile Include="testAdditiveGainLogic.cpp" />
+    <ClCompile Include="testAdditiveModLogic.cpp" />
+    <ClCompile Include="testAdditivePitchLogic.cpp" />
     <ClCompile Include="testArepegPlayer2.cpp" />
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
@@ -189,6 +193,7 @@
     <ClCompile Include="testScaleRelativeNote.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
+    <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testTempo.cpp" />
   </ItemGroup>
   <ItemGroup>

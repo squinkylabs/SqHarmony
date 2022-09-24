@@ -206,7 +206,7 @@ public:
 
     TestComposite() : inputs(40),
                       outputs(40),
-                      params(60),
+                      params(120),
                       lights(20) {
     }
 

@@ -306,7 +306,6 @@ static void testArpegPlayerUp_Down() {
         std::make_pair<float, float>(9, 19)};
     testArpegPauseSub(mode, input, 2, expectedOutput2, 9);
 
-
     std::pair<float, float> expectedOutput1[] = {
         std::make_pair<float, float>(10, 20),
         std::make_pair<float, float>(10, 20),
@@ -316,7 +315,6 @@ static void testArpegPlayerUp_Down() {
 }
 
 static void testArpegPlayerUpDown() {
-
     const auto mode = ArpegPlayer::Mode::UPDOWN;
     std::pair<float, float> input[] = {
         std::make_pair<float, float>(10, 20),
@@ -856,7 +854,7 @@ static void testArpegPlayerSHUFFLE(bool withTrigger) {
         outputFirst[i] = x;
 
         if (withTrigger && (i == 1)) {
-            ap.armReShuffle();      // re-arm while we are in the middle of first pass, so second will see it.
+            ap.armReShuffle();  // re-arm while we are in the middle of first pass, so second will see it.
         }
 
         // now search the input of this one
@@ -867,13 +865,13 @@ static void testArpegPlayerSHUFFLE(bool withTrigger) {
             }
         }
     }
-    //SQINFO("-- test will compare results 1");
+    // SQINFO("-- test will compare results 1");
     for (int i = 0; i < numInput; ++i) {
         assert(didSee[i]);
-        assert(outputFirst[i].first > 0); 
+        assert(outputFirst[i].first > 0);
     }
 
-    //SQINFO("-- test will read second pass");
+    // SQINFO("-- test will read second pass");
     for (int i = 0; i < numInput; ++i) {
         const auto x = ap.clock();
         assert(x.first > 0);
@@ -910,7 +908,7 @@ void testArpegPlayer() {
     testArpegPlayerOrderPlayed();
     testArpegPlayerREPEAT_BOTTOM();
     testArpegPlayerREPEAT_TOP();
-        // just for now!
+    // just for now!
     testArpegPlayerSHUFFLE(true);
     testArpegPlayerSHUFFLE(false);
 }

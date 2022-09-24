@@ -2,26 +2,24 @@
 #include "ArpegRhythmPlayer.h"
 #include "asserts.h"
 
-
 static void testArpegRPSub(int length, const float* input, int numInput, const float* expectedOutput, int numOutput) {
     NoteBuffer nb(20);
     ArpegPlayer ap(&nb);
     ap.setMode(ArpegPlayer::Mode::UP);
     ArpegRhythmPlayer arp(&ap);
 
-
     arp.setLength(length);
 
     for (int i = 0; i < numInput; ++i) {
-        nb.push_back(input[i], input[i]+11, i);
+        nb.push_back(input[i], input[i] + 11, i);
     }
 
     for (int i = 0; i < numOutput; ++i) {
         const float expected = expectedOutput[i];
         const auto actual = arp.clock();
-        //printf("i=%d actual=%f expected=%f\n", i, actual, expected);
+        // printf("i=%d actual=%f expected=%f\n", i, actual, expected);
         assertEQ(actual.first, expected);
-        assertEQ(actual.second, expected+11);
+        assertEQ(actual.second, expected + 11);
     }
 }
 
@@ -77,11 +75,9 @@ static void testArpegRhythmPlayerReset() {
     assertPair(x, 1, 4);
     x = arp.clock();
     assertPair(x, 2, 5);
-     x = arp.clock();
+    x = arp.clock();
     assertPair(x, 3, 6);
 }
-
-
 
 void testArpegRhythmPlayer() {
     testArpegRhythmPlayer0();

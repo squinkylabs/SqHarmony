@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+
 #include <cstdlib>
 extern void testHarmonyNote();
 extern void testScaleRelativeNote();
@@ -29,13 +30,23 @@ extern void testRingBuffer();
 extern void testChord4Manager();
 extern void testTempo();
 extern void testGrayCode();
+extern void testAdditivePitchLogic();
+extern void testSines();
+extern void testAdditive();
+extern void testAdditiveGainLogic();
+extern void testAdditiveModLogic();
 
 int main(const char**, int) {
-  //  testGrayCode();
-  //  std::exit(0);
+    //  testGrayCode();
+    //  std::exit(0);
 #if 0
     specialDumpList();
 #else
+    testAdditiveModLogic();
+    testAdditivePitchLogic();
+    testAdditiveGainLogic();
+    testSines();
+    testAdditive();
     testTempo();
     testRingBuffer();
     testGateDelay();
