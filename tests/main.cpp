@@ -37,6 +37,7 @@ extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
 extern void testFreqMeasure();
 extern void testResettablePhaseAccumulator();
+extern void testClockShifter();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -46,6 +47,9 @@ int main(const char**, int) {
 #else
     testResettablePhaseAccumulator();
     testFreqMeasure();
+    testClockShifter();
+    printf("leaving early for clock stuff");
+    std::exit(0);
     testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();

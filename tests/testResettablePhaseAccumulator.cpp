@@ -30,9 +30,19 @@ static void testSimpleTick() {
     assert(r.getPhase() == .2);
 }
 
+static void testWrap() {
+    ResettablePhaseAccumulator r;
+    r.reset(.9, .2);
+    r.tick();
+   // assert(r.getPhase() == 0.1);
+    assertClose(r.getPhase(), .1, .00000001);
+}
+
 void testResettablePhaseAccumulator() {
     test0();
     testZeroFreq();
     testSetPhase();
     testSimpleTick();
+    testWrap();
+
 }

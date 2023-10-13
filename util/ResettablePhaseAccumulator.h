@@ -23,4 +23,7 @@ inline void ResettablePhaseAccumulator::reset(double phase, double freq) {
 
 inline void ResettablePhaseAccumulator::tick() {
     _phase += _delta;
+    while(_phase >= 1) {
+        _phase -= 1;
+    }
 }
