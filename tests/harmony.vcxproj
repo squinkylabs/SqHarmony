@@ -203,6 +203,7 @@
     <ClInclude Include="..\notes\HarmonyNote.h" />
     <ClInclude Include="..\notes\PitchKnowledge.h" />
     <ClInclude Include="..\notes\Style.h" />
+    <ClInclude Include="..\util\FreqMeasure.h" />
     <ClInclude Include="..\util\gray_code\GcUtils.h" />
     <ClInclude Include="..\util\quant\Scale.h" />
     <ClInclude Include="..\util\quant\ScaleNote.h" />

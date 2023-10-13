@@ -233,5 +233,8 @@
     <ClInclude Include="..\util\gray_code\GcUtils.h">
       <Filter>Header Files\util\gray_code</Filter>
     </ClInclude>
+    <ClInclude Include="..\util\FreqMeasure.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
