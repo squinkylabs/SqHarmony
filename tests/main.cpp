@@ -36,6 +36,7 @@ extern void testAdditive();
 extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
 extern void testFreqMeasure();
+extern void testResettablePhaseAccumulator();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -43,6 +44,7 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testResettablePhaseAccumulator();
     testFreqMeasure();
     testAdditiveModLogic();
     testAdditivePitchLogic();

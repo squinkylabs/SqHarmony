@@ -183,6 +183,7 @@
     <ClCompile Include="testHarmonyComposite.cpp" />
     <ClCompile Include="testKeysig.cpp" />
     <ClCompile Include="testProgressions.cpp" />
+    <ClCompile Include="testResettablePhaseAccumulator.cpp" />
     <ClCompile Include="testRingBuffer.cpp" />
     <ClCompile Include="testScale.cpp" />
     <ClCompile Include="testScaleNotes.cpp" />
