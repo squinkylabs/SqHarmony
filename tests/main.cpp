@@ -35,13 +35,16 @@ extern void testSines();
 extern void testAdditive();
 extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
+extern void testFreqMeasure();
 
 int main(const char**, int) {
     //  testGrayCode();
     //  std::exit(0);
+    printf("in main\n");
 #if 0
     specialDumpList();
 #else
+    testFreqMeasure();
     testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();
