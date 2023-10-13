@@ -22,6 +22,7 @@ static void test3() {
     assert(x.freqValid());
     assert(x.getPeriod() == 3);
 }
+
 void testFreqMeasure() {
     test1();
     test2();

@@ -7,5 +7,10 @@ void init(rack::Plugin* p) {
 
     p->addModel(modelHarmony1);
     p->addModel(modelArpeggiator1);
+#ifdef _ADD
     p->addModel(modelAdditive);
+#endif
+#ifdef _PM
+    p->addModel(modelPhasePatterns);
+#endif
 }
