@@ -7,19 +7,20 @@ public:
     void reset(double phase, double freq);
     /**
      * @brief clocks the accumulator.
-     * 
+     *
      * @return true when phase rolls over (fires)
      */
     bool tick();
 
     /**
      * @brief Get the Phase And Delta object, just for debugging
-     * 
+     *
      * @return std::pair<double, double> first is phase, second is delta
      */
     std::pair<double, double> getPhaseAndDelta();
+
 private:
-    double _phase=0;
+    double _phase = 0;
     double _delta = 0;
 };
 
@@ -37,7 +38,7 @@ inline void ResettablePhaseAccumulator::reset(double phase, double freq) {
 inline bool ResettablePhaseAccumulator::tick() {
     bool didRoll = false;
     _phase += _delta;
-    while(_phase >= 1) {
+    while (_phase >= 1) {
         _phase -= 1;
         didRoll = true;
     }

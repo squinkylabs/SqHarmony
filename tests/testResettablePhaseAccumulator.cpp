@@ -1,8 +1,7 @@
 
 
-
-#include "asserts.h"
 #include "ResettablePhaseAccumulator.h"
+#include "asserts.h"
 
 static void test0() {
     ResettablePhaseAccumulator r;
@@ -20,7 +19,7 @@ static void testZeroFreq() {
 static void testSetPhase() {
     ResettablePhaseAccumulator r;
     r.reset(.1, .2);
-    assertEQ(r.getPhaseAndDelta().first, .1);
+    assertEQ(r.getPhaseAndDelta().first, .1)
 }
 
 static void testSimpleTick() {
@@ -43,5 +42,4 @@ void testResettablePhaseAccumulator() {
     testSetPhase();
     testSimpleTick();
     testWrap();
-
 }

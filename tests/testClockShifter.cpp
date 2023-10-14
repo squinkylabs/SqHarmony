@@ -49,7 +49,7 @@ static void testSimpleInput() {
 
 void testClockShifter() {
     test0();
-   // testNoInput();
+    // testNoInput();
     testJustOneClock();
-  //  testSimpleInput();
+    //  testSimpleInput();
 }
