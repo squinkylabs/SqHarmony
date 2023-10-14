@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include "SqLog.h"
+#include "assert.h"
 
 class FreqMeasure {
 public:
@@ -13,9 +15,11 @@ private:
 };
 
 inline void  FreqMeasure::onSample(bool trigger) {
+    SQINFO("fm, onSamle %d", trigger);
     if (trigger) {
         _period = _count;
         _count = 0;
+        SQINFO("fm accepting %lld", _period);
     } else {
         ++_count;
     }
@@ -26,5 +30,6 @@ inline bool  FreqMeasure::freqValid() const {
 }
 
 inline int64_t FreqMeasure::getPeriod() const {
+    assert(freqValid());
     return _period + 1;
 }
