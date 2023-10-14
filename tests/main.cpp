@@ -48,7 +48,7 @@ int main(const char**, int) {
     testResettablePhaseAccumulator();
     testFreqMeasure();
     testClockShifter();
-    printf("leaving early for clock stuff");
+    printf("XX: leaving early for clock stuff");
 
     std::exit(0);
     testAdditiveModLogic();

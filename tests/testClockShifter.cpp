@@ -53,8 +53,7 @@ static void testSimpleInput() {
 
 void testClockShifter() {
     test0();
-    // testNoInput();
-    //testJustOneClock();
-    //  testSimpleInput();
-    SQINFO("testClockShifter gutted");
+    testNoInput();
+    testJustOneClock();
+    testSimpleInput();
 }

@@ -35,7 +35,7 @@ inline void ResettablePhaseAccumulator::reset(double phase, double freq) {
 
     _phase = phase;
     _delta = freq;
-    SQINFO("on reset, acc phase=%f, freq=%f", _phase, _delta);
+    //SQINFO("on reset, acc phase=%f, freq=%f", _phase, _delta);
 }
 
 inline bool ResettablePhaseAccumulator::tick() {
@@ -45,7 +45,7 @@ inline bool ResettablePhaseAccumulator::tick() {
         _phase -= 1;
         didRoll = true;
     }
-    SQINFO("acc tick phase is %f rollover=%d", _phase, didRoll);
+    //SQINFO("acc tick phase is %f rollover=%d", _phase, didRoll);
     return didRoll;
 }
 
