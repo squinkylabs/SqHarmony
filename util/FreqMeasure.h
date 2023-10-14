@@ -25,6 +25,6 @@ inline bool  FreqMeasure::freqValid() const {
     return _period > 0;
 }
 
-int64_t FreqMeasure::getPeriod() const {
+inline int64_t FreqMeasure::getPeriod() const {
     return _period + 1;
 }

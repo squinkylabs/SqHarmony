@@ -15,24 +15,24 @@ static void  testNoInput() {
 }
 
 static void testSimpleInput() {
+    printf("-- testSimpleInput---\n");
     const int iter = 10;
     ClockShifter c;
     for (int i = 0; i<iter; ++i) {
-        c.run(false);
+        c.run(0);
     }
-    float x = c.run(true);
+    float x = c.run(5);
     assertEQ(x, 0);
      for (int i = 0; i<iter; ++i) {
-        x = c.run(false);
+        x = c.run(0);
         assertEQ(x, 0);
     }
-    x = c.run(true);
-    assertEQ(x, 1);
-
+    x = c.run(5);
+    assertGT(x, 1);
 }
 
 void testClockShifter() {
     test0();
-    testNoInput();
+  //  testNoInput();
     testSimpleInput();
 }

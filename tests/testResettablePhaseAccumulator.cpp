@@ -7,35 +7,34 @@
 static void test0() {
     ResettablePhaseAccumulator r;
     r.reset(0, 0);
-    r.getPhase();
+    r.getPhaseAndDelta();
     r.tick();
 }
 
 static void testZeroFreq() {
     ResettablePhaseAccumulator r;
     r.tick();
-    assert(r.getPhase() == 0.0);
+    assertEQ(r.getPhaseAndDelta().first, 0.0);
 }
 
 static void testSetPhase() {
     ResettablePhaseAccumulator r;
     r.reset(.1, .2);
-    assert(r.getPhase() == .1);
+    assertEQ(r.getPhaseAndDelta().first, .1);
 }
 
 static void testSimpleTick() {
     ResettablePhaseAccumulator r;
     r.reset(0, .2);
     r.tick();
-    assert(r.getPhase() == .2);
+    assertEQ(r.getPhaseAndDelta().first, .2);
 }
 
 static void testWrap() {
     ResettablePhaseAccumulator r;
     r.reset(.9, .2);
     r.tick();
-   // assert(r.getPhase() == 0.1);
-    assertClose(r.getPhase(), .1, .00000001);
+    assertClose(r.getPhaseAndDelta().first, .1, .00000001);
 }
 
 void testResettablePhaseAccumulator() {
