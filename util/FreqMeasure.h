@@ -13,12 +13,17 @@ public:
 
 private:
     int64_t _count = 0;
-    int64_t _period = -1;
+    int64_t _period = 0;
+    int _clocksReceived = 0;
 };
 
 inline void FreqMeasure::onSample(bool trigger) {
     SQINFO("fm, onSamle %d", trigger);
     if (trigger) {
+        _clocksReceived++;
+        if (_clocksReceived > 10) {
+            _clocksReceived = 10;
+        }
         _period = _count;
         _count = 0;
         SQINFO("fm accepting %lld", _period);
@@ -28,7 +33,7 @@ inline void FreqMeasure::onSample(bool trigger) {
 }
 
 inline bool FreqMeasure::freqValid() const {
-    return _period > 0;
+    return _clocksReceived > 1;
 }
 
 inline int64_t FreqMeasure::getPeriod() const {

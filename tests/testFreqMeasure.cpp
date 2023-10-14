@@ -2,18 +2,35 @@
 #include "FreqMeasure.h"
 #include "asserts.h"
 
-// test that we can call the api
-static void test1() {
+
+static void testCanCall() {
     FreqMeasure x;
     x.onSample(false);
+    const bool f = x.freqValid();
+    if (f) {
+        x.getPeriod();
+    }
 }
 
-static void test2() {
+static void testInitialConditions() {
     FreqMeasure x;
     assert(!x.freqValid());
 }
 
-static void test3() {
+static void testRequiresTwo() {
+    FreqMeasure x;
+    x.onSample(true);
+    assertEQ(x.freqValid(), false)
+}
+
+static void testRequiresTwoB() {
+    FreqMeasure x;
+    x.onSample(false);
+    x.onSample(true);
+    assertEQ(x.freqValid(), false)
+}
+
+static void testCanSample() {
     FreqMeasure x;
     x.onSample(true);
     x.onSample(false);
@@ -24,7 +41,9 @@ static void test3() {
 }
 
 void testFreqMeasure() {
-    test1();
-    test2();
-    test3();
+    testCanCall();
+    testInitialConditions();
+    testRequiresTwo();
+    testRequiresTwoB();
+    testCanSample();
 }

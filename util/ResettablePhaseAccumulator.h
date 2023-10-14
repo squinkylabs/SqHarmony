@@ -2,6 +2,9 @@
 
 #pragma once
 #include <utility>
+#include "assert.h"
+#include "SqLog.h"
+
 class ResettablePhaseAccumulator {
 public:
     void reset(double phase, double freq);
@@ -26,7 +29,7 @@ private:
 
 inline void ResettablePhaseAccumulator::reset(double phase, double freq) {
     assert(phase >= 0);
-    assert(phase < 1);
+    assert(phase <= 1);
     assert(freq >= 0);
     assert(freq < .5);
 

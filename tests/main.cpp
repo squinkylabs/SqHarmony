@@ -49,6 +49,7 @@ int main(const char**, int) {
     testFreqMeasure();
     testClockShifter();
     printf("leaving early for clock stuff");
+
     std::exit(0);
     testAdditiveModLogic();
     testAdditivePitchLogic();

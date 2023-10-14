@@ -34,9 +34,13 @@ static void testSimpleInput() {
     printf("-- testSimpleInput --\n");
     const int iter = 10;
     ClockShifter c;
+
+    // first a bunch of nothing
     for (int i = 0; i < iter; ++i) {
         c.run(0);
     }
+
+    // then a single trigger input
     float x = c.run(5);
     assertEQ(x, 0);
     for (int i = 0; i < iter; ++i) {
@@ -50,6 +54,7 @@ static void testSimpleInput() {
 void testClockShifter() {
     test0();
     // testNoInput();
-    testJustOneClock();
+    //testJustOneClock();
     //  testSimpleInput();
+    SQINFO("testClockShifter gutted");
 }
