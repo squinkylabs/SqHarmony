@@ -66,7 +66,6 @@ int main(const char**, int) {
     testArpegPlayer();
     testArpegRhythmPlayer();
     testArpegComposite();
-
 #if 1
     testNotes();
     testScale();
