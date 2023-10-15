@@ -13,7 +13,9 @@ public:
      * 
      * @param amount is between 0 and 1. 0 is no shift, 1 is a whole period
      */
-    void setShift(float amount);
+    void setShift(float amount) {
+        _shiftAmount = amount;
+    }
 
 private:
     GateTrigger _inputConditioning;
@@ -23,13 +25,14 @@ private:
 };
 
 inline float ClockShifter::run(float input) {
+    // SQINFO("clock shifter run %f", input);
     _inputConditioning.go(input);
     bool gotTrigger = false;
 
 
     _freqMeasure.onSample(_inputConditioning.trigger());
     if (_inputConditioning.trigger()) {
-        //SQINFO("got input trigger input");
+        // SQINFO("got input trigger input");
         gotTrigger = _freqMeasure.freqValid();
     }
 

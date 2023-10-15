@@ -14,6 +14,10 @@ public:
         addParams();
     }
 
+    void process(const ProcessArgs& args) override {
+        comp->process(args);
+    }
+
 private:
     void addParams();
 };
