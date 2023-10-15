@@ -58,7 +58,7 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
     _clockShifter.setShift(shift);
 
     const float clockIn =  TBase::inputs[CK_INPUT].getVoltage();
-    const float clockOut = _clockShifter.run(clockIn);
+    const float clockOut = _clockShifter.run(clockIn, args.sampleTime);
     TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
 }
 

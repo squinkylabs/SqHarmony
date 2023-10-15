@@ -2,11 +2,13 @@
 
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
+#include "OneShot.h"
 #include "ResettablePhaseAccumulator.h"
 
 class ClockShifter {
 public:
-    float run(float input);
+    ClockShifter();
+    float run(float input, float secondsElapsed);
 
     /**
      * @brief Set the shift phase.
@@ -21,10 +23,15 @@ private:
     GateTrigger _inputConditioning;
     FreqMeasure _freqMeasure;
     ResettablePhaseAccumulator _acc;
+    OneShot _oneShot;
     float _shiftAmount = 0;
 };
 
-inline float ClockShifter::run(float input) {
+inline ClockShifter::ClockShifter() {
+    _oneShot.setDelayMs(2);
+}
+
+inline float ClockShifter::run(float input, float secondsElapsed) {
     // SQINFO("clock shifter run %f", input);
     _inputConditioning.go(input);
     bool gotTrigger = false;
@@ -44,7 +51,12 @@ inline float ClockShifter::run(float input) {
         _acc.reset(newPhase, newFreq);
     }
     shouldOutputTrigger = _acc.tick();
+    if (shouldOutputTrigger) {
+        _oneShot.set();
+    } else {
+        _oneShot.step(secondsElapsed);
+    }
 
-    const auto ret = shouldOutputTrigger ? cGateOutHi : cGateOutLow;
+    const auto ret = _oneShot.hasFired() ? cGateOutLow : cGateOutHi;
     return ret;
 }

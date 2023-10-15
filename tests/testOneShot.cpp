@@ -40,6 +40,21 @@ static void testFires() {
     assertEQ(o.hasFired(), true);
 }
 
+static void testFiresIncrementally() {
+    OneShot o;
+    o.setDelayMs(13);
+    o.set();
+    
+    const float deltaMs = 1.01;
+    const float deltaSec = deltaMs / 1000.0;
+    assertEQ(o.hasFired(), false);   
+    for (int i=0; i < 12; ++i) {
+        o.step(deltaSec);
+        assertEQ(o.hasFired(), false); 
+    }
+     o.step(deltaSec);
+    assertEQ(o.hasFired(), true);
+}
 
 void testOneShot() {
     testExists();
@@ -47,4 +62,5 @@ void testOneShot() {
     testReset();
     testFiresEarly();
     testFires();
+    testFiresIncrementally();
 }

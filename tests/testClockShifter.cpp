@@ -9,7 +9,7 @@ static void test0() {
 static void testNoInput() {
     ClockShifter c;
     for (int i = 0; i < 10000; ++i) {
-        float x = c.run(false);
+        float x = c.run(false, 1);
         assertEQ(x, 0);
     }
 }
@@ -19,12 +19,12 @@ static void testJustOneClock() {
     const int iter = 10;
     ClockShifter c;
     for (int i = 0; i < iter; ++i) {
-        c.run(0);
+        c.run(0, 1);
     }
-    float x = c.run(5);
+    float x = c.run(5, 1);
     assertEQ(x, 0);
     for (int i = 0; i < iter; ++i) {
-        x = c.run(0);
+        x = c.run(0, 1);
         assertEQ(x, 0);
     }
 }
@@ -35,19 +35,19 @@ static void testSimpleInput() {
 
     // first a bunch of nothing
     for (int i = 0; i < iter; ++i) {
-        c.run(0);
+        c.run(0, 0);
     }
 
     // then a single trigger input
-    float x = c.run(5);
+    float x = c.run(5, 1);
     assertEQ(x, 0);
     for (int i = 0; i < iter; ++i) {
-        x = c.run(0);
+        x = c.run(0, 0);
         assertEQ(x, 0);
     }
 
     // second input should do something
-    x = c.run(5);
+    x = c.run(5, .0001);
     assertGT(x, 1);
 }
 
@@ -66,15 +66,15 @@ static void testShiftGeneral(float shiftAmount, int period) {
 
     // first a bunch of nothing
     for (int i = 0; i < period; ++i) {
-        c.run(0);
+        c.run(0, 1);
     }
 
     // then a single trigger input
-    float x = c.run(5);
+    float x = c.run(5, 1);
     assertEQ(x, 0);
     // then enough zeros to make a full period
     for (int i = 0; i < period - 1; ++i) {
-        x = c.run(0);
+        x = c.run(0, 1);
         assertEQ(x, 0);
     }
     // second input should do something
@@ -83,13 +83,13 @@ static void testShiftGeneral(float shiftAmount, int period) {
     assertLT(expectedOutputIndex, period - 1);
 
     // SQINFO("-- going into final test round");
-    x = c.run(5);
+    x = c.run(5, 1);
     assertEQ(x, 0);  // should be delayed
     // SQINFO("just did the first trigger, now the zero samples:");
 
     for (int i = 0; i < period - 1; ++i) {
-        x = c.run(0);
-        // SQINFO("i=%d output=%f", i, x);
+                                                                                                                                                                                                           x = c.run(0, 1);
+        SQINFO("i=%d output=%f", i, x);
         const float expectedValue = (i == expectedOutputIndex) ? 10 : 0;
         assertEQ(x, expectedValue);
     }
