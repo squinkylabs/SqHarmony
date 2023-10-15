@@ -10,7 +10,7 @@ public:
 
     /**
      * @brief Set the shift phase.
-     * 
+     *
      * @param amount is between 0 and 1. 0 is no shift, 1 is a whole period
      */
     void setShift(float amount) {
@@ -29,7 +29,6 @@ inline float ClockShifter::run(float input) {
     _inputConditioning.go(input);
     bool gotTrigger = false;
 
-
     _freqMeasure.onSample(_inputConditioning.trigger());
     if (_inputConditioning.trigger()) {
         // SQINFO("got input trigger input");
@@ -38,14 +37,19 @@ inline float ClockShifter::run(float input) {
 
     bool shouldOutputTrigger = false;
     if (gotTrigger) {
-        //SQINFO("now processing stable trigger");
-        const double newPhase = 1 - _shiftAmount;
+        // SQINFO("now processing stable trigger");
+        double newPhase = 1 - _shiftAmount;
         const double newFreq = .1;  // fake
+
+        newPhase -= newFreq / 2;    // rounding, so we aren't always "exactly on" the phase.
         _acc.reset(newPhase, newFreq);
-        shouldOutputTrigger = _acc.tick();
+
+        // was here before
+        //  shouldOutputTrigger = _acc.tick();
     }
+    shouldOutputTrigger = _acc.tick();
 
     const auto ret = shouldOutputTrigger ? cGateOutHi : cGateOutLow;
-    //SQINFO("sq will return %f from run", ret);
+    // SQINFO("sq will return %f from run", ret);
     return ret;
 }
