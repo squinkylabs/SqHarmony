@@ -38,6 +38,7 @@ extern void testAdditiveModLogic();
 extern void testFreqMeasure();
 extern void testResettablePhaseAccumulator();
 extern void testClockShifter();
+extern void testOneShot();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -45,6 +46,7 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testOneShot();
     testResettablePhaseAccumulator();
     testFreqMeasure();
     testClockShifter();
