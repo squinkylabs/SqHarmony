@@ -18,7 +18,7 @@ private:
 };
 
 inline void FreqMeasure::onSample(bool trigger) {
-    //SQINFO("fm, onSamle %d", trigger);
+    // SQINFO("fm, onSamle %d", trigger);
     if (trigger) {
         _clocksReceived++;
         if (_clocksReceived > 10) {
@@ -26,7 +26,7 @@ inline void FreqMeasure::onSample(bool trigger) {
         }
         _period = _count;
         _count = 0;
-        //SQINFO("fm accepting %lld", _period);
+        // SQINFO("fm accepting %lld", _period);
     } else {
         ++_count;
     }

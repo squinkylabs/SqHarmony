@@ -52,14 +52,14 @@ static void testSimpleInput() {
 }
 
 static void testShiftGeneral(float shiftAmount, int period) {
-    SQINFO("---- testShift25 ---");
+    // SQINFO("---- testShift25 ---");
 
     // Ths test can only work if the expected delay is an integer
     float delayCyclesF = (float)period * shiftAmount;
     const int delayCyclesI = std::round(delayCyclesF);
     assertClose(float(delayCyclesI), delayCyclesF, .000001);
     assertGT(delayCyclesI, 0);  // this case not implemented
-    SQINFO("shift=%f, period=%d delaycycles=%d", shiftAmount, period, delayCyclesI);
+    // SQINFO("shift=%f, period=%d delaycycles=%d", shiftAmount, period, delayCyclesI);
 
     ClockShifter c;
     c.setShift(shiftAmount);
@@ -82,28 +82,34 @@ static void testShiftGeneral(float shiftAmount, int period) {
     assertGE(expectedOutputIndex, 0);
     assertLT(expectedOutputIndex, period - 1);
 
-    SQINFO("-- going into final test round");
+    // SQINFO("-- going into final test round");
     x = c.run(5);
     assertEQ(x, 0);  // should be delayed
-    SQINFO("just did the first trigger, now the zero samples:");
+    // SQINFO("just did the first trigger, now the zero samples:");
 
     for (int i = 0; i < period - 1; ++i) {
         x = c.run(0);
-        SQINFO("i=%d output=%f", i, x);
+        // SQINFO("i=%d output=%f", i, x);
         const float expectedValue = (i == expectedOutputIndex) ? 10 : 0;
         assertEQ(x, expectedValue);
     }
 }
 
-static void testShiftGeneral() {
-   //testShiftGeneral(.1f, 10);
-   testShiftGeneral(.2f, 10);
+static void testShiftGeneral10() {
+    testShiftGeneral(.1f, 10);
+    testShiftGeneral(.2f, 10);
+    testShiftGeneral(.5f, 10);
+    testShiftGeneral(.9f, 10);
+}
+static void testShiftGeneral100() {
+    testShiftGeneral(.1f, 100);
 }
 
 void testClockShifter() {
     test0();
-    // testNoInput();
-    //  testJustOneClock();
-    //  testSimpleInput();
-    testShiftGeneral();
+    testNoInput();
+    testJustOneClock();
+    testSimpleInput();
+    testShiftGeneral10();
+    testShiftGeneral100();
 }

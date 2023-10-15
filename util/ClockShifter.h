@@ -38,18 +38,13 @@ inline float ClockShifter::run(float input) {
     bool shouldOutputTrigger = false;
     if (gotTrigger) {
         // SQINFO("now processing stable trigger");
-        double newPhase = 1 - _shiftAmount;
-        const double newFreq = .1;  // fake
 
-        newPhase -= newFreq / 2;    // rounding, so we aren't always "exactly on" the phase.
+        const double newFreq = 1.0 / double(_freqMeasure.getPeriod());
+        const double newPhase = 1 - (_shiftAmount + (newFreq / 2));  // rounding, so we aren't always "exactly on" the phase.
         _acc.reset(newPhase, newFreq);
-
-        // was here before
-        //  shouldOutputTrigger = _acc.tick();
     }
     shouldOutputTrigger = _acc.tick();
 
     const auto ret = shouldOutputTrigger ? cGateOutHi : cGateOutLow;
-    // SQINFO("sq will return %f from run", ret);
     return ret;
 }
