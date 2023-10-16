@@ -6,45 +6,40 @@ static void test0() {
     (void)c;
 }
 
+static void clockIt(ClockShifter& c, int numTimes, float expectedOutput, float sampleTime) {
+    for (int i=0; i<numTimes; ++i) {
+        const float x = c.run(false, sampleTime);
+        if (expectedOutput >= 0) {
+            assertEQ(x, expectedOutput);
+        }
+    }
+}
+
 static void testNoInput() {
     ClockShifter c;
-    for (int i = 0; i < 10000; ++i) {
-        float x = c.run(false, 1);
-        assertEQ(x, 0);
-    }
+    clockIt(c, 10000, 0, 1);
 }
 
 static void testJustOneClock() {
     // 10 fails, 5 passes
     const int iter = 10;
     ClockShifter c;
-    for (int i = 0; i < iter; ++i) {
-        c.run(0, 1);
-    }
+    clockIt(c, iter, -1, 1);
     float x = c.run(5, 1);
     assertEQ(x, 0);
-    for (int i = 0; i < iter; ++i) {
-        x = c.run(0, 1);
-        assertEQ(x, 0);
-    }
+    clockIt(c, iter, 0, 1);
 }
 
 static void testSimpleInput() {
     const int iter = 10;
     ClockShifter c;
 
-    // first a bunch of nothing
-    for (int i = 0; i < iter; ++i) {
-        c.run(0, 0);
-    }
+    clockIt(c, iter, -1, 0);
 
     // then a single trigger input
     float x = c.run(5, 1);
     assertEQ(x, 0);
-    for (int i = 0; i < iter; ++i) {
-        x = c.run(0, 0);
-        assertEQ(x, 0);
-    }
+    clockIt(c, iter, 0, 0);
 
     // second input should do something
     x = c.run(5, .0001);
@@ -103,7 +98,10 @@ static void testShiftGeneral10() {
 }
 static void testShiftGeneral100() {
     testShiftGeneral(.1f, 100);
+    testShiftGeneral(.5f, 100);
+    testShiftGeneral(.51f, 100);
 }
+
 
 void testClockShifter() {
     test0();
@@ -112,4 +110,5 @@ void testClockShifter() {
     testSimpleInput();
     testShiftGeneral10();
     testShiftGeneral100();
+    //testOneShot();
 }
