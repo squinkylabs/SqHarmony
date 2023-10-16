@@ -49,7 +49,7 @@ static void testSimpleInput() {
 static void testShiftGeneral(float shiftAmount, int period) {
     // SQINFO("---- testShift25 ---");
 
-    // Ths test can only work if the expected delay is an integer
+    // This test can only work if the expected delay is an integer
     float delayCyclesF = (float)period * shiftAmount;
     const int delayCyclesI = std::round(delayCyclesF);
     assertClose(float(delayCyclesI), delayCyclesF, .000001);
@@ -60,18 +60,14 @@ static void testShiftGeneral(float shiftAmount, int period) {
     c.setShift(shiftAmount);
 
     // first a bunch of nothing
-    for (int i = 0; i < period; ++i) {
-        c.run(0, 1);
-    }
+    clockIt(c, period, -1, 1);
 
     // then a single trigger input
     float x = c.run(5, 1);
     assertEQ(x, 0);
     // then enough zeros to make a full period
-    for (int i = 0; i < period - 1; ++i) {
-        x = c.run(0, 1);
-        assertEQ(x, 0);
-    }
+    clockIt(c, period-1, 0, 1);
+
     // second input should do something
     const int expectedOutputIndex = delayCyclesI - 1;
     assertGE(expectedOutputIndex, 0);
@@ -88,6 +84,30 @@ static void testShiftGeneral(float shiftAmount, int period) {
         const float expectedValue = (i == expectedOutputIndex) ? 10 : 0;
         assertEQ(x, expectedValue);
     }
+}
+
+static void testOneShot() {
+  //  const int iter = 10;
+    ClockShifter c;
+
+    const float sampleTime = .1 / 1000;     // .1 millseconds
+    // 10 cycles of nothing
+    clockIt(c, 10, -1, 0);
+
+    // Then a single trigger input
+    float x = c.run(5, 1);
+    assertEQ(x, 0);
+    clockIt(c, 100, 0, 0);
+
+    // second input should do something
+    // sample time === 1/10 millisecond
+    x = c.run(5, sampleTime);
+    assertGT(x, 1);
+    //const int expectedOutputHigh = 2 /1000; // two milliseconds
+    const int expectedClockHigh = 20;      // 2 ms one shot, .1 ms sample time
+    clockIt(c, expectedClockHigh, 10, sampleTime);
+    clockIt(c, 1, 0, sampleTime);
+    assert(false);
 }
 
 static void testShiftGeneral10() {
@@ -110,5 +130,5 @@ void testClockShifter() {
     testSimpleInput();
     testShiftGeneral10();
     testShiftGeneral100();
-    //testOneShot();
+    testOneShot();
 }

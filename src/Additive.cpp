@@ -94,27 +94,27 @@ private:
 };
 
 const float columnSpace = 10;
-const int dx = 40;
-const int dy = 60;
+const int sqdx = 40;
+const int sqdy = 60;
 const float labelDy = 22;
-const float y0 = 60;
-const float x0 = 14;
+const float sqy0 = 60;
+const float sqx0 = 14;
 
 Vec position(int row, int col) {
-    float x = col * dx + x0;
+    float x = col * sqdx + sqx0;
     if (col > 2) {
         x += columnSpace;
     }
-    float y = (row * dy) + y0;
+    float y = (row * sqdy) + sqy0;
     return Vec(x, y);
 }
 
 Vec labelPos(int row, int col) {
-    float x = col * dx + x0;
+    float x = col * sqdx + sqx0;
     if (col > 2) {
         x += columnSpace;
     }
-    float y = (row * dy) + y0 - labelDy;
+    float y = (row * sqdy) + sqy0 - labelDy;
     return Vec(x, y);
 }
 
