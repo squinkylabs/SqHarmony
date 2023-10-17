@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "ClockShifter.h"
+#include "ClockShifter1.h"
 
 namespace rack {
 namespace engine {
@@ -44,7 +44,7 @@ public:
 private:
     void init();
 
-    ClockShifter _clockShifter;
+    ClockShifter1 _clockShifter;
 };
 
 template <class TBase>

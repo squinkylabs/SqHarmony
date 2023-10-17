@@ -1,12 +1,16 @@
-#include "ClockShifter.h"
+#include "ClockShifter1.h"
+#include "ClockShifter2.h"
 #include "asserts.h"
 
+template <class T>
 static void test0() {
-    ClockShifter c;
+    T c;
+    c.run(0, 0);
+    c.setShift(0);
     (void)c;
 }
 
-static void clockIt(ClockShifter& c, int numTimes, float expectedOutput, float sampleTime) {
+static void clockIt(ClockShifter1& c, int numTimes, float expectedOutput, float sampleTime) {
     for (int i=0; i<numTimes; ++i) {
         const float x = c.run(false, sampleTime);
         if (expectedOutput >= 0) {
@@ -16,14 +20,14 @@ static void clockIt(ClockShifter& c, int numTimes, float expectedOutput, float s
 }
 
 static void testNoInput() {
-    ClockShifter c;
+    ClockShifter1 c;
     clockIt(c, 10000, 0, 1);
 }
 
 static void testJustOneClock() {
     // 10 fails, 5 passes
     const int iter = 10;
-    ClockShifter c;
+    ClockShifter1 c;
     clockIt(c, iter, -1, 1);
     float x = c.run(5, 1);
     assertEQ(x, 0);
@@ -32,7 +36,7 @@ static void testJustOneClock() {
 
 static void testSimpleInput() {
     const int iter = 10;
-    ClockShifter c;
+    ClockShifter1 c;
 
     clockIt(c, iter, -1, 0);
 
@@ -56,7 +60,7 @@ static void testShiftGeneral(float shiftAmount, int period) {
     assertGT(delayCyclesI, 0);  // this case not implemented
     // SQINFO("shift=%f, period=%d delaycycles=%d", shiftAmount, period, delayCyclesI);
 
-    ClockShifter c;
+    ClockShifter1 c;
     c.setShift(shiftAmount);
 
     // first a bunch of nothing
@@ -86,7 +90,7 @@ static void testShiftGeneral(float shiftAmount, int period) {
 }
 
 static void testOneShot() {
-    ClockShifter c;
+    ClockShifter1 c;
 
     const float sampleTime = .1 / 1000;     // .1 milliseconds
     // 10 cycles of nothing
@@ -119,8 +123,16 @@ static void testShiftGeneral100() {
     testShiftGeneral(.51f, 100);
 }
 
+
+template <class T>
+static void testClockShifter() {
+    test0<T>();
+} 
+
 void testClockShifter() {
-    test0();
+   
+    testClockShifter<ClockShifter1>();
+    testClockShifter<ClockShifter2>();
     testNoInput();
     testJustOneClock();
     testSimpleInput();

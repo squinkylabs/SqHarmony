@@ -6,9 +6,9 @@
 #include "OneShot.h"
 #include "ResettablePhaseAccumulator.h"
 
-class ClockShifter {
+class ClockShifter1 {
 public:
-    ClockShifter();
+    ClockShifter1();
     float run(float input, float secondsElapsed);
 
     /**
@@ -30,11 +30,11 @@ private:
     float _shiftAmount = 0;
 };
 
-inline ClockShifter::ClockShifter() {
+inline ClockShifter1::ClockShifter1() {
     _oneShot.setDelayMs(2);
 }
 
-inline float ClockShifter::run(float input, float secondsElapsed) {
+inline float ClockShifter1::run(float input, float secondsElapsed) {
     // SQINFO("clock shifter run %f", input);
     _inputConditioning.go(input);
     bool gotTrigger = false;
