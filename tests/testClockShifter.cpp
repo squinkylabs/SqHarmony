@@ -10,7 +10,8 @@ static void test0() {
     (void)c;
 }
 
-static void clockIt(ClockShifter1& c, int numTimes, float expectedOutput, float sampleTime) {
+template <class T>
+static void clockIt(T& c, int numTimes, float expectedOutput, float sampleTime) {
     for (int i=0; i<numTimes; ++i) {
         const float x = c.run(false, sampleTime);
         if (expectedOutput >= 0) {
@@ -19,24 +20,27 @@ static void clockIt(ClockShifter1& c, int numTimes, float expectedOutput, float 
     }
 }
 
+template <class T>
 static void testNoInput() {
     ClockShifter1 c;
     clockIt(c, 10000, 0, 1);
 }
 
+template <class T>
 static void testJustOneClock() {
     // 10 fails, 5 passes
     const int iter = 10;
-    ClockShifter1 c;
+    T c;
     clockIt(c, iter, -1, 1);
     float x = c.run(5, 1);
     assertEQ(x, 0);
     clockIt(c, iter, 0, 1);
 }
 
+template <class T>
 static void testSimpleInput() {
     const int iter = 10;
-    ClockShifter1 c;
+    T c;
 
     clockIt(c, iter, -1, 0);
 
@@ -50,17 +54,15 @@ static void testSimpleInput() {
     assertGT(x, 1);
 }
 
+template <class T>
 static void testShiftGeneral(float shiftAmount, int period) {
-    // SQINFO("---- testShift25 ---");
-
     // This test can only work if the expected delay is an integer
     float delayCyclesF = (float)period * shiftAmount;
     const int delayCyclesI = std::round(delayCyclesF);
     assertClose(float(delayCyclesI), delayCyclesF, .000001);
     assertGT(delayCyclesI, 0);  // this case not implemented
-    // SQINFO("shift=%f, period=%d delaycycles=%d", shiftAmount, period, delayCyclesI);
 
-    ClockShifter1 c;
+    T c;
     c.setShift(shiftAmount);
 
     // first a bunch of nothing
@@ -89,8 +91,9 @@ static void testShiftGeneral(float shiftAmount, int period) {
     }
 }
 
+template <class T>
 static void testOneShot() {
-    ClockShifter1 c;
+    T c;
 
     const float sampleTime = .1 / 1000;     // .1 milliseconds
     // 10 cycles of nothing
@@ -111,32 +114,41 @@ static void testOneShot() {
     clockIt(c, 1, 0, sampleTime);
 }
 
+template <class T>
 static void testShiftGeneral10() {
-    testShiftGeneral(.1f, 10);
-    testShiftGeneral(.2f, 10);
-    testShiftGeneral(.5f, 10);
-    testShiftGeneral(.9f, 10);
+    testShiftGeneral<T>(.1f, 10);
+    testShiftGeneral<T>(.2f, 10);
+    testShiftGeneral<T>(.5f, 10);
+    testShiftGeneral<T>(.9f, 10);
 }
+
+template <class T>
 static void testShiftGeneral100() {
-    testShiftGeneral(.1f, 100);
-    testShiftGeneral(.5f, 100);
-    testShiftGeneral(.51f, 100);
+    testShiftGeneral<T>(.1f, 100);
+    testShiftGeneral<T>(.5f, 100);
+    testShiftGeneral<T>(.51f, 100);
 }
 
 
+// Even if we don't end up using ClockShifter1, 
+// this is an easy way to use the same tests for 1 and 2.
 template <class T>
 static void testClockShifter() {
     test0<T>();
+    testNoInput<T>();
+    testJustOneClock<T>();
+    testSimpleInput<T>();
+     testShiftGeneral10<T>();
+    testShiftGeneral100<T>();
+    testOneShot<T>();
 } 
 
 void testClockShifter() {
    
     testClockShifter<ClockShifter1>();
     testClockShifter<ClockShifter2>();
-    testNoInput();
-    testJustOneClock();
-    testSimpleInput();
-    testShiftGeneral10();
-    testShiftGeneral100();
-    testOneShot();
+    
+   
+    
+   
 }
