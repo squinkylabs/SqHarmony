@@ -42,24 +42,28 @@ static void clockItHigh(Comp& c) {
     c.process(args);
 }
 
-static void testSimpleInput() {
-    const int iter = 10;
+static void testSimpleInput(int iter, float shift) {
     Comp c;
 
+    c.params[Comp::SHIFT_PARAM].value = shift;
     clockIt(c, iter, -1);
 
     // then a single trigger input
-   // float x = c.run(5, 1);
     clockItHigh(c);
     assertEQ(c.outputs[Comp::CK_OUTPUT].getVoltage(), 0);
 
     clockIt(c, iter, 0);
 
     // second input should do something
-   // x = c.run(5, .0001);
-   clockItHigh(c);
-   assertGT(c.outputs[Comp::CK_OUTPUT].getVoltage(), 1);
-   // assertGT(x, 1);
+    clockItHigh(c);
+    assertGT(c.outputs[Comp::CK_OUTPUT].getVoltage(), 1);
+}
+
+static void testSimpleInput() {
+    testSimpleInput(10, 0);
+    testSimpleInput(10, 1);
+    testSimpleInput(10, 2);
+    testSimpleInput(10, -1);
 }
 
 void testPhasePatterns() {

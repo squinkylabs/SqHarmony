@@ -78,19 +78,17 @@ static void testShiftGeneral(float shiftAmount, int period) {
     assertEQ(x, 0);  // should be delayed
     // SQINFO("just did the first trigger, now the zero samples:");
 
-    for (int i = 0; i < period - 1; ++i) {
-                                                                                                                                                                                                           x = c.run(0, 1);
-        SQINFO("i=%d output=%f", i, x);
+    for (int i = 0; i < period - 1; ++i) {                                                                                                                                                                                                  x = c.run(0, 1);
+       // SQINFO("i=%d output=%f", i, x);
         const float expectedValue = (i == expectedOutputIndex) ? 10 : 0;
         assertEQ(x, expectedValue);
     }
 }
 
 static void testOneShot() {
-  //  const int iter = 10;
     ClockShifter c;
 
-    const float sampleTime = .1 / 1000;     // .1 millseconds
+    const float sampleTime = .1 / 1000;     // .1 milliseconds
     // 10 cycles of nothing
     clockIt(c, 10, -1, 0);
 
