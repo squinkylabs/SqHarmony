@@ -39,6 +39,7 @@ extern void testFreqMeasure();
 extern void testResettablePhaseAccumulator();
 extern void testClockShifter();
 extern void testOneShot();
+extern void testPhasePatterns();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -50,6 +51,7 @@ int main(const char**, int) {
     testResettablePhaseAccumulator();
     testFreqMeasure();
     testClockShifter();
+    testPhasePatterns();
     printf("XX: leaving early for clock stuff");
 
     std::exit(0);

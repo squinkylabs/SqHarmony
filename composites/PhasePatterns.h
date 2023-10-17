@@ -55,7 +55,9 @@ inline void PhasePatterns<TBase>::init() {
 template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
     const float shift = TBase::params[SHIFT_PARAM].value;
-    _clockShifter.setShift(shift);
+    const float rem = std::fmod(shift, 1);
+    SQINFO("shift=%f, rem=%f", shift, rem);
+    _clockShifter.setShift(rem);
 
     const float clockIn =  TBase::inputs[CK_INPUT].getVoltage();
     const float clockOut = _clockShifter.run(clockIn, args.sampleTime);

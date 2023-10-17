@@ -107,7 +107,6 @@ static void testOneShot() {
     const int expectedClockHigh = 20;      // 2 ms one shot, .1 ms sample time
     clockIt(c, expectedClockHigh, 10, sampleTime);
     clockIt(c, 1, 0, sampleTime);
-    assert(false);
 }
 
 static void testShiftGeneral10() {
@@ -121,7 +120,6 @@ static void testShiftGeneral100() {
     testShiftGeneral(.5f, 100);
     testShiftGeneral(.51f, 100);
 }
-
 
 void testClockShifter() {
     test0();

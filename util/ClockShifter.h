@@ -1,5 +1,6 @@
 #pragma once
 
+#include "asserts.h"
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
 #include "OneShot.h"
@@ -17,6 +18,8 @@ public:
      */
     void setShift(float amount) {
         _shiftAmount = amount;
+        assertGE(amount, 0);
+        assertLE(amount, 1);
     }
 
 private:
