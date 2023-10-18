@@ -2,6 +2,13 @@
 
 #include <assert.h>
 
+/**
+ * @brief generates a single, fixed length pulse.
+ * 
+ * Note that the class is meant to generate fixed length, in "clock time"
+ * (seconds) rather than samples. Good for generating a VCV standard trigger.
+ * 
+ */
 class OneShot
 {
 public:
