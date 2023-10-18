@@ -2,8 +2,6 @@
 
 #include "FreqMeasure.h"
 #include "SqRingBuffer.h"
-
-
 #include "asserts.h"
 
 /**
@@ -26,7 +24,7 @@ public:
         //  assertLE(amount, 1);
     }
 
-//private:
+    // private:
     enum class ClockStates {
         invalid,
         high,
@@ -40,8 +38,8 @@ public:
     };
     class ClockEvent {
     public:
-        int _samples=0;
-        int _clocks=0;
+        int _samples = 0;
+        int _clocks = 0;
         EventType _type = EventType::highToLow;
     };
 
@@ -54,11 +52,10 @@ public:
 };
 
 inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
-    
 }
 
 inline float ClockShifter3::run(float input) {
-    const bool ck = input > 5;      // TODO: use better
+    const bool ck = input > 5;  // TODO: use better
     const auto ckState = ck ? ClockStates::high : ClockStates::low;
     bool didTick = false;
     bool wasTransition = false;
@@ -71,9 +68,6 @@ inline float ClockShifter3::run(float input) {
         }
     }
     _lastClock = ckState;
-    if (!didTick) {
-        ++_sampleCountSinceLastClock;
-    }
 
     if (wasTransition) {
         ClockEvent ev;
@@ -81,6 +75,10 @@ inline float ClockShifter3::run(float input) {
         ev._clocks = _clockCount;
         ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
         _clockDelayLine.push(ev);
+    }
+
+    if (!didTick) {
+        ++_sampleCountSinceLastClock;
     }
 
     return 0;
