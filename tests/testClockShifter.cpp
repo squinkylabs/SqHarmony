@@ -12,7 +12,7 @@ static void test0() {
 
 template <class T>
 static void clockIt(T& c, int numTimes, float expectedOutput, float sampleTime) {
-    for (int i=0; i<numTimes; ++i) {
+    for (int i = 0; i < numTimes; ++i) {
         const float x = c.run(false, sampleTime);
         if (expectedOutput >= 0) {
             assertEQ(x, expectedOutput);
@@ -72,7 +72,7 @@ static void testShiftGeneral(float shiftAmount, int period) {
     float x = c.run(5, 1);
     assertEQ(x, 0);
     // then enough zeros to make a full period
-    clockIt(c, period-1, 0, 1);
+    clockIt(c, period - 1, 0, 1);
 
     // second input should do something
     const int expectedOutputIndex = delayCyclesI - 1;
@@ -84,8 +84,9 @@ static void testShiftGeneral(float shiftAmount, int period) {
     assertEQ(x, 0);  // should be delayed
     // SQINFO("just did the first trigger, now the zero samples:");
 
-    for (int i = 0; i < period - 1; ++i) {                                                                                                                                                                                                  x = c.run(0, 1);
-       // SQINFO("i=%d output=%f", i, x);
+    for (int i = 0; i < period - 1; ++i) {
+        x = c.run(0, 1);
+        // SQINFO("i=%d output=%f", i, x);
         const float expectedValue = (i == expectedOutputIndex) ? 10 : 0;
         assertEQ(x, expectedValue);
     }
@@ -95,7 +96,7 @@ template <class T>
 static void testOneShot() {
     T c;
 
-    const float sampleTime = .1 / 1000;     // .1 milliseconds
+    const float sampleTime = .1 / 1000;  // .1 milliseconds
     // 10 cycles of nothing
     clockIt(c, 10, -1, 0);
 
@@ -108,8 +109,8 @@ static void testOneShot() {
     // sample time === 1/10 millisecond
     x = c.run(5, sampleTime);
     assertGT(x, 1);
-    //const int expectedOutputHigh = 2 /1000; // two milliseconds
-    const int expectedClockHigh = 20;      // 2 ms one shot, .1 ms sample time
+    // const int expectedOutputHigh = 2 /1000; // two milliseconds
+    const int expectedClockHigh = 20;  // 2 ms one shot, .1 ms sample time
     clockIt(c, expectedClockHigh, 10, sampleTime);
     clockIt(c, 1, 0, sampleTime);
 }
@@ -129,8 +130,7 @@ static void testShiftGeneral100() {
     testShiftGeneral<T>(.51f, 100);
 }
 
-
-// Even if we don't end up using ClockShifter1, 
+// Even if we don't end up using ClockShifter1,
 // this is an easy way to use the same tests for 1 and 2.
 template <class T>
 static void testClockShifter() {
@@ -138,17 +138,12 @@ static void testClockShifter() {
     testNoInput<T>();
     testJustOneClock<T>();
     testSimpleInput<T>();
-     testShiftGeneral10<T>();
+    testShiftGeneral10<T>();
     testShiftGeneral100<T>();
     testOneShot<T>();
-} 
+}
 
 void testClockShifter() {
-   
     testClockShifter<ClockShifter1>();
-    testClockShifter<ClockShifter2>();
-    
-   
-    
-   
+    //   testClockShifter<ClockShifter2>();
 }

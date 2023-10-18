@@ -41,6 +41,7 @@ extern void testClockShifter();
 extern void testOneShot();
 extern void testPhasePatterns();
 extern void testOneShotSampleTimer();
+extern void testClockShifter3();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -53,6 +54,7 @@ int main(const char**, int) {
     testResettablePhaseAccumulator();
     testFreqMeasure();
     testClockShifter();
+    testClockShifter3();
     testPhasePatterns();
     printf("XX: leaving early for clock stuff");
 
