@@ -1,6 +1,9 @@
 #pragma once
 
 #include "FreqMeasure.h"
+#include "SqRingBuffer.h"
+
+
 #include "asserts.h"
 
 /**
@@ -23,14 +26,49 @@ public:
         //  assertLE(amount, 1);
     }
 
-private:
+//private:
+    enum class ClockStates {
+        invalid,
+        high,
+        low,
+        unknown
+    };
+    class ClockEvent {
+        int _samples=0;
+        int _clocks=0;
+    };
+
+    int _clockCount = 0;
+    int _sampleCountSinceLastClock = 0;
     FreqMeasure _freqMeasure;
     float _shiftAmount = 0;
+    ClockStates _lastClock = ClockStates::unknown;
+    SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
+
+   
 };
 
-inline ClockShifter3::ClockShifter3() {
+inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
+    
 }
 
 inline float ClockShifter3::run(float input) {
+    const bool ck = input > 5;      // TODO: use better
+    const auto ckState = ck ? ClockStates::high : ClockStates::low;
+    bool didTick = false;
+    if (ckState != _lastClock) {
+        if (ckState == ClockStates::high) {
+            _clockCount++;
+            _sampleCountSinceLastClock = 0;
+            didTick = true;
+        }
+    }
+    _lastClock = ckState;
+    if (!didTick) {
+        ++_sampleCountSinceLastClock;
+    }
+
+    
+    
     return 0;
 }

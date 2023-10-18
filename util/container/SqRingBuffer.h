@@ -6,21 +6,24 @@
 
 /**
  * A simple ring buffer.
- * Template arguments are for numeric type stored, and for size.
+ * Template arguments are for numeric type stored, and for size. Optional
+ * third argument is NOINIT. If this is true, will skip the initialization of T and 
+ * assume that T is an object with a constructor.
+ * 
  * Not thread safe.
  * Guaranteed to be non-blocking. Adding or removing items will never
  * allocate or free memory.
  * Objects in RingBuffer are not owned by RingBuffer - they will not be destroyed.
  */
-template <typename T, int SIZE>
-class SqRingBuffer
-{
+template <typename T, int SIZE, bool NOINIT=false>
+class SqRingBuffer {
 public:
-    SqRingBuffer(bool allowOverflow) : _allowOverflow(allowOverflow)
-    {
-        for (int i = 0; i < SIZE; ++i) {
-            memory[i] = 0;
-        }
+    SqRingBuffer(bool allowOverflow) : _allowOverflow(allowOverflow) {
+#if (NOINIT == true) 
+            for (int i = 0; i < SIZE; ++i) {
+                memory[i] = 0;
+            }
+#endif
     }
 
     int size() const;
@@ -32,14 +35,13 @@ public:
     /**
      * @brief retrieve by index
      * last one pushed == index 0.
-     * one before that is index 1. 
+     * one before that is index 1.
      */
     T at(int index) const;
 
     void _dump();
 
 private:
-
 #if 0
     // this constructor does not try to initialize
     SqRingBuffer(bool b)
@@ -49,7 +51,7 @@ private:
 #endif
 
     T memory[SIZE];
-    bool couldBeFull = false;           // full and empty are ambiguous, both are in--out
+    bool couldBeFull = false;  // full and empty are ambiguous, both are in--out
     int inIndex = 0;
     int outIndex = 0;
     const bool _allowOverflow;
@@ -69,9 +71,8 @@ inline void SqRingBuffer<uint16_t, 3>::_dump() {
     }
 }
 
-template <typename T, int SIZE>
-inline void SqRingBuffer<T, SIZE>::push(T value)
-{
+template <typename T, int SIZE, bool NOINIT>
+inline void SqRingBuffer<T, SIZE, NOINIT>::push(T value) {
     assert(_allowOverflow || !full());
     if (full()) {
         pop();
@@ -81,9 +82,8 @@ inline void SqRingBuffer<T, SIZE>::push(T value)
     couldBeFull = true;
 }
 
-template <typename T, int SIZE>
-inline T SqRingBuffer<T, SIZE>::pop()
-{
+template <typename T, int SIZE, bool NOINIT>
+inline T SqRingBuffer<T, SIZE, NOINIT>::pop() {
     assert(!empty());
     T value = memory[outIndex];
     advance(outIndex);
@@ -91,16 +91,14 @@ inline T SqRingBuffer<T, SIZE>::pop()
     return value;
 }
 
-template <typename T, int SIZE>
-inline bool SqRingBuffer<T, SIZE>::full() const
-{
+template <typename T, int SIZE, bool NOINIT>
+inline bool SqRingBuffer<T, SIZE, NOINIT>::full() const {
     return (inIndex == outIndex) && couldBeFull;
 }
 
-template <typename T, int SIZE>
-inline int SqRingBuffer<T, SIZE>::size() const
-{
-    //return (inIndex == outIndex) && !couldBeFull;
+template <typename T, int SIZE, bool NOINIT>
+inline int SqRingBuffer<T, SIZE, NOINIT>::size() const {
+    // return (inIndex == outIndex) && !couldBeFull;
     if (empty()) {
         return 0;
     }
@@ -114,12 +112,11 @@ inline int SqRingBuffer<T, SIZE>::size() const
     return x;
 }
 
-template <typename T, int SIZE>
-inline T SqRingBuffer<T, SIZE>::at(int x) const
-{
+template <typename T, int SIZE, bool NOINIT>
+inline T SqRingBuffer<T, SIZE, NOINIT>::at(int x) const {
     assert(size() > x);
     assert(x >= 0);
-    
+
     int index = inIndex - 1;
     index -= x;
     if (index < 0) {
@@ -128,47 +125,12 @@ inline T SqRingBuffer<T, SIZE>::at(int x) const
     return memory[index];
 }
 
-template <typename T, int SIZE>
-inline bool SqRingBuffer<T, SIZE>::empty() const
-{
+template <typename T, int SIZE, bool NOINIT>
+inline bool SqRingBuffer<T, SIZE, NOINIT>::empty() const {
     return (inIndex == outIndex) && !couldBeFull;
 }
 
-template <typename T, int SIZE>
-inline void SqRingBuffer<T, SIZE>::advance(int &p)
-{
+template <typename T, int SIZE, bool NOINIT>
+inline void SqRingBuffer<T, SIZE, NOINIT>::advance(int &p) {
     if (++p >= SIZE) p = 0;
 }
-
-#if 0
-template <int SIZE>
-class SqChordHistory {
-public:
-    SqChordHistory() : rb(true) {}
-    void onNewChord(int rank, int root) {
-        const auto h = hash(rank, root);
-        rb.push(h);
-    }
-    bool haveSeen(int rank, int root) const {
-        const auto h = hash(rank, root);
-        for (int i=0; i< rb.size(); ++i) {
-            if (rb.at(i) == h) {
-                return true;
-            }
-        }
-        return false;
-    }
-private:
-    SqRingBuffer<int, SIZE> rb;
-
-    static int hash(int rank, int root) {
-        assert(root < 8);
-        assert(root >= 1);
-        assert(rank >= 0);
-        assert(rank < 1000);
-        return (rank << 4) | root;
-    }
-};
-#endif
-
-
