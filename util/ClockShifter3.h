@@ -33,9 +33,16 @@ public:
         low,
         unknown
     };
+    enum class EventType {
+        invalid,
+        lowToHigh,
+        highToLow
+    };
     class ClockEvent {
+    public:
         int _samples=0;
         int _clocks=0;
+        EventType _type = EventType::highToLow;
     };
 
     int _clockCount = 0;
@@ -44,8 +51,6 @@ public:
     float _shiftAmount = 0;
     ClockStates _lastClock = ClockStates::unknown;
     SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
-
-   
 };
 
 inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
@@ -56,7 +61,9 @@ inline float ClockShifter3::run(float input) {
     const bool ck = input > 5;      // TODO: use better
     const auto ckState = ck ? ClockStates::high : ClockStates::low;
     bool didTick = false;
-    if (ckState != _lastClock) {
+    bool wasTransition = false;
+    if ((ckState != _lastClock) && (_lastClock != ClockStates::unknown)) {
+        wasTransition = true;
         if (ckState == ClockStates::high) {
             _clockCount++;
             _sampleCountSinceLastClock = 0;
@@ -68,7 +75,13 @@ inline float ClockShifter3::run(float input) {
         ++_sampleCountSinceLastClock;
     }
 
-    
-    
+    if (wasTransition) {
+        ClockEvent ev;
+        ev._samples = _sampleCountSinceLastClock;
+        ev._clocks = _clockCount;
+        ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
+        _clockDelayLine.push(ev);
+    }
+
     return 0;
 }

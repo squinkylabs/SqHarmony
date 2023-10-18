@@ -36,7 +36,18 @@ static void testCounters() {
     assertEQ(c._sampleCountSinceLastClock, 2);
 }
 
+static void testDelay() {
+    ClockShifter3 c;
+    assertEQ(c._clockDelayLine.size(), 0);
+    c.run(0);
+    assertEQ(c._clockDelayLine.size(), 0);
+    c.run(10);
+    assertEQ(c._clockDelayLine.size(), 1);
+
+}
+
 void testClockShifter3() {
     testCanCall();
     testCounters();
+    testDelay();
 }
