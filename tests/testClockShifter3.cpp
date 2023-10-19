@@ -55,6 +55,11 @@ static void testDelay() {
     assertEQ(c._clockDelayLine.size(), 0);
     c.run(0);
     assertEQ(c._clockDelayLine.size(), 1);
+
+    const auto ev2 = c._clockDelayLine.pop();
+    assertEQ(int(ev2._type), int(ClockShifter3::EventType::highToLow));
+    assertEQ(int(ev._clocks), 1);
+    assertEQ(int(ev._samples), 0);
 }
 
 void testClockShifter3() {
