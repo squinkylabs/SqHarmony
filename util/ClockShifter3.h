@@ -26,12 +26,6 @@ public:
     }
 
 private:
-    // enum class ClockStates {
-    //     invalid,
-    //     high,
-    //     low,
-    //     unknown
-    // };
     enum class EventType {
         invalid,
         lowToHigh,
@@ -50,29 +44,62 @@ private:
     float _shiftAmount = 0;
     bool _lastClock = false;
     SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
+
+    /**
+     * @brief
+     *
+     * @param input
+     * @return std::pair<bool, bool>, first true if effective clock is high, second it clock is valid
+     */
+    std::pair<bool, bool> processClockInput(float input);
+
+    /**
+     * @brief 
+     * 
+     * @param ck 
+     * @return std::pair<bool, bool>, first is true if the clock went low to high, 
+     *      second is true on either transition
+     */
+    std::pair<bool, bool>  updateClockStates(bool ck);
 };
 
 inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
 }
 
-inline float ClockShifter3::run(float input) {
+inline std::pair<bool, bool> ClockShifter3::processClockInput(float input) {
     const bool ck = input > 5;  // TODO: use better (like previous clock shifters)
-     _freqMeasure.onSample(input);
-     if (!_freqMeasure.freqValid()) {
-        return 0;       // exit early if we don't have clock length
-     }
-    const auto ckState = ck;
-    bool didTick = false;
+
+    const bool freqWasValid = _freqMeasure.freqValid();
+    _freqMeasure.onSample(input);
+
+    return std::make_pair(ck, freqWasValid);
+}
+
+inline  std::pair<bool, bool> ClockShifter3::updateClockStates(bool ck) {
+     bool didTick = false;
     bool wasTransition = false;
-    if (ckState != _lastClock) {
+    if (ck != _lastClock) {
         wasTransition = true;
-        if (ckState) {
+        if (ck) {
             _currentClockCount++;
             _currentSampleCountSinceLastClock = 0;
             didTick = true;
         }
     }
-    _lastClock = ckState;
+    _lastClock = ck;
+    return std::make_pair(didTick, wasTransition);
+}
+
+inline float ClockShifter3::run(float input) {
+    const auto proc = processClockInput(input);
+    if (!proc.second) {
+        return 0;
+    }
+  //  const auto ck = proc.first;
+
+    const auto clockTransitionStatus = updateClockStates(proc.first); 
+    const bool wasTransition = clockTransitionStatus.second;
+    const bool didTick = clockTransitionStatus.first;
 
     if (wasTransition) {
         ClockEvent ev;
