@@ -107,12 +107,30 @@ public:
         assertEQ(c._freqMeasure.freqValid(), true);
         assertEQ(c._freqMeasure.getPeriod(), 3);
     }
+
+    static void testSetShift() {
+        ClockShifter3 c;
+        assertEQ(c._requestedShiftAmountClocks, 0);
+        assertEQ(c._requestedFractionShiftAmount, 0);
+
+        c.setShift(0);
+        assertEQ(c._requestedShiftAmountClocks, 0);
+        assertEQ(c._requestedFractionShiftAmount, 0);
+
+        c.setShift(1);
+        assertEQ(c._requestedShiftAmountClocks, 1);
+        assertEQ(c._requestedFractionShiftAmount, 0);
+
+
+        assert(false);
+    }
 };
 
 void testClockShifter3() {
     testCanCall();
     // TODO: test Counters needs to prime the clock
     ClockShifter3Test::testCounters();
+    ClockShifter3Test::testSetShift();
     ClockShifter3Test::testFreqMeasure();
     //  ClockShifter3Test::testDelay();
 }

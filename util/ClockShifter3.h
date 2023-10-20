@@ -20,6 +20,12 @@ public:
      * @param amount is between 0 and 1. 0 is no shift, 1 is a whole period
      */
     void setShift(float amount) {
+        assertGE(amount, 0);
+        // integral part is the number of clocks
+        _requestedShiftAmountClocks = std::floor(amount);
+        _requestedFractionShiftAmount = amount - _requestedShiftAmountClocks;
+
+       // assert(false);
         //  _shiftAmount = amount;
         //  assertGE(amount, 0);
         //  assertLE(amount, 1);
@@ -38,29 +44,28 @@ private:
         EventType _type = EventType::highToLow;
     };
 
+    float _requestedFractionShiftAmount = 0;
+    int _requestedShiftAmountClocks = 0;
+
+
     int _currentClockCount = 0;
     int _currentSampleCountSinceLastClock = 0;
     FreqMeasure _freqMeasure;
-    float _shiftAmount = 0;
     bool _lastClock = false;
     SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
 
     /**
-     * @brief
-     *
-     * @param input
      * @return std::pair<bool, bool>, first true if effective clock is high, second it clock is valid
      */
     std::pair<bool, bool> processClockInput(float input);
 
     /**
-     * @brief 
-     * 
-     * @param ck 
      * @return std::pair<bool, bool>, first is true if the clock went low to high, 
      *      second is true on either transition
      */
     std::pair<bool, bool>  updateClockStates(bool ck);
+
+    void serviceDelayLine();
 };
 
 inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
@@ -90,13 +95,19 @@ inline  std::pair<bool, bool> ClockShifter3::updateClockStates(bool ck) {
     return std::make_pair(didTick, wasTransition);
 }
 
+inline void ClockShifter3::serviceDelayLine() {
+    if (_clockDelayLine.empty()) {
+        return;
+    }
+    const auto ev = _clockDelayLine.peek();
+    //assert(false);
+}
+
 inline float ClockShifter3::run(float input) {
     const auto proc = processClockInput(input);
     if (!proc.second) {
         return 0;
     }
-  //  const auto ck = proc.first;
-
     const auto clockTransitionStatus = updateClockStates(proc.first); 
     const bool wasTransition = clockTransitionStatus.second;
     const bool didTick = clockTransitionStatus.first;
@@ -108,6 +119,8 @@ inline float ClockShifter3::run(float input) {
         ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
         _clockDelayLine.push(ev);
     }
+
+    serviceDelayLine();
 
     if (!didTick) {
         ++_currentSampleCountSinceLastClock;

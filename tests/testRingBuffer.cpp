@@ -28,6 +28,17 @@ static void testSimpleAccess() {
 }
 
 template <typename TRingBufer>
+static void testSimpleAccess2() {
+    TRingBufer rb(false);
+    rb.push(55);
+    const int x = rb.peek();
+    assert(!rb.empty());
+    const int y = rb.pop();
+    assert(rb.empty());
+}
+
+
+template <typename TRingBufer>
 static void testMultiAccess() {
     TRingBufer rb(false);
     rb.push(1234);
@@ -116,6 +127,7 @@ template <typename TRingBuffer>
 void _testRingBuffer() {
     testConstruct<TRingBuffer>();
     testSimpleAccess<TRingBuffer>();
+    testSimpleAccess2<TRingBuffer>();
     testMultiAccess<TRingBuffer>();
     testWrap<TRingBuffer>();
     testFull<TRingBuffer>();
@@ -341,8 +353,6 @@ static void testAtomicRingBufferFull() {
 void testRingBuffer() {
     testConstruct<SqRingBuffer<int, 4>>();
     testConstruct<SqRingBuffer<char *, 1>>();
-    // testConstruct<AtomicRingBuffer<int, 4>>();
-    //  testConstruct<AtomicRingBuffer<char *, 1>>();
 
     _testRingBuffer<SqRingBuffer<int, 4>>();
     //   _testRingBuffer<AtomicRingBuffer<int, 4>>();

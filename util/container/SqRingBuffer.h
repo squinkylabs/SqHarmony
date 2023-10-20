@@ -7,28 +7,29 @@
 /**
  * A simple ring buffer.
  * Template arguments are for numeric type stored, and for size. Optional
- * third argument is NOINIT. If this is true, will skip the initialization of T and 
+ * third argument is NOINIT. If this is true, will skip the initialization of T and
  * assume that T is an object with a constructor.
- * 
+ *
  * Not thread safe.
  * Guaranteed to be non-blocking. Adding or removing items will never
  * allocate or free memory.
  * Objects in RingBuffer are not owned by RingBuffer - they will not be destroyed.
  */
-template <typename T, int SIZE, bool NOINIT=false>
+template <typename T, int SIZE, bool NOINIT = false>
 class SqRingBuffer {
 public:
     SqRingBuffer(bool allowOverflow) : _allowOverflow(allowOverflow) {
-#if (NOINIT == true) 
-            for (int i = 0; i < SIZE; ++i) {
-                memory[i] = 0;
-            }
+#if (NOINIT == true)
+        for (int i = 0; i < SIZE; ++i) {
+            memory[i] = 0;
+        }
 #endif
     }
 
     int size() const;
     void push(T);
     T pop();
+    T peek() const;
     bool full() const;
     bool empty() const;
 
@@ -88,6 +89,13 @@ inline T SqRingBuffer<T, SIZE, NOINIT>::pop() {
     T value = memory[outIndex];
     advance(outIndex);
     couldBeFull = false;
+    return value;
+}
+
+template <typename T, int SIZE, bool NOINIT>
+inline T SqRingBuffer<T, SIZE, NOINIT>::peek() const {
+    assert(!empty());
+    T value = memory[outIndex];
     return value;
 }
 
