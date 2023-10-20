@@ -10,6 +10,7 @@
  */
 class ClockShifter3 {
 public:
+    friend class ClockShifter3Test;
     ClockShifter3();
     float run(float input);
 
@@ -24,13 +25,13 @@ public:
         //  assertLE(amount, 1);
     }
 
-    // private:
-    enum class ClockStates {
-        invalid,
-        high,
-        low,
-        unknown
-    };
+private:
+    // enum class ClockStates {
+    //     invalid,
+    //     high,
+    //     low,
+    //     unknown
+    // };
     enum class EventType {
         invalid,
         lowToHigh,
@@ -43,11 +44,11 @@ public:
         EventType _type = EventType::highToLow;
     };
 
-    int _clockCount = 0;
-    int _sampleCountSinceLastClock = 0;
+    int _currentClockCount = 0;
+    int _currentSampleCountSinceLastClock = 0;
     FreqMeasure _freqMeasure;
     float _shiftAmount = 0;
-    ClockStates _lastClock = ClockStates::unknown;
+    bool _lastClock = false;
     SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
 };
 
@@ -55,15 +56,19 @@ inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
 }
 
 inline float ClockShifter3::run(float input) {
-    const bool ck = input > 5;  // TODO: use better
-    const auto ckState = ck ? ClockStates::high : ClockStates::low;
+    const bool ck = input > 5;  // TODO: use better (like previous clock shifters)
+     _freqMeasure.onSample(input);
+     if (!_freqMeasure.freqValid()) {
+        return 0;       // exit early if we don't have clock length
+     }
+    const auto ckState = ck;
     bool didTick = false;
     bool wasTransition = false;
-    if ((ckState != _lastClock) && (_lastClock != ClockStates::unknown)) {
+    if (ckState != _lastClock) {
         wasTransition = true;
-        if (ckState == ClockStates::high) {
-            _clockCount++;
-            _sampleCountSinceLastClock = 0;
+        if (ckState) {
+            _currentClockCount++;
+            _currentSampleCountSinceLastClock = 0;
             didTick = true;
         }
     }
@@ -71,14 +76,14 @@ inline float ClockShifter3::run(float input) {
 
     if (wasTransition) {
         ClockEvent ev;
-        ev._samples = _sampleCountSinceLastClock;
-        ev._clocks = _clockCount;
+        ev._samples = _currentSampleCountSinceLastClock;
+        ev._clocks = _currentClockCount;
         ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
         _clockDelayLine.push(ev);
     }
 
     if (!didTick) {
-        ++_sampleCountSinceLastClock;
+        ++_currentSampleCountSinceLastClock;
     }
 
     return 0;
