@@ -25,7 +25,7 @@ public:
         // integral part is the number of clocks
         const int ck = std::floor(amount);
         const float phase = amount - ck;
-        _requestedShift = ClockWithPhase(ck, phase);
+        _requestedShift = ShiftMath::ClockWithPhase(ck, phase);
     }
 
 private:
@@ -39,13 +39,13 @@ private:
         ClockEvent(EventType type, int clocks, int samples) : _type(type), _timeStamp(clocks, samples) {}
         ClockEvent() {}
 
-        ClockWithSamples _timeStamp;
+        ShiftMath::ClockWithSamples _timeStamp;
         EventType _type = EventType::highToLow;
     };
 
   //  float _requestedFractionShiftAmount = 0;
   //  int _requestedShiftAmountClocks = 0;
-    ClockWithPhase _requestedShift;
+    ShiftMath::ClockWithPhase _requestedShift;
 
 
     int _currentClockCount = 0;
@@ -105,14 +105,15 @@ inline void ClockShifter3::serviceDelayLine() {
         return;
     }
 
-    const ClockWithSamples& eventStartTime = ev._timeStamp;
-  //  const ClockWithPhase currentSh
-    ClockWithSamples targetTime = ev._timeStamp;
+    const ShiftMath::ClockWithSamples& eventStartTime = ev._timeStamp;
+    ShiftMath::ClockWithSamples targetTime = ev._timeStamp;
 
     SQINFO("finish me 108");
 }
 
 inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
+    // ShiftMath::ClockWithPhase _requestedShift;
+    // target with samples = ev.timeStamp (samples) + requesteShirt
     SQINFO("finish me 112");
     return false;
 }
@@ -130,7 +131,7 @@ inline float ClockShifter3::run(float input) {
         ClockEvent ev;
       //  ev._samples = _currentSampleCountSinceLastClock;
      //   ev._clocks = _currentClockCount;
-        ev._timeStamp = ClockWithSamples(_currentClockCount, _currentSampleCountSinceLastClock);
+        ev._timeStamp = ShiftMath::ClockWithSamples(_currentClockCount, _currentSampleCountSinceLastClock);
         ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
         _clockDelayLine.push(ev);
     }
