@@ -75,6 +75,48 @@ static void testExceeds1() {
     assert(b);
 }
 
+static void testExceeds2() {
+    ShiftMath::ClockWithSamples x(12, 3);
+    ShiftMath::ClockWithSamples y(12, 3);
+    const bool b = ShiftMath::exceedsOrEquals(x, y);
+    assert(b);
+}
+
+static void testExceeds3() {
+    ShiftMath::ClockWithSamples x(11, 3);
+    ShiftMath::ClockWithSamples y(11, 4);
+    const bool b = ShiftMath::exceedsOrEquals(x, y);
+    assert(!b);
+}
+
+static void testExceeds4() {
+    ShiftMath::ClockWithSamples x(8, 3);
+    ShiftMath::ClockWithSamples y(7, 4);
+    const bool b = ShiftMath::exceedsOrEquals(x, y);
+    assert(b);
+}
+
+static void testExceeds5() {
+    ShiftMath::ClockWithSamples x(8, 9);
+    ShiftMath::ClockWithSamples y(7, 4);
+    const bool b = ShiftMath::exceedsOrEquals(x, y);
+    assert(b);
+}
+
+static void testExceeds6() {
+    ShiftMath::ClockWithSamples x(7, 3);
+    ShiftMath::ClockWithSamples y(8, 4);
+    const bool b = ShiftMath::exceedsOrEquals(x, y);
+    assert(!b);
+}
+
+static void testExceeds7() {
+    ShiftMath::ClockWithSamples x(7, 9);
+    ShiftMath::ClockWithSamples y(8, 4);
+    const bool b = ShiftMath::exceedsOrEquals(x, y);
+    assert(!b);
+}
+
 void testShiftMath() {
     testConstruct();
     testConvert1();
@@ -85,4 +127,10 @@ void testShiftMath() {
     testAddWrap2();
     testAddWrap3();
     testExceeds1();
+    testExceeds2();
+    testExceeds3();
+    testExceeds4();
+    testExceeds5();
+    testExceeds6();
+    testExceeds7();
 }
