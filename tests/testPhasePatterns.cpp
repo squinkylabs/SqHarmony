@@ -25,7 +25,7 @@ const void testOver1() {
     proc(p, 16);  // just want to be sure this doesn't assert or crash
 }
 
-static void clockIt(Comp& c, int numTimes, float expectedOutput) {
+static void clockItLow(Comp& c, int numTimes, float expectedOutput) {
     const auto args = TestComposite::ProcessArgs();
     c.inputs[Comp::CK_INPUT].setVoltage(0);
     for (int i = 0; i < numTimes; ++i) {
@@ -42,17 +42,25 @@ static void clockItHigh(Comp& c) {
     c.process(args);
 }
 
+static void clockItHighLow(Comp& c, int numLow) {
+    clockItHigh(c);
+    clockItLow(c, numLow, -1);
+}
+
 static void testSimpleInput(int iter, float shift) {
     Comp c;
 
+    // Send first two clocks to prime, should still have no output.
     c.params[Comp::SHIFT_PARAM].value = shift;
-    clockIt(c, iter, -1);
+    clockItHighLow(c, iter);
+    clockItHighLow(c, iter);
+    assertEQ(c.outputs[Comp::CK_OUTPUT].getVoltage(), 0);
 
-    // then a single trigger input
+    // Then the third clock will actually do something.
     clockItHigh(c);
     assertEQ(c.outputs[Comp::CK_OUTPUT].getVoltage(), 0);
 
-    clockIt(c, iter, 0);
+    clockItLow(c, iter, 0);
 
     // second input should do something
     clockItHigh(c);

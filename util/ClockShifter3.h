@@ -39,8 +39,8 @@ private:
         ClockEvent(EventType type, int clocks, int samples) : _type(type), _timeStamp(clocks, samples) {}
         ClockEvent() {}
 
-        ShiftMath::ClockWithSamples _timeStamp;
         EventType _type = EventType::highToLow;
+        ShiftMath::ClockWithSamples _timeStamp;
     };
 
     ShiftMath::ClockWithPhase _requestedShift;
@@ -116,9 +116,6 @@ inline void ClockShifter3::serviceDelayLine() {
 }
 
 inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
-    // ShiftMath::ClockWithPhase _requestedShift;
-    // target with samples = ev.timeStamp (samples) + requesteShirt
-
     if (!_freqMeasure.freqValid()) {
         return false;
     }
@@ -127,9 +124,6 @@ inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
     const auto shiftAmountSamples = ShiftMath::convert(_requestedShift, periodOfClock);
     const auto targetTime = ShiftMath::addWithWrap(event._timeStamp, shiftAmountSamples, periodOfClock);
     const auto ret = ShiftMath::exceedsOrEquals(_currentTime, targetTime);
-    // if (ShiftMath::exceeds(targetTime, ))
-    //SQINFO("finish me 112");
-    //return false;
     return ret;
 }
 
@@ -152,9 +146,8 @@ inline float ClockShifter3::run(float input) {
     serviceDelayLine();
 
     if (!didTick) {
-        //++_currentSampleCountSinceLastClock;
         _currentTime._samples++;
     }
 
-    return 0;
+    return _gateOut ? 10 : 0;
 }

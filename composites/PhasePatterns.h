@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "ClockShifter1.h"
+#include "ClockShifter3.h"
 
 namespace rack {
 namespace engine {
@@ -44,7 +44,7 @@ public:
 private:
     void init();
 
-    ClockShifter1 _clockShifter;
+    ClockShifter3 _clockShifter;
 };
 
 template <class TBase>
@@ -55,11 +55,11 @@ inline void PhasePatterns<TBase>::init() {
 template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
     const float shift = TBase::params[SHIFT_PARAM].value;
-    const float rem = std::fmod(shift, 1);
-    _clockShifter.setShift(rem);
+    _clockShifter.setShift(shift);
 
     const float clockIn =  TBase::inputs[CK_INPUT].getVoltage();
-    const float clockOut = _clockShifter.run(clockIn, args.sampleTime);
+    // const float clockOut = _clockShifter.run(clockIn, args.sampleTime);
+    const float clockOut = _clockShifter.run(clockIn);
     TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
 }
 
