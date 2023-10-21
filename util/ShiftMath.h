@@ -39,6 +39,11 @@ public:
     }
 
     inline static ClockWithSamples addWithWrap(const ClockWithSamples& a, const ClockWithSamples& b, int periodOfClock) {
-        return ClockWithSamples(a._clocks + b._clocks, a._samples + b._samples);
+        auto result =  ClockWithSamples(a._clocks + b._clocks, a._samples + b._samples);
+        while (result._samples >= periodOfClock) {
+            result._clocks++;
+            result._samples -= periodOfClock;
+        }
+        return result;
     }
 };

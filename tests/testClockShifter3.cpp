@@ -141,9 +141,7 @@ public:
         // put in a low to high with 5 clocks, no samples
         ClockShifter3::ClockEvent ev(ClockShifter3::EventType::highToLow, 5, 0);
         c._clockDelayLine.push(ev);
-        c.serviceDelayLine();
-
-        
+        c.serviceDelayLine();        
     }
 };
 

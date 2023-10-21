@@ -44,10 +44,37 @@ static void testAdd2() {
     assertEQ(z._samples, 456 + 11);
 }
 
+static void testAddWrap1() {
+    ShiftMath::ClockWithSamples x(0, 20);
+    ShiftMath::ClockWithSamples y(0, 30);
+    const auto z = ShiftMath::addWithWrap(x, y, 40);
+    assertEQ(z._clocks, 1);
+    assertEQ(z._samples, 10);
+}
+
+static void testAddWrap2() {
+    ShiftMath::ClockWithSamples x(0, 2*40 + 20);
+    ShiftMath::ClockWithSamples y(0, 3*40 + 30);
+    const auto z = ShiftMath::addWithWrap(x, y, 40);
+    assertEQ(z._clocks, 3+2+1);
+    assertEQ(z._samples, 10);
+}
+
+static void testAddWrap3() {
+    ShiftMath::ClockWithSamples x(3, 4 + 10);
+    ShiftMath::ClockWithSamples y(5, 2 + 10);
+    const auto z = ShiftMath::addWithWrap(x, y, 20);
+    assertEQ(z._clocks, 3+5+1);
+    assertEQ(z._samples, 4+2);
+}
+
 void testShiftMath() {
     testConstruct();
     testConvert1();
     testConvert2();
     testAdd1();
     testAdd2();
+    testAddWrap1();
+    testAddWrap2();
+    testAddWrap3();
 }
