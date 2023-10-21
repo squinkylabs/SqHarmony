@@ -23,7 +23,7 @@ private:
 };
 
 void inline PhasePatternsModule::addParams() {
-    this->configParam(Comp::SHIFT_PARAM, -2, 2, 0, "Shift amount");
+    this->configParam(Comp::SHIFT_PARAM, 0, 4, 0, "Shift amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
