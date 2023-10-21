@@ -53,10 +53,10 @@ static void testAddWrap1() {
 }
 
 static void testAddWrap2() {
-    ShiftMath::ClockWithSamples x(0, 2*40 + 20);
-    ShiftMath::ClockWithSamples y(0, 3*40 + 30);
+    ShiftMath::ClockWithSamples x(0, 2 * 40 + 20);
+    ShiftMath::ClockWithSamples y(0, 3 * 40 + 30);
     const auto z = ShiftMath::addWithWrap(x, y, 40);
-    assertEQ(z._clocks, 3+2+1);
+    assertEQ(z._clocks, 3 + 2 + 1);
     assertEQ(z._samples, 10);
 }
 
@@ -64,8 +64,8 @@ static void testAddWrap3() {
     ShiftMath::ClockWithSamples x(3, 4 + 10);
     ShiftMath::ClockWithSamples y(5, 2 + 10);
     const auto z = ShiftMath::addWithWrap(x, y, 20);
-    assertEQ(z._clocks, 3+5+1);
-    assertEQ(z._samples, 4+2);
+    assertEQ(z._clocks, 3 + 5 + 1);
+    assertEQ(z._samples, 4 + 2);
 }
 
 static void testExceeds1() {
@@ -117,6 +117,15 @@ static void testExceeds7() {
     assert(!b);
 }
 
+static void testCanReset() {
+    ShiftMath::ClockWithSamples x(7, 9);
+    assertEQ(x._clocks, 7);
+    assertEQ(x._samples, 9);
+    x.reset();
+    assertEQ(x._clocks, 0);
+    assertEQ(x._samples, 0);
+}
+
 void testShiftMath() {
     testConstruct();
     testConvert1();
@@ -133,4 +142,5 @@ void testShiftMath() {
     testExceeds5();
     testExceeds6();
     testExceeds7();
+    testCanReset();
 }
