@@ -51,5 +51,15 @@ public:
         return result;
     }
 
+   /**
+    * @brief compares two ClockWithSamples
+    * @returns true if a >= b
+    */
+    inline static bool exceedsOrEquals(const ClockWithSamples& a, const ClockWithSamples& b) {
+        return (a._clocks > b._clocks) ||
+            ((a._clocks == b._clocks) && (a._samples >= b._samples));
+            
+    }
+
 
 };

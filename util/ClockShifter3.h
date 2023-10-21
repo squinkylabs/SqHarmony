@@ -44,11 +44,6 @@ private:
     };
 
     ShiftMath::ClockWithPhase _requestedShift;
-
-
-    // TODO: combine into ShiftMath::ClockWithSamples
-    //int _currentClockCount = 0;
-   // int _currentSampleCountSinceLastClock = 0;
     ShiftMath::ClockWithSamples _currentTime;
 
     FreqMeasure _freqMeasure;
@@ -115,12 +110,18 @@ inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
     // ShiftMath::ClockWithPhase _requestedShift;
     // target with samples = ev.timeStamp (samples) + requesteShirt
 
-    // TODO: make this work
-    // const shiftAmountSamples = ShiftMath::convert(_requestedShift);
-    // const auto targetTime = ShiftMath::addWithWrap(event._timeStamp, shiftAmountSamples);
+    if (!_freqMeasure.freqValid()) {
+        return false;
+    }
+
+    const int periodOfClock = _freqMeasure.getPeriod();
+    const auto shiftAmountSamples = ShiftMath::convert(_requestedShift, periodOfClock);
+    const auto targetTime = ShiftMath::addWithWrap(event._timeStamp, shiftAmountSamples, periodOfClock);
+    const auto ret = ShiftMath::exceedsOrEquals(targetTime, _currentTime);
     // if (ShiftMath::exceeds(targetTime, ))
-    SQINFO("finish me 112");
-    return false;
+    //SQINFO("finish me 112");
+    //return false;
+    return ret;
 }
 
 inline float ClockShifter3::run(float input) {

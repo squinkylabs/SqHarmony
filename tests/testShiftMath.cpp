@@ -68,6 +68,13 @@ static void testAddWrap3() {
     assertEQ(z._samples, 4+2);
 }
 
+static void testExceeds1() {
+    ShiftMath::ClockWithSamples x(5, 6);
+    ShiftMath::ClockWithSamples y(5, 3);
+    const bool b = ShiftMath::exceedsOrEquals(x, y);
+    assert(b);
+}
+
 void testShiftMath() {
     testConstruct();
     testConvert1();
@@ -77,4 +84,5 @@ void testShiftMath() {
     testAddWrap1();
     testAddWrap2();
     testAddWrap3();
+    testExceeds1();
 }
