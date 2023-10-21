@@ -43,13 +43,14 @@ private:
         EventType _type = EventType::highToLow;
     };
 
-  //  float _requestedFractionShiftAmount = 0;
-  //  int _requestedShiftAmountClocks = 0;
     ShiftMath::ClockWithPhase _requestedShift;
 
 
-    int _currentClockCount = 0;
-    int _currentSampleCountSinceLastClock = 0;
+    // TODO: combine into ShiftMath::ClockWithSamples
+    //int _currentClockCount = 0;
+   // int _currentSampleCountSinceLastClock = 0;
+    ShiftMath::ClockWithSamples _currentTime;
+
     FreqMeasure _freqMeasure;
     bool _lastClock = false;
     SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
@@ -87,8 +88,7 @@ inline  std::pair<bool, bool> ClockShifter3::updateClockStates(bool ck) {
     if (ck != _lastClock) {
         wasTransition = true;
         if (ck) {
-            _currentClockCount++;
-            _currentSampleCountSinceLastClock = 0;
+            _currentTime.advanceClockAndWrap();
             didTick = true;
         }
     }
@@ -114,6 +114,11 @@ inline void ClockShifter3::serviceDelayLine() {
 inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
     // ShiftMath::ClockWithPhase _requestedShift;
     // target with samples = ev.timeStamp (samples) + requesteShirt
+
+    // TODO: make this work
+    // const shiftAmountSamples = ShiftMath::convert(_requestedShift);
+    // const auto targetTime = ShiftMath::addWithWrap(event._timeStamp, shiftAmountSamples);
+    // if (ShiftMath::exceeds(targetTime, ))
     SQINFO("finish me 112");
     return false;
 }
@@ -131,7 +136,7 @@ inline float ClockShifter3::run(float input) {
         ClockEvent ev;
       //  ev._samples = _currentSampleCountSinceLastClock;
      //   ev._clocks = _currentClockCount;
-        ev._timeStamp = ShiftMath::ClockWithSamples(_currentClockCount, _currentSampleCountSinceLastClock);
+        ev._timeStamp = _currentTime;
         ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
         _clockDelayLine.push(ev);
     }
@@ -139,7 +144,8 @@ inline float ClockShifter3::run(float input) {
     serviceDelayLine();
 
     if (!didTick) {
-        ++_currentSampleCountSinceLastClock;
+        //++_currentSampleCountSinceLastClock;
+        _currentTime._samples++;
     }
 
     return 0;

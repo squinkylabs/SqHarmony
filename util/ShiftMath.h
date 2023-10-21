@@ -23,6 +23,10 @@ public:
     public:
         ClockWithSamples() {}
         ClockWithSamples(int clocks, int samples) : _clocks(clocks), _samples(samples) {}
+        void advanceClockAndWrap() {
+            ++_clocks;
+            _samples = 0;
+        }
         int _clocks = 0;
         int _samples = 0;
     };
@@ -46,4 +50,6 @@ public:
         }
         return result;
     }
+
+
 };

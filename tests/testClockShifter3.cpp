@@ -31,29 +31,29 @@ public:
 
         prime(c);
 
-        assertEQ(c._currentClockCount, 0);
-        assertEQ(c._currentSampleCountSinceLastClock, 0);
+        assertEQ(c._currentTime._clocks, 0);
+        assertEQ(c._currentTime._samples, 0);
 
         c.run(0);
-        assertEQ(c._currentClockCount, 0);
-        assertEQ(c._currentSampleCountSinceLastClock, 1);
+        assertEQ(c._currentTime._clocks, 0);
+        assertEQ(c._currentTime._samples, 1);
         assertEQ(c._lastClock, false);
 
         c.run(0);
-        assertEQ(c._currentClockCount, 0);
-        assertEQ(c._currentSampleCountSinceLastClock, 2);
+        assertEQ(c._currentTime._clocks, 0);
+        assertEQ(c._currentTime._samples, 2);
 
         c.run(10);
-        assertEQ(c._currentClockCount, 1);
-        assertEQ(c._currentSampleCountSinceLastClock, 0);
+        assertEQ(c._currentTime._clocks, 1);
+        assertEQ(c._currentTime._samples, 0);
 
         c.run(10);
-        assertEQ(c._currentClockCount, 1);
-        assertEQ(c._currentSampleCountSinceLastClock, 1);
+        assertEQ(c._currentTime._clocks, 1);
+        assertEQ(c._currentTime._samples, 1);
 
         c.run(0);
-        assertEQ(c._currentClockCount, 1);
-        assertEQ(c._currentSampleCountSinceLastClock, 2);
+        assertEQ(c._currentTime._clocks, 1);
+        assertEQ(c._currentTime._samples, 2);
     }
 
     static void testDelay() {
