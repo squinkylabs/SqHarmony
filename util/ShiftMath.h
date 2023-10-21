@@ -27,6 +27,10 @@ public:
             ++_clocks;
             _samples = 0;
         }
+        void reset() {
+            _clocks = 0;
+            _samples = 0;
+        }
         int _clocks = 0;
         int _samples = 0;
     };

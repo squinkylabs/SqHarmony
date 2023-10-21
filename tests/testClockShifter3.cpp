@@ -22,9 +22,22 @@ private:
     static void prime(ClockShifter3& c) {
         clockIt(c, 2);
         c.run(10);
+        assert(c._freqMeasure.freqValid()); 
     }
 
 public:
+    static void testInit() {
+        ClockShifter3 c;
+        assertEQ(c._gateOut, false);
+        assertEQ(c._clockDelayLine.empty(), true);
+        assertEQ(c._currentTime._clocks, 0);
+        assertEQ(c._currentTime._samples, 0);
+        assertEQ(c._freqMeasure.freqValid(), false);
+        assertEQ(c._lastClock, false);
+        assertEQ(c._requestedShift._clocks, 0);
+        assertEQ(c._requestedShift._phase, 0);
+    }
+
     // This tests that internal state responds to clocking as expected.
     static void testCounters() {
         ClockShifter3 c;
@@ -63,6 +76,8 @@ public:
         prime(c);
         assertEQ(c._clockDelayLine.size(), 0);
 
+        // this clock will log something, but it will get serviced
+        c.setShift(20);     // set a huge shift, so nothing is processed from the queue.
         c.run(10);
         assertEQ(c._clockDelayLine.size(), 1)
 
@@ -73,7 +88,7 @@ public:
 
         // now c3 more high clock in a row (total 4)
         const int c3 = 7;
-        for (int i=0; i < c3; ++i) {
+        for (int i = 0; i < c3; ++i) {
             c.run(10);
         }
         assertEQ(c._clockDelayLine.size(), 0);
@@ -136,18 +151,35 @@ public:
 
     static void testServiceDelay() {
         ClockShifter3 c;
+        prime(c);
+        assert(c._freqMeasure.freqValid());     // test assumes this
+        c._currentTime.reset();
         c.serviceDelayLine();
 
-        // put in a low to high with 5 clocks, no samples
-        ClockShifter3::ClockEvent ev(ClockShifter3::EventType::highToLow, 5, 0);
+
+        // put in a low to high with 3 clocks, no samples
+        ClockShifter3::ClockEvent ev(ClockShifter3::EventType::lowToHigh, 3, 0);
         c._clockDelayLine.push(ev);
-        c.serviceDelayLine();        
+        c.serviceDelayLine();
+        // since current time is still 0, nothing should have happened.
+        assertEQ(c._gateOut, false);
+        assertEQ(c._clockDelayLine.empty(), false);
+
+        c._currentTime._clocks = 3;
+         c.serviceDelayLine();
+        assertEQ(c._gateOut, true);
+        assertEQ(c._clockDelayLine.empty(), true);
+
+       // clockIt(ClockShifter3& c, 10); 
+       // clockIt(ClockShifter3& c, 10); 
+
     }
 };
 
 void testClockShifter3() {
     testCanCall();
     // TODO: test Counters needs to prime the clock
+    ClockShifter3Test::testInit();
     ClockShifter3Test::testCounters();
     ClockShifter3Test::testSetShift();
     ClockShifter3Test::testFreqMeasure();

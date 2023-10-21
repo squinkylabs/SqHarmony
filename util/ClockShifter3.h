@@ -48,6 +48,7 @@ private:
 
     FreqMeasure _freqMeasure;
     bool _lastClock = false;
+    bool _gateOut = false;
     SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
 
     /**
@@ -99,11 +100,19 @@ inline void ClockShifter3::serviceDelayLine() {
     if (!shouldHandleEvent(ev)) {
         return;
     }
+    _clockDelayLine.pop();
 
-    const ShiftMath::ClockWithSamples& eventStartTime = ev._timeStamp;
-    ShiftMath::ClockWithSamples targetTime = ev._timeStamp;
 
-    SQINFO("finish me 108");
+   switch(ev._type) {
+    case EventType::lowToHigh:
+        _gateOut = true;
+        break;
+    case EventType::highToLow:
+        _gateOut = false;
+        break;
+    default:
+        assert(false);
+   }
 }
 
 inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
@@ -117,7 +126,7 @@ inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
     const int periodOfClock = _freqMeasure.getPeriod();
     const auto shiftAmountSamples = ShiftMath::convert(_requestedShift, periodOfClock);
     const auto targetTime = ShiftMath::addWithWrap(event._timeStamp, shiftAmountSamples, periodOfClock);
-    const auto ret = ShiftMath::exceedsOrEquals(targetTime, _currentTime);
+    const auto ret = ShiftMath::exceedsOrEquals(_currentTime, targetTime);
     // if (ShiftMath::exceeds(targetTime, ))
     //SQINFO("finish me 112");
     //return false;
@@ -135,8 +144,6 @@ inline float ClockShifter3::run(float input) {
 
     if (wasTransition) {
         ClockEvent ev;
-      //  ev._samples = _currentSampleCountSinceLastClock;
-     //   ev._clocks = _currentClockCount;
         ev._timeStamp = _currentTime;
         ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
         _clockDelayLine.push(ev);
