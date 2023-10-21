@@ -42,6 +42,7 @@ extern void testOneShot();
 extern void testPhasePatterns();
 extern void testOneShotSampleTimer();
 extern void testClockShifter3();
+extern void testShiftMath();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -49,6 +50,7 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testShiftMath();
     testOneShot();
     testOneShotSampleTimer();
     testResettablePhaseAccumulator();

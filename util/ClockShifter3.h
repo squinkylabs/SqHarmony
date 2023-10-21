@@ -2,6 +2,7 @@
 
 #include "FreqMeasure.h"
 #include "SqRingBuffer.h"
+#include "ShiftMath.h"
 #include "asserts.h"
 
 /**
@@ -22,13 +23,9 @@ public:
     void setShift(float amount) {
         assertGE(amount, 0);
         // integral part is the number of clocks
-        _requestedShiftAmountClocks = std::floor(amount);
-        _requestedFractionShiftAmount = amount - _requestedShiftAmountClocks;
-
-       // assert(false);
-        //  _shiftAmount = amount;
-        //  assertGE(amount, 0);
-        //  assertLE(amount, 1);
+        const int ck = std::floor(amount);
+        const float phase = amount - ck;
+        _requestedShift = ClockWithPhase(ck, phase);
     }
 
 private:
@@ -39,13 +36,16 @@ private:
     };
     class ClockEvent {
     public:
-        int _samples = 0;
-        int _clocks = 0;
+        ClockEvent(EventType type, int clocks, int samples) : _type(type), _timeStamp(clocks, samples) {}
+        ClockEvent() {}
+
+        ClockWithSamples _timeStamp;
         EventType _type = EventType::highToLow;
     };
 
-    float _requestedFractionShiftAmount = 0;
-    int _requestedShiftAmountClocks = 0;
+  //  float _requestedFractionShiftAmount = 0;
+  //  int _requestedShiftAmountClocks = 0;
+    ClockWithPhase _requestedShift;
 
 
     int _currentClockCount = 0;
@@ -66,6 +66,7 @@ private:
     std::pair<bool, bool>  updateClockStates(bool ck);
 
     void serviceDelayLine();
+    bool shouldHandleEvent(const ClockEvent& event);
 };
 
 inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
@@ -81,7 +82,7 @@ inline std::pair<bool, bool> ClockShifter3::processClockInput(float input) {
 }
 
 inline  std::pair<bool, bool> ClockShifter3::updateClockStates(bool ck) {
-     bool didTick = false;
+    bool didTick = false;
     bool wasTransition = false;
     if (ck != _lastClock) {
         wasTransition = true;
@@ -100,7 +101,20 @@ inline void ClockShifter3::serviceDelayLine() {
         return;
     }
     const auto ev = _clockDelayLine.peek();
-    //assert(false);
+    if (!shouldHandleEvent(ev)) {
+        return;
+    }
+
+    const ClockWithSamples& eventStartTime = ev._timeStamp;
+  //  const ClockWithPhase currentSh
+    ClockWithSamples targetTime = ev._timeStamp;
+
+    SQINFO("finish me 108");
+}
+
+inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
+    SQINFO("finish me 112");
+    return false;
 }
 
 inline float ClockShifter3::run(float input) {
@@ -114,8 +128,9 @@ inline float ClockShifter3::run(float input) {
 
     if (wasTransition) {
         ClockEvent ev;
-        ev._samples = _currentSampleCountSinceLastClock;
-        ev._clocks = _currentClockCount;
+      //  ev._samples = _currentSampleCountSinceLastClock;
+     //   ev._clocks = _currentClockCount;
+        ev._timeStamp = ClockWithSamples(_currentClockCount, _currentSampleCountSinceLastClock);
         ev._type = didTick ? EventType::lowToHigh : EventType::highToLow;
         _clockDelayLine.push(ev);
     }

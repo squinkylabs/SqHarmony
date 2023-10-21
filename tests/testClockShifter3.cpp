@@ -60,35 +60,39 @@ public:
         ClockShifter3 c;
 
         // because this is the first clock, it should not log anything
-        clockIt(c, 2);
+        prime(c);
         assertEQ(c._clockDelayLine.size(), 0);
 
         c.run(10);
         assertEQ(c._clockDelayLine.size(), 1)
 
-            auto ev = c._clockDelayLine.pop();
+        auto ev = c._clockDelayLine.pop();
         assertEQ(int(ev._type), int(ClockShifter3::EventType::lowToHigh));
-        assertEQ(int(ev._clocks), 1);
-        assertEQ(int(ev._samples), 0);
+        assertEQ(int(ev._timeStamp._clocks), 1);
+        assertEQ(int(ev._timeStamp._samples), 0);
 
-        c.run(10);
+        // now c3 more high clock in a row (total 4)
+        const int c3 = 7;
+        for (int i=0; i < c3; ++i) {
+            c.run(10);
+        }
         assertEQ(c._clockDelayLine.size(), 0);
-        c.run(10);
-        assertEQ(c._clockDelayLine.size(), 0);
+
+        // now high to low should trigger an event
         c.run(0);
         assertEQ(c._clockDelayLine.size(), 1);
 
         ev = c._clockDelayLine.pop();
         assertEQ(int(ev._type), int(ClockShifter3::EventType::highToLow));
-        assertEQ(int(ev._clocks), 1);
-        assertEQ(int(ev._samples), 0);
+        assertEQ(int(ev._timeStamp._clocks), 1);
+        assertEQ(int(ev._timeStamp._samples), c3);
 
         c.run(10);
         assertEQ(c._clockDelayLine.size(), 1);
         ev = c._clockDelayLine.pop();
-        assertEQ(int(ev._type), int(ClockShifter3::EventType::highToLow));
-        assertEQ(int(ev._clocks), 1);
-        assertEQ(int(ev._samples), 0);
+        assertEQ(int(ev._type), int(ClockShifter3::EventType::lowToHigh));
+        assertEQ(int(ev._timeStamp._clocks), 2);
+        assertEQ(int(ev._timeStamp._samples), 0);
     }
 
     // Checks that _freqMeasure is hooked up. It's
@@ -110,19 +114,36 @@ public:
 
     static void testSetShift() {
         ClockShifter3 c;
-        assertEQ(c._requestedShiftAmountClocks, 0);
-        assertEQ(c._requestedFractionShiftAmount, 0);
+        assertEQ(c._requestedShift._clocks, 0);
+        assertEQ(c._requestedShift._phase, 0);
 
         c.setShift(0);
-        assertEQ(c._requestedShiftAmountClocks, 0);
-        assertEQ(c._requestedFractionShiftAmount, 0);
+        assertEQ(c._requestedShift._clocks, 0);
+        assertEQ(c._requestedShift._phase, 0);
 
         c.setShift(1);
-        assertEQ(c._requestedShiftAmountClocks, 1);
-        assertEQ(c._requestedFractionShiftAmount, 0);
+        assertEQ(c._requestedShift._clocks, 1);
+        assertEQ(c._requestedShift._phase, 0);
 
+        c.setShift(.1);
+        assertEQ(c._requestedShift._clocks, 0);
+        assertClose(c._requestedShift._phase, .1, .00001);
 
-        assert(false);
+        c.setShift(3.712);
+        assertEQ(c._requestedShift._clocks, 3);
+        assertClose(c._requestedShift._phase, .712, .00001);
+    }
+
+    static void testServiceDelay() {
+        ClockShifter3 c;
+        c.serviceDelayLine();
+
+        // put in a low to high with 5 clocks, no samples
+        ClockShifter3::ClockEvent ev(ClockShifter3::EventType::highToLow, 5, 0);
+        c._clockDelayLine.push(ev);
+        c.serviceDelayLine();
+
+        
     }
 };
 
@@ -132,5 +153,6 @@ void testClockShifter3() {
     ClockShifter3Test::testCounters();
     ClockShifter3Test::testSetShift();
     ClockShifter3Test::testFreqMeasure();
-    //  ClockShifter3Test::testDelay();
+    ClockShifter3Test::testDelay();
+    ClockShifter3Test::testServiceDelay();
 }
