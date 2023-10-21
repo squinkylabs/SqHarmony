@@ -40,10 +40,37 @@ static void testCanSample() {
     assert(x.getPeriod() == 3);
 }
 
+static void testCanRemember() {
+    FreqMeasure x;
+    x.onSample(true);
+    x.onSample(false);
+    x.onSample(false);
+    x.onSample(true);
+    assert(x.freqValid());
+    assert(x.getPeriod() == 3);
+
+    // should remember last full period
+    x.onSample(false);
+    assert(x.freqValid());
+    assert(x.getPeriod() == 3);
+}
+
+static void testHold() {
+    FreqMeasure x;
+
+    // two clock high in a row with no transition should not count.
+    x.onSample(true);
+    x.onSample(true);
+    assert(!x.freqValid());
+}
+
 void testFreqMeasure() {
     testCanCall();
     testInitialConditions();
     testRequiresTwo();
     testRequiresTwoB();
     testCanSample();
+    testCanRemember();
+    testHold();
+
 }

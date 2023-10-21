@@ -15,11 +15,20 @@ private:
     int64_t _count = 0;
     int64_t _period = 0;
     int _clocksReceived = 0;
+    bool _lastClock = false;
 };
 
-inline void FreqMeasure::onSample(bool trigger) {
+inline void FreqMeasure::onSample(bool clock) {
+
+    // only process transition, but being held still adds to period.
+    if (clock == _lastClock) {
+        ++_count;
+        return;
+    }
+    _lastClock = clock;
+
     // SQINFO("fm, onSamle %d", trigger);
-    if (trigger) {
+    if (clock) {
         _clocksReceived++;
         if (_clocksReceived > 10) {
             _clocksReceived = 10;

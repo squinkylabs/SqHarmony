@@ -21,6 +21,7 @@ public:
      * @param amount is between 0 and 1. 0 is no shift, 1 is a whole period
      */
     void setShift(float amount) {
+        SQINFO("set shift %f", amount);
         assertGE(amount, 0);
         // integral part is the number of clocks
         const int ck = std::floor(amount);
@@ -101,6 +102,7 @@ inline void ClockShifter3::serviceDelayLine() {
         return;
     }
     _clockDelayLine.pop();
+    SQINFO("process delay event %d", ev._type);
 
 
    switch(ev._type) {
