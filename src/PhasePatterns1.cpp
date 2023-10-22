@@ -25,9 +25,11 @@ private:
 void inline PhasePatternsModule::addParams() {
     this->configParam(Comp::SHIFT_PARAM, 0, 4, 0, "Shift amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
+    this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
+    this->configParam(Comp::RIB_BUTTON_PARAM, 0, 10, 0, "RIB");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
-
+    this->configInput(Comp::SHIFT_INPUT, "Shift amount");
     this->configOutput(Comp::CK_OUTPUT, "Shifted output");
 }
 
@@ -40,6 +42,8 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel2.svg")));
 #ifdef _LAB
         addLabel(Vec(24, 12), "Phase Patterns", 20);
+        addLabel(Vec(24, 340), "Squinkytronix", 20);
+
 #endif
         addControls(module);
         addIO(module);
@@ -52,25 +56,32 @@ private:
 #ifdef _LAB
         addLabel(Vec(58, 107), "Shift");
 #endif
+        addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
+            Vec(80, 193),
+            module,
+            Comp::RIB_BUTTON_PARAM,
+            Comp::RIB_LIGHT)
+        );
     }
     void addIO(PhasePatternsModule* module) {
-        addInput(createInput<PJ301MPort>(Vec(27, 300), module, Comp::CK_INPUT));
-        addOutput(createOutput<PJ301MPort>(Vec(100, 300), module, Comp::CK_OUTPUT));
+            addInput(createInput<PJ301MPort>(Vec(27, 300), module, Comp::CK_INPUT));
+            addInput(createInput<PJ301MPort>(Vec(40, 190), module, Comp::SHIFT_INPUT));
+            addOutput(createOutput<PJ301MPort>(Vec(100, 300), module, Comp::CK_OUTPUT));
     }
 
 #ifdef _LAB
     Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
-        // NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
-        NVGcolor black = nvgRGB(0, 0, 0);
-        Label* label = new Label();
-        auto adjustedPos = v;
-        adjustedPos.x -= 1.5f * str.size();
-        label->box.pos = adjustedPos;
-        label->text = str;
-        label->color = black;
-        label->fontSize = fontSize;
-        addChild(label);
-        return label;
+            // NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
+            NVGcolor black = nvgRGB(0, 0, 0);
+            Label* label = new Label();
+            auto adjustedPos = v;
+            adjustedPos.x -= 1.5f * str.size();
+            label->box.pos = adjustedPos;
+            label->text = str;
+            label->color = black;
+            label->fontSize = fontSize;
+            addChild(label);
+            return label;
     }
 #endif
 };

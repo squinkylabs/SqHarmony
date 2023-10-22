@@ -17,10 +17,13 @@ public:
     enum ParamIds {
         SCHEMA_PARAM,
         SHIFT_PARAM,
+        COMBINED_SHIFT_INTERNAL_PARAM,
+        RIB_BUTTON_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
         CK_INPUT,
+        SHIFT_INPUT,
         NUM_INPUTS
     };
 
@@ -30,6 +33,7 @@ public:
     };
 
     enum LightIds {
+         RIB_LIGHT,
         NUM_LIGHTS
     };
 
