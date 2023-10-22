@@ -13,7 +13,7 @@ class ClockShifter3 {
 public:
     friend class ClockShifter3Test;
     ClockShifter3();
-    float run(float input);
+    bool run(bool input);
 
     /**
      * @brief Set the shift phase.
@@ -21,7 +21,6 @@ public:
      * @param amount is between 0 and 1. 0 is no shift, 1 is a whole period
      */
     void setShift(float amount) {
-        // SQINFO("set shift %f", amount);
         assertGE(amount, 0);
         // integral part is the number of clocks
         const int ck = std::floor(amount);
@@ -53,9 +52,9 @@ private:
     SqRingBuffer<ClockEvent, 32, true> _clockDelayLine;
 
     /**
-     * @return std::pair<bool, bool>, first true if effective clock is high, second it clock is valid
+     * @return true if clock is valid
      */
-    std::pair<bool, bool> processClockInput(float input);
+     bool processClockInput(bool input);
 
     /**
      * @return std::pair<bool, bool>, first is true if the clock went low to high, 
@@ -70,13 +69,10 @@ private:
 inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
 }
 
-inline std::pair<bool, bool> ClockShifter3::processClockInput(float input) {
-    const bool ck = input > 5;  // TODO: use better (like previous clock shifters)
-
+inline bool ClockShifter3::processClockInput(bool ckIn) {
     const bool freqWasValid = _freqMeasure.freqValid();
-    _freqMeasure.onSample(input);
-
-    return std::make_pair(ck, freqWasValid);
+    _freqMeasure.onSample(ckIn);
+    return freqWasValid;
 }
 
 inline  std::pair<bool, bool> ClockShifter3::updateClockStates(bool ck) {
@@ -129,12 +125,12 @@ inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
     return ret;
 }
 
-inline float ClockShifter3::run(float input) {
-    const auto proc = processClockInput(input);
-    if (!proc.second) {
-        return 0;
+inline bool ClockShifter3::run(bool input) {
+    const auto clockValid = processClockInput(input);
+    if (!clockValid) {
+        return false;
     }
-    const auto clockTransitionStatus = updateClockStates(proc.first); 
+    const auto clockTransitionStatus = updateClockStates(input); 
     const bool wasTransition = clockTransitionStatus.second;
     const bool didTick = clockTransitionStatus.first;
 
@@ -151,5 +147,5 @@ inline float ClockShifter3::run(float input) {
         _currentTime._samples++;
     }
 
-    return _gateOut ? 10 : 0;
+    return _gateOut;
 }

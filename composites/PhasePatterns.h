@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ClockShifter3.h"
+#include "SchmidtTrigger.h"
 
 namespace rack {
 namespace engine {
@@ -45,6 +46,7 @@ private:
     void init();
 
     ClockShifter3 _clockShifter;
+    SchmidtTrigger _inputProc;
 };
 
 template <class TBase>
@@ -57,9 +59,10 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
     const float shift = TBase::params[SHIFT_PARAM].value;
     _clockShifter.setShift(shift);
 
-    const float clockIn =  TBase::inputs[CK_INPUT].getVoltage();
-    // const float clockOut = _clockShifter.run(clockIn, args.sampleTime);
-    const float clockOut = _clockShifter.run(clockIn);
+    const float rawClockIn =  TBase::inputs[CK_INPUT].getVoltage();
+    const bool clockIn = _inputProc.go(rawClockIn);
+    const bool rawClockOut = _clockShifter.run(clockIn);
+    const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
     TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
 }
 
