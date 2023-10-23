@@ -2,7 +2,10 @@
 #include "PhasePatterns.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
+
 #include "plugin.hpp"
+
+#include <sstream>
 
 using Comp = PhasePatterns<WidgetComposite>;
 
@@ -50,6 +53,17 @@ public:
     }
 
 private:
+    Label* _shiftDisplay = nullptr;
+
+    void step() override {
+        ModuleWidget::step();
+        if (module) {
+            const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
+            std::stringstream str;
+            str << shift;
+            _shiftDisplay->text = str.str();
+        }
+    }
     void addControls(PhasePatternsModule* module) {
         auto param = createParam<RoundBigBlackKnob>(Vec(50, 131), module, Comp::SHIFT_PARAM);
         addParam(param);
@@ -62,6 +76,8 @@ private:
             Comp::RIB_BUTTON_PARAM,
             Comp::RIB_LIGHT)
         );
+
+        _shiftDisplay = addLabel(Vec(100, 190), "");
     }
     void addIO(PhasePatternsModule* module) {
             addInput(createInput<PJ301MPort>(Vec(27, 300), module, Comp::CK_INPUT));

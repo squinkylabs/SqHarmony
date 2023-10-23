@@ -4,14 +4,16 @@
 
 static void testCanCall() {
     ShiftCalc s;
-    const float f = s.go();
+    float f = s.go();
     s.trigger(1);
+    f = s.get();
 }
 
 static void testGeneratesNothing() {
     ShiftCalc s;
     const float f = s.go();
     assertEQ(f, 0);
+    assertEQ(s.get(), 0);
 }
 
 static void testGeneratesSomething() {
@@ -35,10 +37,41 @@ static void testRate1(int period) {
     }
 }
 
+static float run(ShiftCalc& s, int numTimes) {
+    float x = 0;
+    for (int i=0; i< numTimes; ++i) {
+        x = s.go();
+    }
+    return x;
+}
+
+static void testMulti() {
+    ShiftCalc s;
+    const int period = 10;
+    s.trigger(period);
+    
+    run(s, period * 8);
+    assertClose(s.get(), 1, .0001);
+
+    const float x = run(s, period * 8);
+    assertClose(s.get(), 2, .0001);
+    assertClose(x, 1, .0001);
+}
+
+static void testBusy() {
+    ShiftCalc s;
+    assertEQ(s.busy(), false);
+    const int period = 10;
+    s.trigger(period);
+     assertEQ(s.busy(), true);
+}
+
 void testShiftCalc() {
     testCanCall();
     testGeneratesNothing();
     testGeneratesSomething();
     testRate1(10);
     testRate1(25);
+    testMulti();
+    testBusy();
 }
