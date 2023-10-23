@@ -54,6 +54,7 @@ private:
     void _init();
     void _stepn();
     void _updateButton();
+    void _updateShiftAmount();
 
     ClockShifter3 _clockShifter;
     ShiftCalc _shiftCalculator;
@@ -85,16 +86,26 @@ inline void PhasePatterns<TBase>::_updateButton() {
 }
 
 template <class TBase>
-inline void PhasePatterns<TBase>::_stepn() {
+inline void PhasePatterns<TBase>::_updateShiftAmount() {
     const float shift = TBase::params[SHIFT_PARAM].value;
+    // TODO: add in CV.
+    // TODO: add in calc ramp.
     _clockShifter.setShift(shift);
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shift;
+   // SQINFO("setting combined to %f", shift);
+}
 
+template <class TBase>
+inline void PhasePatterns<TBase>::_stepn() {
+   _updateShiftAmount();
    _updateButton();
+   _updateShiftAmount();
 }
 
 template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
     divn.step();
+    _shiftCalculator.go();
     const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage();
     const bool clockIn = _inputClockProc.go(rawClockIn);
     const bool rawClockOut = _clockShifter.run(clockIn);

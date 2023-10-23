@@ -5,6 +5,7 @@
 
 #include "plugin.hpp"
 
+#include <iomanip>
 #include <sstream>
 
 using Comp = PhasePatterns<WidgetComposite>;
@@ -60,7 +61,7 @@ private:
         if (module) {
             const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
             std::stringstream str;
-            str << shift;
+            str << std::setprecision(3) << shift << std::endl;
             _shiftDisplay->text = str.str();
         }
     }
