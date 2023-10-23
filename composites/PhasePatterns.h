@@ -72,14 +72,14 @@ inline void PhasePatterns<TBase>::_init() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButton() {
-       _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
+    TBase::lights[RIB_LIGHT].value = _shiftCalculator.busy() ? 10 : 0;
+    _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
     if (!_buttonProc.trigger()) {
         return;
     }
-    SQINFO("button trigger");
+
     auto const freqMeasure = _clockShifter.getFreqMeasure();
     if (!freqMeasure.freqValid()) {
-        SQINFO("unstable");
         return;
     }
     _shiftCalculator.trigger(freqMeasure.getPeriod());
@@ -87,19 +87,18 @@ inline void PhasePatterns<TBase>::_updateButton() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateShiftAmount() {
-    const float shift = TBase::params[SHIFT_PARAM].value;
-    // TODO: add in CV.
-    // TODO: add in calc ramp.
+    float shift = TBase::params[SHIFT_PARAM].value;
+    shift += TBase::inputs[SHIFT_INPUT].value;
+    shift += _shiftCalculator.get();
     _clockShifter.setShift(shift);
     TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shift;
-   // SQINFO("setting combined to %f", shift);
 }
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_stepn() {
-   _updateShiftAmount();
-   _updateButton();
-   _updateShiftAmount();
+    _updateShiftAmount();
+    _updateButton();
+    _updateShiftAmount();
 }
 
 template <class TBase>

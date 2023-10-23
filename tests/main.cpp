@@ -37,7 +37,6 @@ extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
 extern void testFreqMeasure();
 extern void testResettablePhaseAccumulator();
-extern void testClockShifter();
 extern void testOneShot();
 extern void testPhasePatterns();
 extern void testOneShotSampleTimer();
@@ -59,7 +58,6 @@ int main(const char**, int) {
     testResettablePhaseAccumulator();
     testFreqMeasure();
     testShiftCalc();
-    testClockShifter();
     testClockShifter3();
     testPhasePatterns();
     printf("XX: leaving early for clock stuff");

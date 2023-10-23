@@ -39,7 +39,7 @@ static void testRate1(int period) {
 
 static float run(ShiftCalc& s, int numTimes) {
     float x = 0;
-    for (int i=0; i< numTimes; ++i) {
+    for (int i = 0; i < numTimes; ++i) {
         x = s.go();
     }
     return x;
@@ -49,12 +49,13 @@ static void testMulti() {
     ShiftCalc s;
     const int period = 10;
     s.trigger(period);
-    
+
     run(s, period * 8);
     assertClose(s.get(), 1, .0001);
 
+    // This second time should do nothing
     const float x = run(s, period * 8);
-    assertClose(s.get(), 2, .0001);
+    assertClose(s.get(), 1, .0001);
     assertClose(x, 1, .0001);
 }
 
@@ -63,7 +64,45 @@ static void testBusy() {
     assertEQ(s.busy(), false);
     const int period = 10;
     s.trigger(period);
-     assertEQ(s.busy(), true);
+    assertEQ(s.busy(), true);
+}
+
+static void testTriggerSecondTime() {
+    ShiftCalc s;
+    assertEQ(s.busy(), false);
+    assertEQ(s.get(), 0);
+    const int period = 10;
+
+    // trigger first time
+    s.trigger(period);
+    // TODO: why do we need to clock one "extra"?
+    run(s, 1 + period * 8);
+    assertEQ(s.get(), 1);
+
+    assertEQ(s.busy(), false);
+
+    s.trigger(period);
+    run(s, 1);
+
+    SQINFO("output now %f", s.get());
+    assertClose(s.get(), 1.0125, .0001);
+}
+
+static void testTriggerDurring() {
+    ShiftCalc s;
+    assertEQ(s.busy(), false);
+    assertEQ(s.get(), 0);
+    const int period = 10;
+
+    // trigger first time
+    s.trigger(period);
+
+    run(s, 1 + period * 4);
+    assertEQ(s.busy(), true);
+    s.trigger(period);          // re-trigger.
+    run(s, 10 + period * 4);
+    assertEQ(s.busy(), false);
+    assertEQ(s.get(), 1);
 }
 
 void testShiftCalc() {
@@ -74,4 +113,6 @@ void testShiftCalc() {
     testRate1(25);
     testMulti();
     testBusy();
+    testTriggerSecondTime();
+    testTriggerDurring();
 }

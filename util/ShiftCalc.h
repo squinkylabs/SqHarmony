@@ -35,7 +35,7 @@ inline float ShiftCalc::go() {
         _acc += _delta;
         if (_acc >= 1) {
             _acc = 1;
-            _masterAccumulator += _acc;
+         //   _masterAccumulator += _acc;
             _delta = 0;
         }
     }
@@ -50,6 +50,11 @@ inline bool ShiftCalc::busy() const {
     return _delta > 0;
 }
 inline void ShiftCalc::trigger(int periodOfClock) {
+    if (busy()) {
+        return;             // ignore triggers while running
+    }
     assert(periodOfClock > 0);
+    _masterAccumulator += _acc;
+    _acc = 0;
     _delta = 1.0 / (8.0 *double(periodOfClock));
 } 
