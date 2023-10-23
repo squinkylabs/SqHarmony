@@ -201,6 +201,7 @@
     <ClCompile Include="testSchmidtTrigger.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
+    <ClCompile Include="testShiftCalc.cpp" />
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testTempo.cpp" />
