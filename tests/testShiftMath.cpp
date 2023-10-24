@@ -2,7 +2,7 @@
 #include "ShiftMath.h"
 #include "asserts.h"
 
-static void testConstruct() {
+static void testConstruct1() {
     ShiftMath::ClockWithPhase ck(12, .3);
     assertEQ(ck._clocks, 12);
     assertClose(ck._phase, .3, .00001);
@@ -12,7 +12,19 @@ static void testConstruct() {
     assertEQ(x._samples, 2345);
 }
 
-static void testConvert1() {
+static void testConstruct2() {
+    ShiftMath::ClockWithPhase ck(12.3);
+    assertEQ(ck._clocks, 12);
+    assertClose(ck._phase, .3, .00001);
+}
+
+static void testConstruct3() {
+    ShiftMath::ClockWithPhase ck;
+    assertEQ(ck._clocks, 0);
+    assertEQ(ck._phase, 0);
+}
+
+static void testConvertPhaseToSamples1() {
     ShiftMath::ClockWithPhase cph(0, .5);
     const auto csp = ShiftMath::convert(cph, 100);  // 100 cycle period
 
@@ -20,12 +32,36 @@ static void testConvert1() {
     assertEQ(csp._samples, 50);
 }
 
-static void testConvert2() {
+static void testConvertSamplesToPhase1() {
+    const int periodForTest = 40000;
+    const double fraction = .25;
+    const int fractionalPeriod = periodForTest * fraction;
+
+    ShiftMath::ClockWithSamples samp(0, fractionalPeriod);
+    const auto cphase = ShiftMath::convert(samp, periodForTest);  // 100 cycle period
+
+    assertEQ(cphase._clocks, 0);
+    assertEQ(cphase._phase, fraction);
+}
+
+static void testConvertPhaseToSamples2() {
     ShiftMath::ClockWithPhase cph(70, .9);
     const auto csp = ShiftMath::convert(cph, 1000);  // 100 cycle period
 
     assertEQ(csp._clocks, 70);
     assertEQ(csp._samples, 900);
+}
+
+static void testConvertSamplesToPhase2() {
+    const int periodForTest = 12345;
+    const double fraction = .3;
+    const int fractionalPeriod = periodForTest * fraction;
+
+    ShiftMath::ClockWithSamples samp(771, fractionalPeriod);
+    const auto cphase = ShiftMath::convert(samp, periodForTest);  // 100 cycle period
+
+    assertEQ(cphase._clocks, 771);
+    assertClose(cphase._phase, fraction, .0001);
 }
 
 static void testAdd1() {
@@ -126,10 +162,22 @@ static void testCanReset() {
     assertEQ(x._samples, 0);
 }
 
+static void testEquality() {
+    ShiftMath::ClockWithSamples x(7, 9);
+    ShiftMath::ClockWithSamples y(7, 10);
+    ShiftMath::ClockWithSamples z(6, 9);
+    bool b = (x == x);
+    assertEQ(b, true);
+}
+
 void testShiftMath() {
-    testConstruct();
-    testConvert1();
-    testConvert2();
+    testConstruct1();
+    testConstruct2();
+    testConstruct3();
+    testConvertPhaseToSamples1();
+    testConvertPhaseToSamples2();
+    testConvertSamplesToPhase1();
+    testConvertSamplesToPhase2();
     testAdd1();
     testAdd2();
     testAddWrap1();
@@ -143,4 +191,5 @@ void testShiftMath() {
     testExceeds6();
     testExceeds7();
     testCanReset();
+    testEquality();
 }

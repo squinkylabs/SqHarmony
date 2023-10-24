@@ -46,7 +46,9 @@ public:
         assertEQ(c._currentTime._clocks, 0);
         assertEQ(c._currentTime._samples, 0);
 
-        c.go(true);
+        c.go(true);     // one clock to start period measure
+        c.go(false);
+        c.go(true);     // second clock counts
         assertEQ(c._currentTime._clocks, 1);
         assertEQ(c._currentTime._samples, 0);
 
@@ -71,13 +73,34 @@ public:
         assertEQ(c._freqMeasure.freqValid(), true);
         assertEQ(c._freqMeasure.getPeriod(), 2);
     }
+
+    static void testTargetTime() {
+        ClockMult c;
+        c.setMul(2.5);
+        // first target will be at the same time
+        assert(c._nextOutTime == ShiftMath::ClockWithSamples(0, 0));
+
+        assertEQ(c._freqMeasure.freqValid(), false); // this is just an internal consistency check
+        c.go(true);
+        c.go(false);
+        assertEQ(c._freqMeasure.freqValid(), false); // this is just an internal consistency check
+
+        //the the next target will be advanced
+        
+        const bool b = c.go(true);
+        assertEQ(c._freqMeasure.freqValid(), true); // this is just an internal consistency check
+        assert(c._nextOutTime != ShiftMath::ClockWithSamples(0, 0));
+
+        assert(false);
+    }
 };
 
 void testClockMult() {
     testCanCall();
     TestClockMult::testTime();
     TestClockMult::testFreq();
+    TestClockMult::testTargetTime();
 
     // not working yet
-    // testMulThree();
+    testMulThree();
 }

@@ -15,6 +15,13 @@ public:
             assert(_phase <= 1);
         }
 
+
+        ClockWithPhase(double clocksAndPhase) {
+            const int ck = int(std::floor(clocksAndPhase));
+            const float phase = float(clocksAndPhase - ck);
+            *this = ClockWithPhase(ck, phase);
+        }
+
         int _clocks = 0;
         float _phase = 0;
     };
@@ -23,6 +30,12 @@ public:
     public:
         ClockWithSamples() {}
         ClockWithSamples(int clocks, int samples) : _clocks(clocks), _samples(samples) {}
+        bool operator==(const ClockWithSamples& other) const {
+            return _clocks == other._clocks && _samples == other._samples;
+        }
+        bool operator!=(const ClockWithSamples& other) const {
+            return !(*this == other);
+        }
         void advanceClockAndWrap() {
             ++_clocks;
             _samples = 0;
@@ -45,6 +58,17 @@ public:
         assert(samples < periodOfClock);
         return ClockWithSamples(clocks, samples);
     }
+
+     inline static ClockWithPhase convert(const ClockWithSamples& input, int periodOfClock) {
+        assert(periodOfClock > 0);
+        assert(input._clocks >= 0);
+        assert(input._samples >= 0);
+
+        const int clocks = input._clocks;
+        double phase = double(input._samples) / double(periodOfClock);
+
+        return ClockWithPhase(clocks, float(phase));
+     }
 
     inline static ClockWithSamples addWithWrap(const ClockWithSamples& a, const ClockWithSamples& b, int periodOfClock) {
         auto result =  ClockWithSamples(a._clocks + b._clocks, a._samples + b._samples);

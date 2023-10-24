@@ -70,9 +70,11 @@ inline ClockShifter3::ClockShifter3() : _clockDelayLine(true) {
 inline void ClockShifter3::setShift(float amount) {
     assertGE(amount, 0);
     // integral part is the number of clocks
-    const int ck = std::floor(amount);
-    const float phase = amount - ck;
-    _requestedShift = ShiftMath::ClockWithPhase(ck, phase);
+    _requestedShift = ShiftMath::ClockWithPhase(amount);
+    // assert(false);  // use new ctor
+    // const int ck = std::floor(amount);
+    // const float phase = amount - ck;
+    // _requestedShift = ShiftMath::ClockWithPhase(ck, phase);
 }
 
 inline bool ClockShifter3::processClockInput(bool ckIn) {
