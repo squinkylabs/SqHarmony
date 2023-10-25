@@ -13,4 +13,7 @@ void init(rack::Plugin* p) {
 #ifdef _PM
     p->addModel(modelPhasePatterns);
 #endif
+#ifdef _MULT
+    p->addModel(modelMult);
+#endif
 }

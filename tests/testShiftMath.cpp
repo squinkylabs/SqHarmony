@@ -64,6 +64,20 @@ static void testConvertSamplesToPhase2() {
     assertClose(cphase._phase, fraction, .0001);
 }
 
+static void testRoundTripConvert(int clocks, float phase, int periodForTest) {
+    ShiftMath::ClockWithPhase cph(clocks, phase);
+    ShiftMath::ClockWithSamples csamp = ShiftMath::convert(cph, periodForTest);
+    ShiftMath::ClockWithPhase cph2= ShiftMath::convert(csamp, periodForTest);
+    assertEQ(cph2._clocks, clocks);
+     assertEQ(cph2._phase, phase);
+}
+
+static void testRoundTripConvert() {
+    testRoundTripConvert(0, 0, 1);
+    testRoundTripConvert(12, .5, 1234);
+    assert(false);
+}
+
 static void testAdd1() {
     ShiftMath::ClockWithSamples x(0, 0);
     ShiftMath::ClockWithSamples y(0, 0);
@@ -178,6 +192,7 @@ void testShiftMath() {
     testConvertPhaseToSamples2();
     testConvertSamplesToPhase1();
     testConvertSamplesToPhase2();
+    testRoundTripConvert();
     testAdd1();
     testAdd2();
     testAddWrap1();
