@@ -45,5 +45,17 @@ inline bool ClockMult::run(bool clockIn) {
 }
 
 inline void ClockMult::updateTargetTime() {
+    SQINFO("utt, cur t: %s\n", _currentTime.toString().c_str());
+    SQINFO("utt, next: %s\n", _nextOutTime.toString().c_str());
+
+    assert(_currentTime._samples == 0);
+    const double clockFreq = 1.0 / double(int(_freqMeasure.getPeriod()));
+    const int currentClock = _currentTime._clocks;
+    const double outputClock = currentClock * clockFreq;
+    const auto outputClockWithPhase = ShiftMath::ClockWithPhase(outputClock);
+    _nextOutTime = ShiftMath::convert(outputClockWithPhase, int(_freqMeasure.getPeriod()));
+    
+
+    //assert(_currentTime != _nextOutTime);
     assert(false);
 }

@@ -1,6 +1,11 @@
 #pragma once
 
+#include "SqLog.h"
+
 #include <cmath>
+#include <string>
+#include <iostream>
+#include <sstream>
 
 #include "assert.h"
 
@@ -43,6 +48,11 @@ public:
         void reset() {
             _clocks = 0;
             _samples = 0;
+        }
+        std::string toString() const {
+            std::stringstream ss;
+            ss << "clocks=" << _clocks << ", samples=" << _samples;
+            return ss.str();
         }
         int _clocks = 0;
         int _samples = 0;

@@ -67,15 +67,17 @@ static void testConvertSamplesToPhase2() {
 static void testRoundTripConvert(int clocks, float phase, int periodForTest) {
     ShiftMath::ClockWithPhase cph(clocks, phase);
     ShiftMath::ClockWithSamples csamp = ShiftMath::convert(cph, periodForTest);
-    ShiftMath::ClockWithPhase cph2= ShiftMath::convert(csamp, periodForTest);
+    ShiftMath::ClockWithPhase cph2 = ShiftMath::convert(csamp, periodForTest);
     assertEQ(cph2._clocks, clocks);
-     assertEQ(cph2._phase, phase);
+    assertClose(cph2._phase, phase, .001);
 }
 
 static void testRoundTripConvert() {
     testRoundTripConvert(0, 0, 1);
     testRoundTripConvert(12, .5, 1234);
-    assert(false);
+    testRoundTripConvert(311, .2, 12345);
+    testRoundTripConvert(13, .97, 987);
+
 }
 
 static void testAdd1() {
@@ -184,6 +186,13 @@ static void testEquality() {
     assertEQ(b, true);
 }
 
+static void testToString() {
+    ShiftMath::ClockWithSamples y(75, 103);
+    const std::string s = y.toString();
+    const std::string expected = "clocks=75, samples=103";
+    assertEQ(s, expected);
+}
+
 void testShiftMath() {
     testConstruct1();
     testConstruct2();
@@ -207,4 +216,5 @@ void testShiftMath() {
     testExceeds7();
     testCanReset();
     testEquality();
+    testToString();
 }
