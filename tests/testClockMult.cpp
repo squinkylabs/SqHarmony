@@ -3,18 +3,18 @@
 
 static void testCanCall() {
     ClockMult c;
-    const bool b = c.go(true);
+    const bool b = c.run(true);
     c.setMul(3.3);
 }
 
 static int clockAndCountOutput(ClockMult& c, int lowPeriod) {
     int count = 0;
-    bool b = c.go(true);  // one high clock
+    bool b = c.run(true);  // one high clock
     if (b) {
         ++count;
     }
     for (int i = 0; i < lowPeriod; ++i) {
-        b = c.go(false);
+        b = c.run(false);
         if (b) {
             ++count;
         }
@@ -46,14 +46,14 @@ public:
         assertEQ(c._currentTime._clocks, 0);
         assertEQ(c._currentTime._samples, 0);
 
-        c.go(true);     // one clock to start period measure
-        c.go(false);
-        c.go(true);     // second clock counts
+        c.run(true);     // one clock to start period measure
+        c.run(false);
+        c.run(true);     // second clock counts
         assertEQ(c._currentTime._clocks, 1);
         assertEQ(c._currentTime._samples, 0);
 
-        c.go(false);
-        c.go(false);
+        c.run(false);
+        c.run(false);
         assertEQ(c._currentTime._clocks, 1);
         assertEQ(c._currentTime._samples, 2);
     }
@@ -61,15 +61,15 @@ public:
     static void testFreq() {
         ClockMult c;
         assertEQ(c._freqMeasure.freqValid(), false);
-        c.go(false);
-        c.go(false);
-        c.go(false);
+        c.run(false);
+        c.run(false);
+        c.run(false);
         assertEQ(c._freqMeasure.freqValid(), false);
-        c.go(true);
+        c.run(true);
         assertEQ(c._freqMeasure.freqValid(), false);
-        c.go(false);
+        c.run(false);
         assertEQ(c._freqMeasure.freqValid(), false);
-        c.go(true);
+        c.run(true);
         assertEQ(c._freqMeasure.freqValid(), true);
         assertEQ(c._freqMeasure.getPeriod(), 2);
     }
@@ -81,13 +81,13 @@ public:
         assert(c._nextOutTime == ShiftMath::ClockWithSamples(0, 0));
 
         assertEQ(c._freqMeasure.freqValid(), false); // this is just an internal consistency check
-        c.go(true);
-        c.go(false);
+        c.run(true);
+        c.run(false);
         assertEQ(c._freqMeasure.freqValid(), false); // this is just an internal consistency check
 
         //the the next target will be advanced
         
-        const bool b = c.go(true);
+        const bool b = c.run(true);
         assertEQ(c._freqMeasure.freqValid(), true); // this is just an internal consistency check
         assert(c._nextOutTime != ShiftMath::ClockWithSamples(0, 0));
 

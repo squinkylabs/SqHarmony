@@ -2,8 +2,10 @@
 #pragma once
 
 
+#include "ClockMult.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
+#include "SchmidtTrigger.h"
 
 
 namespace rack {
@@ -52,9 +54,9 @@ private:
     void _updateButton();
     void _updateShiftAmount();
 
-    // ClockShifter3 _clockShifter;
+    ClockMult _clockMult;
     // ShiftCalc _shiftCalculator;
-    // SchmidtTrigger _inputClockProc;
+    SchmidtTrigger _inputClockProc;
     // GateTrigger _buttonProc;
     Divider divn;
 };
@@ -75,4 +77,10 @@ inline void Multiplier<TBase>::_stepn() {
 template <class TBase>
 inline void Multiplier<TBase>::process(const typename TBase::ProcessArgs& args) {
     divn.step();
+   // _shiftCalculator.go();
+    const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage();
+    const bool clockIn = _inputClockProc.go(rawClockIn);
+   const bool rawClockOut = _clockMult.run(clockIn);
+    const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
+    TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
 }

@@ -7,7 +7,7 @@
 class ClockMult {
 public:
     friend class TestClockMult;
-    bool go(bool clockIn);
+    bool run(bool clockIn);
     void setMul(double m) {
         mul = m;
     }
@@ -21,7 +21,7 @@ private:
     void updateTargetTime();
 };
 
-inline bool ClockMult::go(bool clockIn) {
+inline bool ClockMult::run(bool clockIn) {
     _freqMeasure.onSample(clockIn);
     if (!_freqMeasure.freqValid()) {
         return false;         // ignore input until we are stable
