@@ -45,8 +45,8 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel2.svg")));
 #ifdef _LAB
-        addLabel(Vec(24, 12), "Phase Patterns", 20);
-        addLabel(Vec(24, 340), "Squinkytronix", 20);
+        addLabel(Vec(22, 12), "Phase Patterns", 16);
+        addLabel(Vec(24, 340), "Squinkytronix", 16);
 
 #endif
         addControls(module);
@@ -66,24 +66,24 @@ private:
         }
     }
     void addControls(PhasePatternsModule* module) {
-        auto param = createParam<RoundBigBlackKnob>(Vec(50, 131), module, Comp::SHIFT_PARAM);
+        auto param = createParam<RoundBigBlackKnob>(Vec(40, 131), module, Comp::SHIFT_PARAM);
         addParam(param);
 #ifdef _LAB
-        addLabel(Vec(58, 107), "Shift");
+        addLabel(Vec(42, 107), "Shift");
 #endif
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(80, 193),
+            Vec(75, 193),
             module,
             Comp::RIB_BUTTON_PARAM,
             Comp::RIB_LIGHT)
         );
 
-        _shiftDisplay = addLabel(Vec(100, 190), "");
+        _shiftDisplay = addLabel(Vec(90, 190), "");
     }
     void addIO(PhasePatternsModule* module) {
-            addInput(createInput<PJ301MPort>(Vec(27, 300), module, Comp::CK_INPUT));
-            addInput(createInput<PJ301MPort>(Vec(40, 190), module, Comp::SHIFT_INPUT));
-            addOutput(createOutput<PJ301MPort>(Vec(100, 300), module, Comp::CK_OUTPUT));
+            addInput(createInput<PJ301MPort>(Vec(13, 300), module, Comp::CK_INPUT));
+            addInput(createInput<PJ301MPort>(Vec(25, 190), module, Comp::SHIFT_INPUT));
+            addOutput(createOutput<PJ301MPort>(Vec(85, 300), module, Comp::CK_OUTPUT));
     }
 
 #ifdef _LAB

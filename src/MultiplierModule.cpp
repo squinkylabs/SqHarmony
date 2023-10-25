@@ -45,8 +45,8 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel2.svg")));
 #ifdef _LAB
-        addLabel(Vec(24, 12), "Multiplier", 20);
-        addLabel(Vec(24, 340), "Squinkytronix", 20);
+        addLabel(Vec(35, 12), "Multiplier", 16);
+        addLabel(Vec(24, 340), "Squinkytronix", 16);
 
 #endif
         addControls(module);
@@ -81,9 +81,9 @@ private:
         // _shiftDisplay = addLabel(Vec(100, 190), "");
     }
     void addIO(MultiplierModule* module) {
-            addInput(createInput<PJ301MPort>(Vec(27, 300), module, Comp::CK_INPUT));
+            addInput(createInput<PJ301MPort>(Vec(22, 300), module, Comp::CK_INPUT));
        //     addInput(createInput<PJ301MPort>(Vec(40, 190), module, Comp::SHIFT_INPUT));
-            addOutput(createOutput<PJ301MPort>(Vec(100, 300), module, Comp::CK_OUTPUT));
+            addOutput(createOutput<PJ301MPort>(Vec(77, 300), module, Comp::CK_OUTPUT));
     }
 
 #ifdef _LAB
