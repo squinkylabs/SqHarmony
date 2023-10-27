@@ -26,7 +26,7 @@ static void testConstruct3() {
 
 static void testConvertPhaseToSamples1() {
     ShiftMath::ClockWithPhase cph(0, .5);
-    const auto csp = ShiftMath::convert(cph, 100);  // 100 cycle period
+    const auto csp = ShiftMath::ph2s(cph, 100);  // 100 cycle period
 
     assertEQ(csp._clocks, 0);
     assertEQ(csp._samples, 50);
@@ -38,7 +38,7 @@ static void testConvertSamplesToPhase1() {
     const int fractionalPeriod = periodForTest * fraction;
 
     ShiftMath::ClockWithSamples samp(0, fractionalPeriod);
-    const auto cphase = ShiftMath::convert(samp, periodForTest);  // 100 cycle period
+    const auto cphase = ShiftMath::s2ph(samp, periodForTest);  // 100 cycle period
 
     assertEQ(cphase._clocks, 0);
     assertEQ(cphase._phase, fraction);
@@ -46,7 +46,7 @@ static void testConvertSamplesToPhase1() {
 
 static void testConvertPhaseToSamples2() {
     ShiftMath::ClockWithPhase cph(70, .9);
-    const auto csp = ShiftMath::convert(cph, 1000);  // 100 cycle period
+    const auto csp = ShiftMath::ph2s(cph, 1000);  // 100 cycle period
 
     assertEQ(csp._clocks, 70);
     assertEQ(csp._samples, 900);
@@ -58,7 +58,7 @@ static void testConvertSamplesToPhase2() {
     const int fractionalPeriod = periodForTest * fraction;
 
     ShiftMath::ClockWithSamples samp(771, fractionalPeriod);
-    const auto cphase = ShiftMath::convert(samp, periodForTest);  // 100 cycle period
+    const auto cphase = ShiftMath::s2ph(samp, periodForTest);  // 100 cycle period
 
     assertEQ(cphase._clocks, 771);
     assertClose(cphase._phase, fraction, .0001);
@@ -66,8 +66,8 @@ static void testConvertSamplesToPhase2() {
 
 static void testRoundTripConvert(int clocks, float phase, int periodForTest) {
     ShiftMath::ClockWithPhase cph(clocks, phase);
-    ShiftMath::ClockWithSamples csamp = ShiftMath::convert(cph, periodForTest);
-    ShiftMath::ClockWithPhase cph2 = ShiftMath::convert(csamp, periodForTest);
+    ShiftMath::ClockWithSamples csamp = ShiftMath::ph2s(cph, periodForTest);
+    ShiftMath::ClockWithPhase cph2 = ShiftMath::s2ph(csamp, periodForTest);
     assertEQ(cph2._clocks, clocks);
     assertClose(cph2._phase, phase, .001);
 }
@@ -77,7 +77,6 @@ static void testRoundTripConvert() {
     testRoundTripConvert(12, .5, 1234);
     testRoundTripConvert(311, .2, 12345);
     testRoundTripConvert(13, .97, 987);
-
 }
 
 static void testAdd1() {
@@ -193,6 +192,31 @@ static void testToString() {
     assertEQ(s, expected);
 }
 
+static void testSamplesAdd1() {
+    ShiftMath::ClockWithSamples x;
+    x.addDelta(0, 100);
+    assertEQ(x._clocks, 0);
+    assertEQ(x._samples, 0);
+}
+
+static void testSamplesAdd2() {
+    ShiftMath::ClockWithSamples x;
+    x._samples = 5;
+    x._clocks = 2;
+    x.addDelta(3, 100);
+    assertEQ(x._clocks, 2);
+    assertEQ(x._samples, 8);
+}
+
+static void testSamplesAdd3() {
+    ShiftMath::ClockWithSamples x;
+    x._samples = 5;
+    x._clocks = 2;
+    x.addDelta(9, 10);
+    assertEQ(x._clocks, 3);
+    assertEQ(x._samples, 4);
+}
+
 void testShiftMath() {
     testConstruct1();
     testConstruct2();
@@ -217,4 +241,8 @@ void testShiftMath() {
     testCanReset();
     testEquality();
     testToString();
+
+    testSamplesAdd1();
+    testSamplesAdd2();
+    testSamplesAdd3();
 }

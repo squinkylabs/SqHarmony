@@ -126,7 +126,7 @@ inline bool ClockShifter3::shouldHandleEvent(const ClockEvent& event) {
     }
 
     const int periodOfClock = _freqMeasure.getPeriod();
-    const auto shiftAmountSamples = ShiftMath::convert(_requestedShift, periodOfClock);
+    const auto shiftAmountSamples = ShiftMath::ph2s(_requestedShift, periodOfClock);
     const auto targetTime = ShiftMath::addWithWrap(event._timeStamp, shiftAmountSamples, periodOfClock);
     const auto ret = ShiftMath::exceedsOrEquals(_currentTime, targetTime);
     return ret;

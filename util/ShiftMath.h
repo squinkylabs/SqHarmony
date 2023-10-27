@@ -54,14 +54,30 @@ public:
             ss << "clocks=" << _clocks << ", samples=" << _samples;
             return ss.str();
         }
+
+        /**
+         * @brief adds to "this" a number of samples. Wraps if appropriate/
+         * 
+         * @param samples 
+         */
+        void addDelta(int samples, int samplesInMasterPeriod) {
+            _samples += samples;
+            while(_samples >= samplesInMasterPeriod) {
+                _samples -= samplesInMasterPeriod;
+                ++_clocks;
+            }
+        }
+
+
         int _clocks = 0;
         int _samples = 0;
     };
 
+   
     /**
      * @brief converts from clock/phase to clock/samples
      */
-    inline static ClockWithSamples convert(const ClockWithPhase& input, int periodOfClock) {
+    inline static ClockWithSamples ph2s(const ClockWithPhase& input, int periodOfClock) {
         assert(periodOfClock > 0);
         const int clocks = input._clocks;
         const int samples = int(std::round(input._phase * double(periodOfClock)));
@@ -69,7 +85,7 @@ public:
         return ClockWithSamples(clocks, samples);
     }
 
-     inline static ClockWithPhase convert(const ClockWithSamples& input, int periodOfClock) {
+     inline static ClockWithPhase s2ph(const ClockWithSamples& input, int periodOfClock) {
         assert(periodOfClock > 0);
         assert(input._clocks >= 0);
         assert(input._samples >= 0);

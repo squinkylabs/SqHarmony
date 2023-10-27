@@ -7,21 +7,27 @@ static void testCanCall() {
     c.setMul(3.3);
 }
 
-static int clockAndCountOutput(ClockMult& c, int lowPeriod) {
+static int clockAndCountOutput(ClockMult& c, int lowPeriod, bool sendInitialHigh) {
     int count = 0;
-    bool b = c.run(true);  // one high clock
-    if (b) {
-        ++count;
+    bool b = false;
+    if (sendInitialHigh) {
+        bool b = c.run(true);  // one high clock
+        if (b) {
+            SQINFO("saw clock at initil high");
+            ++count;
+        }
     }
     for (int i = 0; i < lowPeriod; ++i) {
         b = c.run(false);
         if (b) {
             ++count;
+            SQINFO("saw cloock at i=%d, lowP=%d", i, lowPeriod);
         }
     }
     return count;
 }
 
+#if 0
 static int clockAndCountOutput(ClockMult& c, int lowPeriod, int periods) {
     int count = 0;
     for (int i = 0; i < periods; ++i) {
@@ -29,6 +35,7 @@ static int clockAndCountOutput(ClockMult& c, int lowPeriod, int periods) {
     }
     return count;
 }
+#endif
 
 static void testMulThree() {
     SQINFO("testMulThree");
@@ -45,12 +52,17 @@ static void testMul1() {
     ClockMult c;
     c.setMul(1);
     const int lowPeriod = 10 - 1;
-    auto count = clockAndCountOutput(c, lowPeriod);
+    auto count = clockAndCountOutput(c, lowPeriod, true);
     assertEQ(count, 0);  // no clocks during prime
 
     bool b = c.run(true);
     assert(b);
-    count = clockAndCountOutput(c, lowPeriod);
+    count = clockAndCountOutput(c, lowPeriod, false);
+    assertEQ(count, 0);
+
+    b = c.run(true);
+    assert(b);
+    count = clockAndCountOutput(c, lowPeriod, false);
     assertEQ(count, 0);
 }
 
@@ -130,9 +142,10 @@ void testClockMult() {
     SQINFO("bgf: fix the other tests");
     TestClockMult::testTime0();
     //  TestClockMult::testFreq();
-   // TestClockMult::testTargetTime();
+    // TestClockMult::testTargetTime();
 
     // not working yet
+    SQINFO("bgf: test Mul1 is a priority. do next\n");
     testMul1();
-   // testMulThree();
+    // testMulThree();
 }

@@ -60,8 +60,15 @@ inline bool ClockMult::run(bool clockIn) {
 
 inline void ClockMult::updateTargetTime() {
     assert(_mul == 1);      // imp _mul
-    const double clockPeriod = double(int(_freqMeasure.getPeriod()));
-    const double outputClockTime = _nextClockToOutput * clockPeriod;
-    const auto outputClockWithPhase = ShiftMath::ClockWithPhase(outputClockTime);
-    _nextOutTime = ShiftMath::convert(outputClockWithPhase, int(_freqMeasure.getPeriod()));
+
+    // new way
+    // step 1 : number of samples until next client clock.
+    // Note: this assumes mult == 1
+    const int period = int(_freqMeasure.getPeriod());
+    const int sampleTillNextClock = period;
+    // step 2 : x = currentTime (samples) + samplesUntilNextClientClock
+    auto x = _currentTime;
+    x.addDelta(sampleTillNextClock, period);
+    // step 3 : next target = x;
+    _nextOutTime = x;
 }
