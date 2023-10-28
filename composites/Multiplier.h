@@ -5,6 +5,7 @@
 #include "ClockMult.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
+#include "OneShot.h"
 #include "SchmidtTrigger.h"
 
 
@@ -55,9 +56,8 @@ private:
     void _updateShiftAmount();
 
     ClockMult _clockMult;
-    // ShiftCalc _shiftCalculator;
     SchmidtTrigger _inputClockProc;
-    // GateTrigger _buttonProc;
+    OneShot _triggerOutOneShot;
     Divider divn;
 };
 
@@ -77,10 +77,20 @@ inline void Multiplier<TBase>::_stepn() {
 template <class TBase>
 inline void Multiplier<TBase>::process(const typename TBase::ProcessArgs& args) {
     divn.step();
+  
    // _shiftCalculator.go();
     const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage();
     const bool clockIn = _inputClockProc.go(rawClockIn);
    const bool rawClockOut = _clockMult.run(clockIn);
-    const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
+ //   const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
+    if (rawClockOut) {
+        SQINFO("raw clock out");
+        _triggerOutOneShot.set();
+    }
+    _triggerOutOneShot.step(args.sampleTime);
+    const bool trigger = !_triggerOutOneShot.hasFired();
+    const float clockOut = trigger ? cGateOutHi : cGateOutLow;
+      
+
     TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
 }

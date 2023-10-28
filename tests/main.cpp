@@ -45,6 +45,7 @@ extern void testShiftMath();
 extern void testSchmidtTrigger();
 extern void testShiftCalc();
 extern void testClockMult();
+extern void testMultiplier();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -62,6 +63,7 @@ int main(const char**, int) {
     testClockShifter3();
     testPhasePatterns();
     testClockMult();
+    testMultiplier();
     printf("XX: leaving early for clock stuff");
 
     std::exit(0);

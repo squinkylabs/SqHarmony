@@ -66,22 +66,32 @@ static void testMul1() {
     assertEQ(count, 0);
 }
 
+// input is 10 period, mul is 2
 static void testMul2() {
     ClockMult c;
     c.setMul(2);
-    const int lowPeriod = 10 - 1;
-    auto count = clockAndCountOutput(c, lowPeriod, true);
+ 
+    // prime the clock with hi + 9 lo + hi
+    auto count = clockAndCountOutput(c, 9, true);
     assertEQ(count, 0);  // no clocks during prime
-
     bool b = c.run(true);
     assert(b);
-    count = clockAndCountOutput(c, lowPeriod, false);
+
+    // now 4 samples should still not output anything
+    count = clockAndCountOutput(c, 4, false);
     assertEQ(count, 0);
 
+    // but the fifth sample one will
+    b = c.run(false);
+    assert(b);
+
+    // not 4 samples should still not output anything
+    count = clockAndCountOutput(c, 4, false);
+    assertEQ(count, 0);
+
+    // but the clock will bring it home
     b = c.run(true);
     assert(b);
-    count = clockAndCountOutput(c, lowPeriod, false);
-    assertEQ(count, 0);
 }
 
 class TestClockMult {
@@ -188,16 +198,12 @@ public:
 void testClockMult() {
     testCanCall();
     TestClockMult::testSetMul();
-    // TODO: fix it
-    SQINFO("bgf: fix the other tests");
     TestClockMult::testTime0();
     TestClockMult::testTime1();
 
-    //  TestClockMult::testFreq();
-    // TestClockMult::testTargetTime();
+    TestClockMult::testFreq();
+    TestClockMult::testTargetTime();
 
-    // not working yet
     testMul1();
     testMul2();
-    // testMulThree();
 }

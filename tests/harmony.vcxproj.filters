@@ -219,6 +219,9 @@
     <ClCompile Include="testClockMult.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="testMultiplier.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">
