@@ -1,12 +1,11 @@
 
 #pragma once
 
-
 #include "ClockMult.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
+#include "GateTrigger.h"
 #include "OneShot.h"
-#include "SchmidtTrigger.h"
 
 
 namespace rack {
@@ -26,7 +25,7 @@ public:
     };
     enum InputIds {
         CK_INPUT,
-     //   SHIFT_INPUT,
+        //   SHIFT_INPUT,
         NUM_INPUTS
     };
 
@@ -47,14 +46,15 @@ public:
     }
 
     void process(const typename TBase::ProcessArgs& args) override;
+
 private:
     void _init();
     void _stepn();
-    void _updateButton();
-    void _updateShiftAmount();
+    //   void _updateButton();
+    void _updateMultAmount();
 
     ClockMult _clockMult;
-    SchmidtTrigger _inputClockProc;
+    GateTrigger _inputClockProc;
     OneShot _triggerOutOneShot;
     Divider divn;
 };
@@ -64,29 +64,35 @@ inline void Multiplier<TBase>::_init() {
     divn.setup(32, [this]() {
         this->_stepn();
     });
-    _triggerOutOneShot.setDelayMs(1);
+    _triggerOutOneShot.setDelayMs(2.f);
 }
 
+template <class TBase>
+inline void Multiplier<TBase>::_updateMultAmount() {
+    float mult = TBase::params[MULT_PARAM].value;
+    _clockMult.setMul(mult);
+    // SQINFO("set mult %f", mult);
+}
 
 template <class TBase>
 inline void Multiplier<TBase>::_stepn() {
-
+    _updateMultAmount();
 }
 
 template <class TBase>
 inline void Multiplier<TBase>::process(const typename TBase::ProcessArgs& args) {
     divn.step();
-  
+
     const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage();
-    const bool clockIn = _inputClockProc.go(rawClockIn);
-   const bool rawClockOut = _clockMult.run(clockIn);
+    _inputClockProc.go(rawClockIn);
+    const bool triggerIn = _inputClockProc.trigger();
+    const bool rawClockOut = _clockMult.run(triggerIn);
     if (rawClockOut) {
         _triggerOutOneShot.set();
     }
     _triggerOutOneShot.step(args.sampleTime);
     const bool trigger = !_triggerOutOneShot.hasFired();
     const float clockOut = trigger ? cGateOutHi : cGateOutLow;
-      
 
     TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
 }

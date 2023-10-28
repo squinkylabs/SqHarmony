@@ -27,7 +27,7 @@ private:
 };
 
 void inline MultiplierModule::addParams() {
-  //  this->configParam(Comp::SHIFT_PARAM, 0, 4, 0, "Shift amount");
+    this->configParam(Comp::MULT_PARAM, 1, 4, 1, "Multiply amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     // this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
     // this->configParam(Comp::RIB_BUTTON_PARAM, 0, 10, 0, "RIB");
@@ -66,10 +66,10 @@ private:
     //     }
     // }
     void addControls(MultiplierModule* module) {
-        // auto param = createParam<RoundBigBlackKnob>(Vec(50, 131), module, Comp::SHIFT_PARAM);
-        // addParam(param);
+        auto param = createParam<RoundBigBlackKnob>(Vec(50, 131), module, Comp::MULT_PARAM);
+        addParam(param);
 #ifdef _LAB
-      //  addLabel(Vec(58, 107), "Shift");
+        addLabel(Vec(58, 107), "Mult");
 #endif
         // addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
         //     Vec(80, 193),
