@@ -66,6 +66,7 @@ inline void Multiplier<TBase>::_init() {
     divn.setup(32, [this]() {
         this->_stepn();
     });
+    _triggerOutOneShot.setDelayMs(1);
 }
 
 

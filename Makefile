@@ -26,7 +26,7 @@ SOURCES += $(wildcard util/*.cpp)
 # Macro to use on any target where we don't normally want asserts
 ASSERTOFF = -D NDEBUG
 
-# Make _ASSERT=true will nullify our ASSERTOFF flag, thus allowing them
+# make _ASSERT=true will nullify our ASSERTOFF flag, thus allowing them
 ifdef _ASSERT
 	ASSERTOFF =
 endif
