@@ -36,7 +36,6 @@ public:
     };
 
     enum LightIds {
-     //   RIB_LIGHT,
         NUM_LIGHTS
     };
 
@@ -48,7 +47,6 @@ public:
     }
 
     void process(const typename TBase::ProcessArgs& args) override;
-
 private:
     void _init();
     void _stepn();
@@ -79,13 +77,10 @@ template <class TBase>
 inline void Multiplier<TBase>::process(const typename TBase::ProcessArgs& args) {
     divn.step();
   
-   // _shiftCalculator.go();
     const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage();
     const bool clockIn = _inputClockProc.go(rawClockIn);
    const bool rawClockOut = _clockMult.run(clockIn);
- //   const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
     if (rawClockOut) {
-        SQINFO("raw clock out");
         _triggerOutOneShot.set();
     }
     _triggerOutOneShot.step(args.sampleTime);

@@ -17,9 +17,6 @@ static int clockItLow(Comp& c, int numTimes) {
         if (c.outputs[Comp::CK_OUTPUT].getVoltage(0) > 5) {
             x++;
         }
-        // if (expectedOutput >= 0) {
-        //     assertEQ(c.outputs[Comp::CK_OUTPUT].getVoltage(0), expectedOutput);
-        // }
     }
     return x;
 }
@@ -48,10 +45,38 @@ static void testSomeOutput() {
     assertEQ(x, 1);
 }
 
+static void testOneShot() {
+    Comp c;
 
+    // prime the clock with a long period
+    int x = clockItHighLow(c, 4000);
+    assertEQ(x, 0);
+    x = clockItHigh(c);
+    assertEQ(x, 1);
 
+    auto args = TestComposite::ProcessArgs();
+    args.sampleTime = .0001;        // tenth of a milliseconds
+
+    // now clock low and see how long the output it
+    int measuredDuration = 0;
+    c.inputs[Comp::CK_INPUT].setVoltage(0);
+    for (int i = 0; i < 400; ++i) {
+        c.process(args);
+        const bool output = c.outputs[Comp::CK_OUTPUT].getVoltage(0) > 5;
+        if (i == 0) assertEQ(output, true);
+        if (output == false) {
+            measuredDuration = i;
+            break;
+        }
+    }
+  
+    assertClose(measuredDuration, 10, 2);
+    
+    //assert(false);
+}
 
 void testMultiplier() {
     test0();
     testSomeOutput();
+    testOneShot();
 }
