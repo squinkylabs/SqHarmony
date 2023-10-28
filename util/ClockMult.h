@@ -59,13 +59,15 @@ inline bool ClockMult::run(bool clockIn) {
 }
 
 inline void ClockMult::updateTargetTime() {
-    assert(_mul == 1);      // imp _mul
+   
 
     // new way
     // step 1 : number of samples until next client clock.
     // Note: this assumes mult == 1
     const int period = int(_freqMeasure.getPeriod());
-    const int sampleTillNextClock = period;
+    const int sampleTillNextClock = period / int(_mul);
+
+    //assert(_mul == 1);      // imp _mul
     // step 2 : x = currentTime (samples) + samplesUntilNextClientClock
     auto x = _currentTime;
     x.addDelta(sampleTillNextClock, period);

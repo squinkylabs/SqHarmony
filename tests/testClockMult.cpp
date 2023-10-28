@@ -66,6 +66,24 @@ static void testMul1() {
     assertEQ(count, 0);
 }
 
+static void testMul2() {
+    ClockMult c;
+    c.setMul(2);
+    const int lowPeriod = 10 - 1;
+    auto count = clockAndCountOutput(c, lowPeriod, true);
+    assertEQ(count, 0);  // no clocks during prime
+
+    bool b = c.run(true);
+    assert(b);
+    count = clockAndCountOutput(c, lowPeriod, false);
+    assertEQ(count, 0);
+
+    b = c.run(true);
+    assert(b);
+    count = clockAndCountOutput(c, lowPeriod, false);
+    assertEQ(count, 0);
+}
+
 class TestClockMult {
 public:
     static void testSetMul() {
@@ -133,6 +151,38 @@ public:
         assertEQ(c._nextOutTime._clocks, 0);
         assertEQ(c._nextOutTime._samples, 1);  // one sample is about the rate of the multiplied clock
     }
+
+    static void testTime1() {
+        ClockMult c;
+        c.setMul(1);
+
+        // clock is 1 high and 9 low, for period of 10
+        const int lowPeriod = 10 - 1;
+        auto count = clockAndCountOutput(c, lowPeriod, true);
+        assertEQ(count, 0);  // no clocks during prime
+        c.run(true);
+
+        count = clockAndCountOutput(c, lowPeriod, false);
+
+        assertEQ(c._freqMeasure.freqValid(), true);
+        const int x = c._freqMeasure.getPeriod();
+
+        assertEQ(c._nextOutTime._clocks, 1);
+        assertEQ(c._nextOutTime._samples, 0);
+
+        assertEQ(c._currentTime._clocks, 0);
+        assertEQ(c._currentTime._samples, 9);
+        SQINFO("abc");
+        // bool b = c.run(true);
+        // assert(b);
+        // count = clockAndCountOutput(c, lowPeriod, false);
+        // assertEQ(count, 0);
+
+        // b = c.run(true);
+        // assert(b);
+        // count = clockAndCountOutput(c, lowPeriod, false);
+        // assertEQ(count, 0);
+    }
 };
 
 void testClockMult() {
@@ -141,11 +191,13 @@ void testClockMult() {
     // TODO: fix it
     SQINFO("bgf: fix the other tests");
     TestClockMult::testTime0();
+    TestClockMult::testTime1();
+
     //  TestClockMult::testFreq();
     // TestClockMult::testTargetTime();
 
     // not working yet
-    SQINFO("bgf: test Mul1 is a priority. do next\n");
     testMul1();
+    testMul2();
     // testMulThree();
 }
