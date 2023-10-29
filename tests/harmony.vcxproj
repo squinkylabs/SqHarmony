@@ -189,6 +189,7 @@
     <ClCompile Include="testOneShotSampleTimer.cpp" />
     <ClCompile Include="testPhasePatterns.cpp" />
     <ClCompile Include="testProgressions.cpp" />
+    <ClCompile Include="testRatchet.cpp" />
     <ClCompile Include="testResettablePhaseAccumulator.cpp" />
     <ClCompile Include="testRingBuffer.cpp" />
     <ClCompile Include="testScale.cpp" />
