@@ -48,7 +48,6 @@ static void clockItHighLow(Comp& c, int numLow) {
 }
 
 static void testSimpleInputNoShift() {
-    SQINFO("--- testSimpleInpuNoShift ---");
     Comp c;
 
     // let's make input clock period == 10
@@ -95,7 +94,6 @@ static void testSimpleInputNoShift() {
 // }
 
 void testPhasePatterns() {
-    SQINFO("-- testPhasePatterns --");
     testOver1();
     testSimpleInputNoShift();
    // testSimpleInput();

@@ -81,7 +81,7 @@ static void testMul2() {
     count = clockAndCountOutput(c, 4, false);
     assertEQ(count, 0);
 
-    // but the fifth sample one will
+    // but the fifth sample will
     b = c.run(false);
     assert(b);
 
@@ -92,6 +92,37 @@ static void testMul2() {
     // but the clock will bring it home
     b = c.run(true);
     assert(b);
+}
+
+
+// input is 10 period, mul is 2.6,
+// so we should output period 4
+static void testMul2p5() {
+    ClockMult c;
+    c.setMul(2.5);
+ 
+    // prime the clock with hi + 9 lo + hi
+    auto count = clockAndCountOutput(c, 9, true);
+    assertEQ(count, 0);  // no clocks during prime
+    bool b = c.run(true);
+    assert(b);
+
+    // now we should be at 2.5
+    for (int i=0; i<20; ++i) {
+        const bool sendClock = (i == 9);
+        const bool b = c.run(sendClock);
+        bool expectOutput = false;
+        switch(i) {
+            // output period 4
+            case 3:
+            case 7:
+            case 11:
+            case 15:
+                expectOutput = true;
+                break;
+        }
+        assertEQ(b, expectOutput);
+    }
 }
 
 class TestClockMult {
@@ -182,7 +213,7 @@ public:
 
         assertEQ(c._currentTime._clocks, 0);
         assertEQ(c._currentTime._samples, 9);
-        SQINFO("abc");
+        
         // bool b = c.run(true);
         // assert(b);
         // count = clockAndCountOutput(c, lowPeriod, false);
@@ -206,4 +237,5 @@ void testClockMult() {
 
     testMul1();
     testMul2();
+    testMul2p5();
 }

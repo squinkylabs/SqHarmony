@@ -35,7 +35,7 @@ inline bool ClockMult::run(bool clockIn) {
         return true;
     }
 
-    // SQINFO("run, ckin=%d", clockIn);
+    //SQINFO("run, ckin=%d", clockIn);
     if (clockIn) {
         _currentTime._clocks++;
         _currentTime._samples = 0;
@@ -50,7 +50,7 @@ inline bool ClockMult::run(bool clockIn) {
     // note - this means we could emit two clocks "at the same time",
     // especially at start.
     if (ShiftMath::exceedsOrEquals(_currentTime, _nextOutTime)) {
-        // SQINFO("ex|eq ci=%d", clockIn);
+        //SQINFO("ex|eq ci=%d", clockIn);
         returnedClock = true;
         // we need to  derive a new _nextOutTime
         updateTargetTime();
@@ -67,8 +67,10 @@ inline void ClockMult::updateTargetTime() {
     // step 1 : number of samples until next client clock.
     // Note: this assumes mult == 1
     const int period = int(_freqMeasure.getPeriod());
-    const int sampleTillNextClock = period / int(_mul);
 
+    // This ony works for integer mult
+  //  const int sampleTillNextClock = period / int(_mul);
+    const int sampleTillNextClock = int(double(period) / double(_mul));
 
     //assert(_mul == 1);      // imp _mul
     // step 2 : x = currentTime (samples) + samplesUntilNextClientClock
@@ -77,5 +79,6 @@ inline void ClockMult::updateTargetTime() {
     x.addDelta(sampleTillNextClock, period);
     // step 3 : next target = x;
     _nextOutTime = x;
-    // SQINFO("uptt mul=%f not=%d,%d stnc=%d curt=%d, %d", _mul, _nextOutTime._clocks, _nextOutTime._samples, sampleTillNextClock, _currentTime._clocks, _currentTime._samples);
+    //SQINFO("updt t time  mult=%f next out  time (result)=%d,%d", _mul, _nextOutTime._clocks, _nextOutTime._samples);
+    //SQINFO("sample till next clock =%d current time=%d, %d",sampleTillNextClock, _currentTime._clocks, _currentTime._samples);
 }

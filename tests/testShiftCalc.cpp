@@ -78,13 +78,10 @@ static void testTriggerSecondTime() {
     // TODO: why do we need to clock one "extra"?
     run(s, 1 + period * 8);
     assertEQ(s.get(), 1);
-
     assertEQ(s.busy(), false);
 
     s.trigger(period);
     run(s, 1);
-
-    SQINFO("output now %f", s.get());
     assertClose(s.get(), 1.0125, .0001);
 }
 
