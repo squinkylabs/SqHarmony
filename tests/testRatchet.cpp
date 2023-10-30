@@ -33,8 +33,26 @@ static void testTrigger() {
     assertEQ(r.isStillRatcheting(), true);
 }
 
+static void testEnds() {
+
+    // This first part from the test above.
+    Ratchet r;
+    r.setCount(2);
+    r.trigger();
+    int i = r.run(true);
+    assertEQ(i, 2);
+    assertEQ(r.isStillRatcheting(), true);
+
+    // now, new stuff.
+    r.onOutputClock();          // it this the first one, which happens when run(true)? Probably...
+    assertEQ(r.isStillRatcheting(), true);
+     r.onOutputClock(); 
+    assertEQ(r.isStillRatcheting(), false);
+}
+
 void testRatchet() {
     testCanCall();
     testNoTrigger();  
     testTrigger();
+    testEnds();
 }

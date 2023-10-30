@@ -43,6 +43,9 @@ inline void Ratchet::trigger() {
 }
 
 inline void Ratchet::onOutputClock() {
+    if (_countDown > 0) {
+        --_countDown;
+    }
 }
 
 inline bool Ratchet::isStillRatcheting() const {

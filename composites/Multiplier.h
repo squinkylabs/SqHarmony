@@ -21,11 +21,13 @@ public:
     enum ParamIds {
         SCHEMA_PARAM,
         MULT_PARAM,
+        RATCHET_1_COUNT_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
         CK_INPUT,
         //   SHIFT_INPUT,
+        RATCHET_1_TRIGGER_INPUT,
         NUM_INPUTS
     };
 
