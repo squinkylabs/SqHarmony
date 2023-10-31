@@ -28,7 +28,7 @@ private:
 void inline MultiplierModule::addParams() {
     this->configParam(Comp::MULT_PARAM, 1, 4, 1, "Multiply amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
-    this->configParam(Comp::RATCHET_1_COUNT_PARAM, 1, 16, 4, "Schema");
+    this->configParam(Comp::RATCHET_1_COUNT_PARAM, 1, 16, 4, "Ratchet count");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::RATCHET_1_TRIGGER_INPUT, "Ratchet Trigger 1");

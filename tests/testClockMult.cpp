@@ -27,15 +27,6 @@ static int clockAndCountOutput(ClockMult& c, int lowPeriod, bool sendInitialHigh
     return count;
 }
 
-#if 0
-static int clockAndCountOutput(ClockMult& c, int lowPeriod, int periods) {
-    int count = 0;
-    for (int i = 0; i < periods; ++i) {
-        count += clockAndCountOutput(c, lowPeriod);
-    }
-    return count;
-}
-#endif
 
 static void testMulThree() {
     SQINFO("testMulThree");
@@ -70,7 +61,7 @@ static void testMul1() {
 static void testMul2() {
     ClockMult c;
     c.setMul(2);
- 
+
     // prime the clock with hi + 9 lo + hi
     auto count = clockAndCountOutput(c, 9, true);
     assertEQ(count, 0);  // no clocks during prime
@@ -94,13 +85,12 @@ static void testMul2() {
     assert(b);
 }
 
-
 // input is 10 period, mul is 2.6,
 // so we should output period 4
 static void testMul2p5() {
     ClockMult c;
     c.setMul(2.5);
- 
+
     // prime the clock with hi + 9 lo + hi
     auto count = clockAndCountOutput(c, 9, true);
     assertEQ(count, 0);  // no clocks during prime
@@ -108,11 +98,11 @@ static void testMul2p5() {
     assert(b);
 
     // now we should be at 2.5
-    for (int i=0; i<20; ++i) {
+    for (int i = 0; i < 20; ++i) {
         const bool sendClock = (i == 9);
         const bool b = c.run(sendClock);
         bool expectOutput = false;
-        switch(i) {
+        switch (i) {
             // output period 4
             case 3:
             case 7:
@@ -123,6 +113,24 @@ static void testMul2p5() {
         }
         assertEQ(b, expectOutput);
     }
+}
+
+static void testRatchet() {
+    ClockMult c;
+    c.setMul(1);
+
+    // prime the clock with hi + 9 lo + hi
+    auto count = clockAndCountOutput(c, 9, true);
+    assertEQ(count, 0);  // no clocks during prime
+
+    // now one high and 9 low
+    count = clockAndCountOutput(c, 9, true);
+    assertEQ(count, 1);
+
+    // ratchet works if you set the mult before the clock hi.s
+    c.setMul(5);
+    count = clockAndCountOutput(c, 9, true);   
+    assertEQ(count, 5);
 }
 
 class TestClockMult {
@@ -213,7 +221,7 @@ public:
 
         assertEQ(c._currentTime._clocks, 0);
         assertEQ(c._currentTime._samples, 9);
-        
+
         // bool b = c.run(true);
         // assert(b);
         // count = clockAndCountOutput(c, lowPeriod, false);
@@ -238,4 +246,5 @@ void testClockMult() {
     testMul1();
     testMul2();
     testMul2p5();
+    testRatchet();
 }
