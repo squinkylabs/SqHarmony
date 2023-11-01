@@ -46,8 +46,8 @@ public:
       //  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel2.svg")));
       setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(20, 6), "Phase Patterns", 18);
-        addLabel(Vec(28, 355), "Squinkytronix", 16);
+        addLabel(Vec(20, 6), "Phase Patterns", 16);
+        addLabel(Vec(26, 358), "Squinkytronix", 15);
 
 #endif
         addControls(module);
@@ -67,19 +67,19 @@ private:
         }
     }
     void addControls(PhasePatternsModule* module) {
-        auto param = createParam<RoundBigBlackKnob>(Vec(40, 131), module, Comp::SHIFT_PARAM);
+        auto param = createParam<RoundBigBlackKnob>(Vec(38, 131), module, Comp::SHIFT_PARAM);
         addParam(param);
 #ifdef _LAB
-        addLabel(Vec(42, 107), "Shift");
+        addLabel(Vec(44, 107), "Shift");
 #endif
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(75, 193),
+            Vec(70, 193),
             module,
             Comp::RIB_BUTTON_PARAM,
             Comp::RIB_LIGHT)
         );
 
-        _shiftDisplay = addLabel(Vec(90, 190), "");
+        _shiftDisplay = addLabel(Vec(80, 190), "");
     }
     void addIO(PhasePatternsModule* module) {
             addInput(createInput<PJ301MPort>(Vec(13, 300), module, Comp::CK_INPUT));
@@ -89,8 +89,7 @@ private:
 
 #ifdef _LAB
     Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
-             NVGcolor white = nvgRGB(0xf0, 0xf0, 0xf0);
-          //  NVGcolor white = nvgRGB(1.0, 1.0, 1.0);
+             NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
             Label* label = new Label();
             auto adjustedPos = v;
             adjustedPos.x -= 1.5f * str.size();
