@@ -46,8 +46,8 @@ public:
       //  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel2.svg")));
       setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(22, 12), "Phase Patterns", 16);
-        addLabel(Vec(24, 340), "Squinkytronix", 16);
+        addLabel(Vec(20, 6), "Phase Patterns", 18);
+        addLabel(Vec(28, 355), "Squinkytronix", 16);
 
 #endif
         addControls(module);
@@ -89,14 +89,14 @@ private:
 
 #ifdef _LAB
     Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
-            // NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
-            NVGcolor black = nvgRGB(0, 0, 0);
+             NVGcolor white = nvgRGB(0xf0, 0xf0, 0xf0);
+          //  NVGcolor white = nvgRGB(1.0, 1.0, 1.0);
             Label* label = new Label();
             auto adjustedPos = v;
             adjustedPos.x -= 1.5f * str.size();
             label->box.pos = adjustedPos;
             label->text = str;
-            label->color = black;
+            label->color = white;
             label->fontSize = fontSize;
             addChild(label);
             return label;
