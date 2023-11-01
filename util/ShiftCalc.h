@@ -14,7 +14,6 @@ public:
     float get() const;
     bool busy() const;
 
-
     /**
      * @brief set up to generate a shift what will go from 0 to 1 in 8 periods.
      *  Triggers ignored if already triggered.
@@ -22,8 +21,6 @@ public:
      * @param periodOfClock 
      */
     void trigger(int periodOfClock);
-
-
 private:
     double _acc = 0;        // Accumulates over one "shift session".
     double _delta = 0;
@@ -35,7 +32,6 @@ inline float ShiftCalc::go() {
         _acc += _delta;
         if (_acc >= 1) {
             _acc = 1;
-         //   _masterAccumulator += _acc;
             _delta = 0;
         }
     }
@@ -49,6 +45,7 @@ inline float ShiftCalc::get() const {
 inline bool ShiftCalc::busy() const {
     return _delta > 0;
 }
+
 inline void ShiftCalc::trigger(int periodOfClock) {
     if (busy()) {
         return;             // ignore triggers while running

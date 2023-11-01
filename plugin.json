@@ -28,12 +28,6 @@
 			"name": "Phasepatterns",
 			"disabled": false,
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/additive.md"
-		},
-		{
-			"slug": "sqh-mult",
-			"name": "Multiplier",
-			"disabled": false,
-			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/additive.md"
 		}
     ]
 }
