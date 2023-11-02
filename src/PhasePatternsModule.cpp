@@ -42,7 +42,6 @@ class PhasePatternsWidget : public ModuleWidget {
 public:
     PhasePatternsWidget(PhasePatternsModule* module) {
         setModule(module);
-        //  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel2.svg")));
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
         addLabel(Vec(20, 6), "Phase Patterns", 16);
