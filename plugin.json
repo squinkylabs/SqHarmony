@@ -2,7 +2,7 @@
 	"slug": "squinktronix-plug1",
 	"name": "Squinktronix",
 	"author": "Squinktronix",
-    "version": "2.1.0",
+    "version": "2.2.0",
 	"manualUrl": "https://github.com/squinkylabs/SqHarmony/README.md",
 	"sourceUrl": "https://github.com/squinkylabs/SqHarmony",
 	"changelogUrl": "https://github.com/squinkylabs/SqHarmon/CHANGELOG.md",
@@ -27,7 +27,7 @@
 			"slug": "sqh-phasepatterns",
 			"name": "Phasepatterns",
 			"disabled": false,
-			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/additive.md"
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/phasepatterns.md"
 		}
     ]
 }
