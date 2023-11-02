@@ -46,7 +46,7 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank_panel2.svg")));
 #ifdef _LAB
         addLabel(Vec(35, 12), "Multiplier", 16);
-        addLabel(Vec(24, 340), "Squinkytronix", 16);
+        addLabel(Vec(24, 340), "Squinktronix", 16);
 
 #endif
         addControls(module);
