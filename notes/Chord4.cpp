@@ -29,7 +29,7 @@ Chord4::Chord4(const Options& options, int nRoot) : root(nRoot) {
         _notes.push_back(HarmonyNote(options));
     }
     assert(_notes.size() == CHORD_SIZE);
-    // now _notes has 4 notes, they are all the same path - the min pitch specificied by the style
+    // now _notes has 4 notes, they are all the same path - the min pitch specified by the style
 
     for (int index = 0; index < CHORD_SIZE; index++) {
         while (_notes[index] < options.style->absMinPitch()) {

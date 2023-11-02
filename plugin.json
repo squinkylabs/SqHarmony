@@ -1,5 +1,5 @@
 {
-	"slug": "squinkytronix-plug1",
+	"slug": "squinktronix-plug1",
 	"name": "Squinktronix",
 	"author": "Squinktronix",
     "version": "2.1.0",
@@ -19,15 +19,15 @@
 			"slug": "sqh-arpeggiator1",
 			"name": "Arpeggiator 1",
 			"description": "Arpeggiator",
+
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/arpeggiator.md",
 			"tags": ["Arpeggiator", "Polyphonic"]
 		},
 		{
-			"slug": "sqh-additive",
-			"name": "Additive Synth",
-			"description": "Additive",
-			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/additive.md",
-			"tags": ["Oscillator", "Polyphonic"]
+			"slug": "sqh-phasepatterns",
+			"name": "Phasepatterns",
+			"disabled": false,
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/additive.md"
 		}
     ]
 }

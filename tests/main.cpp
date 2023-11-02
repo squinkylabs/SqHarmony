@@ -35,6 +35,18 @@ extern void testSines();
 extern void testAdditive();
 extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
+extern void testFreqMeasure();
+extern void testResettablePhaseAccumulator();
+extern void testOneShot();
+extern void testPhasePatterns();
+extern void testOneShotSampleTimer();
+extern void testClockShifter3();
+extern void testShiftMath();
+extern void testSchmidtTrigger();
+extern void testShiftCalc();
+extern void testClockMult();
+extern void testMultiplier();
+extern void testRatchet();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -42,6 +54,21 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    testSchmidtTrigger();
+    testShiftMath();
+    testOneShot();
+    testOneShotSampleTimer();
+    testResettablePhaseAccumulator();
+    testFreqMeasure();
+    testShiftCalc();
+    testClockShifter3();
+    testPhasePatterns();
+    testClockMult();
+    testMultiplier();
+    testRatchet();
+    printf("XX: leaving early for clock stuff");
+
+    std::exit(0);
     testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();
@@ -57,7 +84,6 @@ int main(const char**, int) {
     testArpegPlayer();
     testArpegRhythmPlayer();
     testArpegComposite();
-
 #if 1
     testNotes();
     testScale();

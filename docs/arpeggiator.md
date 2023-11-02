@@ -41,7 +41,7 @@ The most dramatic, and also typical control is the **Mode** control. But there a
 * **Arpeggiator Mode** - A drop-down menu will open if you click on this control. This will reveal a menu with all the different arpeggiator modes, explained above. After you select one the menu closes and a shortened version of the mode name is shown (to save space).
 * **Hold** - A switch. When Hold is active notes will accumulate in the arpeggiator, and a falling gate will not remove the note. To clear the arpeggiator, turn *Hold* off and the notes will stop.
 * **Beats** - Sets the playback repetitions. When zero, does nothing. Other settings will determine the perceived number of beats in the output.
-* **Notes** - Sets the size of the input buffer. If the Notes knob is all way left, it's not limited (actually limited to 32) but other settings will only keep that many input sample.
+* **Notes** - Sets the size of the input buffer. If the Notes knob is all way left, it's not limited (actually limited to 32) but other settings will only keep that many input samples.
 
 **Beats** and **Notes** are explained more in the [Rhythm](More-about-rhythms) section.
 
@@ -64,14 +64,14 @@ The most dramatic, and also typical control is the **Mode** control. But there a
 
 ## Voltage Levels
 
-All on/off inputs, like Gate, Clock, Reset, etc... are schmidt triggers with hysteresis to clean up the input. They turn on when the input goes above 1.6 volts, and turn off when the voltage goes below .8 volts. All on/off outputs are 0 when off and 10 when on.
+All on/off inputs, like Gate, Clock, Reset, etc... are schmidt triggers with hysteresis to clean up the input. They turn on when the input goes above 1.0 volts, and turn off when the voltage goes below .1 volts, as per the VCV standard. All on/off outputs are 0 when off and 10 when on.
 
 ## Context Menu
 
-* **Reset mode II** - When this is off the reset input will use the "standard" reset protocol (high voltage holds arpeggiator in reset). When this is on, will use "Nord" reset. A low to high transition on the reset will "cue up" reset, but the reset will not happen until the next clock".
-* **Gate+Clock Delay**. Inserts a 5 sample delay in front of the gate input, and a 10 sample delay in front of the clock. This helps avoid issue where the CV gets delayed by a couple of sampled because it is patched through some. If it's off, CV is sampled right when the corresponding gate goes high.
+* **Reset mode II** - When this is off the reset input will use the "standard" reset protocol (high voltage holds arpeggiator in reset). When this is on, will use "Nord" reset. A low to high transition on the reset will "cue up" reset, but the reset will not happen until the next clock. The next clock will not be treated as a clock signal.
+* **Gate+Clock Delay**. Inserts a 5 sample delay in front of the gate input, and a 10 sample delay in front of the clock. This helps avoid issue where the CV gets delayed by a couple of samples because it is patched through some module. If it's off, CV is sampled right when the corresponding gate goes high.
 
-Gate+Clock Delay can also help in patches that don't use a keybord, but instead click in pitches under clock control.
+Gate+Clock Delay can also help in patches that don't use a keyboard, but instead click in pitches under clock control.
 
 ## More about rhythms
 
@@ -95,7 +95,7 @@ If the input is longer than the **Beats** setting, then only the first notes wil
 
 The Notes setting can really be useful when the hold switch is on. When hold is on, all the notes you enter are accumulated, up to the last 32 notes. If you set length to a lower number 'n', only the last 'n' notes will be held.
 
-And, remember, when length is at its far right "zero" setting, it is really something very large, like 32.
+And, remember, when length is at its far left (counter clockwise) "zero" setting, it is really something very large, like 32.
 
 ## More about clock and gate delay
 
@@ -103,7 +103,7 @@ Many modules have a "gate delay" feature. Often it's on by default. Consider thi
 
 * A "synth" module will "play" a note when the gate goes high.
 * For some synths, the pitch CV is only sampled when the note starts (when the gate goes high).
-* Gate and CV with both change on the same sample at the output of the MIDI-CV module.
+* Gate and CV will both change on the same sample at the output of the MIDI-CV module.
 * It the user patches something to modify the pitch, like the VCV Octave module, it sill add a one sample delay to the pitch CV.
 
 In this case the correct pitch comes in one sample after the gate. So a synth module like this would capture then wrong CV, and the user would need to a) realize this, and b) find a one sample delay and patch that into the gate signal to equalize the delays.
@@ -114,7 +114,7 @@ With Arpeggiator it's a little more complicated. Arpeggiator does sample the inp
 
 For this reason, Arpeggiator has "Gate+Clock Delay". What this does is delay the gate input by 5 sample, but also delays the clock input by 10 samples. This will tend to correct for any mismatched delays between the three signals.
 
-Because the is a new feature, it is off by default in Arpeggiator. But if anything wonky happens, turn it on. It may fix it and is unlikely to hurt anything.
+Because this is a new feature, it is off by default in Arpeggiator. But if anything wonky happens, turn it on. It may fix it and is unlikely to hurt anything.
 
 ## More about reset and clock
 
@@ -124,13 +124,13 @@ Arpeggiator supports two different "standards", *classic* reset and *Nord* reset
 
 In classic reset, reset happens as soon as the reset line goes high. Any clocks that come in then or within one millisecond are ignored. The implementation in Arpeggiator only resets on the initial edge of the reset line, holding reset high will not keep Arpeggiator in reset (although maybe it should).
 
-In "Reset mode II", the low to high transition of the reset line does not cause an immediate reset. Instead, a reset is queued up, but does not execute until the next clock. This way, reset is perfectly synchronized with the clock, and there is no ambiguity about which clocks should be honored or ignored. No clocks are ignored in this mode.
+In "Reset mode II", the low to high transition of the reset line does not cause an immediate reset. Instead, a reset is queued up, but does not execute until the next clock. This way, reset is perfectly synchronized with the clock, and there is no ambiguity about which clocks should be honored or ignored. No clocks are ignored in this mode, except of course the clock that is acting as a reset.
 
 This reset mode is often called "Nord mode" because it is how the original Nord Modular synth handled reset.
 
 ## Block diagram
 
-Aside from being nice looking, it may help understand what's going in. For one thing, you can see that the not buffer holds all the recent notes/voltages that were input. And that input of data is controlled only by CV and Gate. That is all totally independent of the arpeggiation, which is applied as data is copied from the note buffer to the playback buffer. There data is played over and over until something happens to make Arpeggiator copy from the note buffer again.
+Aside from being nice looking, it may help understand what's going in. For one thing, you can see that the note buffer holds all the recent notes/voltages that were input. And that input of data is controlled only by CV and Gate. That is all totally independent of the arpeggiation, which is applied as data is copied from the note buffer to the playback buffer. There data is played over and over until something happens to make Arpeggiator copy from the note buffer again.
 
 You can also see the reset logic only resets the playback buffer, it does not effect the note buffer.
 ![Arpeggiator block diagram](./arpeggiator.svg)

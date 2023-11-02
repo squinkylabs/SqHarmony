@@ -46,7 +46,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>true</EnableASAN>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -54,7 +54,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>true</EnableASAN>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -173,15 +173,24 @@
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
+    <ClCompile Include="testClockMult.cpp" />
+    <ClCompile Include="testClockShifter3.cpp" />
+    <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
+    <ClCompile Include="testMultiplier.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
     <ClCompile Include="testChord.cpp" />
     <ClCompile Include="testChordRelativeNote.cpp" />
     <ClCompile Include="testHarmonyComposite.cpp" />
     <ClCompile Include="testKeysig.cpp" />
+    <ClCompile Include="testOneShot.cpp" />
+    <ClCompile Include="testOneShotSampleTimer.cpp" />
+    <ClCompile Include="testPhasePatterns.cpp" />
     <ClCompile Include="testProgressions.cpp" />
+    <ClCompile Include="testRatchet.cpp" />
+    <ClCompile Include="testResettablePhaseAccumulator.cpp" />
     <ClCompile Include="testRingBuffer.cpp" />
     <ClCompile Include="testScale.cpp" />
     <ClCompile Include="testScaleNotes.cpp" />
@@ -191,8 +200,11 @@
     <ClCompile Include="testHarmonySong.cpp" />
     <ClCompile Include="testNotes.cpp" />
     <ClCompile Include="testScaleRelativeNote.cpp" />
+    <ClCompile Include="testSchmidtTrigger.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
+    <ClCompile Include="testShiftCalc.cpp" />
+    <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testTempo.cpp" />
   </ItemGroup>
@@ -202,6 +214,7 @@
     <ClInclude Include="..\notes\HarmonyNote.h" />
     <ClInclude Include="..\notes\PitchKnowledge.h" />
     <ClInclude Include="..\notes\Style.h" />
+    <ClInclude Include="..\util\FreqMeasure.h" />
     <ClInclude Include="..\util\gray_code\GcUtils.h" />
     <ClInclude Include="..\util\quant\Scale.h" />
     <ClInclude Include="..\util\quant\ScaleNote.h" />

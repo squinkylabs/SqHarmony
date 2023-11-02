@@ -21,7 +21,7 @@ public:
                     chords.clear();
                     assert(chords.empty());
                     assert(!isValid());
-                    SQINFO("chord4manager init failed");
+                    // SQINFO("chord4manager init failed");
                     return;
                 }
                 chords.push_back(newChord);
