@@ -3,21 +3,21 @@
 	"name": "Squinktronix",
 	"author": "Squinktronix",
     "version": "2.2.0",
-	"manualUrl": "https://github.com/squinkylabs/SqHarmony/README.md",
+	"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/README.md",
 	"sourceUrl": "https://github.com/squinkylabs/SqHarmony",
-	"changelogUrl": "https://github.com/squinkylabs/SqHarmon/CHANGELOG.md",
+	"changelogUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/CHANGELOG.md",
 	"modules":
 	[
 		{
 			"slug": "sqh-harmony1",
-			"name": "Harmony 1",
+			"name": "Harmony",
 			"description": "Harmony Generator",
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/harmony.md",
 			"tags": []
 		},
 		{
 			"slug": "sqh-arpeggiator1",
-			"name": "Arpeggiator 1",
+			"name": "Arpeggiator",
 			"description": "Arpeggiator",
 
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/arpeggiator.md",
@@ -25,7 +25,7 @@
 		},
 		{
 			"slug": "sqh-phasepatterns",
-			"name": "Phasepatterns",
+			"name": "Phase Patterns",
 			"disabled": false,
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/phasepatterns.md"
 		}

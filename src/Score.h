@@ -199,7 +199,7 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     chords.push_back(ch);
     chords.push_back(ch);
 #else
-    if (!module) {
+ //   if (!module) {
         Comp::Chord c;
         c.inversion = 0;
         c.root = 1;
@@ -264,7 +264,8 @@ inline Score::Score(Harmony1Module *m) : module(m) {
         c.pitch[2] = 72;
         c.pitch[3] = 76;
         chords.push_back(c);
-    }
+        SQINFO("ctor of score, have %lld", chords.size());
+  //  }
 
 #endif
 }
@@ -282,6 +283,7 @@ inline void Score::step() {
                 }
                 // SQINFO("pop chord now %d", chords.size());
             }
+             SQINFO("Score added chord, now are %lld", chords.size());
         }
     }
 #endif

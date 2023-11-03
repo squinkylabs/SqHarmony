@@ -6,7 +6,7 @@ There are thee unfinished modules here:
 
 [Arpeggiator](./docs/arpeggiator.md) is an Arpeggiator with a lot of features. It also also nearly ready for release
 
-[Phasepatterns](./docs/phasepatterns.md) is a clock delay unit, with a delay ramp easily accessible.
+[Phase Patterns](./docs/phasepatterns.md) is a clock delay unit, with a delay ramp easily accessible.
 
 Follow the links, above, to learn more about each module.
 

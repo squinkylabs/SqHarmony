@@ -1,5 +1,23 @@
 # Changelog for Squinktronix plugins
 
+## 2.2.1
+
+Made initial fake score in Harmony Stay up.
+
+Changed the name of Phasepatterns to Phase Patterns.
+
+Fixed broken links to CHANGELOG.
+
+## 2.2.0
+
+New release for test.
+
+New test plugin: Phase Patterns.
+
+## 2.1.0
+
+Finished beta 1 testing
+
 ## 2.0.5
 
 Clock+Gate delay for Arpeggiator.
