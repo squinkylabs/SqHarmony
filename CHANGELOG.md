@@ -2,6 +2,8 @@
 
 ## 2.2.1
 
+Phase Patterns uses correct font on the panel.
+
 Made initial fake score in Harmony Stay up.
 
 Changed the name of Phasepatterns to Phase Patterns.
