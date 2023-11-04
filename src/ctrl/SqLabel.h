@@ -58,8 +58,6 @@ public:
         return _isDirty;
     };
 
-    Widget* _hackParent = nullptr;
-
 private:
     bool _isDirty = true;
 };
@@ -70,15 +68,6 @@ inline void SqLabel::updateText(const std::string& s) {
 }
 
 inline void SqLabel::draw(const DrawArgs& args) {
-    //	float x = 0;		// text alignment stuff.
-
-    SQINFO("sqlabx draw this=%p, text=%s", this, this->text.c_str());
-    //   INFO("----- draw %p, chords=%d", this, int(chords.size()));
-    INFO("----- pos=%f, %f size=%f, %f", box.pos.x, box.pos.y, box.size.x, box.size.y);
-    if (_hackParent) {
-        INFO("----- hack p: pos=%f, %f size=%f, %f", _hackParent->box.pos.x, _hackParent->box.pos.y, _hackParent->box.size.x, _hackParent->box.size.y);
-    }
-
     std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
     if (!font) {
         SQWARN("no font");
@@ -87,26 +76,9 @@ inline void SqLabel::draw(const DrawArgs& args) {
     nvgFontFaceId(args.vg, font->handle);
 
     nvgTextLineHeight(args.vg, lineHeight);
-
-    // nvgDrawText();
-    // NVGcolor colorActual = (color.a > 0.f) ? color : bndGetTheme()->regularTheme.textColor;
-    // bndIconLabelValue(args.vg, x, 0.0, box.size.x, box.size.y, -1, colorActual, BND_LEFT, fontSize, text.c_str(), NULL);
-
     nvgFillColor(args.vg, color);  // is this needed? background or font?
                                    //	nvgText(args.vg, box.pos.x, box.pos.y, text.c_str(), NULL);
-    nvgText(args.vg, 8, 16, text.c_str(), NULL);
-    // SQINFO("draw, lineh=%f, x=%f, y=%f, text=>%s<", lineHeight, box.pos.x, box.pos.y, text.c_str());
-    // SQINFO("size = %f, %f", box.size.x, box.size.y);
+    nvgText(args.vg, 8, 16, text.c_str(), NULL);;
     _isDirty = false;
-    SQINFO("leave draw, dirty = %d", _isDirty);
 }
 
-template <class T>
-inline void BufferingParent<T>::_setHackParent(Widget* childWidget) {
-    INFO("_setHackParent");
-    SqLabel* pscore = dynamic_cast<SqLabel*>(childWidget);
-    if (pscore) {
-        INFO("cast ok");
-        pscore->_hackParent = this;
-    }
-}

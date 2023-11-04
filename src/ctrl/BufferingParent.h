@@ -32,18 +32,11 @@ public:
         this->addChild(_frameBufferWidget);
         _frameBufferWidget->addChild(childWidget);
         _dirtyDetector = dd;
-
-        _setHackParent(childWidget);
-
-        INFO("fw pos=%f, %f size=%f, %f", _frameBufferWidget->box.pos.x, _frameBufferWidget->box.pos.y, _frameBufferWidget->box.size.x, _frameBufferWidget->box.size.y);
-        INFO("----- ctor pos=%f, %f size=%f, %f", box.pos.x, box.pos.y, box.size.x, box.size.y);
     }
 
     T *getChild() {
         return _theWrappedChild;
     }
-
-    void _setHackParent(Widget *childWidget);
 
     void step() override {
         //   SQINFO("BufferingParent::step. this=%p", this);
