@@ -30,6 +30,7 @@ public:
      * @param dd usually will be childWidget, and childWidget will implement Dirty
      */
     BufferingParent(Widget *childWidget, const Vec size, Dirty *dd) {
+        INFO("buffering parent ctor with size=%f, %f", size.x, size.y);
         this->box.size = size;
         childWidget->box.size = size;
         dbg = childWidget;
@@ -37,13 +38,23 @@ public:
         this->addChild(fw);
         fw->addChild(childWidget);
         dirtyDetector = dd;
+
+     //   Score* sc = dynamic_cast<Score *>(childWidget);
+     //   childWidget->_hackParent = fw;
+        _setHackParent(childWidget);
+        INFO("fw pos=%f, %f size=%f, %f", fw->box.pos.x, fw->box.pos.y, fw->box.size.x, fw->box.size.y);
     }
 
+    void _setHackParent(Widget *childWidget);
+
+    bool _didPrint = false;
     void step() override {
         Widget::step();
-        if (dirtyDetector && dirtyDetector->isDirty()) {
+        if (dirtyDetector && dirtyDetector->isDirty() && !_didPrint) {
             fw->dirty = true;
-            // SQINFO("set dirty true 46");
+            SQINFO("set dirty true 46");
+            INFO("BP::step pos=%f, %f size=%f, %f", box.pos.x, box.pos.y, box.size.x, box.size.y);
+            _didPrint = true;
         }
     }
 
@@ -56,11 +67,16 @@ private:
 
 class Score : public app::LightWidget, public Dirty {
 public:
+    Widget * _hackParent = nullptr;
     Score(Harmony1Module *);
     void step() override;
     void draw(const DrawArgs &args) override;
     //   void drawLayer(const DrawArgs &args, int layer) override;
     bool isDirty() const override {
+        if (scoreIsDirty) {
+            INFO("score reporting back dirty");
+            INFO("score pos=%f,%f. size=%f, %f", box.pos.x, box.pos.y, box.size.x, box.size.y);
+        }
         return scoreIsDirty;
     }
 
@@ -264,7 +280,7 @@ inline Score::Score(Harmony1Module *m) : module(m) {
         c.pitch[2] = 72;
         c.pitch[3] = 76;
         chords.push_back(c);
-        SQINFO("ctor of score, have %lld", chords.size());
+        SQINFO("ctor of score, have %lld chords", chords.size());
   //  }
 
 #endif
@@ -274,6 +290,7 @@ inline void Score::step() {
 #ifndef _TESTCHORD
     if (module) {
         if (module->isChordAvailable()) {
+            SQINFO("score setting scoreIsDirty");
             scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
@@ -387,7 +404,10 @@ inline void Score::drawLayer(const DrawArgs &args, int layer) {
 
 inline void Score::draw(const DrawArgs &args) {
     // INFO("Score::draw clip=szx %f, szy %f, %f, %f", args.clipBox.size.x, args.clipBox.size.y, args.clipBox.pos.x, args.clipBox.pos.y);
-    INFO("----- in draw %p, chords=%d", this, int(chords.size()));
+    INFO("----- in score::draw %p, chords=%d", this, int(chords.size()));
+    INFO("----- score pos=%f, %f size=%f, %f", box.pos.x, box.pos.y, box.size.x, box.size.y);
+    INFO("----- score  hack p: pos=%f, %f size=%f, %f", _hackParent->box.pos.x,  _hackParent->box.pos.y,_hackParent->box.size.x,  _hackParent->box.size.y);
+
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const float width = drawMusicNonNotes(args);
     drawNotes(args, width);
@@ -605,4 +625,14 @@ void Score::prepareFontText(const DrawArgs &args) const {
     // int f = APP->window->uiFont->handle;
     nvgFontFaceId(args.vg, APP->window->uiFont->handle);
     nvgFontSize(args.vg, 7);  // TODO: use our own font?
+}
+
+
+inline void BufferingParent::_setHackParent(Widget *childWidget) {
+    INFO("_setHackParent");
+    Score* pscore = dynamic_cast<Score*>(childWidget);
+    if (pscore) {
+        INFO("cast ok");
+        pscore->_hackParent = this;
+    }
 }

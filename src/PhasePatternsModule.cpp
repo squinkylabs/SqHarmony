@@ -7,6 +7,7 @@
 #include "WidgetComposite.h"
 #include "plugin.hpp"
 #include "SqLabel.h"
+#include "BufferingParent.h"
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
@@ -46,9 +47,9 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(20, 6), "Phase Patterns", 16);
-        addLabel(Vec(26, 358), "Squinktronix", 15);
-
+    SQINFO("will now call addLabel to make new guy");
+      addLabel(Vec(20, 6), "Phase Patterns", 18);
+      addLabel(Vec(26, 358), "Squinktronix", 16);
 #endif
         addControls(module);
         addIO(module);
@@ -60,17 +61,20 @@ private:
     void step() override {
         ModuleWidget::step();
         if (module) {
-            const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
-            std::stringstream str;
-            str << std::setprecision(3) << shift;
-            _shiftDisplay->text = str.str();
+           // SQINFO("in phase p step sd=%p", _shiftDisplay);
+            if (_shiftDisplay) {
+                const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
+                std::stringstream str;
+                str << std::setprecision(3) << shift;
+                _shiftDisplay->text = str.str();
+            }
         }
     }
     void addControls(PhasePatternsModule* module) {
         auto param = createParam<RoundBigBlackKnob>(Vec(38, 131), module, Comp::SHIFT_PARAM);
         addParam(param);
 #ifdef _LAB
-        addLabel(Vec(46, 107), "Shift");
+       addLabel(Vec(46, 107), "Shift");
 #endif
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
             Vec(52, 193),
@@ -78,7 +82,8 @@ private:
             Comp::RIB_BUTTON_PARAM,
             Comp::RIB_LIGHT));
 
-        _shiftDisplay = addLabel(Vec(38, 210), "");
+        INFO("shift display nimp");
+       // _shiftDisplay = addLabel(Vec(38, 210), "");
     }
 
     void addIO(PhasePatternsModule* module) {
@@ -96,7 +101,37 @@ private:
         addLabel(Vec(79, jackY-dL), "CkOut");
     }
 
-#ifdef _LAB
+    /**
+     * @brief 
+     * 
+     * @param v is the position, panel relative
+     * @param str text to display
+     * @param fontSize 
+     * @return BufferingParent<SqLabel>* 
+     */
+    BufferingParent<SqLabel>* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
+
+        // This "max size" is lame - do something better;
+        const Vec size(200, 20);
+        SqLabel* lp = new SqLabel();
+        widget::Widget* labWidget = lp;
+        Dirty* labDirty = lp;
+        BufferingParent<SqLabel>* parent = new BufferingParent<SqLabel>(labWidget, size, labDirty);
+        
+        NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
+        auto adjustedPos = v;
+        adjustedPos.x -= 1.5f * str.size();
+        lp->box.pos = adjustedPos;
+        lp->text = str;
+        lp->color = white;
+        lp->fontSize = fontSize;
+
+        addChild(parent);
+        return parent;
+    }
+
+   // Lab* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
+#ifdef _LABold
     Lab* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
         NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
       //  Label* label = new Label();
