@@ -6,8 +6,10 @@
 #include "SqLog.h"
 #include "WidgetComposite.h"
 #include "plugin.hpp"
+#include "SqLabel.h"
 
 using Comp = PhasePatterns<WidgetComposite>;
+using Lab = SqLabel;
 
 class PhasePatternsModule : public rack::engine::Module {
 public:
@@ -53,14 +55,14 @@ public:
     }
 
 private:
-    Label* _shiftDisplay = nullptr;
+    Lab* _shiftDisplay = nullptr;
 
     void step() override {
         ModuleWidget::step();
         if (module) {
             const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
             std::stringstream str;
-            str << std::setprecision(3) << shift << std::endl;
+            str << std::setprecision(3) << shift;
             _shiftDisplay->text = str.str();
         }
     }
@@ -78,6 +80,7 @@ private:
 
         _shiftDisplay = addLabel(Vec(38, 210), "");
     }
+
     void addIO(PhasePatternsModule* module) {
         const int a = 13;
         const int b = 85;
@@ -94,9 +97,11 @@ private:
     }
 
 #ifdef _LAB
-    Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
+    Lab* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
         NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
-        Label* label = new Label();
+      //  Label* label = new Label();
+        Lab* label = new Lab();
+
         auto adjustedPos = v;
         adjustedPos.x -= 1.5f * str.size();
         label->box.pos = adjustedPos;

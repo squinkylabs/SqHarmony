@@ -14,6 +14,8 @@ New release for test.
 
 New test plugin: Phase Patterns.
 
+Fixed spelling error in module slug.
+
 ## 2.1.0
 
 Finished beta 1 testing
