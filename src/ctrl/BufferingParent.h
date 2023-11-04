@@ -3,7 +3,6 @@
 
 #include "rack.hpp"
 
-
 // This is an interface that clients need to implement.
 class Dirty {
 public:
@@ -24,7 +23,7 @@ public:
      * @param size the size at which to create/set
      * @param dd usually will be childWidget, and childWidget will implement Dirty
      */
-    BufferingParent(Widget* childWidget, const Vec size, Dirty *dd) {
+    BufferingParent(T *childWidget, const Vec size, Dirty *dd) {
         INFO("buffering parent ctor with size=%f, %f", size.x, size.y);
         this->box.size = size;
         childWidget->box.size = size;
@@ -34,20 +33,20 @@ public:
         _frameBufferWidget->addChild(childWidget);
         _dirtyDetector = dd;
 
-         _setHackParent(childWidget);
+        _setHackParent(childWidget);
 
-         INFO("fw pos=%f, %f size=%f, %f", _frameBufferWidget->box.pos.x, _frameBufferWidget->box.pos.y, _frameBufferWidget->box.size.x, _frameBufferWidget->box.size.y);
-
-
+        INFO("fw pos=%f, %f size=%f, %f", _frameBufferWidget->box.pos.x, _frameBufferWidget->box.pos.y, _frameBufferWidget->box.size.x, _frameBufferWidget->box.size.y);
         INFO("----- ctor pos=%f, %f size=%f, %f", box.pos.x, box.pos.y, box.size.x, box.size.y);
-       // INFO("----- ctor  hack p: pos=%f, %f size=%f, %f", _hackParent->box.pos.x,  _hackParent->box.pos.y,_hackParent->box.size.x,  _hackParent->box.size.y);
+    }
 
+    T *getChild() {
+        return _theWrappedChild;
     }
 
     void _setHackParent(Widget *childWidget);
 
     void step() override {
-     //   SQINFO("BufferingParent::step. this=%p", this);
+        //   SQINFO("BufferingParent::step. this=%p", this);
         Widget::step();
         if (_dirtyDetector && _dirtyDetector->isDirty()) {
             _frameBufferWidget->dirty = true;
@@ -57,7 +56,7 @@ public:
 
 private:
     bool _ownsChild = true;
-    Widget* _theWrappedChild;
+    T *_theWrappedChild;
     FramebufferWidget *_frameBufferWidget = nullptr;
     Dirty *_dirtyDetector = nullptr;
 };

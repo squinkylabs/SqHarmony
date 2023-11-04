@@ -56,8 +56,9 @@ public:
     }
 
 private:
-    Lab* _shiftDisplay = nullptr;
 
+    BufferingParent<SqLabel>* _shiftDisplay = nullptr;
+ 
     void step() override {
         ModuleWidget::step();
         if (module) {
@@ -66,7 +67,10 @@ private:
                 const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
                 std::stringstream str;
                 str << std::setprecision(3) << shift;
-                _shiftDisplay->text = str.str();
+
+                SqLabel* label = _shiftDisplay->getChild();
+               // label->text = str.str();
+               label->updateText(str.str());
             }
         }
     }
@@ -82,8 +86,8 @@ private:
             Comp::RIB_BUTTON_PARAM,
             Comp::RIB_LIGHT));
 
-        INFO("shift display nimp");
-       // _shiftDisplay = addLabel(Vec(38, 210), "");
+   
+       _shiftDisplay = addLabel(Vec(38, 210), "");
     }
 
     void addIO(PhasePatternsModule* module) {
@@ -114,9 +118,7 @@ private:
         // This "max size" is lame - do something better;
         const Vec size(200, 20);
         SqLabel* lp = new SqLabel();
-        widget::Widget* labWidget = lp;
-        Dirty* labDirty = lp;
-        BufferingParent<SqLabel>* parent = new BufferingParent<SqLabel>(labWidget, size, labDirty);
+        BufferingParent<SqLabel>* parent = new BufferingParent<SqLabel>(lp, size, lp);
         
         NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
         auto adjustedPos = v;
@@ -129,24 +131,6 @@ private:
         addChild(parent);
         return parent;
     }
-
-   // Lab* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
-#ifdef _LABold
-    Lab* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
-        NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
-      //  Label* label = new Label();
-        Lab* label = new Lab();
-
-        auto adjustedPos = v;
-        adjustedPos.x -= 1.5f * str.size();
-        label->box.pos = adjustedPos;
-        label->text = str;
-        label->color = white;
-        label->fontSize = fontSize;
-        addChild(label);
-        return label;
-    }
-#endif
 };
 
 Model* modelPhasePatterns = createModel<PhasePatternsModule, PhasePatternsWidget>("sqh-phasepatterns");

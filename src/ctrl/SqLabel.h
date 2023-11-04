@@ -46,6 +46,9 @@ public:
         SQINFO("SqLabel ctor %p", this);
     }
 
+    // updates the text and forces draw
+    void updateText(const std::string& s);
+
     // implement dirty
     virtual bool isDirty() const override {
         if (_isDirty) {
@@ -55,24 +58,28 @@ public:
         return _isDirty;
     };
 
-	Widget * _hackParent = nullptr;
+    Widget* _hackParent = nullptr;
 
 private:
     bool _isDirty = true;
 };
 
+inline void SqLabel::updateText(const std::string& s) {
+    text = s;
+    _isDirty = true;
+}
+
 inline void SqLabel::draw(const DrawArgs& args) {
     //	float x = 0;		// text alignment stuff.
 
     SQINFO("sqlabx draw this=%p, text=%s", this, this->text.c_str());
- //   INFO("----- draw %p, chords=%d", this, int(chords.size()));
+    //   INFO("----- draw %p, chords=%d", this, int(chords.size()));
     INFO("----- pos=%f, %f size=%f, %f", box.pos.x, box.pos.y, box.size.x, box.size.y);
-	if (_hackParent) {
-    	INFO("----- hack p: pos=%f, %f size=%f, %f", _hackParent->box.pos.x,  _hackParent->box.pos.y,_hackParent->box.size.x,  _hackParent->box.size.y);
-	}
+    if (_hackParent) {
+        INFO("----- hack p: pos=%f, %f size=%f, %f", _hackParent->box.pos.x, _hackParent->box.pos.y, _hackParent->box.size.x, _hackParent->box.size.y);
+    }
 
-	
-	std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
+    std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
     if (!font) {
         SQWARN("no font");
         return;
@@ -94,32 +101,8 @@ inline void SqLabel::draw(const DrawArgs& args) {
     SQINFO("leave draw, dirty = %d", _isDirty);
 }
 
-/*
-  std::string fontPath("res/");
-    fontPath += "Bravura.otf";
-    // Get font
-    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, fontPath.c_str()));
-
- */
-
-/*
-void draw(const DrawArgs& args) override {
-                // Background
-                nvgBeginPath(args.vg);
-                nvgRoundedRect(args.vg, 0, 0, box.size.x, box.size.y, 2);
-                nvgFillColor(args.vg, nvgRGB(0x19, 0x19, 0x19));
-                nvgFill(args.vg);
-
-                prepareFont(args);
-
-                // Background text
-                nvgFillColor(args.vg, bgColor);
-                nvgText(args.vg, textPos.x, textPos.y, bgText.c_str(), NULL);
-        }
-        */
-
 template <class T>
-inline void BufferingParent<T>::_setHackParent(Widget *childWidget) {
+inline void BufferingParent<T>::_setHackParent(Widget* childWidget) {
     INFO("_setHackParent");
     SqLabel* pscore = dynamic_cast<SqLabel*>(childWidget);
     if (pscore) {
