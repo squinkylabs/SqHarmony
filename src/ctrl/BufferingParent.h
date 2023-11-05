@@ -14,6 +14,8 @@ class BufferingParent : public Widget {
 public:
     ~BufferingParent() {
         assert(_ownsChild);
+        --_refCount;
+        // INFO("BufferingParent dtor, will be %d", _refCount);
     }
     /**
      * @brief Construct a new Buffering Parent object
@@ -30,6 +32,8 @@ public:
         this->addChild(_frameBufferWidget);
         _frameBufferWidget->addChild(childWidget);
         _dirtyDetector = dd;
+        ++_refCount;
+        //INFO("BufferingParent ctor, now are %d", _refCount);
     }
 
     T *getChild() {
@@ -46,6 +50,7 @@ public:
     }
 
 private:
+    static int _refCount;
     bool _ownsChild = true;
     T *_theWrappedChild;
     FramebufferWidget *_frameBufferWidget = nullptr;

@@ -10,6 +10,8 @@ Changed the name of Phasepatterns to Phase Patterns.
 
 Fixed broken links to CHANGELOG.
 
+Fixed memory leak in Harmony.
+
 ## 2.2.0
 
 New release for test.

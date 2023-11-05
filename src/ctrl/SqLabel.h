@@ -30,9 +30,9 @@ struct Label : widget::Widget {
 
 class SqLabel : public widget::Widget, public Dirty {
 public:
-    ~SqLabel() {
-        SQINFO("dtor of label %p", this);
-    }
+    // ~SqLabel() {
+    //     SQINFO("dtor of label %p", this);
+    // }
     std::string text;
     float fontSize = 12;
     float lineHeight = 12;

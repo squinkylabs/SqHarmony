@@ -12,6 +12,9 @@
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
 
+template <> 
+int BufferingParent<SqLabel>::_refCount = 0;
+
 class PhasePatternsModule : public rack::engine::Module {
 public:
     std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);

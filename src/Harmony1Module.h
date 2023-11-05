@@ -21,7 +21,6 @@ public:
         class ModeParam : public ParamQuantity {
         public:
             std::string getDisplayValueString() override {
-                INFO("imp sharps and flats");
                 int value = int((std::round(getValue())));
                 return ((value >= 0) && value < int(labels.size())) ? labels[value] : "";
             }
@@ -33,12 +32,11 @@ public:
         class RootParam : public ParamQuantity {
         public:
             std::string getDisplayValueString() override {
-                int value = int((std::round(getValue())));
+                const bool useFlats = module->params[Comp::USE_FLATS_PARAM].value > .5;
+                const auto labels = Scale::getRootLabels(useFlats);
+                const int value = int((std::round(getValue())));
                 return ((value >= 0) && value < int(labels.size())) ? labels[value] : "";
             }
-
-        private:
-            std::vector<std::string> labels = Scale::getRootLabels(true);
         };
 
         this->configParam<RootParam>(Comp::KEY_PARAM, 0, 11, 0, "Key Root");

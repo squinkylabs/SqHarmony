@@ -361,7 +361,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 &chordHistory,
                 chordA, chordB);
             if (chord) {
-                SQINFO("got a new chord");
+                // SQINFO("got a new chord");
                 outputPitches(chord);
                 chordA = chordB;
                 chordB = chord;

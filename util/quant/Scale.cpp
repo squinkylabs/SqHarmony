@@ -107,13 +107,13 @@ Scale::getScaleLabels(bool justDiatonic) {
 }
 
 std::vector<std::string> Scale::getRootLabels(bool useFlats) {
-    SQINFO("getting root labels useF=%d", useFlats);
+    // SQINFO("getting root labels useF=%d", useFlats);
     if (!useFlats) {
-        SQINFO("returning the shrp labels");
+        // SQINFO("returning the shrp labels");
         return {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     } else {
-         SQINFO("returning the flats labels");
-        return { "C", "D-", "D", "E-", "E", "F", "G-", "G", "A-", "A", "B-", "B" };
+        // SQINFO("returning the flats labels");
+        return {"C", "D-", "D", "E-", "E", "F", "G-", "G", "A-", "A", "B-", "B"};
     }
 }
 
@@ -290,26 +290,6 @@ const int* Scale::getNormalizedScalePitches() const {
         }
     }
 }
-
-/*
-    class ScoreInfo {
-    public:
-        int numSharps = 0;
-        int numFlats = 0;
-        const MidiNote* sharpsInTrebleClef = nullptr;
-        const MidiNote* sharpsInBassClef = nullptr;
-        const MidiNote* flatsInTrebleClef = nullptr;
-        const MidiNote* flatsInBassClef = nullptr;
-    };
-    */
-
-/*
-using MNP = const MidiNote*;
-MNP xx[] = {
-//const MidiNote* [] xx = {
-    &MidiNote(6)
-};
-*/
 
 MidiNote Scale::getRelativeMajor() const {
     int pitch = baseNote.get();
