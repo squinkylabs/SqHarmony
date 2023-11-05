@@ -63,18 +63,18 @@ public:
         //   void drawLayer(const DrawArgs &args, int layer) override;
         bool isDirty() const override {
             // SQINFO("Score::isDirty will ret %d", scoreIsDirty);
-            return scoreIsDirty;
+            return _scoreIsDirty;
         }
 
         void setWhiteOnBlack(bool b) {
-            if (whiteOnBlack != b) {
-                whiteOnBlack = b;
-                scoreIsDirty = true;
+            if (_whiteOnBlack != b) {
+                _whiteOnBlack = b;
+                _scoreIsDirty = true;
             }
         }
 
     private:
-        bool scoreIsDirty = false;
+        bool _scoreIsDirty = false;
         void filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const;
         void drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
         void drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
@@ -109,7 +109,7 @@ public:
 
         Harmony1Module *const module;
         std::list<Comp::Chord> chords;
-        bool whiteOnBlack = false;  // default to black notes for better look in module browser
+        bool _whiteOnBlack = false;  // default to black notes for better look in module browser
 
         const std::string noteQuarterUp = u8"\ue1d5";
         const std::string noteQuarterDown = u8"\ue1d6";
@@ -169,11 +169,11 @@ public:
     };
 
     NVGcolor Score::getForegroundColor() const {
-        return whiteOnBlack ? nvgRGB(0xff, 0xff, 0xff) : nvgRGB(0, 0, 0);
+        return _whiteOnBlack ? nvgRGB(0xff, 0xff, 0xff) : nvgRGB(0, 0, 0);
     }
 
     NVGcolor Score::getBackgroundColor() const {
-        return whiteOnBlack ? nvgRGB(0, 0, 0) : nvgRGB(0xff, 0xff, 0xff);
+        return _whiteOnBlack ? nvgRGB(0, 0, 0) : nvgRGB(0xff, 0xff, 0xff);
     }
 
     inline Score::Score(Harmony1Module *m) : module(m) {
@@ -273,7 +273,7 @@ public:
         if (module) {
             if (module->isChordAvailable()) {
                 SQINFO("saw a new chord in UI, will dirty push");
-                scoreIsDirty = true;
+                _scoreIsDirty = true;
                 auto ch = module->getChord();
                 chords.push_back(ch);
                 SQINFO("Now ui has %lld", chords.size());
@@ -391,7 +391,7 @@ inline void Score::drawLayer(const DrawArgs &args, int layer) {
         drawNotes(args, width);
         drawChordNumbers(args, width);
         // SQINFO("clear dirty at end of draw was %d", scoreIsDirty);
-        scoreIsDirty = false;
+        _scoreIsDirty = false;
 
         Widget::draw(args);
     }

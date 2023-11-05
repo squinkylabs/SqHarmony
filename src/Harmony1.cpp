@@ -130,18 +130,19 @@ struct Harmony1Widget : ModuleWidget {
         theMenu->addChild(item);
     }
 
-    void _processUseSharpsParam() {
-        const bool useFlats = APP->engine->getParamValue(module, Comp::USE_FLATS_PARAM) > .5;
-        auto cSharp = _keyRootWidget->getShortLabel(1);
+    // void _processUseSharpsParam() {
+    //     const bool useFlats = APP->engine->getParamValue(module, Comp::USE_FLATS_PARAM) > .5;
+    //     auto cSharp = _keyRootWidget->getShortLabel(1);
 
-        auto iter = cSharp.find("#");
-        const bool isUsingFlats = iter == std::string::npos;
+    //     auto iter = cSharp.find("#");
+    //     const bool isUsingFlats = iter == std::string::npos;
 
-        if (useFlats != isUsingFlats) {
-            INFO("changing sharps/flats, now useFlats=%d isUsingFlats= %d cSharp=%s", useFlats, isUsingFlats, cSharp.c_str());
-            _keyRootWidget->setLabels(Scale::getRootLabels(useFlats));
-        }
-    }
+    //     if (useFlats != isUsingFlats) {
+    //         INFO("changing sharps/flats, now useFlats=%d isUsingFlats= %d cSharp=%s", useFlats, isUsingFlats, cSharp.c_str());
+    //         _keyRootWidget->setLabels(Scale::getRootLabels(useFlats));
+    //         _score->setUseFlats(useFlats);
+    //     }
+    // }
 
     void step() override {
         ModuleWidget::step();
@@ -151,7 +152,7 @@ struct Harmony1Widget : ModuleWidget {
             _score->setWhiteOnBlack(whiteOnBlack);
 
             // process flats/sharps
-            _processUseSharpsParam();
+           // _processUseSharpsParam();
 
             // process the voice indicators
             for (int i = 0; i < 4; ++i) {
