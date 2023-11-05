@@ -474,6 +474,10 @@ bool Chord4::isCorrectDoubling(const Options& options) const {
             break;
         case SECOND_INVERSION:
             ret = (nFifths == 2);
+
+            // 11.5.2023. It looks like we let through these crazy doublings? No, I guess the initial check for "acceptable doubling"
+            // caught that case.
+            assert( ret == false  || (nRoots==1 && nThirds ==1));
             break;
         default:
             static bool shown = false;

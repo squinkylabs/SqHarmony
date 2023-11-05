@@ -119,8 +119,8 @@ void testRand(const Options& options) {
     //   auto options = makeOptions();
     Chord4Manager mgr(options);
 
-    //SQINFO("min bass = %d, max sop = %d", options.style->minBass(), options.style->maxSop());
-    
+    // SQINFO("min bass = %d, max sop = %d", options.style->minBass(), options.style->maxSop());
+
     if (!mgr.isValid()) {
         SQINFO("can't create manager for this style");
         assert(false);
@@ -169,8 +169,8 @@ void testRand(const Options& options) {
         chordB = thirdChord;
         rootB = rootC;
     }
-    //SQINFO("Here are penalties");
-    //penaltyAnalyzer.dump();
+    // SQINFO("Here are penalties");
+    // penaltyAnalyzer.dump();
 
     // SQINFO("Here are pitchextremes");
     // SQINFO("Pitch range = %d to %d", rangeAnalyzer.lowest(), rangeAnalyzer.highest());
@@ -225,12 +225,73 @@ static void testRand() {
     testRand(1, Scale::Scales::Minor);
 }
 
+//---------------------------------------------
+
+static void testAllChords(
+    Style::Ranges range, 
+    Style::InversionPreference inversionPref, 
+    Scale::Scales mode,
+    int sourceRoot,
+    int desitnationRoot) {
+
+    // first, make a set of chords for the root
+
+    // then, for each root chords, make sure something can follow
+        assert(false);
+}
+
+static void testAllChords(
+    Style::Ranges range, 
+    Style::InversionPreference inversionPref, 
+    Scale::Scales mode,
+    int root) {
+
+    for (int i = 0; i< 7; ++i) {
+        testAllChords(range, inversionPref, mode, root, i);
+    }
+}
+static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref, Scale::Scales mode) {
+    for (int i = 0; i< 7; ++i) {
+        testAllChords(range, inversionPref, mode, i);
+    }
+}
+
+static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref) {
+    // The first scales are the diatonic.
+    for (int i = int(Scale::Scales::Major); i != int(Scale::Scales::MinorPentatonic); ++i) {
+        testAllChords(range, inversionPref, Scale::Scales(i));
+    }
+}
+
+static void testAllChords(Style::Ranges range) {
+    testAllChords(range, Style::InversionPreference::DISCOURAGE);
+    testAllChords(range, Style::InversionPreference::DISCOURAGE_CONSECUTIVE);
+    testAllChords(range, Style::InversionPreference::DONT_CARE);
+}
+
+static void testAllChords() {
+    // for all possible styles...
+    testAllChords(Style::Ranges::NORMAL_RANGE);
+    testAllChords(Style::Ranges::ENCOURAGE_CENTER);
+    testAllChords(Style::Ranges::NARROW_RANGE);
+
+    // for all modes
+
+    // for each possible degree source
+
+    // for each possible degree destination
+
+    // for each possible source chord, can it be followed by dest?
+}
+
 void testHarmonyChordsRandom() {
+    SQINFO("in testHarmonyChordsRandom");
     // SQWARN("put back test valid");
     testValid();
     testGenerator();
     testHiLo();
     testRand();
+    testAllChords();
 
     assertEQ(__numChord4, 0);
 }
