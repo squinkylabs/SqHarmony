@@ -43,6 +43,8 @@ public:
         onChange(e);
     }
 
+     std::string getShortLabel(unsigned int index) const;
+
     using NotificationCallback = std::function<void(int index)>;
     void setNotificationCallback(NotificationCallback);
 
@@ -66,10 +68,9 @@ private:
     int curIndex = 0;
 
     void randomize();
-    std::string getShortLabel(unsigned int index);
 };
 
-inline std::string PopupMenuParamWidget::getShortLabel(unsigned int index) {
+inline std::string PopupMenuParamWidget::getShortLabel(unsigned int index) const {
     std::string ret;
 
     // if index is out of the range of long labels, ignore it.

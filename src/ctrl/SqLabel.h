@@ -43,7 +43,7 @@ public:
     SqLabel() {
         box.size.y = BND_WIDGET_HEIGHT;
         box.size.x = 40;  // hax
-        SQINFO("SqLabel ctor %p", this);
+        // SQINFO("SqLabel ctor %p", this);
     }
 
     // updates the text and forces draw
@@ -52,7 +52,7 @@ public:
     // implement dirty
     virtual bool isDirty() const override {
         if (_isDirty) {
-            SQINFO("isDirty ret %d this=%p", _isDirty, this);
+          //  SQINFO("isDirty ret %d this=%p", _isDirty, this);
         }
         // return false;
         return _isDirty;

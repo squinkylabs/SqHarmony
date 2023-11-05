@@ -45,6 +45,7 @@ public:
         HISTORY_SIZE_PARAM,
         TRANSPOSE_STEPS_PARAM,
         TRIGGER_DELAY_PARAM,
+        USE_FLATS_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -281,6 +282,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
 
     if (!chordsOut.full()) {
         chordsOut.push(c);
+        // SQINFO("just pushed a new chord, full=%d empty=%d", chordsOut.full(), chordsOut.empty());
     } else {
        // SQWARN("in outputPitches, no room for output\n");
     }
@@ -320,7 +322,6 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     // Now we could do xpose here if we convert to srn, then add, then convert back.
     const int xposeSteps = int(std::round(Harmony<TBase>::params[TRANSPOSE_STEPS_PARAM].value));
     if (xposeSteps) {
-
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
         scaleNote.transposeDegree(xposeSteps);
@@ -360,6 +361,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 &chordHistory,
                 chordA, chordB);
             if (chord) {
+                SQINFO("got a new chord");
                 outputPitches(chord);
                 chordA = chordB;
                 chordB = chord;

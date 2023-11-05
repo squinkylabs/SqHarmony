@@ -47,7 +47,6 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-    SQINFO("will now call addLabel to make new guy");
       addLabel(Vec(20, 6), "Phase Patterns", 18);
       addLabel(Vec(26, 358), "Squinktronix", 16);
 #endif

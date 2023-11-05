@@ -27,7 +27,7 @@ public:
 
     static std::vector<std::string> getScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getShortScaleLabels(bool);
-    static std::vector<std::string> getRootLabels();
+    static std::vector<std::string> getRootLabels(bool useFlats);
 
     void set(const MidiNote& base, Scales mode);
     std::pair<const MidiNote, Scales> get() const;

@@ -16,6 +16,7 @@ struct Harmony1Widget : ModuleWidget {
     Label* voiceLabels[4] = {};
     int voicesLastTime[4] = {};
     Harmony1Module* const hmodule;
+    PopupMenuParamWidget* _keyRootWidget = nullptr;
     void addScore(Harmony1Module* module);
 
     Harmony1Widget(Harmony1Module* module) : hmodule(module) {
@@ -71,11 +72,12 @@ struct Harmony1Widget : ModuleWidget {
             Vec(8, yScale),
             module,
             Comp::KEY_PARAM);
-        p->setLabels(Scale::getRootLabels());
-        p->box.size.x = 40;  // width
+        p->setLabels(Scale::getRootLabels(false));  // just default to sharps, we will change. TODO: do it right.
+        p->box.size.x = 40;                         // width
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
+        _keyRootWidget = p;  // remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
             Vec(74, yMode),
@@ -91,10 +93,9 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void appendContextMenu(Menu* theMenu) override {
-        // MenuLabel* spacerLabel = new MenuLabel();
         theMenu->addChild(new MenuLabel());
+
         if (module) {
-            // std::vector<std::string> labels = {"off", "4", "8", "13"};
             std::vector<std::string> labels = Comp::getHistoryLabels();
             float initValue = module->paramQuantities[Comp::HISTORY_SIZE_PARAM]->getValue();
             int intValue = int(initValue);
@@ -107,6 +108,13 @@ struct Harmony1Widget : ModuleWidget {
                                              module,
                                              Comp::HISTORY_SIZE_PARAM);
             theMenu->addChild(psm);
+        }
+
+        // add the sharps/flats
+        if (module) {
+            SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::USE_FLATS_PARAM);
+            item->text = "Flats/not sharps";
+            theMenu->addChild(item);
         }
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SCORE_COLOR_PARAM);
@@ -122,12 +130,28 @@ struct Harmony1Widget : ModuleWidget {
         theMenu->addChild(item);
     }
 
+    void _processUseSharpsParam() {
+        const bool useFlats = APP->engine->getParamValue(module, Comp::USE_FLATS_PARAM) > .5;
+        auto cSharp = _keyRootWidget->getShortLabel(1);
+
+        auto iter = cSharp.find("#");
+        const bool isUsingFlats = iter == std::string::npos;
+
+        if (useFlats != isUsingFlats) {
+            INFO("changing sharps/flats, now useFlats=%d isUsingFlats= %d cSharp=%s", useFlats, isUsingFlats, cSharp.c_str());
+            _keyRootWidget->setLabels(Scale::getRootLabels(useFlats));
+        }
+    }
+
     void step() override {
         ModuleWidget::step();
         if (module) {
-            // process the menu check ite,
-            bool whiteOnBlack = APP->engine->getParamValue(module, Comp::SCORE_COLOR_PARAM) < .5;
+            // process the menu check item for color
+            const bool whiteOnBlack = APP->engine->getParamValue(module, Comp::SCORE_COLOR_PARAM) < .5;
             _score->setWhiteOnBlack(whiteOnBlack);
+
+            // process flats/sharps
+            _processUseSharpsParam();
 
             // process the voice indicators
             for (int i = 0; i < 4; ++i) {

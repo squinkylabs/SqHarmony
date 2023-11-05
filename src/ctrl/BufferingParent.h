@@ -13,7 +13,6 @@ template <class T>
 class BufferingParent : public Widget {
 public:
     ~BufferingParent() {
-        INFO("deleting BufferingParent %p", this);
         assert(_ownsChild);
     }
     /**
@@ -24,7 +23,6 @@ public:
      * @param dd usually will be childWidget, and childWidget will implement Dirty
      */
     BufferingParent(T *childWidget, const Vec size, Dirty *dd) {
-        INFO("buffering parent ctor with size=%f, %f", size.x, size.y);
         this->box.size = size;
         childWidget->box.size = size;
         _theWrappedChild = childWidget;
@@ -43,7 +41,7 @@ public:
         Widget::step();
         if (_dirtyDetector && _dirtyDetector->isDirty()) {
             _frameBufferWidget->dirty = true;
-            SQINFO("BP set dirty true 46");
+            // SQINFO("BP set dirty true 46");
         }
     }
 

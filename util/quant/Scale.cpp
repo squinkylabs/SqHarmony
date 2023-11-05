@@ -1,9 +1,10 @@
 
 #include "Scale.h"
-#include "SqLog.h"
 
 #include <assert.h>
 #include <stdio.h>
+
+#include "SqLog.h"
 
 void Scale::set(const MidiNote& bs, Scales md) {
     baseNote = bs;
@@ -105,8 +106,15 @@ Scale::getScaleLabels(bool justDiatonic) {
                 "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone"};
 }
 
-std::vector<std::string> Scale::getRootLabels() {
-    return {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+std::vector<std::string> Scale::getRootLabels(bool useFlats) {
+    SQINFO("getting root labels useF=%d", useFlats);
+    if (!useFlats) {
+        SQINFO("returning the shrp labels");
+        return {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    } else {
+         SQINFO("returning the flats labels");
+        return { "C", "D-", "D", "E-", "E", "F", "G-", "G", "A-", "A", "B-", "B" };
+    }
 }
 
 int Scale::quantize(int offset) const {
@@ -143,9 +151,9 @@ int Scale::quantize(int offset) const {
             // if major third, try minor
             if (qDnOne >= 0) return qDnOne;
             break;
-        case 5: 
+        case 5:
             // if it's a perfect fourth, but we don't have one in this scale
-            //raise to tritone
+            // raise to tritone
             if (qUpOne >= 0) return qUpOne;
             break;
         case 6:
@@ -308,7 +316,7 @@ MidiNote Scale::getRelativeMajor() const {
     switch (scale) {
         case Scales::Major:
             break;
- 
+
         case Scales::Dorian:
             pitch -= 2;
             break;
@@ -326,7 +334,7 @@ MidiNote Scale::getRelativeMajor() const {
             break;
         case Scales::Locrian:
             pitch += 1;
-            break; 
+            break;
         default:
             assert(false);
     }
@@ -337,9 +345,7 @@ MidiNote Scale::getRelativeMajor() const {
         pitch += 12;
     }
     return MidiNote(pitch);
-   
 }
-
 
 // how many sharps are in the Major scale based on these
 const int numsharps[12] = {
@@ -374,12 +380,12 @@ const int numflats[12] = {
 
 const MidiNote sharpsInTreble[12] = {
     MidiNote(MidiNote::MiddleC + 12 + 5),  // first sharp on F (F#)
-    MidiNote(MidiNote::MiddleC + 12),  // second sharp on C (C#)
+    MidiNote(MidiNote::MiddleC + 12),      // second sharp on C (C#)
     MidiNote(MidiNote::MiddleC + 12 + 7),  // third sharp on g (G#)
     MidiNote(MidiNote::MiddleC + 12 + 2),  // 4 sharp on D (D#)
-    MidiNote(MidiNote::MiddleC + 9),  // 5 sharp on A (A#)
+    MidiNote(MidiNote::MiddleC + 9),       // 5 sharp on A (A#)
     MidiNote(MidiNote::MiddleC + 12 + 4),  // 6 sharp on E (E#)
-    MidiNote(MidiNote::MiddleC + 11)  // 7 sharp on B (B#)
+    MidiNote(MidiNote::MiddleC + 11)       // 7 sharp on B (B#)
 };
 
 const MidiNote sharpsInBass[12] = {
@@ -389,29 +395,26 @@ const MidiNote sharpsInBass[12] = {
     MidiNote(MidiNote::MiddleC - 12 + 2),
     MidiNote(MidiNote::MiddleC - 24 + 9),
     MidiNote(MidiNote::MiddleC - 12 + 4),
-    MidiNote(MidiNote::MiddleC - 24 + 11)
-};
+    MidiNote(MidiNote::MiddleC - 24 + 11)};
 
 const MidiNote flatsInTreble[12] = {
     MidiNote(MidiNote::MiddleC + 12 - 1),  // first flat is on B (b flat)
     MidiNote(MidiNote::MiddleC + 12 + 4),  // second flat is on E (e flat)
-    MidiNote(MidiNote::MiddleC + 12 - 3),   // 3rh flat is on A (a flat)
-    MidiNote(MidiNote::MiddleC + 12 +2),     // 4th is D-
-    MidiNote(MidiNote::MiddleC + 7 ),       // 5th is g
-    MidiNote(MidiNote::MiddleC + 12),       // 6th is C-
-    MidiNote(MidiNote::MiddleC + 5)      // 7th is f-
+    MidiNote(MidiNote::MiddleC + 12 - 3),  // 3rh flat is on A (a flat)
+    MidiNote(MidiNote::MiddleC + 12 + 2),  // 4th is D-
+    MidiNote(MidiNote::MiddleC + 7),       // 5th is g
+    MidiNote(MidiNote::MiddleC + 12),      // 6th is C-
+    MidiNote(MidiNote::MiddleC + 5)        // 7th is f-
 };
 
 const MidiNote flatsInBass[12] = {
-    MidiNote(MidiNote::MiddleC - 12 - 1),       // B-
-    MidiNote(MidiNote::MiddleC - 12 + 4),       // E-
-    MidiNote(MidiNote::MiddleC - 12 - 3),        // A-
-    MidiNote(MidiNote::MiddleC - 12 + 2),         // D-
+    MidiNote(MidiNote::MiddleC - 12 - 1),  // B-
+    MidiNote(MidiNote::MiddleC - 12 + 4),  // E-
+    MidiNote(MidiNote::MiddleC - 12 - 3),  // A-
+    MidiNote(MidiNote::MiddleC - 12 + 2),  // D-
     MidiNote(MidiNote::MiddleC - 24 + 7),
     MidiNote(MidiNote::MiddleC - 12),
-    MidiNote(MidiNote::MiddleC - 24 + 5 + 12)
-};
-
+    MidiNote(MidiNote::MiddleC - 24 + 5 + 12)};
 
 Scale::ScoreInfo Scale::getScoreInfo() const {
     Scale::ScoreInfo ret;
