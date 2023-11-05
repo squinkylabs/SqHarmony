@@ -50,8 +50,8 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-      addLabel(Vec(20, 6), "Phase Patterns", 18);
-      addLabel(Vec(26, 358), "Squinktronix", 16);
+      addLabel(Vec(15, 6), "Phase Patterns", 20);
+      addLabel(Vec(30, 356), "Squinktronix", 16);
 #endif
         addControls(module);
         addIO(module);
@@ -64,14 +64,12 @@ private:
     void step() override {
         ModuleWidget::step();
         if (module) {
-           // SQINFO("in phase p step sd=%p", _shiftDisplay);
             if (_shiftDisplay) {
                 const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
                 std::stringstream str;
                 str << std::setprecision(3) << shift;
 
                 SqLabel* label = _shiftDisplay->getChild();
-               // label->text = str.str();
                label->updateText(str.str());
             }
         }
