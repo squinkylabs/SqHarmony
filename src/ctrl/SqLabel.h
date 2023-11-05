@@ -19,8 +19,10 @@ public:
 
     void draw(const DrawArgs& args) override;
     SqLabel() {
-        box.size.y = BND_WIDGET_HEIGHT;
-        box.size.x = 40;  // hax
+        // don't need this sizing
+        // box.size.y = BND_WIDGET_HEIGHT;
+        // was 40
+        //  box.size.x = 10;  // hax
     }
 
     // updates the text and forces draw
@@ -41,6 +43,7 @@ inline void SqLabel::updateText(const std::string& s) {
 }
 
 inline void SqLabel::draw(const DrawArgs& args) {
+    INFO("SqLabel::draw size=%f, %f text=%s", box.size.x, box.size.y, text.c_str());
     std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
     if (!font) {
         SQWARN("no font");
@@ -52,6 +55,7 @@ inline void SqLabel::draw(const DrawArgs& args) {
     nvgTextLineHeight(args.vg, lineHeight);
     nvgFillColor(args.vg, color);  // is this needed? background or font?
                                    //	nvgText(args.vg, box.pos.x, box.pos.y, text.c_str(), NULL);
+    // TODO: what are these arbitrary numbers?
     nvgText(args.vg, 8, 16, text.c_str(), NULL);;
     _isDirty = false;
 }

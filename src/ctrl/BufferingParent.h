@@ -26,6 +26,7 @@ public:
      */
     BufferingParent(T *childWidget, const Vec size, Dirty *dd) {
         this->box.size = size;
+        INFO("ctor of buffering parent, size = %f,%f", size.x, size.y);
         childWidget->box.size = size;
         _theWrappedChild = childWidget;
         _frameBufferWidget = new FramebufferWidget();
