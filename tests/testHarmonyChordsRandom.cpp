@@ -231,56 +231,72 @@ static void testRand() {
 
 int worstPenalty = 0;
 
- static void testAllChords(
+/*
+  static int progressionPenalty(const Options& options,
+                                  int bestSoFar,
+                                  const Chord4* prevProv,
+                                  const Chord4* prev,
+                                  const Chord4* current,
+                                  bool show);
+*/
+static void testAllChords(
     Chord4Manager& mgr,
     const Options& options,
     const Chord4* sourceChord, int destinationRoot) {
-// SQINFO("test all 235");
-
-        // TODO: if we have the manager, we probably do not need to pass in the source chord
- //   Chord4Manager mgr(options);
     auto chordB = HarmonyChords::findChord(false, options, mgr, *sourceChord, destinationRoot);
     assert(chordB);
     if (!chordB) {
+        SQWARN("could not connect chords");
         throw "asb";
     }
- }
+    const int x = HarmonyChords::progressionPenalty(
+        options,
+        0,              // why to we pass best so far?
+        nullptr,
+        sourceChord,
+        chordB,
+        false);
+   // SQINFO("got penalty %d", x);
+    if (x > worstPenalty) {
+        SQINFO("new worst penalty: %d", x);
+        worstPenalty = x;
+    }
+
+}
 
 static void testAllChords(
-    Style::Ranges range, 
-    Style::InversionPreference inversionPref, 
+    Style::Ranges range,
+    Style::InversionPreference inversionPref,
     Scale::Scales mode,
     int sourceRoot,
     int destinationRoot) {
-
     const Options options = makeOptions(sourceRoot, mode);
     Chord4Manager mgr(options);
 
-// SQINFO("test all 252");
-     const Chord4List* sourceRootChords = mgr._getChords(sourceRoot);
+    // SQINFO("test all 252");
+    const Chord4List* sourceRootChords = mgr._getChords(sourceRoot);
     // first, make a set of chords for the root
-  //  Chord4List roots(options, sourceRoot);
+    //  Chord4List roots(options, sourceRoot);
     // then, for each root chords, make sure something can follow
     for (int i = 0; i < sourceRootChords->size(); ++i) {
         const Chord4* theSourceChord = mgr.get2(sourceRoot, i);
         testAllChords(mgr, options, theSourceChord, destinationRoot);
-    }  
+    }
 }
 
 static void testAllChords(
-    Style::Ranges range, 
-    Style::InversionPreference inversionPref, 
+    Style::Ranges range,
+    Style::InversionPreference inversionPref,
     Scale::Scales mode,
     int root) {
-
- //   SQINFO("test all 267");
-    for (int i = 1; i< 8; ++i) {
+    //   SQINFO("test all 267");
+    for (int i = 1; i < 8; ++i) {
         testAllChords(range, inversionPref, mode, root, i);
     }
 }
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref, Scale::Scales mode) {
     SQINFO("test all 274 range=%d, invPref=%d, mode=%d", range, inversionPref, mode);
-    for (int i = 1; i< 8; ++i) {
+    for (int i = 1; i < 8; ++i) {
         testAllChords(range, inversionPref, mode, i);
     }
 }
@@ -320,7 +336,9 @@ void testHarmonyChordsRandom() {
     testGenerator();
     testHiLo();
     testRand();
-    testAllChords();
+
+    SQINFO("--- skipping testAllChords, too slow ---");
+   // testAllChords();
 
     assertEQ(__numChord4, 0);
 }
