@@ -229,9 +229,23 @@ static void testRand() {
 
 // #include "Chord4List.h"
 
- static void testAllChords(const Chord4* sourceChord, int destinationRoot) {
-    assert(false);
+int worstPenalty = 0;
+
+ static void testAllChords(
+    Chord4Manager& mgr,
+    const Options& options,
+    const Chord4* sourceChord, int destinationRoot) {
+// SQINFO("test all 235");
+
+        // TODO: if we have the manager, we probably do not need to pass in the source chord
+ //   Chord4Manager mgr(options);
+    auto chordB = HarmonyChords::findChord(false, options, mgr, *sourceChord, destinationRoot);
+    assert(chordB);
+    if (!chordB) {
+        throw "asb";
+    }
  }
+
 static void testAllChords(
     Style::Ranges range, 
     Style::InversionPreference inversionPref, 
@@ -240,18 +254,16 @@ static void testAllChords(
     int destinationRoot) {
 
     const Options options = makeOptions(sourceRoot, mode);
+    Chord4Manager mgr(options);
 
+// SQINFO("test all 252");
+     const Chord4List* sourceRootChords = mgr._getChords(sourceRoot);
     // first, make a set of chords for the root
-    Chord4List roots(options, sourceRoot);
+  //  Chord4List roots(options, sourceRoot);
     // then, for each root chords, make sure something can follow
-    for (int i = 0; i < roots.size(); ++i) {
-        const Chord4* theSourceChord = roots.get2(i);
-        testAllChords(theSourceChord, destinationRoot);
-
-   //       auto chordB = HarmonyChords::findChord(false, options, mgr, *chordA, rootB);
-  //  assert(chordB);
-   //     assert(false);
-       
+    for (int i = 0; i < sourceRootChords->size(); ++i) {
+        const Chord4* theSourceChord = mgr.get2(sourceRoot, i);
+        testAllChords(mgr, options, theSourceChord, destinationRoot);
     }  
 }
 
@@ -261,11 +273,13 @@ static void testAllChords(
     Scale::Scales mode,
     int root) {
 
+ //   SQINFO("test all 267");
     for (int i = 1; i< 8; ++i) {
         testAllChords(range, inversionPref, mode, root, i);
     }
 }
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref, Scale::Scales mode) {
+    SQINFO("test all 274 range=%d, invPref=%d, mode=%d", range, inversionPref, mode);
     for (int i = 1; i< 8; ++i) {
         testAllChords(range, inversionPref, mode, i);
     }

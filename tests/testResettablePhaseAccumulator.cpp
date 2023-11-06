@@ -19,7 +19,7 @@ static void testZeroFreq() {
 static void testSetPhase() {
     ResettablePhaseAccumulator r;
     r.reset(.1, .2);
-    assertEQ(r.getPhaseAndDelta().first, .1)
+    assertEQ(r.getPhaseAndDelta().first, .1);
 }
 
 static void testSimpleTick() {

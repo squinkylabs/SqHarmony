@@ -79,7 +79,7 @@ public:
         // this clock will log something, but it will get serviced
         c.setShift(20);     // set a huge shift, so nothing is processed from the queue.
         c.run(10);
-        assertEQ(c._clockDelayLine.size(), 1)
+        assertEQ(c._clockDelayLine.size(), 1);
 
         auto ev = c._clockDelayLine.pop();
         assertEQ(int(ev._type), int(ClockShifter3::EventType::lowToHigh));

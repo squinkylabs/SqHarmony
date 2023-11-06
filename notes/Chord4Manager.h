@@ -49,6 +49,16 @@ public:
 
         return chords[root]->get2(rank);
     }
+    
+    // only for unit test?
+    Chord4List* _getChords(int sourceRoot) {
+       // assert(false);
+       // return nullptr;
+       const Chord4ListPtr x = chords[sourceRoot];
+       return x.get();
+    }
+
+
 
     int _size() const {
         return chords[1]->size();
