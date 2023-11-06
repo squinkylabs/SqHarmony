@@ -227,17 +227,32 @@ static void testRand() {
 
 //---------------------------------------------
 
+// #include "Chord4List.h"
+
+ static void testAllChords(const Chord4* sourceChord, int destinationRoot) {
+    assert(false);
+ }
 static void testAllChords(
     Style::Ranges range, 
     Style::InversionPreference inversionPref, 
     Scale::Scales mode,
     int sourceRoot,
-    int desitnationRoot) {
+    int destinationRoot) {
+
+    const Options options = makeOptions(sourceRoot, mode);
 
     // first, make a set of chords for the root
-
+    Chord4List roots(options, sourceRoot);
     // then, for each root chords, make sure something can follow
-        assert(false);
+    for (int i = 0; i < roots.size(); ++i) {
+        const Chord4* theSourceChord = roots.get2(i);
+        testAllChords(theSourceChord, destinationRoot);
+
+   //       auto chordB = HarmonyChords::findChord(false, options, mgr, *chordA, rootB);
+  //  assert(chordB);
+   //     assert(false);
+       
+    }  
 }
 
 static void testAllChords(
@@ -246,12 +261,12 @@ static void testAllChords(
     Scale::Scales mode,
     int root) {
 
-    for (int i = 0; i< 7; ++i) {
+    for (int i = 1; i< 8; ++i) {
         testAllChords(range, inversionPref, mode, root, i);
     }
 }
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref, Scale::Scales mode) {
-    for (int i = 0; i< 7; ++i) {
+    for (int i = 1; i< 8; ++i) {
         testAllChords(range, inversionPref, mode, i);
     }
 }
