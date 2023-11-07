@@ -99,6 +99,36 @@ static void testRoot() {
     testRoot(true);
 }
 
+static void testListLeadingToneSub(Chord4List chords) {
+    for (int i = 0; i < chords.size(); ++i) {
+        const Chord4* chord = chords.get2(i);
+
+        const ScaleRelativeNote* srn = chord->fetchSRNNotes();
+
+        int leadingToneCount = 0;
+        for (int i = 0; i < 4; ++i) {
+
+            const ScaleRelativeNote& n = srn[i];
+            if (n.isLeadingTone()) {
+                ++leadingToneCount;
+            }
+        }
+        if (leadingToneCount > 1) {
+            SQINFO("doubled leading:");
+            chord->dump();
+        }
+        assert(leadingToneCount <= 1);
+    }
+}
+
+static void testListLeadingTone() {
+  //  Options o = makeOptions(false);
+  //  for (int root = 1; root < 8; ++root) {
+  //      Chord4List l(o, root);  
+  //      testListLeadingToneSub(l);
+  //  }
+}
+
 static void testList(bool minor) {
     {
         Options o = makeOptions(minor);
@@ -265,6 +295,7 @@ static void testRanges() {
 }
 
 static void allGood(Chord4ListPtr list, StylePtr style) {
+    const int xx = list->size();
     for (int i = 0; i < list->size(); ++i) {
         const Chord4* chord = list->get2(i);
         const HarmonyNote* notes = chord->fetchNotes();
@@ -305,6 +336,7 @@ void testChord() {
     testConstructor();
     testList();
     testList2();
+    testListLeadingTone();
 
     testInversions();
     // specialDumpList();

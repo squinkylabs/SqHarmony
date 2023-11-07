@@ -12,3 +12,12 @@ bool ScaleRelativeNote::isTonal() const {
     }
     return fRet;
 }
+
+bool ScaleRelativeNote::isLeadingTone() const {
+    bool fRet = false;
+    switch (pitch) {   
+        case 7:
+            fRet = true;
+    }
+    return fRet;
+}

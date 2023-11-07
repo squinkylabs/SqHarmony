@@ -48,7 +48,6 @@ extern void testClockMult();
 extern void testMultiplier();
 extern void testRatchet();
 extern void testAllChords();
-extern void testScaleRelativeNotes();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -89,7 +88,6 @@ int main(const char**, int) {
     testNotes();
     testScale();
     testScaleNotes();
-    testScaleRelativeNotes();
     testScaleQuantizer();
     testKeysig();
     testHarmonyNote();

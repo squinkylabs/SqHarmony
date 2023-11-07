@@ -5,16 +5,16 @@ class Keysig;
 class ScaleRelativeNote {
 public:
     bool isValid() const;
-    operator int() const { return pitch; }    // convert us to int
+    operator int() const { return pitch; }         // convert us to int
     int interval(const ScaleRelativeNote&) const;  // tell interval between these guys
-    bool isTonal() const;                     // am I "tonal"?
+    bool isTonal() const;                          // am I "tonal"?
 
     void set(int);  // I should be private!!!!!
+    bool isLeadingTone() const;
     // TODO: actually const, ctor should be private?
 
 private:
-    int pitch=0;      // valid values are 1..12
-                    // I think they are 1..8!
+    int pitch = 0;  // valid values are 1..8!
     friend Keysig;  // so he can call set on us
 };
 

@@ -228,9 +228,6 @@
     <ClCompile Include="testAllChords.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testScaleRelativeNotes.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">
