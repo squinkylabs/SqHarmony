@@ -126,8 +126,10 @@ private:
 
         NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
         auto adjustedPos = v;
+
         adjustedPos.x -= 1.5f * str.size();
-        lp->box.pos = adjustedPos;
+        parent->box.pos = adjustedPos; 
+
         lp->text = str;
         lp->color = white;
         lp->fontSize = fontSize;

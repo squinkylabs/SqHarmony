@@ -372,15 +372,14 @@ int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
     int i;
 
     if (notesInCommon != 0) {
-        return 0;
+        return 0;       // No penalty for this rule is there are notes in common.
     }
 
     if (!options.style->getNoNotesInCommon()) {
-        return 0;
+        return 0;       // If the style is ignoring this rule, then no penalty.
     }
-    // assert(notesInCommon == 0);
 
-    // No notes in common: upper 3 move opposite of bass
+    // No notes in common: upper 3 move opposite of bass.
 
     for (di = direction[TENOR], i = ALTO; i <= SOP; i++) {
         if (di != direction[i]) {
@@ -415,8 +414,7 @@ int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
     int ret = 0;
 
     if (options.style->pullTogether()) {
-        // distance from bass to tenor 9 and 13 were ok for this
-        // const int distance = next->fetchNotes()[1] - next->fetchNotes()[0];
+        // Distance from bass to tenor 9 and 13 were ok for this.
 
         // distance from bass to sop
         const int distance = next->fetchNotes()[3] - next->fetchNotes()[0];
@@ -456,7 +454,7 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
         else
             --ntFirst;
     }
-    SQINFO("we shouldn't get here!!");
+    SQWARN("we shouldn't get here!!");
     return true;
 }
 

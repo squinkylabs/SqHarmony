@@ -43,7 +43,7 @@ inline void SqLabel::updateText(const std::string& s) {
 }
 
 inline void SqLabel::draw(const DrawArgs& args) {
-    INFO("SqLabel::draw size=%f, %f text=%s", box.size.x, box.size.y, text.c_str());
+   // INFO("SqLabel::draw size=%f, %f text=%s", box.size.x, box.size.y, text.c_str());
     std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
     if (!font) {
         SQWARN("no font");
