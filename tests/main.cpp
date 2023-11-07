@@ -47,6 +47,7 @@ extern void testShiftCalc();
 extern void testClockMult();
 extern void testMultiplier();
 extern void testRatchet();
+extern void testAllChords();
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -98,6 +99,7 @@ int main(const char**, int) {
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChordsRandom();
+    testAllChords();
 #endif
     testHarmonyComposite();
     printf("put back test progression?\n");

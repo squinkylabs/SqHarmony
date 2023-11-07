@@ -169,6 +169,7 @@
     <ClCompile Include="testAdditiveGainLogic.cpp" />
     <ClCompile Include="testAdditiveModLogic.cpp" />
     <ClCompile Include="testAdditivePitchLogic.cpp" />
+    <ClCompile Include="testAllChords.cpp" />
     <ClCompile Include="testArepegPlayer2.cpp" />
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
