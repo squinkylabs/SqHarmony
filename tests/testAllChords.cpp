@@ -1,14 +1,10 @@
 
 
-
 #include "Chord4Manager.h"
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
-
 #include "Scale.h"
-
 #include "asserts.h"
-
 
 //---------------------------------------------
 
@@ -41,7 +37,6 @@ static Options makeOptions(int root, Scale::Scales scale) {
     return o;
 }
 
-
 /*
   static int progressionPenalty(const Options& options,
                                   int bestSoFar,
@@ -62,17 +57,16 @@ static void testAllChords(
     }
     const int x = HarmonyChords::progressionPenalty(
         options,
-        0,              // why to we pass best so far?
+        0,  // why to we pass best so far?
         nullptr,
         sourceChord,
         chordB,
         false);
-   // SQINFO("got penalty %d", x);
+    // SQINFO("got penalty %d", x);
     if (x > worstPenalty) {
         SQINFO("new worst penalty: %d", x);
         worstPenalty = x;
     }
-
 }
 
 static void testAllChords(
@@ -140,7 +134,57 @@ static void xtestAllChords() {
     // for each possible source chord, can it be followed by dest?
 }
 
+static void printMetrics() {
+    // const int sourceRoot = 1;
+    // const auto model =
+    // const Options options = makeOptions(sourceRoot, mode);
+    const Options options = makeOptions(false);
+    Chord4Manager mgr(options);
+    for (int i = 1; i < 8; ++i) {
+        const auto x = mgr.size(i);
+        SQINFO("mgr size[%d] =%d", i, x);
+        int expected = 0;
+        switch (i) {
+            case 1:
+                expected = 138;
+                break;
+            case 2:
+                expected = 96;
+                break;
+            case 3:
+                expected = 111;
+                break;
+            case 4:
+                expected = 99;
+                break;
+            case 5:
+                expected = 97;
+                break;
+            case 6:
+                expected = 99;
+                break;
+            case 7:
+                expected = 91;
+                break;
+            default:
+                assert(false);
+        }
+        assertEQ(x, expected);
+    }
+
+    /*
+    data from first release
+     mgr size[1] =138
+    ]mgr size[2] =96
+     mgr size[3] =111
+     mgr size[4] =99
+     mgr size[5] =97
+     mgr size[6] =99
+     mgr size[7] =91
+     */
+}
 void testAllChords() {
+    printMetrics();
     xtestAllChords();
     assertEQ(__numChord4, 0);
 }

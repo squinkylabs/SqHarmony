@@ -16,7 +16,7 @@
 
 // int Chord4::size;
 
-//int __numChord4 = 0;
+// int __numChord4 = 0;
 std::atomic<int> __numChord4{0};
 
 /*  Chord4::Chord4(int nRoot)
@@ -62,16 +62,9 @@ Chord4::~Chord4() {
     assert(__numChord4 >= 0);
 }
 
-void Chord4::addRef() {
+void Chord4::_addRef() {
     __numChord4++;
 }
-
-#if 0
-Chord4::Chord4(const Chord4& other) {
-    *this = other;
-    __numChord4++;
-}
-#endif
 
 /*  int Chord4::Quality() const
  */
@@ -130,11 +123,10 @@ std::string Chord4::getString() const {
     assert(_notes.size() == CHORD_SIZE);
 
     s << toStringShort();
-     s << " Root: ";
+    s << " Root: ";
     s << root;
     s << " rank: ";
     s << rank;
-    
 
 #if 0
 
@@ -398,10 +390,12 @@ bool Chord4::pitchesInRange(const Options& options) const {
 bool Chord4::isAcceptableDoubling(const Options& options) const {
     int nRoots = 0, nThirds = 0, nFifths = 0;
 
+   
 
     for (int nVoice = 0; nVoice < CHORD_SIZE; nVoice++)  // loop over all notes in chord
     {
-        switch (chordInterval(options, _notes[nVoice])) {
+        const HarmonyNote& harmonyNote = _notes[nVoice];
+        switch (chordInterval(options, harmonyNote)) {
             case 1:
                 nRoots++;
                 break;
@@ -417,6 +411,9 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
         }
     }
 
+    assert(false);  // todo: let's never allow doubled leading tone!
+
+    //  acceptable means there is one of each - root, third, fifth.
     return (nRoots > 0) && (nThirds > 0) && (nFifths > 0);
 }
 
@@ -477,7 +474,7 @@ bool Chord4::isCorrectDoubling(const Options& options) const {
 
             // 11.5.2023. It looks like we let through these crazy doublings? No, I guess the initial check for "acceptable doubling"
             // caught that case.
-            assert( ret == false  || (nRoots==1 && nThirds ==1));
+            assert(ret == false || (nRoots == 1 && nThirds == 1));
             break;
         default:
             static bool shown = false;

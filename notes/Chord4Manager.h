@@ -33,6 +33,7 @@ public:
 
     bool isValid() const { return !chords.empty(); }
     int size(int root) const {
+        assert(root > 0);
         assert(chords.size() == 10);
         return chords[root]->size();
     }
