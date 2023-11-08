@@ -411,6 +411,8 @@ int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
         return AVG_PENALTY_PER_RULE;
     }
 
+    // TODO: what about the V-VI exception?
+
     // to nearest
     for (i = BASS; i <= SOP; i++) {
         if (!IsNearestNote(options, i)) {

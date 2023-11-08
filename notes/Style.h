@@ -60,6 +60,17 @@ public:
     bool pullTogether() const { return rangesPreference == Ranges::ENCOURAGE_CENTER; }
 
     bool limitSopranoJumps() const {
+        //   return false;   // just for test
+        return true;
+    }
+
+    bool forbidLeadingToneDoubling() const {
+        // return false;   // just for test
+        return true;
+    }
+
+    bool forbidLeadingToneChordInRootPosition() const {
+        //    return false;   // just for test
         return true;
     }
 
@@ -68,7 +79,7 @@ private:
     Ranges rangesPreference = Ranges::NORMAL_RANGE;
     bool enableNoNotesInCommonRule = true;
 
-    bool isNarrowRange() const { 
+    bool isNarrowRange() const {
         return (rangesPreference == Ranges::NARROW_RANGE);
     }
 
@@ -79,7 +90,7 @@ private:
 
     // 2023: let's get more constrained, and get rid of special test mode/
     int dx = 8;
-   // bool specialTestMode = false;
+    // bool specialTestMode = false;
 };
 
 using StylePtr = std::shared_ptr<Style>;
@@ -92,8 +103,8 @@ inline int Style::absMaxPitch() {
 #if !CRAZY_STYLE
     ret = maxSop();  // used to be +5. seemed wrong
 #else
-     a b c // we won't support this any longer
-    SQWARN("crazy style is on");
+    a b c  // we won't support this any longer
+        SQWARN("crazy style is on");
     ret = maxSop() + 10;
 #endif
     return ret;
@@ -126,7 +137,6 @@ inline int Style::maxUnison() {
 inline bool Style::requireStdDoubling() {
     return true;
 }
-
 
 inline bool Style::forceDescSop() {
 #if !CRAZY_STYLE

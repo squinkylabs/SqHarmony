@@ -116,7 +116,13 @@ static void testListLeadingToneSub(Chord4List chords) {
         //     SQINFO("doubled leading:");
         //     chord->dump();
         // }
-        assert(leadingToneCount <= 1);
+        StylePtr style = std::make_shared<Style>();
+        if (style->forbidLeadingToneDoubling()) {
+            assert(leadingToneCount <= 1);
+        }
+        else {
+            SQINFO("turned off leading tone rule!!");
+        }
     }
 }
 

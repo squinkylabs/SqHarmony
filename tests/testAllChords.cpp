@@ -185,14 +185,14 @@ static void testNumberOfChords() {
     }
 
     /*
-    data from first release
-     mgr size[1] =138
-    ]mgr size[2] =96
-     mgr size[3] =111
-     mgr size[4] =99
-     mgr size[5] =97
-     mgr size[6] =99
-     mgr size[7] =91
+    data from first release / eliminate leading tone doubling / also elim lead inroot
+     mgr size[1] =138 / 138
+    ]mgr size[2] =96 / 96
+     mgr size[3] =111 / 82
+     mgr size[4] =99 / 99
+     mgr size[5] =97 / 70
+     mgr size[6] =99 / 99
+     mgr size[7] =91 / 65 / 47
      */
 }
 void testAllChords() {

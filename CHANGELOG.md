@@ -2,15 +2,17 @@
 
 ## 2.2.1
 
-Phase Patterns uses correct font on the panel.
+Phase Patterns uses correct font on the panel. Changed the name of Phasepatterns to Phase Patterns.
 
-Made initial fake score in Harmony Stay up.
+Made initial fake score in Harmony Stay up. (should go back)
+Fixed memory leak in Harmony.
+New Harmony rules:
 
-Changed the name of Phasepatterns to Phase Patterns.
+* Forbid doubling of leading tones.
+* Chord of the leading tone prevented in root position.
+* Forbid melodic jumps in the soprano voice of more than a fifth.
 
 Fixed broken links to CHANGELOG.
-
-Fixed memory leak in Harmony.
 
 ## 2.2.0
 

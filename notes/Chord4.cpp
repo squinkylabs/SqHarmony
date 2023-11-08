@@ -324,7 +324,8 @@ bool Chord4::isChordOk(const Options& options) const {
         return false;
     }
 
-    {
+
+    if (options.style->forbidLeadingToneDoubling() || options.style->forbidLeadingToneChordInRootPosition()) {
         // TODO: shouldn't this be moved to isAcceptableDoubling?
         assert(_notes.size() == CHORD_SIZE);
 
@@ -340,12 +341,12 @@ bool Chord4::isChordOk(const Options& options) const {
 
         // If more than one it means we are doubling the leading tone. 
         // That's more difficult than we can do - let's forbid it.
-        if (totalLeadingTones > 1) {
+        if ((totalLeadingTones > 1) && options.style->forbidLeadingToneDoubling()) {
             return false;
         }
 
         // If this is the leading tone triad, then it can't be in root position
-        if (_root == 7 && chordInversion ==  ROOT_POS_INVERSION) {  
+        if (_root == 7 && chordInversion ==  ROOT_POS_INVERSION && options.style->forbidLeadingToneChordInRootPosition()) {  
             return false;
         }
     }
