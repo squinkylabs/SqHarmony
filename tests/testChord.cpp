@@ -112,10 +112,10 @@ static void testListLeadingToneSub(Chord4List chords) {
                 ++leadingToneCount;
             }
         }
-        if (leadingToneCount > 1) {
-            SQINFO("doubled leading:");
-            chord->dump();
-        }
+        // if (leadingToneCount > 1) {
+        //     SQINFO("doubled leading:");
+        //     chord->dump();
+        // }
         assert(leadingToneCount <= 1);
     }
 }

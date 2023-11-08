@@ -134,7 +134,18 @@ static void xtestAllChords() {
     // for each possible source chord, can it be followed by dest?
 }
 
-static void printMetrics() {
+// static void showLeadingTone() {
+//     Options o = makeOptions(false);
+//     const int nDegree = 7;
+
+//     Chord4List chordList(o, nDegree);
+//     for (int i=0; i<chordList.size(); ++i) {
+//         const auto ch = chordList.get2(i);
+//         ch->dump();
+//     }
+// }
+
+static void testNumberOfChords() {
     // const int sourceRoot = 1;
     // const auto model =
     // const Options options = makeOptions(sourceRoot, mode);
@@ -142,7 +153,7 @@ static void printMetrics() {
     Chord4Manager mgr(options);
     for (int i = 1; i < 8; ++i) {
         const auto x = mgr.size(i);
-        SQINFO("mgr size[%d] =%d", i, x);
+        //   SQINFO("mgr size[%d] =%d", i, x);
         int expected = 0;
         switch (i) {
             case 1:
@@ -170,7 +181,7 @@ static void printMetrics() {
                 assert(false);
         }
         SQINFO("remove assert. generated[%d] %d expected %d", i, x, expected);
-        //assertEQ(x, expected);
+        // assertEQ(x, expected);
     }
 
     /*
@@ -185,7 +196,8 @@ static void printMetrics() {
      */
 }
 void testAllChords() {
-    printMetrics();
+    // showLeadingTone();
+    testNumberOfChords();
     xtestAllChords();
     assertEQ(__numChord4, 0);
 }

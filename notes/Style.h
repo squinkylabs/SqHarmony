@@ -59,10 +59,10 @@ public:
 
     bool pullTogether() const { return rangesPreference == Ranges::ENCOURAGE_CENTER; }
 
-    void setSpecialTestMode(int amt) {
-        specialTestMode = true;
-        dx = amt;
-    }
+    // void setSpecialTestMode(int amt) {
+    //     specialTestMode = true;
+    //     dx = amt;
+    // }
 
 private:
     // bool _allowConsecInversions = false;
@@ -71,7 +71,7 @@ private:
     bool enableNoNotesInCommonRule = true;
 
     bool isNarrowRange() const { 
-        return (rangesPreference == Ranges::NARROW_RANGE) || specialTestMode;
+        return (rangesPreference == Ranges::NARROW_RANGE);
     }
 
     // at 5 it's getting noticeably worse, but not awful
@@ -79,9 +79,9 @@ private:
     // old way 7 crapped out, 6 ok
     // new way 12 crap, 10 asserts 9 ok : 9 best for new way
 
+    // 2023: let's get more constrained, and get rid of special test mode/
     int dx = 8;
-    //static const int dx{8};
-    bool specialTestMode = false;
+   // bool specialTestMode = false;
 };
 
 using StylePtr = std::shared_ptr<Style>;

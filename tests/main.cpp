@@ -99,8 +99,8 @@ int main(const char**, int) {
     testHarmonyChords();
     testHarmonyChords2();
 
-    fprintf(stderr, "skipping random for now\n");
-    //testHarmonyChordsRandom();
+    //fprintf(stderr, "skipping random for now\n");
+    testHarmonyChordsRandom();
     testAllChords();
 #endif
     testHarmonyComposite();

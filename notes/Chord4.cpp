@@ -303,7 +303,8 @@ bool Chord4::isChordOk(const Options& options) const {
     }
 
     bool InvOk;
-    switch (inversion(options)) {
+    const auto chordInversion = inversion(options); 
+    switch (chordInversion) {
         case ROOT_POS_INVERSION:
             InvOk = true;
             break;
@@ -351,6 +352,7 @@ bool Chord4::isChordOk(const Options& options) const {
     }
 
     {
+        // TODO: shouldn't this be moved to isAcceptableDoubleing
         assert(_notes.size() == CHORD_SIZE);
         int totalLeadingTones = 0;
         for (i = 0; i < CHORD_SIZE; i++) {
@@ -365,8 +367,14 @@ bool Chord4::isChordOk(const Options& options) const {
             //this->dump();
             return false;
         }
-    }
 
+        // if This is the leading tone triad
+        if (root == 7 && chordInversion ==  ROOT_POS_INVERSION) {  
+            // maybe this needs to be treated separately from the other inversion rules?   
+           // SQINFO("rejecting root pos of leading tone");
+            return false;
+        }
+    }
 
     // If we got this far, we must be ik
     return true;
@@ -397,9 +405,6 @@ bool Chord4::pitchesInRange(const Options& options) const {
 
 bool Chord4::isAcceptableDoubling(const Options& options) const {
     int nRoots = 0, nThirds = 0, nFifths = 0;
-
-   
-
     for (int nVoice = 0; nVoice < CHORD_SIZE; nVoice++)  // loop over all notes in chord
     {
         const HarmonyNote& harmonyNote = _notes[nVoice];
