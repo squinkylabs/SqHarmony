@@ -137,20 +137,17 @@ private:
 
     std::string getString() const;  // printer helper function.  Gets string ascii representation of chord
 
-    // **** guys who allocate storage ******
-    // static int size;
-
     ScaleRelativeNote srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid.
                                              // Used for analysis.
 
-    int root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
+    int _root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
                    // is scale relative
     std::vector<HarmonyNote> _notes;
     bool valid = false;
 };
 
 inline int Chord4::fetchRoot() const {
-    return root;
+    return _root;
 }
 
 inline const HarmonyNote* Chord4::fetchNotes() const {

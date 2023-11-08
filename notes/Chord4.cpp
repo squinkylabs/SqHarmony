@@ -14,16 +14,13 @@
 #include "SqLog.h"
 #include "Style.h"
 
-// int Chord4::size;
-
-// int __numChord4 = 0;
 std::atomic<int> __numChord4{0};
 
 /*  Chord4::Chord4(int nRoot)
  */
-Chord4::Chord4(const Options& options, int nRoot) : root(nRoot) {
+Chord4::Chord4(const Options& options, int nRoot) : _root(nRoot) {
     __numChord4++;
-    assert(root > 0 && root < 8);
+    assert(_root > 0 && _root < 8);
 
     for (int i = 0; i < CHORD_SIZE; ++i) {
         _notes.push_back(HarmonyNote(options));
@@ -38,21 +35,21 @@ Chord4::Chord4(const Options& options, int nRoot) : root(nRoot) {
         if (!isInChord(options, _notes[index])) {
             bumpToNextInChord(options, _notes[index]);
         }
-        // speed up makeNext by getting this far
+        // Speed up makeNext by getting this far.
     }
 
     if (!isChordOk(options)) {
-        const bool error = makeNext(options);  // Start on valid chord
+        const bool error = makeNext(options);  // Start on valid chord.
         if (error) {
             assert(!valid);
-            return;  // if we can't make a valid chord, signal an error
+            return;  // If we can't make a valid chord, signal an error.
         }
     }
     valid = true;
 }
 
 // TODO: get rid of this!
-Chord4::Chord4() : root(1) {
+Chord4::Chord4() : _root(1) {
     valid = true;
     __numChord4++;
 }
@@ -124,19 +121,10 @@ std::string Chord4::getString() const {
 
     s << toStringShort();
     s << " Root: ";
-    s << root;
+    s << _root;
     s << " rank: ";
     s << rank;
 
-#if 0
-
-    s << "Root: ";
-    s << root;
-    s << "  ";
-    for (int i = 0; i < CHORD_SIZE; i++) {
-        s << _notes[i].tellPitchName();
-    }
-#endif
     return s.str();
 }
 
@@ -185,17 +173,11 @@ void Chord4::bumpToNextInChord(const Options& options, HarmonyNote& note) {
         printf("bump to next called with >%s<\n", toString().c_str());
         printf("%d %d %d %d\n", (int)_notes[0], (int)_notes[1], (int)_notes[2], (int)_notes[3]);
     }
-    // assert(toStringShort() != "E2A2C3A3");
     while (!isInChord(options, note)) ++note;
 
     if (b && false) {
         printf("leaving bump with %s\n", toString().c_str());
     }
-#if 0
-    if (toStringShort() == "E2A2C3A3") {
-        printf("leaving bump with the magic value\n");
-    }
-#endif
 }
 
 /* bool Chord4::inc()
@@ -231,14 +213,6 @@ bool Chord4::inc(const Options& options) {
         }
     }
 
-#if 0
-    if (root == 6) {
-        std::string s = toStringShort();
-        if (s == "E2A2C3A3") {
-            printf("leaving inc with note at 196\n");
-        }
-    }
-#endif
     return fRet;
 }
 
@@ -271,7 +245,6 @@ void Chord4::makeSrnNotes(const Options& op) {
 }
 
 bool Chord4::isChordOk(const Options& options) const {
- //   bool ret = true;
     int i, nPitch;
 
 #if 0
@@ -352,8 +325,10 @@ bool Chord4::isChordOk(const Options& options) const {
     }
 
     {
-        // TODO: shouldn't this be moved to isAcceptableDoubleing
+        // TODO: shouldn't this be moved to isAcceptableDoubling?
         assert(_notes.size() == CHORD_SIZE);
+
+        // count how many leading tones are in this chord.
         int totalLeadingTones = 0;
         for (i = 0; i < CHORD_SIZE; i++) {
             ScaleRelativeNote tempSrn;
@@ -362,21 +337,20 @@ bool Chord4::isChordOk(const Options& options) const {
                 ++totalLeadingTones;
             }
         }
+
+        // If more than one it means we are doubling the leading tone. 
+        // That's more difficult than we can do - let's forbid it.
         if (totalLeadingTones > 1) {
-            // SQINFO("rejected doubling of leading");
-            //this->dump();
             return false;
         }
 
-        // if This is the leading tone triad
-        if (root == 7 && chordInversion ==  ROOT_POS_INVERSION) {  
-            // maybe this needs to be treated separately from the other inversion rules?   
-           // SQINFO("rejecting root pos of leading tone");
+        // If this is the leading tone triad, then it can't be in root position
+        if (_root == 7 && chordInversion ==  ROOT_POS_INVERSION) {  
             return false;
         }
     }
 
-    // If we got this far, we must be ik
+    // If we got this far, we must be ok;
     return true;
 }
 
@@ -424,7 +398,7 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
         }
     }
 
-    //  acceptable means there is one of each - root, third, fifth.
+    //  Acceptable means there is one of each - root, third, fifth.
     return (nRoots > 0) && (nThirds > 0) && (nFifths > 0);
 }
 
@@ -435,12 +409,6 @@ bool Chord4::isCorrectDoubling(const Options& options) const {
     int nVoice;
     int nRoots, nThirds, nFifths;
     int nDoubled = 0;
-
-#if 0
-    if (this->toStringShort() == "E2G2C3E3") {
-        printf("here it is\n");
-    }
-#endif
 
     assert(_notes.size() == CHORD_SIZE);
 
@@ -572,7 +540,7 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
 
     srnN = options.keysig->ScaleDeg(note);  // get scale degree
     if (srnN.isValid()) {
-        nt = 1 + srnN - root;  // to go from scale rel to chord rel, just normalize to chord root
+        nt = 1 + srnN - _root;  // to go from scale rel to chord rel, just normalize to chord root
         if (nt <= 0) nt += 7;  // keep positive!
     }
     ret.set(nt);
@@ -593,20 +561,14 @@ bool Chord4::isInChord(const Options& options, HarmonyNote test) const {
         case 5:
             ret = true;
     }
-#if 0
-    if (b) {
-        printf("here is note at isInChord, will ret %d\n", ret);
-        // assert(false);
-    }
-#endif
+
     return ret;
 }
 
-/* int Chord4::Inversion()
-
+/** int Chord4::Inversion()
+ *
  */
 INVERSION Chord4::inversion(const Options& options) const {
-    // static int dumb = -1;
     INVERSION ret;
 
     switch (chordInterval(options, _notes[0])) {
@@ -622,13 +584,7 @@ INVERSION Chord4::inversion(const Options& options) const {
         default:
             ret = NO_INVERSION;
     }
-#if 0
-if (notes[0] != dumb)
-    {
-    printf("-note %d chord int %d-\n", (int) notes[0], (int) ChordInterval(notes[0]));
-    dumb = notes[0];
-    }
-#endif
+
     return ret;
 }
 
