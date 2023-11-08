@@ -166,6 +166,13 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (p && show) {
         str << "penalty: RuleForJumpSize " << p << std::endl;
     }
+
+    p = RuleForSopranoJump(options);
+    totalPenalty += p;
+    if (p && show) {
+        str << "penalty: RuleForSopranoJump " << p << std::endl;
+    }
+
     if (totalPenalty >= upperBound) {
         if (show) {
             str << "-- leaving getPenalty after jump size with " << totalPenalty << std::endl;
@@ -184,12 +191,24 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
 
 int ProgressionAnalyzer::RuleForJumpSize() const {
     for (int i = BASS; i <= SOP; i++) {
-        int jump = first->fetchNotes()[i] - next->fetchNotes()[i];
+        const int jump = first->fetchNotes()[i] - next->fetchNotes()[i];
         // This was 12 - I changed to 8. I think it was a typo.
         if (abs(jump) > 8) {
             if (show) SQINFO("BIG jump in voice %d", i);
             return AVG_PENALTY_PER_RULE;
         }
+    }
+    return 0;
+}
+
+int ProgressionAnalyzer::RuleForSopranoJump(const Options& options) const {
+    if (!options.style->limitSopranoJumps()) {
+        return 0;
+    }
+    const int jump = first->fetchNotes()[SOP] - next->fetchNotes()[SOP];
+    if (abs(jump) > 4) {
+        if (show) SQINFO("BIG jump in SOP voice");
+         return AVG_PENALTY_PER_RULE;
     }
     return 0;
 }
@@ -457,6 +476,7 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
     SQWARN("we shouldn't get here!!");
     return true;
 }
+
 
 /* void ProgressionAnalyzer::FigureMotion()
  */

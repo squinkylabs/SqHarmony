@@ -34,7 +34,7 @@ static void testAdditiveModLogic_notZero() {
 
 // don't connect the adsr
 static void testAdditiveModLogic_notConnected() {
-    SQINFO("\n\n-------------- testAdditiveModLogic_notConnected");
+    // SQINFO("\n\n-------------- testAdditiveModLogic_notConnected");
     const unsigned N = 12;
     AdditiveModLogic<12> l;
 
@@ -57,7 +57,7 @@ static void testAdditiveModLogic_notConnected() {
 
 template <unsigned N>
 static void assertOneHarmonic(AdditiveModLogic<N>& l, unsigned harmonic, float value) {
-    SQINFO("assertOneHarmonic called with harm = %d, value =%f", harmonic, value);
+    //SQINFO("assertOneHarmonic called with harm = %d, value =%f", harmonic, value);
     for (unsigned i = 0; i < N; ++i) {
         const float expected = (i == harmonic) ? value : 0;
         const float actual = l.getCombinedADSR(i);
@@ -67,7 +67,7 @@ static void assertOneHarmonic(AdditiveModLogic<N>& l, unsigned harmonic, float v
 
 template <unsigned N>
 static void testAdditiveModLogic_singleADSRsingleHarmonic(AdditiveModLogic<N>& l, unsigned adsr, unsigned harmonic) {
-    SQINFO("\n\n--------------- testAdditiveModLogic_singleADSRsingleHarmonic adsr=%d ha=%d", adsr, harmonic);
+    // SQINFO("\n\n--------------- testAdditiveModLogic_singleADSRsingleHarmonic adsr=%d ha=%d", adsr, harmonic);
     // connect only the passed asr, and make it 1. all others zero
     for (unsigned j = 0; j < l.numADSR; ++j) {
         if (j == adsr) {

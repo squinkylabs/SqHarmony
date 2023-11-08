@@ -51,10 +51,11 @@ private:
     int ruleForSpreading(const Options& options) const;
     int RuleForLeadingTone() const;
     int RuleForPara() const;
-    int RuleForCross() const;                                   // vx in similar motion shouldn't cross
-    int RuleForInversions(const Options& options) const;  // rule for two consec chords in first inversion
+    int RuleForCross() const;                               // Vx in similar motion shouldn't cross.
+    int RuleForInversions(const Options& options) const;    // Rule for two consec chords in first inversion.
     int RuleForJumpSize() const;
-    int FakeRuleForDesc(const Options& options) const;  // force descending melody for torture test!
+    int FakeRuleForDesc(const Options& options) const;  // Force descending melody for torture test!
+    int RuleForSopranoJump(const Options& options) const; 
 
     bool IsNearestNote(const Options&, int Vx) const;  // True if the voice went to the nearest available slot
 };

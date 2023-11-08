@@ -59,13 +59,11 @@ public:
 
     bool pullTogether() const { return rangesPreference == Ranges::ENCOURAGE_CENTER; }
 
-    // void setSpecialTestMode(int amt) {
-    //     specialTestMode = true;
-    //     dx = amt;
-    // }
+    bool limitSopranoJumps() const {
+        return true;
+    }
 
 private:
-    // bool _allowConsecInversions = false;
     InversionPreference inversionPreference = InversionPreference::DISCOURAGE_CONSECUTIVE;
     Ranges rangesPreference = Ranges::NORMAL_RANGE;
     bool enableNoNotesInCommonRule = true;
