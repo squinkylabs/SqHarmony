@@ -271,7 +271,7 @@ void Chord4::makeSrnNotes(const Options& op) {
 }
 
 bool Chord4::isChordOk(const Options& options) const {
-    bool ret = true;
+ //   bool ret = true;
     int i, nPitch;
 
 #if 0
@@ -298,7 +298,7 @@ bool Chord4::isChordOk(const Options& options) const {
             }
         }
     } else {
-        printf("can't handle yet\n");
+        SQWARN("can't handle crossing");
         return false;
     }
 
@@ -317,12 +317,6 @@ bool Chord4::isChordOk(const Options& options) const {
             InvOk = false;
     }
     if (!InvOk) {
-#if 0
-        if (b) printf("isChordOk not ok at 274\n");
-        if (toStringShort() == "E2A2C3A3") {
-            printf("failing isChordOk with the magic value for illegal second inversion\n");
-        }
-#endif
         return false;
     }
 
@@ -331,37 +325,51 @@ bool Chord4::isChordOk(const Options& options) const {
     memset(test, 0, sizeof(test));  // clear our test hit array
     for (i = matches = 0; i < CHORD_SIZE; i++) {
         nPitch = _notes[i];           // get the pitch of this chord member
+        assert(nPitch >= 0 && nPitch < 128);
+
         if (test[nPitch]) matches++;  // if someone at this pitch, count us
         test[nPitch] = true;          // mark that we are here
     }
     if (matches > style->maxUnison()) {
-        // if (b) printf("isChordOk not ok at 287\n");
         return false;
-        // If more unisons in the chord than we allow
     }
 
     for (i = CHORD_SIZE - 1; i >= 0; i--) {
         if (!isInChord(options, _notes[i])) {
             // if (b) printf("isChordOk not ok at 294\n");
+            // how can we get down here with notes not in chord?
             return false;
         }
     }
 
-#if 1
     if (!isAcceptableDoubling(options)) {
         return false;
     }
-#else
-    if (style->requireStdDoubling() && !isStdDoubling(options)) {
-        // if (b) printf("isChordOk not ok at 300\n");
-        //  double root, contain 3 and 5
-        return false;
-    }
-#endif
+
     if (!pitchesInRange(options)) {
         return false;
     }
-    return ret;
+
+    {
+        assert(_notes.size() == CHORD_SIZE);
+        int totalLeadingTones = 0;
+        for (i = 0; i < CHORD_SIZE; i++) {
+            ScaleRelativeNote tempSrn;
+            tempSrn = options.keysig->ScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
+            if (tempSrn.isLeadingTone()) {
+                ++totalLeadingTones;
+            }
+        }
+        if (totalLeadingTones > 1) {
+            // SQINFO("rejected doubling of leading");
+            //this->dump();
+            return false;
+        }
+    }
+
+
+    // If we got this far, we must be ik
+    return true;
 }
 
 bool Chord4::pitchesInRange(const Options& options) const {
@@ -410,8 +418,6 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
                 assert(false);
         }
     }
-
-    assert(false);  // todo: let's never allow doubled leading tone!
 
     //  acceptable means there is one of each - root, third, fifth.
     return (nRoots > 0) && (nThirds > 0) && (nFifths > 0);

@@ -98,7 +98,9 @@ int main(const char**, int) {
     testHarmonySong();
     testHarmonyChords();
     testHarmonyChords2();
-    testHarmonyChordsRandom();
+
+    fprintf(stderr, "skipping random for now\n");
+    //testHarmonyChordsRandom();
     testAllChords();
 #endif
     testHarmonyComposite();

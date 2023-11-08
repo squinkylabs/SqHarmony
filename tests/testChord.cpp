@@ -107,7 +107,6 @@ static void testListLeadingToneSub(Chord4List chords) {
 
         int leadingToneCount = 0;
         for (int i = 0; i < 4; ++i) {
-
             const ScaleRelativeNote& n = srn[i];
             if (n.isLeadingTone()) {
                 ++leadingToneCount;
@@ -121,12 +120,28 @@ static void testListLeadingToneSub(Chord4List chords) {
     }
 }
 
+static void testCanConstructAllChord4() {
+    Options o = makeOptions(false);
+    for (int nDegree=1; nDegree < 8; ++nDegree) {
+        Chord4 chord(o, nDegree);
+        assertEQ(chord.isValid(), true);
+    }
+}
+
+static void testCanConstructAllChord4List() {
+    Options o = makeOptions(false);
+    for (int nDegree=1; nDegree < 8; ++nDegree) {
+        Chord4List chordList(o, nDegree);
+        assertGT(chordList.size(), 0);
+    }
+}
+
 static void testListLeadingTone() {
-  //  Options o = makeOptions(false);
-  //  for (int root = 1; root < 8; ++root) {
-  //      Chord4List l(o, root);  
-  //      testListLeadingToneSub(l);
-  //  }
+    Options o = makeOptions(false);
+    for (int root = 1; root < 8; ++root) {
+        Chord4List l(o, root);
+        testListLeadingToneSub(l);
+    }
 }
 
 static void testList(bool minor) {
@@ -337,6 +352,9 @@ void testChord() {
     testList();
     testList2();
     testListLeadingTone();
+    testCanConstructAllChord4();
+    testCanConstructAllChord4List();
+
 
     testInversions();
     // specialDumpList();
