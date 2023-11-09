@@ -60,17 +60,14 @@ public:
     bool pullTogether() const { return rangesPreference == Ranges::ENCOURAGE_CENTER; }
 
     bool limitSopranoJumps() const {
-        //   return false;   // just for test
         return true;
     }
 
     bool forbidLeadingToneDoubling() const {
-        // return false;   // just for test
         return true;
     }
 
     bool forbidLeadingToneChordInRootPosition() const {
-        //    return false;   // just for test
         return true;
     }
 

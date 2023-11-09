@@ -124,26 +124,7 @@ static void xtestAllChords() {
     testAllChords(Style::Ranges::NORMAL_RANGE);
     testAllChords(Style::Ranges::ENCOURAGE_CENTER);
     testAllChords(Style::Ranges::NARROW_RANGE);
-
-    // for all modes
-
-    // for each possible degree source
-
-    // for each possible degree destination
-
-    // for each possible source chord, can it be followed by dest?
 }
-
-// static void showLeadingTone() {
-//     Options o = makeOptions(false);
-//     const int nDegree = 7;
-
-//     Chord4List chordList(o, nDegree);
-//     for (int i=0; i<chordList.size(); ++i) {
-//         const auto ch = chordList.get2(i);
-//         ch->dump();
-//     }
-// }
 
 static void testNumberOfChords() {
     // const int sourceRoot = 1;
@@ -195,9 +176,50 @@ static void testNumberOfChords() {
      mgr size[7] =91 / 65 / 47
      */
 }
-void testAllChords() {
-    // showLeadingTone();
+
+#include "windows.h"
+
+/*
+static void testAllChords(
+    Style::Ranges range,
+    Style::InversionPreference inversionPref,
+    Scale::Scales mode,
+    int root) {*/
+
+static void thingToTime() {
+    testAllChords(
+        Style::Ranges::NORMAL_RANGE,
+        Style::InversionPreference::DONT_CARE,
+        Scale::Scales::Major,
+        1);
+}
+
+// 234 ms debug.
+// 748 release old rules 848, so it got faster
+static void timingCheck() {
+#ifdef _DEBUG
+    const int iterations = 1;
+#else
+    const int iterations = 30;
+#endif
+    for (int i = 0; i < 5; ++i) {
+        thingToTime();
+    }
+    int x = timeGetTime();
+    for (int i = 0; i < iterations; ++i) {
+        thingToTime();
+    }
+    int y = timeGetTime();
+    SQINFO("timing check, elapsed = %d", y - x);
+}
+
+void testAllChords(bool doLongRunning) {
     testNumberOfChords();
-    xtestAllChords();
+    if (doLongRunning) {
+        timingCheck();
+        xtestAllChords();
+    } else {
+        SQINFO("skipping long running tests");
+    }
     assertEQ(__numChord4, 0);
 }

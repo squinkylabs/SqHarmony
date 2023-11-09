@@ -47,7 +47,9 @@ extern void testShiftCalc();
 extern void testClockMult();
 extern void testMultiplier();
 extern void testRatchet();
-extern void testAllChords();
+extern void testAllChords(bool);
+
+const bool doLongRunning = false;
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -101,7 +103,7 @@ int main(const char**, int) {
 
     //fprintf(stderr, "skipping random for now\n");
     testHarmonyChordsRandom();
-    testAllChords();
+    testAllChords(doLongRunning);
 #endif
     testHarmonyComposite();
     printf("put back test progression?\n");
