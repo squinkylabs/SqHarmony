@@ -48,6 +48,7 @@ extern void testClockMult();
 extern void testMultiplier();
 extern void testRatchet();
 extern void testAllChords(bool);
+extern void testHarmonyChords2023();
 
 const bool doLongRunning = false;
 
@@ -87,19 +88,11 @@ int main(const char**, int) {
     testArpegRhythmPlayer();
     testArpegComposite();
 #if 1
-    testNotes();
-    testScale();
-    testScaleNotes();
-    testScaleQuantizer();
-    testKeysig();
-    testHarmonyNote();
-    testScaleRelativeNote();
-    testChordRelativeNote();
-    testChord();
-    testChord4Manager();
-    testHarmonySong();
+    testHarmonyChords2023();    // TODO: only up front here for test.
+
     testHarmonyChords();
     testHarmonyChords2();
+    testHarmonyChords2023();
 
     //fprintf(stderr, "skipping random for now\n");
     testHarmonyChordsRandom();

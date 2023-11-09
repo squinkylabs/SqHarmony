@@ -35,7 +35,7 @@ private:
     const int firstRoot;
     const int nextRoot;
 
-    int magMotion[4];    // derived motion for each voice (magnitude)
+    int _motion[4];    // Derived motion for each voice (bipolar, in semitones).
     DIREC direction[4];  // "    "
     int notesInCommon;
     const bool show;  // for debugging
@@ -47,6 +47,8 @@ private:
     // All rules return penalty, or zero for pass
     int Rule4Same() const;
     int RuleForNoneInCommon(const Options&) const;
+    int RuleForNoneInCommon56(const Options&) const;
+    int RuleForNoneInCommonNorm(const Options&) const;
     int ruleForDoubling(const Options& options) const;
     int ruleForSpreading(const Options& options) const;
     int RuleForLeadingTone() const;

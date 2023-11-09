@@ -71,6 +71,11 @@ public:
         return true;
     }
 
+    bool usePistonV_VI_exception() const {
+        return true;
+        // return false;
+    }
+
 private:
     InversionPreference inversionPreference = InversionPreference::DISCOURAGE_CONSECUTIVE;
     Ranges rangesPreference = Ranges::NORMAL_RANGE;

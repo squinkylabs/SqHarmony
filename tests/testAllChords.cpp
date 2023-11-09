@@ -177,6 +177,7 @@ static void testNumberOfChords() {
      */
 }
 
+#undef APIENTRY
 #include "windows.h"
 
 /*

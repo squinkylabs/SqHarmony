@@ -112,7 +112,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = Rule4Same();
     totalPenalty += p;
     if (p && show) {
-        str << "penalty: Rule4Same " << p << " tot=" << totalPenalty <<  std::endl;
+        str << "penalty: Rule4Same " << p << " tot=" << totalPenalty << std::endl;
     }
     if (totalPenalty >= upperBound) {
         if (show) {
@@ -125,7 +125,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = RuleForNoneInCommon(options);
     totalPenalty += p;
     if (p && show) {
-        str << "penalty: RuleForNonInCommon " << p << std::endl;
+        str << "penalty: RuleForNoneInCommon " << p << std::endl;
     }
     if (totalPenalty >= upperBound) {
         if (show) {
@@ -208,7 +208,7 @@ int ProgressionAnalyzer::RuleForSopranoJump(const Options& options) const {
     const int jump = first->fetchNotes()[SOP] - next->fetchNotes()[SOP];
     if (abs(jump) > 4) {
         if (show) SQINFO("BIG jump in SOP voice");
-         return AVG_PENALTY_PER_RULE;
+        return AVG_PENALTY_PER_RULE;
     }
     return 0;
 }
@@ -244,7 +244,7 @@ int ProgressionAnalyzer::RuleForInversions(const Options& options) const {
 }
 
 int ProgressionAnalyzer::FakeRuleForDesc(const Options& options) const {
-    if (!options.style->forceDescSop()) return true;                  // check if rule enabled
+    if (!options.style->forceDescSop()) return true;  // check if rule enabled
     assert(false);
     bool ret = (next->fetchNotes()[SOP] < first->fetchNotes()[SOP]);  // For a test, lets make molody descend
     if (show && !ret) SQINFO("failed fake decrease melody");
@@ -319,7 +319,7 @@ int ProgressionAnalyzer::RuleForPara() const {
                 case 1:  // octave?
 
                     if (show) SQINFO("next interval=%d between vx %d and %d", NextInterval, i, j);
-                   
+
                     const int FirstInterval =
                         first->fetchSRNNotes()[i].interval(first->fetchSRNNotes()[j]);
                     if (FirstInterval == NextInterval)  // paralel 5 or 12
@@ -353,7 +353,7 @@ int ProgressionAnalyzer::RuleForPara() const {
             }
         }
     }
-    if (show) SQINFO("leaving RuleForPara\n");
+    if (show) SQINFO("leaving RuleForPara");
     return 0;
 }
 
@@ -387,20 +387,126 @@ int ProgressionAnalyzer::RuleForLeadingTone() const {
 }
 
 int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
-    DIREC di;
-    int i;
-
     if (notesInCommon != 0) {
-        return 0;       // No penalty for this rule is there are notes in common.
+        return 0;  // No penalty for this rule is there are notes in common.
     }
 
     if (!options.style->getNoNotesInCommon()) {
-        return 0;       // If the style is ignoring this rule, then no penalty.
+        return 0;  // If the style is ignoring this rule, then no penalty.
     }
 
+    if (first->fetchRoot() == 5 && next->fetchRoot() == 6 && options.style->usePistonV_VI_exception()) {
+        SQWARN("This is the exception case");
+        return RuleForNoneInCommon56(options);
+    } else {
+        return RuleForNoneInCommonNorm(options);
+    }
+}
+
+int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
+    // The exception for 5-6 is:
+    // leading-tone moves up one degree to the tonic.
+    // the other two voices descend to the nearest position in the chord
+    // the third is doubled in the VI chord
+
+    SQINFO("RuleForNoneInCommon56 ex\n first:%s to  next: %s", first->toString().c_str(), next->toString().c_str());
+
+    int leadingToneVoice = -1;
+    const auto firstNotes = first->fetchSRNNotes();
+    for (int i = BASS; i <= SOP; ++i) {
+        const int degree = int(firstNotes[i]);
+        if (degree == 7) {
+            assert(leadingToneVoice < 0);
+            leadingToneVoice = i;
+        }
+    }
+    SQINFO("Leading tone voice %d (bass=%d)", leadingToneVoice, BASS);
+    assert(leadingToneVoice >= BASS);
+
+    const auto nextSRNotes = next->fetchSRNNotes();
+
+    for (int i=BASS; i<=SOP; ++i) {
+        SQINFO("_motion[%d]=%d", i, _motion[i]);
+    }
+
+    SQINFO("srn next =%d", int(nextSRNotes[leadingToneVoice]));
+    // Leading-tone moves up one degree to the tonic.
+    if ((int(nextSRNotes[leadingToneVoice]) != 1) ||
+        (_motion[leadingToneVoice] > 2) ||
+        (_motion[leadingToneVoice] < 1)
+        ) {
+        SQINFO("failed nnic 5-6 want leading tone to rise to next %s, %s",
+               first->toString().c_str(),
+               next->toString().c_str());
+        return AVG_PENALTY_PER_RULE;
+
+    }
+
+    SQINFO("nnic 56 got to 438, lt must be rising");
+
+    // The third is doubled in the VI chord.
+    int numThirdsInVI = 0;
+    for (int i = BASS; i <= SOP; ++i) {
+        const int degree = int(nextSRNotes[i]);
+        if (degree == 3) {
+            ++numThirdsInVI;
+        }
+    }
+
+    if (numThirdsInVI != 2) {
+
+        const char* p1 = first->toString().c_str();
+        const char* p2 = next->toString().c_str();
+        SQINFO("nnic 5-6 want third doubled %s, %s", p1, p2);
+        return AVG_PENALTY_PER_RULE;
+    }
+
+    SQINFO("got here, third must be doubled");
+
+    // the other two voices descend to the nearest position in the chord
+    // I think this means that one of the thirds descends.
+    int thirdsAscending = 0;
+    for (int i = BASS; i <= SOP; ++i) {
+        if (i == leadingToneVoice) {
+            // we have already taken care of this at the start. so we are ok here, 
+            // and can ignore that voice
+            continue;
+        }
+        const auto voiceDirection = direction[i];
+
+        // any voice going down is fine
+        if (voiceDirection == DIREC::DIR_DOWN) {
+            continue;
+        }
+
+        // here we are going up, and we are not the leading tone
+        const bool isThird = nextSRNotes[i] == 3;
+        if (isThird) {
+            ++thirdsAscending;
+        }
+        if (thirdsAscending > 1) {
+            SQINFO("both thirds are ascending %s, %s",
+               first->toString().c_str(),
+               next->toString().c_str());
+            return AVG_PENALTY_PER_RULE;
+        }
+    }
+
+    SQINFO("got here, v-vi must be good");
+    // const int degree = int(nextNotes[i]);
+    // if (degree == 3) {
+    //     ++numThirdsInVI;
+    // }
+
+   // assert(false);
+    return 0;
+}
+
+int ProgressionAnalyzer::RuleForNoneInCommonNorm(const Options& options) const {
+    const DIREC di = direction[TENOR];
     // No notes in common: upper 3 move opposite of bass.
 
-    for (di = direction[TENOR], i = ALTO; i <= SOP; i++) {
+    for (int i = ALTO; i <= SOP; i++) {
         if (di != direction[i]) {
             if (show) SQINFO("violates notes in common rule 1a");
             return SLIGHTLY_HIGHER_PENALTY_PER_RULE;
@@ -414,7 +520,7 @@ int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
     // TODO: what about the V-VI exception?
 
     // to nearest
-    for (i = BASS; i <= SOP; i++) {
+    for (int i = BASS; i <= SOP; i++) {
         if (!IsNearestNote(options, i)) {
             if (show) SQINFO("violates notes in common rule 1c");
             return AVG_PENALTY_PER_RULE;
@@ -479,18 +585,17 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
     return true;
 }
 
-
 /* void ProgressionAnalyzer::FigureMotion()
  */
 void ProgressionAnalyzer::figureMotion() {
     for (int i = BASS; i <= SOP; i++)  // for each voice
     {
-        magMotion[i] = next->fetchNotes()[i] -
+        _motion[i] = next->fetchNotes()[i] -
                        first->fetchNotes()[i];  // figure how much it changed
 
-        if (magMotion[i] > 0)
+        if (_motion[i] > 0)
             direction[i] = DIR_UP;
-        else if (magMotion[i] < 0)
+        else if (_motion[i] < 0)
             direction[i] = DIR_DOWN;
         else
             direction[i] = DIR_SAME;
