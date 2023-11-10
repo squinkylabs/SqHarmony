@@ -152,6 +152,7 @@ void Chord4::print() const {
 }
 
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
+    assert(strlen(target) == 8);
     Chord4Ptr chord = std::make_shared<Chord4>(options, degree);
     while (true) {
         if (chord->toStringShort() == target) {

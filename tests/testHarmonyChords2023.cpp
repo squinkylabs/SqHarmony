@@ -3,10 +3,7 @@
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
 #include "Style.h"
-
 #include "asserts.h"
-
-
 
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
@@ -25,6 +22,37 @@ static Options makeOptions(bool minor) {
     return o;
 }
 
+//---------------------
+
+static void assertChordExists(Chord4Manager& mgr, int root, const Options& options, const std::string& expected) {
+    Chord4List* p5 = mgr._getChords(root);
+    assert(p5);
+
+    Chord4Ptr desired5 = Chord4::fromString(options, root, expected.c_str());
+    assert(desired5);
+    assert(desired5->isValid());
+
+    // Chord4ListPtr chords = mgr._getChords(5);
+    int find5 = 0;
+    for (int i = 0; i < p5->size(); ++i) {
+        const Chord4* chord = p5->get2(i);
+        const Chord4* des = desired5.get();
+        if (*chord == *des) {
+            ++find5;
+        }
+    }
+    assertEQ(find5, 1);
+}
+
+static void canFindExpected56() {
+    Options options = makeOptions(false);
+    Chord4Manager mgr(options);
+
+    assertChordExists(mgr, 5, options, "G2G3B3D4");
+    assertChordExists(mgr, 6, options, "E2C3A3E4");
+}
+
+//-----------------------------------------
 static void testNoneInCommmon56() {
     SQINFO("start testNoneInCommmon56");
     auto options = makeOptions(false);
@@ -34,19 +62,18 @@ static void testNoneInCommmon56() {
     auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 6);
     assert(next);
 
-   
     if (options.style->usePistonV_VI_exception()) {
         // this is a known good with the old rule. it should break when we make the new one.
         const std::string s = next->toStringShort();
         assert(next->isValid());
-        assertEQ(next->toStringShort(), std::string("A2E3A3C4"));
-    }
-    else {
+       // assertEQ(next->toStringShort(), std::string("A2E3A3C4"));
+        assertEQ(next->toStringShort(), std::string("E2C3A3E4"));
+    } else {
         // older harmony rules.
         std::string knownGood("A2E3A3C4");
         assertEQ(next->toStringShort(), knownGood);
     }
-    
+
     SQINFO("end testNoneInCommmon56");
 }
 
@@ -62,11 +89,11 @@ static void testNoneInCommmon12() {
     assertEQ(next->toStringShort(), std::string("D2A2D3F3"));
 }
 
-
 /**
-* These are a grab-bag of harmony tests for new functionality added in 2023.
-*/
+ * These are a grab-bag of harmony tests for new functionality added in 2023.
+ */
 void testHarmonyChords2023() {
+    canFindExpected56();
     testNoneInCommmon12();
     testNoneInCommmon56();
 }
