@@ -4,9 +4,10 @@
 #include "PitchKnowledge.h"
 
 #include <assert.h>
+
 #include <sstream>
 
-// All this junk should be added to note class
+// All this junk should be added to note class.
 
 int PitchKnowledge::chromaticFromAbs(int nPitch) {
     int chro;

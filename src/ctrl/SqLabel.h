@@ -43,7 +43,7 @@ inline void SqLabel::updateText(const std::string& s) {
 }
 
 inline void SqLabel::draw(const DrawArgs& args) {
-   // INFO("SqLabel::draw size=%f, %f text=%s", box.size.x, box.size.y, text.c_str());
+    // INFO("SqLabel::draw size=%f, %f text=%s", box.size.x, box.size.y, text.c_str());
     std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
     if (!font) {
         SQWARN("no font");
@@ -56,7 +56,7 @@ inline void SqLabel::draw(const DrawArgs& args) {
     nvgFillColor(args.vg, color);  // is this needed? background or font?
                                    //	nvgText(args.vg, box.pos.x, box.pos.y, text.c_str(), NULL);
     // TODO: what are these arbitrary numbers?
-    nvgText(args.vg, 8, 16, text.c_str(), NULL);;
+    nvgText(args.vg, 8, 16, text.c_str(), NULL);
+    ;
     _isDirty = false;
 }
-

@@ -34,7 +34,7 @@ public:
         _frameBufferWidget->addChild(childWidget);
         _dirtyDetector = dd;
         ++_refCount;
-        //INFO("BufferingParent ctor, now are %d", _refCount);
+        // INFO("BufferingParent ctor, now are %d", _refCount);
     }
 
     T *getChild() {

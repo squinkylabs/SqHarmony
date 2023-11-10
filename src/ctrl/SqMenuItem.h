@@ -1,10 +1,10 @@
 #pragma once
 
 #include <functional>
-//#include "SqHelper.h"
-//#include "SqUI.h"
-#include "rack.hpp"
+// #include "SqHelper.h"
+// #include "SqUI.h"
 #include "SqUI.h"
+#include "rack.hpp"
 
 /**
  * This menu item takes generic lambdas,

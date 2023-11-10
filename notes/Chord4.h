@@ -54,7 +54,7 @@
 #define CHORD_SIZE 4
 #define OCTAVE_SPAN 1
 
-//extern int __numChord4;
+// extern int __numChord4;
 extern std::atomic<int> __numChord4;
 
 class Options;
@@ -119,10 +119,9 @@ public:
 
     bool isValid() const { return valid; }
 
-    int rank=0;             // lower rank is "better". Unique index into the chord lists.
+    int rank = 0;  // lower rank is "better". Unique index into the chord lists.
 
 private:
-
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
@@ -141,7 +140,7 @@ private:
                                              // Used for analysis.
 
     int _root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
-                   // is scale relative
+                    // is scale relative
     std::vector<HarmonyNote> _notes;
     bool valid = false;
 };

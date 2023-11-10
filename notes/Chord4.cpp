@@ -277,7 +277,7 @@ bool Chord4::isChordOk(const Options& options) const {
     }
 
     bool InvOk;
-    const auto chordInversion = inversion(options); 
+    const auto chordInversion = inversion(options);
     switch (chordInversion) {
         case ROOT_POS_INVERSION:
             InvOk = true;
@@ -299,7 +299,7 @@ bool Chord4::isChordOk(const Options& options) const {
     int matches;
     memset(test, 0, sizeof(test));  // clear our test hit array
     for (i = matches = 0; i < CHORD_SIZE; i++) {
-        nPitch = _notes[i];           // get the pitch of this chord member
+        nPitch = _notes[i];  // get the pitch of this chord member
         assert(nPitch >= 0 && nPitch < 128);
 
         if (test[nPitch]) matches++;  // if someone at this pitch, count us
@@ -325,7 +325,6 @@ bool Chord4::isChordOk(const Options& options) const {
         return false;
     }
 
-
     if (options.style->forbidLeadingToneDoubling() || options.style->forbidLeadingToneChordInRootPosition()) {
         // TODO: shouldn't this be moved to isAcceptableDoubling?
         assert(_notes.size() == CHORD_SIZE);
@@ -340,14 +339,14 @@ bool Chord4::isChordOk(const Options& options) const {
             }
         }
 
-        // If more than one it means we are doubling the leading tone. 
+        // If more than one it means we are doubling the leading tone.
         // That's more difficult than we can do - let's forbid it.
         if ((totalLeadingTones > 1) && options.style->forbidLeadingToneDoubling()) {
             return false;
         }
 
         // If this is the leading tone triad, then it can't be in root position
-        if (_root == 7 && chordInversion ==  ROOT_POS_INVERSION && options.style->forbidLeadingToneChordInRootPosition()) {  
+        if (_root == 7 && chordInversion == ROOT_POS_INVERSION && options.style->forbidLeadingToneChordInRootPosition()) {
             return false;
         }
     }
@@ -543,7 +542,7 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
     srnN = options.keysig->ScaleDeg(note);  // get scale degree
     if (srnN.isValid()) {
         nt = 1 + srnN - _root;  // to go from scale rel to chord rel, just normalize to chord root
-        if (nt <= 0) nt += 7;  // keep positive!
+        if (nt <= 0) nt += 7;   // keep positive!
     }
     ret.set(nt);
     return ret;

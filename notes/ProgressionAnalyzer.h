@@ -35,10 +35,10 @@ private:
     const int firstRoot;
     const int nextRoot;
 
-    int _motion[4];    // Derived motion for each voice (bipolar, in semitones).
-    DIREC direction[4];  // "    "
-    int notesInCommon;
-    const bool show;  // for debugging
+    int _motion[4];      // Derived motion for each voice (bipolar, in semitones).
+    DIREC _direction[4];  // "    "
+    int _notesInCommon;
+    const bool _show;  // for debugging
 
     //
     void figureMotion();
@@ -53,11 +53,11 @@ private:
     int ruleForSpreading(const Options& options) const;
     int RuleForLeadingTone() const;
     int RuleForPara() const;
-    int RuleForCross() const;                               // Vx in similar motion shouldn't cross.
-    int RuleForInversions(const Options& options) const;    // Rule for two consec chords in first inversion.
+    int RuleForCross() const;                             // Vx in similar motion shouldn't cross.
+    int RuleForInversions(const Options& options) const;  // Rule for two consec chords in first inversion.
     int RuleForJumpSize() const;
     int FakeRuleForDesc(const Options& options) const;  // Force descending melody for torture test!
-    int RuleForSopranoJump(const Options& options) const; 
+    int RuleForSopranoJump(const Options& options) const;
 
     bool IsNearestNote(const Options&, int Vx) const;  // True if the voice went to the nearest available slot
 };

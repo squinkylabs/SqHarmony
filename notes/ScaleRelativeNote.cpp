@@ -1,6 +1,5 @@
 #include "ScaleRelativeNote.h"
 
-
 bool ScaleRelativeNote::isTonal() const {
     bool fRet = false;
 
@@ -15,7 +14,7 @@ bool ScaleRelativeNote::isTonal() const {
 
 bool ScaleRelativeNote::isLeadingTone() const {
     bool fRet = false;
-    switch (pitch) {   
+    switch (pitch) {
         case 7:
             fRet = true;
     }

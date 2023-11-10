@@ -32,4 +32,3 @@ inline void ScaleRelativeNote::set(int nPitch) {
 inline bool ScaleRelativeNote::isValid() const {
     return (pitch >= 1) && (pitch <= 7);
 }
-

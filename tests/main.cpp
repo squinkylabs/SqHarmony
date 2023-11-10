@@ -88,13 +88,13 @@ int main(const char**, int) {
     testArpegRhythmPlayer();
     testArpegComposite();
 #if 1
-    testHarmonyChords2023();    // TODO: only up front here for test.
+    testHarmonyChords2023();  // TODO: only up front here for test.
 
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChords2023();
 
-    //fprintf(stderr, "skipping random for now\n");
+    // fprintf(stderr, "skipping random for now\n");
     testHarmonyChordsRandom();
     testAllChords(doLongRunning);
 #endif

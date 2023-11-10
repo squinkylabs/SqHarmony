@@ -8,37 +8,10 @@
 
 #include "ProgressionAnalyzer.h"
 
-#if 0  // do I need this one??
-HarmonySong::HarmonySong(const CWordArray& rS) : FirstTime(true)
-{
-int i;
-//bool done;
-
-chords_ar.SetSize(0,10);   
-TRACE("at start of const, size = %d, passed size = %d\n",
-	  chords_ar.GetSize(),
-	  rS.GetSize());
-
-for ( i=0; i < rS.GetSize(); i++)
-	{
-	//if (rS[i] == 0) done++;
-	//else 
-		chords_ar.InsertAt(i,  new RankedChord(rS[i]));
-	}
-TRACE("Let's get rid of size, ok?\n");
-//size = i;
-//TRACE ("on song const, GET = %d, ub = %d\n",
-	 //chords_ar.GetSize(), chords_ar.GetUpperBound());
-}
-#endif
-
 HarmonySong::HarmonySong(const Options& options, const int* pS) : chordManager(options), firstTime(true) {
     int i;
     bool done;
 
-    // chords_ar.SetSize(0,10);
-    //
-    // TRACE("at start of const, size = %d\n", chords_ar.size());
     for (i = 0, done = false; !done; i++) {
         if (pS[i] == 0) {
             done = true;
@@ -47,9 +20,6 @@ HarmonySong::HarmonySong(const Options& options, const int* pS) : chordManager(o
             chords.push_back(ch);
         }
     }
-    // size = --i;
-    // TRACE ("on HarmonySong const, size = %d, GET = %d, ub = %d\n",
-    // size, chords_ar.GetSize(), chords_ar.GetUpperBound());
 }
 
 void HarmonySong::print() const {
@@ -61,8 +31,6 @@ void HarmonySong::print() const {
         chords[nChord]->print();
         std::cout << std::endl;
     }
-    // Analyze(dc, r, dy);
-    //  Style::print();
 }
 
 void HarmonySong::analyze(const Options& options) const {
@@ -121,7 +89,7 @@ if (nStep == 0)		// if we are starting from top
 	}
 #endif
 
-    for (ret = false, done=false ; !done;) {
+    for (ret = false, done = false; !done;) {
         if (nStep == 0 || (0 < chords[nStep]->penaltyForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, *chords[nStep - 1], show))) {
             // if progression is valid to this chord
             // always valid if no prev!

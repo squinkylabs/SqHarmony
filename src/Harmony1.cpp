@@ -8,10 +8,8 @@
 #include "WidgetComposite.h"
 #include "plugin.hpp"
 
-template <> 
+template <>
 int BufferingParent<Score>::_refCount = 0;
-
-
 
 struct Harmony1Widget : ModuleWidget {
     const float vlx = 10;
@@ -145,7 +143,7 @@ struct Harmony1Widget : ModuleWidget {
         if (useFlats != isUsingFlats) {
             INFO("changing sharps/flats, now useFlats=%d isUsingFlats= %d cSharp=%s", useFlats, isUsingFlats, cSharp.c_str());
             _keyRootWidget->setLabels(Scale::getRootLabels(useFlats));
-           // _score->setUseFlats(useFlats);
+            // _score->setUseFlats(useFlats);
         }
     }
 
@@ -157,7 +155,7 @@ struct Harmony1Widget : ModuleWidget {
             _score->setWhiteOnBlack(whiteOnBlack);
 
             // process flats/sharps
-           _processUseSharpsParam();
+            _processUseSharpsParam();
 
             // process the voice indicators
             for (int i = 0; i < 4; ++i) {

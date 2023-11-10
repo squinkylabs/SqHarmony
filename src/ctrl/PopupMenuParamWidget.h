@@ -57,6 +57,7 @@ public:
     void onAction(const ::rack::event::Action &e) override;
 
     friend class PopupMenuItem;
+
 private:
     NotificationCallback optionalNotificationCallback = {nullptr};
     IndexToValueFunction optionalIndexToValueFunction = {nullptr};

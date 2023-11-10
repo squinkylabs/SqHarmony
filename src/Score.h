@@ -7,9 +7,9 @@
 #include <locale>
 #include <string>
 
+#include "BufferingParent.h"
 #include "Harmony1Module.h"
 #include "plugin.hpp"
-#include "BufferingParent.h"
 
 // #define _TESTCHORD
 class Score : public app::LightWidget, public Dirty {
@@ -139,7 +139,6 @@ inline Score::~Score() {
 int Score::_refCount = 0;
 
 inline Score::Score(Harmony1Module *m) : module(m) {
-
     ++_refCount;
 #ifdef _TESTCHORD
     Comp::Chord ch;
@@ -236,14 +235,14 @@ inline void Score::step() {
 #ifndef _TESTCHORD
     if (module) {
         if (module->isChordAvailable()) {
-            //SQINFO("saw a new chord in UI, will dirty push");
+            // SQINFO("saw a new chord in UI, will dirty push");
             _scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
-            //SQINFO("Now ui has %lld", chords.size());
+            // SQINFO("Now ui has %lld", chords.size());
             if (chords.size() > 8) {
                 while (chords.size() > 1) {
-                    //SQINFO("getting rid of stale input more than 8 chords");
+                    // SQINFO("getting rid of stale input more than 8 chords");
                     chords.pop_front();
                 }
             }

@@ -71,7 +71,6 @@ inline ParamSelectorMenu::ParamSelectorMenu(
     const std::vector<std::string> items,
     Module* module,
     int parameterId) : name(name), itemNames(items), module(module), paramId(parameterId) {
-
     this->text = name;
     float v = 0;
     if (module) {
@@ -79,7 +78,6 @@ inline ParamSelectorMenu::ParamSelectorMenu(
     }
     initialValue = int(std::round(v));
 }
-
 
 ::rack::ui::Menu* ParamSelectorMenu::createChildMenu() {
     ::rack::ui::Menu* menu = new ::rack::ui::Menu();
