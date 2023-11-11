@@ -39,10 +39,10 @@ int PitchKnowledge::pitchFromName(const std::string& sInput) {
     assert(sInput.length() <= 4);
     const bool isSharp = sInput[1] == '#';
 
-    const int noteNameLen =  isSharp ? 2 :  1;
+    const int noteNameLen = isSharp ? 2 : 1;
     const std::string noteName = sInput.substr(0, noteNameLen);
     int index = -1;
-    for (int i = 1; i<= 12; ++i) {
+    for (int i = 1; i <= 12; ++i) {
         std::string s = names[i];
         if (s == noteName) {
             index = i;
@@ -57,16 +57,15 @@ int PitchKnowledge::pitchFromName(const std::string& sInput) {
     if (octNameLen == 1) {
         octave = sInput[octaveStartIndex] - '0';
     } else {
-        assert(sInput[octaveStartIndex] == '-');       // -x is the only "modificaton" of octave allowed.
+        assert(sInput[octaveStartIndex] == '-');  // -x is the only "modificaton" of octave allowed.
         const int absOctave = sInput[octaveStartIndex + 1] - '0';
         octave = -absOctave;
-
     }
 
     assert(octave >= -2);
     assert(octave <= 8);
 
-    int retVal = ((octave-2) * 12 + (index - 1));
+    int retVal = ((octave + 2) * 12 + (index - 1));
 
     return retVal;
 }

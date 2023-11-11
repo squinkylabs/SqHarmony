@@ -3,7 +3,7 @@
 #include "SqLog.h"
 #include "asserts.h"
 
-static void testCanGetName() { 
+static void testCanGetName() {
     for (int i = 0; i < 127; ++i) {
         std::string s = PitchKnowledge::nameOfAbs(i);
         // ; Ex; C2, C#2, C# - 1
@@ -13,22 +13,28 @@ static void testCanGetName() {
     assertEQ(s, "C-2");  // Octave names a little strange here. But risky to change this old code.
 }
 
- static void testPitchFromName() {
-  //  std::string s;
+static void testPitchFromName() {
     int pitch = PitchKnowledge::pitchFromName("C2");
-    assertEQ(pitch, 0);
+    assertEQ(pitch, 48);
+    
     pitch = PitchKnowledge::pitchFromName("C#2");
-    assertEQ(pitch, 1)
+    assertEQ(pitch, 49);
+    
     pitch = PitchKnowledge::pitchFromName("C1");
-    assertEQ(pitch, -12);
+    assertEQ(pitch, 48 - 12);
+    
     pitch = PitchKnowledge::pitchFromName("C0");
-    assertEQ(pitch, -12 * 2);
+    assertEQ(pitch, 48 - 12 * 2);
 
     pitch = PitchKnowledge::pitchFromName("C-1");
-    assertEQ(pitch, -12 * 3);
- }
+    assertEQ(pitch, 48 - 12 * 3);
+}
 static void testRoundTrip() {
-    assert(false);
+    for (int i = 0; i < 127; ++i) {
+        std::string s = PitchKnowledge::nameOfAbs(i);
+        const int pitch = PitchKnowledge::pitchFromName(s);
+        assertEQ(pitch, i);
+    }
 }
 
 void testPitchKnowledge() {
