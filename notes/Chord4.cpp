@@ -16,6 +16,8 @@
 
 std::atomic<int> __numChord4{0};
 
+bool _globalShow = false;
+
 /*  Chord4::Chord4(int nRoot)
  */
 Chord4::Chord4(const Options& options, int nRoot) : _root(nRoot) {
@@ -130,7 +132,7 @@ std::string Chord4::getString() const {
 
 std::string Chord4::toStringShort() const {
     // let's print out unfinished chords.
-   // assert(valid);
+    // assert(valid);
     std::stringstream s;
     assert(_notes.size() == CHORD_SIZE);
 
@@ -197,8 +199,12 @@ bool Chord4::inc(const Options& options) {
         if (_notes[nVoice].isTooHigh(options))  // If we inced too far
                                                 // I.E. this voice is out of range..
         {
+            if (_globalShow && (nVoice == 1)) {
+                SQINFO("note is too high in voic %d, chord=%s", nVoice, toStringShort().c_str());
+                SQINFO("pitch[0] = %d, pitch[1] = %d", _notes[0], _notes[1]);
+            }
             if (nVoice == 0) {
-                fRet = true;  // ... and no more to try, thenb give up
+                fRet = true;  // ... and no more to try, then give up
             } else            // We overflowed, but can carry to next voice
             {
                 if (!options.style->allowVoiceCrossing())  // If we require that two voices never cross
@@ -209,8 +215,15 @@ bool Chord4::inc(const Options& options) {
                     _notes[nVoice].setMin(options);  // otherwise, reset this to min
                     bumpToNextInChord(options, _notes[nVoice]);
                 }
-                ++_notes[nVoice - 1];  // ... and cary to next
+                ++_notes[nVoice - 1];  // ... and carry to next
+                if (_globalShow && nVoice == 1) {
+                    SQINFO("raw wrap, before bump voice %d to %d now %s", nVoice, _notes[nVoice], toStringShort().c_str());
+                }
                 bumpToNextInChord(options, _notes[nVoice - 1]);
+                if (_globalShow && nVoice == 1) {
+                    SQINFO("wrapping voice %d to %d now %s", nVoice, _notes[nVoice], toStringShort().c_str());
+                    SQINFO("pitch[0] = %d, pitch[1] = %d", _notes[0], _notes[1]);
+                }
             }
         }
     }
@@ -246,13 +259,47 @@ void Chord4::makeSrnNotes(const Options& op) {
     }
 }
 
-bool _globalShow = false;
-
 bool Chord4::isChordOk(const Options& options) const {
     int i, nPitch;
 
-
+    bool show = false;
     if (_globalShow) {
+        // show = true;
+        // looking for "A3C3E3C4"
+
+        const std::string s = this->toStringShort();
+
+        const char bassOct = s[1];
+        const char bassPitch = s[0];
+
+        const char tenorOct = s[3];
+        const char tenorPitch = s[2];
+
+        // E1 is the first chord I see
+        // I see c2
+        // I see C3. why not A3?
+        // I can get all the way to c4 in the bass no problem.
+        // if (bassOct == '4') {
+        //     show = true;
+        // }
+
+        // I can find C, and E in the bass
+        // I can see A1 and A2
+
+        // I don't see A3C3
+        // I see **C3
+
+        // looking for "A3C3E3C4"
+        if (
+            bassPitch == 'A' && bassOct == '3'
+            //      bassPitch == 'A' && bassOct == '3'&& tenorPitch == 'C' && tenorOct == '3'
+            //  tenorPitch == 'C' && tenorOct == '3'
+        ) {
+            show = true;
+        }
+    }
+
+    if (show) {
         SQINFO("enter isChordOK with chord =%s", this->toStringShort().c_str());
     }
 
@@ -549,12 +596,10 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
     return ret;
 }
 
- ChordRelativeNote Chord4::chordInterval(const Options& options, int voiceNumber) const {
+ChordRelativeNote Chord4::chordInterval(const Options& options, int voiceNumber) const {
     return chordInterval(options, _notes[voiceNumber]);
- }
+}
 
-/* bool Chord4::InChord(Note test)
- */
 bool Chord4::isInChord(const Options& options, HarmonyNote test) const {
     bool ret = false;
 

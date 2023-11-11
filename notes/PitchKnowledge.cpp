@@ -34,20 +34,19 @@ std::string PitchKnowledge::nameOfAbs(int nPitch) {
     return s.str();
 }
 
-char const* const PitchKnowledge::names[] =
-    {
-        "X",  // no pitch zero in our world
-        "C",
-        "C#",
-        "D",
-        "D#",
-        "E",
-        "F",
-        "F#",
-        "G",
-        "G#",
-        "A",
-        "A#",
-        "B"};
+char const* const PitchKnowledge::names[] = {
+    "X",  // no pitch zero in our world
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B"};
 
 PitchKnowledge ThePitchKnowledge;  // declare the global instance
