@@ -49,6 +49,7 @@ extern void testMultiplier();
 extern void testRatchet();
 extern void testAllChords(bool);
 extern void testHarmonyChords2023();
+extern void testPitchKnowledge();
 
 const bool doLongRunning = false;
 
@@ -88,8 +89,7 @@ int main(const char**, int) {
     testArpegRhythmPlayer();
     testArpegComposite();
 #if 1
-    testHarmonyChords2023();  // TODO: only up front here for test.
-
+    testPitchKnowledge();
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChords2023();

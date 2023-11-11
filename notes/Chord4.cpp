@@ -156,6 +156,19 @@ void Chord4::print() const {
 
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
     assert(strlen(target) == 8);
+    if (options.style->allowVoiceCrossing()) assert(false);     // Not supported ATM.
+    const std::string sTarget = target;
+    for (int voiceN=TENOR; voiceN <= SOP; voiceN++) {
+        const std::string subLow = sTarget.substr(2 * (voiceN-1), 2);
+        const std::string subHigh = sTarget.substr(2 * voiceN, 2);
+
+        const int pitchLow = PitchKnowledge::pitchFromName(subLow);
+        const int pitchHigh = PitchKnowledge::pitchFromName(subHigh);
+        SQINFO("fromString %s on vx %d have %d, %d", target, voiceN, pitchLow, pitchHigh);
+
+        // TODO: assert
+        //assert(_notes[voiceN] > _notes[]
+    }
     Chord4Ptr chord = std::make_shared<Chord4>(options, degree);
     while (true) {
         if (chord->toStringShort() == target) {
