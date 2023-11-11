@@ -106,7 +106,7 @@ inline int Style::absMaxPitch() {
     ret = maxSop();  // used to be +5. seemed wrong
 #else
     a b c  // we won't support this any longer
-        SQWARN("crazy style is on");
+    SQWARN("crazy style is on");
     ret = maxSop() + 10;
 #endif
     return ret;

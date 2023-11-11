@@ -121,6 +121,13 @@ public:
 
     int rank = 0;  // lower rank is "better". Unique index into the chord lists.
 
+    /**
+     * @brief 
+     * 
+     * @return ChordRelativeNote 
+     * @param voiceNumber is BASS..SOP
+     */
+    ChordRelativeNote chordInterval(const Options&, int voiceNumber) const;
 private:
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
     bool pitchesInRange(const Options&) const;

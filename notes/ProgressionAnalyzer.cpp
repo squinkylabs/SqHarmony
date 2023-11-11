@@ -49,9 +49,8 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         str << first->toString();
         str << " second: ";
         str << next->toString() << std::endl;
-        str << " upper bound ";
-        str << upperBound;
-        str << next->toString() << std::endl;
+        str << "upper bound ";
+        str << upperBound << std::endl;
     }
 
     int totalPenalty = 0;
@@ -379,6 +378,9 @@ int ProgressionAnalyzer::RuleForLeadingTone() const {
 }
 
 int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
+    if (_show) {
+        SQINFO("enter RuleForNoneInCommon");
+    }
     if (_notesInCommon != 0) {
         return 0;  // No penalty for this rule is there are notes in common.
     }
@@ -402,6 +404,9 @@ int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
     // the third is doubled in the VI chord
 
     //SQINFO("RuleForNoneInCommon56 ex\n first:%s to  next: %s", first->toString().c_str(), next->toString().c_str());
+     if (_show) {
+        SQINFO("enter RuleForNoneInCommon56");
+    }
 
     int leadingToneVoice = -1;
     const auto firstNotes = first->fetchSRNNotes();
@@ -434,13 +439,20 @@ int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
 
     }
 
-    //SQINFO("nnic 56 got to 438, lt must be rising");
 
+    //SQINFO("nnic 56 got to 438, lt must be rising");
+    //  switch (chordInterval(options, _notes[nVoice])) {
+
+//chordInterval(options, _notes[nVoice]);
     // The third is doubled in the VI chord.
     int numThirdsInVI = 0;
     for (int i = BASS; i <= SOP; ++i) {
-        const int degree = int(nextSRNotes[i]);
-        if (degree == 3) {
+
+        const ChordRelativeNote  crn = next->chordInterval(options, i);
+     //   const int degree = int(nextSRNotes[i]);
+        // only expect these degrees in a triad.
+        assert(crn == 1 || crn == 3 || crn == 5);
+        if (crn == 3) {
             ++numThirdsInVI;
         }
     }

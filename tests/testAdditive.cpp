@@ -33,7 +33,7 @@ static void testAdditiveInit() {
 }
 
 static void testAdditiveHasOutput() {
-    SQINFO("---- testAdditiveHasOutput ");
+    //SQINFO("---- testAdditiveHasOutput ");
     CompPtr a = makeComp();
     auto args = TestComposite::ProcessArgs();
     a->process(args);

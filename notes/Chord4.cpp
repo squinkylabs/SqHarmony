@@ -129,7 +129,8 @@ std::string Chord4::getString() const {
 }
 
 std::string Chord4::toStringShort() const {
-    assert(valid);
+    // let's print out unfinished chords.
+   // assert(valid);
     std::stringstream s;
     assert(_notes.size() == CHORD_SIZE);
 
@@ -245,15 +246,15 @@ void Chord4::makeSrnNotes(const Options& op) {
     }
 }
 
+bool _globalShow = false;
+
 bool Chord4::isChordOk(const Options& options) const {
     int i, nPitch;
 
-#if 0
-    const bool b = (this->toStringShort() == "E2A2C3A3");
-    if (b) {
-        printf("entering okChordOK with the note. 221\n");
+
+    if (_globalShow) {
+        SQINFO("enter isChordOK with chord =%s", this->toStringShort().c_str());
     }
-#endif
 
     auto style = options.style;
     assert(_notes.size() == CHORD_SIZE);
@@ -547,6 +548,10 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
     ret.set(nt);
     return ret;
 }
+
+ ChordRelativeNote Chord4::chordInterval(const Options& options, int voiceNumber) const {
+    return chordInterval(options, _notes[voiceNumber]);
+ }
 
 /* bool Chord4::InChord(Note test)
  */

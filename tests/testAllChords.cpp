@@ -180,13 +180,6 @@ static void testNumberOfChords() {
 #undef APIENTRY
 #include "windows.h"
 
-/*
-static void testAllChords(
-    Style::Ranges range,
-    Style::InversionPreference inversionPref,
-    Scale::Scales mode,
-    int root) {*/
-
 static void thingToTime() {
     testAllChords(
         Style::Ranges::NORMAL_RANGE,
@@ -197,7 +190,7 @@ static void thingToTime() {
 
 // 234 ms debug. 242  after rules about sop jumps!
 // 748 release old rules 848, so it got faster
-// relese 707 after rules about sop jumps and proper V-VI
+// release 707 after rules about sop jumps and proper V-VI
 // 
 static void timingCheck() {
 #ifdef _DEBUG

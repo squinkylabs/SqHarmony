@@ -268,6 +268,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     c.inversion = int(chord->inversion(*chordOptions));
 
     // SQINFO("output pitches %s (root=%d) root+4=%d", chord->toStringShort().c_str(), c.root, c.root+4);
+    // SQINFO("output pitches: %s", chord->toStringShort().c_str());
 
     for (int i = 0; i < 4; ++i) {
         MidiNote mn(12 + harmonyNotes[i]);  // harmony note and midi note are about the same;

@@ -2,6 +2,7 @@
 #include "Chord4Manager.h"
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
+#include "ProgressionAnalyzer.h"
 #include "Style.h"
 #include "asserts.h"
 
@@ -23,25 +24,27 @@ static Options makeOptions(bool minor) {
 }
 
 //---------------------
+extern bool _globalShow;
 
-static void assertChordExists(Chord4Manager& mgr, int root, const Options& options, const std::string& expected) {
-    Chord4List* p5 = mgr._getChords(root);
-    assert(p5);
+static void assertChordExists(Chord4Manager& mgr, int root, const Options& options, const std::string& expected, bool show=false) {
+    Chord4List* chords = mgr._getChords(root);
+    assert(chords);
 
-    Chord4Ptr desired5 = Chord4::fromString(options, root, expected.c_str());
-    assert(desired5);
-    assert(desired5->isValid());
+    _globalShow = show;
+    Chord4Ptr desiredChord = Chord4::fromString(options, root, expected.c_str());
+    assert(desiredChord);
+    assert(desiredChord->isValid());
+    _globalShow = false;
 
-    // Chord4ListPtr chords = mgr._getChords(5);
-    int find5 = 0;
-    for (int i = 0; i < p5->size(); ++i) {
-        const Chord4* chord = p5->get2(i);
-        const Chord4* des = desired5.get();
+    int timesChordFound = 0;
+    for (int i = 0; i < chords->size(); ++i) {
+        const Chord4* chord = chords->get2(i);
+        const Chord4* des = desiredChord.get();
         if (*chord == *des) {
-            ++find5;
+            ++timesChordFound;
         }
     }
-    assertEQ(find5, 1);
+    assertEQ(timesChordFound, 1);
 }
 
 static void canFindExpected56() {
@@ -50,31 +53,36 @@ static void canFindExpected56() {
 
     assertChordExists(mgr, 5, options, "G2G3B3D4");
     assertChordExists(mgr, 6, options, "E2C3A3E4");
+
+    // examples from Piston book:
+    assertChordExists(mgr, 5, options, "G2D3G3B3");
+    SQINFO("---- here goes A3C3E3C4");
+    assertChordExists(mgr, 6, options, "A3C3E3C4", true);
 }
 
 //-----------------------------------------
+
+static void testGenerateProgression(
+    const Chord4Manager& mgr,
+    const Options& options,
+    ConstChord4Ptr first,
+    int nextScaleDegree,
+    const std::string& expected) {
+    assert(first);
+    assert(first->isValid());
+    auto next = HarmonyChords::findChord(false, options, mgr, *first, nextScaleDegree);
+    assert(next);
+    assert(next->isValid());
+    assertEQ(next->toStringShort(), expected);
+}
+
 static void testNoneInCommmon56() {
-    SQINFO("start testNoneInCommmon56");
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
     Chord4Ptr chordA = Chord4::fromString(options, 5, "G2G3B3D4");
-    assert(chordA);
-    auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 6);
-    assert(next);
 
-    if (options.style->usePistonV_VI_exception()) {
-        // this is a known good with the old rule. it should break when we make the new one.
-        const std::string s = next->toStringShort();
-        assert(next->isValid());
-       // assertEQ(next->toStringShort(), std::string("A2E3A3C4"));
-        assertEQ(next->toStringShort(), std::string("E2C3A3E4"));
-    } else {
-        // older harmony rules.
-        std::string knownGood("A2E3A3C4");
-        assertEQ(next->toStringShort(), knownGood);
-    }
-
-    SQINFO("end testNoneInCommmon56");
+    std::string expectedChord = options.style->usePistonV_VI_exception() ? "E2C3A3E4" : "A2E3A3C4";
+    testGenerateProgression(mgr, options, chordA, 6, expectedChord);
 }
 
 static void testNoneInCommmon12() {
@@ -82,11 +90,34 @@ static void testNoneInCommmon12() {
     Chord4Manager mgr(options);
     Chord4Ptr chordA = Chord4::fromString(options, 1, "C2C3E3G3");
     assert(chordA);
-    auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 2);
-    assert(next);
+    testGenerateProgression(mgr, options, chordA, 2, "D2A2D3F3");
+}
 
-    // This was just capturing a "known good", but it does obey the no notes in common rule
-    assertEQ(next->toStringShort(), std::string("D2A2D3F3"));
+static void testAnalyzeProgression(
+    const Chord4Manager& mgr,
+    const Options& options,
+    ConstChord4Ptr first,
+    ConstChord4Ptr next) {
+    //   ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fShow);
+    assert(first.get());
+    assert(next.get());
+    assert(first->isValid());
+    assert(next->isValid());
+
+    ProgressionAnalyzer pa(first.get(), next.get(), true);
+    const int p = pa.getPenalty(options, 100000);
+    SQINFO("penalty was %d", p);
+
+}
+
+static void testAnalyze56() {
+    SQINFO("\n\n---------------------- bgf: start testAnalyze56");
+    auto options = makeOptions(false);
+    Chord4Manager mgr(options);
+    Chord4Ptr chordA = Chord4::fromString(options, 5, "G1B2D3G3");
+    Chord4Ptr chordB = Chord4::fromString(options, 6, "E1C3E3A3");      // only one A - should be illegal
+    testAnalyzeProgression(mgr, options, chordA, chordB);
+    SQINFO("\n-------------------------bgf: end testAnalyze56");
 }
 
 /**
@@ -96,4 +127,5 @@ void testHarmonyChords2023() {
     canFindExpected56();
     testNoneInCommmon12();
     testNoneInCommmon56();
+    testAnalyze56();
 }
