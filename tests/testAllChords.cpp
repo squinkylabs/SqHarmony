@@ -8,6 +8,9 @@
 #include "asserts.h"
 
 int worstPenalty = 0;
+int penaltyTotal = 0;
+int numEvals = 0;
+int numWithPenalty = 0;
 
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
@@ -47,7 +50,7 @@ static void testAllChords(
         throw "asb";
     }
 
-    const int x = HarmonyChords::progressionPenalty(
+    const int penalty = HarmonyChords::progressionPenalty(
         options,
         ProgressionAnalyzer::MAX_PENALTY,  // Why to we pass best so far? (because it makes us do work!).
         nullptr,
@@ -56,9 +59,18 @@ static void testAllChords(
         false,
         nullptr);
     // SQINFO("got penalty %d", x);
-    if (x > worstPenalty) {
-        SQINFO("new worst penalty: %d", x);
-        worstPenalty = x;
+    if (penalty > worstPenalty) {
+        SQINFO("new worst penalty: %d", penalty);
+        worstPenalty = penalty;
+    }
+
+     //     int worstPenalty = 0;
+//int penaltyTotal = 0;
+//int numEvals = 0;
+    ++numEvals;
+    penaltyTotal += penalty;
+    if (penalty > 0) {
+        numWithPenalty++;
     }
 }
 
@@ -105,6 +117,14 @@ static void testAllChords(Style::Ranges range, Style::InversionPreference invers
     }
     if (stats) {
         stats->dump();
+
+        const double avgPenalty = double(penaltyTotal)/ double(numEvals);
+        const double rate =  double(numWithPenalty)/ double(numEvals);
+        SQINFO("avg penalty = %f rate of penalty = %f", avgPenalty, rate);
+        worstPenalty = 0;
+        penaltyTotal = 0;
+        numEvals = 0;
+        numWithPenalty = 0;
     }
 }
 
