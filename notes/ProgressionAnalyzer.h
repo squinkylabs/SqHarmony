@@ -11,7 +11,20 @@ enum DIREC {
 };
 
 class PAStats {
+public:
+    void dump() const;
 
+    int _ruleForInversions=0;
+    int _ruleForLeadingTone=0;
+    int _ruleForPara=0;
+    int _ruleForCross=0;
+    int _ruleForSame=0;
+    int _ruleForNoneInCommon=0;
+    int _ruleForDoubling=0;
+    int _ruleForSpreading=0;
+    int ruleForJumpSize=0;
+    int _ruleForSopranoJump=0;
+private:
 };
 
 class ProgressionAnalyzer {
@@ -39,7 +52,7 @@ private:
     const Chord4* const next;
     const int firstRoot;
     const int nextRoot;
-    const PAStats* _stats;
+    PAStats* const _stats;
 
     int _motion[4];      // Derived motion for each voice (bipolar, in semitones).
     DIREC _direction[4];  // "    "

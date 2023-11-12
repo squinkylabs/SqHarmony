@@ -3,6 +3,7 @@
 #include "Chord4Manager.h"
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
+#include "ProgressionAnalyzer.h"
 #include "Scale.h"
 #include "asserts.h"
 
@@ -37,31 +38,22 @@ static Options makeOptions(int root, Scale::Scales scale) {
     return o;
 }
 
-/*
-  static int progressionPenalty(const Options& options,
-                                  int bestSoFar,
-                                  const Chord4* prevProv,
-                                  const Chord4* prev,
-                                  const Chord4* current,
-                                  bool show);
-*/
-
-// TODO put this back
-//PAStats stats;
 static void testAllChords(
     Chord4Manager& mgr,
     const Options& options,
-    const Chord4* sourceChord, int destinationRoot) {
-    auto chordB = HarmonyChords::findChord(false, options, mgr, *sourceChord, destinationRoot);
+    const Chord4* sourceChord, 
+    int destinationRoot,
+    PAStats* stats) {
+    auto chordB = HarmonyChords::findChord(false, options, mgr, *sourceChord, destinationRoot, stats);
     assert(chordB);
     if (!chordB) {
         SQWARN("could not connect chords");
         throw "asb";
     }
-    assert(false);  /// put in stats
+
     const int x = HarmonyChords::progressionPenalty(
         options,
-        0,  // why to we pass best so far?
+        ProgressionAnalyzer::MAX_PENALTY,  // Why to we pass best so far? (because it makes us do work!).
         nullptr,
         sourceChord,
         chordB,
@@ -79,7 +71,8 @@ static void testAllChords(
     Style::InversionPreference inversionPref,
     Scale::Scales mode,
     int sourceRoot,
-    int destinationRoot) {
+    int destinationRoot,
+    PAStats* stats) {
     const Options options = makeOptions(sourceRoot, mode);
     Chord4Manager mgr(options);
 
@@ -90,7 +83,7 @@ static void testAllChords(
     // then, for each root chords, make sure something can follow
     for (int i = 0; i < sourceRootChords->size(); ++i) {
         const Chord4* theSourceChord = mgr.get2(sourceRoot, i);
-        testAllChords(mgr, options, theSourceChord, destinationRoot);
+        testAllChords(mgr, options, theSourceChord, destinationRoot, stats);
     }
 }
 
@@ -98,21 +91,31 @@ static void testAllChords(
     Style::Ranges range,
     Style::InversionPreference inversionPref,
     Scale::Scales mode,
-    int root) {
+    int root,
+    PAStats* stats) {
     //   SQINFO("test all 267");
     for (int i = 1; i < 8; ++i) {
-        testAllChords(range, inversionPref, mode, root, i);
+        testAllChords(range, inversionPref, mode, root, i, stats);
     }
 }
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref, Scale::Scales mode) {
     SQINFO("test all 274 range=%d, invPref=%d, mode=%d", range, inversionPref, mode);
+ //   PAStats stats;
+    std::shared_ptr<PAStats> stats;
+    if (range == Style::Ranges::ENCOURAGE_CENTER && inversionPref == Style::InversionPreference::DONT_CARE) {
+        stats = std::make_shared<PAStats>();
+    }
     for (int i = 1; i < 8; ++i) {
-        testAllChords(range, inversionPref, mode, i);
+        testAllChords(range, inversionPref, mode, i, stats.get());
+    }
+    if (stats) {
+        stats->dump();
     }
 }
 
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref) {
     // The first scales are the diatonic.
+
     for (int i = int(Scale::Scales::Major); i != int(Scale::Scales::MinorPentatonic); ++i) {
         testAllChords(range, inversionPref, Scale::Scales(i));
     }
@@ -190,7 +193,8 @@ static void timeChordProgressionGen() {
         Style::Ranges::NORMAL_RANGE,
         Style::InversionPreference::DONT_CARE,
         Scale::Scales::Major,
-        1);
+        1,
+        nullptr);
 }
 
 // 369 reelase 11/12/2023
@@ -223,14 +227,14 @@ static void timingCheck(std::function<void(void)> thingToTime, const std::string
         thingToTime();
     }
     int y = timeGetTime();
-    SQINFO("****** timing check %s, elapsed = %d", msg,  y - x);
+    SQINFO("****** timing check %s, elapsed = %d", msg.c_str(),  y - x);
 }
 
 void testAllChords(bool doLongRunning) {
     testNumberOfChords();
     if (doLongRunning) {
-        timingCheck(timeChordProgressionGen, "progression gen");
-        timingCheck(timeChordInit, "init chords");
+        timingCheck(timeChordProgressionGen, std::string("progression gen"));
+        timingCheck(timeChordInit, std::string("init chords"));
         xtestAllChords();
     } else {
         SQINFO("skipping long running tests");

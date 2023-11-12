@@ -19,8 +19,17 @@ void ProgressionAnalyzer::showAnalysis() {
 /* ProgressionAnalyzer::ProgressionAnalyzer(const Chord4 * const C1, const Chord4 * const C2)
     : First (C1), Next(C2)
  */
-ProgressionAnalyzer::ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fs, PAStats* stats)
-    : first(C1), next(C2), firstRoot(C1->fetchRoot()), nextRoot(C2->fetchRoot()), _show(fs || showAlways) {
+ProgressionAnalyzer::ProgressionAnalyzer(
+    const Chord4* C1,
+    const Chord4* C2,
+    bool fs,
+    PAStats* stats)
+    : first(C1),
+      next(C2),
+      firstRoot(C1->fetchRoot()),
+      nextRoot(C2->fetchRoot()),
+      _show(fs || showAlways),
+      _stats(stats) {
     figureMotion();  // init the motion guys
     _notesInCommon = InCommon();
 
@@ -58,10 +67,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     totalPenalty += p;
     if (p && _show) {
         str << "Penalty: RuleForConsecInversions " << p << std::endl;
-        
     }
     if (p && _stats) {
-        assert(false);
+        _stats->_ruleForInversions++;
     }
 
     if (totalPenalty >= upperBound) {
@@ -77,6 +85,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (p && _show) {
         str << "penalty: RuleForLeadingTone " << p << std::endl;
     }
+    if (p && _stats) {
+        _stats->_ruleForLeadingTone++;
+    }
     if (totalPenalty >= upperBound) {
         if (_show) {
             str << "-- leaving getPenalty after leading tone with " << totalPenalty << std::endl;
@@ -87,9 +98,11 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
 
     p = RuleForPara();
     totalPenalty += p;
-
     if (p && _show) {
         str << "penalty: RuleForPara " << p << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForPara++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
@@ -104,6 +117,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (p && _show) {
         str << "penalty: RuleForCross " << p << std::endl;
     }
+    if (p && _stats) {
+        _stats->_ruleForCross++;
+    }
     if (totalPenalty >= upperBound) {
         if (_show) {
             str << "-- leaving getPenalty after cross with " << totalPenalty << std::endl;
@@ -116,6 +132,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     totalPenalty += p;
     if (p && _show) {
         str << "penalty: Rule4Same " << p << " tot=" << totalPenalty << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForSame++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
@@ -130,6 +149,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (p && _show) {
         str << "penalty: RuleForNoneInCommon " << p << std::endl;
     }
+    if (p && _stats) {
+        _stats->_ruleForNoneInCommon++;
+    }
     if (totalPenalty >= upperBound) {
         if (_show) {
             str << "-- leaving getPenalty after NIC with " << totalPenalty << std::endl;
@@ -142,6 +164,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     totalPenalty += p;
     if (p && _show) {
         str << "penalty: RuleForDoubling " << p << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForDoubling++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
@@ -156,6 +181,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (p && _show) {
         str << "penalty: RuleForSpreading " << p << std::endl;
     }
+    if (p && _stats) {
+        _stats->_ruleForSpreading++;
+    }
     if (totalPenalty >= upperBound) {
         if (_show) {
             str << "-- leaving getPenalty after spreading with " << totalPenalty << std::endl;
@@ -169,11 +197,17 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (p && _show) {
         str << "penalty: RuleForJumpSize " << p << std::endl;
     }
+    if (p && _stats) {
+        _stats->ruleForJumpSize++;
+    }
 
     p = RuleForSopranoJump(options);
     totalPenalty += p;
     if (p && _show) {
         str << "penalty: RuleForSopranoJump " << p << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForSopranoJump++;
     }
 
     if (totalPenalty >= upperBound) {
@@ -183,7 +217,6 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         }
         return totalPenalty;
     }
-
     if (_show) {
         str << "-- leaving getPenalty with " << totalPenalty << std::endl;
         SQINFO("%s", str.str().c_str());
@@ -543,9 +576,8 @@ int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
         options.style->usePistonV_VI_exception()) {
         // no notes in common rule for piston will already have its own doubling, which
         // is "non standard"
-       // SQINFO("not evaluating doubling for piston V VI");
+        // SQINFO("not evaluating doubling for piston V VI");
         return 0;
-
     }
 
     return next->isCorrectDoubling(options) ? 0 : SLIGHTLY_LOWER_PENALTY_PER_RULE;
@@ -641,4 +673,27 @@ int ProgressionAnalyzer::InCommon() const {
         if (test[nPitch]) matches++;
     }
     return matches;
+}
+
+/*
+ int _ruleForLeadingTone=0;
+    int _ruleForPara=0;
+    int _ruleForCross=0;
+    int _ruleForSame=0;
+    int _ruleForNoneInCommon=0;
+    int _ruleForDoubling=0;
+    int _ruleForSpreading=0;
+    int ruleForJumpSize=0;
+    int _ruleForSopranoJump=0;*/
+void PAStats::dump() const {
+    SQINFO("ProgressionAnalyzer stats:");
+    SQINFO("  _ruleForLeadingTone %d", _ruleForLeadingTone);
+    SQINFO("  _ruleForPara %d", _ruleForPara);
+    SQINFO("  _ruleForCross %d", _ruleForCross);
+    SQINFO("  _ruleForSame %d", _ruleForSame);
+    SQINFO("  _ruleForNoneInCommon %d", _ruleForNoneInCommon);
+    SQINFO("  _ruleForDoubling %d", _ruleForDoubling);
+    SQINFO("  _ruleForSpreading %d", _ruleForSpreading);
+    SQINFO("  ruleForJumpSize %d", ruleForJumpSize);
+    SQINFO("  _ruleForSopranoJump %d", _ruleForSopranoJump);
 }
