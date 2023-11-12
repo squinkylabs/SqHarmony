@@ -192,7 +192,8 @@ static void timeChordProgressionGen() {
         nullptr);
 }
 
-// 369 reelase 11/12/2023
+// 369 release 11/12/2023
+// 175 after rule order changed (why would this matter)
 static void timeChordInit() {
     for (int i = 0; i < 8; ++i) {
         const Options options = makeOptions(1, Scale::Scales::Dorian);      // just some arbitrary scale
@@ -207,6 +208,7 @@ static void timeChordInit() {
 // 234 ms debug. 242  after rules about sop jumps!
 // 748 release old rules 848, so it got faster
 // release 692 after rules about sop jumps and proper V-VI
+// 231 release after change rule order!
 // 
 static void timingCheck(std::function<void(void)> thingToTime, const std::string& msg) {
 #ifdef _DEBUG

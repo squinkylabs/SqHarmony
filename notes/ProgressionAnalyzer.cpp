@@ -63,46 +63,16 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     }
 
     int totalPenalty = 0;
-    int p = RuleForInversions(options);
-    totalPenalty += p;
-    if (p && _show) {
-        str << "Penalty: RuleForConsecInversions " << p << std::endl;
-    }
-    if (p && _stats) {
-        _stats->_ruleForInversions++;
-    }
+    int p = 0;  // The penalty.
 
-    if (totalPenalty >= upperBound) {
-        if (_show) {
-            str << "-- leaving getPenalty after consec inv with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
-        }
-        return totalPenalty;
-    }
-
-    p = RuleForLeadingTone();
-    totalPenalty += p;
-    if (p && _show) {
-        str << "penalty: RuleForLeadingTone " << p << std::endl;
-    }
-    if (p && _stats) {
-        _stats->_ruleForLeadingTone++;
-    }
-    if (totalPenalty >= upperBound) {
-        if (_show) {
-            str << "-- leaving getPenalty after leading tone with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
-        }
-        return totalPenalty;
-    }
-
+    // ---- RuleForPara #1
     p = RuleForPara();
     totalPenalty += p;
-    if (p && _show) {
-        str << "penalty: RuleForPara " << p << std::endl;
-    }
     if (p && _stats) {
         _stats->_ruleForPara++;
+    }
+    if (p && _show) {
+        str << "penalty: RuleForPara " << p << std::endl;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
@@ -112,6 +82,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
+    // ---- RuleForCross #2
     p = RuleForCross();
     totalPenalty += p;
     if (p && _show) {
@@ -128,22 +99,8 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
-    p = Rule4Same();
-    totalPenalty += p;
-    if (p && _show) {
-        str << "penalty: Rule4Same " << p << " tot=" << totalPenalty << std::endl;
-    }
-    if (p && _stats) {
-        _stats->_ruleForSame++;
-    }
-    if (totalPenalty >= upperBound) {
-        if (_show) {
-            str << "-- leaving getPenalty after 4sam with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
-        }
-        return totalPenalty;
-    }
 
+    // ---- RuleForNoneInCommon  #4
     p = RuleForNoneInCommon(options);
     totalPenalty += p;
     if (p && _show) {
@@ -160,6 +117,93 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
+    // ----- RuleForSopranoJump #5
+    p = RuleForSopranoJump(options);
+    totalPenalty += p;
+    if (p && _show) {
+        str << "penalty: RuleForSopranoJump " << p << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForSopranoJump++;
+    }
+    if (totalPenalty >= upperBound) {
+        if (_show) {
+            str << "-- leaving getPenalty after soprano jump size with " << totalPenalty << std::endl;
+            SQINFO("%s", str.str().c_str());
+        }
+        return totalPenalty;
+    }
+
+    // ---- RuleForLeadingTone #6
+    p = RuleForLeadingTone();
+    totalPenalty += p;
+    if (p && _show) {
+        str << "penalty: RuleForLeadingTone " << p << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForLeadingTone++;
+    }
+    if (totalPenalty >= upperBound) {
+        if (_show) {
+            str << "-- leaving getPenalty after leading tone with " << totalPenalty << std::endl;
+            SQINFO("%s", str.str().c_str());
+        }
+        return totalPenalty;
+    }
+
+    // ----- RuleForJumpSize #6
+    p = RuleForJumpSize();
+    totalPenalty += p;
+    if (p && _show) {
+        str << "penalty: RuleForJumpSize " << p << std::endl;
+    }
+    if (p && _stats) {
+        _stats->ruleForJumpSize++;
+    }
+    if (totalPenalty >= upperBound) {
+        if (_show) {
+            str << "-- leaving getPenalty after jump size with " << totalPenalty << std::endl;
+            SQINFO("%s", str.str().c_str());
+        }
+        return totalPenalty;
+    }
+
+    // ---- RuleForInversions
+    p = RuleForInversions(options);
+    totalPenalty += p;
+    if (p && _show) {
+        str << "Penalty: RuleForConsecInversions " << p << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForInversions++;
+    }
+
+    if (totalPenalty >= upperBound) {
+        if (_show) {
+            str << "-- leaving getPenalty after consec inv with " << totalPenalty << std::endl;
+            SQINFO("%s", str.str().c_str());
+        }
+        return totalPenalty;
+    }
+
+    // ---- Rule4Same 
+    p = Rule4Same();
+    totalPenalty += p;
+    if (p && _show) {
+        str << "penalty: Rule4Same " << p << " tot=" << totalPenalty << std::endl;
+    }
+    if (p && _stats) {
+        _stats->_ruleForSame++;
+    }
+    if (totalPenalty >= upperBound) {
+        if (_show) {
+            str << "-- leaving getPenalty after 4sam with " << totalPenalty << std::endl;
+            SQINFO("%s", str.str().c_str());
+        }
+        return totalPenalty;
+    }
+
+    // ---- ruleForDoubling 
     p = ruleForDoubling(options);
     totalPenalty += p;
     if (p && _show) {
@@ -176,6 +220,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
+    // ----- ruleForSpreading 
     p = ruleForSpreading(options);
     totalPenalty += p;
     if (p && _show) {
@@ -192,31 +237,11 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
-    p = RuleForJumpSize();
-    totalPenalty += p;
-    if (p && _show) {
-        str << "penalty: RuleForJumpSize " << p << std::endl;
-    }
-    if (p && _stats) {
-        _stats->ruleForJumpSize++;
-    }
 
-    p = RuleForSopranoJump(options);
-    totalPenalty += p;
-    if (p && _show) {
-        str << "penalty: RuleForSopranoJump " << p << std::endl;
-    }
-    if (p && _stats) {
-        _stats->_ruleForSopranoJump++;
-    }
 
-    if (totalPenalty >= upperBound) {
-        if (_show) {
-            str << "-- leaving getPenalty after jump size with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
-        }
-        return totalPenalty;
-    }
+
+
+    //---------------------
     if (_show) {
         str << "-- leaving getPenalty with " << totalPenalty << std::endl;
         SQINFO("%s", str.str().c_str());
