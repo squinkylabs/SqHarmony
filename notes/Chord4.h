@@ -71,6 +71,8 @@ enum INVERSION { ROOT_POS_INVERSION,
                  SECOND_INVERSION,
                  NO_INVERSION };
 
+class PAStats;
+
 class Chord4 {
 public:
     Chord4(const Options& options, int nDegree);  // pass scale degree in constructor
@@ -100,7 +102,7 @@ public:
     int quality(const Options& options, bool fTalk) const;  // Tell how "good" this chord is.
                                                             // If fTalk is true, will tell why.
 
-    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4* ThisGuy, bool show) const;
+    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4* ThisGuy, bool show, PAStats*) const;
 
     const HarmonyNote* fetchNotes() const;  // This returns pointer so you can get at all 4.
     const ScaleRelativeNote* fetchSRNNotes() const;

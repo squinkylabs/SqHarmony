@@ -45,6 +45,9 @@ static Options makeOptions(int root, Scale::Scales scale) {
                                   const Chord4* current,
                                   bool show);
 */
+
+// TODO put this back
+//PAStats stats;
 static void testAllChords(
     Chord4Manager& mgr,
     const Options& options,
@@ -55,13 +58,15 @@ static void testAllChords(
         SQWARN("could not connect chords");
         throw "asb";
     }
+    assert(false);  /// put in stats
     const int x = HarmonyChords::progressionPenalty(
         options,
         0,  // why to we pass best so far?
         nullptr,
         sourceChord,
         chordB,
-        false);
+        false,
+        nullptr);
     // SQINFO("got penalty %d", x);
     if (x > worstPenalty) {
         SQINFO("new worst penalty: %d", x);
@@ -161,7 +166,7 @@ static void testNumberOfChords() {
             default:
                 assert(false);
         }
-        SQINFO("remove assert. generated[%d] %d expected %d", i, x, expected);
+        SQINFO("removed assert. generated[%d] %d expected %d", i, x, expected);
         // assertEQ(x, expected);
     }
 

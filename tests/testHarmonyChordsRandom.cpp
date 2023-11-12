@@ -164,7 +164,7 @@ void testRand(const Options& options) {
                    chordB->toString().c_str(),
                    thirdChord->toString().c_str());
         */
-        const int penalty = HarmonyChords::progressionPenalty(options, 1000, chordA, chordB, thirdChord, false);
+        const int penalty = HarmonyChords::progressionPenalty(options, 1000, chordA, chordB, thirdChord, false, nullptr);
         penaltyAnalyzer.add(penalty);
 
         chordA = chordB;

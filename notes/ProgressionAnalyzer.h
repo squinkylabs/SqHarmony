@@ -10,9 +10,13 @@ enum DIREC {
     DIR_DOWN
 };
 
+class PAStats {
+
+};
+
 class ProgressionAnalyzer {
 public:
-    ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fShow);
+    ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fShow, PAStats* collectStats = nullptr);
     // bool isLegal(const Options&) const;
 
     static const int PENALTY_FOR_REPEATED_CHORDS = {50};
@@ -27,6 +31,7 @@ public:
     // 0 means perfect, negative numbers not allowed
     int getPenalty(const Options&, int upperBound) const;
 
+    // Sets a PA to show analysis every time it runs.
     static void showAnalysis();
 
 private:
@@ -34,6 +39,7 @@ private:
     const Chord4* const next;
     const int firstRoot;
     const int nextRoot;
+    const PAStats* _stats;
 
     int _motion[4];      // Derived motion for each voice (bipolar, in semitones).
     DIREC _direction[4];  // "    "

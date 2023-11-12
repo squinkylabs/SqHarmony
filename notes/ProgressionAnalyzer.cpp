@@ -19,7 +19,7 @@ void ProgressionAnalyzer::showAnalysis() {
 /* ProgressionAnalyzer::ProgressionAnalyzer(const Chord4 * const C1, const Chord4 * const C2)
     : First (C1), Next(C2)
  */
-ProgressionAnalyzer::ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fs)
+ProgressionAnalyzer::ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fs, PAStats* stats)
     : first(C1), next(C2), firstRoot(C1->fetchRoot()), nextRoot(C2->fetchRoot()), _show(fs || showAlways) {
     figureMotion();  // init the motion guys
     _notesInCommon = InCommon();
@@ -58,6 +58,10 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     totalPenalty += p;
     if (p && _show) {
         str << "Penalty: RuleForConsecInversions " << p << std::endl;
+        
+    }
+    if (p && _stats) {
+        assert(false);
     }
 
     if (totalPenalty >= upperBound) {

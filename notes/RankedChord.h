@@ -17,7 +17,7 @@ public:
     void reset();     // set us back to the first chord in rank
     const Chord4* fetch2() const;
     void print() const;  // print the current chord
-    int penaltyForFollowingThisGuy(const Options&, int lowerBound, const RankedChord& ThisGuy, bool show) const;
+    int penaltyForFollowingThisGuy(const Options&, int lowerBound, const RankedChord& ThisGuy, bool show, PAStats* stats) const;
 
 private:
     const Chord4Manager& chords;
@@ -32,9 +32,9 @@ inline RankedChord::RankedChord(const Chord4Manager& mgr, int rt) : chords(mgr),
 inline RankedChord::~RankedChord() {
 }
 
-inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, int upperBound, const RankedChord& theGuy, bool show) const {
+inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, int upperBound, const RankedChord& theGuy, bool show, PAStats* stats) const {
     // fetch made safer
-    return fetch2()->penaltForFollowingThisGuy(options, upperBound, theGuy.fetch2(), show);
+    return fetch2()->penaltForFollowingThisGuy(options, upperBound, theGuy.fetch2(), show, stats);
 }
 
 inline void RankedChord::reset() {

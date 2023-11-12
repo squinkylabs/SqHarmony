@@ -662,12 +662,12 @@ bool Chord4::canFollowThisGuy(const Options& options, const Chord4& thisGuy) con
 }
 #endif
 
-int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4* thisGuy, bool show) const {
+int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4* thisGuy, bool show, class PAStats* stats) const {
     assert(valid);
     assert(thisGuy->valid);
     if (show) {
         SQINFO("enter Chord4::penaltForFollowingThisGuy");
     }
-    ProgressionAnalyzer analyzer(thisGuy, this, show);
+    ProgressionAnalyzer analyzer(thisGuy, this, show, stats);
     return analyzer.getPenalty(options, lowestPenaltySoFar);
 }

@@ -26,7 +26,7 @@ public:
     int size() const {
         return int(chords.size());
     }
-    bool Generate(const Options& options, int Nlevel, bool show);  // ret true if ok!
+    bool Generate(const Options& options, int Nlevel, bool show, PAStats* stats);  // Ret true if ok!
 private:
     // the final chords we make
     std::vector<std::shared_ptr<RankedChord>> chords;

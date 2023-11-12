@@ -65,7 +65,7 @@ bool HarmonySong::isValid() const {
 #endif
 }
 
-bool HarmonySong::Generate(const Options& options, int nStep, bool show) {
+bool HarmonySong::Generate(const Options& options, int nStep, bool show, PAStats* stats) {
     bool done, ret;
     const int size = int(chords.size());
     // if (nStep < 5) printf("Just started level %d\n", nStep);
@@ -90,7 +90,12 @@ if (nStep == 0)		// if we are starting from top
 #endif
 
     for (ret = false, done = false; !done;) {
-        if (nStep == 0 || (0 < chords[nStep]->penaltyForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, *chords[nStep - 1], show))) {
+        if (nStep == 0 || (0 < chords[nStep]->penaltyForFollowingThisGuy(
+            options, 
+            ProgressionAnalyzer::MAX_PENALTY, 
+            *chords[nStep - 1], 
+            show, 
+            stats))) {
             // if progression is valid to this chord
             // always valid if no prev!
 
@@ -104,7 +109,7 @@ if (nStep == 0)		// if we are starting from top
                     goto TRY_AGAIN;
                 }
             } else {
-                bool f = Generate(options, nStep + 1, show);  // if not last chord, then go on the next
+                bool f = Generate(options, nStep + 1, show, stats);  // if not last chord, then go on the next
                 if (f) {                                      // if next generated ok, we are recursing back up!
 
                     ret = true;
