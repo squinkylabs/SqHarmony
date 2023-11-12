@@ -350,7 +350,7 @@ int ProgressionAnalyzer::RuleForPara() const {
 
                     const int FirstInterval =
                         first->fetchSRNNotes()[i].interval(first->fetchSRNNotes()[j]);
-                    if (FirstInterval == NextInterval)  // paralel 5 or 12
+                    if (FirstInterval == NextInterval)  // Parallel 5 or 12.
                     {
                         if (_show) {
                             SQINFO("found par 5th or oct");

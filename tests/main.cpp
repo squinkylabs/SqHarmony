@@ -51,7 +51,7 @@ extern void testAllChords(bool);
 extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
 
-const bool doLongRunning = true;
+const bool doLongRunning = false;
 
 int main(const char**, int) {
     //  testGrayCode();

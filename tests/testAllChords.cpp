@@ -7,10 +7,6 @@
 #include "Scale.h"
 #include "asserts.h"
 
-//---------------------------------------------
-
-// #include "Chord4List.h"
-
 int worstPenalty = 0;
 
 static StylePtr makeStyle() {
@@ -100,7 +96,6 @@ static void testAllChords(
 }
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref, Scale::Scales mode) {
     SQINFO("test all 274 range=%d, invPref=%d, mode=%d", range, inversionPref, mode);
- //   PAStats stats;
     std::shared_ptr<PAStats> stats;
     if (range == Style::Ranges::ENCOURAGE_CENTER && inversionPref == Style::InversionPreference::DONT_CARE) {
         stats = std::make_shared<PAStats>();
