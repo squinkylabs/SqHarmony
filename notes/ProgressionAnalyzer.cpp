@@ -259,7 +259,7 @@ int ProgressionAnalyzer::Rule4Same() const {
 
     for (i = 1, di = _direction[0]; i <= SOP; i++) {
         if (_direction[i] != di) return 0;  // if any direct dif, cool
-                                           // is same ok?
+                                            // is same ok?
     }
     if (_show) SQINFO("failing Rule4Same");
     return AVG_PENALTY_PER_RULE;
@@ -320,11 +320,11 @@ int ProgressionAnalyzer::RuleForPara() const {
                             SQINFO("-- Par motion to interval=%d vx%d/%d", FirstInterval, i, j);
                         SHOWZ:
                             if (_show && false) SQINFO("in Par, vx %d to %d. considering %d to %d, int = %d (first int = %d)",
-                                                      i, j,
-                                                      int(next->fetchSRNNotes()[i]),
-                                                      int(next->fetchSRNNotes()[j]),
-                                                      NextInterval,
-                                                      FirstInterval);
+                                                       i, j,
+                                                       int(next->fetchSRNNotes()[i]),
+                                                       int(next->fetchSRNNotes()[j]),
+                                                       NextInterval,
+                                                       FirstInterval);
                         }
                         return AVG_PENALTY_PER_RULE;
                     }
@@ -390,7 +390,7 @@ int ProgressionAnalyzer::RuleForNoneInCommon(const Options& options) const {
     }
 
     if (first->fetchRoot() == 5 && next->fetchRoot() == 6 && options.style->usePistonV_VI_exception()) {
-      //  SQWARN("This is the exception case");
+        //  SQWARN("This is the exception case");
         return RuleForNoneInCommon56(options);
     } else {
         return RuleForNoneInCommonNorm(options);
@@ -403,8 +403,8 @@ int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
     // the other two voices descend to the nearest position in the chord
     // the third is doubled in the VI chord
 
-    //SQINFO("RuleForNoneInCommon56 ex\n first:%s to  next: %s", first->toString().c_str(), next->toString().c_str());
-     if (_show) {
+    // SQINFO("RuleForNoneInCommon56 ex\n first:%s to  next: %s", first->toString().c_str(), next->toString().c_str());
+    if (_show) {
         SQINFO("enter RuleForNoneInCommon56");
     }
 
@@ -417,7 +417,7 @@ int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
             leadingToneVoice = i;
         }
     }
-  //  SQINFO("Leading tone voice %d (bass=%d)", leadingToneVoice, BASS);
+    //  SQINFO("Leading tone voice %d (bass=%d)", leadingToneVoice, BASS);
     assert(leadingToneVoice >= BASS);
 
     const auto nextSRNotes = next->fetchSRNNotes();
@@ -426,30 +426,26 @@ int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
     //     SQINFO("_motion[%d]=%d", i, _motion[i]);
     // }
 
-   // SQINFO("srn next =%d", int(nextSRNotes[leadingToneVoice]));
+    // SQINFO("srn next =%d", int(nextSRNotes[leadingToneVoice]));
     // Leading-tone moves up one degree to the tonic.
     if ((int(nextSRNotes[leadingToneVoice]) != 1) ||
         (_motion[leadingToneVoice] > 2) ||
-        (_motion[leadingToneVoice] < 1)
-        ) {
+        (_motion[leadingToneVoice] < 1)) {
         // SQINFO("failed nnic 5-6 want leading tone to rise to next %s, %s",
         //        first->toString().c_str(),
         //        next->toString().c_str());
         return AVG_PENALTY_PER_RULE;
-
     }
 
+    // SQINFO("nnic 56 got to 438, lt must be rising");
+    //   switch (chordInterval(options, _notes[nVoice])) {
 
-    //SQINFO("nnic 56 got to 438, lt must be rising");
-    //  switch (chordInterval(options, _notes[nVoice])) {
-
-//chordInterval(options, _notes[nVoice]);
-    // The third is doubled in the VI chord.
+    // chordInterval(options, _notes[nVoice]);
+    //  The third is doubled in the VI chord.
     int numThirdsInVI = 0;
     for (int i = BASS; i <= SOP; ++i) {
-
-        const ChordRelativeNote  crn = next->chordInterval(options, i);
-     //   const int degree = int(nextSRNotes[i]);
+        const ChordRelativeNote crn = next->chordInterval(options, i);
+        //   const int degree = int(nextSRNotes[i]);
         // only expect these degrees in a triad.
         assert(crn == 1 || crn == 3 || crn == 5);
         if (crn == 3) {
@@ -458,21 +454,20 @@ int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
     }
 
     if (numThirdsInVI != 2) {
-
         // const char* p1 = first->toString().c_str();
         // const char* p2 = next->toString().c_str();
         // SQINFO("nnic 5-6 want third doubled %s, %s", p1, p2);
         return AVG_PENALTY_PER_RULE;
     }
 
-   // SQINFO("got here, third must be doubled");
+    // SQINFO("got here, third must be doubled");
 
     // the other two voices descend to the nearest position in the chord
     // I think this means that one of the thirds descends.
     int thirdsAscending = 0;
     for (int i = BASS; i <= SOP; ++i) {
         if (i == leadingToneVoice) {
-            // we have already taken care of this at the start. so we are ok here, 
+            // we have already taken care of this at the start. so we are ok here,
             // and can ignore that voice
             continue;
         }
@@ -496,13 +491,13 @@ int ProgressionAnalyzer::RuleForNoneInCommon56(const Options& options) const {
         }
     }
 
-   // SQINFO("got here, v-vi must be good");
+    // SQINFO("got here, v-vi must be good");
     // const int degree = int(nextNotes[i]);
     // if (degree == 3) {
     //     ++numThirdsInVI;
     // }
 
-   // assert(false);
+    // assert(false);
     return 0;
 }
 
@@ -537,6 +532,17 @@ int ProgressionAnalyzer::RuleForNoneInCommonNorm(const Options& options) const {
 int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
     assert(first->isAcceptableDoubling(options));
     assert(next->isAcceptableDoubling(options));
+
+    if ((first->fetchRoot() == 5) &&
+        (next->fetchRoot() == 6) &&
+        options.style->getNoNotesInCommon() &&
+        options.style->usePistonV_VI_exception()) {
+        // no notes in common rule for piston will already have its own doubling, which
+        // is "non standard"
+       // SQINFO("not evaluating doubling for piston V VI");
+        return 0;
+
+    }
 
     return next->isCorrectDoubling(options) ? 0 : SLIGHTLY_LOWER_PENALTY_PER_RULE;
 }
@@ -595,7 +601,7 @@ void ProgressionAnalyzer::figureMotion() {
     for (int i = BASS; i <= SOP; i++)  // for each voice
     {
         _motion[i] = next->fetchNotes()[i] -
-                       first->fetchNotes()[i];  // figure how much it changed
+                     first->fetchNotes()[i];  // figure how much it changed
 
         if (_motion[i] > 0)
             _direction[i] = DIR_UP;

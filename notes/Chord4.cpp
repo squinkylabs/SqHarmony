@@ -151,7 +151,6 @@ void Chord4::dump() const {
 void Chord4::print() const {
     auto str = getString();
     SQINFO("%s", str.c_str());
-    // std::cout << str;
 }
 
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
@@ -164,7 +163,7 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
 
         const int pitchLow = PitchKnowledge::pitchFromName(subLow);
         const int pitchHigh = PitchKnowledge::pitchFromName(subHigh);
-        SQINFO("fromString %s on vx %d have %d, %d", target, voiceN, pitchLow, pitchHigh);
+        // SQINFO("fromString %s on vx %d have %d, %d", target, voiceN, pitchLow, pitchHigh);
 
         assert(pitchHigh > pitchLow);
     }
@@ -213,7 +212,7 @@ bool Chord4::inc(const Options& options) {
         {
             if (_globalShow && (nVoice == 1)) {
                 SQINFO("note is too high in voic %d, chord=%s", nVoice, toStringShort().c_str());
-                SQINFO("pitch[0] = %d, pitch[1] = %d", _notes[0], _notes[1]);
+                SQINFO("pitch[0] = %d, pitch[1] = %d", int(_notes[0]), int(_notes[1]));
             }
             if (nVoice == 0) {
                 fRet = true;  // ... and no more to try, then give up
@@ -229,12 +228,12 @@ bool Chord4::inc(const Options& options) {
                 }
                 ++_notes[nVoice - 1];  // ... and carry to next
                 if (_globalShow && nVoice == 1) {
-                    SQINFO("raw wrap, before bump voice %d to %d now %s", nVoice, _notes[nVoice], toStringShort().c_str());
+                    SQINFO("raw wrap, before bump voice %d to %d now %s", nVoice, int(_notes[nVoice]), toStringShort().c_str());
                 }
                 bumpToNextInChord(options, _notes[nVoice - 1]);
                 if (_globalShow && nVoice == 1) {
-                    SQINFO("wrapping voice %d to %d now %s", nVoice, _notes[nVoice], toStringShort().c_str());
-                    SQINFO("pitch[0] = %d, pitch[1] = %d", _notes[0], _notes[1]);
+                    SQINFO("wrapping voice %d to %d now %s", nVoice, int(_notes[nVoice]), toStringShort().c_str());
+                    SQINFO("pitch[0] = %d, pitch[1] = %d", int(_notes[0]), int(_notes[1]));
                 }
             }
         }
@@ -284,8 +283,8 @@ bool Chord4::isChordOk(const Options& options) const {
         const char bassOct = s[1];
         const char bassPitch = s[0];
 
-        const char tenorOct = s[3];
-        const char tenorPitch = s[2];
+       // const char tenorOct = s[3];
+      //  const char tenorPitch = s[2];
 
         // E1 is the first chord I see
         // I see c2

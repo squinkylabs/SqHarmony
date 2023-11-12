@@ -180,7 +180,7 @@ static void testNumberOfChords() {
 #undef APIENTRY
 #include "windows.h"
 
-static void thingToTime() {
+static void timeChordProgressionGen() {
     testAllChords(
         Style::Ranges::NORMAL_RANGE,
         Style::InversionPreference::DONT_CARE,
@@ -188,11 +188,23 @@ static void thingToTime() {
         1);
 }
 
+// 369 reelase 11/12/2023
+static void timeChordInit() {
+    for (int i = 0; i < 8; ++i) {
+        const Options options = makeOptions(1, Scale::Scales::Dorian);      // just some arbitrary scale
+        Chord4Manager mgr(options);
+    }
+
+    const Options options2 = makeOptions(4, Scale::Scales::Dorian);      // just some arbitrary scale
+    Chord4Manager mgr2(options2);
+
+}
+
 // 234 ms debug. 242  after rules about sop jumps!
 // 748 release old rules 848, so it got faster
-// release 707 after rules about sop jumps and proper V-VI
+// release 692 after rules about sop jumps and proper V-VI
 // 
-static void timingCheck() {
+static void timingCheck(std::function<void(void)> thingToTime, const std::string& msg) {
 #ifdef _DEBUG
     const int iterations = 1;
 #else
@@ -206,13 +218,14 @@ static void timingCheck() {
         thingToTime();
     }
     int y = timeGetTime();
-    SQINFO("timing check, elapsed = %d", y - x);
+    SQINFO("****** timing check %s, elapsed = %d", msg,  y - x);
 }
 
 void testAllChords(bool doLongRunning) {
     testNumberOfChords();
     if (doLongRunning) {
-        timingCheck();
+        timingCheck(timeChordProgressionGen, "progression gen");
+        timingCheck(timeChordInit, "init chords");
         xtestAllChords();
     } else {
         SQINFO("skipping long running tests");

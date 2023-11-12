@@ -228,15 +228,10 @@ static void testRand() {
 }
 
 void testHarmonyChordsRandom() {
-    SQINFO("in testHarmonyChordsRandom");
-    // SQWARN("put back test valid");
     testValid();
     testGenerator();
     testHiLo();
     testRand();
-
-    SQINFO("--- skipping testAllChords, too slow ---");
-   // testAllChords();
 
     assertEQ(__numChord4, 0);
 }

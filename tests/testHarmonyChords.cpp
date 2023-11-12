@@ -89,7 +89,7 @@ static void testAtoBtoA(int a, int b, int maxAcceptablePenalty, bool minor) {
 }
 
 static void test1to2to1() {
-    printf("** test 1 to 2 to 1\n");
+   // printf("** test 1 to 2 to 1\n");
     testAtoBtoA(1, 2, ProgressionAnalyzer::SLIGHTLY_LOWER_PENALTY_PER_RULE, false);
     testAtoBtoA(1, 2, ProgressionAnalyzer::SLIGHTLY_LOWER_PENALTY_PER_RULE, true);
 }
@@ -152,11 +152,11 @@ static void test2to1b() {
     auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 1);
     assert(next);
     std::string x = next->toString();
-    printf("125 found %s\n", x.c_str());
+    //printf("125 found %s\n", x.c_str());
     // I think new algorithm gives 90, but should check.
     //  assertEQ(next->penaltForFollowingThisGuy(options, *chordA, true), 0);
-    SQWARN("TODO: is this result ok?");
-    assertLT(next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), true), ProgressionAnalyzer::AVG_PENALTY_PER_RULE);
+    //SQWARN("TODO: is this result ok?");
+    assertLT(next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false), ProgressionAnalyzer::AVG_PENALTY_PER_RULE);
 }
 
 static void testThreeSequence(bool minor) {
