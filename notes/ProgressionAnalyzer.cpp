@@ -99,7 +99,6 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
-
     // ---- RuleForNoneInCommon  #4
     p = RuleForNoneInCommon(options);
     totalPenalty += p;
@@ -186,7 +185,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
-    // ---- Rule4Same 
+    // ---- Rule4Same
     p = Rule4Same();
     totalPenalty += p;
     if (p && _show) {
@@ -203,7 +202,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
-    // ---- ruleForDoubling 
+    // ---- ruleForDoubling
     p = ruleForDoubling(options);
     totalPenalty += p;
     if (p && _show) {
@@ -220,7 +219,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         return totalPenalty;
     }
 
-    // ----- ruleForSpreading 
+    // ----- ruleForSpreading
     p = ruleForSpreading(options);
     totalPenalty += p;
     if (p && _show) {
@@ -236,10 +235,6 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         }
         return totalPenalty;
     }
-
-
-
-
 
     //---------------------
     if (_show) {

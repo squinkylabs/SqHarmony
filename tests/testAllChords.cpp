@@ -1,5 +1,4 @@
 
-
 #include "Chord4Manager.h"
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
@@ -40,7 +39,7 @@ static Options makeOptions(int root, Scale::Scales scale) {
 static void testAllChords(
     Chord4Manager& mgr,
     const Options& options,
-    const Chord4* sourceChord, 
+    const Chord4* sourceChord,
     int destinationRoot,
     PAStats* stats) {
     auto chordB = HarmonyChords::findChord(false, options, mgr, *sourceChord, destinationRoot, stats);
@@ -58,15 +57,11 @@ static void testAllChords(
         chordB,
         false,
         nullptr);
-    // SQINFO("got penalty %d", x);
     if (penalty > worstPenalty) {
         SQINFO("new worst penalty: %d", penalty);
         worstPenalty = penalty;
     }
 
-     //     int worstPenalty = 0;
-//int penaltyTotal = 0;
-//int numEvals = 0;
     ++numEvals;
     penaltyTotal += penalty;
     if (penalty > 0) {
@@ -84,11 +79,10 @@ static void testAllChords(
     const Options options = makeOptions(sourceRoot, mode);
     Chord4Manager mgr(options);
 
-    // SQINFO("test all 252");
     const Chord4List* sourceRootChords = mgr._getChords(sourceRoot);
-    // first, make a set of chords for the root
-    //  Chord4List roots(options, sourceRoot);
-    // then, for each root chords, make sure something can follow
+    // First, make a set of chords for the root.
+    // Chord4List roots(options, sourceRoot);
+    // Then, for each root chords, make sure something can follow.
     for (int i = 0; i < sourceRootChords->size(); ++i) {
         const Chord4* theSourceChord = mgr.get2(sourceRoot, i);
         testAllChords(mgr, options, theSourceChord, destinationRoot, stats);
@@ -101,7 +95,6 @@ static void testAllChords(
     Scale::Scales mode,
     int root,
     PAStats* stats) {
-    //   SQINFO("test all 267");
     for (int i = 1; i < 8; ++i) {
         testAllChords(range, inversionPref, mode, root, i, stats);
     }
@@ -112,14 +105,16 @@ static void testAllChords(Style::Ranges range, Style::InversionPreference invers
     if (range == Style::Ranges::ENCOURAGE_CENTER && inversionPref == Style::InversionPreference::DONT_CARE) {
         stats = std::make_shared<PAStats>();
     }
+
     for (int i = 1; i < 8; ++i) {
         testAllChords(range, inversionPref, mode, i, stats.get());
     }
+
     if (stats) {
         stats->dump();
 
-        const double avgPenalty = double(penaltyTotal)/ double(numEvals);
-        const double rate =  double(numWithPenalty)/ double(numEvals);
+        const double avgPenalty = double(penaltyTotal) / double(numEvals);
+        const double rate = double(numWithPenalty) / double(numEvals);
         SQINFO("avg penalty = %f rate of penalty = %f", avgPenalty, rate);
         worstPenalty = 0;
         penaltyTotal = 0;
@@ -130,7 +125,6 @@ static void testAllChords(Style::Ranges range, Style::InversionPreference invers
 
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref) {
     // The first scales are the diatonic.
-
     for (int i = int(Scale::Scales::Major); i != int(Scale::Scales::MinorPentatonic); ++i) {
         testAllChords(range, inversionPref, Scale::Scales(i));
     }
@@ -150,9 +144,6 @@ static void xtestAllChords() {
 }
 
 static void testNumberOfChords() {
-    // const int sourceRoot = 1;
-    // const auto model =
-    // const Options options = makeOptions(sourceRoot, mode);
     const Options options = makeOptions(false);
     Chord4Manager mgr(options);
     for (int i = 1; i < 8; ++i) {
@@ -167,36 +158,36 @@ static void testNumberOfChords() {
                 expected = 96;
                 break;
             case 3:
-                expected = 111;
+                expected = 82;
                 break;
             case 4:
                 expected = 99;
                 break;
             case 5:
-                expected = 97;
+                expected = 70;
                 break;
             case 6:
                 expected = 99;
                 break;
             case 7:
-                expected = 91;
+                expected = 47;
                 break;
             default:
                 assert(false);
         }
-        SQINFO("removed assert. generated[%d] %d expected %d", i, x, expected);
-        // assertEQ(x, expected);
+        // SQINFO("removed assert. generated[%d] %d expected %d", i, x, expected);
+        assertEQ(x, expected);
     }
 
-    /*
-    data from first release / eliminate leading tone doubling / also elim lead inroot
-     mgr size[1] =138 / 138
-    ]mgr size[2] =96 / 96
-     mgr size[3] =111 / 82
-     mgr size[4] =99 / 99
-     mgr size[5] =97 / 70
-     mgr size[6] =99 / 99
-     mgr size[7] =91 / 65 / 47
+    /* data from first release / eliminate leading tone doubling
+     * also elim lead inroot
+     * mgr size[1] =138 / 138
+     * mgr size[2] =96 / 96
+     * mgr size[3] =111 / 82
+     * mgr size[4] =99 / 99
+     * mgr size[5] =97 / 70
+     * mgr size[6] =99 / 99
+     * mgr size[7] =91 / 65 / 47
      */
 }
 
@@ -216,20 +207,19 @@ static void timeChordProgressionGen() {
 // 175 after rule order changed (why would this matter)
 static void timeChordInit() {
     for (int i = 0; i < 8; ++i) {
-        const Options options = makeOptions(1, Scale::Scales::Dorian);      // just some arbitrary scale
+        const Options options = makeOptions(1, Scale::Scales::Dorian);  // just some arbitrary scale
         Chord4Manager mgr(options);
     }
 
-    const Options options2 = makeOptions(4, Scale::Scales::Dorian);      // just some arbitrary scale
+    const Options options2 = makeOptions(4, Scale::Scales::Dorian);  // just some arbitrary scale
     Chord4Manager mgr2(options2);
-
 }
 
 // 234 ms debug. 242  after rules about sop jumps!
 // 748 release old rules 848, so it got faster
 // release 692 after rules about sop jumps and proper V-VI
 // 231 release after change rule order!
-// 
+//
 static void timingCheck(std::function<void(void)> thingToTime, const std::string& msg) {
 #ifdef _DEBUG
     const int iterations = 1;
@@ -244,7 +234,7 @@ static void timingCheck(std::function<void(void)> thingToTime, const std::string
         thingToTime();
     }
     int y = timeGetTime();
-    SQINFO("****** timing check %s, elapsed = %d", msg.c_str(),  y - x);
+    SQINFO("****** timing check %s, elapsed = %d", msg.c_str(), y - x);
 }
 
 void testAllChords(bool doLongRunning) {
