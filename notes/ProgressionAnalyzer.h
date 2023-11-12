@@ -53,12 +53,12 @@ private:
     const Chord4* const next;
     const int firstRoot;
     const int nextRoot;
-    PAStats* const _stats;
 
     int _motion[4];       // Derived motion for each voice (bipolar, in semitones).
     DIREC _direction[4];  // "    "
     int _notesInCommon;
     const bool _show;  // for debugging
+    PAStats* const _stats;
 
     //
     void figureMotion();
