@@ -71,7 +71,11 @@ static void testAtoB(int a, int b, bool minor, int bestExpected = 0) {
 
     auto next = HarmonyChords::findChord(false, options, mgr, *cp, b);
     assert(next);
-    assertEQ(next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, false, nullptr), bestExpected);
+    const int penalty = next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, false, nullptr);
+    if (penalty != bestExpected) {
+         next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, true, nullptr);
+    }
+    assertEQ(penalty, bestExpected);
 }
 
 static void testAtoBtoA(int a, int b, int maxAcceptablePenalty, bool minor) {

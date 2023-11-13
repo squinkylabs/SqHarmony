@@ -24,6 +24,7 @@ public:
     int _ruleForSpreading = 0;
     int ruleForJumpSize = 0;
     int _ruleForSopranoJump = 0;
+    int _ruleForDistanceMoved = 0;
 
 private:
 };
@@ -65,19 +66,20 @@ private:
     int InCommon() const;
 
     // All rules return penalty, or zero for pass
-    int Rule4Same() const;
-    int RuleForNoneInCommon(const Options&) const;
-    int RuleForNoneInCommon56(const Options&) const;
-    int RuleForNoneInCommonNorm(const Options&) const;
+    int rule4Same() const;
+    int ruleForNoneInCommon(const Options&) const;
+    int ruleForNoneInCommon56(const Options&) const;
+    int ruleForNoneInCommonNorm(const Options&) const;
     int ruleForDoubling(const Options& options) const;
     int ruleForSpreading(const Options& options) const;
-    int RuleForLeadingTone() const;
-    int RuleForPara() const;
-    int RuleForCross() const;                             // Vx in similar motion shouldn't cross.
-    int RuleForInversions(const Options& options) const;  // Rule for two consec chords in first inversion.
-    int RuleForJumpSize() const;
-    int FakeRuleForDesc(const Options& options) const;  // Force descending melody for torture test!
-    int RuleForSopranoJump(const Options& options) const;
+    int ruleForLeadingTone() const;
+    int ruleForPara() const;
+    int ruleForCross() const;                             // Vx in similar motion shouldn't cross.
+    int ruleForInversions(const Options& options) const;  // Rule for two consecutive chords in first inversion.
+    int ruleForJumpSize() const;
+    int fakeRuleForDesc(const Options& options) const;  // Force descending melody for torture test!
+    int ruleForSopranoJump(const Options& options) const;
+    int ruleForDistanceMoved(const Options& options) const;
 
     bool IsNearestNote(const Options&, int Vx) const;  // True if the voice went to the nearest available slot
 };
