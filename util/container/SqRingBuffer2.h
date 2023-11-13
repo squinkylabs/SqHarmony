@@ -32,14 +32,19 @@ private:
     int data[16];
     int inIndex = 0;
     int outIndex = 0;
+#ifdef _DEBUG
     const bool _allowOverflow;
+#endif
     int _size;
 
     void advance(int& index) const;
 };
 
 inline SqRingBuffer2::SqRingBuffer2(bool allowOverflow, int size) : 
-    _allowOverflow(allowOverflow), _size(size) {
+#ifdef _DEBUG
+    _allowOverflow(allowOverflow), 
+#endif
+    _size(size) {
 }
 
 inline bool SqRingBuffer2::empty() const {
@@ -51,7 +56,9 @@ inline bool SqRingBuffer2::full() const {
 }
 
 inline void SqRingBuffer2::push(int x) {
+#ifdef _DEBUG
     assert((size() < _size) || _allowOverflow);
+#endif
 
     if (size() >= _size) {
         pop();

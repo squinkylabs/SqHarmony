@@ -51,7 +51,7 @@ public:
     }
 
 private:
-    float sampleTime = 1.f / 44100.f;
+   // float sampleTime = 1.f / 44100.f;
     // double metricTimePerClock = 1;
     bool nordModeReset = false;
 
@@ -134,6 +134,6 @@ inline SeqClock::ClockResults SeqClock::updateOnce(float externalClock, bool run
 }
 
 inline void SeqClock::setup(float sampleTime) {
-    sampleTime = sampleTime;
+   // sampleTime = sampleTime;
     resetLockout.setSampleTime(sampleTime);
 }

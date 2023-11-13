@@ -161,11 +161,12 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
         const std::string subLow = sTarget.substr(2 * (voiceN - 1), 2);
         const std::string subHigh = sTarget.substr(2 * voiceN, 2);
 
+#ifdef _DEBUG
         const int pitchLow = PitchKnowledge::pitchFromName(subLow);
         const int pitchHigh = PitchKnowledge::pitchFromName(subHigh);
         // SQINFO("fromString %s on vx %d have %d, %d", target, voiceN, pitchLow, pitchHigh);
-
         assert(pitchHigh > pitchLow);
+#endif
     }
     Chord4Ptr chord = std::make_shared<Chord4>(options, degree);
     while (true) {
