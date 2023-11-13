@@ -16,10 +16,11 @@ static void testArpegRPSub(int length, const float* input, int numInput, const f
 
     for (int i = 0; i < numOutput; ++i) {
         const float expected = expectedOutput[i];
-        const auto actual = arp.clock();
+        const auto actual = arp.clock2();
         // printf("i=%d actual=%f expected=%f\n", i, actual, expected);
-        assertEQ(actual.first, expected);
-        assertEQ(actual.second, expected + 11);
+        assertEQ(std::get<0>(actual), true);
+        assertEQ(std::get<1>(actual), expected);
+        assertEQ(std::get<2>(actual), expected + 11);
     }
 }
 

@@ -644,7 +644,7 @@ static void testPullCable() {
     assert(false);
 }
 
-static void testMonoGateSub() {
+static void testMonoGateSub(bool changeVoices) {
     auto arp = make();
     auto args = TestComposite::ProcessArgs();
 
@@ -708,10 +708,59 @@ static void testMonoGateSub() {
     arp->process(args);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
     assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 100);
+
+    if(!changeVoices) {
+        return;
+    }
+    
+
+    // set poly to 3
+    arp->inputs[Comp::CV_INPUT].channels = 3;
+
+    // clock and see the next value (11)
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
+    arp->process(args);
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
+    arp->process(args);
+
+    // singe the change in poly forced a reset, back to 10
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
+    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 100);
+
+    // clock and see the next value (11)
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
+    arp->process(args);
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
+    arp->process(args);
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 11);
+    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 101);
+
+    // clock and see the next value (12)
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
+    arp->process(args);
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
+    arp->process(args);
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 12);
+    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 102);
+
+    // clock and see the next value (10)
+    // the 13 should have been cleared out, leaving only 3 in the loop
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
+    arp->process(args);
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
+    arp->process(args);
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
+    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 100);
+
+
 }
 
 static void testMonoGate() {
-     testMonoGateSub();
+     testMonoGateSub(false);
+}
+
+static void testMonoGateChangeVoices() {
+     testMonoGateSub(true);
 }
 
 void testArpegComposite() {
@@ -740,6 +789,7 @@ void testArpegComposite() {
     testTriggerDelay(true);
 
     testMonoGate();
+    testMonoGateChangeVoices();
 
     SQWARN("!!!! put back the pull cable test");
     // testPullCable();

@@ -5,7 +5,13 @@
 class ArpegRhythmPlayer {
 public:
     ArpegRhythmPlayer(ArpegPlayer* underlying) : player(underlying) {}
-    std::pair<float, float> clock();
+    std::pair<float, float> clock();        // I think this is legacy? (but still used in some tests that need to port);
+    /**
+     * @brief clock the player.
+     * 
+     * @return std::tuple<bool, float, float> the first is true if there is something to play, false if no.
+     *          If something to play, the values will be in the 2nd and 3rd of the tuple.
+     */
     std::tuple<bool, float, float> clock2();
     /**
      * once called, will cause a re-shuffle to happen at the end of current playback,
