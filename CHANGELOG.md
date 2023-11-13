@@ -11,14 +11,16 @@ New Harmony rules:
 * Forbid doubling of leading tones.
 * Chord of the leading tone prevented in root position.
 * Forbid melodic jumps in the soprano voice of more than a fifth.
-* Discourage motion in Bass, Tenor, and Alto. But less restrictive than the Soprano rule
-* Implement the rule for V-VI progression.
+* Discourage motion in Bass, Tenor, and Alto. But less restrictive than the Soprano rule.
+* Implement the piston rule for V-VI progression.
 
 New default values for Harmony preference (inversions, and centered).
 
 Sped up evaluation of harmony rules.
 
 Fixed broken links to CHANGELOG.
+
+Fixed spurious warnings on Macos and Linux.
 
 ## 2.2.0
 
