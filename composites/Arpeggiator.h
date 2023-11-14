@@ -211,8 +211,10 @@ inline void Arpeggiator<TBase>::handlePossiblePolyphonyChange() {
         (TBase::inputs[GATE_INPUT].channels == 1)) {
         for (int i = TBase::inputs[CV_INPUT].channels; i < _lastPolyphony; ++i) {
             noteBuffer.removeForChannel(i);
+            SQINFO("removing channel %d", i);
         }
-        outerPlayer.reset();        // And reset, in case we just removed a current note.
+        // I don't think we need this. more test.
+        //outerPlayer.reset();        // And reset, in case we just removed a current note.
     }
     _lastPolyphony = TBase::inputs[CV_INPUT].channels;
 }

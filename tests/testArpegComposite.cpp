@@ -335,7 +335,6 @@ static void testReset(bool resetMode) {
 #endif
 }
 
-
 static void testNoDelay2() {
     auto arp = make();
     connectInputs(arp, 1);
@@ -658,7 +657,7 @@ ArpPtr makeMonoGate4Voice() {
 
 // Puts 8 CV into all 4 voices and gates them in.
 void setup4Pitches(ArpPtr arp, const TestComposite::ProcessArgs& args) {
-   // set up the poly pitch
+    // set up the poly pitch
     arp->inputs[Comp::CV_INPUT].setVoltage(10, 0);
     arp->inputs[Comp::CV_INPUT].setVoltage(11, 1);
     arp->inputs[Comp::CV_INPUT].setVoltage(12, 2);
@@ -678,15 +677,22 @@ void setup4Pitches(ArpPtr arp, const TestComposite::ProcessArgs& args) {
     assertEQ(arp->outputs[Comp::GATE_OUTPUT].getVoltage(0), 0);
 }
 
-static void clockOneCycle(ArpPtr arp, const TestComposite::ProcessArgs& args) {
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(cGateOutLow, 0);
-    arp->process(args);
+static void clockCycles(int cycles, ArpPtr arp, const TestComposite::ProcessArgs& args) {
+    assertGT(cycles, 0);
+    for (int i = 0; i < cycles; ++i) {
+        arp->inputs[Comp::CLOCK_INPUT].setVoltage(cGateOutLow, 0);
+        arp->process(args);
 
-    // Does the gate always go low on clock down? I think so?
-    assertEQ(arp->outputs[Comp::GATE_OUTPUT].getVoltage(0), cGateOutLow);
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(cGateOutHi, 0);
-    arp->process(args);
-    assertEQ(arp->outputs[Comp::GATE_OUTPUT].getVoltage(0), cGateOutHi);
+        // Does the gate always go low on clock down? I think so?
+        assertEQ(arp->outputs[Comp::GATE_OUTPUT].getVoltage(0), cGateOutLow);
+        arp->inputs[Comp::CLOCK_INPUT].setVoltage(cGateOutHi, 0);
+        arp->process(args);
+        assertEQ(arp->outputs[Comp::GATE_OUTPUT].getVoltage(0), cGateOutHi);
+    }
+}
+
+static void clockOneCycle(ArpPtr arp, const TestComposite::ProcessArgs& args) {
+    clockCycles(1, arp, args);
 }
 
 static void testMonoGateSub(bool changeVoices) {
@@ -696,7 +702,7 @@ static void testMonoGateSub(bool changeVoices) {
     setup4Pitches(arp, args);
 
     // clock with 4 notes loaded?
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
+    arp->inputs[Comp::CLOCK_INPUT].setVoltage(cGateOutHi, 0);
     arp->process(args);
 
     assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
@@ -709,97 +715,88 @@ static void testMonoGateSub(bool changeVoices) {
     assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 101);
 
     // clock again
-    // arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
-    // arp->process(args);
-    // arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
-    // arp->process(args);
     clockOneCycle(arp, args);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 12);
     assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 102);
 
     // clock again
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
-    arp->process(args);
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
-    arp->process(args);
+    clockOneCycle(arp, args);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 13);
     assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 103);
 
     // clock again
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
-    arp->process(args);
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
-    arp->process(args);
+    clockOneCycle(arp, args);
     assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
     assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 100);
 
-    if(!changeVoices) {
+    if (!changeVoices) {
         return;
     }
-    
-    // set poly to 3
+
+    assert(false);
+#if 0
+        // set poly to 3
     arp->inputs[Comp::CV_INPUT].channels = 3;
 
-    // clock and see the next value (11)
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
-    arp->process(args);
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
-    arp->process(args);
-
-    // singe the change in poly forced a reset, back to 10
-    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
-    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 100);
-
-    // clock and see the next value (11)
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
-    arp->process(args);
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
-    arp->process(args);
-    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 11);
-    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 101);
-
-    // clock and see the next value (12)
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
-    arp->process(args);
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
-    arp->process(args);
-    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 12);
-    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 102);
-
-    // clock and see the next value (10)
-    // the 13 should have been cleared out, leaving only 3 in the loop
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(0, 0);
-    arp->process(args);
-    arp->inputs[Comp::CLOCK_INPUT].setVoltage(10, 0);
-    arp->process(args);
-    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
-    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), 100);
+#endif
 }
 
 static void testMonoGate() {
-     testMonoGateSub(false);
-}
-
-static void testMonoGateChangeVoices() {
-     testMonoGateSub(true);
-
-    auto arp = makeMonoGate4Voice();
-    auto args = TestComposite::ProcessArgs();
-    assert(false);
+    testMonoGateSub(false);
 }
 
 enum PolyphonyChange {
     ChangeNotPlayingTo3,
     ChangePlayingTo3,
-    ChangeNotPlayingTo5
+    ChangeNotPlayingTo5,
+    ChangeNotPlayingTo3Clock
+
 };
 
 static void testMonoGateSub2(PolyphonyChange e) {
-    assertEQ(e, ChangeNotPlayingTo3);
+ //   assertEQ(e, ChangeNotPlayingTo3);
+    auto arp = makeMonoGate4Voice();
+    auto args = TestComposite::ProcessArgs();
+
+    // first clock around until we have the "right" note playing
+    // One clock to get first voice playing, 4 more to cycle around
+    const int initialClocks = (e != ChangePlayingTo3) ? 1 + 4 : 1 +3;
+    setup4Pitches(arp, args);
+    clockCycles(initialClocks, arp, args);
+
+    const float expectedCV = (e != ChangePlayingTo3) ? 10 : 13;
+    const float expectedCV2 = (e != ChangePlayingTo3) ? 100 : 103;
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), expectedCV);
+    assertEQ(arp->outputs[Comp::CV2_OUTPUT].getVoltage(0), expectedCV2);
+
+    // set poly to 3
+    arp->inputs[Comp::CV_INPUT].channels = 3;
+    // clock till playing the third note
+    clockCycles(2, arp, args);
+
+    // If we aren't playing the disconnected pitch, then we stay were we are and cycle,
+    // so 10 stays, and two more cycles go to 12.
+    // But if we hav2 to move off it, then we would be moving from 3, down to 2 (12), 
+    // then first clock goes to 0 (10), then 1 (11)
+    const float expectedCVAfterPolyChange = (e != ChangePlayingTo3) ? 12 : 11;
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), expectedCVAfterPolyChange);
+
+    // if was (12 or 11) Should not play 13 (vx 3), since it should be removed.
+    const int expectedClocksToComeAround = (e != ChangePlayingTo3) ? 1 : 2;
+    clockCycles(expectedClocksToComeAround, arp, args);
+    assertEQ(arp->outputs[Comp::CV_OUTPUT].getVoltage(0), 10);
 }
 
 static void testMonoGateChangeNotPlayingTo3() {
     testMonoGateSub2(ChangeNotPlayingTo3);
+}
+
+static void testMonoGateChangePlayingTo3() {
+    testMonoGateSub2(ChangePlayingTo3);
+}
+
+static void testMonoGateChangeNotPlayingTo5() {
+    testMonoGateSub2(ChangeNotPlayingTo5);
 }
 
 void testArpegComposite() {
@@ -828,8 +825,9 @@ void testArpegComposite() {
     testTriggerDelay(true);
 
     testMonoGate();
-    testMonoGateChangeVoices();
     testMonoGateChangeNotPlayingTo3();
+    testMonoGateChangePlayingTo3();
+    testMonoGateChangeNotPlayingTo5();
 
     SQWARN("!!!! put back the pull cable test");
     // testPullCable();
