@@ -14,7 +14,7 @@ public:
     friend class ClockShifter3Test;
     ClockShifter3();
     bool run(bool input);
-
+  
     /**
      * @brief Set the shift phase.
      *
