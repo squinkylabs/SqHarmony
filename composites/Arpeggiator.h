@@ -79,7 +79,7 @@ public:
 
 private:
     void init();
-    void onGateChange(int channel, bool gate);
+    void onGateChange(int channel, bool gate, int currentPolyphony);
 
     /**
      * @param clockFired is true when detector decides a clock is rea.
@@ -89,10 +89,8 @@ private:
 
     bool lastGate[16]{0};
     bool allGatesLow = true;
-    // float sampledPitch[16]{0};
     bool lastClock{false};
     void processParams();
-    void handlePossiblePolyphonyChange();
 
     NoteBuffer noteBuffer{32};
     ArpegPlayer hiddenPlayer{&noteBuffer};
@@ -103,7 +101,7 @@ private:
     GateTrigger triggerInputProc;
 
     const int numModes = {int(modes().size())};
-    int _lastPolyphony = -1;
+    int polyphonyWhenGateWentHigh = 0;
 };
 
 template <class TBase>
@@ -116,20 +114,21 @@ template <class TBase>
 inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args) {
     processParams();
     const int gates = TBase::inputs[GATE_INPUT].channels;
-    const int cvs = TBase::inputs[CV_INPUT].channels;
-    const bool monoGates = (gates == 1) && (cvs > 1);
+    const int currentPolyphony = TBase::inputs[CV_INPUT].channels;
+    const bool monoGates = (gates == 1) && (currentPolyphony > 1);
 
     int highestGateProcessed = 0;
     if (monoGates) {
-        highestGateProcessed = cvs;
+        highestGateProcessed = currentPolyphony;
         // for mono gates, just look at gate[0], but send to to all cv channels
         // SQDEBUG("gate delay will process mg input=%f", TBase::inputs[GATE_INPUT].getVoltage(0));
         gateOnlyDelay.process(TBase::inputs[GATE_INPUT], gates);
         const bool gate = gateOnlyDelay.getGate(0);
         if (gate != lastGate[0]) {
             lastGate[0] = gate;
-            for (int ch = 0; ch < cvs; ++ch) {
-                onGateChange(ch, gate);
+            const int numChannelsToProcess = gate ? currentPolyphony : std::max(currentPolyphony, this->polyphonyWhenGateWentHigh);
+            for (int ch = 0; ch < numChannelsToProcess; ++ch) {
+                onGateChange(ch, gate, currentPolyphony);
             }
         }
     } else {
@@ -139,16 +138,17 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
             const bool gate = gateOnlyDelay.getGate(ch);
             if (gate != lastGate[ch]) {
                 lastGate[ch] = gate;
-                onGateChange(ch, gate);
+                onGateChange(ch, gate, currentPolyphony);
             }
         }
     }
 
     // optimization: could do this only if connected changes
+    // Not sure what this is any more! Can find out from unit tests.
     for (int ch = highestGateProcessed; ch < 16; ++ch) {
         if (lastGate[ch]) {
             lastGate[ch] = false;
-            onGateChange(ch, false);
+            onGateChange(ch, false, currentPolyphony);
         }
     }
 
@@ -181,16 +181,17 @@ inline void Arpeggiator<TBase>::process(const typename TBase::ProcessArgs& args)
 }
 
 template <class TBase>
-inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
+inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate, int currentPolyphony) {
     if (gate) {
         const float cv1 = TBase::inputs[CV_INPUT].getVoltage(channel);
         const float cv2 = TBase::inputs[CV2_INPUT].getVoltage(channel);
         noteBuffer.push_back(cv1, cv2, channel);
+        this->polyphonyWhenGateWentHigh = currentPolyphony;
     } else {
         noteBuffer.removeForChannel(channel);
     }
 
-    // TODO: get rid of this all gates low stuff
+    // TODO: get rid of this all gates low stuff?
     allGatesLow = true;
     for (int i = 0; i < 16; ++i) {
         if (lastGate[i]) {
@@ -199,32 +200,9 @@ inline void Arpeggiator<TBase>::onGateChange(int channel, bool gate) {
     }
 }
 
-// see if poly has changed. If so, force the player to see a data changed.
-// should this be done on gate change, rather than clock?
-template <class TBase>
-inline void Arpeggiator<TBase>::handlePossiblePolyphonyChange() {
-  //  const int x = TBase::inputs[CV_INPUT].channels;
-  //  const int y = TBase::inputs[GATE_INPUT].channels;
-
-    if ((_lastPolyphony >= 0) &&
-        (_lastPolyphony != TBase::inputs[CV_INPUT].channels) &&
-        (TBase::inputs[GATE_INPUT].channels == 1)) {
-        for (int i = TBase::inputs[CV_INPUT].channels; i < _lastPolyphony; ++i) {
-            noteBuffer.removeForChannel(i);
-            SQINFO("removing channel %d", i);
-        }
-        // I don't think we need this. more test.
-        //outerPlayer.reset();        // And reset, in case we just removed a current note.
-    }
-    _lastPolyphony = TBase::inputs[CV_INPUT].channels;
-}
-
 template <class TBase>
 inline void Arpeggiator<TBase>::onClockChange(bool clockFired, bool clockValue) {
-    //SQDEBUG("Arpeg::onClockChange, fired = %d value = %d", clockFired, clockValue);
     if (clockFired) {
-        handlePossiblePolyphonyChange();
-
         const auto cvs = outerPlayer.clock2();
         if (std::get<0>(cvs)) {
             //SQINFO("will output player out to CV: cv1=%f, cv2=%f", std::get<1>(cvs), std::get<2>(cvs));
