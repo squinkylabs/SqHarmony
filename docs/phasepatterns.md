@@ -1,10 +1,15 @@
 # Squinktronix Phase Patterns manual
 
-This module is experimental at the moment. This means:
+This module is under construction at the moment. This means:
 
 * The panel is ugly.
-* The feature set is likely to change.
+* The feature set will change a lot.
 * The patch format may change, such that patches saved with this module may not load correctly in future versions.
+* There are bugs and limitations that will be addressed in the future.
+
+However, it is still enabled, so that if you happen to be using it successfully, you may continue to use it.
+
+There is not much reason to test it in its current state - there are a lot of suggestions for improving it, and it will be significantly re-written inside.
 
 ## What it does
 

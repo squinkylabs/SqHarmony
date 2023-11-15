@@ -130,7 +130,7 @@ static void testArpegPauseSub(ArpegPlayer::Mode mode,
 
     static bool b = false;
     if (!b) {
-        printf("skipping pause for now\n");
+        printf("skipping arpeg pause test for now\n");
         b = true;
     }
     // testArpegPauseSub2(mode, input, numInput, expectedOutput, numOutput, true);

@@ -2,10 +2,13 @@
 
 ## 2.2.1
 
-Phase Patterns uses correct font on the panel. Changed the name of Phasepatterns to Phase Patterns.
+Harmony:
 
-Made initial fake score in Harmony Stay up. (should go back?)
-Fixed memory leak in Harmony.
+* New default values for Harmony preference (inversions, and centered).
+* Fixed memory leak in Harmony module.
+* Sped up evaluation of harmony rules.
+* Made initial fake score in Harmony Stay up. (should go back?)
+
 New Harmony rules:
 
 * Forbid doubling of leading tones.
@@ -14,13 +17,20 @@ New Harmony rules:
 * Discourage motion in Bass, Tenor, and Alto. But less restrictive than the Soprano rule.
 * Implement the piston rule for V-VI progression.
 
-New default values for Harmony preference (inversions, and centered).
+Arpeggiator:
 
-Sped up evaluation of harmony rules.
+* Fixed bug where notes stuck when reducing polyphony with mono gates.
 
-Fixed broken links to CHANGELOG.
+Phase Patterns:
 
-Fixed spurious warnings on Macos and Linux.
+* Added "under construction" to the panel. For more on that, look at the manual.
+* Uses correct font on the panel.
+* Changed the name from Phasepatterns to Phase Patterns.
+
+Miscellaneous:
+
+* Fixed broken links to CHANGELOG.
+* Fixed spurious warnings on MacOS and Linux builds.
 
 ## 2.2.0
 

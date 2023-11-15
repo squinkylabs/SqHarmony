@@ -758,7 +758,7 @@ enum PolyphonyChange {
 };
 
 static void testPolyChange() {
-    SQINFO("\n\n----- start of testPolyChange");
+    //SQINFO("\n\n----- start of testPolyChange");
     auto arp = make();
     auto args = TestComposite::ProcessArgs();
 
@@ -834,7 +834,7 @@ static void sendGateLtoH(ArpPtr arp, TestComposite::ProcessArgs& args) {
 }
 
 static void testMonoGateSub2(PolyphonyChange e) {
-    SQINFO("\n\n----- start of test, case %d", e);
+    //SQINFO("\n\n----- start of test, case %d", e);
     auto arp = makeMonoGate4Voice();
     auto args = TestComposite::ProcessArgs();
 
@@ -851,7 +851,7 @@ static void testMonoGateSub2(PolyphonyChange e) {
 
     // set poly to different value
     const int changePolyTo = (e != ChangeNotPlayingTo5) ? 3 : 5;
-    SQINFO("--- about to change poly to %d", changePolyTo);
+    // SQINFO("--- about to change poly to %d", changePolyTo);
     arp->inputs[Comp::CV_INPUT].channels = changePolyTo;
 
     // and gate in the new poly setting (new notes)

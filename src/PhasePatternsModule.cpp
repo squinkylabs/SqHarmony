@@ -53,6 +53,7 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
         addLabel(Vec(15, 6), "Phase Patterns", 20);
+        addLabel(Vec(28, 60), "Under Construction", 14);
         addLabel(Vec(30, 356), "Squinktronix", 16);
 #endif
         addControls(module);
