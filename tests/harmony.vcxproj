@@ -179,6 +179,7 @@
     <ClCompile Include="testChord4Manager.cpp" />
     <ClCompile Include="testClockMult.cpp" />
     <ClCompile Include="testClockShifter3.cpp" />
+    <ClCompile Include="testClockShifter4.cpp" />
     <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
