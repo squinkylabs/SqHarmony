@@ -35,6 +35,7 @@ extern void testAdditive();
 extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
 extern void testFreqMeasure();
+extern void testFreqMeasure2();
 extern void testResettablePhaseAccumulator();
 extern void testOneShot();
 extern void testPhasePatterns();
@@ -65,6 +66,7 @@ int main(const char**, int) {
     testOneShotSampleTimer();
     testResettablePhaseAccumulator();
     testFreqMeasure();
+    testFreqMeasure2();
     testShiftCalc();
     testClockShifter3();
     testClockShifter4();
