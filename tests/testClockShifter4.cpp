@@ -7,16 +7,16 @@ using CompPtr = std::shared_ptr<Comp>;
 
 // clocks high once, then low
 static void clockIt(CompPtr shifter, int cyclesLow) {
-    shifter->run(true);
+    shifter->process(true, true);
     for (int i = 0; i < cyclesLow; ++i) {
-        shifter->run(false);
+        shifter->process(false, false);     // Note very low duty cycle.
     }
 }
 
 // Sends two clocks, with 7 non-clocks in-between.
 static void prime(CompPtr shifter) {
     clockIt(shifter, 7);
-    shifter->run(true);
+    shifter->process(true, true);
     assert(shifter->freqValid());
 }
 
@@ -29,7 +29,8 @@ static CompPtr makeAndPrime() {
 static void testCanCall() {
     ClockShifter4 c;
     c.setShift(.5);
-    c.run(2);
+   // c.run(2);
+    c.process(true, true);
     c.freqValid();
 }
 
@@ -42,11 +43,11 @@ static void testInputValid() {
 
 static void testStraightThrough() {
     CompPtr shifter = makeAndPrime();
-    bool b = shifter->run(false);
+    bool b = shifter->process(false, false);
     assert(!b);
-    b = shifter->run(false);
+    b = shifter->process(false, false);
     assert(!b);
-    b = shifter->run(true);
+    b = shifter->process(true, true);
     assert(b);
 }
 
@@ -54,13 +55,13 @@ static void testHalfCycleDelay() {
     // 8 periods, just at start
     CompPtr shifter = makeAndPrime();
     shifter->setShift(.5);
-    bool b = shifter->run(false);
+    bool b = shifter->process(false, false);
     assertEQ(b, false);
-    b = shifter->run(false);
+    b = shifter->process(false, false);
     assertEQ(b, false);
-    b = shifter->run(false);
+    b = shifter->process(false, false);
     assertEQ(b, false);
-    b = shifter->run(false);
+    b = shifter->process(false, false);
     assertEQ(b, true);
 
 

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "FreqMeasure.h"
+#include "FreqMeasure2.h"
 
 class ClockShifter4 {
 public:
     void setShift(float);
-    bool run(bool input);
+    bool process(bool trigger, bool clock);
     bool freqValid() const;
 
 private:
     int _clocksSinceReset = 0;
 
-    FreqMeasure _freqMeasure;
+    FreqMeasure2 _freqMeasure;
     float _shift = 0;
     bool _lastClock = false;
 };
@@ -20,8 +20,8 @@ inline void ClockShifter4::setShift(float x) {
     _shift = x;
 }
 
-inline bool ClockShifter4::run(bool clock) {
-    _freqMeasure.onSample(clock);
+inline bool ClockShifter4::process(bool trigger, bool clock) {
+    _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
         return false;
     }
