@@ -19,7 +19,7 @@ public:
     float getCombinedADSR(unsigned harmonic) const;
 
 private:
-    float harmonicTrimADSR[3][N] = {0};
+    float harmonicTrimADSR[3][N] = {{0}};
     float adsrValue[3] = {0};
     bool adsrConnected[3] = {0};
     //    float harmonicBaseLevel[N] = {0}

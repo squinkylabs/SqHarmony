@@ -45,6 +45,7 @@ public:
         HISTORY_SIZE_PARAM,
         TRANSPOSE_STEPS_PARAM,
         TRIGGER_DELAY_PARAM,
+        USE_FLATS_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -267,6 +268,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     c.inversion = int(chord->inversion(*chordOptions));
 
     // SQINFO("output pitches %s (root=%d) root+4=%d", chord->toStringShort().c_str(), c.root, c.root+4);
+    // SQINFO("output pitches: %s", chord->toStringShort().c_str());
 
     for (int i = 0; i < 4; ++i) {
         MidiNote mn(12 + harmonyNotes[i]);  // harmony note and midi note are about the same;
@@ -281,6 +283,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
 
     if (!chordsOut.full()) {
         chordsOut.push(c);
+        // SQINFO("just pushed a new chord, full=%d empty=%d", chordsOut.full(), chordsOut.empty());
     } else {
        // SQWARN("in outputPitches, no room for output\n");
     }
@@ -304,19 +307,12 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     }
 
     const bool triggerConnected = Harmony<TBase>::inputs[TRIGGER_INPUT].isConnected();
-    bool t = false;
+    bool willProcessTrigger = false;
     if (triggerConnected) {
-
-#if 0
-       triggerInputProc.go(Harmony<TBase>::inputs[TRIGGER_INPUT].getVoltage(0));
-        t = triggerInputProc.trigger();
-#else
-
         gateDelay.process(Harmony<TBase>::inputs[TRIGGER_INPUT], 1);
         bool gate = gateDelay.getGate(0);
         triggerInputProc.go(gate ? 10.f : 0.f );
-        t = triggerInputProc.trigger();
-#endif
+        willProcessTrigger = triggerInputProc.trigger();
     }
 
     const float input = Harmony<TBase>::inputs[CV_INPUT].getVoltage(0);
@@ -324,51 +320,37 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     MidiNote quantizedInput = inputQuantizer->run(input);
   
 
-    // now we could do xpose here if we convert to srn, then add, then convert back
+    // Now we could do xpose here if we convert to srn, then add, then convert back.
     const int xposeSteps = int(std::round(Harmony<TBase>::params[TRANSPOSE_STEPS_PARAM].value));
     if (xposeSteps) {
-        const int x = quantizedInput.get();
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
         scaleNote.transposeDegree(xposeSteps);
         NoteConvert::s2m(quantizedInput, *quantizerOptions->scale, scaleNote);
-        if (t) {
-            SQINFO("xpose %d steps. midi %d, %d xpose-midi=%d", xposeSteps, x, quantizedInput.get(), quantizedInput.get() - x );
-        }
     }
 
     FloatNote quantizedFloatNote;
     NoteConvert::m2f(quantizedFloatNote, quantizedInput);
 
-    // we don't need quantized note here, could use midi note
-    const bool pitchChanged = (quantizedFloatNote.get() != lastQuantizedPitch);
+    // Don't clear out the initial dummy score until hooked up.
+    const bool anyIOConnected = Harmony<TBase>::inputs[CV_INPUT].isConnected() ||
+        Harmony<TBase>::outputs[BASS_OUTPUT].isConnected() ||
+        Harmony<TBase>::outputs[TENOR_OUTPUT].isConnected() ||
+        Harmony<TBase>::outputs[ALTO_OUTPUT].isConnected() ||
+        Harmony<TBase>::outputs[SOPRANO_OUTPUT].isConnected();
+
+
+    // We don't need quantized note here, could use midi note.
+    const bool pitchChanged = (quantizedFloatNote.get() != lastQuantizedPitch) && anyIOConnected;
     const bool triggerOnBoth = Harmony<TBase>::params[RETRIGGER_CV_AND_NOTE_PARAM].value > .5;
     if (!triggerConnected || triggerOnBoth) {
-        t |= pitchChanged;
+        willProcessTrigger |= pitchChanged;
     }
 
-    // generate a new chord any time the quantizer outputs a new pitch
-    if (t) {
+    // Generate a new chord any time the quantizer outputs a new pitch.
+    if (willProcessTrigger) {
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
-#if 0
-        SQINFO("trigger input=%f  input+5th=%f q=%d, q+7=%d this=%p", 
-            input,input + 7.f / 12.f,  
-            mn.get(), mn.get()+7, 
-            this );
-#endif
-
-#if 0
-            bool octaveJump = false;
-            if (chordB) {
-                octaveJump = (chordB->fetchRoot() == (1 + scaleNote.getDegree()));
-            } else if (chordA) {
-                octaveJump = (chordA->fetchRoot() == (1 + scaleNote.getDegree()));
-            }
-            if (octaveJump) {
-                SQINFO("\nignoring octave jump\n");
-            } else {
-#endif
         {
             const bool show = false;
 
@@ -380,31 +362,14 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
                 &chordHistory,
                 chordA, chordB);
             if (chord) {
+                // SQINFO("got a new chord");
                 outputPitches(chord);
                 chordA = chordB;
                 chordB = chord;
-                // SQINFO("gen new %s", chord->toString().c_str());
             } else {
                 SQWARN("got no chord");
             }
-#if 0
-            // If it's our first chord, generate single.
-            // TODO: shouldn't we have done this before? What are we outputting?
-            if (!chordA) {
-                chordA = HarmonyChords::findChord(show, *chordOptions, *chordManager, 1 + scaleNote.getDegree());
-                outputPitches(chordA);
-            } else if (!chordB) {
-                chordB = HarmonyChords::findChord(show, *chordOptions, *chordManager, *chordA, 1 + scaleNote.getDegree());
-                outputPitches(chordB);
-            } else {
-                const Chord4* chord = HarmonyChords::findChord(show, *chordOptions, *chordManager, *chordA, *chordB, 1 + scaleNote.getDegree());
-                outputPitches(chord);
-                chordA = chordB;
-                chordB = chord;
-            }
-#endif
         }
-
         lastQuantizedPitch = quantizedFloatNote.get();
     }
 

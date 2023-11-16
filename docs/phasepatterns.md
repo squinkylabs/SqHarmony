@@ -1,14 +1,19 @@
-# Squinktronix Phasepatterns manual
+# Squinktronix Phase Patterns manual
 
-This module is experimental at the moment. This means:
+This module is under construction at the moment. This means:
 
 * The panel is ugly.
-* The feature set is likely to change.
+* The feature set will change a lot.
 * The patch format may change, such that patches saved with this module may not load correctly in future versions.
+* There are bugs and limitations that will be addressed in the future.
+
+However, it is still enabled, so that if you happen to be using it successfully, you may continue to use it.
+
+There is not much reason to test it in its current state - there are a lot of suggestions for improving it, and it will be significantly re-written inside.
 
 ## What it does
 
-Phasepatterns is very simple - it takes an input clocks and delays it. The delay is in metric units, not absolute time. So, when the input clock rate changes, so does the shift amount. Here is a simple example:
+Phase Patterns is very simple - it takes an input clocks and delays it. The delay is in metric units, not absolute time. So, when the input clock rate changes, so does the shift amount. Here is a simple example:
 
 * Regular clocks running into the clock input.
 * Shift set to .5.
@@ -47,7 +52,7 @@ Next to the shift controls is a display that shows the current shift amount bein
 
 ### The inputs
 
-Clock input. This is the clock that Phasepatterns will lock onto and delay. It follows the VCV standard - any input above 1.0 is treated as a high clock, and any input below .1 is treated as a low clock. In practice this means you can run most anything into it.
+Clock input. This is the clock that Phase Patterns will lock onto and delay. It follows the VCV standard - any input above 1.0 is treated as a high clock, and any input below .1 is treated as a low clock. In practice this means you can run most anything into it.
 
 Shift amount input is combined with the other shift inputs to give the final shift amount. Here 0v is "no shift", 1v is "shift of one", which as explained above is one clock. The shift amount input responds to positive voltage.
 

@@ -59,19 +59,30 @@ public:
 
     bool pullTogether() const { return rangesPreference == Ranges::ENCOURAGE_CENTER; }
 
-    void setSpecialTestMode(int amt) {
-        specialTestMode = true;
-        dx = amt;
+    bool limitSopranoJumps() const {
+        return true;
+    }
+
+    bool forbidLeadingToneDoubling() const {
+        return true;
+    }
+
+    bool forbidLeadingToneChordInRootPosition() const {
+        return true;
+    }
+
+    bool usePistonV_VI_exception() const {
+        return true;
+        // return false;
     }
 
 private:
-    // bool _allowConsecInversions = false;
     InversionPreference inversionPreference = InversionPreference::DISCOURAGE_CONSECUTIVE;
     Ranges rangesPreference = Ranges::NORMAL_RANGE;
     bool enableNoNotesInCommonRule = true;
 
-    bool isNarrowRange() const { 
-        return (rangesPreference == Ranges::NARROW_RANGE) || specialTestMode;
+    bool isNarrowRange() const {
+        return (rangesPreference == Ranges::NARROW_RANGE);
     }
 
     // at 5 it's getting noticeably worse, but not awful
@@ -79,9 +90,9 @@ private:
     // old way 7 crapped out, 6 ok
     // new way 12 crap, 10 asserts 9 ok : 9 best for new way
 
+    // 2023: let's get more constrained, and get rid of special test mode/
     int dx = 8;
-    //static const int dx{8};
-    bool specialTestMode = false;
+    // bool specialTestMode = false;
 };
 
 using StylePtr = std::shared_ptr<Style>;
@@ -94,7 +105,7 @@ inline int Style::absMaxPitch() {
 #if !CRAZY_STYLE
     ret = maxSop();  // used to be +5. seemed wrong
 #else
-     a b c // we won't support this any longer
+    a b c  // we won't support this any longer
     SQWARN("crazy style is on");
     ret = maxSop() + 10;
 #endif
@@ -128,7 +139,6 @@ inline int Style::maxUnison() {
 inline bool Style::requireStdDoubling() {
     return true;
 }
-
 
 inline bool Style::forceDescSop() {
 #if !CRAZY_STYLE

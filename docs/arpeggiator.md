@@ -51,7 +51,7 @@ The most dramatic, and also typical control is the **Mode** control. But there a
 * **Hold** - Same as the hold control, but if the Hold CV input is patched it will override the panel control. 0V or less is off, over 5V is on.
 * **CV** - Pitch input. Polyphonic. All the Channels may feed into the arpeggiator input buffer. This input must be patched to a polyphonic source, or the arpeggiator will not have enough notes to play (unless you use Hold).
 * **CV2** - A second value that will be carried around with CV. Whatever re-ordering and repeating is applied to CV will also be applied to CV2. Traditionally might be called "velocity input".
-* **Gate** - Polyphonic gate input. The module will sample the CV input when any gate goes from low to high. If a mono gate is patched, it will sample all the CV inputs on a low to high transition.
+* **Gate** - Gate input, often polyphonic. The module will sample the CV input when any gate goes from low to high. If a mono gate is patched, it will sample all the CV inputs on a low to high transition.
 * **Clk** - The master clock input. Notes are played when the clock is high, advancing to the next note on the next low to high clock transition.
 * **Rst** - reset input. Resets playback to the first step of the arpeggiator. see [below](#More-about-reset-and-clock)
 * **Strig** - shuffle trigger input. When patched, arpeggiator will not re-shuffle once it has played all the "notes", but a low to high transition on this input will force a shuffle at the end of the current loop.

@@ -2,15 +2,16 @@
 #pragma once
 #include "HarmonyNote.h"
 #include "ScaleRelativeNote.h"
-//#include "ScaleQuantizer.h"
-#include "Scale.h"
-
+// #include "ScaleQuantizer.h"
 #include <assert.h>
+
 #include <memory>
 
+#include "Scale.h"
+
 enum class Roots { C = 1,
-             C_SHARP,
-             D };
+                   C_SHARP,
+                   D };
 class Scale;
 using ScalePtr = std::shared_ptr<Scale>;
 using ConstScalePtr = std::shared_ptr<const Scale>;
@@ -24,7 +25,7 @@ class KeysigOld {
     //////////////////////////////////
 public:
     // This [legacy] constructor always makes a major scale.
-    // It could be fixed, but callin KeysigOld::set is easy.
+    // It could be fixed, but calling KeysigOld::set is easy.
     ScaleRelativeNote ScaleDeg(HarmonyNote Pitch);  // converts a midi pitch to a Scale degree (1..8)
                                                     // 0 for not a degree
     KeysigOld(Roots rt);

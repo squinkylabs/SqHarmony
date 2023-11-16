@@ -32,9 +32,9 @@ bool Style::getNoNotesInCommon() const {
 }
 
 int Style::minSop() const {
-    if (specialTestMode) {
-        return dx + 60;
-    }
+    // if (specialTestMode) {
+    //     return dx + 60;
+    // }
     return 60;
 }
 
@@ -43,9 +43,9 @@ int Style::maxSop() const {
 }
 
 int Style::minAlto() const {
-    if (specialTestMode) {
-        return 55 + dx;
-    }
+    // if (specialTestMode) {
+    //     return 55 + dx;
+    // }
     return 55;
 }
 
@@ -59,9 +59,9 @@ int Style::minTenor() const {
 }
 
 int Style::maxTenor() const {
-    if (specialTestMode) {
-        return 69 - dx;
-    }
+    // if (specialTestMode) {
+    //     return 69 - dx;
+    // }
     return 69;
 }
 
@@ -70,9 +70,9 @@ int Style::minBass() const {
 }
 
 int Style::maxBass() const {
-    if (specialTestMode) {
-        return 60 - dx;
-    }
+    // if (specialTestMode) {
+    //     return 60 - dx;
+    // }
     return 60;
 }
 

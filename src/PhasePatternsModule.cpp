@@ -7,7 +7,15 @@
 #include "WidgetComposite.h"
 #include "plugin.hpp"
 
+// These have to be included later. It's a bug, but....
+#include "SqLabel.h"
+#include "BufferingParent.h"
+
 using Comp = PhasePatterns<WidgetComposite>;
+using Lab = SqLabel;
+
+template <>
+int BufferingParent<SqLabel>::_refCount = 0;
 
 class PhasePatternsModule : public rack::engine::Module {
 public:
@@ -44,24 +52,28 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(20, 6), "Phase Patterns", 16);
-        addLabel(Vec(26, 358), "Squinktronix", 15);
-
+        addLabel(Vec(15, 6), "Phase Patterns", 20);
+        addLabel(Vec(28, 60), "Under Construction", 14);
+        addLabel(Vec(30, 356), "Squinktronix", 16);
 #endif
         addControls(module);
         addIO(module);
     }
 
 private:
-    Label* _shiftDisplay = nullptr;
+    BufferingParent<SqLabel>* _shiftDisplay = nullptr;
 
     void step() override {
         ModuleWidget::step();
         if (module) {
-            const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
-            std::stringstream str;
-            str << std::setprecision(3) << shift << std::endl;
-            _shiftDisplay->text = str.str();
+            if (_shiftDisplay) {
+                const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
+                std::stringstream str;
+                str << std::setprecision(3) << shift;
+
+                SqLabel* label = _shiftDisplay->getChild();
+                label->updateText(str.str());
+            }
         }
     }
     void addControls(PhasePatternsModule* module) {
@@ -78,10 +90,11 @@ private:
 
         _shiftDisplay = addLabel(Vec(38, 210), "");
     }
+
     void addIO(PhasePatternsModule* module) {
         const int a = 13;
         const int b = 85;
-        const int c = (a+b) / 2;
+        const int c = (a + b) / 2;
 
         const int jackY = 322;
         const int dL = 20;
@@ -93,20 +106,38 @@ private:
         addLabel(Vec(79, jackY-dL), "CkOut");
     }
 
-#ifdef _LAB
-    Label* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
+    /**
+     * @brief
+     *
+     * @param v is the position, panel relative
+     * @param str text to display
+     * @param fontSize
+     * @return BufferingParent<SqLabel>*
+     */
+    BufferingParent<SqLabel>* addLabel(const Vec& v, const std::string& str, float fontSize = 14) {
+        // TODO: what are these arbitrary numbers?
+        // This "max size" is lame - do something better; was 200, 20
+        // with 20, 2 is totally invisible.
+        // with 200, 20 it disappears at zoom > 250
+        // 400, 40 is no better
+        // at 100, 10 it's truncated, but it still zooms up to about 240
+        const Vec size(200, 20);
+        SqLabel* lp = new SqLabel();
+        BufferingParent<SqLabel>* parent = new BufferingParent<SqLabel>(lp, size, lp);
+
         NVGcolor white = nvgRGB(0xff, 0xff, 0xff);
-        Label* label = new Label();
         auto adjustedPos = v;
+
         adjustedPos.x -= 1.5f * str.size();
-        label->box.pos = adjustedPos;
-        label->text = str;
-        label->color = white;
-        label->fontSize = fontSize;
-        addChild(label);
-        return label;
+        parent->box.pos = adjustedPos; 
+
+        lp->text = str;
+        lp->color = white;
+        lp->fontSize = fontSize;
+
+        addChild(parent);
+        return parent;
     }
-#endif
 };
 
 Model* modelPhasePatterns = createModel<PhasePatternsModule, PhasePatternsWidget>("sqh-phasepatterns");

@@ -1,5 +1,6 @@
 
 #include "KeysigOld.h"
+
 #include "Scale.h"
 
 #if 1
@@ -22,7 +23,7 @@ void KeysigOld::set(const MidiNote& basePitch, Scale::Scales mode) {
 }
 
 std::pair<const MidiNote, Scale::Scales> KeysigOld::get() const {
-   return scale->get();
+    return scale->get();
 }
 
 ScaleRelativeNote KeysigOld::ScaleDeg(HarmonyNote pitch) {
@@ -34,8 +35,7 @@ ScaleRelativeNote KeysigOld::ScaleDeg(HarmonyNote pitch) {
     if (scaleNote.isAccidental()) {
         // if not in a scale, it's zero
         ret.set(0);
-    }
-    else {
+    } else {
         int degree = scaleNote.getDegree();
         // if in scale it's 1..7
         ret.set(degree + 1);
@@ -43,7 +43,7 @@ ScaleRelativeNote KeysigOld::ScaleDeg(HarmonyNote pitch) {
     return ret;
 }
 
-#else // old impl
+#else  // old impl
 Keysig::Keysig(Roots rt) : root(rt) {
     nDegreeTable[0] = 0;  // 0 is not used
     nDegreeTable[1] = 1;
@@ -60,19 +60,16 @@ Keysig::Keysig(Roots rt) : root(rt) {
     nDegreeTable[12] = 7;
 }
 
-
 ScaleRelativeNote Keysig::ScaleDeg(HarmonyNote Pitch) {
     ScaleRelativeNote ret;
     int chro;
 
     chro = PitchKnowledge::chromaticFromAbs(Pitch);  // get c, c#, etc...
-    chro -= (int)root;                 // normalize relative to our root
-    chro += 1;                          // root is one, not zero
-    if (chro < 1) chro += 12;     // keep positive
+    chro -= (int)root;                               // normalize relative to our root
+    chro += 1;                                       // root is one, not zero
+    if (chro < 1) chro += 12;                        // keep positive
     assert(chro > 0 && chro <= 12);
     ret.set(nDegreeTable[chro]);  // coerce us into the ScaleRelativeNote
     return ret;
 }
 #endif
-
-

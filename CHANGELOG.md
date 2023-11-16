@@ -1,5 +1,49 @@
 # Changelog for Squinktronix plugins
 
+## 2.2.1
+
+Harmony:
+
+* New default values for Harmony preference (inversions, and centered).
+* Fixed memory leak in Harmony module.
+* Sped up evaluation of harmony rules.
+* Made initial fake score in Harmony Stay up. (should go back?)
+
+New Harmony rules:
+
+* Forbid doubling of leading tones.
+* Chord of the leading tone prevented in root position.
+* Forbid melodic jumps in the soprano voice of more than a fifth.
+* Discourage motion in Bass, Tenor, and Alto. But less restrictive than the Soprano rule.
+* Implement the piston rule for V-VI progression.
+
+Arpeggiator:
+
+* Fixed bug where notes stuck when reducing polyphony with mono gates.
+
+Phase Patterns:
+
+* Added "under construction" to the panel. For more on that, look at the manual.
+* Uses correct font on the panel.
+* Changed the name from Phasepatterns to Phase Patterns.
+
+Miscellaneous:
+
+* Fixed broken links to CHANGELOG.
+* Fixed spurious warnings on MacOS and Linux builds.
+
+## 2.2.0
+
+New release for test.
+
+New test plugin: Phase Patterns.
+
+Fixed spelling error in module slug.
+
+## 2.1.0
+
+Finished beta 1 testing
+
 ## 2.0.5
 
 Clock+Gate delay for Arpeggiator.

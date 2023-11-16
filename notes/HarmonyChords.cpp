@@ -7,7 +7,8 @@ const Chord4* HarmonyChords::findChord(
     bool show,
     const Options& options,
     const Chord4Manager& manager,
-    int root) {
+    int root,
+    PAStats* stats) {
     // SQINFO("enter HarmonyChords::findChord");
     assert(manager.isValid());
     // TODO assert that root is in scale (scale needs size())
@@ -41,8 +42,9 @@ const Chord4* HarmonyChords::findChord(
     const Options& options,
     const Chord4Manager& manager,
     const Chord4& prev,
-    int root) {
-    return find(show, options, manager, nullptr, &prev, root, nullptr);
+    int root,
+    PAStats* stats) {
+    return find(show, options, manager, nullptr, &prev, root, nullptr, stats);
 }
 
 const Chord4* HarmonyChords::findChord(
@@ -51,8 +53,9 @@ const Chord4* HarmonyChords::findChord(
     const Chord4Manager& manager,
     const Chord4& prevPrev,
     const Chord4& prev,
-    int root) {
-    const Chord4* ret = find(show, options, manager, &prevPrev, &prev, root, nullptr);
+    int root,
+    PAStats* stats) {
+    const Chord4* ret = find(show, options, manager, &prevPrev, &prev, root, nullptr, stats);
     assert(ret);  // we should always find something;
     return ret;
 }
@@ -64,11 +67,12 @@ const Chord4* HarmonyChords::find(
     const Chord4* prevPrev,
     const Chord4* prev,
     int root,
-    ChordHistory* history) {
+    ChordHistory* history,
+    PAStats* stats) {
     assert(root > 0);
     assert(root < 8);
 
-  //  SQINFO("\n---------------------- find pp=%p p=%p r = %d", prevPrev, prev, root);
+    //  SQINFO("\n---------------------- find pp=%p p=%p r = %d", prevPrev, prev, root);
 
 #if 0
     if (prev && prevPrev) {
@@ -103,19 +107,19 @@ const Chord4* HarmonyChords::find(
 
     for (bool done = false; !done; ++rankToTry) {
         if (rankToTry >= size) {
-           // SQINFO("rankToTry=%d size=%d done", rankToTry, size);
+            // SQINFO("rankToTry=%d size=%d done", rankToTry, size);
             done = true;
         } else {
             const Chord4* currentChord = manager.get2(root, rankToTry);
             bool isRepeat = false;
             if (history) {
                 isRepeat = history->haveSeen(currentChord->rank, root);
-                //SQINFO("isRepeat = %d", isRepeat);
+                // SQINFO("isRepeat = %d", isRepeat);
             }
 
             // if bad repeating chord, don't evaluate, just give terrible scored
-            const int currentPenalty = isRepeat ? ProgressionAnalyzer::MAX_PENALTY : progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show);
-           // SQINFO("curPen=%d", currentPenalty);
+            const int currentPenalty = isRepeat ? ProgressionAnalyzer::MAX_PENALTY : progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show, stats);
+            // SQINFO("curPen=%d", currentPenalty);
             if (currentPenalty == 0) {
                 // printf("found penalty 0\n");
                 if (history) {
@@ -130,10 +134,10 @@ const Chord4* HarmonyChords::find(
             }
         }
     }
-   // assert(bestChord);
+    // assert(bestChord);
     // printf("didn't find perfect, returning penalty = %d\n", lowestPenalty);
     if (history && bestChord) {
-       // SQINFO("will add to hist, bc = %p", bestChord);
+        // SQINFO("will add to hist, bc = %p", bestChord);
         history->onNewChord(bestChord->rank, root);
     }
     return bestChord;
@@ -146,8 +150,9 @@ const Chord4* HarmonyChords::findChord2(
     const Chord4Manager& manager,
     ChordHistory* history,
     const Chord4* prevPrev,
-    const Chord4* prev) {
-    return find(show, options, manager,prevPrev, prev, root, history);
+    const Chord4* prev,
+    PAStats* stats) {
+    return find(show, options, manager, prevPrev, prev, root, history, stats);
 }
 
 int HarmonyChords::progressionPenalty(
@@ -156,7 +161,8 @@ int HarmonyChords::progressionPenalty(
     const Chord4* prevPrev,
     const Chord4* prev,
     const Chord4* current,
-    bool show) {
+    bool show,
+    PAStats* stats) {
     assert(current);
 
     if (!prevPrev && !prev) {
@@ -165,7 +171,9 @@ int HarmonyChords::progressionPenalty(
 
     int currentPenalty = current->penaltForFollowingThisGuy(options,
                                                             bestSoFar,
-                                                            prev, show);
+                                                            prev,
+                                                            show,
+                                                            stats);
     if (!prevPrev) {
         return currentPenalty;
     }

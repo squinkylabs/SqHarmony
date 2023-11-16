@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <memory>
 class KeysigOld;
@@ -11,7 +11,7 @@ class Options {
 public:
     Options(KeysigOldPtr k, StylePtr s) : keysig(k), style(s) {
     }
-    
+
     KeysigOldPtr keysig;
     StylePtr style;
 };

@@ -1,14 +1,11 @@
 #pragma once
 
-#include "rack.hpp"
 #include <functional>
+#include <history.hpp>
 #include <random>
 
-
 #include "SqUI.h"
-
-
-#include <history.hpp>
+#include "rack.hpp"
 /**
  * UI Widget that does:
  *  functions as a parameter
@@ -43,6 +40,8 @@ public:
         onChange(e);
     }
 
+    std::string getShortLabel(unsigned int index) const;
+
     using NotificationCallback = std::function<void(int index)>;
     void setNotificationCallback(NotificationCallback);
 
@@ -56,33 +55,32 @@ public:
     void onButton(const ::rack::event::Button &e) override;
     void onChange(const ::rack::event::Change &e) override;
     void onAction(const ::rack::event::Action &e) override;
-  
+
     friend class PopupMenuItem;
 
 private:
     NotificationCallback optionalNotificationCallback = {nullptr};
     IndexToValueFunction optionalIndexToValueFunction = {nullptr};
     ValueToIndexFunction optionalValueToIndexFunction = {nullptr};
-    int curIndex = 0;
+    int _curIndex = 0;
 
     void randomize();
-    std::string getShortLabel(unsigned int index);
 };
 
-inline std::string PopupMenuParamWidget::getShortLabel(unsigned int index) {
+inline std::string PopupMenuParamWidget::getShortLabel(unsigned int index) const {
     std::string ret;
 
-    // if index is out of the range of long labels, ignore it.
+    // If index is out of the range of long labels, ignore it.
     if (index < longLabels.size()) {
-        // If we have a long label, use it as a fall-back
+        // If we have a long label, use it as a fall-back.
         ret = longLabels[index];
         if (index < shortLabels.size()) {
-            // but if there is a short label, use it.
+            // But if there is a short label, use it.
             ret = shortLabels[index];
         }
     }
     return ret;
-} 
+}
 
 inline void PopupMenuParamWidget::randomize() {
     if (getParamQuantity() && getParamQuantity()->isBounded()) {
@@ -106,10 +104,10 @@ inline void PopupMenuParamWidget::setValueToIndexFunction(ValueToIndexFunction f
 
 inline void PopupMenuParamWidget::onChange(const ::rack::event::Change &e) {
     if (!this->getParamQuantity()) {
-        return;  // no module. Probably in the module browser.
+        return;  // No module. Probably in the module browser.
     }
 
-    // process ourself to update the text label
+    // Process ourself to update the text label.
     int index = (int)std::round(this->getParamQuantity()->getValue());
     if (optionalValueToIndexFunction) {
         float value = this->getParamQuantity()->getValue();
@@ -119,7 +117,7 @@ inline void PopupMenuParamWidget::onChange(const ::rack::event::Change &e) {
     auto label = getShortLabel(index);
     if (!label.empty()) {
         this->text = label;
-        curIndex = index;  // remember it
+        _curIndex = index;  // remember it
     }
 
     // Delegate to base class to change param value
@@ -139,7 +137,7 @@ inline void PopupMenuParamWidget::drawLayer(const DrawArgs &args, int layer) {
 
 inline void PopupMenuParamWidget::onButton(const ::rack::event::Button &e) {
     if ((e.button == GLFW_MOUSE_BUTTON_LEFT) && (e.action == GLFW_PRESS)) {
-        // remember which param is touched, so mapping can work.
+        // Remember which param is touched, so mapping can work.
         if (module) {
             APP->scene->rack->setTouchedParam(this);
         }
@@ -167,20 +165,20 @@ public:
         ::rack::event::Change ce;
         if (parent->getParamQuantity()) {
             float newValue = index;
-            const float oldValue =  parent->getParamQuantity()->getValue();
+            const float oldValue = parent->getParamQuantity()->getValue();
             if (parent->optionalIndexToValueFunction) {
                 newValue = parent->optionalIndexToValueFunction(index);
             }
             parent->getParamQuantity()->setValue(newValue);
-     
-            // Push ParamChange history action so user may undo this change
-			::rack::history::ParamChange* h = new ::rack::history::ParamChange;
-			h->name = "change menu";
-			h->moduleId = parent->module->id;
-			h->paramId = parent->paramId;
-			h->oldValue = oldValue;
-			h->newValue = newValue;
-			APP->history->push(h);
+
+            // Push ParamChange history action so user may undo this change.
+            ::rack::history::ParamChange *h = new ::rack::history::ParamChange;
+            h->name = "change menu";
+            h->moduleId = parent->module->id;
+            h->paramId = parent->paramId;
+            h->oldValue = oldValue;
+            h->newValue = newValue;
+            APP->history->push(h);
         }
         parent->onChange(ce);
     }
@@ -189,7 +187,7 @@ public:
 inline void PopupMenuParamWidget::onAction(const ::rack::event::Action &e) {
     ::rack::ui::Menu *menu = ::rack::createMenu();
 
-    // is choice button the right base class?
+    // Is choice button the right base class?
     menu->box.pos = getAbsoluteOffset(::rack::math::Vec(0, this->box.size.y)).round();
     menu->box.size.x = box.size.x;
     {

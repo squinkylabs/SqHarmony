@@ -5,7 +5,8 @@ class Chord4;
 
 class ChordRelativeNote {
 public:
-    operator int() const{ return pitch; 
+    operator int() const {
+        return pitch;
     }
 
 private:

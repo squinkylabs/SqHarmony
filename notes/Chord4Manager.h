@@ -7,7 +7,7 @@
 
 /**
  * @brief holds all the chords for the scale we are in
- * 
+ *
  */
 
 using Chord4ListPtr = std::shared_ptr<Chord4List>;
@@ -33,6 +33,7 @@ public:
 
     bool isValid() const { return !chords.empty(); }
     int size(int root) const {
+        assert(root > 0);
         assert(chords.size() == 10);
         return chords[root]->size();
     }
@@ -48,6 +49,12 @@ public:
         }
 
         return chords[root]->get2(rank);
+    }
+
+    // only for unit test?
+    Chord4List* _getChords(int sourceRoot) {
+        const Chord4ListPtr x = chords[sourceRoot];
+        return x.get();
     }
 
     int _size() const {

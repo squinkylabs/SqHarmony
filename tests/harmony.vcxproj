@@ -127,6 +127,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -138,12 +139,14 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/dsp;../util/quant;../notes;.;../../../dep/include;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -168,6 +171,7 @@
     <ClCompile Include="testAdditiveGainLogic.cpp" />
     <ClCompile Include="testAdditiveModLogic.cpp" />
     <ClCompile Include="testAdditivePitchLogic.cpp" />
+    <ClCompile Include="testAllChords.cpp" />
     <ClCompile Include="testArepegPlayer2.cpp" />
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
@@ -175,9 +179,11 @@
     <ClCompile Include="testChord4Manager.cpp" />
     <ClCompile Include="testClockMult.cpp" />
     <ClCompile Include="testClockShifter3.cpp" />
+    <ClCompile Include="testClockShifter4.cpp" />
     <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
+    <ClCompile Include="testHarmonyChords2023.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
@@ -188,6 +194,7 @@
     <ClCompile Include="testOneShot.cpp" />
     <ClCompile Include="testOneShotSampleTimer.cpp" />
     <ClCompile Include="testPhasePatterns.cpp" />
+    <ClCompile Include="testPitchKnowledge.cpp" />
     <ClCompile Include="testProgressions.cpp" />
     <ClCompile Include="testRatchet.cpp" />
     <ClCompile Include="testResettablePhaseAccumulator.cpp" />

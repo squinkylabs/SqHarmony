@@ -229,11 +229,11 @@ inline void Additive<TBase>::processModInfo() {
       void setADSRValue(unsigned adsr, float value, bool connected);
     void setADSRTrimValue(unsigned adsr, unsigned harmonic, float value);
     */
-    SQINFO("processMidInfo");
+    //SQINFO("processMidInfo");
     for (unsigned i = 0; i < aml.numADSR; ++i) {
         const bool connected = TBase::inputs[ADSR0_INPUT + i].isConnected();
         const float voltage = TBase::inputs[ADSR0_INPUT + i].value;
-        SQINFO("setting connected to %d for %d", connected, i);
+        //SQINFO("setting connected to %d for %d", connected, i);
         aml.setADSRValue(i, voltage, connected);
     }
     for (unsigned i = 0; i < numHarmonics; ++i) {
@@ -246,7 +246,7 @@ inline void Additive<TBase>::processModInfo() {
 
 template <class TBase>
 inline void Additive<TBase>::processAudio(const typename TBase::ProcessArgs& args) {
-    SQINFO("process audio");
+    //SQINFO("process audio");
     // process the sines:
     float results = 0;
     const float_4 deltaT(args.sampleTime);
@@ -267,7 +267,7 @@ inline void Additive<TBase>::processAudio(const typename TBase::ProcessArgs& arg
 
 template <class TBase>
 void Additive<TBase>::process(const typename TBase::ProcessArgs& args) {
-    SQINFO("** process **");
+    // SQINFO("** process **");
     processPitchInfo();
     processGainInfo();
     processModInfo();

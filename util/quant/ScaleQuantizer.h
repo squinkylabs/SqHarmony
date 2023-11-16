@@ -68,7 +68,7 @@ public:
     static ScaleQuantizerPtr makeTest(int baseMidiPitch, Scale::Scales scale);
 
 private:
-    float lastValue = 0;
+    //float lastValue = 0;
     MidiNote lastQuantizedNote;
     ConstOptionsPtr options;
 };

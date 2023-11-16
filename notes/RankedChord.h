@@ -7,64 +7,17 @@
 
 #include "Chord4.h"
 #include "Chord4List.h"
-
 #include "Chord4Manager.h"
-
-#if 0
-class ChordListWrapper {
-public:
-    ChordListWrapper() {
-        Ref = 0;
-        pList = 0;
-    }
-    operator const Chord4List&() const { return *pList; }
-    void Add(int root);
-    void Del(int root);
-
-private:
-    int Ref;
-    Chord4List* pList;
-};
-
-inline void ChordListWrapper::Add(int root) {
-    if (!Ref)  // if we haven't make a clist for this guy yet
-    {
-        assert(!pList);
-        pList = new Chord4List(root);
-    }
-    Ref++;
-}
-
-inline void ChordListWrapper::Del(int root) {
-    assert(pList);
-    if (Ref == 1) {
-        delete pList;
-        pList = 0;
-    }
-    Ref--;
-    assert(Ref >= 0);
-}
-
-class ChordListSharerArray {
-public:
-    void Add(int root) { CLWarray[root].Add(root); }
-    void Del(int root) { CLWarray[root].Del(root); }
-    const Chord4List& operator[](int x) const { return CLWarray[x]; }
-
-private:
-    static ChordListWrapper CLWarray[9];  // global lists for all possible chords
-};
-#endif
 
 class RankedChord {
 public:
     RankedChord(const Chord4Manager&, int rt);
     ~RankedChord();
-    bool makeNext();              // advance to next worst chord
-    void reset();                 // set us back to the first chord in rank
+    bool makeNext();  // advance to next worst chord
+    void reset();     // set us back to the first chord in rank
     const Chord4* fetch2() const;
-    void print() const;           // print the current chord
-    int penaltyForFollowingThisGuy(const Options&, int lowerBound, const RankedChord& ThisGuy, bool show) const;
+    void print() const;  // print the current chord
+    int penaltyForFollowingThisGuy(const Options&, int lowerBound, const RankedChord& ThisGuy, bool show, PAStats* stats) const;
 
 private:
     const Chord4Manager& chords;
@@ -72,17 +25,16 @@ private:
     const int root;
 };
 
-inline RankedChord::RankedChord(const Chord4Manager& mgr , int rt) : chords(mgr), root(rt) {
+inline RankedChord::RankedChord(const Chord4Manager& mgr, int rt) : chords(mgr), root(rt) {
     curRank = 0;
 }
 
 inline RankedChord::~RankedChord() {
 }
 
-inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, int upperBound, const RankedChord& theGuy, bool show) const {
-
+inline int RankedChord::penaltyForFollowingThisGuy(const Options& options, int upperBound, const RankedChord& theGuy, bool show, PAStats* stats) const {
     // fetch made safer
-   return fetch2()->penaltForFollowingThisGuy(options, upperBound, theGuy.fetch2(), show);
+    return fetch2()->penaltForFollowingThisGuy(options, upperBound, theGuy.fetch2(), show, stats);
 }
 
 inline void RankedChord::reset() {

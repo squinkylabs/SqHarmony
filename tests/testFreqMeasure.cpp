@@ -20,14 +20,14 @@ static void testInitialConditions() {
 static void testRequiresTwo() {
     FreqMeasure x;
     x.onSample(true);
-    assertEQ(x.freqValid(), false)
+    assertEQ(x.freqValid(), false);
 }
 
 static void testRequiresTwoB() {
     FreqMeasure x;
     x.onSample(false);
     x.onSample(true);
-    assertEQ(x.freqValid(), false)
+    assertEQ(x.freqValid(), false);
 }
 
 static void testCanSample() {

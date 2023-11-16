@@ -28,16 +28,15 @@ public:
         private:
             std::vector<std::string> labels = Scale::getScaleLabels(true);
         };
-        //   this->configParam<RootParam>(Comp::MODE_PARAM, 0, numModes - 1, 0, "Arpeggiator Mode");
+
         class RootParam : public ParamQuantity {
         public:
             std::string getDisplayValueString() override {
-                int value = int((std::round(getValue())));
+                const bool useFlats = module->params[Comp::USE_FLATS_PARAM].value > .5;
+                const auto labels = Scale::getRootLabels(useFlats);
+                const int value = int((std::round(getValue())));
                 return ((value >= 0) && value < int(labels.size())) ? labels[value] : "";
             }
-
-        private:
-            std::vector<std::string> labels = Scale::getRootLabels();
         };
 
         this->configParam<RootParam>(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
@@ -46,9 +45,10 @@ public:
         this->configParam(Comp::HISTORY_SIZE_PARAM, 0, 4, 0, "History Size");
         this->configParam(Comp::TRANSPOSE_STEPS_PARAM, -7, 7, 0, "Transpose degrees");
         this->configParam(Comp::TRIGGER_DELAY_PARAM, 0, 1, 1, "Trigger delay");
+        this->configParam(Comp::USE_FLATS_PARAM, 0, 1, 0, "Use Flats");
 
-        this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 1, "Inversion preference", {"DONT_CARE", "DISCOURAGE_CONSECUTIVE", "DISCOURAGE"});
-        this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 0, "Centered preference", {"None", "ENCOURAGE_CENTER", "NARROW_RANGE"});
+        this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"DONT_CARE", "DISCOURAGE_CONSECUTIVE", "DISCOURAGE"});
+        this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 1, "Centered preference", {"None", "ENCOURAGE_CENTER", "NARROW_RANGE"});
         this->configSwitch(Comp::NNIC_PREFERENCE_PARAM, 0, 1, 1, "No Notes in Common rule", {"Disabled", "Enabled"});
 
         this->configOutput(Comp::BASS_OUTPUT, "Bass voice pitch");

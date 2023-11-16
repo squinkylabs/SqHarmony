@@ -17,7 +17,6 @@ extern void testKeysig();
 extern void specialDumpList();
 extern void testProgressions();
 extern void testNoteBuffer();
-// extern void testNoteBufferSorter();
 extern void testArpegPlayer();
 extern void testArpegPlayer2();
 extern void testArpegComposite();
@@ -41,12 +40,18 @@ extern void testOneShot();
 extern void testPhasePatterns();
 extern void testOneShotSampleTimer();
 extern void testClockShifter3();
+extern void testClockShifter4();
 extern void testShiftMath();
 extern void testSchmidtTrigger();
 extern void testShiftCalc();
 extern void testClockMult();
 extern void testMultiplier();
 extern void testRatchet();
+extern void testAllChords(bool);
+extern void testHarmonyChords2023();
+extern void testPitchKnowledge();
+
+const bool doLongRunning = false;
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -62,13 +67,13 @@ int main(const char**, int) {
     testFreqMeasure();
     testShiftCalc();
     testClockShifter3();
+    testClockShifter4();
     testPhasePatterns();
     testClockMult();
     testMultiplier();
     testRatchet();
-    printf("XX: leaving early for clock stuff");
-
-    std::exit(0);
+    // printf("XX: leaving early for clock stuff");
+    // std::exit(0);
     testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();
@@ -85,20 +90,14 @@ int main(const char**, int) {
     testArpegRhythmPlayer();
     testArpegComposite();
 #if 1
-    testNotes();
-    testScale();
-    testScaleNotes();
-    testScaleQuantizer();
-    testKeysig();
-    testHarmonyNote();
-    testScaleRelativeNote();
-    testChordRelativeNote();
-    testChord();
-    testChord4Manager();
-    testHarmonySong();
+    testPitchKnowledge();
     testHarmonyChords();
     testHarmonyChords2();
+    testHarmonyChords2023();
+
+    // fprintf(stderr, "skipping random for now\n");
     testHarmonyChordsRandom();
+    testAllChords(doLongRunning);
 #endif
     testHarmonyComposite();
     printf("put back test progression?\n");

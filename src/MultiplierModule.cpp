@@ -54,7 +54,7 @@ public:
     }
 
 private:
-    Label* _shiftDisplay = nullptr;
+    // Label* _shiftDisplay = nullptr;
 
     void addControls(MultiplierModule* module) {
         auto param = createParam<RoundBigBlackKnob>(Vec(50, 131), module, Comp::MULT_PARAM);

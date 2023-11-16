@@ -13,7 +13,7 @@ static int clockAndCountOutput(ClockMult& c, int lowPeriod, bool sendInitialHigh
     if (sendInitialHigh) {
         bool b = c.run(true);  // one high clock
         if (b) {
-            SQINFO("saw clock at initil high");
+            //SQINFO("saw clock at initil high");
             ++count;
         }
     }
@@ -21,7 +21,7 @@ static int clockAndCountOutput(ClockMult& c, int lowPeriod, bool sendInitialHigh
         b = c.run(false);
         if (b) {
             ++count;
-            SQINFO("saw cloock at i=%d, lowP=%d", i, lowPeriod);
+            //SQINFO("saw cloock at i=%d, lowP=%d", i, lowPeriod);
         }
     }
     return count;
@@ -29,11 +29,11 @@ static int clockAndCountOutput(ClockMult& c, int lowPeriod, bool sendInitialHigh
 
 
 static void testMulThree() {
-    SQINFO("testMulThree");
+    //SQINFO("testMulThree");
     ClockMult c;
     c.setMul(3.0);
     const int count = clockAndCountOutput(c, 9, 100);
-    SQINFO("count = %d", count);
+   // SQINFO("count = %d", count);
     assertGT(count, 0);
 }
 

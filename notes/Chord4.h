@@ -54,7 +54,7 @@
 #define CHORD_SIZE 4
 #define OCTAVE_SPAN 1
 
-//extern int __numChord4;
+// extern int __numChord4;
 extern std::atomic<int> __numChord4;
 
 class Options;
@@ -71,6 +71,8 @@ enum INVERSION { ROOT_POS_INVERSION,
                  SECOND_INVERSION,
                  NO_INVERSION };
 
+class PAStats;
+
 class Chord4 {
 public:
     Chord4(const Options& options, int nDegree);  // pass scale degree in constructor
@@ -84,7 +86,7 @@ public:
     ~Chord4();
 
     // just for hacky debugging support
-    void addRef();
+    void _addRef();
 
     /**
      * @brief makes a specific string, ex "E2A2C3A3", BUT:
@@ -97,12 +99,12 @@ public:
 
     bool makeNext(const Options& op);  // returns false if made another one, true if could not
     void print() const;
-    int quality(const Options& options, bool fTalk) const;  // tell how "good" this chord is
-                                                            // if ftalk is true, will tell why
+    int quality(const Options& options, bool fTalk) const;  // Tell how "good" this chord is.
+                                                            // If fTalk is true, will tell why.
 
-    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4* ThisGuy, bool show) const;
+    int penaltForFollowingThisGuy(const Options&, int lowestPenaltySoFar, const Chord4* ThisGuy, bool show, PAStats*) const;
 
-    const HarmonyNote* fetchNotes() const;  // This returns pointer so you can get at all 4
+    const HarmonyNote* fetchNotes() const;  // This returns pointer so you can get at all 4.
     const ScaleRelativeNote* fetchSRNNotes() const;
     bool isInChord(const Options& op, HarmonyNote test) const;  // Tells if a note pitch is valid note in this chord
     int fetchRoot() const;                                      // tell root of chord
@@ -119,45 +121,41 @@ public:
 
     bool isValid() const { return valid; }
 
-    int rank=0;             // lower rank is "better". Unique index into the chord lists.
+    int rank = 0;  // lower rank is "better". Unique index into the chord lists.
 
+    /**
+     * @brief 
+     * 
+     * @return ChordRelativeNote 
+     * @param voiceNumber is BASS..SOP
+     */
+    ChordRelativeNote chordInterval(const Options&, int voiceNumber) const;
 private:
-    // friend ChordList;  // so he can "construct" us
-
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
 
     bool inc(const Options&);  // go to next chord (valid or not), return true if can't
 
-    // This is deprecated
-    //  bool isStdDoubling(const Options& options);  // true is root doubled, etc...
-
     void bumpToNextInChord(const Options& options, HarmonyNote& note);
 
-    int divergence(const Options& options) const;  // for judging quality, compute how far from center of range
-    void analyze();                                // print our analysis
-    void makeSrnNotes(const Options& op);          // init the srnNotes array
-
-    //    int InCommon(const Chord4 * ThisGuy) const;
-    //    void FigureMotion(int *, bool *, const Chord4 * ThisGuy) const;
+    int divergence(const Options& options) const;  // For judging quality, compute how far from center of range.
+    void analyze();                                // Print our analysis.
+    void makeSrnNotes(const Options& op);          // Init the srnNotes array.
 
     std::string getString() const;  // printer helper function.  Gets string ascii representation of chord
 
-    // **** guys who allocate storage ******
-    // static int size;
+    ScaleRelativeNote srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid.
+                                             // Used for analysis.
 
-    ScaleRelativeNote srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid
-                                             //   used for analysis
-
-    int root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
-                   // is scale relative
+    int _root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
+                    // is scale relative
     std::vector<HarmonyNote> _notes;
     bool valid = false;
 };
 
 inline int Chord4::fetchRoot() const {
-    return root;
+    return _root;
 }
 
 inline const HarmonyNote* Chord4::fetchNotes() const {

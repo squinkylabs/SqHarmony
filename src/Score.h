@@ -7,78 +7,37 @@
 #include <locale>
 #include <string>
 
+#include "BufferingParent.h"
 #include "Harmony1Module.h"
 #include "plugin.hpp"
 
-using FontPtr = std::shared_ptr<Font>;
-class Harmony1Module;
-
 // #define _TESTCHORD
-
-class Dirty {
-public:
-    virtual bool isDirty() const = 0;
-};
-
-class BufferingParent : public Widget {
-public:
-    /**
-     * @brief Construct a new Buffering Parent object
-     *
-     * @param childWidget is the widget that will do all the work
-     * @param size the size at which to create/set
-     * @param dd usually will be childWidget, and childWidget will implement Dirty
-     */
-    BufferingParent(Widget *childWidget, const Vec size, Dirty *dd) {
-        this->box.size = size;
-        childWidget->box.size = size;
-        dbg = childWidget;
-        fw = new FramebufferWidget();
-        this->addChild(fw);
-        fw->addChild(childWidget);
-        dirtyDetector = dd;
-    }
-
-    void step() override {
-        Widget::step();
-        if (dirtyDetector && dirtyDetector->isDirty()) {
-            fw->dirty = true;
-            // SQINFO("set dirty true 46");
-        }
-    }
-
-private:
-    Widget *dbg = nullptr;
-    FramebufferWidget *fw = nullptr;
-    Dirty *dirtyDetector = nullptr;
-};
-//     return APP->engine->getParamValue(module, paramId) > .5;
-
 class Score : public app::LightWidget, public Dirty {
 public:
     Score(Harmony1Module *);
+    ~Score();
+    static int _refCount;
     void step() override;
     void draw(const DrawArgs &args) override;
     //   void drawLayer(const DrawArgs &args, int layer) override;
     bool isDirty() const override {
-        return scoreIsDirty;
+        // SQINFO("Score::isDirty will ret %d", scoreIsDirty);
+        return _scoreIsDirty;
     }
 
     void setWhiteOnBlack(bool b) {
-        if (whiteOnBlack != b) {
-            whiteOnBlack = b;
-            // INFO("set white on black %d", whiteOnBlack);
-            scoreIsDirty = true;
+        if (_whiteOnBlack != b) {
+            _whiteOnBlack = b;
+            _scoreIsDirty = true;
         }
     }
 
 private:
-    bool scoreIsDirty = false;
+    bool _scoreIsDirty = false;
     void filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const;
     void drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
     void drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
 
-    // FontPtr loadFont() const;
     void prepareFontMusic(const DrawArgs &args) const;
     void prepareFontText(const DrawArgs &args) const;
 
@@ -108,7 +67,7 @@ private:
 
     Harmony1Module *const module;
     std::list<Comp::Chord> chords;
-    bool whiteOnBlack = false;  // default to black notes for better look in module browser
+    bool _whiteOnBlack = false;  // Default to black notes for better look in module browser.
 
     const std::string noteQuarterUp = u8"\ue1d5";
     const std::string noteQuarterDown = u8"\ue1d6";
@@ -138,8 +97,6 @@ private:
     NVGcolor getForegroundColor() const;
     NVGcolor getBackgroundColor() const;
 
-    // float insetForKeysig(float keysigWidth) const;
-
     // Y axis pos
 
     // topMargin = 36.5f;  is original
@@ -160,7 +117,7 @@ private:
     const float spaceBetweenLines = 1.67f;  // 1.7 slightly high
                                             // 1.65 low
     const float barlineHeight = 55.5;       // 55 low
-                                            // 57 went  high
+                                            // 57 went high
 
     //  const float barlineX0 = leftMargin;
     const float barlineX1 = xClef + 61;  //  small 63 big
@@ -168,14 +125,21 @@ private:
 };
 
 NVGcolor Score::getForegroundColor() const {
-    return whiteOnBlack ? nvgRGB(0xff, 0xff, 0xff) : nvgRGB(0, 0, 0);
+    return _whiteOnBlack ? nvgRGB(0xff, 0xff, 0xff) : nvgRGB(0, 0, 0);
 }
 
 NVGcolor Score::getBackgroundColor() const {
-    return whiteOnBlack ? nvgRGB(0, 0, 0) : nvgRGB(0xff, 0xff, 0xff);
+    return _whiteOnBlack ? nvgRGB(0, 0, 0) : nvgRGB(0xff, 0xff, 0xff);
 }
 
+inline Score::~Score() {
+    --_refCount;
+}
+
+int Score::_refCount = 0;
+
 inline Score::Score(Harmony1Module *m) : module(m) {
+    ++_refCount;
 #ifdef _TESTCHORD
     Comp::Chord ch;
 
@@ -199,73 +163,71 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     chords.push_back(ch);
     chords.push_back(ch);
 #else
-    if (!module) {
-        Comp::Chord c;
-        c.inversion = 0;
-        c.root = 1;
-        c.pitch[0] = 60;
-        c.pitch[1] = 72;
-        c.pitch[2] = 76;
-        c.pitch[3] = 79;
-        chords.push_back(c);
+    //   if (!module) {
+    Comp::Chord c;
+    c.inversion = 0;
+    c.root = 1;
+    c.pitch[0] = 60;
+    c.pitch[1] = 72;
+    c.pitch[2] = 76;
+    c.pitch[3] = 79;
+    chords.push_back(c);
 
-        c.inversion = 0;
-        c.root = 3;
-        c.pitch[0] = 64;
-        c.pitch[1] = 71;
-        c.pitch[2] = 76;
-        c.pitch[3] = 79;
-        chords.push_back(c);
+    c.inversion = 0;
+    c.root = 3;
+    c.pitch[0] = 64;
+    c.pitch[1] = 71;
+    c.pitch[2] = 76;
+    c.pitch[3] = 79;
+    chords.push_back(c);
 
-        c.inversion = 1;
-        c.root = 2;
-        c.pitch[0] = 65;
-        c.pitch[1] = 69;
-        c.pitch[2] = 74;
-        c.pitch[3] = 77;
-        chords.push_back(c);
+    c.inversion = 1;
+    c.root = 2;
+    c.pitch[0] = 65;
+    c.pitch[1] = 69;
+    c.pitch[2] = 74;
+    c.pitch[3] = 77;
+    chords.push_back(c);
 
-        c.inversion = 0;
-        c.root = 7;
-        c.pitch[0] = 59;
-        c.pitch[1] = 71;
-        c.pitch[2] = 74;
-        c.pitch[3] = 77;
-        chords.push_back(c);
+    c.inversion = 0;
+    c.root = 7;
+    c.pitch[0] = 59;
+    c.pitch[1] = 71;
+    c.pitch[2] = 74;
+    c.pitch[3] = 77;
+    chords.push_back(c);
 
-        c.inversion = 1;
-        c.root = 3;
-        c.pitch[0] = 55;
-        c.pitch[1] = 71;
-        c.pitch[2] = 76;
-        c.pitch[3] = 79;
-        chords.push_back(c);
+    c.inversion = 1;
+    c.root = 3;
+    c.pitch[0] = 55;
+    c.pitch[1] = 71;
+    c.pitch[2] = 76;
+    c.pitch[3] = 79;
+    chords.push_back(c);
 
-        c.inversion = 0;
-        c.root = 4;
-        c.pitch[0] = 53;
-        c.pitch[1] = 72;
-        c.pitch[2] = 77;
-        c.pitch[3] = 81;
-        chords.push_back(c);
+    c.inversion = 0;
+    c.root = 4;
+    c.pitch[0] = 53;
+    c.pitch[1] = 72;
+    c.pitch[2] = 77;
+    c.pitch[3] = 81;
+    chords.push_back(c);
 
-        c.inversion = 0;
-        c.root = 5;
-        c.pitch[0] = 55;
-        c.pitch[1] = 71;
-        c.pitch[2] = 74;
-        c.pitch[3] = 79;
-        chords.push_back(c);
+    c.inversion = 0;
+    c.root = 5;
+    c.pitch[0] = 55;
+    c.pitch[1] = 71;
+    c.pitch[2] = 74;
+    c.pitch[3] = 79;
+    chords.push_back(c);
 
-        c.inversion = 0;
-        c.root = 1;
-        c.pitch[0] = 60;
-        c.pitch[1] = 67;
-        c.pitch[2] = 72;
-        c.pitch[3] = 76;
-        chords.push_back(c);
-    }
-
+    c.inversion = 0;
+    c.root = 1;
+    c.pitch[0] = 60;
+    c.pitch[1] = 67;
+    c.pitch[2] = 72;
+    c.pitch[3] = 76;
+    chords.push_back(c);
 #endif
 }
 
@@ -273,14 +235,16 @@ inline void Score::step() {
 #ifndef _TESTCHORD
     if (module) {
         if (module->isChordAvailable()) {
-            scoreIsDirty = true;
+            // SQINFO("saw a new chord in UI, will dirty push");
+            _scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
+            // SQINFO("Now ui has %lld", chords.size());
             if (chords.size() > 8) {
                 while (chords.size() > 1) {
+                    // SQINFO("getting rid of stale input more than 8 chords");
                     chords.pop_front();
                 }
-                // SQINFO("pop chord now %d", chords.size());
             }
         }
     }
@@ -288,24 +252,11 @@ inline void Score::step() {
     Widget::step();
 }
 
-#if 0
-inline float Score::insetForKeysig(float keysigWidth) const {
-    if (keysigWidth < 2) {
-        return 0;               // if no extra space, don't require any
-    }
-    return std::max(keysigWidth - 6, 2.f);
-}
-#endif
-
 inline float Score::noteXPos(int noteNumber, float keysigWidth) const {
-    // Squeeze notes together a bit to accomodate keysig.
+    // Squeeze notes together a bit to accommodate keysig.
     const float inset = (keysigWidth >= 2) ? std::max(keysigWidth - 4, 2.f) : 0;
 
-    // 30 was too much squish. 50 a bit much
     const float delta = deltaXNote * (1.f - (inset / 70.f));
-
-    // SQINFO("ksw=%f ins=%f delta=%f delx=%f", keysigWidth, inset, delta, deltaXNote);
-
     float x = xNote0 + inset + noteNumber * delta;
     if (noteNumber > 3) {
         // little bump into the next bar
@@ -356,17 +307,6 @@ inline Score::YInfo Score::noteYInfo(const MidiNote &note, bool bassStaff) const
     y -= ledgerLine * spaceBetweenLines;
     y += staffBasePos;
 
-#if 0
-    printf("notYInfo p=%d, bass=%d ll=%d lp0=%f 1=%f 2=%f\n",
-        note.get(),
-        bassStaff,
-        ledgerLine,
-        ret.ledgerPos[0],
-        ret.ledgerPos[1],
-        ret.ledgerPos[2]
-        );
-#endif
-
     ret.position = y;
     return ret;
 }
@@ -384,14 +324,11 @@ inline void Score::drawLayer(const DrawArgs &args, int layer) {
 #endif
 
 inline void Score::draw(const DrawArgs &args) {
-    // INFO("Score::draw clip=szx %f, szy %f, %f, %f", args.clipBox.size.x, args.clipBox.size.y, args.clipBox.pos.x, args.clipBox.pos.y);
-    INFO("----- in draw %p, chords=%d", this, int(chords.size()));
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const float width = drawMusicNonNotes(args);
     drawNotes(args, width);
     drawChordNumbers(args, width);
-    // SQINFO("clear dirty at end of draw was %d", scoreIsDirty);
-    scoreIsDirty = false;
+    _scoreIsDirty = false;
 
     Widget::draw(args);
 }
@@ -403,7 +340,6 @@ inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) c
     prepareFontText(args);
     int i = 0;
     for (auto chord : chords) {
-        // SQINFO("draw chord number %d size=%d", i, (int)chords.size());
         const float x = noteXPos(i, widthOfKeysig) + 1.5;
         drawChordInfo(args, x, chord);
         ++i;
@@ -412,13 +348,9 @@ inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) c
 
 inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
     if (!chords.empty()) {
-        // INFO("chords to score %d", int(chords.size()));
         int i = 0;
         for (auto chord : chords) {
-            // note - we could add inset ourself in noteXPos.
             const float x = noteXPos(i, keysigWidth);
-
-            // SQINFO("x = %f", noteXPos(i, keysigWidth));
 
             for (int i = 0; i < 4; ++i) {
                 const bool stemUp = i % 2;
@@ -426,12 +358,10 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
 
                 for (int i = 0; i < 3; ++i) {
                     if (yInfo.ledgerPos[i] != 0) {
-                        // printf("drawing ledger at %f\n", yInfo.ledgerPos[i]);
                         nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
                     }
                 }
                 const char *note = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
-                // INFO("drawing note at %f, %f\n", x, yInfo.position);
                 nvgText(args.vg, x, yInfo.position, note, NULL);
             }
             ++i;
@@ -481,8 +411,6 @@ inline float Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool t
 inline float Score::drawMusicNonNotes(const DrawArgs &args) const {
     NVGcolor color = getBackgroundColor();
 
-    // TODO : USE SIZE
-    // filledRect(args.vg, color, 0, 0, 200, 200, 5);
     filledRect(args.vg, color, 0, 0, box.size.x, box.size.y, 5);
 
     prepareFontMusic(args);
@@ -509,14 +437,11 @@ inline float Score::drawMusicNonNotes(const DrawArgs &args) const {
     drawBarLine(args, xStaff, yBassStaff);
 
     const float secondBarLineX = 3 + .5f * (noteXPos(3, keysigWidth) + noteXPos(4, keysigWidth));
-    // INFO("x was %f is %f", barlineX1, secondBarLineX);
     drawBarLine(args, secondBarLineX, yBassStaff);
 
     const float barlineX2 = args.clipBox.size.x - leftMargin;
     drawBarLine(args, barlineX2, yBassStaff);
 
-    // bgf: non const - didn't compile. do we want this here?
-    //  TransparentWidget::draw(args);
     return keysigWidth;
 }
 
@@ -532,14 +457,6 @@ inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chor
         s << chord.inversion;
         nvgText(args.vg, x, yNoteInfo + 8, s.str().c_str(), NULL);
     }
-#if 0
-    std::stringstream s;
-    s << chord.root;
-    s << ":";
-    s << chord.inversion;
-    INFO("draw into at %f, %f, %s", x, yNoteInfo, s.str().c_str());
-    nvgText(args.vg, x, yNoteInfo, s.str().c_str(), NULL);
-#endif
 }
 
 inline void Score::drawStaff(const DrawArgs &args, float yBase) const {
@@ -581,7 +498,6 @@ void Score::drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, float le
 void Score::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const {
     nvgFillColor(vg, color);
     nvgBeginPath(vg);
-    //   nvgRect(vg, x, y, w, h);
     nvgRoundedRect(vg, x, y, w, h, rounding);
     nvgFill(vg);
 }
@@ -592,7 +508,7 @@ void Score::prepareFontMusic(const DrawArgs &args) const {
     // Get font
     std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, fontPath.c_str()));
     if (!font) {
-        printf("font didn't load\n");
+        WARN("Score font didn't load\n");
         return;
     }
     nvgFontFaceId(args.vg, font->handle);
@@ -600,7 +516,6 @@ void Score::prepareFontMusic(const DrawArgs &args) const {
 }
 
 void Score::prepareFontText(const DrawArgs &args) const {
-    // int f = APP->window->uiFont->handle;
     nvgFontFaceId(args.vg, APP->window->uiFont->handle);
-    nvgFontSize(args.vg, 7);  // TODO: use our own font?
+    nvgFontSize(args.vg, 7);
 }
