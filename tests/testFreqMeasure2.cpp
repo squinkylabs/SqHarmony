@@ -65,12 +65,32 @@ static void testCanRemember() {
 static void testHold() {
     FreqMeasure2 x;
 
-    // two clock high in a row with no transition should not count.
-    x.process(true, true);
-    x.process(true, true);
+    // two clock high in a row with no triggers should not count.
+    x.process(false, true);
+    x.process(false, true);
+
+    //const int y = x.getPeriod();
     assert(!x.freqValid());
 }
 
+static void testMeasurePeriod1() {
+    FreqMeasure2 x;
+    x.process(true, true);
+    x.process(false, true);
+    x.process(false, true);
+
+    x.process(false, false);
+    x.process(false, false);
+
+    x.process(true, true);
+
+    assert(x.freqValid());
+    assertEQ(x.getPeriod(), 5);
+
+    assertEQ(x.getHighDuration(), 3);
+
+
+}
 
 void testFreqMeasure2() {
     testCanCall();
@@ -80,5 +100,7 @@ void testFreqMeasure2() {
     testCanSample();
     testCanRemember();
     testHold();
+
+    testMeasurePeriod1();
 
 }
