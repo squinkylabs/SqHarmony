@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FreqMeasure2.h"
+#include "OneShotSampleTimer.h"
 
 class ClockShifter4 {
 public:
@@ -15,10 +16,8 @@ private:
     * 
     */
     int _phaseAccumulator = 0;
-
-
-
     FreqMeasure2 _freqMeasure;
+    OneShotSampleTimer _clockWidthGenerator;
     float _shift = 0;
 };
 
@@ -47,6 +46,10 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     const int targetClock = int(targetClockf);
     if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock+1))) {
         ret = true;
+        _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
+    } else {
+        _clockWidthGenerator.run();
+        ret = _clockWidthGenerator.get();
     }
     return ret;
 }

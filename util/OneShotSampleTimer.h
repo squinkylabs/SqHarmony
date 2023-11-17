@@ -9,7 +9,6 @@ public:
      */
     bool run();
 
-  //  void setDelay(int delay);
     void arm(int period);
 
     /**
@@ -31,13 +30,8 @@ inline bool OneShotSampleTimer::run() {
             _state = false;
         }
     }
-  //  _state = (_counter != 0);
     return get();
 }
-
-//inline void OneShotSampleTimer::setDelay(int delay) {
-//    _counter = delay;
-//}
 
 inline void OneShotSampleTimer::arm(int period) {
     _state = true;

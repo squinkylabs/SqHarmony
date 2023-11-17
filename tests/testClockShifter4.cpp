@@ -51,6 +51,25 @@ static void testStraightThrough() {
     assert(b);
 }
 
+static void testStraightThrough2() { 
+    CompPtr shifter = std::make_shared<Comp>();
+    // Prime for period = 4, 75% duty cycle. no shift
+    shifter->process(true, true);
+    shifter->process(false, true);
+    shifter->process(false, true);
+    shifter->process(false, false);
+    shifter->process(true, true);
+    // first clock
+    bool b = shifter->process(true, true);
+    assertEQ(b, true);
+
+    // second clock
+    b = shifter->process(false, false);
+    assertEQ(b, true);
+
+    assert(false);      // finish the test
+}
+
 static void testHalfCycleDelay() {
     // 8 periods, just at start
     CompPtr shifter = makeAndPrime(8);
@@ -126,11 +145,10 @@ static void testDelaySub(int period, float delay) {
         
         const int rem = i % period;
         const bool b = (rem == 0) && (i != 0);
-        SQINFO("in loop i=%d b=%d i+1=%d expected=%d", i, b, i+1, expectedClockTime);
+        // SQINFO("in loop i=%d b=%d i+1=%d expected=%d", i, b, i+1, expectedClockTime);
         const bool b2 = shifter->process(b, b);
         assertEQ(b2, (i == expectedClockTime));
         if (b2) {
-            SQINFO("!! boom !!");
             if (expectedClockTime < period) {
                 ++expectedClockTime;        // Possible off by one error in our test? Doesn't matter.
             }
@@ -140,13 +158,14 @@ static void testDelaySub(int period, float delay) {
 }
 static void testDelay() {
     testDelaySub(8, .5);
+    testDelaySub(12, .5);
+    testDelaySub(8, .25);
 }
 
 void testClockShifter4() {
     testCanCall();
-
-    // this test should be re-written
     testStraightThrough();
+    testStraightThrough2();
     testInputValid();
     testHalfCycleDelay();
     testHalfCycleDelay2();
