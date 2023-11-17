@@ -14,22 +14,22 @@ static void clockIt(CompPtr shifter, int cyclesLow) {
 }
 
 // Sends two clocks, with 7 non-clocks in-between.
-static void prime(CompPtr shifter) {
-    clockIt(shifter, 7);
+static void prime(CompPtr shifter, int totalPeriod) {
+    assert(totalPeriod > 1);
+    clockIt(shifter, totalPeriod - 1);
     shifter->process(true, true);
     assert(shifter->freqValid());
 }
 
-static CompPtr makeAndPrime() {
+static CompPtr makeAndPrime(int totalPeriod) {
     CompPtr shifter = std::make_shared<Comp>();
-    prime(shifter);
+    prime(shifter, totalPeriod);
     return shifter;
 }
 
 static void testCanCall() {
     ClockShifter4 c;
     c.setShift(.5);
-   // c.run(2);
     c.process(true, true);
     c.freqValid();
 }
@@ -37,12 +37,12 @@ static void testCanCall() {
 static void testInputValid() {
     CompPtr shifter = std::make_shared<Comp>();
     assertEQ(shifter->freqValid(), false);
-    shifter = makeAndPrime();
+    shifter = makeAndPrime(4);
     assertEQ(shifter->freqValid(), true);
 }
 
 static void testStraightThrough() {
-    CompPtr shifter = makeAndPrime();
+    CompPtr shifter = makeAndPrime(8);
     bool b = shifter->process(false, false);
     assert(!b);
     b = shifter->process(false, false);
@@ -53,7 +53,7 @@ static void testStraightThrough() {
 
 static void testHalfCycleDelay() {
     // 8 periods, just at start
-    CompPtr shifter = makeAndPrime();
+    CompPtr shifter = makeAndPrime(8);
     shifter->setShift(.5);
     bool b = shifter->process(false, false);
     assertEQ(b, false);
@@ -63,21 +63,13 @@ static void testHalfCycleDelay() {
     assertEQ(b, false);
     b = shifter->process(false, false);
     assertEQ(b, true);
-
-
 }
 
 void testClockShifter4() {
     testCanCall();
 
     // this test should be re-written
-   // testStraightThrough();
+    testStraightThrough();
     testInputValid();
     testHalfCycleDelay();
-    // ClockShifter4Test::testInit();
-    //  ClockShifter4Test::testCounters();
-    //  ClockShifter4Test::testSetShift();
-    //  ClockShifter4Test::testFreqMeasure();
-    //  ClockShifter4Test::testDelay();
-    //  ClockShifter4Test::testServiceDelay();
 }

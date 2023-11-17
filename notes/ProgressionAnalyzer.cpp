@@ -476,8 +476,6 @@ int ProgressionAnalyzer::ruleForNoneInCommon56(const Options& options) const {
     // leading-tone moves up one degree to the tonic.
     // the other two voices descend to the nearest position in the chord
     // the third is doubled in the VI chord
-
-    // SQINFO("RuleForNoneInCommon56 ex\n first:%s to  next: %s", first->toString().c_str(), next->toString().c_str());
     if (_show) {
         SQINFO("enter RuleForNoneInCommon56");
     }
@@ -491,35 +489,23 @@ int ProgressionAnalyzer::ruleForNoneInCommon56(const Options& options) const {
             leadingToneVoice = i;
         }
     }
-    //  SQINFO("Leading tone voice %d (bass=%d)", leadingToneVoice, BASS);
+
     assert(leadingToneVoice >= BASS);
 
     const auto nextSRNotes = next->fetchSRNNotes();
-
-    // for (int i=BASS; i<=SOP; ++i) {
-    //     SQINFO("_motion[%d]=%d", i, _motion[i]);
-    // }
-
-    // SQINFO("srn next =%d", int(nextSRNotes[leadingToneVoice]));
+;
     // Leading-tone moves up one degree to the tonic.
     if ((int(nextSRNotes[leadingToneVoice]) != 1) ||
         (_motion[leadingToneVoice] > 2) ||
         (_motion[leadingToneVoice] < 1)) {
-        // SQINFO("failed nnic 5-6 want leading tone to rise to next %s, %s",
-        //        first->toString().c_str(),
-        //        next->toString().c_str());
+
         return AVG_PENALTY_PER_RULE;
     }
 
-    // SQINFO("nnic 56 got to 438, lt must be rising");
-    //   switch (chordInterval(options, _notes[nVoice])) {
-
-    // chordInterval(options, _notes[nVoice]);
     //  The third is doubled in the VI chord.
     int numThirdsInVI = 0;
     for (int i = BASS; i <= SOP; ++i) {
         const ChordRelativeNote crn = next->chordInterval(options, i);
-        //   const int degree = int(nextSRNotes[i]);
         // only expect these degrees in a triad.
         assert(crn == 1 || crn == 3 || crn == 5);
         if (crn == 3) {
@@ -528,9 +514,6 @@ int ProgressionAnalyzer::ruleForNoneInCommon56(const Options& options) const {
     }
 
     if (numThirdsInVI != 2) {
-        // const char* p1 = first->toString().c_str();
-        // const char* p2 = next->toString().c_str();
-        // SQINFO("nnic 5-6 want third doubled %s, %s", p1, p2);
         return AVG_PENALTY_PER_RULE;
     }
 

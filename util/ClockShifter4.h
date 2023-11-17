@@ -9,11 +9,17 @@ public:
     bool freqValid() const;
 
 private:
-    int _clocksSinceReset = 0;
+
+   /**
+    * @brief reset on trigger, then counts up on each process count
+    * 
+    */
+    int _phaseAccumulator = 0;
+
+
 
     FreqMeasure2 _freqMeasure;
     float _shift = 0;
-    bool _lastClock = false;
 };
 
 inline void ClockShifter4::setShift(float x) {
@@ -29,16 +35,17 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     bool ret = false;
 
     // if it's the edge of a new clock, re-sync
-    if (clock && !_lastClock) {
+    if (trigger) {
         ret = true;
-        _clocksSinceReset = 0;
+        _phaseAccumulator = 0;
+    } else {
+        _phaseAccumulator++;
     }
-    _clocksSinceReset++;
     
+    // Fire the clock when phase acc crosses the shift point.
     const float targetClockf = float(_freqMeasure.getPeriod()) * _shift;
     const int targetClock = int(targetClockf);
-    if (targetClock <= _clocksSinceReset) {
-        _clocksSinceReset = 0;
+    if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock+1))) {
         ret = true;
     }
     return ret;
