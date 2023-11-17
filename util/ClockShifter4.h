@@ -36,7 +36,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
 
     // if it's the edge of a new clock, re-sync
     if (trigger) {
-        ret = true;
+        //ret = true;
         _phaseAccumulator = 0;
     } else {
         _phaseAccumulator++;

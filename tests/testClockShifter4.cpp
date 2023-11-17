@@ -9,7 +9,7 @@ using CompPtr = std::shared_ptr<Comp>;
 static void clockIt(CompPtr shifter, int cyclesLow) {
     shifter->process(true, true);
     for (int i = 0; i < cyclesLow; ++i) {
-        shifter->process(false, false);     // Note very low duty cycle.
+        shifter->process(false, false);  // Note very low duty cycle.
     }
 }
 
@@ -55,14 +55,79 @@ static void testHalfCycleDelay() {
     // 8 periods, just at start
     CompPtr shifter = makeAndPrime(8);
     shifter->setShift(.5);
+
+    // 1
     bool b = shifter->process(false, false);
     assertEQ(b, false);
+    // 2
     b = shifter->process(false, false);
     assertEQ(b, false);
+    // 3
     b = shifter->process(false, false);
     assertEQ(b, false);
+    // 4
     b = shifter->process(false, false);
     assertEQ(b, true);
+}
+
+static void testHalfCycleDelay2() {
+    // 8 periods, just at start
+    CompPtr shifter = makeAndPrime(8);
+    shifter->setShift(.5);
+
+    // 1
+    bool b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 2
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 3
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 4
+    b = shifter->process(false, false);
+    assertEQ(b, true);
+    // 5
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 6
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 7
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 8
+    b = shifter->process(true, true);
+    assertEQ(b, false);
+    // 9 (1)
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 10 (2)
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+    // 11 (3)
+    b = shifter->process(false, false);
+    assertEQ(b, false);
+
+    // 12 (4)
+    b = shifter->process(false, false);
+}
+
+static void testDelaySub(int period, float delay) {
+    CompPtr shifter = makeAndPrime(period);
+    shifter->setShift(delay);
+    const int expectedClockTime = (period * delay) -1;
+    for (int i=0; i < period * 3; ++i) {
+        
+        const int rem = i % period;
+        const bool b = (rem == 0) && (i != 0);
+        const bool b2 = shifter->process(b, b);
+        assertEQ(b2, (i == expectedClockTime));
+    }
+    assert(false);
+}
+static void testDelay() {
+    testDelaySub(8, .5);
 }
 
 void testClockShifter4() {
@@ -72,4 +137,6 @@ void testClockShifter4() {
     testStraightThrough();
     testInputValid();
     testHalfCycleDelay();
+    testHalfCycleDelay2();
+  //  testDelay();
 }
