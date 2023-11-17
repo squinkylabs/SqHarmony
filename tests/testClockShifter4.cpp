@@ -109,8 +109,9 @@ static void testHalfCycleDelay2() {
     b = shifter->process(false, false);
     assertEQ(b, false);
 
-    // 12 (4)
+    // 12 (4) all the way back to the next cycle
     b = shifter->process(false, false);
+    assertEQ(b, true);
 }
 
 static void testDelaySub(int period, float delay) {
