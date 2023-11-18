@@ -142,9 +142,17 @@ static void testHalfCycleDelay2() {
     assertEQ(b, false);
 }
 
-static void testDelaySub(int period, float delay) {
+static void testDelaySub(int period, float rawDelay) {
     CompPtr shifter = makeAndPrime(period);
-    shifter->setShift(delay);
+    bool sawAClock = false;
+    shifter->setShift(rawDelay);
+    float delay = rawDelay;
+    while (delay < 0) {
+        delay += 1.0;
+    }
+    while (delay > 1) {
+        delay -= 1.0;
+    }
     int expectedClockTime = (period * delay) - 1;
     for (int i = 0; i < period * 4; ++i) {
         const int rem = i % period;
@@ -157,13 +165,21 @@ static void testDelaySub(int period, float delay) {
                 ++expectedClockTime;  // Possible off by one error in our test? Doesn't matter.
             }
             expectedClockTime += period;
+            sawAClock = true;
         }
     }
+    assertEQ(sawAClock, true);
 }
+
 static void testDelay() {
     testDelaySub(8, .5);
     testDelaySub(12, .5);
     testDelaySub(8, .25);
+}
+
+static void testDelayNeg() {
+    testDelaySub(8, -.5);
+    testDelaySub(8, -.25);
 }
 
 void testClockShifter4() {
@@ -174,4 +190,5 @@ void testClockShifter4() {
     testHalfCycleDelay();
     testHalfCycleDelay2();
     testDelay();
+    testDelayNeg();
 }

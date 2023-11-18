@@ -3,6 +3,8 @@
 #include "FreqMeasure2.h"
 #include "OneShotSampleTimer.h"
 
+#include <cmath>
+
 class ClockShifter4 {
 public:
     void setShift(float);
@@ -21,6 +23,10 @@ private:
 };
 
 inline void ClockShifter4::setShift(float x) {
+    const float a = x;
+  //  const float flr = std::floorf(x);
+    x -= std::floorf(x);
+    SQINFO("setShift %f wrapped to %f", a, x);
     _shift = x;
 }
 
