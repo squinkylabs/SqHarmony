@@ -38,6 +38,6 @@ inline void OneShotSampleTimer::arm(int period) {
     _counter = period;
 }
 
- inline bool OneShotSampleTimer::get() const {
+inline bool OneShotSampleTimer::get() const {
     return _state;
- }
+}

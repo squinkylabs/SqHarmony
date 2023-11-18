@@ -51,14 +51,13 @@ static void testStraightThrough() {
     assert(b);
 }
 
-static void testStraightThrough2() { 
+static void testStraightThrough2() {
     CompPtr shifter = std::make_shared<Comp>();
     // Prime for period = 4, 75% duty cycle. no shift
     shifter->process(true, true);
     shifter->process(false, true);
     shifter->process(false, true);
     shifter->process(false, false);
-    shifter->process(true, true);
     // first clock
     bool b = shifter->process(true, true);
     assertEQ(b, true);
@@ -67,7 +66,13 @@ static void testStraightThrough2() {
     b = shifter->process(false, false);
     assertEQ(b, true);
 
-    assert(false);      // finish the test
+    // third clock
+    b = shifter->process(false, false);
+    assertEQ(b, true);
+
+    // fourth clock
+    b = shifter->process(false, false);
+    assertEQ(b, false);
 }
 
 static void testHalfCycleDelay() {
@@ -140,9 +145,8 @@ static void testHalfCycleDelay2() {
 static void testDelaySub(int period, float delay) {
     CompPtr shifter = makeAndPrime(period);
     shifter->setShift(delay);
-    int expectedClockTime = (period * delay) -1;
-    for (int i=0; i < period * 4; ++i) {
-        
+    int expectedClockTime = (period * delay) - 1;
+    for (int i = 0; i < period * 4; ++i) {
         const int rem = i % period;
         const bool b = (rem == 0) && (i != 0);
         // SQINFO("in loop i=%d b=%d i+1=%d expected=%d", i, b, i+1, expectedClockTime);
@@ -150,7 +154,7 @@ static void testDelaySub(int period, float delay) {
         assertEQ(b2, (i == expectedClockTime));
         if (b2) {
             if (expectedClockTime < period) {
-                ++expectedClockTime;        // Possible off by one error in our test? Doesn't matter.
+                ++expectedClockTime;  // Possible off by one error in our test? Doesn't matter.
             }
             expectedClockTime += period;
         }

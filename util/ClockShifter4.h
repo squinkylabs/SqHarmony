@@ -10,11 +10,10 @@ public:
     bool freqValid() const;
 
 private:
-
-   /**
-    * @brief reset on trigger, then counts up on each process count
-    * 
-    */
+    /**
+     * @brief reset on trigger, then counts up on each process count
+     *
+     */
     int _phaseAccumulator = 0;
     FreqMeasure2 _freqMeasure;
     OneShotSampleTimer _clockWidthGenerator;
@@ -35,16 +34,16 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
 
     // if it's the edge of a new clock, re-sync
     if (trigger) {
-        //ret = true;
+        // ret = true;
         _phaseAccumulator = 0;
     } else {
         _phaseAccumulator++;
     }
-    
+
     // Fire the clock when phase acc crosses the shift point.
     const float targetClockf = float(_freqMeasure.getPeriod()) * _shift;
     const int targetClock = int(targetClockf);
-    if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock+1))) {
+    if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1))) {
         ret = true;
         _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
     } else {
