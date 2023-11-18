@@ -445,6 +445,58 @@ inline float Score::drawMusicNonNotes(const DrawArgs &args) const {
     return keysigWidth;
 }
 
+inline std::string intToRoman(int number) {
+    std::string output;
+    switch (number) {
+        case 1:
+            output = "I";
+            break;
+        case 2:
+            output = "II";
+            break;
+        case 3:
+            output = "III";
+            break;
+        case 4:
+            output = "IV";
+            break;
+        case 5:
+            output = "V";
+            break;
+        case 6:
+            output = "VI";
+            break;
+        case 7:
+            output = "VII";
+            break;
+        default:
+            assert(false);
+    }
+  //  SQINFO("width of %s is %")
+    return output;
+}
+
+// This is the new roman numeral way
+inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const {
+    const std::string rootRoman = intToRoman(chord.root);
+
+    nvgText(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL);
+    const float rootWidth = nvgTextBounds(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL, nullptr);
+    SQINFO("width of %s is %f", rootRoman.c_str(), rootWidth);
+
+    const float inversionX = x + rootWidth;
+    switch(chord.inversion) {
+        case 1:
+            nvgText(args.vg, inversionX, yNoteInfo - 3, "6", NULL);
+            break;
+        case 2:
+            nvgText(args.vg, inversionX, yNoteInfo - 4, "6", NULL);
+            nvgText(args.vg, inversionX, yNoteInfo - 2, "4", NULL);
+            break;
+    }
+}
+
+#if 0  // this is the old way
 inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const {
     {
         std::stringstream s;
@@ -458,6 +510,7 @@ inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chor
         nvgText(args.vg, x, yNoteInfo + 8, s.str().c_str(), NULL);
     }
 }
+#endif
 
 inline void Score::drawStaff(const DrawArgs &args, float yBase) const {
     const float x = xStaff;
