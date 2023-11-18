@@ -5,7 +5,7 @@ public:
     /**
      * @brief one more cycle of counting
      *
-     * @return true if the timer is still running, false if is had expired
+     * @return true if the timer just stopped running, false otherwise
      */
     bool run();
 
@@ -24,13 +24,15 @@ private:
 };
 
 inline bool OneShotSampleTimer::run() {
-    if (_counter > -1) {
+    bool justFired = false;
+    if (_isRunning) {
         --_counter;
         if (_counter < 1) {
             _isRunning = false;
+            justFired = true;
         }
     }
-    return isRunning();
+    return justFired;
 }
 
 inline void OneShotSampleTimer::arm(int period) {

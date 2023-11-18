@@ -28,7 +28,7 @@ static void testRun1() {
     t.arm(0);
     assertEQ(t.isRunning(), true);  // even with zero delay we should get a sample of output
     bool b = t.run();
-    assertEQ(b, false);
+    assertEQ(b, true);
     assertEQ(t.isRunning(), false);
 
     b = t.run();
@@ -36,16 +36,17 @@ static void testRun1() {
 }
 
 static void testRunN(int n) {
+    assert(n > 0);  // don't work at zero.
     OneShotSampleTimer t;
-    const int expectedDelay = std::max(0, n - 1);
+    const int expectedDelay = n-1;
     t.arm(n);
     bool didExpire = false;
     for (int i = 0; i < (n * 2 + 2); ++i) {
-        const bool expired = !t.run();
-        // on when timer first expires, tell when.
-        if (expired && !didExpire) {
+        const bool expired = t.run();
+        // When timer first expires, tell when.
+        if (expired) {
             didExpire = true;
-            assertEQ(expired, (i == expectedDelay));
+            assertEQ(expired, (i== expectedDelay));
         }
     }
     assert(didExpire);
@@ -56,9 +57,9 @@ void testOneShotSampleTimer() {
     init();
     fires();
     testRun1();
-    testRunN(0);
     testRunN(1);
-    for (int i = 0; i < 20; ++i) {
+    testRunN(2);
+    for (int i = 2; i < 20; ++i) {
         testRunN(i);
     }
 }
