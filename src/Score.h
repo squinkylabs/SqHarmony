@@ -39,7 +39,8 @@ private:
     void drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
 
     void prepareFontMusic(const DrawArgs &args) const;
-    void prepareFontText(const DrawArgs &args) const;
+    void prepareFontText1(const DrawArgs &args) const;
+    void prepareFontText2(const DrawArgs &args) const;
 
     /**
      * @brief figure out the x position to draw a note
@@ -80,7 +81,8 @@ private:
 
     void drawStaff(const DrawArgs &args, float y) const;
     void drawBarLine(const DrawArgs &args, float x, float y) const;
-    void drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const;
+    float drawChordRoot(const DrawArgs &args, float x, const Comp::Chord &chord) const;
+    void drawChordInversion(const DrawArgs &args, float x, const Comp::Chord &chord) const;
     /**
      * @return float width of key signature
      */
@@ -337,11 +339,20 @@ inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) c
     if (chords.empty()) {
         return;
     }
-    prepareFontText(args);
+    float endOfChordRoots[8];
+    prepareFontText1(args);
     int i = 0;
     for (auto chord : chords) {
-        const float x = noteXPos(i, widthOfKeysig) + 1.5;
-        drawChordInfo(args, x, chord);
+        const float x = noteXPos(i, widthOfKeysig) + 0;
+        const float xPos = drawChordRoot(args, x, chord);
+        endOfChordRoots[i] = xPos;
+        ++i;
+    }
+    prepareFontText2(args);
+    i = 0;
+    for (auto chord : chords) {
+     //   const float x = noteXPos(i, widthOfKeysig) + 1.5;
+        drawChordInversion(args, endOfChordRoots[i], chord);
         ++i;
     }
 }
@@ -477,21 +488,29 @@ inline std::string intToRoman(int number) {
 }
 
 // This is the new roman numeral way
-inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const {
+inline float Score::drawChordRoot(const DrawArgs &args, float x, const Comp::Chord &chord) const {
     const std::string rootRoman = intToRoman(chord.root);
 
     nvgText(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL);
     const float rootWidth = nvgTextBounds(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL, nullptr);
-    SQINFO("width of %s is %f", rootRoman.c_str(), rootWidth);
+    return x + rootWidth;
+}
 
-    const float inversionX = x + rootWidth;
+inline void Score::drawChordInversion(const DrawArgs &args, float x, const Comp::Chord &chord) const {
+    const std::string rootRoman = intToRoman(chord.root);
+
+  //  nvgText(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL);
+  //  const float rootWidth = nvgTextBounds(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL, nullptr);
+  //  SQINFO("width of %s is %f", rootRoman.c_str(), rootWidth);
+
+//    const float inversionX = x + rootWidth + 1;
     switch(chord.inversion) {
         case 1:
-            nvgText(args.vg, inversionX, yNoteInfo - 3, "6", NULL);
+            nvgText(args.vg, x, yNoteInfo - 5, "6", NULL);
             break;
         case 2:
-            nvgText(args.vg, inversionX, yNoteInfo - 4, "6", NULL);
-            nvgText(args.vg, inversionX, yNoteInfo - 2, "4", NULL);
+            nvgText(args.vg, x, yNoteInfo - 5, "6", NULL);
+            nvgText(args.vg, x, yNoteInfo - 1, "4", NULL);
             break;
     }
 }
@@ -568,7 +587,36 @@ void Score::prepareFontMusic(const DrawArgs &args) const {
     nvgFontSize(args.vg, 54);
 }
 
-void Score::prepareFontText(const DrawArgs &args) const {
-    nvgFontFaceId(args.vg, APP->window->uiFont->handle);
+
+void Score::prepareFontText1(const DrawArgs &args) const {
+    std::string fontPath("res/fonts/Roboto-Light.ttf");
+   // fontPath += "Bravura.otf";
+    // Get font
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, fontPath.c_str()));
+    if (!font) {
+        WARN("Score font for text didn't load\n");
+        return;
+    }
+    nvgFontFaceId(args.vg, font->handle);
     nvgFontSize(args.vg, 7);
 }
+
+void Score::prepareFontText2(const DrawArgs &args) const {
+    std::string fontPath("res/fonts/Roboto-Light.ttf");
+   // fontPath += "Bravura.otf";
+    // Get font
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, fontPath.c_str()));
+    if (!font) {
+        WARN("Score font for text didn't load\n");
+        return;
+    }
+    nvgFontFaceId(args.vg, font->handle);
+    nvgFontSize(args.vg, 5);
+}
+
+#if 0 // old version
+void Score::prepareFontText(const DrawArgs &args) const {
+   nvgFontFaceId(args.vg, APP->window->uiFont->handle);
+    nvgFontSize(args.vg, 7);
+}
+#endif
