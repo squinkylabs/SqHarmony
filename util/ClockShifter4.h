@@ -23,11 +23,7 @@ private:
 };
 
 inline void ClockShifter4::setShift(float x) {
-    const float a = x;
-  //  const float flr = std::floorf(x);
-    x -= std::floorf(x);
-    SQINFO("setShift %f wrapped to %f", a, x);
-    _shift = x;
+    _shift = (x - std::floorf(x));
 }
 
 inline bool ClockShifter4::process(bool trigger, bool clock) {
