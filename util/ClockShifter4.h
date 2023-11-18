@@ -48,7 +48,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
         _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
     } else {
         _clockWidthGenerator.run();
-        ret = _clockWidthGenerator.get();
+        ret = _clockWidthGenerator.isRunning();
     }
     return ret;
 }
