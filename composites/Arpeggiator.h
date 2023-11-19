@@ -205,27 +205,27 @@ inline void Arpeggiator<TBase>::onClockChange(bool clockFired, bool clockValue) 
     if (clockFired) {
         const auto cvs = outerPlayer.clock2();
         if (std::get<0>(cvs)) {
-            //SQINFO("will output player out to CV: cv1=%f, cv2=%f", std::get<1>(cvs), std::get<2>(cvs));
+            // SQINFO("will output player out to CV: cv1=%f, cv2=%f", std::get<1>(cvs), std::get<2>(cvs));
             TBase::outputs[CV_OUTPUT].setVoltage(std::get<1>(cvs), 0);
             TBase::outputs[CV2_OUTPUT].setVoltage(std::get<2>(cvs), 0);
         } else {
-            //SQINFO("ignoring clock on empty");
+            // SQINFO("ignoring clock on empty");
         }
     }
 
     if (hiddenPlayer.empty()) {
         clockValue = false;
-        //SQDEBUG("AM muting everything, no notes, clockFired=%d, value=%d", clockFired, clockValue);
+        // SQDEBUG("AM muting everything, no notes, clockFired=%d, value=%d", clockFired, clockValue);
     }
 
     if (allGatesLow) {
         // SQDEBUG("setting clock value low because all low. will force gate low\n");
         // clockValue = false;
-        //SQDEBUG("would mute everything, but I took that out");
+        // SQDEBUG("would mute everything, but I took that out");
     }
     const float clockVoltage = clockValue ? cGateOutHi : cGateOutLow;
 
-    //SQDEBUG("setting gate out to %f", clockVoltage);
+    // SQDEBUG("setting gate out to %f", clockVoltage);
     TBase::outputs[GATE_OUTPUT].setVoltage(clockVoltage, 0);
 }
 

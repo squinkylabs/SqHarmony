@@ -2,10 +2,10 @@
 #pragma once
 
 #ifdef __PLUGIN
-    #include "rack.hpp"
-    using Input = struct rack::engine::Input;
+#include "rack.hpp"
+using Input = struct rack::engine::Input;
 #else
-    #include "TestComposite.h"
+#include "TestComposite.h"
 #endif
 
 #include <assert.h>
@@ -14,7 +14,7 @@
 #include "SqLog.h"
 #include "SqRingBuffer.h"
 
-template <int SIZE=5>
+template <int SIZE = 5>
 class GateDelay {
 public:
     GateDelay();
@@ -26,9 +26,9 @@ private:
     SchmidtTrigger inputCondition[16];
     bool gates[16]{false};
 
-    SqRingBuffer<unsigned, SIZE+1> delay;
+    SqRingBuffer<unsigned, SIZE + 1> delay;
     bool doDelay = false;
-    
+
     void processDelay(Input&, unsigned numChannels);
     void processNoDelay(Input&, unsigned numChannels);
 };

@@ -1,9 +1,9 @@
 #pragma once
 
+#include <cmath>
+
 #include "FreqMeasure2.h"
 #include "OneShotSampleTimer.h"
-
-#include <cmath>
 
 class ClockShifter4 {
 public:
