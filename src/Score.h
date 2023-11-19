@@ -370,8 +370,8 @@ inline void Score::drawChordNumbers(const DrawArgs &args, std::pair<float, float
     prepareFontText1(args);
     int i = 0;
     for (auto chord : chords) {
-        const float x = noteXPos(i, keysigLayout) + 0;
-        const float xPos = drawChordRoot(args, x + 1, chord);
+        const float x = noteXPos(i, keysigLayout) - 2;
+        const float xPos = drawChordRoot(args, x, chord);
         endOfChordRoots[i] = xPos;
         ++i;
     }
@@ -487,7 +487,7 @@ inline std::pair<float, float> Score::drawMusicNonNotes(const DrawArgs &args) co
     drawBarLine(args, xStaff, yBassStaff);
 
   // const float secondBarLineX = 3 + .5f * (noteXPos(3, keysigWidth) + noteXPos(4, keysigWidth));
-    const float secondBarLineX = 3 + .5f * (noteXPos(3, ksStuff) + noteXPos(4, ksStuff));
+    const float secondBarLineX = 2 + .5f * (noteXPos(3, ksStuff) + noteXPos(4, ksStuff));
     drawBarLine(args, secondBarLineX, yBassStaff);
 
     const float barlineX2 = args.clipBox.size.x - leftMargin;
@@ -576,7 +576,8 @@ inline void Score::drawStaff(const DrawArgs &args, float yBase) const {
 
 inline void Score::drawBarLine(const DrawArgs &args, float x, float y) const {
     auto color = getForegroundColor();
-    drawVLine(args.vg, color, x, y, barlineHeight, .5f);
+  //  drawVLine(args.vg, color, x, y, barlineHeight, .5f);
+   drawVLine(args.vg, color, x, y, barlineHeight, .75f);
 }
 
 void Score::drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const {
