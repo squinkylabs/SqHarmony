@@ -271,8 +271,8 @@ inline float Score::noteXPos(int noteNumber, std::pair<float, float> _keysigLayo
         // little bump into the next bar. Used to be a while delta, the /2 is new.
         x += (delta / 2.f);
     }
-    SQINFO("n=%d totalW=%f for notes = %f", noteNumber, totalWidth, totalWidthForNotes);
-    SQINFO(" first note pos = %f, ret x=%f keysig end = %f", firstNotePosition, x, keysigXEnds);
+    // SQINFO("n=%d totalW=%f for notes = %f", noteNumber, totalWidth, totalWidthForNotes);
+    // SQINFO(" first note pos = %f, ret x=%f keysig end = %f", firstNotePosition, x, keysigXEnds);
     return x;
 }
 
@@ -448,7 +448,7 @@ inline std::pair<float, float> Score::drawKeysig(const DrawArgs &args, ConstScal
         width = std::max(width, w);
         pos = std::max (pos, p);
     }
-    SQINFO("drawKeysig returning %f,%f", width, pos);
+    // SQINFO("drawKeysig returning %f,%f", width, pos);
     return std::make_pair(width, pos);
 }
 

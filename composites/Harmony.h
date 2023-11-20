@@ -236,6 +236,15 @@ inline void Harmony<TBase>::stepn() {
         mustUpdate = true;
     }
 
+    static bool didIt = false;
+    if (!didIt) {
+        // SQINFO("sop = %d to %d", style->minSop(), style->maxSop());
+        // SQINFO("alto = %d to %d", style->minAlto(), style->maxAlto());
+        // SQINFO("tenor = %d to %d", style->minTenor(), style->maxTenor());
+        // SQINFO("bass = %d to %d", style->minBass(), style->maxBass());
+        didIt = true;
+    }
+
     const Style::InversionPreference ip = Style::InversionPreference(int(std::round(Harmony<TBase>::params[INVERSION_PREFERENCE_PARAM].value)));
     style->setInversionPreference(ip);
 
@@ -267,9 +276,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
     c.root = chord->fetchRoot();
     c.inversion = int(chord->inversion(*chordOptions));
 
-    // SQINFO("output pitches %s (root=%d) root+4=%d", chord->toStringShort().c_str(), c.root, c.root+4);
-    // SQINFO("output pitches: %s", chord->toStringShort().c_str());
-
+    // SQINFO("output pitches %s (root=%d)", chord->toStringShort().c_str(), c.root);
     for (int i = 0; i < 4; ++i) {
         MidiNote mn(12 + harmonyNotes[i]);  // harmony note and midi note are about the same;
         FloatNote fn;
@@ -277,7 +284,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
         const int outputPort = voiceToOutput[i];
         const int outputChannel = voiceToChannel[i];
         Harmony<TBase>::outputs[outputPort].setVoltage(fn.get(), outputChannel);
-        // SQINFO("set output[%d] to %f from base pitch %f", i, fn.get(), fn.get());
+        // SQINFO("set output[%d] to volt %f  midiPitch = %d midi midc=%d", i, fn.get(), mn.get(), MidiNote::MiddleC);
         c.pitch[i] = mn.get();
     }
 

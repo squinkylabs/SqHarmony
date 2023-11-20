@@ -110,7 +110,7 @@ static void testAnalyzeProgression(
     assert(first->isValid());
     assert(next->isValid());
 
-    ProgressionAnalyzer pa(first.get(), next.get(), false);// pass true for debugging.
+    ProgressionAnalyzer pa(first.get(), next.get(), true);// pass true for debugging.
     const int p = pa.getPenalty(options, 100000);
     // SQINFO("penalty was %d", p);
     if (expectedPenalty >= 0) {
@@ -139,7 +139,44 @@ static void testAnalyze56piston() {
     // TODO: add expectation on quality
 }
 
+static void analyzeReportedParallel() {
+    SQINFO("\n\n---------------------- bgf: start analyzeReportedParallel");
+    auto options = makeOptions(false);
+    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    Chord4Manager mgr(options);
+    Chord4Ptr chordA = Chord4::fromString(options, 7, "D2B2D3F3");
+    Chord4Ptr chordB = Chord4::fromString(options, 3, "E2B2E3G3");
+    testAnalyzeProgression(mgr, options, chordA, chordB, -1);
+    SQINFO("about to call find!");
+    HarmonyChords::findChord(
+        true, 
+        options, 
+        mgr, 
+        *chordA,
+        3,
+        nullptr     // no pstat right now.
+        ); 
+       
+
+/*
+const Chord4* HarmonyChords::findChord(
+    bool show,
+    const Options& options,
+    const Chord4Manager& manager,
+    const Chord4& prev,
+    int root,
+    PAStats* stats) {
+    return find(show, options, manager, nullptr, &prev, root, nullptr, stats);
+}*/
+      
+
+    SQINFO("\n\n---------------------- bgf: end analyzeReportedParallel");
+    assert(false);
+
+}
+
 /**
+* 
  * These are a grab-bag of harmony tests for new functionality added in 2023.
  */
 void testHarmonyChords2023() {
@@ -147,6 +184,8 @@ void testHarmonyChords2023() {
     testAnalyze56();
     testAnalyze56piston();
     testNoneInCommmon12();
+
+    analyzeReportedParallel();
 
     // this doesn't work. it finds its own chord, not the same as piston's
     //testNoneInCommmon56();
