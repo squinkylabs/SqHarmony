@@ -84,7 +84,10 @@ public:
                 int otherTemp[4];
                 copyChord(otherTemp, temp);
                 RawChordGenerator::fixCrossingIfRequired(otherTemp, *style);
-                assertChordInRange(temp, *style);
+                assertChordInRange(otherTemp, *style);
+                assert(otherTemp[RawChordGenerator::iTenor] > otherTemp[RawChordGenerator::iBass]);
+                assert(otherTemp[RawChordGenerator::iAlto] > otherTemp[RawChordGenerator::iTenor]);
+                assert(otherTemp[RawChordGenerator::iSop] > otherTemp[RawChordGenerator::iAlto]);
             }
             good++;
         }

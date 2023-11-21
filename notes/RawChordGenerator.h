@@ -31,11 +31,14 @@ inline void RawChordGenerator::fixCrossingIfRequired(int* chord,  const Style& s
         assert(false);
         return;
     }
-    
-    if (chord[iTenor] >= chord[iBass]) {
-        chord[iTenor] = chord[iBass];
+
+    for (int i = iBass; i<iSop; ++i) {
+        if (chord[i+1] <= chord[i]) {
+            chord[i+1] = chord[i] + 1;
+        }
     }
 }
+
 inline bool RawChordGenerator::getNextChordInRange(int* chord, const Style& style) {
     chord[iSop]++;
     if (chord[iSop] <= style.maxSop()) {
