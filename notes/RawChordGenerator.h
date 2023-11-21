@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Style.h"
-
 #include <assert.h>
+
+#include "Style.h"
 
 class RawChordGenerator {
 public:
@@ -12,9 +12,10 @@ public:
 private:
     // Returns true on success. If false returned, chord will be invalid
     static bool getNextChordInRange(int* chord, const Style& style);
-    static void fixCrossingIfRequired(int* chord,  const Style& style);
+    static void fixCrossingIfRequired(int* chord, const Style& style);
 
     static void initialize(int* chord, const Style& style);
+    static bool isChordOk(const int* chord, const Style&);
 
     enum class VOICE_NAME { BASS,
                             TENOR,
@@ -26,15 +27,15 @@ private:
     static const int iSop = int(VOICE_NAME::SOP);
 };
 
-inline void RawChordGenerator::fixCrossingIfRequired(int* chord,  const Style& style) {
-    if (style.allowVoiceCrossing()) {
+inline void RawChordGenerator::fixCrossingIfRequired(int* chord, const Style& style) {
+    if (style.allowVoiceCrossing() || style.maxUnison() != 0) {
         assert(false);
         return;
     }
 
-    for (int i = iBass; i<iSop; ++i) {
-        if (chord[i+1] <= chord[i]) {
-            chord[i+1] = chord[i] + 1;
+    for (int i = iBass; i < iSop; ++i) {
+        if (chord[i + 1] <= chord[i]) {
+            chord[i + 1] = chord[i] + 1;
         }
     }
 }
@@ -72,4 +73,8 @@ inline void RawChordGenerator::initialize(int* chord, const Style& style) {
     chord[int(VOICE_NAME::ALTO)] = style.minAlto();
     chord[int(VOICE_NAME::TENOR)] = style.minTenor();
     chord[int(VOICE_NAME::BASS)] = style.minBass();
+}
+
+inline bool RawChordGenerator::isChordOk(const int* chord, const Style&) {
+    return false;
 }

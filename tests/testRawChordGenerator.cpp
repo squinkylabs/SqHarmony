@@ -89,8 +89,24 @@ public:
                 assert(otherTemp[RawChordGenerator::iAlto] > otherTemp[RawChordGenerator::iTenor]);
                 assert(otherTemp[RawChordGenerator::iSop] > otherTemp[RawChordGenerator::iAlto]);
             }
-            good++;
         }
+    }
+
+    static void isChordOkSub(std::initializer_list<int> x, bool expected) {
+        int temp[RawChordGenerator::chordSize];
+        int index = 0;
+        for (int i : x) {
+            temp[index++] = i;
+        }
+        auto style = makeStyle();
+
+        const bool b = RawChordGenerator::isChordOk(temp, *style);
+        assertEQ(b, expected);
+
+    }
+    static void isChordOk() {
+        isChordOkSub({ 72, 73, 74, 75 }, false);
+        isChordOkSub({ 72, 72 + 4, 72 + 7, 72 + 12 }, true);
     }
 };
 
@@ -100,4 +116,5 @@ void testRawChordGenerator() {
     TestRawChordGenerator::nextChordInRange();
     TestRawChordGenerator::nextChordInRange2();
     TestRawChordGenerator::fixCrossingIfRequired();
+    TestRawChordGenerator::isChordOk();
 }
