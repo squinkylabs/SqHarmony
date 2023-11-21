@@ -33,7 +33,7 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
     }
 
     assert(!chords.empty());  // in theory ok, but don't know if we handle it.
-    SQINFO("now will sort %d", chords.size());
+    if (_show) SQINFO("now will sort %d", chords.size());
     std::sort(chords.begin(), chords.end(), [options](Chord4Ptr c1, Chord4Ptr c2) {
         return compareChords(options, c1, c2);
     });

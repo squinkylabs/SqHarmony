@@ -12,6 +12,7 @@ public:
 private:
     // Returns true on success. If false returned, chord will be invalid
     static bool getNextChordInRange(int* chord, const Style& style);
+    static void fixCrossingIfRequired(int* chord,  const Style& style);
 
     static void initialize(int* chord, const Style& style);
 
@@ -25,6 +26,16 @@ private:
     static const int iSop = int(VOICE_NAME::SOP);
 };
 
+inline void RawChordGenerator::fixCrossingIfRequired(int* chord,  const Style& style) {
+    if (style.allowVoiceCrossing()) {
+        assert(false);
+        return;
+    }
+    
+    if (chord[iTenor] >= chord[iBass]) {
+        chord[iTenor] = chord[iBass];
+    }
+}
 inline bool RawChordGenerator::getNextChordInRange(int* chord, const Style& style) {
     chord[iSop]++;
     if (chord[iSop] <= style.maxSop()) {
@@ -35,7 +46,21 @@ inline bool RawChordGenerator::getNextChordInRange(int* chord, const Style& styl
     if (chord[iAlto] <= style.maxAlto()) {
         return true;
     }
-    assert(false);
+
+    chord[iSop] = style.minSop();
+    chord[iAlto] = style.minAlto();
+    chord[iTenor]++;
+    if (chord[iTenor] <= style.maxTenor()) {
+        return true;
+    }
+
+    chord[iSop] = style.minSop();
+    chord[iAlto] = style.minAlto();
+    chord[iTenor] = style.minTenor();
+    chord[iBass]++;
+    if (chord[iBass] <= style.maxBass()) {
+        return true;
+    }
     return false;
 }
 

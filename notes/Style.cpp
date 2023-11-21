@@ -3,7 +3,7 @@
 
 #include "Style.h"
 
-bool Style::allowVoiceCrossing() {
+bool Style::allowVoiceCrossing() const {
     return false;
 }
 

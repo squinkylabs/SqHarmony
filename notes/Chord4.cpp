@@ -36,7 +36,7 @@ Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot), _sh
             ++_notes[index];
         }
         if (!isInChord(options, _notes[index])) {
-            SQINFO("bumping from 39");
+            //SQINFO("bumping from 39");
             bumpToNextInChord(options, _notes[index]);
         }
         // Speed up makeNext by getting this far.

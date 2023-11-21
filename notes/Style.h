@@ -11,9 +11,9 @@ class Style {
 public:
     /***** the following methods apply to lowest level: chords generated ****/
 
-    int absMaxPitch();          // returns midi note number of max pitch our style allows
-    int absMinPitch();          // returns midi note number of min pitch our style allows
-    bool allowVoiceCrossing();  // True is we allow the alto to go above the sop in a given chord
+    int absMaxPitch() const;          // returns midi note number of max pitch our style allows
+    int absMinPitch() const;          // returns midi note number of min pitch our style allows
+    bool allowVoiceCrossing() const;  // True is we allow the alto to go above the sop in a given chord
     int maxUnison();            // may number of unisons allowed in a chord
     bool allow2ndInversion();
     bool allow1stInversion();
@@ -100,7 +100,7 @@ using StylePtr = std::shared_ptr<Style>;
 /* Absolute pitch ranges: these are enforced!
  */
 
-inline int Style::absMaxPitch() {
+inline int Style::absMaxPitch() const {
     int ret = 0;
 #if !CRAZY_STYLE
     ret = maxSop();  // used to be +5. seemed wrong
@@ -112,7 +112,7 @@ inline int Style::absMaxPitch() {
     return ret;
 }
 
-inline int Style::absMinPitch() {
+inline int Style::absMinPitch() const {
     int ret = 0;
 #if !CRAZY_STYLE
     ret = minBass();  // used to be =5, seemed wrong
