@@ -9,7 +9,7 @@
 
 class Chord4List {
 public:
-    Chord4List(const Options& options, int root);
+    Chord4List(const Options& options, int root, bool show = false);
 
     int size() const;  // how many chords are in list
 
@@ -20,6 +20,7 @@ public:
 
 private:
     std::vector<Chord4Ptr> chords;
+    const bool _show;
 };
 
 inline int Chord4List::size() const {

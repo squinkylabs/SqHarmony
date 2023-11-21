@@ -75,7 +75,7 @@ class PAStats;
 
 class Chord4 {
 public:
-    Chord4(const Options& options, int nDegree);  // pass scale degree in constructor
+    Chord4(const Options& options, int nDegree, bool show = false);  // pass scale degree in constructor
                                                   // This construct will advance us to valid guy
 
     bool operator==(const Chord4& that) const {
@@ -135,7 +135,7 @@ private:
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
 
-    bool inc(const Options&);  // go to next chord (valid or not), return true if can't
+    bool increment(const Options&);  // go to next chord (valid or not), return true if can't
 
     void bumpToNextInChord(const Options& options, HarmonyNote& note);
 
@@ -152,6 +152,7 @@ private:
                     // is scale relative
     std::vector<HarmonyNote> _notes;
     bool valid = false;
+    bool _show = false;
 };
 
 inline int Chord4::fetchRoot() const {

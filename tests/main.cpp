@@ -51,6 +51,7 @@ extern void testRatchet();
 extern void testAllChords(bool);
 extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
+extern void testRawChordGenerator();
 
 const bool doLongRunning = false;
 
@@ -60,6 +61,7 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+ testRawChordGenerator();
     testSchmidtTrigger();
     testShiftMath();
     testOneShot();
@@ -92,6 +94,7 @@ int main(const char**, int) {
     testArpegRhythmPlayer();
     testArpegComposite();
 #if 1
+    testRawChordGenerator();
     testPitchKnowledge();
     testHarmonyChords();
     testHarmonyChords2();

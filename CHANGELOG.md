@@ -1,5 +1,12 @@
 # Changelog for Squinktronix plugins
 
+## 2.2.2
+
+Harmony score drawing:
+
+* Use standard figured bass chord notation.
+* Adjust spacing of score layout to make it more readable.
+
 ## 2.2.1
 
 Harmony:
