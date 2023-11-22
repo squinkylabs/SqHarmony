@@ -29,11 +29,11 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
         chords.push_back(newChord);               // put a chord in the list
         //SQINFO("pushed another chord, now %d", chords.size());
         done = referenceChord.makeNext(options);  // advance to next chord
-        if (_show) SQINFO("Chord4List ctor pushed another: %d", chords.size());
+        if (_show) SQINFO("Chord4List ctor pushed another: %d", int(chords.size()));
     }
 
     assert(!chords.empty());  // in theory ok, but don't know if we handle it.
-    if (_show) SQINFO("now will sort %d", chords.size());
+    if (_show) SQINFO("now will sort %d", int(chords.size()));
     std::sort(chords.begin(), chords.end(), [options](Chord4Ptr c1, Chord4Ptr c2) {
         return compareChords(options, c1, c2);
     });

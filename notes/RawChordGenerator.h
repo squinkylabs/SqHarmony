@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#include "Options.h"
 #include "Style.h"
 
 class RawChordGenerator {
@@ -15,7 +16,9 @@ private:
     static void fixCrossingIfRequired(int* chord, const Style& style);
 
     static void initialize(int* chord, const Style& style);
-    static bool isChordOk(const int* chord, const Style&);
+    static bool isChordOk(const int* chord, const Options&);
+    static std::vector<ScaleRelativeNote> getSRN(const int* chord, const Options&);
+    static bool allNotesInScale(const Options&, const ScaleRelativeNote* );
 
     enum class VOICE_NAME { BASS,
                             TENOR,
@@ -75,6 +78,10 @@ inline void RawChordGenerator::initialize(int* chord, const Style& style) {
     chord[int(VOICE_NAME::BASS)] = style.minBass();
 }
 
-inline bool RawChordGenerator::isChordOk(const int* chord, const Style&) {
+inline bool RawChordGenerator::isChordOk(const int* chord, const Options&) {
     return false;
+}
+
+inline std::vector<ScaleRelativeNote> RawChordGenerator::getSRN(const int* chord, const Options&) {
+    return {ScaleRelativeNote(), ScaleRelativeNote(), ScaleRelativeNote(), ScaleRelativeNote()};
 }

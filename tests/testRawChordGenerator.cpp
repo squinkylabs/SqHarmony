@@ -1,10 +1,24 @@
 
-
+#include "KeysigOld.h"
 #include "RawChordGenerator.h"
 #include "asserts.h"
 
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
+}
+
+
+static KeysigOldPtr makeKeysig(bool minor) {
+    auto ret = std::make_shared<KeysigOld>(Roots::C);
+    if (minor) {
+        ret->set(MidiNote::C, Scale::Scales::Minor);
+    }
+    return ret;
+}
+
+static Options makeOptions(bool minor) {
+    Options o(makeKeysig(minor), makeStyle());
+    return o;
 }
 
 static void testCanCall() {
@@ -98,15 +112,28 @@ public:
         for (int i : x) {
             temp[index++] = i;
         }
-        auto style = makeStyle();
+        //auto style = makeStyle();
+        auto options = makeOptions(false);      // cmaj
 
-        const bool b = RawChordGenerator::isChordOk(temp, *style);
+        const bool b = RawChordGenerator::isChordOk(temp, options);
         assertEQ(b, expected);
 
     }
     static void isChordOk() {
         isChordOkSub({ 72, 73, 74, 75 }, false);
         isChordOkSub({ 72, 72 + 4, 72 + 7, 72 + 12 }, true);
+    }
+
+    static void getSRN() {
+        auto options = makeOptions(false);      // cmaj
+        int harmony[4] = {72, 73, 74, 75};
+        const auto x = RawChordGenerator::getSRN(harmony, options);
+        assertEQ(x.size(), RawChordGenerator::chordSize);
+        for (auto srn : x) {
+            assert(srn.isValid());
+        }
+
+        assert(false);
     }
 };
 
@@ -116,5 +143,6 @@ void testRawChordGenerator() {
     TestRawChordGenerator::nextChordInRange();
     TestRawChordGenerator::nextChordInRange2();
     TestRawChordGenerator::fixCrossingIfRequired();
+    TestRawChordGenerator::getSRN();
     TestRawChordGenerator::isChordOk();
 }

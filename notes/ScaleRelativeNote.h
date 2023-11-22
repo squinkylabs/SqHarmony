@@ -9,7 +9,7 @@ public:
     int interval(const ScaleRelativeNote&) const;  // tell interval between these guys
     bool isTonal() const;                          // am I "tonal"?
 
-    void set(int);  // I should be private!!!!!
+    void setScaleDegree(int);  // I should be private!!!!!
     bool isLeadingTone() const;
     // TODO: actually const, ctor should be private?
 
@@ -25,7 +25,7 @@ inline int ScaleRelativeNote::interval(const ScaleRelativeNote& Higher) const {
     return ret;
 }
 
-inline void ScaleRelativeNote::set(int nPitch) {
+inline void ScaleRelativeNote::setScaleDegree(int nPitch) {
     pitch = nPitch;
 }
 
