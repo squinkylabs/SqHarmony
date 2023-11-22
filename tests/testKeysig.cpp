@@ -9,7 +9,7 @@ static void testCinC() {
     Options op(ks, style);
     HarmonyNote hn(op);
     hn.setPitchDirectly(HarmonyNote::C3);
-    auto srn = ks->ScaleDeg(hn);
+    auto srn = ks->getScaleDeg(hn);
     assertEQ(srn, 1);  // c is the first degree of C
 }
 
@@ -21,7 +21,7 @@ static void testAllInC() {
     HarmonyNote hn(op);
     for (int i = 0; i < 17; ++i) {
         hn.setPitchDirectly(HarmonyNote::C3 + i);
-        auto srn = ks->ScaleDeg(hn);
+        auto srn = ks->getScaleDeg(hn);
         switch (i) {
             case 0:  // c is root
             case 12:

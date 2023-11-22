@@ -82,6 +82,16 @@ inline bool RawChordGenerator::isChordOk(const int* chord, const Options&) {
     return false;
 }
 
-inline std::vector<ScaleRelativeNote> RawChordGenerator::getSRN(const int* chord, const Options&) {
-    return {ScaleRelativeNote(), ScaleRelativeNote(), ScaleRelativeNote(), ScaleRelativeNote()};
+inline std::vector<ScaleRelativeNote> RawChordGenerator::getSRN(const int* chord, const Options& options) {
+    std::vector<ScaleRelativeNote> scaleRelativeNotes(4);
+    for (int index = 0; index<chordSize; ++index) {
+        const int pitch = chord[index];
+        HarmonyNote hn(options);
+        hn.setPitchDirectly(pitch);
+        //const HarmonyNote xx;
+       // const HarmonyNote& xx = hn;
+
+        scaleRelativeNotes[index] = options.keysig->getScaleDeg(hn);
+    }
+    return scaleRelativeNotes;
 }

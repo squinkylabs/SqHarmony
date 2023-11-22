@@ -18,7 +18,10 @@ public:
     HarmonyNote(const Options& option);  // Const: set to min pitch
     std::string tellPitchName() const;
     bool isTooHigh(const Options& options) const;
+
+    // get rid of this
     operator int() const { return pitch; }
+    int getPitch() const { return pitch; }
     int operator++() { return pitch++; }
     int operator--() { return pitch--; }
 

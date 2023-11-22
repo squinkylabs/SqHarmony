@@ -283,7 +283,7 @@ void Chord4::makeSrnNotes(const Options& op) {
 
     assert(_notes.size() == CHORD_SIZE);
     for (i = 0; i < CHORD_SIZE; i++) {
-        srnNotes[i] = op.keysig->ScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
+        srnNotes[i] = op.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
     }
 }
 
@@ -409,7 +409,7 @@ bool Chord4::isChordOk(const Options& options) const {
         int totalLeadingTones = 0;
         for (i = 0; i < CHORD_SIZE; i++) {
             ScaleRelativeNote tempSrn;
-            tempSrn = options.keysig->ScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
+            tempSrn = options.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
             if (tempSrn.isLeadingTone()) {
                 ++totalLeadingTones;
             }
@@ -615,7 +615,7 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
 
     ScaleRelativeNote srnN;
 
-    srnN = options.keysig->ScaleDeg(note);  // get scale degree
+    srnN = options.keysig->getScaleDeg(note);  // get scale degree
     if (srnN.isValid()) {
         nt = 1 + srnN - _root;  // to go from scale rel to chord rel, just normalize to chord root
         if (nt <= 0) nt += 7;   // keep positive!

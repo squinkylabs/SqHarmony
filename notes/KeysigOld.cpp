@@ -26,7 +26,7 @@ std::pair<const MidiNote, Scale::Scales> KeysigOld::get() const {
     return scale->get();
 }
 
-ScaleRelativeNote KeysigOld::ScaleDeg(HarmonyNote pitch) {
+ScaleRelativeNote KeysigOld::getScaleDeg(const HarmonyNote& pitch) const {
     const int midiPitch = pitch;
     const MidiNote midiNote(midiPitch);
     const ScaleNote scaleNote = scale->m2s(midiNote);

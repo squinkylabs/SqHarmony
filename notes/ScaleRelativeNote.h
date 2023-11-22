@@ -6,6 +6,7 @@ class ScaleRelativeNote {
 public:
     bool isValid() const;
     operator int() const { return pitch; }         // convert us to int
+    int getScaleDegree() const { return pitch; }
     int interval(const ScaleRelativeNote&) const;  // tell interval between these guys
     bool isTonal() const;                          // am I "tonal"?
 

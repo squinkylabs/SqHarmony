@@ -26,7 +26,7 @@ class KeysigOld {
 public:
     // This [legacy] constructor always makes a major scale.
     // It could be fixed, but calling KeysigOld::set is easy.
-    ScaleRelativeNote ScaleDeg(HarmonyNote Pitch);  // converts a midi pitch to a Scale degree (1..8)
+    ScaleRelativeNote getScaleDeg(const HarmonyNote& Pitch) const;  // converts a midi pitch to a Scale degree (1..8)
                                                     // 0 for not a degree
     KeysigOld(Roots rt);
 

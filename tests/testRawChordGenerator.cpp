@@ -126,14 +126,26 @@ public:
 
     static void getSRN() {
         auto options = makeOptions(false);      // cmaj
-        int harmony[4] = {72, 73, 74, 75};
+        int harmony[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
         const auto x = RawChordGenerator::getSRN(harmony, options);
         assertEQ(x.size(), RawChordGenerator::chordSize);
         for (auto srn : x) {
             assert(srn.isValid());
         }
+        assertEQ(x[0].getScaleDegree(), 1);
+        assertEQ(x[1].getScaleDegree(), 3);
+        assertEQ(x[2].getScaleDegree(), 5);
+        assertEQ(x[3].getScaleDegree(), 1);
 
-        assert(false);
+        assertEQ(x[0].isTonal(), true);
+        assertEQ(x[1].isTonal(), false);
+        assertEQ(x[2].isTonal(), true);
+        assertEQ(x[3].isTonal(), true);
+
+        assertEQ(x[0].isLeadingTone(), false);
+        assertEQ(x[1].isLeadingTone(), false);
+        assertEQ(x[2].isLeadingTone(), false);
+        assertEQ(x[3].isLeadingTone(), false);
     }
 };
 
