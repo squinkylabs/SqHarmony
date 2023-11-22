@@ -28,22 +28,28 @@ static void testCanCreate() {
     delete chord;
 }
 
+#if _CHORD4_USE_NEW == true
 static void testCanCreate2() {
    const Options options = makeOptions(false);
-   int x[] = { 72, 72 + 4, 72 + 7, 72 + 12 };
+   int x[] = { 60, 60 + 4, 60 + 7, 60 + 12 };
     Chord4* chord = new Chord4(options, 1, x, false);
     delete chord;
 }
+#endif
 
 static void testCanCreateList() {
      const Options options = makeOptions(false);
     //   Chord4List(const Options& options, int root, bool show = false);
     Chord4List list(options, 1, false);
+    assertGT(list.size(), 0);
 
 }
 
 void testChord4() {
     testCanCreate();
+#if _CHORD4_USE_NEW == true
     testCanCreate2();
+#endif
     testCanCreateList();
+   
 }

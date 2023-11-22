@@ -3,7 +3,7 @@
 #include "Chord4Manager.h"
 #include "ProgressionAnalyzer.h"
 
-
+#if 0
 const Chord4* HarmonyChords::findChord(
     bool show,
     const Options& options,
@@ -12,7 +12,9 @@ const Chord4* HarmonyChords::findChord(
     PAStats* stats) {
     return find(show, options, manager, nullptr, nullptr, root, nullptr, stats);
 }
-#if 0
+#endif
+
+#if 1
 const Chord4* HarmonyChords::findChord(
     bool show,
     const Options& options,

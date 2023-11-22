@@ -12,7 +12,7 @@ public:
     friend class TestRawChordGenerator;
 
     /**
-     * ctor will make one with all bad pitches. calling getNextChord 
+     * ctor will make one with all bad pitches. calling getNextChord
      * will return the first one;
      */
     RawChordGenerator(const Options&);
@@ -20,8 +20,8 @@ public:
     // returns true if can make one
     bool getNextChord();
 
-    void getCurrentChord(int * theChord);
-    
+    void getCurrentChord(int* theChord);
+
 private:
     int _chord[chordSize] = {0};
     const Options _options;
@@ -45,19 +45,22 @@ private:
     static const int iSop = int(VOICE_NAME::SOP);
 };
 
-inline RawChordGenerator::RawChordGenerator(const Options& op) : _options(op)  {
+inline RawChordGenerator::RawChordGenerator(const Options& op) : _options(op) {
     assert(_chord[iSop] == 0);
     assert(_chord[iBass] == 0);
+    initialize(_chord, *op.style);
 }
 inline bool RawChordGenerator::getNextChord() {
-    for (bool done=false; !done; ) {
-        bool b= getNextChordInRange(_chord, *_options.style);
+    for (bool done = false; !done;) {
+        bool b = getNextChordInRange(_chord, *_options.style);
         if (!b) {
             return false;
         }
+        assert(_chord[0] > 0);
         fixCrossingIfRequired(_chord, *_options.style);
+        assert(_chord[0] > 0);
         if (isChordOk(_chord, _options)) {
-            //done = true;
+            // done = true;
             return true;
         } else {
             // TODO: we for sure need some more criteria here
@@ -65,7 +68,6 @@ inline bool RawChordGenerator::getNextChord() {
         }
     }
     return false;
-
 }
 
 inline void RawChordGenerator::fixCrossingIfRequired(int* chord, const Style& style) {
@@ -82,6 +84,7 @@ inline void RawChordGenerator::fixCrossingIfRequired(int* chord, const Style& st
 }
 
 inline bool RawChordGenerator::getNextChordInRange(int* chord, const Style& style) {
+    assert(chord[iBass] > 0);
     chord[iSop]++;
     if (chord[iSop] <= style.maxSop()) {
         return true;
@@ -117,18 +120,19 @@ inline void RawChordGenerator::initialize(int* chord, const Style& style) {
 }
 
 inline bool RawChordGenerator::isChordOk(const int* chord, const Options& options) {
+    assert(chord[iSop] > 0);
     const auto scaleRelativeNotes = getSRN(chord, options);
     return allNotesInScale(scaleRelativeNotes);
 }
 
 inline std::vector<ScaleRelativeNote> RawChordGenerator::getSRN(const int* chord, const Options& options) {
     std::vector<ScaleRelativeNote> scaleRelativeNotes(4);
-    for (int index = 0; index<chordSize; ++index) {
+    for (int index = 0; index < chordSize; ++index) {
         const int pitch = chord[index];
         HarmonyNote hn(options);
         hn.setPitchDirectly(pitch);
-        //const HarmonyNote xx;
-       // const HarmonyNote& xx = hn;
+        // const HarmonyNote xx;
+        // const HarmonyNote& xx = hn;
 
         scaleRelativeNotes[index] = options.keysig->getScaleDeg(hn);
     }
@@ -137,8 +141,7 @@ inline std::vector<ScaleRelativeNote> RawChordGenerator::getSRN(const int* chord
 
 inline bool RawChordGenerator::allNotesInScale(
     const std::vector<ScaleRelativeNote>& scaleRelativeNotes) {
-
-    for (int i = iBass; i < iSop; ++i) {
+    for (int i = iBass; i <= iSop; ++i) {
         if (!scaleRelativeNotes[i].isValid()) {
             return false;
         }
@@ -146,8 +149,14 @@ inline bool RawChordGenerator::allNotesInScale(
     return true;
 }
 
-inline void RawChordGenerator::getCurrentChord(int * theChord) {
-     for (int i = iBass; i < iSop; ++i) {
-        theChord[i] = this->_chord[i];
-     }
+inline void RawChordGenerator::getCurrentChord(int* theChord) {
+    for (int i = iBass; i <= iSop; ++i) {
+        assert(_chord[i] > 0);
+        theChord[i] = _chord[i];
+    }
+    assert(theChord[iSop] >= _options.style->minSop());
+    assert(theChord[iSop] <= _options.style->maxSop());
+
+    assert(theChord[iBass] >= _options.style->minBass());
+    assert(theChord[iBass] <= _options.style->maxBass());
 }

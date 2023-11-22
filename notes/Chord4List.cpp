@@ -14,7 +14,7 @@ static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
     return q1 > q2;
 }
 
-#ifdef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == true
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
     RawChordGenerator rawGen(options);
     for (bool done = false; !done; ) {
@@ -25,7 +25,12 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
         else {
             int chord[4];
             rawGen.getCurrentChord(chord);
+            assert(chord[3] > 0);
             const auto newChord= std::make_shared<Chord4>(options, rt, chord, show);
+            if (!newChord->isValid() || !newChord->isChordOk(options)) {
+                newChord->isChordOk(options);
+                assert(newChord->isValid());
+            }
             chords.push_back(newChord);
         }
     }
@@ -33,7 +38,9 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
 #else
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
     if (_show) SQINFO("Chord4List ctor");
-    Chord4 referenceChord(options, rt);
+    Chord4 referenceChord(options, rt, true);
+    assert(referenceChord.isValid());
+    assert(referenceChord.isChordOk(options));
     for (bool done = false; !done;) {
         Chord4Ptr newChord = std::make_shared<Chord4>();
         *newChord = referenceChord;

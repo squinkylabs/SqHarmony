@@ -73,11 +73,12 @@ enum INVERSION { ROOT_POS_INVERSION,
 
 class PAStats;
 
-#define _CHORD4_USE_NEW
+// Master define
+#define _CHORD4_USE_NEW true
 
 class Chord4 {
 public:
-#ifdef _CHORD4_USE_NEW
+#if  _CHORD4_USE_NEW == true
     /**
      * @brief Construct a new Chord 4 object
      * 
@@ -110,7 +111,7 @@ public:
      */
     static Chord4Ptr fromString(const Options& options, int degree, const char*);
 
-#ifndef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == false
     bool makeNext(const Options& op);  // returns false if made another one, true if could not
 #endif
     void print() const;
@@ -145,12 +146,15 @@ public:
      * @param voiceNumber is BASS..SOP
      */
     ChordRelativeNote chordInterval(const Options&, int voiceNumber) const;
-private:
+
+    // made public for debugging.
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
+private:
+    
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
 
-#ifndef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == false
     bool increment(const Options&);  // go to next chord (valid or not), return true if can't
 
     void bumpToNextInChord(const Options& options, HarmonyNote& note);

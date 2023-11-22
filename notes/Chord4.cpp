@@ -21,18 +21,23 @@ bool _globalShow = false;
 
 /*  Chord4::Chord4(int nRoot)
  */
-#ifdef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == true
 Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show) : _show(show) {
     __numChord4++;
     for (int i = 0; i < 4; ++i) {
         HarmonyNote hn(options);
         hn.setPitchDirectly(chord[i]);
         _notes.push_back(hn);
-
-        ScaleRelativeNote srn;
-        _srnNotes[i] = srn;
+        _srnNotes[i] = options.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
     }
     assert(_notes.size() == 4);
+
+    this->valid = this->isChordOk(options);
+    if (!this->valid) {
+        this->isChordOk(options);
+    }
+    assert(this->valid);
+    
 
    //  std::vector<HarmonyNote> _notes;
    //  ScaleRelativeNote srnNotes[CHORD_SIZE]; 
@@ -46,7 +51,7 @@ Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show)
     // }
 } 
 #endif
-#ifndef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == false
 Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot), _show(show) {
     __numChord4++;
     assert(_root > 0 && _root < 8);
@@ -197,7 +202,7 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
         assert(pitchHigh > pitchLow);
 #endif
     }
-#ifdef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == true
     Chord4Ptr chord;
     assert(false);
 #else
@@ -207,7 +212,7 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
         if (chord->toStringShort() == target) {
             return chord;
         }
-#ifdef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == true
         assert(false);      // now what?
         bool error = true;
 #else
@@ -221,7 +226,7 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
 
 /* void Chord4::BumpToNextInChord(Note note)
  */
-#ifndef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == false
 void Chord4::bumpToNextInChord(const Options& options, HarmonyNote& note) {
     const bool b = false;
     if (b && true) {
@@ -243,7 +248,7 @@ void Chord4::bumpToNextInChord(const Options& options, HarmonyNote& note) {
 
 static int level = 0;
 
-#ifndef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == false
 bool Chord4::increment(const Options& options) {
     int nVoice;
     bool fRet = false;  // assume no error
@@ -334,48 +339,26 @@ bool Chord4::isChordOk(const Options& options) const {
     int i, nPitch;
 
     bool show = false;
-    if (_globalShow) {
-        // show = true;
-        // looking for "A3C3E3C4"
 
-        const std::string s = this->toStringShort();
+    // this is temp debugging stuff
+    const int bassMax = options.style->maxBass();
+    const int sopMax = options.style->maxSop();
+    assert(_notes[0] <= bassMax);
+    assert(_notes[1] <= sopMax);
 
-        const char bassOct = s[1];
-        const char bassPitch = s[0];
-
-        // const char tenorOct = s[3];
-        //  const char tenorPitch = s[2];
-
-        // E1 is the first chord I see
-        // I see c2
-        // I see C3. why not A3?
-        // I can get all the way to c4 in the bass no problem.
-        // if (bassOct == '4') {
-        //     show = true;
-        // }
-
-        // I can find C, and E in the bass
-        // I can see A1 and A2
-
-        // I don't see A3C3
-        // I see **C3
-
-        // looking for "A3C3E3C4"
-        if (
-            bassPitch == 'A' && bassOct == '3'
-            //      bassPitch == 'A' && bassOct == '3'&& tenorPitch == 'C' && tenorOct == '3'
-            //  tenorPitch == 'C' && tenorOct == '3'
-        ) {
-            show = true;
-        }
-    }
-
+  
     if (show) {
         SQINFO("enter isChordOK with chord =%s", this->toStringShort().c_str());
     }
 
     auto style = options.style;
     assert(_notes.size() == CHORD_SIZE);
+
+    for (int i=0; i<CHORD_SIZE; ++i) {
+        if (!_srnNotes[i].isValid()) {
+            return false;
+        }
+    }
     if (!style->allowVoiceCrossing())  // If we require that two voices never cross
                                        // (meaning alto can never be higher than sop)
     {

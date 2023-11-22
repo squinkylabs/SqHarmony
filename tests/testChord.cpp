@@ -230,7 +230,7 @@ void specialDumpList(bool minor) {
     printf("sap min=%d sop max=%d\n", o.style->minSop(), o.style->maxSop());
     assert(false);
 }
-#ifdef _CHORD4_USE_NEW
+#if _CHORD4_USE_NEW == true
 static void testInversions(bool minor) {
     assert(false);
 }

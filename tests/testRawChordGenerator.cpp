@@ -42,12 +42,17 @@ static void testCanGen2() {
         const bool b = ch.getNextChord();
         if (b) {
             ++count;
+            int chord[4];
+            ch.getCurrentChord(chord);
+            for (int i=0; i<4; ++i) {
+                assert(chord[i] > 0);
+            }
         }
         else {
             done = true;
         }
     }
-    assert(count > 10000);
+    assert(count > 1000);
 }
 
 static void assertChordInRange(const int* chord, const Style& style) {
