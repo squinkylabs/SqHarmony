@@ -52,6 +52,7 @@ extern void testAllChords(bool);
 extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
 extern void testRawChordGenerator();
+extern void testChord4();
 
 const bool doLongRunning = false;
 
@@ -96,6 +97,7 @@ int main(const char**, int) {
 #if 1
     testRawChordGenerator();
     testPitchKnowledge();
+    testChord4();
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChords2023();

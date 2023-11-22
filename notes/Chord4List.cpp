@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "Options.h"
+#include "RawChordGenerator.h"
 #include "SqLog.h"
 
 static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
@@ -13,6 +14,23 @@ static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
     return q1 > q2;
 }
 
+#ifdef _CHORD4_USE_NEW
+Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
+    RawChordGenerator rawGen(options);
+    for (bool done = false; !done; ) {
+        const bool b = rawGen.getNextChord();
+        if (!b) {
+            done = true;
+        }
+        else {
+            int chord[4];
+            rawGen.getCurrentChord(chord);
+            const auto newChord= std::make_shared<Chord4>(options, rt, chord, show);
+            chords.push_back(newChord);
+        }
+    }
+}
+#else
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
     if (_show) SQINFO("Chord4List ctor");
     Chord4 referenceChord(options, rt);
@@ -44,3 +62,4 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
         it->rank = rank++;
     }
 }
+#endif

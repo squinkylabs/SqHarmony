@@ -10,6 +10,7 @@
 #include "KeysigOld.h"
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
+#include "RawChordGenerator.h"
 #include "ScaleRelativeNote.h"
 #include "SqLog.h"
 #include "Style.h"
@@ -20,6 +21,31 @@ bool _globalShow = false;
 
 /*  Chord4::Chord4(int nRoot)
  */
+#ifdef _CHORD4_USE_NEW
+Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show) : _show(show) {
+    for (int i = 0; i < 4; ++i) {
+        HarmonyNote hn(options);
+        hn.setPitchDirectly(chord[i]);
+        _notes.push_back(hn);
+
+        ScaleRelativeNote srn;
+        _srnNotes[i] = srn;
+    }
+    assert(_notes.size() == 4);
+
+   //  std::vector<HarmonyNote> _notes;
+   //  ScaleRelativeNote srnNotes[CHORD_SIZE]; 
+
+    // RawChordGenerator chordGen(options);
+    // for (bool done = false; !done; ) {
+    //     const bool bChordOk = chordGen.getNextChord();
+    //     if (bChordOk) {
+    //         assert(false);
+    //     }
+    // }
+} 
+#endif
+#ifndef _CHORD4_USE_NEW
 Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot), _show(show) {
     __numChord4++;
     assert(_root > 0 && _root < 8);
@@ -51,6 +77,7 @@ Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot), _sh
     }
     valid = true;
 }
+#endif
 
 // TODO: get rid of this!
 Chord4::Chord4() : _root(1), _show(false) {
@@ -169,12 +196,22 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
         assert(pitchHigh > pitchLow);
 #endif
     }
+#ifdef _CHORD4_USE_NEW
+    Chord4Ptr chord;
+    assert(false);
+#else
     Chord4Ptr chord = std::make_shared<Chord4>(options, degree);
+#endif
     while (true) {
         if (chord->toStringShort() == target) {
             return chord;
         }
+#ifdef _CHORD4_USE_NEW
+        assert(false);      // now what?
+        bool error = true;
+#else
         bool error = chord->makeNext(options);
+#endif
         if (error) {
             return nullptr;
         }
@@ -183,6 +220,7 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
 
 /* void Chord4::BumpToNextInChord(Note note)
  */
+#ifndef _CHORD4_USE_NEW
 void Chord4::bumpToNextInChord(const Options& options, HarmonyNote& note) {
     const bool b = false;
     if (b && true) {
@@ -196,12 +234,15 @@ void Chord4::bumpToNextInChord(const Options& options, HarmonyNote& note) {
         SQINFO("    %d %d %d %d", (int)_notes[0], (int)_notes[1], (int)_notes[2], (int)_notes[3]);
     }
 }
+#endif
 
 /**
  * returns true if error
  */
 
 static int level = 0;
+
+#ifndef _CHORD4_USE_NEW
 bool Chord4::increment(const Options& options) {
     int nVoice;
     bool fRet = false;  // assume no error
@@ -277,13 +318,14 @@ bool Chord4::makeNext(const Options& options) {
     //SQINFO("return from Chord4::makeNext");
     return fError;
 }
+#endif
 
 void Chord4::makeSrnNotes(const Options& op) {
     int i;
 
     assert(_notes.size() == CHORD_SIZE);
     for (i = 0; i < CHORD_SIZE; i++) {
-        srnNotes[i] = op.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
+        _srnNotes[i] = op.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
     }
 }
 
@@ -516,11 +558,11 @@ bool Chord4::isCorrectDoubling(const Options& options) const {
         case FIRST_INVERSION:
             // srn should be made already
             // makeSrnNotes(options);           // fill up the srnNotes array with valid stuff
-            if (srnNotes[BASS].isTonal()) {  // if the bass is tonal
+            if (_srnNotes[BASS].isTonal()) {  // if the bass is tonal
                 ret = (nRoots == 1) && (nThirds == 2) && (nFifths == 1);
                 // then double the bass (3rd)
             } else {                                   // if bass not tonal...
-                ret = srnNotes[nDoubled].isTonal() &&  // double tonal
+                ret = _srnNotes[nDoubled].isTonal() &&  // double tonal
                       (nRoots > 0) && (nThirds > 0) && (nFifths > 0);
                 // make sure at least one of everything
             }

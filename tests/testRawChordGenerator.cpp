@@ -22,8 +22,33 @@ static Options makeOptions(bool minor) {
 }
 
 static void testCanCall() {
-    RawChordGenerator ch;
-    (void)ch;
+    const Options options = makeOptions(false);
+    RawChordGenerator ch(options);
+    ch.getNextChord();
+}
+
+static void testCanGen() {
+    const Options options = makeOptions(false);
+    RawChordGenerator ch(options);
+    const bool b = ch.getNextChord();
+    assert(b);
+}
+
+static void testCanGen2() {
+    const Options options = makeOptions(false);
+    RawChordGenerator ch(options);
+    int count = 0;
+    bool done = false;
+    while (!done) {
+        const bool b = ch.getNextChord();
+        if (b) {
+            ++count;
+        }
+        else {
+            done = true;
+        }
+    }
+    assert(count > 10000);
 }
 
 static void assertChordInRange(const int* chord, const Style& style) {
@@ -147,14 +172,36 @@ public:
         assertEQ(x[2].isLeadingTone(), false);
         assertEQ(x[3].isLeadingTone(), false);
     }
+
+    static void allNotesInScale() {
+        auto options = makeOptions(false);      // cmaj
+
+        int chord[4] = { 72, 72 + 1, 72 + 2, 72 + 3 };   // chormatic chord
+        std::vector<ScaleRelativeNote> scaleRelativeNotes = RawChordGenerator::getSRN(chord, options);
+        const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
+        assert(!b);
+    }
+
+    static void allNotesInScale2() {
+        auto options = makeOptions(false);      // cmaj
+
+        int chord[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
+        std::vector<ScaleRelativeNote> scaleRelativeNotes = RawChordGenerator::getSRN(chord, options);
+        const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
+        assert(b);
+    }
 };
 
 void testRawChordGenerator() {
     testCanCall();
+    testCanGen();
+    testCanGen2();
     TestRawChordGenerator::init();
     TestRawChordGenerator::nextChordInRange();
     TestRawChordGenerator::nextChordInRange2();
     TestRawChordGenerator::fixCrossingIfRequired();
     TestRawChordGenerator::getSRN();
+    TestRawChordGenerator::allNotesInScale();
+    TestRawChordGenerator::allNotesInScale2();
     TestRawChordGenerator::isChordOk();
 }

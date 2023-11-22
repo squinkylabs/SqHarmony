@@ -176,6 +176,7 @@
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
+    <ClCompile Include="testChord4.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
     <ClCompile Include="testClockMult.cpp" />
     <ClCompile Include="testClockShifter3.cpp" />
