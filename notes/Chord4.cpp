@@ -23,6 +23,7 @@ bool _globalShow = false;
  */
 #ifdef _CHORD4_USE_NEW
 Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show) : _show(show) {
+    __numChord4++;
     for (int i = 0; i < 4; ++i) {
         HarmonyNote hn(options);
         hn.setPitchDirectly(chord[i]);

@@ -7,7 +7,6 @@ static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
 
-
 static KeysigOldPtr makeKeysig(bool minor) {
     auto ret = std::make_shared<KeysigOld>(Roots::C);
     if (minor) {
