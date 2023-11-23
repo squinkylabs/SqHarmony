@@ -189,6 +189,7 @@ void Chord4::print() const {
     SQINFO("%s", str.c_str());
 }
 
+#if _CHORD4_USE_NEW == false
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
     assert(strlen(target) == 8);
     if (options.style->allowVoiceCrossing()) assert(false);  // Not supported ATM.
@@ -225,6 +226,7 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
         }
     }
 }
+#endif
 
 /* void Chord4::BumpToNextInChord(Note note)
  */
@@ -417,6 +419,7 @@ bool Chord4::isChordOk(const Options& options) const {
         if (!isInChord(options, _notes[i])) {
             // if (b) printf("isChordOk not ok at 294\n");
             // how can we get down here with notes not in chord?
+            assert(false);
             return false;
         }
     }

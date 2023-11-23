@@ -78,18 +78,18 @@ class PAStats;
 
 class Chord4 {
 public:
-#if  _CHORD4_USE_NEW == true
+#if _CHORD4_USE_NEW == true
     /**
      * @brief Construct a new Chord 4 object
-     * 
+     *
      * @param options describes the key and such.
      * @param nDegree is the degree of the scale: 1..7
-     * @param chord - the Harmony note pitches of the literal chord. 
+     * @param chord - the Harmony note pitches of the literal chord.
      */
-    Chord4(const Options& options, int nDegree, const int* chord, bool show );
+    Chord4(const Options& options, int nDegree, const int* chord, bool show);
 #else
     Chord4(const Options& options, int nDegree, bool show = false);  // pass scale degree in constructor
-                                                  // This construct will advance us to valid guy
+                                                                     // This construct will advance us to valid guy
 #endif
 
     bool operator==(const Chord4& that) const {
@@ -109,9 +109,9 @@ public:
      *
      * @return Chord4Ptr
      */
-    static Chord4Ptr fromString(const Options& options, int degree, const char*);
 
 #if _CHORD4_USE_NEW == false
+    static Chord4Ptr fromString(const Options& options, int degree, const char*);
     bool makeNext(const Options& op);  // returns false if made another one, true if could not
 #endif
     void print() const;
@@ -140,9 +140,9 @@ public:
     int rank = 0;  // lower rank is "better". Unique index into the chord lists.
 
     /**
-     * @brief 
-     * 
-     * @return ChordRelativeNote 
+     * @brief
+     *
+     * @return ChordRelativeNote
      * @param voiceNumber is BASS..SOP
      */
     ChordRelativeNote chordInterval(const Options&, int voiceNumber) const;
@@ -150,7 +150,6 @@ public:
     // made public for debugging.
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
 private:
-    
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
 
@@ -167,10 +166,10 @@ private:
     std::string getString() const;  // printer helper function.  Gets string ascii representation of chord
 
     ScaleRelativeNote _srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid.
-                                             // Used for analysis.
+                                              // Used for analysis.
 
-    const int _root;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
-                    // is scale relative
+    int _root;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
+                      // is scale relative
     std::vector<HarmonyNote> _notes;
     bool valid = false;
     bool _show = false;

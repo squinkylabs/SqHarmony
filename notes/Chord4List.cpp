@@ -18,8 +18,8 @@ int good = 0;
 int bad = 0;
 
 #if _CHORD4_USE_NEW == true
-Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
-    RawChordGenerator rawGen(options);
+Chord4List::Chord4List(const Options& options, int root, bool show) : _show(show) {
+    RawChordGenerator rawGen(options, root);
     Chord4 refChord;
     for (bool done = false; !done;) {
         const bool b = rawGen.getNextChord();
@@ -31,7 +31,7 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
             assert(chord[3] > 0);
         //    const auto newChord = std::make_shared<Chord4>(options, rt, chord, show);
          //  a b 
-            Chord4* pchord = new (&refChord) Chord4(options, rt, chord, show);
+            Chord4* pchord = new (&refChord) Chord4(options, root, chord, show);
             __numChord4--;  // this one doesn't count for ref-counting
            // new (refChord) Chord4(options, rt, chord, show);
            // const int r = newChord->fetchRoot();
@@ -43,7 +43,7 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
                 //     SQINFO("not pushing bad chord");
                 bad++;
             } else {
-                Chord4Ptr newChord = std::make_shared<Chord4>(options, rt, chord, show);
+                Chord4Ptr newChord = std::make_shared<Chord4>(options, root, chord, show);
                 chords.push_back(newChord);
                 good++;
             }
@@ -86,3 +86,24 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
     }
 }
 #endif
+
+
+Chord4Ptr Chord4List::fromString(const Options& options, int degree, const char* string) {
+    //  Chord4List(const Options& options, int root, bool show = false);
+    Chord4List chords(options, degree);
+    std::string str(string);
+    for (int i = 0; i < chords.size(); ++i) {
+        const Chord4* chord = chords.get2(i);
+        if (str == chord->toStringShort()) {
+            Chord4Ptr ret = std::make_shared<Chord4>();
+          //  Chord4* pdest = ret.get();
+           
+          //  (*pdest) = (*chord);
+            *ret = *chord;
+            return ret;
+        }
+    }
+    assert(false);
+    return nullptr;
+}
+ 

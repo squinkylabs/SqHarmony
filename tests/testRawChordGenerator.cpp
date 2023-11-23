@@ -22,20 +22,20 @@ static Options makeOptions(bool minor) {
 
 static void testCanCall() {
     const Options options = makeOptions(false);
-    RawChordGenerator ch(options);
+    RawChordGenerator ch(options, 1);
     ch.getNextChord();
 }
 
 static void testCanGen() {
     const Options options = makeOptions(false);
-    RawChordGenerator ch(options);
+    RawChordGenerator ch(options, 1);
     const bool b = ch.getNextChord();
     assert(b);
 }
 
 static void testCanGen2() {
     const Options options = makeOptions(false);
-    RawChordGenerator ch(options);
+    RawChordGenerator ch(options, 1);
     int count = 0;
     bool done = false;
     while (!done) {
@@ -44,15 +44,14 @@ static void testCanGen2() {
             ++count;
             int chord[4];
             ch.getCurrentChord(chord);
-            for (int i=0; i<4; ++i) {
+            for (int i = 0; i < 4; ++i) {
                 assert(chord[i] > 0);
             }
-        }
-        else {
+        } else {
             done = true;
         }
     }
-    assert(count > 1000);
+    assert(count > 100);
 }
 
 static void assertChordInRange(const int* chord, const Style& style) {
@@ -141,66 +140,79 @@ public:
         for (int i : x) {
             temp[index++] = i;
         }
-        //auto style = makeStyle();
-        auto options = makeOptions(false);      // cmaj
+        // auto style = makeStyle();
+        auto options = makeOptions(false);  // cmaj
 
-        const bool b = RawChordGenerator::isChordOk(temp, options);
+        const bool b = RawChordGenerator::isChordOk(temp, options, 1);  // hard code to root 1 for now
         assertEQ(b, expected);
-
     }
     static void isChordOk() {
-        isChordOkSub({ 72, 73, 74, 75 }, false);
-        isChordOkSub({ 72, 72 + 4, 72 + 7, 72 + 12 }, true);
+        isChordOkSub({72, 73, 74, 75}, false);
+        isChordOkSub({72, 72 + 4, 72 + 7, 72 + 12}, true);
     }
 
-    static void getSRN() {
-        auto options = makeOptions(false);      // cmaj
-        int harmony[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
+    // static void getSRN() {
+    //     auto options = makeOptions(false);      // cmaj
+    //     int harmony[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
 
-        ScaleRelativeNote x[4];
-        RawChordGenerator::getSRN(harmony, options, x);
-      //  assertEQ(x.size(), RawChordGenerator::chordSize);
-        for (auto srn : x) {
-            assert(srn.isValid());
-        }
-        assertEQ(x[0].getScaleDegree(), 1);
-        assertEQ(x[1].getScaleDegree(), 3);
-        assertEQ(x[2].getScaleDegree(), 5);
-        assertEQ(x[3].getScaleDegree(), 1);
+    //     ScaleRelativeNote x[4];
+    //     RawChordGenerator::getSRN(harmony, options, x);
+    //   //  assertEQ(x.size(), RawChordGenerator::chordSize);
+    //     for (auto srn : x) {
+    //         assert(srn.isValid());
+    //     }
+    //     assertEQ(x[0].getScaleDegree(), 1);
+    //     assertEQ(x[1].getScaleDegree(), 3);
+    //     assertEQ(x[2].getScaleDegree(), 5);
+    //     assertEQ(x[3].getScaleDegree(), 1);
 
-        assertEQ(x[0].isTonal(), true);
-        assertEQ(x[1].isTonal(), false);
-        assertEQ(x[2].isTonal(), true);
-        assertEQ(x[3].isTonal(), true);
+    //     assertEQ(x[0].isTonal(), true);
+    //     assertEQ(x[1].isTonal(), false);
+    //     assertEQ(x[2].isTonal(), true);
+    //     assertEQ(x[3].isTonal(), true);
 
-        assertEQ(x[0].isLeadingTone(), false);
-        assertEQ(x[1].isLeadingTone(), false);
-        assertEQ(x[2].isLeadingTone(), false);
-        assertEQ(x[3].isLeadingTone(), false);
-    }
-
-    static void allNotesInScale() {
-        auto options = makeOptions(false);      // cmaj
-
-        int chord[4] = { 72, 72 + 1, 72 + 2, 72 + 3 };   // chormatic chord
-        ScaleRelativeNote scaleRelativeNotes[4];
-        RawChordGenerator::getSRN(chord, options, scaleRelativeNotes);
-        const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
+    //     assertEQ(x[0].isLeadingTone(), false);
+    //     assertEQ(x[1].isLeadingTone(), false);
+    //     assertEQ(x[2].isLeadingTone(), false);
+    //     assertEQ(x[3].isLeadingTone(), false);
+    // }
+    static void allNotesInChord() {
+        auto options = makeOptions(false);            // cmaj
+        int chord[4] = {72, 72 + 1, 72 + 2, 72 + 3};  // chormatic chord
+        const bool b = RawChordGenerator::allNotesInChord(chord, options, 1);
         assert(!b);
     }
 
-    static void allNotesInScale2() {
-        auto options = makeOptions(false);      // cmaj
+    // static void allNotesInScale() {
+    //     auto options = makeOptions(false);      // cmaj
 
-        int chord[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
-        ScaleRelativeNote scaleRelativeNotes[4];
-        RawChordGenerator::getSRN(chord, options, scaleRelativeNotes);
-        const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
+    //     int chord[4] = { 72, 72 + 1, 72 + 2, 72 + 3 };   // chormatic chord
+    //     ScaleRelativeNote scaleRelativeNotes[4];
+    //     RawChordGenerator::getSRN(chord, options, scaleRelativeNotes);
+    //     const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
+    //     assert(!b);
+    // }
+    static void allNotesInChord2() {
+        auto options = makeOptions(false);             // cmaj
+        int chord[4] = {72, 72 + 4, 72 + 7, 72 + 12};  // cmaj chord
+        const bool b = RawChordGenerator::allNotesInChord(chord, options, 1);
         assert(b);
     }
+
+    // static void allNotesInScale2() {
+    //     auto options = makeOptions(false);      // cmaj
+
+    //     int chord[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
+    //     ScaleRelativeNote scaleRelativeNotes[4];
+    //     RawChordGenerator::getSRN(chord, options, scaleRelativeNotes);
+    //     const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
+    //     assert(b);
+    // }
 };
 
 void testRawChordGenerator() {
+    TestRawChordGenerator::allNotesInChord();
+    TestRawChordGenerator::allNotesInChord2();
     testCanCall();
     testCanGen();
     testCanGen2();
@@ -208,8 +220,9 @@ void testRawChordGenerator() {
     TestRawChordGenerator::nextChordInRange();
     TestRawChordGenerator::nextChordInRange2();
     TestRawChordGenerator::fixCrossingIfRequired();
-    TestRawChordGenerator::getSRN();
-    TestRawChordGenerator::allNotesInScale();
-    TestRawChordGenerator::allNotesInScale2();
+    // TestRawChordGenerator::getSRN();
+    // TestRawChordGenerator::allNotesInScale();
+    // TestRawChordGenerator::allNotesInScale2();
+
     TestRawChordGenerator::isChordOk();
 }

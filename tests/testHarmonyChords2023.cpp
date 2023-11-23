@@ -31,7 +31,7 @@ static void assertChordExists(Chord4Manager& mgr, int root, const Options& optio
     assert(chords);
 
     _globalShow = show;
-    Chord4Ptr desiredChord = Chord4::fromString(options, root, expected.c_str());
+    Chord4Ptr desiredChord = Chord4List::fromString(options, root, expected.c_str());
     assert(desiredChord);
     assert(desiredChord->isValid());
     _globalShow = false;
@@ -82,7 +82,7 @@ static void testGenerateProgression(
 static void testNoneInCommmon56() {
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
-    Chord4Ptr chordA = Chord4::fromString(options, 5, pistonVchord.c_str());
+    Chord4Ptr chordA = Chord4List::fromString(options, 5, pistonVchord.c_str());
 
     std::string expectedChord = options.style->usePistonV_VI_exception() ? pistonVIchord : "";  // "A2E3A3C4";
     testGenerateProgression(mgr, options, chordA, 6, expectedChord);
@@ -91,7 +91,7 @@ static void testNoneInCommmon56() {
 static void testNoneInCommmon12() {
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
-    Chord4Ptr chordA = Chord4::fromString(options, 1, "C2C3E3G3");
+    Chord4Ptr chordA = Chord4List::fromString(options, 1, "C2C3E3G3");
     assert(chordA);
     testGenerateProgression(mgr, options, chordA, 2, "D2A2D3F3");
 }
@@ -120,8 +120,8 @@ static void testAnalyze56() {
     //  SQINFO("\n\n---------------------- bgf: start testAnalyze56");
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
-    Chord4Ptr chordA = Chord4::fromString(options, 5, "G1B2D3G3");
-    Chord4Ptr chordB = Chord4::fromString(options, 6, "E1C3E3A3");                                    // only one A - should be illegal
+    Chord4Ptr chordA = Chord4List::fromString(options, 5, "G1B2D3G3");
+    Chord4Ptr chordB = Chord4List::fromString(options, 6, "E1C3E3A3");                                    // only one A - should be illegal
     testAnalyzeProgression(mgr, options, chordA, chordB, ProgressionAnalyzer::AVG_PENALTY_PER_RULE);  // this illegal
                                                                                                       // SQINFO("\n-------------------------bgf: end testAnalyze56");
 }
@@ -130,8 +130,8 @@ static void testAnalyze56piston() {
     // SQINFO("\n\n---------------------- bgf: start testAnalyze56 piston");
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
-    Chord4Ptr chordA = Chord4::fromString(options, 5, pistonVchord.c_str());
-    Chord4Ptr chordB = Chord4::fromString(options, 6, pistonVIchord.c_str());
+    Chord4Ptr chordA = Chord4List::fromString(options, 5, pistonVchord.c_str());
+    Chord4Ptr chordB = Chord4List::fromString(options, 6, pistonVIchord.c_str());
     testAnalyzeProgression(mgr, options, chordA, chordB, 0);
     //  SQINFO("\n-------------------------bgf: end testAnalyze56 piston");
     // TODO: add expectation on quality
@@ -158,8 +158,8 @@ static void analyzeReportedParallel() {
     auto options = makeOptions(false);
     options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
     Chord4Manager mgr(options);
-    Chord4Ptr chordA = Chord4::fromString(options, 7, "D2B2D3F3");
-    Chord4Ptr chordB = Chord4::fromString(options, 3, "E2B2E3G3");
+    Chord4Ptr chordA = Chord4List::fromString(options, 7, "D2B2D3F3");
+    Chord4Ptr chordB = Chord4List::fromString(options, 3, "E2B2E3G3");
     testAnalyzeProgression(mgr, options, chordA, chordB, -1);
     SQINFO("about to call find!");
     HarmonyChords::findChord(
