@@ -55,6 +55,7 @@ extern void testRawChordGenerator();
 extern void testChord4();
 
 #ifdef _DEBUG
+const bool doLongRunning = false;
 #else
 const bool doLongRunning = true;
 #endif

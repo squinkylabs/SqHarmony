@@ -156,8 +156,10 @@ public:
     static void getSRN() {
         auto options = makeOptions(false);      // cmaj
         int harmony[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
-        const auto x = RawChordGenerator::getSRN(harmony, options);
-        assertEQ(x.size(), RawChordGenerator::chordSize);
+
+        ScaleRelativeNote x[4];
+        RawChordGenerator::getSRN(harmony, options, x);
+      //  assertEQ(x.size(), RawChordGenerator::chordSize);
         for (auto srn : x) {
             assert(srn.isValid());
         }
@@ -181,7 +183,8 @@ public:
         auto options = makeOptions(false);      // cmaj
 
         int chord[4] = { 72, 72 + 1, 72 + 2, 72 + 3 };   // chormatic chord
-        std::vector<ScaleRelativeNote> scaleRelativeNotes = RawChordGenerator::getSRN(chord, options);
+        ScaleRelativeNote scaleRelativeNotes[4];
+        RawChordGenerator::getSRN(chord, options, scaleRelativeNotes);
         const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
         assert(!b);
     }
@@ -190,7 +193,8 @@ public:
         auto options = makeOptions(false);      // cmaj
 
         int chord[4] = { 72, 72 + 4, 72 + 7, 72 + 12 };   // cmaj chord
-        std::vector<ScaleRelativeNote> scaleRelativeNotes = RawChordGenerator::getSRN(chord, options);
+        ScaleRelativeNote scaleRelativeNotes[4];
+        RawChordGenerator::getSRN(chord, options, scaleRelativeNotes);
         const bool b = RawChordGenerator::allNotesInScale(scaleRelativeNotes);
         assert(b);
     }

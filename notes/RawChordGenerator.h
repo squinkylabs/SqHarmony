@@ -32,8 +32,9 @@ private:
 
     static void initialize(int* chord, const Style& style);
     static bool isChordOk(const int* chord, const Options&);
-    static std::vector<ScaleRelativeNote> getSRN(const int* chord, const Options&);
-    static bool allNotesInScale(const std::vector<ScaleRelativeNote>&);
+    //static std::vector<ScaleRelativeNote> getSRN(const int* chord, const Options&);
+    static void getSRN(const int* chord, const Options&, ScaleRelativeNote* srnOutputBuffer);
+    static bool allNotesInScale(const ScaleRelativeNote*);
 
     enum class VOICE_NAME { BASS,
                             TENOR,
@@ -121,29 +122,22 @@ inline void RawChordGenerator::initialize(int* chord, const Style& style) {
 
 inline bool RawChordGenerator::isChordOk(const int* chord, const Options& options) {
     assert(chord[iSop] > 0);
-    const auto scaleRelativeNotes = getSRN(chord, options);
-    return allNotesInScale(scaleRelativeNotes);
+    ScaleRelativeNote srn[4];
+    getSRN(chord, options, srn);
+    return allNotesInScale(srn);
 }
 
-extern int numVectors;
-
-inline std::vector<ScaleRelativeNote> RawChordGenerator::getSRN(const int* chord, const Options& options) {
-    ++numVectors;
-    std::vector<ScaleRelativeNote> scaleRelativeNotes(4);
+inline void RawChordGenerator::getSRN(const int* chord, const Options& options, ScaleRelativeNote* srnOutputBuffer) {
     for (int index = 0; index < chordSize; ++index) {
         const int pitch = chord[index];
         HarmonyNote hn(options);
         hn.setPitchDirectly(pitch);
-        // const HarmonyNote xx;
-        // const HarmonyNote& xx = hn;
-
-        scaleRelativeNotes[index] = options.keysig->getScaleDeg(hn);
+        srnOutputBuffer[index] = options.keysig->getScaleDeg(hn);
     }
-    return scaleRelativeNotes;
 }
 
 inline bool RawChordGenerator::allNotesInScale(
-    const std::vector<ScaleRelativeNote>& scaleRelativeNotes) {
+    const ScaleRelativeNote* scaleRelativeNotes) {
     for (int i = iBass; i <= iSop; ++i) {
         if (!scaleRelativeNotes[i].isValid()) {
             return false;

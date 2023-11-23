@@ -16,10 +16,11 @@ static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
 
 int good = 0;
 int bad = 0;
-int numVectors = 0;
+
 #if _CHORD4_USE_NEW == true
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
     RawChordGenerator rawGen(options);
+    Chord4 refChord;
     for (bool done = false; !done;) {
         const bool b = rawGen.getNextChord();
         if (!b) {
@@ -28,21 +29,27 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
             int chord[4];
             rawGen.getCurrentChord(chord);
             assert(chord[3] > 0);
-            const auto newChord = std::make_shared<Chord4>(options, rt, chord, show);
-            const int r = newChord->fetchRoot();
-            const auto name = newChord->toStringShort();
-            if (!newChord->isValid() || !newChord->isChordOk(options)) {
-                newChord->isChordOk(options);
+        //    const auto newChord = std::make_shared<Chord4>(options, rt, chord, show);
+         //  a b 
+            Chord4* pchord = new (&refChord) Chord4(options, rt, chord, show);
+            __numChord4--;  // this one doesn't count for ref-counting
+           // new (refChord) Chord4(options, rt, chord, show);
+           // const int r = newChord->fetchRoot();
+         //   const auto name = newChord->toStringShort();
+
+            if (!pchord->isValid() || !pchord->isChordOk(options)) {
+                pchord->isChordOk(options);
                 //    assert(newChord->isValid());
                 //     SQINFO("not pushing bad chord");
                 bad++;
             } else {
+                Chord4Ptr newChord = std::make_shared<Chord4>(options, rt, chord, show);
                 chords.push_back(newChord);
                 good++;
             }
         }
     }
-    SQINFO("good/bad = %f total=%d numv=%d", double(good) / double(bad), good + bad, numVectors);
+    SQINFO("good/bad = %f total=%d", double(good) / double(bad), good + bad);
 }
 #else
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
