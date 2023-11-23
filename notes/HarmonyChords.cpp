@@ -21,9 +21,7 @@ const Chord4* HarmonyChords::findChord(
     const Chord4Manager& manager,
     int root,
     PAStats* stats) {
-
-    SQINFO("does it still make sense to call this old code?");
-   // assert(false);  // who is calling this other implementation of find??
+    // SQINFO("does it still make sense to call this old code?");
     // SQINFO("enter HarmonyChords::findChord");
     assert(manager.isValid());
     // TODO assert that root is in scale (scale needs size())

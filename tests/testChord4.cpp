@@ -49,12 +49,11 @@ static void testRootSet() {
 
 static void testCanCreateList() {
     const Options options = makeOptions(false);
-    //   Chord4List(const Options& options, int root, bool show = false);
     for (int root = 1; root < 8; ++root) {
         Chord4List list(options, root, false);
         assertGT(list.size(), 0);
-        SQINFO("root %d made %d", root, list.size());
-        SQINFO("first chord = %s ", list.get2(0)->toStringShort().c_str());
+        // SQINFO("root %d made %d", root, list.size());
+        // SQINFO("first chord = %s ", list.get2(0)->toStringShort().c_str());
     }
 }
 

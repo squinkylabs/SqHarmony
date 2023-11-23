@@ -49,7 +49,7 @@ Chord4List::Chord4List(const Options& options, int root, bool show) : _show(show
             }
         }
     }
-    SQINFO("good/bad = %f total=%d", double(good) / double(bad), good + bad);
+    // SQINFO("good/bad = %f total=%d", double(good) / double(bad), good + bad);
 }
 #else
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {

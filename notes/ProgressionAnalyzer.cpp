@@ -375,7 +375,9 @@ int ProgressionAnalyzer::ruleForCross() const {
 int ProgressionAnalyzer::ruleForPara() const {
     int i, j;
 
-    if (_show) SQINFO("enter RuleForPara");
+    if (_show) {
+        SQINFO("enter RuleForPara");
+    }
     for (i = BASS; i <= ALTO; i++) {
         for (j = i + 1; j <= SOP; j++) {
             const int NextInterval = next->fetchSRNNotes()[i].interval(next->fetchSRNNotes()[j]);

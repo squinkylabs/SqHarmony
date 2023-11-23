@@ -108,7 +108,7 @@ static void testAnalyzeProgression(
     assert(first->isValid());
     assert(next->isValid());
 
-    ProgressionAnalyzer pa(first.get(), next.get(), true);  // pass true for debugging.
+    ProgressionAnalyzer pa(first.get(), next.get(), false);  // pass true for debugging.
     const int p = pa.getPenalty(options, 100000);
     // SQINFO("penalty was %d", p);
     if (expectedPenalty >= 0) {
@@ -196,7 +196,8 @@ void testHarmonyChords2023() {
     testAnalyze56piston();
     testNoneInCommmon12();
 
-    analyzeReportedParallel();
+   // analyzeReportedParallel();
+    SQINFO("do something for analyze parallel test");
 
     // this doesn't work. it finds its own chord, not the same as piston's
     // testNoneInCommmon56();
