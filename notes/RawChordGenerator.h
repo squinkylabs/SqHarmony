@@ -125,7 +125,10 @@ inline bool RawChordGenerator::isChordOk(const int* chord, const Options& option
     return allNotesInScale(scaleRelativeNotes);
 }
 
+extern int numVectors;
+
 inline std::vector<ScaleRelativeNote> RawChordGenerator::getSRN(const int* chord, const Options& options) {
+    ++numVectors;
     std::vector<ScaleRelativeNote> scaleRelativeNotes(4);
     for (int index = 0; index < chordSize; ++index) {
         const int pitch = chord[index];

@@ -22,7 +22,7 @@ bool _globalShow = false;
 /*  Chord4::Chord4(int nRoot)
  */
 #if _CHORD4_USE_NEW == true
-Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show) : _show(show) {
+Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show) : _show(show), _root(nDegree) {
     __numChord4++;
     for (int i = 0; i < 4; ++i) {
         HarmonyNote hn(options);
@@ -36,7 +36,9 @@ Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show)
     if (!this->valid) {
         this->isChordOk(options);
     }
-    assert(this->valid);
+
+    // this helps debug strange cases.
+   // assert(this->valid);
     
 
    //  std::vector<HarmonyNote> _notes;

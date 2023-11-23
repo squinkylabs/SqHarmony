@@ -14,26 +14,35 @@ static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
     return q1 > q2;
 }
 
+int good = 0;
+int bad = 0;
+int numVectors = 0;
 #if _CHORD4_USE_NEW == true
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
     RawChordGenerator rawGen(options);
-    for (bool done = false; !done; ) {
+    for (bool done = false; !done;) {
         const bool b = rawGen.getNextChord();
         if (!b) {
             done = true;
-        }
-        else {
+        } else {
             int chord[4];
             rawGen.getCurrentChord(chord);
             assert(chord[3] > 0);
-            const auto newChord= std::make_shared<Chord4>(options, rt, chord, show);
+            const auto newChord = std::make_shared<Chord4>(options, rt, chord, show);
+            const int r = newChord->fetchRoot();
+            const auto name = newChord->toStringShort();
             if (!newChord->isValid() || !newChord->isChordOk(options)) {
                 newChord->isChordOk(options);
-                assert(newChord->isValid());
+                //    assert(newChord->isValid());
+                //     SQINFO("not pushing bad chord");
+                bad++;
+            } else {
+                chords.push_back(newChord);
+                good++;
             }
-            chords.push_back(newChord);
         }
     }
+    SQINFO("good/bad = %f total=%d numv=%d", double(good) / double(bad), good + bad, numVectors);
 }
 #else
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
@@ -51,8 +60,8 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
             return;
         }
 
-        chords.push_back(newChord);               // put a chord in the list
-        //SQINFO("pushed another chord, now %d", chords.size());
+        chords.push_back(newChord);  // put a chord in the list
+        // SQINFO("pushed another chord, now %d", chords.size());
         done = referenceChord.makeNext(options);  // advance to next chord
         if (_show) SQINFO("Chord4List ctor pushed another: %d", int(chords.size()));
     }

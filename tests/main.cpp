@@ -54,7 +54,10 @@ extern void testPitchKnowledge();
 extern void testRawChordGenerator();
 extern void testChord4();
 
-const bool doLongRunning = false;
+#ifdef _DEBUG
+#else
+const bool doLongRunning = true;
+#endif
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -63,6 +66,9 @@ int main(const char**, int) {
     specialDumpList();
 #else
  testRawChordGenerator();
+ testAllChords(doLongRunning);
+ printf("put the early tests back\n");
+
     testSchmidtTrigger();
     testShiftMath();
     testOneShot();
