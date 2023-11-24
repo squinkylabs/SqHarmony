@@ -9,19 +9,17 @@
 
 class Chord4List {
 public:
-    Chord4List(const Options& options, int root, bool show = false);
+    Chord4List(const Options& options, int root, bool show=false);
 
-    int size() const;  // How many chords are in list?
+    int size() const;  // how many chords are in list
 
     // If there is an error constructing chords, this is how we signal it.
     bool isValid() const { return !chords.empty(); }
-    const Chord4* get2(int n) const;
 
-    static Chord4Ptr fromString(const Options& options, int degree, const char*);
+    const Chord4* get2(int n) const;
 
 private:
     std::vector<Chord4Ptr> chords;
-    const bool _show;
 };
 
 inline int Chord4List::size() const {

@@ -10,7 +10,6 @@
 #include "KeysigOld.h"
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
-#include "RawChordGenerator.h"
 #include "ScaleRelativeNote.h"
 #include "SqLog.h"
 #include "Style.h"
@@ -21,44 +20,10 @@ bool _globalShow = false;
 
 /*  Chord4::Chord4(int nRoot)
  */
-#if _CHORD4_USE_NEW == true
-Chord4::Chord4(const Options& options, int nDegree, const int* chord, bool show) : _show(show), _root(nDegree) {
-    __numChord4++;
-    for (int i = 0; i < 4; ++i) {
-        HarmonyNote hn(options);
-        hn.setPitchDirectly(chord[i]);
-        _notes.push_back(hn);
-        _srnNotes[i] = options.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
-    }
-    assert(_notes.size() == 4);
-
-    this->valid = this->isChordOk(options);
-    if (!this->valid) {
-        this->isChordOk(options);
-    }
-
-    // this helps debug strange cases.
-   // assert(this->valid);
-    
-
-   //  std::vector<HarmonyNote> _notes;
-   //  ScaleRelativeNote srnNotes[CHORD_SIZE]; 
-
-    // RawChordGenerator chordGen(options);
-    // for (bool done = false; !done; ) {
-    //     const bool bChordOk = chordGen.getNextChord();
-    //     if (bChordOk) {
-    //         assert(false);
-    //     }
-    // }
-} 
-#endif
-#if _CHORD4_USE_NEW == false
-Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot), _show(show) {
+Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot) {
     __numChord4++;
     assert(_root > 0 && _root < 8);
 
-    if (_show) SQINFO("enter Chord4 ctor");
     for (int i = 0; i < CHORD_SIZE; ++i) {
         _notes.push_back(HarmonyNote(options));
     }
@@ -70,7 +35,6 @@ Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot), _sh
             ++_notes[index];
         }
         if (!isInChord(options, _notes[index])) {
-            //SQINFO("bumping from 39");
             bumpToNextInChord(options, _notes[index]);
         }
         // Speed up makeNext by getting this far.
@@ -85,10 +49,9 @@ Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot), _sh
     }
     valid = true;
 }
-#endif
 
 // TODO: get rid of this!
-Chord4::Chord4() : _root(1), _show(false) {
+Chord4::Chord4() : _root(1) {
     valid = true;
     __numChord4++;
 }
@@ -154,6 +117,7 @@ int Chord4::divergence(const Options& options) const {
  */
 
 std::string Chord4::getString() const {
+    assert(valid);
     std::stringstream s;
     assert(_notes.size() == CHORD_SIZE);
 
@@ -189,7 +153,6 @@ void Chord4::print() const {
     SQINFO("%s", str.c_str());
 }
 
-#if _CHORD4_USE_NEW == false
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
     assert(strlen(target) == 8);
     if (options.style->allowVoiceCrossing()) assert(false);  // Not supported ATM.
@@ -205,92 +168,69 @@ Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* tar
         assert(pitchHigh > pitchLow);
 #endif
     }
-#if _CHORD4_USE_NEW == true
-    Chord4Ptr chord;
-    assert(false);
-#else
     Chord4Ptr chord = std::make_shared<Chord4>(options, degree);
-#endif
     while (true) {
         if (chord->toStringShort() == target) {
             return chord;
         }
-#if _CHORD4_USE_NEW == true
-        assert(false);      // now what?
-        bool error = true;
-#else
         bool error = chord->makeNext(options);
-#endif
         if (error) {
             return nullptr;
         }
     }
 }
-#endif
 
 /* void Chord4::BumpToNextInChord(Note note)
  */
-#if _CHORD4_USE_NEW == false
 void Chord4::bumpToNextInChord(const Options& options, HarmonyNote& note) {
     const bool b = false;
-    if (b && true) {
-        SQINFO("---bump to next called with   >%s<", toString().c_str());
-        SQINFO("    %d %d %d %d", (int)_notes[0], (int)_notes[1], (int)_notes[2], (int)_notes[3]);
+
+    if (b && false) {
+        printf("bump to next called with >%s<\n", toString().c_str());
+        printf("%d %d %d %d\n", (int)_notes[0], (int)_notes[1], (int)_notes[2], (int)_notes[3]);
     }
     while (!isInChord(options, note)) ++note;
 
-    if (b && true) {
-        SQINFO("....bump to next leaving with >%s<", toString().c_str());
-        SQINFO("    %d %d %d %d", (int)_notes[0], (int)_notes[1], (int)_notes[2], (int)_notes[3]);
+    if (b && false) {
+        printf("leaving bump with %s\n", toString().c_str());
     }
 }
-#endif
 
-/**
- * returns true if error
+/* bool Chord4::inc()
  */
-
-static int level = 0;
-
-#if _CHORD4_USE_NEW == false
-bool Chord4::increment(const Options& options) {
+bool Chord4::inc(const Options& options) {
     int nVoice;
     bool fRet = false;  // assume no error
 
     assert(_notes.size() == CHORD_SIZE);
 
     ++_notes[CHORD_SIZE - 1];  // inc to next pitch
-   // SQINFO("bump from enter inc (all get bumped) level=%d", level);
-
-    ++level;
     bumpToNextInChord(options, _notes[CHORD_SIZE - 1]);
 
     for (nVoice = CHORD_SIZE - 1; nVoice >= 0; nVoice--) {
-        if (_notes[nVoice].isTooHigh(options))  // If we incremented too far
+        if (_notes[nVoice].isTooHigh(options))  // If we inced too far
                                                 // I.E. this voice is out of range..
         {
-            if ((_globalShow) && (nVoice == 1)) {
-                SQINFO("note is too high in voice %d, chord=%s", nVoice, toStringShort().c_str());
+            if (_globalShow && (nVoice == 1)) {
+                SQINFO("note is too high in voic %d, chord=%s", nVoice, toStringShort().c_str());
                 SQINFO("pitch[0] = %d, pitch[1] = %d", int(_notes[0]), int(_notes[1]));
             }
             if (nVoice == 0) {
-                fRet = true;                                 // ... and no more to try, then give up
-            } else {                                         // We overflowed, but can carry to next voice
-                if (!options.style->allowVoiceCrossing()) {  // If we require that two voices never cross
-                                                             // (meaning alto can never be higher than sop)
-
+                fRet = true;  // ... and no more to try, then give up
+            } else            // We overflowed, but can carry to next voice
+            {
+                if (!options.style->allowVoiceCrossing())  // If we require that two voices never cross
+                                                           // (meaning alto can never be higher than sop)
+                {
                     _notes[nVoice] = _notes[nVoice - 1];  // Go as low as possible without cross!
-                    if (_globalShow) SQINFO("just set pitch vc %d from %d", nVoice, nVoice-1);
                 } else {
                     _notes[nVoice].setMin(options);  // otherwise, reset this to min
-                    //SQINFO("bump from loop 230");
                     bumpToNextInChord(options, _notes[nVoice]);
                 }
                 ++_notes[nVoice - 1];  // ... and carry to next
                 if (_globalShow && nVoice == 1) {
                     SQINFO("raw wrap, before bump voice %d to %d now %s", nVoice, int(_notes[nVoice]), toStringShort().c_str());
                 }
-                //SQINFO("bump from 237");
                 bumpToNextInChord(options, _notes[nVoice - 1]);
                 if (_globalShow && nVoice == 1) {
                     SQINFO("wrapping voice %d to %d now %s", nVoice, int(_notes[nVoice]), toStringShort().c_str());
@@ -299,8 +239,6 @@ bool Chord4::increment(const Options& options) {
             }
         }
     }
-    --level;
-    //SQINFO("returning %d from increment level = %d", fRet, level);
 
     return fRet;
 }
@@ -309,33 +247,27 @@ bool Chord4::makeNext(const Options& options) {
     bool fDone;
     bool fError;
 
-    //SQINFO("Chord4::makeNext");
-
     for (fDone = fError = false; !fDone;) {
-        //SQINFO("calling increment from makeNext");
-        if (increment(options)) {
+        if (inc(options)) {
             fDone = true;
             fError = true;
         } else {
             if (isChordOk(options)) {
-                //SQINFO("chord from inc was not ok");
                 fDone = true;  // then we are done
             }
         }
     }
     makeSrnNotes(options);  // fill up the srnNotes array with valid stuff
 
-    //SQINFO("return from Chord4::makeNext");
     return fError;
 }
-#endif
 
 void Chord4::makeSrnNotes(const Options& op) {
     int i;
 
     assert(_notes.size() == CHORD_SIZE);
     for (i = 0; i < CHORD_SIZE; i++) {
-        _srnNotes[i] = op.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
+        srnNotes[i] = op.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
     }
 }
 
@@ -343,26 +275,48 @@ bool Chord4::isChordOk(const Options& options) const {
     int i, nPitch;
 
     bool show = false;
+    if (_globalShow) {
+        // show = true;
+        // looking for "A3C3E3C4"
 
-    // this is temp debugging stuff
-    const int bassMax = options.style->maxBass();
-    const int sopMax = options.style->maxSop();
-    assert(_notes[0] <= bassMax);
-    assert(_notes[1] <= sopMax);
+        const std::string s = this->toStringShort();
 
-  
+        const char bassOct = s[1];
+        const char bassPitch = s[0];
+
+       // const char tenorOct = s[3];
+      //  const char tenorPitch = s[2];
+
+        // E1 is the first chord I see
+        // I see c2
+        // I see C3. why not A3?
+        // I can get all the way to c4 in the bass no problem.
+        // if (bassOct == '4') {
+        //     show = true;
+        // }
+
+        // I can find C, and E in the bass
+        // I can see A1 and A2
+
+        // I don't see A3C3
+        // I see **C3
+
+        // looking for "A3C3E3C4"
+        if (
+            bassPitch == 'A' && bassOct == '3'
+            //      bassPitch == 'A' && bassOct == '3'&& tenorPitch == 'C' && tenorOct == '3'
+            //  tenorPitch == 'C' && tenorOct == '3'
+        ) {
+            show = true;
+        }
+    }
+
     if (show) {
         SQINFO("enter isChordOK with chord =%s", this->toStringShort().c_str());
     }
 
     auto style = options.style;
     assert(_notes.size() == CHORD_SIZE);
-
-    for (int i=0; i<CHORD_SIZE; ++i) {
-        if (!_srnNotes[i].isValid()) {
-            return false;
-        }
-    }
     if (!style->allowVoiceCrossing())  // If we require that two voices never cross
                                        // (meaning alto can never be higher than sop)
     {
@@ -419,7 +373,6 @@ bool Chord4::isChordOk(const Options& options) const {
         if (!isInChord(options, _notes[i])) {
             // if (b) printf("isChordOk not ok at 294\n");
             // how can we get down here with notes not in chord?
-            assert(false);
             return false;
         }
     }
@@ -547,11 +500,11 @@ bool Chord4::isCorrectDoubling(const Options& options) const {
         case FIRST_INVERSION:
             // srn should be made already
             // makeSrnNotes(options);           // fill up the srnNotes array with valid stuff
-            if (_srnNotes[BASS].isTonal()) {  // if the bass is tonal
+            if (srnNotes[BASS].isTonal()) {  // if the bass is tonal
                 ret = (nRoots == 1) && (nThirds == 2) && (nFifths == 1);
                 // then double the bass (3rd)
             } else {                                   // if bass not tonal...
-                ret = _srnNotes[nDoubled].isTonal() &&  // double tonal
+                ret = srnNotes[nDoubled].isTonal() &&  // double tonal
                       (nRoots > 0) && (nThirds > 0) && (nFifths > 0);
                 // make sure at least one of everything
             }

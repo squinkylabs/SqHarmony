@@ -59,7 +59,7 @@ static void testAllChords(
         false,
         nullptr);
     if (penalty > worstPenalty) {
-        SQINFO("new worst penalty: %d", penalty);
+       // SQINFO("new worst penalty: %d", penalty);
         worstPenalty = penalty;
     }
 
@@ -161,13 +161,13 @@ static void showNarrow3() {
     chord[1] = options.style->minTenor();
     chord[2] = options.style->minAlto();
     chord[3] = options.style->minSop();
-    Chord4 lowChord(options, 3, chord, false);
+    Chord4 lowChord(options, 3, false);
     SQINFO("lowest possible = %s", lowChord.toString().c_str());
     chord[0] = options.style->maxBass();
     chord[1] = options.style->maxTenor();
     chord[2] = options.style->maxAlto();
     chord[3] = options.style->maxSop();
-    Chord4 highChord(options, 3, chord, false);
+    Chord4 highChord(options, 3, false);
     SQINFO("highest possible = %s", highChord.toString().c_str());
 
     //     Chord4List(const Options& options, int root, bool show = false);
@@ -262,6 +262,7 @@ static int timeChordInit() {
 // only 257 with the pchord in place allocation
 // same with in place allocation and calling isChordOk on each
 // same with calling isChordOk for each.
+#if 0
 static int timeRawChords() {
     int ret = 0;
     const int root = 1;
@@ -277,7 +278,7 @@ static int timeRawChords() {
                 int chord[4];
                 gen.getCurrentChord(chord);
 
-                Chord4* pchord = new (&refChord) Chord4(options, root, chord, false);
+                Chord4* pchord = new (&refChord) Chord4(options, root, false);
                 const bool bOk = pchord->isChordOk(options); 
                 if (bOk) {
                     ret++;
@@ -290,6 +291,7 @@ static int timeRawChords() {
     //  RawChordGenerator gen(options2, 4);
     return ret;
 }
+#endif
 
 // 234 ms debug. 242  after rules about sop jumps!
 // 748 release old rules 848, so it got faster
@@ -327,7 +329,7 @@ void testAllChords(bool doLongRunning) {
     if (doLongRunning) {
         timingCheck(timeChordProgressionGen, std::string("progression gen"));
         timingCheck(timeChordInit, std::string("init chords"));
-        timingCheck(timeRawChords, std::string("raw chords chords"));
+        //timingCheck(timeRawChords, std::string("raw chords"));
         xtestAllChords();
     } else {
         SQINFO("skipping long running tests");

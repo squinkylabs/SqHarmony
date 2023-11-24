@@ -280,7 +280,7 @@ static void testFromString(bool minor) {
 
     // get the string for the test chord on the 6th
     const char* target = minor ? "D#2G#2C3G#3" : "E2A2C3A3";
-    Chord4Ptr chord = Chord4List::fromString(options, 6, target);
+    Chord4Ptr chord = Chord4::fromString(options, 6, target);
     assert(chord);
     assertEQ(chord->toStringShort(), target);
 }
@@ -289,7 +289,7 @@ static void testFromString(bool minor) {
 static void testFromString2(bool minor) {
     Options options = makeOptions(minor);
     const char* target = minor ? "D#2G2C3D#3" : "E2G2C3E3";
-    Chord4Ptr chord = Chord4List::fromString(options, 1, target);
+    Chord4Ptr chord = Chord4::fromString(options, 1, target);
     assert(chord);
     assertEQ(chord->toStringShort(), target);
 }

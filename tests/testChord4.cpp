@@ -27,23 +27,22 @@ static void testCanCreate() {
     delete chord;
 }
 
-#if _CHORD4_USE_NEW == true
+
 static void testCanCreate2() {
     const Options options = makeOptions(false);
-    int x[] = {60, 60 + 4, 60 + 7, 60 + 12};
-    Chord4* chord = new Chord4(options, 1, x, false);
+    Chord4* chord = new Chord4(options, 1, false);
     assertEQ(chord->fetchRoot(), 1);
     delete chord;
 }
 
 static void testRootSet() {
  const Options options = makeOptions(false);
-    int x[] = {60 -12 + 5, 60 + 5 + 4, 60 + 5 + 7, 60 + 5 + 12};
-    Chord4* chord = new Chord4(options, 4, x, false);
+  //  int x[] = {60 -12 + 5, 60 + 5 + 4, 60 + 5 + 7, 60 + 5 + 12};
+    Chord4* chord = new Chord4(options, 4, false);
     assertEQ(chord->fetchRoot(), 4);
     delete chord;
 }
-#endif
+
 
 
 
@@ -60,9 +59,6 @@ static void testCanCreateList() {
 void testChord4() {
     testCanCreate();
     testRootSet();
-#if _CHORD4_USE_NEW == true
     testCanCreate2();
-#endif
-
     testCanCreateList();
 }

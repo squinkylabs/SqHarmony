@@ -73,24 +73,10 @@ enum INVERSION { ROOT_POS_INVERSION,
 
 class PAStats;
 
-// Master define
-#define _CHORD4_USE_NEW true
-
 class Chord4 {
 public:
-#if _CHORD4_USE_NEW == true
-    /**
-     * @brief Construct a new Chord 4 object
-     *
-     * @param options describes the key and such.
-     * @param nDegree is the degree of the scale: 1..7
-     * @param chord - the Harmony note pitches of the literal chord.
-     */
-    Chord4(const Options& options, int nDegree, const int* chord, bool show);
-#else
-    Chord4(const Options& options, int nDegree, bool show = false);  // pass scale degree in constructor
-                                                                     // This construct will advance us to valid guy
-#endif
+    Chord4(const Options& options, int nDegree, bool show=false);  // pass scale degree in constructor
+                                                  // This construct will advance us to valid guy
 
     bool operator==(const Chord4& that) const {
         return _notes == that._notes;
@@ -109,11 +95,9 @@ public:
      *
      * @return Chord4Ptr
      */
-
-#if _CHORD4_USE_NEW == false
     static Chord4Ptr fromString(const Options& options, int degree, const char*);
+
     bool makeNext(const Options& op);  // returns false if made another one, true if could not
-#endif
     void print() const;
     int quality(const Options& options, bool fTalk) const;  // Tell how "good" this chord is.
                                                             // If fTalk is true, will tell why.
@@ -140,24 +124,20 @@ public:
     int rank = 0;  // lower rank is "better". Unique index into the chord lists.
 
     /**
-     * @brief
-     *
-     * @return ChordRelativeNote
+     * @brief 
+     * 
+     * @return ChordRelativeNote 
      * @param voiceNumber is BASS..SOP
      */
     ChordRelativeNote chordInterval(const Options&, int voiceNumber) const;
-
-    // made public for debugging.
-    bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
 private:
+    bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
 
-#if _CHORD4_USE_NEW == false
-    bool increment(const Options&);  // go to next chord (valid or not), return true if can't
+    bool inc(const Options&);  // go to next chord (valid or not), return true if can't
 
     void bumpToNextInChord(const Options& options, HarmonyNote& note);
-#endif
 
     int divergence(const Options& options) const;  // For judging quality, compute how far from center of range.
     void analyze();                                // Print our analysis.
@@ -165,14 +145,13 @@ private:
 
     std::string getString() const;  // printer helper function.  Gets string ascii representation of chord
 
-    ScaleRelativeNote _srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid.
-                                              // Used for analysis.
+    ScaleRelativeNote srnNotes[CHORD_SIZE];  // After MakeNext is called, these will be valid.
+                                             // Used for analysis.
 
-    int _root;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
-                      // is scale relative
+    int _root = 1;  // 1..8 1 = chord is tonic, 5 = dominant, etc..
+                    // is scale relative
     std::vector<HarmonyNote> _notes;
     bool valid = false;
-    bool _show = false;
 };
 
 inline int Chord4::fetchRoot() const {
@@ -185,5 +164,5 @@ inline const HarmonyNote* Chord4::fetchNotes() const {
 }
 
 inline const ScaleRelativeNote* Chord4::fetchSRNNotes() const {
-    return _srnNotes;
+    return srnNotes;
 }

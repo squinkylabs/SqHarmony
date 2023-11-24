@@ -121,7 +121,7 @@ static void test2to1a() {
     // We are having problems with this simple 2-1 progression
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
-    Chord4Ptr chordA = Chord4List::fromString(options, 2, "D2A2F3A3");
+    Chord4Ptr chordA = Chord4::fromString(options, 2, "D2A2F3A3");
     assert(chordA);
 
     auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 1);
@@ -133,7 +133,7 @@ static void test2to1b() {
     // We are having problems with this simple 2-1 progression
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
-    auto chordA = Chord4List::fromString(options, 2, "D2A2D3F3");
+    auto chordA = Chord4::fromString(options, 2, "D2A2D3F3");
     assert(chordA);
 
     auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 1);

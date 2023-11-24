@@ -22,14 +22,14 @@ static Options makeOptions() {
 
 static void testAtoB(bool show, const char* chordAs, int degA, const char* chordBs, int degB, bool callFinder) {
     Options options = makeOptions();
-    Chord4Ptr chord1 = Chord4List::fromString(options, degA, chordAs);
+    Chord4Ptr chord1 = Chord4::fromString(options, degA, chordAs);
     assert(chord1);
     printf("here is first chord: %s\n", chord1->toString().c_str());
     printf("first chord correct doubling = %d, acceptable = %d\n",
         chord1->isCorrectDoubling(options),
         chord1->isAcceptableDoubling(options));
 
-    Chord4Ptr chord2 = Chord4List::fromString(options, degB, chordBs);
+    Chord4Ptr chord2 = Chord4::fromString(options, degB, chordBs);
     assert(chord2);
     printf("here is second chord: %s\n", chord2->toString().c_str());
     printf("second chord correct doubling = %d, acceptable = %d\n",
