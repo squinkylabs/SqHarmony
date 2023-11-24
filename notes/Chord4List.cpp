@@ -29,13 +29,13 @@ Chord4List::Chord4List(const Options& options, int root, bool show) : _show(show
             int chord[4];
             rawGen.getCurrentChord(chord);
             assert(chord[3] > 0);
-        //    const auto newChord = std::make_shared<Chord4>(options, rt, chord, show);
-         //  a b 
+            //    const auto newChord = std::make_shared<Chord4>(options, rt, chord, show);
+            //  a b
             Chord4* pchord = new (&refChord) Chord4(options, root, chord, show);
             __numChord4--;  // this one doesn't count for ref-counting
-           // new (refChord) Chord4(options, rt, chord, show);
-           // const int r = newChord->fetchRoot();
-         //   const auto name = newChord->toStringShort();
+                            // new (refChord) Chord4(options, rt, chord, show);
+                            // const int r = newChord->fetchRoot();
+                            //   const auto name = newChord->toStringShort();
 
             if (!pchord->isValid() || !pchord->isChordOk(options)) {
                 pchord->isChordOk(options);
@@ -49,7 +49,20 @@ Chord4List::Chord4List(const Options& options, int root, bool show) : _show(show
             }
         }
     }
+
+    //---- For some reason, some test fail if I leave out the following post-processin.
     // SQINFO("good/bad = %f total=%d", double(good) / double(bad), good + bad);
+    assert(!chords.empty());  // in theory ok, but don't know if we handle it.
+    if (_show) SQINFO("now will sort %d", int(chords.size()));
+    std::sort(chords.begin(), chords.end(), [options](Chord4Ptr c1, Chord4Ptr c2) {
+        return compareChords(options, c1, c2);
+    });
+
+    // Now that we are sorted, add the ranks.
+    int rank = 0;
+    for (auto it : chords) {
+        it->rank = rank++;
+    }
 }
 #else
 Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) {
@@ -87,7 +100,6 @@ Chord4List::Chord4List(const Options& options, int rt, bool show) : _show(show) 
 }
 #endif
 
-
 Chord4Ptr Chord4List::fromString(const Options& options, int degree, const char* string) {
     //  Chord4List(const Options& options, int root, bool show = false);
     Chord4List chords(options, degree);
@@ -96,9 +108,9 @@ Chord4Ptr Chord4List::fromString(const Options& options, int degree, const char*
         const Chord4* chord = chords.get2(i);
         if (str == chord->toStringShort()) {
             Chord4Ptr ret = std::make_shared<Chord4>();
-          //  Chord4* pdest = ret.get();
-           
-          //  (*pdest) = (*chord);
+            //  Chord4* pdest = ret.get();
+
+            //  (*pdest) = (*chord);
             *ret = *chord;
             return ret;
         }
@@ -106,4 +118,3 @@ Chord4Ptr Chord4List::fromString(const Options& options, int degree, const char*
     assert(false);
     return nullptr;
 }
- 

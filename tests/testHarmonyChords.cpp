@@ -62,7 +62,7 @@ static void testAtoB(int a, int b, bool minor, int bestExpected = 0) {
     assert(next);
     const int penalty = next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, false, nullptr);
     if (penalty != bestExpected) {
-         next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, true, nullptr);
+        next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, true, nullptr);
     }
     assertEQ(penalty, bestExpected);
 }
@@ -87,9 +87,9 @@ static void test1to2to1() {
 }
 
 static void testBasic2() {
-    //testAtoB(1, 3, false, 0);
-    //testAtoB(1, 3, true, 0);
-    SQINFO("put back 1 to 3");
+    // This test fails without the post-processing - it wants perfect score, but only finds 50.
+    testAtoB(1, 3, false, 0);
+    testAtoB(1, 3, true, 0);
 }
 
 static void test3to5() {
@@ -98,9 +98,8 @@ static void test3to5() {
 }
 
 static void test5to4() {
-   // testAtoB(5, 4, false);
-   // testAtoB(5, 4, true, 100);
-    SQINFO("put back 5 to 4");
+    testAtoB(5, 4, false);
+    testAtoB(5, 4, true, 100);
 }
 
 static void test5to6() {
@@ -117,8 +116,6 @@ static void test2to1() {
     testAtoB(2, 1, false);
     testAtoB(2, 1, true);
 }
-
-
 
 static void test2to1a() {
     // We are having problems with this simple 2-1 progression
@@ -221,16 +218,15 @@ void testHarmonyChords() {
     //   testFeb21Case();
 
     test2to1();
-    printf("put back 2 1 test\n");
-    // test2to1a();
+
+    printf("put back 2 1 test\n");  // this test fails. if should be perfect, but doesn't.
+    //test2to1a();
     test2to1b();
 
     test1to2to1();
 
-   
-
-    printf("put back 3 seq\n");
-    // testThreeSequence();
+    //printf("put back 3 seq\n");
+    testThreeSequence();
     // testXtoY();
     // testXtoYtoX();
 
