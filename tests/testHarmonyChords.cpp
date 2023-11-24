@@ -105,7 +105,7 @@ static void test3to5() {
 
 static void test5to4() {
     testAtoB(5, 4, false);
-    testAtoB(5, 4, true, 100);
+    testAtoB(5, 4, true);
 }
 
 static void test5to6() {
@@ -217,8 +217,8 @@ void testHarmonyChords() {
     testBasic2();
     test3to5();
 
-    // this is failing with 2023 ranges
-    SQINFO("!! put back 5 to 4 test");
+    // this was failing with 2023 ranges
+    //SQINFO("!! put back 5 to 4 test");
     test5to4();
    
     test5to6();

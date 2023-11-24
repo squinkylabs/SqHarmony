@@ -2,6 +2,11 @@
 
 ## 2.2.2
 
+Harmony stuff other than score drawing:
+
+* Re-specify the ranges. Now "narrow" is very similar to old "don't care", and "don't care" is now even wider.
+* Enhanced rules for no-notes in common.
+
 Harmony score drawing:
 
 * Use standard figured bass chord notation.

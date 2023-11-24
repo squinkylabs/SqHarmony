@@ -31,7 +31,7 @@ ProgressionAnalyzer::ProgressionAnalyzer(
       _show(fs || showAlways),
       _stats(stats) {
     figureMotion();  // init the motion guys
-    _notesInCommon = InCommon();
+    _notesInCommon = _CalcInCommon();
 
 #ifdef _DEBUG
     if (_show) {
@@ -589,8 +589,15 @@ int ProgressionAnalyzer::ruleForNoneInCommonNorm(const Options& options) const {
 }
 
 int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
+
     assert(first->isAcceptableDoubling(options));
     assert(next->isAcceptableDoubling(options));
+
+    // Actually, all flavors of "no notes in common" carry their own doubling,
+    // so there is never a reason to evaluate doubling in this case.
+    if (options.style->getNoNotesInCommon() && (_notesInCommon == 0)) {
+        return 0;
+    }
 
     if ((first->fetchRoot() == 5) &&
         (next->fetchRoot() == 6) &&
@@ -625,7 +632,7 @@ int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
 }
 
 int ProgressionAnalyzer::ruleForDistanceMoved(const Options& options) const {
-    if (InCommon() == 0) {
+    if (_notesInCommon == 0) {
         return 0;       // no notes in common rules may require more movement.
     }
     // if (first->fetchRoot() == 5 && next->fetchRoot() == 6 && options.style->usePistonV_VI_exception()) {
@@ -697,7 +704,7 @@ void ProgressionAnalyzer::figureMotion() {
  * find how many voices are in common (by degree, not abs pitch)
  */
 
-int ProgressionAnalyzer::InCommon() const {
+int ProgressionAnalyzer::_CalcInCommon() const {
     bool test[10];  // 8 degrees + 0 + 1 spare
     int matches;
     int i, nPitch;
