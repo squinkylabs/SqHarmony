@@ -133,7 +133,7 @@ void testKeysig() {
     testCinC();
     testAllInC();
     testStyle1();
-   // testStyle2();
+    testStyle2();
     validateRanges();
     testGetSet();
 }

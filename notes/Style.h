@@ -84,15 +84,6 @@ private:
     bool isNarrowRange() const {
         return (rangesPreference == Ranges::NARROW_RANGE);
     }
-
-    // at 5 it's getting noticeably worse, but not awful
-    // at 8 I get assertions. should look into that (ranges don't overlap at all)
-    // old way 7 crapped out, 6 ok
-    // new way 12 crap, 10 asserts 9 ok : 9 best for new way
-
-    // 2023: let's get more constrained, and get rid of special test mode/
-    int dx = 8;
-    // bool specialTestMode = false;
 };
 
 using StylePtr = std::shared_ptr<Style>;
@@ -123,8 +114,6 @@ inline int Style::absMinPitch() const {
 }
 
 inline bool Style::allow2ndInversion() const {
-    // module version couldn't handle this being false - it would need backtracking.
-    // but when true 1 - test fails?
     return true;
 }
 

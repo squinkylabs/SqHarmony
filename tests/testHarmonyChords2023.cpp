@@ -171,17 +171,6 @@ static void analyzeReportedParallel() {
         nullptr  // no pstat right now.
     );
 
-    /*
-    const Chord4* HarmonyChords::findChord(
-        bool show,
-        const Options& options,
-        const Chord4Manager& manager,
-        const Chord4& prev,
-        int root,
-        PAStats* stats) {
-        return find(show, options, manager, nullptr, &prev, root, nullptr, stats);
-    }*/
-
     SQINFO("\n\n---------------------- bgf: end analyzeReportedParallel");
 }
 

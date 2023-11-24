@@ -59,7 +59,7 @@ static void testAllChords(
         false,
         nullptr);
     if (penalty > worstPenalty) {
-       // SQINFO("new worst penalty: %d", penalty);
+        // SQINFO("new worst penalty: %d", penalty);
         worstPenalty = penalty;
     }
 
@@ -145,37 +145,46 @@ static void xtestAllChords() {
     testAllChords(Style::Ranges::NARROW_RANGE);
 }
 
+static std::string pitchToString(int pitch, const Options& options) {
+    HarmonyNote hn(options);
+    hn.setPitchDirectly(pitch);
+    return hn.tellPitchName();
+}
+
 static void showNarrow3() {
-    SQINFO("------ here are all the alowed emin in narrow c maj -----");
+    SQINFO("------ here are all the allowed range is c maj -----");
     const Options options = makeOptions(false);
-    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    for (int i = 0; i < 2; ++i) {
+        const auto range = (i == 0) ? Style::Ranges::NARROW_RANGE : Style::Ranges::NORMAL_RANGE;
+        SQINFO("--- range = %d ---", range);
+        options.style->setRangesPreference(range);
 
-    SQINFO("bass range %d to %d", options.style->minBass(), options.style->maxBass());
-    SQINFO("tenor range %d to %d", options.style->minTenor(), options.style->maxTenor());
-    SQINFO("also range %d to %d", options.style->minAlto(), options.style->maxAlto());
-    SQINFO("sop range %d to %d", options.style->minSop(), options.style->maxSop());
+        //  SQINFO("bass range %d to %d (%s to %s)", options.style->minBass(), options.style->maxBass()
+        //  pitchToString()
+        // );
 
-    //  Chord4(const Options& options, int nDegree, const int* chord, bool show);
-    int chord[4];
-    chord[0] = options.style->minBass();
-    chord[1] = options.style->minTenor();
-    chord[2] = options.style->minAlto();
-    chord[3] = options.style->minSop();
-    Chord4 lowChord(options, 3, false);
-    SQINFO("lowest possible = %s", lowChord.toString().c_str());
-    chord[0] = options.style->maxBass();
-    chord[1] = options.style->maxTenor();
-    chord[2] = options.style->maxAlto();
-    chord[3] = options.style->maxSop();
-    Chord4 highChord(options, 3, false);
-    SQINFO("highest possible = %s", highChord.toString().c_str());
+        SQINFO("bass range %d to %d (%s to %s)",
+               options.style->minBass(),
+               options.style->maxBass(),
+               pitchToString(options.style->minBass(), options).c_str(),
+               pitchToString(options.style->maxBass(), options).c_str());
+        SQINFO("tenor range %d to %d (%s to %s)",
+               options.style->minTenor(),
+               options.style->maxTenor(),
+               pitchToString(options.style->minTenor(), options).c_str(),
+               pitchToString(options.style->maxTenor(), options).c_str());
 
-    //     Chord4List(const Options& options, int root, bool show = false);
-    Chord4List list(options, 3, false);
-    for (int i = 0; i < list.size(); ++i) {
-        const auto chord = list.get2(i);
-        assert(chord);
-        SQINFO("chord: %s", chord->toString().c_str());
+        SQINFO("alto range %d to %d (%s to %s)",
+               options.style->minAlto(),
+               options.style->maxAlto(),
+               pitchToString(options.style->minAlto(), options).c_str(),
+               pitchToString(options.style->maxAlto(), options).c_str());
+
+        SQINFO("sops range %d to %d (%s to %s)",
+               options.style->minSop(),
+               options.style->maxSop(),
+               pitchToString(options.style->minSop(), options).c_str(),
+               pitchToString(options.style->maxSop(), options).c_str());
     }
 }
 
@@ -228,12 +237,28 @@ static void testNumberOfChords(bool narrow) {
      * mgr size[5] =97 / 70
      * mgr size[6] =99 / 99
      * mgr size[7] =91 / 65 / 47
+     *
+     * for narrow:
+     * generated[1] 3
+     * generated[2] 7
+     * generated[3] 2
+     * generated[4] 7
+     * generated[5] 2
+     * generated[6] 7
+     * generated[7] 4
      */
 }
 
 #undef APIENTRY
 #include "windows.h"
 
+// 234 ms debug. 242  after rules about sop jumps!
+// 748 release old rules 848, so it got faster
+// release 692 after rules about sop jumps and proper V-VI
+// 231 release after change rule order!
+// now back up to 673
+// last on main: init chords was 351, prog was 743
+// with 2023 ranges prog goes to 1612
 static int timeChordProgressionGen() {
     testAllChords(
         Style::Ranges::NORMAL_RANGE,
@@ -247,7 +272,7 @@ static int timeChordProgressionGen() {
 // 369 release 11/12/2023
 // 175 after rule order changed (why would this matter)
 // now back up to 387
-// with new gen 2042!
+// with 2023 ranges (wide) goes up to 569
 static int timeChordInit() {
     for (int i = 0; i < 8; ++i) {
         const Options options = makeOptions(1, Scale::Scales::Dorian);  // just some arbitrary scale
@@ -259,49 +284,6 @@ static int timeChordInit() {
     return 3;
 }
 
-// only 257 with the pchord in place allocation
-// same with in place allocation and calling isChordOk on each
-// same with calling isChordOk for each.
-#if 0
-static int timeRawChords() {
-    int ret = 0;
-    const int root = 1;
-    Chord4 refChord;
-    for (int i = 0; i < 9; ++i) {;
-        const Options options = makeOptions(root, Scale::Scales::Dorian);  // just some arbitrary scale
-        RawChordGenerator gen(options, root);
-        for (bool done = false; !done;) {
-            const bool b = gen.getNextChord();
-            if (!b) {
-                done = true;
-            } else {
-                int chord[4];
-                gen.getCurrentChord(chord);
-
-                Chord4* pchord = new (&refChord) Chord4(options, root, false);
-                const bool bOk = pchord->isChordOk(options); 
-                if (bOk) {
-                    ret++;
-                    Chord4Ptr newChord = std::make_shared<Chord4>(options, root, chord, false);
-                }
-            }
-        }
-    }
-    // const Options options2 = makeOptions(4, Scale::Scales::Dorian);  // just some arbitrary scale
-    //  RawChordGenerator gen(options2, 4);
-    return ret;
-}
-#endif
-
-// 234 ms debug. 242  after rules about sop jumps!
-// 748 release old rules 848, so it got faster
-// release 692 after rules about sop jumps and proper V-VI
-// 231 release after change rule order!
-// now back up to 673
-
-// last on main: init chords was 351, prog was 743
-// on branch after new chords stuff it's 2069, 2042. yikes!
-//
 static int timingCheck(std::function<int(void)> thingToTime, const std::string& msg) {
 #ifdef _DEBUG
     const int iterations = 1;
@@ -323,13 +305,13 @@ static int timingCheck(std::function<int(void)> thingToTime, const std::string& 
 }
 
 void testAllChords(bool doLongRunning) {
-    // showNarrow3();
+    showNarrow3();
     testNumberOfChords(false);
     testNumberOfChords(true);
     if (doLongRunning) {
         timingCheck(timeChordProgressionGen, std::string("progression gen"));
         timingCheck(timeChordInit, std::string("init chords"));
-        //timingCheck(timeRawChords, std::string("raw chords"));
+        // timingCheck(timeRawChords, std::string("raw chords"));
         xtestAllChords();
     } else {
         SQINFO("skipping long running tests");
