@@ -29,18 +29,11 @@ Chord4List::Chord4List(const Options& options, int root, bool show) : _show(show
             int chord[4];
             rawGen.getCurrentChord(chord);
             assert(chord[3] > 0);
-            //    const auto newChord = std::make_shared<Chord4>(options, rt, chord, show);
-            //  a b
             Chord4* pchord = new (&refChord) Chord4(options, root, chord, show);
             __numChord4--;  // this one doesn't count for ref-counting
                             // new (refChord) Chord4(options, rt, chord, show);
-                            // const int r = newChord->fetchRoot();
-                            //   const auto name = newChord->toStringShort();
-
             if (!pchord->isValid() || !pchord->isChordOk(options)) {
-                pchord->isChordOk(options);
-                //    assert(newChord->isValid());
-                //     SQINFO("not pushing bad chord");
+                // pchord->isChordOk(options);
                 bad++;
             } else {
                 Chord4Ptr newChord = std::make_shared<Chord4>(options, root, chord, show);

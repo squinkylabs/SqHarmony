@@ -3,6 +3,7 @@
 #include "HarmonyChords.h"
 #include "KeysigOld.h"
 #include "ProgressionAnalyzer.h"
+#include "RawChordGenerator.h"
 #include "Scale.h"
 #include "asserts.h"
 
@@ -99,6 +100,7 @@ static void testAllChords(
         testAllChords(range, inversionPref, mode, root, i, stats);
     }
 }
+
 static void testAllChords(Style::Ranges range, Style::InversionPreference inversionPref, Scale::Scales mode) {
     SQINFO("test all 274 range=%d, invPref=%d, mode=%d", range, inversionPref, mode);
     std::shared_ptr<PAStats> stats;
@@ -146,14 +148,14 @@ static void xtestAllChords() {
 static void showNarrow3() {
     SQINFO("------ here are all the alowed emin in narrow c maj -----");
     const Options options = makeOptions(false);
-    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE); 
+    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
 
     SQINFO("bass range %d to %d", options.style->minBass(), options.style->maxBass());
     SQINFO("tenor range %d to %d", options.style->minTenor(), options.style->maxTenor());
     SQINFO("also range %d to %d", options.style->minAlto(), options.style->maxAlto());
     SQINFO("sop range %d to %d", options.style->minSop(), options.style->maxSop());
 
-//  Chord4(const Options& options, int nDegree, const int* chord, bool show);
+    //  Chord4(const Options& options, int nDegree, const int* chord, bool show);
     int chord[4];
     chord[0] = options.style->minBass();
     chord[1] = options.style->minTenor();
@@ -170,7 +172,7 @@ static void showNarrow3() {
 
     //     Chord4List(const Options& options, int root, bool show = false);
     Chord4List list(options, 3, false);
-    for (int i=0; i < list.size(); ++i) {
+    for (int i = 0; i < list.size(); ++i) {
         const auto chord = list.get2(i);
         assert(chord);
         SQINFO("chord: %s", chord->toString().c_str());
@@ -214,7 +216,7 @@ static void testNumberOfChords(bool narrow) {
                 assert(false);
         }
         SQINFO("removed assert. generated[%d] %d expected %d", i, x, expected);
-        //assertEQ(x, expected);
+        // assertEQ(x, expected);
     }
 
     /* data from first release / eliminate leading tone doubling
@@ -232,19 +234,21 @@ static void testNumberOfChords(bool narrow) {
 #undef APIENTRY
 #include "windows.h"
 
-static void timeChordProgressionGen() {
+static int timeChordProgressionGen() {
     testAllChords(
         Style::Ranges::NORMAL_RANGE,
         Style::InversionPreference::DONT_CARE,
         Scale::Scales::Major,
         1,
         nullptr);
+    return 0;
 }
 
 // 369 release 11/12/2023
 // 175 after rule order changed (why would this matter)
 // now back up to 387
-static void timeChordInit() {
+// with new gen 2042!
+static int timeChordInit() {
     for (int i = 0; i < 8; ++i) {
         const Options options = makeOptions(1, Scale::Scales::Dorian);  // just some arbitrary scale
         Chord4Manager mgr(options);
@@ -252,6 +256,39 @@ static void timeChordInit() {
 
     const Options options2 = makeOptions(4, Scale::Scales::Dorian);  // just some arbitrary scale
     Chord4Manager mgr2(options2);
+    return 3;
+}
+
+// only 257 with the pchord in place allocation
+// same with in place allocation and calling isChordOk on each
+// same with calling isChordOk for each.
+static int timeRawChords() {
+    int ret = 0;
+    const int root = 1;
+    Chord4 refChord;
+    for (int i = 0; i < 9; ++i) {;
+        const Options options = makeOptions(root, Scale::Scales::Dorian);  // just some arbitrary scale
+        RawChordGenerator gen(options, root);
+        for (bool done = false; !done;) {
+            const bool b = gen.getNextChord();
+            if (!b) {
+                done = true;
+            } else {
+                int chord[4];
+                gen.getCurrentChord(chord);
+
+                Chord4* pchord = new (&refChord) Chord4(options, root, chord, false);
+                const bool bOk = pchord->isChordOk(options); 
+                if (bOk) {
+                    ret++;
+                    Chord4Ptr newChord = std::make_shared<Chord4>(options, root, chord, false);
+                }
+            }
+        }
+    }
+    // const Options options2 = makeOptions(4, Scale::Scales::Dorian);  // just some arbitrary scale
+    //  RawChordGenerator gen(options2, 4);
+    return ret;
 }
 
 // 234 ms debug. 242  after rules about sop jumps!
@@ -259,31 +296,38 @@ static void timeChordInit() {
 // release 692 after rules about sop jumps and proper V-VI
 // 231 release after change rule order!
 // now back up to 673
+
+// last on main: init chords was 351, prog was 743
+// on branch after new chords stuff it's 2069, 2042. yikes!
 //
-static void timingCheck(std::function<void(void)> thingToTime, const std::string& msg) {
+static int timingCheck(std::function<int(void)> thingToTime, const std::string& msg) {
 #ifdef _DEBUG
     const int iterations = 1;
 #else
     const int iterations = 30;
 #endif
+    int ret = 0;
+    // prime
     for (int i = 0; i < 5; ++i) {
-        thingToTime();
+        ret += thingToTime();
     }
     int x = timeGetTime();
     for (int i = 0; i < iterations; ++i) {
-        thingToTime();
+        ret += thingToTime();
     }
     int y = timeGetTime();
-    SQINFO("****** timing check %s, elapsed = %d", msg.c_str(), y - x);
+    SQINFO("****** timing check %s, elapsed = %d v=%d", msg.c_str(), y - x, ret);
+    return ret;
 }
 
 void testAllChords(bool doLongRunning) {
-    //showNarrow3();
+    // showNarrow3();
     testNumberOfChords(false);
     testNumberOfChords(true);
     if (doLongRunning) {
         timingCheck(timeChordProgressionGen, std::string("progression gen"));
         timingCheck(timeChordInit, std::string("init chords"));
+        timingCheck(timeRawChords, std::string("raw chords chords"));
         xtestAllChords();
     } else {
         SQINFO("skipping long running tests");
