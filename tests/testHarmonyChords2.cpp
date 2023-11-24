@@ -166,7 +166,7 @@ void testHarmonyChords2() {
     testCMin();
     testDMixo();
     testBPhryg();
-    //  testHistory1();
-    SQINFO("put back test history");
+    testHistory1();
+    // SQINFO("put back test history");
     assertEQ(__numChord4, 0);
 }
