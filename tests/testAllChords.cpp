@@ -143,7 +143,42 @@ static void xtestAllChords() {
     testAllChords(Style::Ranges::NARROW_RANGE);
 }
 
+static void showNarrow3() {
+    SQINFO("------ here are all the alowed emin in narrow c maj -----");
+    const Options options = makeOptions(false);
+    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE); 
+
+    SQINFO("bass range %d to %d", options.style->minBass(), options.style->maxBass());
+    SQINFO("tenor range %d to %d", options.style->minTenor(), options.style->maxTenor());
+    SQINFO("also range %d to %d", options.style->minAlto(), options.style->maxAlto());
+    SQINFO("sop range %d to %d", options.style->minSop(), options.style->maxSop());
+
+//  Chord4(const Options& options, int nDegree, const int* chord, bool show);
+    int chord[4];
+    chord[0] = options.style->minBass();
+    chord[1] = options.style->minTenor();
+    chord[2] = options.style->minAlto();
+    chord[3] = options.style->minSop();
+    Chord4 lowChord(options, 3, chord, false);
+    SQINFO("lowest possible = %s", lowChord.toString().c_str());
+    chord[0] = options.style->maxBass();
+    chord[1] = options.style->maxTenor();
+    chord[2] = options.style->maxAlto();
+    chord[3] = options.style->maxSop();
+    Chord4 highChord(options, 3, chord, false);
+    SQINFO("highest possible = %s", highChord.toString().c_str());
+
+    //     Chord4List(const Options& options, int root, bool show = false);
+    Chord4List list(options, 3, false);
+    for (int i=0; i < list.size(); ++i) {
+        const auto chord = list.get2(i);
+        assert(chord);
+        SQINFO("chord: %s", chord->toString().c_str());
+    }
+}
+
 static void testNumberOfChords(bool narrow) {
+    SQINFO("--- will generate all possible chords. narrow = %d", narrow);
     const Options options = makeOptions(false);
     if (narrow) {
         options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
@@ -243,6 +278,7 @@ static void timingCheck(std::function<void(void)> thingToTime, const std::string
 }
 
 void testAllChords(bool doLongRunning) {
+    //showNarrow3();
     testNumberOfChords(false);
     testNumberOfChords(true);
     if (doLongRunning) {

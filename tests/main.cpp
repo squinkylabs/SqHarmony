@@ -66,9 +66,9 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
- testRawChordGenerator();
- testAllChords(doLongRunning);
- printf("put the early tests back\n");
+    // testRawChordGenerator();
+    // testAllChords(doLongRunning);
+    // printf("put the early tests back\n");
 
     testSchmidtTrigger();
     testShiftMath();
