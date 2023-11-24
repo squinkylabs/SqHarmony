@@ -126,13 +126,13 @@ static void testListLeadingToneSub(Chord4List chords) {
     }
 }
 
-// static void testCanConstructAllChord4() {
-//     Options o = makeOptions(false);
-//     for (int nDegree=1; nDegree < 8; ++nDegree) {
-//         Chord4 chord(o, nDegree);
-//         assertEQ(chord.isValid(), true);
-//     }
-// }
+static void testCanConstructAllChord4() {
+    Options o = makeOptions(false);
+    for (int nDegree=1; nDegree < 8; ++nDegree) {
+        Chord4 chord(o, nDegree);
+        assertEQ(chord.isValid(), true);
+    }
+}
 
 static void testCanConstructAllChord4List() {
     Options o = makeOptions(false);
@@ -230,11 +230,7 @@ void specialDumpList(bool minor) {
     printf("sap min=%d sop max=%d\n", o.style->minSop(), o.style->maxSop());
     assert(false);
 }
-#if _CHORD4_USE_NEW == true
-static void testInversions(bool minor) {
-    assert(false);
-}
-#else
+
 static void testInversions(bool minor) {
     // generate a bunch of c major chords
     Options options = makeOptions(minor);
@@ -268,7 +264,7 @@ static void testInversions(bool minor) {
         done = (seenFirst && seenSecond && seenRoot);
     }
 }
-#endif
+
 
 static void testInversions() {
     testInversions(false);
@@ -364,7 +360,8 @@ void testChord() {
     testList();
     testList2();
     testListLeadingTone();
-    //testCanConstructAllChord4();
+
+    testCanConstructAllChord4();
     testCanConstructAllChord4List();
 
 
