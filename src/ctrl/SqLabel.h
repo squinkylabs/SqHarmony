@@ -18,12 +18,6 @@ public:
     std::string fontPath = asset::plugin(pluginInstance, "res/fonts/Roboto-Regular.ttf");
 
     void draw(const DrawArgs& args) override;
-    SqLabel() {
-        // don't need this sizing
-        // box.size.y = BND_WIDGET_HEIGHT;
-        // was 40
-        //  box.size.x = 10;  // hax
-    }
 
     // updates the text and forces draw
     void updateText(const std::string& s);
@@ -43,7 +37,6 @@ inline void SqLabel::updateText(const std::string& s) {
 }
 
 inline void SqLabel::draw(const DrawArgs& args) {
-    // INFO("SqLabel::draw size=%f, %f text=%s", box.size.x, box.size.y, text.c_str());
     std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
     if (!font) {
         SQWARN("no font");

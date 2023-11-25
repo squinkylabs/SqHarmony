@@ -3,6 +3,7 @@
 #include "ParamSelectorMenu.h"
 #include "PopupMenuParamWidget.h"
 #include "Score.h"
+#include "SqLabel.h"
 #include "SqMenuItem.h"
 #include "SqStream.h"
 #include "WidgetComposite.h"
@@ -16,7 +17,7 @@ struct Harmony1Widget : ModuleWidget {
     const float vdelta = 30;
     const float vy = 320;
     Score* _score = nullptr;
-    Label* voiceLabels[4] = {};
+    SqLabel* voiceLabels[4] = {};
     int voicesLastTime[4] = {};
     Harmony1Module* const hmodule;
     PopupMenuParamWidget* _keyRootWidget = nullptr;
@@ -57,7 +58,7 @@ struct Harmony1Widget : ModuleWidget {
         addOutputL(Vec(79, y), Comp::ALTO_OUTPUT, "A");
         addOutputL(Vec(109, y), Comp::SOPRANO_OUTPUT, "S");
 
-        const float labelY = 337;
+        const float labelY = 335;
         voiceLabels[0] = addLabel(Vec(19, labelY), "");
         voiceLabels[1] = addLabel(Vec(49, labelY), "");
         voiceLabels[2] = addLabel(Vec(79, labelY), "");
@@ -198,9 +199,9 @@ struct Harmony1Widget : ModuleWidget {
 #endif
     }
 
-    Label* addLabel(const Vec& v, const std::string& str) {
+    SqLabel* addLabel(const Vec& v, const std::string& str) {
         NVGcolor white = nvgRGB(0xe0, 0xe0, 0xe0);
-        Label* label = new Label();
+        SqLabel* label = new SqLabel();
         label->box.pos = v;
         label->text = str;
         label->color = white;
