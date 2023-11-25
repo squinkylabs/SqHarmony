@@ -38,6 +38,7 @@ ProgressionAnalyzer::ProgressionAnalyzer(
         SQINFO("*** Const of analyzer, chords are:");
         first->dump();
         next->dump();
+        SQINFO("_notesInCommon = %d", _notesInCommon);
     }
 #endif
 }
@@ -187,6 +188,9 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
 
     // ---- Rule4Same
     p = rule4Same();
+    if (p && _show) {
+        str << "back from rule for same with " << p <<  std::endl;
+    }
     totalPenalty += p;
     if (p && _show) {
         str << "penalty: Rule4Same " << p << " tot=" << totalPenalty << std::endl;
@@ -214,7 +218,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (totalPenalty >= upperBound) {
         if (_show) {
             str << "-- leaving getPenalty after doubling with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            //SQINFO("%s", str.str().c_str());
         }
         return totalPenalty;
     }
@@ -231,7 +235,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (totalPenalty >= upperBound) {
         if (_show) {
             str << "-- leaving getPenalty after spreading with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            //SQINFO("%s", str.str().c_str());
         }
         return totalPenalty;
     }
@@ -248,15 +252,15 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     if (totalPenalty >= upperBound) {
         if (_show) {
             str << "-- leaving getPenalty after distance moved with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            //SQINFO("%s", str.str().c_str());
         }
         return totalPenalty;
     }
 
     //---------------------
     if (_show) {
-        str << "-- leaving getPenalty with " << totalPenalty << std::endl;
-        SQINFO("%s", str.str().c_str());
+        str << "-- leaving getPenalty 262 (bottom) with total " << totalPenalty << std::endl;
+        //SQINFO("%s", str.str().c_str());
     }
 
     return totalPenalty;
@@ -267,7 +271,7 @@ int ProgressionAnalyzer::ruleForJumpSize() const {
     for (int i = BASS; i <= SOP; i++) {
         const int jump = first->fetchNotes()[i] - next->fetchNotes()[i];
         if (abs(jump) > 8) {
-            if (_show) SQINFO("BIG jump in voice %d", i);
+           // if (_show) SQINFO("BIG jump in voice %d", i);
             return AVG_PENALTY_PER_RULE;
         }
     }
@@ -280,9 +284,11 @@ int ProgressionAnalyzer::ruleForSopranoJump(const Options& options) const {
     }
     const int jump = first->fetchNotes()[SOP] - next->fetchNotes()[SOP];
     if (abs(jump) > 4) {  // was 4, try 3
-        if (_show) SQINFO("moderately big jump in SOP voice");
+        // if (_show) SQINFO("moderately big jump in SOP voice");
         return AVG_PENALTY_PER_RULE;
     }
+
+    
     return 0;
 }
 
@@ -313,6 +319,7 @@ int ProgressionAnalyzer::ruleForInversions(const Options& options) const {
     if (twoInversionInARow) {
         penalty += AVG_PENALTY_PER_RULE;
     }
+   
     return penalty;
 }
 

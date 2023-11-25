@@ -132,7 +132,14 @@ static void test2to1a() {
 
     auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 1);
     assert(next);
-    assertEQ(next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false, nullptr), 0);
+    const int penalty = next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false, nullptr); 
+    if (penalty != 0) {
+        SQINFO("..... here is finding the first chord .....");
+        next = HarmonyChords::findChord(true, options, mgr, *chordA, 1);
+        SQINFO("..... here is the penalty of this one. .....");
+        next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), true, nullptr);
+    }
+    assertEQ(penalty, 0);
 }
 
 static void test2to1b() {
@@ -227,10 +234,11 @@ void testHarmonyChords() {
     // broke
     //   testFeb21Case();
 
-    // test2to1();
+    test2to1();
 
     printf("!! put back 2 1 tests !!\n");  // this test fails. if should be perfect, but doesn't.
-    //test2to1a();
+
+    test2to1a();
     //test2to1b();
 
     test1to2to1();

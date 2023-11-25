@@ -284,8 +284,8 @@ bool Chord4::isChordOk(const Options& options) const {
         const char bassOct = s[1];
         const char bassPitch = s[0];
 
-       // const char tenorOct = s[3];
-      //  const char tenorPitch = s[2];
+        // const char tenorOct = s[3];
+        //  const char tenorPitch = s[2];
 
         // E1 is the first chord I see
         // I see c2
@@ -464,6 +464,42 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
 }
 
 bool Chord4::isCorrectDoubling(const Options& options) const {
+#if 1
+    return isCorrectDoublingTonal(options);
+#else
+    retun isCorrectDoublingBass(options);
+#endif
+}
+
+bool Chord4::isCorrectDoublingTonal(const Options& options) const {
+    assert(isAcceptableDoubling(options));
+    int degrees[8] = { 0 };
+  //  int doubledDegree =
+    const ScaleRelativeNote* doubledSRN = nullptr;
+    for (int nVoice = 0; nVoice < CHORD_SIZE; nVoice++) {  // loop over all notes in chord
+        const ScaleRelativeNote& srn =  this->srnNotes[nVoice];
+        const int degree = srn.getScaleDegree(); 
+        degrees[degree]++;
+        if (degrees[degree] > 1) {
+            doubledSRN = &srn;
+        }
+    }
+
+#ifdef _DEBUG
+    //assert(degrees[1] + degrees[3] + degrees[5] == 4);
+    int total = 0;
+    for (int i = 0; i < 8; ++i) {
+        total += degrees[i];
+    }
+    assert(total == 4);
+    assert(doubledSRN);
+#endif
+
+  //  ScaleRelativeNote doubledSRN = foo;
+    return doubledSRN->isTonal();
+}
+
+bool Chord4::isCorrectDoublingBass(const Options& options) const {
     assert(isAcceptableDoubling(options));
 
     bool ret;
