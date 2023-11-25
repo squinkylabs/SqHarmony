@@ -76,6 +76,30 @@ static void testRootCInversion3() {
     auto chord = Chord4::fromString(options, 1, "E2C3C4G4");
     assertEQ(chord->isCorrectDoubling(options), true);
 }
+
+static void testRootCInversion4() {
+    // fourth: root position double root, good
+    const Options options = makeOptions(false);
+    auto chord = Chord4::fromString(options, 4, "F2A3F4C5");
+    assertEQ(chord->isCorrectDoubling(options), true);
+}
+
+static void testRootCInversion5() {
+    // fourth: root position double third, ng
+    const Options options = makeOptions(false);
+    auto chord = Chord4::fromString(options, 4, "F2A3C4A4");
+    assert(chord);
+    assertEQ(chord->isCorrectDoubling(options), false);
+}
+
+static void testRootCInversion6() {
+    // fourth: root position double fifth, ok
+    const Options options = makeOptions(false);
+    auto chord = Chord4::fromString(options, 4, "F2C3C4A4");
+    assert(chord);
+    assertEQ(chord->isCorrectDoubling(options), true);
+}
+
 void testChord4() {
     testCanCreate();
     testRootSet();
@@ -84,4 +108,8 @@ void testChord4() {
     testRootCInversion();
     testRootCInversion2();
     testRootCInversion3();
+    testRootCInversion4();
+    testRootCInversion5();
+    testRootCInversion6();
+    assert(false);
 }
