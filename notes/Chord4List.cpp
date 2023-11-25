@@ -13,7 +13,7 @@ static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
     return q1 > q2;
 }
 
-Chord4List::Chord4List(const Options& options, int rt) {
+Chord4List::Chord4List(const Options& options, int rt, bool show) {
     Chord4 referenceChord(options, rt);
     for (bool done = false; !done;) {
         Chord4Ptr newChord = std::make_shared<Chord4>();

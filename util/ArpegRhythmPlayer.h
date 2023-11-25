@@ -5,10 +5,10 @@
 class ArpegRhythmPlayer {
 public:
     ArpegRhythmPlayer(ArpegPlayer* underlying) : player(underlying) {}
-    std::pair<float, float> clock();        // I think this is legacy? (but still used in some tests that need to port);
+    std::pair<float, float> clock();  // I think this is legacy? (but still used in some tests that need to port);
     /**
      * @brief clock the player.
-     * 
+     *
      * @return std::tuple<bool, float, float> the first is true if there is something to play, false if no.
      *          If something to play, the values will be in the 2nd and 3rd of the tuple.
      */
@@ -36,7 +36,7 @@ inline void ArpegRhythmPlayer::reset() {
     counter = 0;
 }
 
-inline  std::pair<float, float> ArpegRhythmPlayer::clock() {
+inline std::pair<float, float> ArpegRhythmPlayer::clock() {
     std::pair<float, float> ret = player->clock();
     if (length && (++counter >= length)) {
         player->reset();
@@ -45,8 +45,7 @@ inline  std::pair<float, float> ArpegRhythmPlayer::clock() {
     return ret;
 }
 
-
-inline  std::tuple<bool, float, float> ArpegRhythmPlayer::clock2() {
+inline std::tuple<bool, float, float> ArpegRhythmPlayer::clock2() {
     std::tuple<bool, float, float> ret = player->clock2();
     if (length && (++counter >= length)) {
         player->reset();

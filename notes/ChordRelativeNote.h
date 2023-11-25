@@ -12,7 +12,8 @@ public:
 private:
     int pitch;
     friend Chord4;  // so he can set us
-    void set(int);  // I should be private!!!!!
+    friend class RawChordGenerator;
+    void set(int);
 };
 
 inline void ChordRelativeNote::set(int nPitch) {

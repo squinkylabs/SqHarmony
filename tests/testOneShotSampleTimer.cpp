@@ -5,14 +5,14 @@
 static void testCanCall() {
     OneShotSampleTimer t;
     const bool b = t.run();
-    t.get();
+    t.isRunning();
     t.arm(0);
 }
 
 static void init() {
     OneShotSampleTimer t;
     for (int i = 0; i < 20000; ++i) {
-        assertEQ(t.get(), false);
+        assertEQ(t.isRunning(), false);
         assertEQ(t.run(), false);
     }
 }
@@ -20,34 +20,46 @@ static void init() {
 static void fires() {
     OneShotSampleTimer t;
     t.arm(0);
-    assertEQ(t.get(), true);  // even with zero delay we should get a sample of output
+    assertEQ(t.isRunning(), true);  // even with zero delay we should get a sample of output
 }
 
 static void testRun1() {
     OneShotSampleTimer t;
     t.arm(0);
-    assertEQ(t.get(), true);  // even with zero delay we should get a sample of output
-    const auto b = t.run();
+    assertEQ(t.isRunning(), true);  // even with zero delay we should get a sample of output
+    bool b = t.run();
+    assertEQ(b, true);
+    assertEQ(t.isRunning(), false);
+
+    b = t.run();
     assertEQ(b, false);
-    assertEQ(t.get(), false);
 }
 
 static void testRunN(int n) {
+    assert(n > 0);  // don't work at zero.
     OneShotSampleTimer t;
-    const int expectedDelay = std::max(0, n - 1);
+    const int expectedDelay = n-1;
     t.arm(n);
-    for (int i = 0; i < n * 2; ++i) {
-        const auto x = t.run();
-        assertEQ(x, (i == expectedDelay));
+    bool didExpire = false;
+    for (int i = 0; i < (n * 2 + 2); ++i) {
+        const bool expired = t.run();
+        // When timer first expires, tell when.
+        if (expired) {
+            didExpire = true;
+            assertEQ(expired, (i== expectedDelay));
+        }
     }
+    assert(didExpire);
 }
 
 void testOneShotSampleTimer() {
     testCanCall();
     init();
     fires();
-    //  testRun1();
-    //   testRunN(0);
-    // TODO: this test is failing for a logit reason
-  //  testRunN(1);
+    testRun1();
+    testRunN(1);
+    testRunN(2);
+    for (int i = 2; i < 20; ++i) {
+        testRunN(i);
+    }
 }

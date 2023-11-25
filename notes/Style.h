@@ -11,14 +11,14 @@ class Style {
 public:
     /***** the following methods apply to lowest level: chords generated ****/
 
-    int absMaxPitch();          // returns midi note number of max pitch our style allows
-    int absMinPitch();          // returns midi note number of min pitch our style allows
-    bool allowVoiceCrossing();  // True is we allow the alto to go above the sop in a given chord
-    int maxUnison();            // may number of unisons allowed in a chord
-    bool allow2ndInversion();
-    bool allow1stInversion();
+    int absMaxPitch() const;          // returns midi note number of max pitch our style allows
+    int absMinPitch() const;          // returns midi note number of min pitch our style allows
+    bool allowVoiceCrossing() const;  // True is we allow the alto to go above the sop in a given chord
+    int maxUnison() const;            // may number of unisons allowed in a chord
+    bool allow2ndInversion() const;
+    bool allow1stInversion() const ;
 
-    bool requireStdDoubling();  // chords required to double root, etc???
+    bool requireStdDoubling() const;  // chords required to double root, etc???
                                 // I think this means double root always!!
     bool forceDescSop();        // silly test to force melody to descend
                                 //  bool allowConsecInversions();  // allow a first or second inversion to follow another?
@@ -84,15 +84,6 @@ private:
     bool isNarrowRange() const {
         return (rangesPreference == Ranges::NARROW_RANGE);
     }
-
-    // at 5 it's getting noticeably worse, but not awful
-    // at 8 I get assertions. should look into that (ranges don't overlap at all)
-    // old way 7 crapped out, 6 ok
-    // new way 12 crap, 10 asserts 9 ok : 9 best for new way
-
-    // 2023: let's get more constrained, and get rid of special test mode/
-    int dx = 8;
-    // bool specialTestMode = false;
 };
 
 using StylePtr = std::shared_ptr<Style>;
@@ -100,7 +91,7 @@ using StylePtr = std::shared_ptr<Style>;
 /* Absolute pitch ranges: these are enforced!
  */
 
-inline int Style::absMaxPitch() {
+inline int Style::absMaxPitch() const {
     int ret = 0;
 #if !CRAZY_STYLE
     ret = maxSop();  // used to be +5. seemed wrong
@@ -112,7 +103,7 @@ inline int Style::absMaxPitch() {
     return ret;
 }
 
-inline int Style::absMinPitch() {
+inline int Style::absMinPitch() const {
     int ret = 0;
 #if !CRAZY_STYLE
     ret = minBass();  // used to be =5, seemed wrong
@@ -122,21 +113,19 @@ inline int Style::absMinPitch() {
     return ret;
 }
 
-inline bool Style::allow2ndInversion() {
-    // module version couldn't handle this being false - it would need backtracking.
-    // but when true 1 - test fails?
+inline bool Style::allow2ndInversion() const {
     return true;
 }
 
-inline bool Style::allow1stInversion() {
+inline bool Style::allow1stInversion() const {
     return true;
 }
 
-inline int Style::maxUnison() {
+inline int Style::maxUnison() const {
     return 0;  // bgf 1/4/93
 }
 
-inline bool Style::requireStdDoubling() {
+inline bool Style::requireStdDoubling() const {
     return true;
 }
 

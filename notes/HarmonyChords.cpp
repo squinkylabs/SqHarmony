@@ -3,12 +3,25 @@
 #include "Chord4Manager.h"
 #include "ProgressionAnalyzer.h"
 
+#if 0
 const Chord4* HarmonyChords::findChord(
     bool show,
     const Options& options,
     const Chord4Manager& manager,
     int root,
     PAStats* stats) {
+    return find(show, options, manager, nullptr, nullptr, root, nullptr, stats);
+}
+#endif
+
+#if 1
+const Chord4* HarmonyChords::findChord(
+    bool show,
+    const Options& options,
+    const Chord4Manager& manager,
+    int root,
+    PAStats* stats) {
+    // SQINFO("does it still make sense to call this old code?");
     // SQINFO("enter HarmonyChords::findChord");
     assert(manager.isValid());
     // TODO assert that root is in scale (scale needs size())
@@ -36,6 +49,7 @@ const Chord4* HarmonyChords::findChord(
     assert(false);
     return nullptr;
 }
+#endif
 
 const Chord4* HarmonyChords::findChord(
     bool show,
@@ -72,6 +86,10 @@ const Chord4* HarmonyChords::find(
     assert(root > 0);
     assert(root < 8);
 
+    if (show) {
+        SQINFO("in HarmonyChords::find");
+    }
+
     //  SQINFO("\n---------------------- find pp=%p p=%p r = %d", prevPrev, prev, root);
 
 #if 0
@@ -94,10 +112,6 @@ const Chord4* HarmonyChords::find(
 
     if (!prev) assert(!prevPrev);
 
-    // new experiment: allow two same in a row
-    //  assert(!prev || (prev->fetchRoot() != root));  // should not have two rows in succession
-    //  assert(!prevPrev || (prevPrev->fetchRoot() != prev->fetchRoot()));
-
     const int size = manager.size(root);
     int rankToTry = 0;
     // printf("in find, rank start = %d, size=%d\n", rankToTry, size);
@@ -107,7 +121,7 @@ const Chord4* HarmonyChords::find(
 
     for (bool done = false; !done; ++rankToTry) {
         if (rankToTry >= size) {
-            // SQINFO("rankToTry=%d size=%d done", rankToTry, size);
+            if (show) SQINFO("rankToTry=%d size=%d done", rankToTry, size);
             done = true;
         } else {
             const Chord4* currentChord = manager.get2(root, rankToTry);
@@ -127,7 +141,7 @@ const Chord4* HarmonyChords::find(
                 }
                 return currentChord;
             }
-            // printf("hit a penalty in search %d\n", currentPenalty);
+            if (show) SQINFO("hit a penalty in search %d", currentPenalty);
             if (currentPenalty < lowestPenalty) {
                 lowestPenalty = currentPenalty;
                 bestChord = currentChord;

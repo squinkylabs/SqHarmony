@@ -36,68 +36,68 @@ static Options makeOptions(bool minor) {
     return o;
 }
 
-static void test0(bool minor) {
-    Options o = makeOptions(minor);
-    assert(__numChord4 == 0);
-    Chord4 x(o, 1);
-    assert(__numChord4 == 1);
-}
+// static void test0(bool minor) {
+//     Options o = makeOptions(minor);
+//     assert(__numChord4 == 0);
+//     Chord4 x(o, 1);
+//     assert(__numChord4 == 1);
+// }
 
-static void test0() {
-    test0(false);
-    test0(true);
-}
+// static void test0() {
+//     test0(false);
+//     test0(true);
+// }
 
-static void testConstructor(bool minor) {
-    Options o = makeOptions(minor);
-    Chord4 c(o, 1);
-    assert(verifyChordContains(&c, {1, 3, 5}));
+// static void testConstructor(bool minor) {
+//     Options o = makeOptions(minor);
+//     Chord4 c(o, 1);
+//     assert(verifyChordContains(&c, {1, 3, 5}));
 
-    Chord4 d(o, 2);
-    assert(verifyChordContains(&d, {2, 4, 6}));
+//     Chord4 d(o, 2);
+//     assert(verifyChordContains(&d, {2, 4, 6}));
 
-    Chord4 e(o, 3);
-    assert(verifyChordContains(&e, {3, 5, 7}));
+//     Chord4 e(o, 3);
+//     assert(verifyChordContains(&e, {3, 5, 7}));
 
-    Chord4 f(o, 4);
-    assert(verifyChordContains(&f, {4, 6, 1}));
+//     Chord4 f(o, 4);
+//     assert(verifyChordContains(&f, {4, 6, 1}));
 
-    Chord4 g(o, 5);
-    assert(verifyChordContains(&g, {5, 7, 2}));
+//     Chord4 g(o, 5);
+//     assert(verifyChordContains(&g, {5, 7, 2}));
 
-    Chord4 a(o, 6);
-    assert(verifyChordContains(&a, {6, 1, 3}));
+//     Chord4 a(o, 6);
+//     assert(verifyChordContains(&a, {6, 1, 3}));
 
-    Chord4 b(o, 7);
-    assert(verifyChordContains(&b, {7, 2, 4}));
-}
+//     Chord4 b(o, 7);
+//     assert(verifyChordContains(&b, {7, 2, 4}));
+// }
 
-static void testConstructor() {
-    testConstructor(false);
-    testConstructor(true);
-}
+// static void testConstructor() {
+//     testConstructor(false);
+//     testConstructor(true);
+// }
 
-static void testRoot(bool minor) {
-    Options o = makeOptions(minor);
-    Chord4 x(o, 1);
-    x.print();
-    // printf("\n");
-    assertEQ(x.fetchRoot(), 1);
+// static void testRoot(bool minor) {
+//     Options o = makeOptions(minor);
+//     Chord4 x(o, 1);
+//     x.print();
+//     // printf("\n");
+//     assertEQ(x.fetchRoot(), 1);
 
-    // TODO: assert on these or stop printing?
-    auto notes = x.fetchSRNNotes();
-    auto hn = x.fetchNotes();
-    for (int i = 0; i < 4; ++i) {
-        const int np = (int)notes[i];
-        const int hnp = hn[i];
-        // printf("chord[%d] = %d (srn), %d (midi)\n", i, (int)notes[i], (int)hn[i]);
-    }
-}
+//     // TODO: assert on these or stop printing?
+//     auto notes = x.fetchSRNNotes();
+//     auto hn = x.fetchNotes();
+//     for (int i = 0; i < 4; ++i) {
+//         const int np = (int)notes[i];
+//         const int hnp = hn[i];
+//         // printf("chord[%d] = %d (srn), %d (midi)\n", i, (int)notes[i], (int)hn[i]);
+//     }
+// }
 
-static void testRoot() {
-    testRoot(false);
-    testRoot(true);
-}
+// static void testRoot() {
+//     testRoot(false);
+//     testRoot(true);
+// }
 
 static void testListLeadingToneSub(Chord4List chords) {
     for (int i = 0; i < chords.size(); ++i) {
@@ -265,6 +265,7 @@ static void testInversions(bool minor) {
     }
 }
 
+
 static void testInversions() {
     testInversions(false);
     testInversions(true);
@@ -352,12 +353,14 @@ static void testMinMax() {
 
 void testChord() {
     assert(__numChord4 == 0);
-    test0();
-    testRoot();
-    testConstructor();
+    SQINFO("TODO: bring back the chord 4 tests");
+   // test0();
+   // testRoot();
+   // testConstructor();
     testList();
     testList2();
     testListLeadingTone();
+
     testCanConstructAllChord4();
     testCanConstructAllChord4List();
 

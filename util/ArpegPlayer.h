@@ -1,12 +1,12 @@
 #pragma once
 
-#include "AudioMath.h"
-#include "NoteBuffer.h"
-
 #include <algorithm>
 #include <random>
 #include <string>
 #include <vector>
+
+#include "AudioMath.h"
+#include "NoteBuffer.h"
 
 class ArpegPlayer {
 public:
@@ -31,13 +31,13 @@ public:
      */
     std::pair<float, float> clock();
 
-     /** 
-      * clock it and return the next note.
-      * At end of index it may reshuffle, but only if reFillOnIndex is true
-      * tuple 0: if false ignore
-      * tuple 1: cv 1
-      * tuple 2: cv 2
-      */
+    /**
+     * clock it and return the next note.
+     * At end of index it may reshuffle, but only if reFillOnIndex is true
+     * tuple 0: if false ignore
+     * tuple 1: cv 1
+     * tuple 2: cv 2
+     */
     std::tuple<bool, float, float> clock2();
 
     /**
@@ -63,17 +63,16 @@ public:
     void reset();
 
 private:
-  
     bool dataChanged = true;
     NoteBuffer* const noteBuffer = nullptr;
     Mode mode{Mode::UP};
 
     // use std C here
-   // AudioMath::RandomUniformFunc random = {AudioMath::random()};
+    // AudioMath::RandomUniformFunc random = {AudioMath::random()};
     std::mt19937 randomGenerator{1234567891};
 
     std::pair<float, float> playbackBuffer[4 + 2 * (1 + NoteBuffer::maxCapacity)];
-    std::pair<float, float>  sortBuffer[NoteBuffer::maxCapacity];
+    std::pair<float, float> sortBuffer[NoteBuffer::maxCapacity];
     int playbackIndex = -1;
     int playbackSize = 0;
     bool reFillOnIndexArmed = false;

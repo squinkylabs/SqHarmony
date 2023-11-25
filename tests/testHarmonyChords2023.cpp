@@ -26,7 +26,7 @@ static Options makeOptions(bool minor) {
 //---------------------
 extern bool _globalShow;
 
-static void assertChordExists(Chord4Manager& mgr, int root, const Options& options, const std::string& expected, bool show=false) {
+static void assertChordExists(Chord4Manager& mgr, int root, const Options& options, const std::string& expected, bool show = false) {
     Chord4List* chords = mgr._getChords(root);
     assert(chords);
 
@@ -47,10 +47,8 @@ static void assertChordExists(Chord4Manager& mgr, int root, const Options& optio
     assertEQ(timesChordFound, 1);
 }
 
-
-const std::string pistonVchord = "G2D3G3B3"; // in the "real" world that might be G3D4...
+const std::string pistonVchord = "G2D3G3B3";  // in the "real" world that might be G3D4...
 const std::string pistonVIchord = "A2C3E3C4";
-
 
 static void canFindExpected56() {
     Options options = makeOptions(false);
@@ -60,8 +58,8 @@ static void canFindExpected56() {
     assertChordExists(mgr, 6, options, "E2C3A3E4");
 
     // examples from Piston book:
-    assertChordExists(mgr, 5, options, pistonVchord); 
-    //SQINFO("---- here goes ");
+    assertChordExists(mgr, 5, options, pistonVchord);
+    // SQINFO("---- here goes ");
     assertChordExists(mgr, 6, options, pistonVIchord);
 }
 
@@ -86,7 +84,7 @@ static void testNoneInCommmon56() {
     Chord4Manager mgr(options);
     Chord4Ptr chordA = Chord4::fromString(options, 5, pistonVchord.c_str());
 
-    std::string expectedChord = options.style->usePistonV_VI_exception() ? pistonVIchord : ""; // "A2E3A3C4";
+    std::string expectedChord = options.style->usePistonV_VI_exception() ? pistonVIchord : "";  // "A2E3A3C4";
     testGenerateProgression(mgr, options, chordA, 6, expectedChord);
 }
 
@@ -110,7 +108,7 @@ static void testAnalyzeProgression(
     assert(first->isValid());
     assert(next->isValid());
 
-    ProgressionAnalyzer pa(first.get(), next.get(), false);// pass true for debugging.
+    ProgressionAnalyzer pa(first.get(), next.get(), false);  // pass true for debugging.
     const int p = pa.getPenalty(options, 100000);
     // SQINFO("penalty was %d", p);
     if (expectedPenalty >= 0) {
@@ -119,36 +117,77 @@ static void testAnalyzeProgression(
 }
 
 static void testAnalyze56() {
-  //  SQINFO("\n\n---------------------- bgf: start testAnalyze56");
+    //  SQINFO("\n\n---------------------- bgf: start testAnalyze56");
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
     Chord4Ptr chordA = Chord4::fromString(options, 5, "G1B2D3G3");
-    Chord4Ptr chordB = Chord4::fromString(options, 6, "E1C3E3A3");      // only one A - should be illegal
-    testAnalyzeProgression(mgr, options, chordA, chordB, ProgressionAnalyzer::AVG_PENALTY_PER_RULE);          // this illegal
-   // SQINFO("\n-------------------------bgf: end testAnalyze56");
+    Chord4Ptr chordB = Chord4::fromString(options, 6, "E1C3E3A3");                                    // only one A - should be illegal
+    testAnalyzeProgression(mgr, options, chordA, chordB, ProgressionAnalyzer::AVG_PENALTY_PER_RULE);  // this illegal
+                                                                                                      // SQINFO("\n-------------------------bgf: end testAnalyze56");
 }
 
 static void testAnalyze56piston() {
-   // SQINFO("\n\n---------------------- bgf: start testAnalyze56 piston");
+    // SQINFO("\n\n---------------------- bgf: start testAnalyze56 piston");
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
     Chord4Ptr chordA = Chord4::fromString(options, 5, pistonVchord.c_str());
-    Chord4Ptr chordB = Chord4::fromString(options, 6, pistonVIchord.c_str());   
+    Chord4Ptr chordB = Chord4::fromString(options, 6, pistonVIchord.c_str());
     testAnalyzeProgression(mgr, options, chordA, chordB, 0);
-  //  SQINFO("\n-------------------------bgf: end testAnalyze56 piston");
+    //  SQINFO("\n-------------------------bgf: end testAnalyze56 piston");
     // TODO: add expectation on quality
 }
 
+static void analyzeChordGenForParallelCase() {
+    const bool show = false;
+    if (show) {
+        _globalShow = true;
+    }
+    SQINFO("\n\n---------------------- bgf: start analyzeChordGenForParallelCasex");
+    auto options = makeOptions(false);
+    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    //   Chord4Ptr chordB = Chord4::fromString(options, 3, "E2B2E3G3");
+    Chord4ListPtr list = std::make_shared<Chord4List>(options, 3, show);
+    SQINFO("\n\n---------------------- bgf: end analyzeChordGenForParallelCasex");
+    if (show) {
+        assert(false);
+    }
+}
+
+static void analyzeReportedParallel() {
+    SQINFO("\n\n---------------------- bgf: start analyzeReportedParallel");
+    auto options = makeOptions(false);
+    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    Chord4Manager mgr(options);
+    Chord4Ptr chordA = Chord4::fromString(options, 7, "D2B2D3F3");
+    Chord4Ptr chordB = Chord4::fromString(options, 3, "E2B2E3G3");
+    testAnalyzeProgression(mgr, options, chordA, chordB, -1);
+    SQINFO("about to call find!");
+    HarmonyChords::findChord(
+        true,
+        options,
+        mgr,
+        *chordA,
+        3,
+        nullptr  // no pstat right now.
+    );
+
+    SQINFO("\n\n---------------------- bgf: end analyzeReportedParallel");
+}
+
 /**
+ *
  * These are a grab-bag of harmony tests for new functionality added in 2023.
  */
 void testHarmonyChords2023() {
+    analyzeChordGenForParallelCase();
     canFindExpected56();
     testAnalyze56();
     testAnalyze56piston();
     testNoneInCommmon12();
 
+   // analyzeReportedParallel();
+    SQINFO("do something for analyze parallel test");
+
     // this doesn't work. it finds its own chord, not the same as piston's
-    //testNoneInCommmon56();
-    
+    // testNoneInCommmon56();
 }

@@ -1,27 +1,33 @@
 #pragma once
 
-#include "FreqMeasure.h"
+#include <cmath>
+
+#include "FreqMeasure2.h"
+#include "OneShotSampleTimer.h"
 
 class ClockShifter4 {
 public:
     void setShift(float);
-    bool run(bool input);
+    bool process(bool trigger, bool clock);
     bool freqValid() const;
 
 private:
-    int _clocksSinceReset = 0;
-
-    FreqMeasure _freqMeasure;
+    /**
+     * @brief reset on trigger, then counts up on each process count
+     *
+     */
+    int _phaseAccumulator = 0;
+    FreqMeasure2 _freqMeasure;
+    OneShotSampleTimer _clockWidthGenerator;
     float _shift = 0;
-    bool _lastClock = false;
 };
 
 inline void ClockShifter4::setShift(float x) {
-    _shift = x;
+    _shift = (x - std::floorf(x));
 }
 
-inline bool ClockShifter4::run(bool clock) {
-    _freqMeasure.onSample(clock);
+inline bool ClockShifter4::process(bool trigger, bool clock) {
+    _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
         return false;
     }
@@ -29,17 +35,22 @@ inline bool ClockShifter4::run(bool clock) {
     bool ret = false;
 
     // if it's the edge of a new clock, re-sync
-    if (clock && !_lastClock) {
-        ret = true;
-        _clocksSinceReset = 0;
+    if (trigger) {
+        // ret = true;
+        _phaseAccumulator = 0;
+    } else {
+        _phaseAccumulator++;
     }
-    _clocksSinceReset++;
-    
+
+    // Fire the clock when phase acc crosses the shift point.
     const float targetClockf = float(_freqMeasure.getPeriod()) * _shift;
     const int targetClock = int(targetClockf);
-    if (targetClock <= _clocksSinceReset) {
-        _clocksSinceReset = 0;
+    if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1))) {
         ret = true;
+        _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
+    } else {
+        _clockWidthGenerator.run();
+        ret = _clockWidthGenerator.isRunning();
     }
     return ret;
 }

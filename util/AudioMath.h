@@ -150,7 +150,6 @@ public:
         };
     }
 
-
     /**
      * Generates a scale function for an audio taper attenuverter.
      * Details the same as makeLinearScaler except that the CV

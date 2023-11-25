@@ -61,6 +61,7 @@
         "cstdarg": "cpp",
         "map": "cpp",
         "xtree": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "iomanip": "cpp"
     }
 }

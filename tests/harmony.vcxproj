@@ -176,11 +176,13 @@
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
+    <ClCompile Include="testChord4.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
     <ClCompile Include="testClockMult.cpp" />
     <ClCompile Include="testClockShifter3.cpp" />
     <ClCompile Include="testClockShifter4.cpp" />
     <ClCompile Include="testFreqMeasure.cpp" />
+    <ClCompile Include="testFreqMeasure2.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChords2023.cpp" />
@@ -197,6 +199,7 @@
     <ClCompile Include="testPitchKnowledge.cpp" />
     <ClCompile Include="testProgressions.cpp" />
     <ClCompile Include="testRatchet.cpp" />
+    <ClCompile Include="testRawChordGenerator.cpp" />
     <ClCompile Include="testResettablePhaseAccumulator.cpp" />
     <ClCompile Include="testRingBuffer.cpp" />
     <ClCompile Include="testScale.cpp" />

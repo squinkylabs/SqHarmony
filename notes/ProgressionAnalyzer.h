@@ -57,13 +57,13 @@ private:
 
     int _motion[4];       // Derived motion for each voice (bipolar, in semitones).
     DIREC _direction[4];  // "    "
-    int _notesInCommon;
+    int _notesInCommon=0;
     const bool _show;  // for debugging
     PAStats* const _stats;
 
     //
     void figureMotion();
-    int InCommon() const;
+    int _CalcInCommon() const;
 
     // All rules return penalty, or zero for pass
     int rule4Same() const;

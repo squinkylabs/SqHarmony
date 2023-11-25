@@ -75,7 +75,7 @@ class PAStats;
 
 class Chord4 {
 public:
-    Chord4(const Options& options, int nDegree);  // pass scale degree in constructor
+    Chord4(const Options& options, int nDegree, bool show=false);  // pass scale degree in constructor
                                                   // This construct will advance us to valid guy
 
     bool operator==(const Chord4& that) const {
@@ -134,6 +134,9 @@ private:
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
+    bool isCorrectDoublingTonal(const Options& option) const;
+    bool isCorrectDoublingBass(const Options& option) const;
+
 
     bool inc(const Options&);  // go to next chord (valid or not), return true if can't
 

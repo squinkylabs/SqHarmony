@@ -20,7 +20,7 @@ bool _globalShow = false;
 
 /*  Chord4::Chord4(int nRoot)
  */
-Chord4::Chord4(const Options& options, int nRoot) : _root(nRoot) {
+Chord4::Chord4(const Options& options, int nRoot, bool show) : _root(nRoot) {
     __numChord4++;
     assert(_root > 0 && _root < 8);
 
@@ -267,7 +267,7 @@ void Chord4::makeSrnNotes(const Options& op) {
 
     assert(_notes.size() == CHORD_SIZE);
     for (i = 0; i < CHORD_SIZE; i++) {
-        srnNotes[i] = op.keysig->ScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
+        srnNotes[i] = op.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
     }
 }
 
@@ -284,8 +284,8 @@ bool Chord4::isChordOk(const Options& options) const {
         const char bassOct = s[1];
         const char bassPitch = s[0];
 
-       // const char tenorOct = s[3];
-      //  const char tenorPitch = s[2];
+        // const char tenorOct = s[3];
+        //  const char tenorPitch = s[2];
 
         // E1 is the first chord I see
         // I see c2
@@ -393,7 +393,7 @@ bool Chord4::isChordOk(const Options& options) const {
         int totalLeadingTones = 0;
         for (i = 0; i < CHORD_SIZE; i++) {
             ScaleRelativeNote tempSrn;
-            tempSrn = options.keysig->ScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
+            tempSrn = options.keysig->getScaleDeg(_notes[i]);  // compute the scale rel ones for other guys to use
             if (tempSrn.isLeadingTone()) {
                 ++totalLeadingTones;
             }
@@ -464,6 +464,42 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
 }
 
 bool Chord4::isCorrectDoubling(const Options& options) const {
+#if 1
+    return isCorrectDoublingTonal(options);
+#else
+    retun isCorrectDoublingBass(options);
+#endif
+}
+
+bool Chord4::isCorrectDoublingTonal(const Options& options) const {
+    assert(isAcceptableDoubling(options));
+    int degrees[8] = { 0 };
+  //  int doubledDegree =
+    const ScaleRelativeNote* doubledSRN = nullptr;
+    for (int nVoice = 0; nVoice < CHORD_SIZE; nVoice++) {  // loop over all notes in chord
+        const ScaleRelativeNote& srn =  this->srnNotes[nVoice];
+        const int degree = srn.getScaleDegree(); 
+        degrees[degree]++;
+        if (degrees[degree] > 1) {
+            doubledSRN = &srn;
+        }
+    }
+
+#ifdef _DEBUG
+    //assert(degrees[1] + degrees[3] + degrees[5] == 4);
+    int total = 0;
+    for (int i = 0; i < 8; ++i) {
+        total += degrees[i];
+    }
+    assert(total == 4);
+    assert(doubledSRN);
+#endif
+
+  //  ScaleRelativeNote doubledSRN = foo;
+    return doubledSRN->isTonal();
+}
+
+bool Chord4::isCorrectDoublingBass(const Options& options) const {
     assert(isAcceptableDoubling(options));
 
     bool ret;
@@ -599,7 +635,7 @@ ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note
 
     ScaleRelativeNote srnN;
 
-    srnN = options.keysig->ScaleDeg(note);  // get scale degree
+    srnN = options.keysig->getScaleDeg(note);  // get scale degree
     if (srnN.isValid()) {
         nt = 1 + srnN - _root;  // to go from scale rel to chord rel, just normalize to chord root
         if (nt <= 0) nt += 7;   // keep positive!

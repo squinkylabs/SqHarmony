@@ -26,7 +26,7 @@ std::pair<const MidiNote, Scale::Scales> KeysigOld::get() const {
     return scale->get();
 }
 
-ScaleRelativeNote KeysigOld::ScaleDeg(HarmonyNote pitch) {
+ScaleRelativeNote KeysigOld::getScaleDeg(const HarmonyNote& pitch) const {
     const int midiPitch = pitch;
     const MidiNote midiNote(midiPitch);
     const ScaleNote scaleNote = scale->m2s(midiNote);
@@ -34,11 +34,11 @@ ScaleRelativeNote KeysigOld::ScaleDeg(HarmonyNote pitch) {
     ScaleRelativeNote ret;
     if (scaleNote.isAccidental()) {
         // if not in a scale, it's zero
-        ret.set(0);
+        ret.setScaleDegree(0);
     } else {
         int degree = scaleNote.getDegree();
         // if in scale it's 1..7
-        ret.set(degree + 1);
+        ret.setScaleDegree(degree + 1);
     }
     return ret;
 }

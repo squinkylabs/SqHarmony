@@ -5,6 +5,7 @@
 #include "SqLog.h"
 #include "assert.h"
 
+// A little old - use FreqMeasure2 instead.
 class FreqMeasure {
 public:
     void onSample(bool trigger);
@@ -19,7 +20,6 @@ private:
 };
 
 inline void FreqMeasure::onSample(bool clock) {
-
     // only process transition, but being held still adds to period.
     if (clock == _lastClock) {
         ++_count;

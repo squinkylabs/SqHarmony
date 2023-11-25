@@ -39,16 +39,10 @@ private:
     void drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const;
 
     void prepareFontMusic(const DrawArgs &args) const;
-    void prepareFontText(const DrawArgs &args) const;
+    void prepareFontText1(const DrawArgs &args) const;
+    void prepareFontText2(const DrawArgs &args) const;
 
-    /**
-     * @brief figure out the x position to draw a note
-     *
-     * @param noteNumber is the index of the note - 0..7
-     * @param keysigWidth is the absolute of the keysig drawing - 0 for cmaj
-     * @return float absolute x position
-     */
-    float noteXPos(int noteNumber, float keysigWidth) const;
+
 
     class YInfo {
     public:
@@ -80,18 +74,28 @@ private:
 
     void drawStaff(const DrawArgs &args, float y) const;
     void drawBarLine(const DrawArgs &args, float x, float y) const;
-    void drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const;
+    float drawChordRoot(const DrawArgs &args, float x, const Comp::Chord &chord) const;
+    void drawChordInversion(const DrawArgs &args, float x, const Comp::Chord &chord) const;
     /**
-     * @return float width of key signature
+     * @return std::pair, float width of key signature and float position of the end (which is all we really need)
+     * if we end up just using second, then we can go back to float
      */
-    float drawMusicNonNotes(const DrawArgs &args) const;
-    void drawChordNumbers(const DrawArgs &args, float widthOfKeysig) const;
-    void drawNotes(const DrawArgs &args, float widthOfKsig) const;
+    std::pair<float, float> drawMusicNonNotes(const DrawArgs &args) const;
+    void drawChordNumbers(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
+    void drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
+    /**
+     * @brief figure out the x position to draw a note
+     *
+     * @param noteNumber is the index of the note - 0..7
+     * @param keysigWidth is the absolute of the keysig drawing - 0 for cmaj
+     * @return float absolute x position
+     */
+    float noteXPos(int noteNumber, std::pair<float, float> keysigLayout) const;
 
     /**
      * @return float width of key signature
      */
-    float drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebleClef, float y) const;
+    std::pair<float, float> drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebleClef, float y) const;
     float ledgerLine2Pos(int ledgerLine, bool bassStaff) const;
 
     NVGcolor getForegroundColor() const;
@@ -105,19 +109,20 @@ private:
     const float yBassStaff = yTrebleStaff + 42;    // 28 way too close
     const float yTrebleClef = yTrebleStaff - 3.3;  // 3 a little low, 4 way high
     const float yBassClef = yBassStaff - 10;       // 11 too much
-    const float yNoteInfo = yBassStaff + 12;       // 0 too high
+    const float yNoteInfo = yBassStaff + 17;       // 0 too high 12 for a long time...
 
     // X axis pos
-    const float leftMargin = 5.5f;
+    const float leftMargin = 4.5f;
     const float xStaff = leftMargin;
     const float xClef = xStaff + 2;
     const float xNote0 = xClef + 18;
 
-    const float deltaXNote = 10;            // 8 seemed close
+    const float deltaXNote = 13;            // 8 seemed close. was 10 for a long time. 12 is good now, try 13
     const float spaceBetweenLines = 1.67f;  // 1.7 slightly high
                                             // 1.65 low
     const float barlineHeight = 55.5;       // 55 low
                                             // 57 went high
+    const float paddingAfterKeysig = 9;     // space between the clef or clef + keysig and the first note
 
     //  const float barlineX0 = leftMargin;
     const float barlineX1 = xClef + 61;  //  small 63 big
@@ -252,18 +257,42 @@ inline void Score::step() {
     Widget::step();
 }
 
+inline float Score::noteXPos(int noteNumber, std::pair<float, float> _keysigLayout) const {
+    const float keysigXEnds = _keysigLayout.second;
+    const float totalWidth = box.size.x - 2 * leftMargin;
+   // const float totalWidthForNotes = totalWidth - keysigWidth;
+    const float totalWidthForNotes = totalWidth - keysigXEnds;
+    const float delta = totalWidthForNotes / 8.5;
+    const float firstNotePosition = leftMargin + keysigXEnds;
+
+//    const float firstNotePosition = leftMargin + keysigWidth;
+    float x = firstNotePosition + noteNumber * delta;
+    if (noteNumber > 3) {
+        // little bump into the next bar. Used to be a while delta, the /2 is new.
+        x += (delta / 2.f);
+    }
+    // SQINFO("n=%d totalW=%f for notes = %f", noteNumber, totalWidth, totalWidthForNotes);
+    // SQINFO(" first note pos = %f, ret x=%f keysig end = %f", firstNotePosition, x, keysigXEnds);
+    return x;
+}
+
+#if 0  // original version
 inline float Score::noteXPos(int noteNumber, float keysigWidth) const {
     // Squeeze notes together a bit to accommodate keysig.
     const float inset = (keysigWidth >= 2) ? std::max(keysigWidth - 4, 2.f) : 0;
+    SQINFO("ksig w = %f, inset = %f, delta mod=%f", keysigWidth, inset, (1.f - (inset / 70.f)));
 
+    // What is this inset / 70? a heuristic?
     const float delta = deltaXNote * (1.f - (inset / 70.f));
+  //  const float delta = deltaXNote;
     float x = xNote0 + inset + noteNumber * delta;
     if (noteNumber > 3) {
-        // little bump into the next bar
-        x += delta;
+        // little bump into the next bar. Used to be a while delta, the /2 is new.
+        x += (delta / 2.f);
     }
     return x;
 }
+#endif
 
 float Score::noteY(const MidiNote &note, bool bassStaff) const {
     float y = 0;
@@ -325,32 +354,41 @@ inline void Score::drawLayer(const DrawArgs &args, int layer) {
 
 inline void Score::draw(const DrawArgs &args) {
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
-    const float width = drawMusicNonNotes(args);
-    drawNotes(args, width);
-    drawChordNumbers(args, width);
+    const auto keysigLayout = drawMusicNonNotes(args);
+    drawNotes(args, keysigLayout);
+    drawChordNumbers(args, keysigLayout);
     _scoreIsDirty = false;
 
     Widget::draw(args);
 }
 
-inline void Score::drawChordNumbers(const DrawArgs &args, float widthOfKeysig) const {
+inline void Score::drawChordNumbers(const DrawArgs &args, std::pair<float, float> keysigLayout) const {
     if (chords.empty()) {
         return;
     }
-    prepareFontText(args);
+    float endOfChordRoots[8];
+    prepareFontText1(args);
     int i = 0;
     for (auto chord : chords) {
-        const float x = noteXPos(i, widthOfKeysig) + 1.5;
-        drawChordInfo(args, x, chord);
+        const float x = noteXPos(i, keysigLayout) - 2;
+        const float xPos = drawChordRoot(args, x, chord);
+        endOfChordRoots[i] = xPos;
+        ++i;
+    }
+    prepareFontText2(args);
+    i = 0;
+    for (auto chord : chords) {
+        //   const float x = noteXPos(i, widthOfKeysig) + 1.5;
+        drawChordInversion(args, endOfChordRoots[i], chord);
         ++i;
     }
 }
 
-inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
+inline void Score::drawNotes(const DrawArgs &args,  std::pair<float, float> keysigLayout) const {
     if (!chords.empty()) {
         int i = 0;
         for (auto chord : chords) {
-            const float x = noteXPos(i, keysigWidth);
+            const float x = noteXPos(i, keysigLayout);
 
             for (int i = 0; i < 4; ++i) {
                 const bool stemUp = i % 2;
@@ -369,9 +407,10 @@ inline void Score::drawNotes(const DrawArgs &args, float keysigWidth) const {
     }
 }
 
-inline float Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
+inline std::pair<float, float> Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
     const auto info = scale->getScoreInfo();
     float width = 0;
+    float pos = xClef + paddingAfterKeysig;
     const MidiNote *accidentals = nullptr;
     bool areFlats = false;
     int num = 0;
@@ -396,19 +435,24 @@ inline float Score::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool t
     const char *character = (areFlats) ? flat.c_str() : sharp.c_str();
     if (num) {
         float w = 0;
+        float p = 0;
         for (int i = 0; i < num; ++i) {
-            const float x = xClef + 11 + w;
+            const float x = xClef + paddingAfterKeysig + w;
             const int note = accidentals[i].get();
             const float yf = noteY(note, !treble);
             nvgText(args.vg, x, yf, character, NULL);
             w += 4;
+            p = std::max(p, x + 4);
+            //p += 4;
         }
         width = std::max(width, w);
+        pos = std::max (pos, p);
     }
-    return width;
+    // SQINFO("drawKeysig returning %f,%f", width, pos);
+    return std::make_pair(width, pos);
 }
 
-inline float Score::drawMusicNonNotes(const DrawArgs &args) const {
+inline std::pair<float, float> Score::drawMusicNonNotes(const DrawArgs &args) const {
     NVGcolor color = getBackgroundColor();
 
     filledRect(args.vg, color, 0, 0, box.size.x, box.size.y, 5);
@@ -426,25 +470,85 @@ inline float Score::drawMusicNonNotes(const DrawArgs &args) const {
     nvgText(args.vg, xClef, yBassClef, fClef.c_str(), NULL);
 
     float keysigWidth = 0;
+    float keysigEnd = 0;
+
     if (module) {
         auto scale = module->getScale();
-        const float a = drawKeysig(args, scale, true, yTrebleStaff);
-        const float b = drawKeysig(args, scale, false, yBassStaff);
-        keysigWidth = std::max(keysigWidth, a);
-        keysigWidth = std::max(keysigWidth, b);
+        const auto a = drawKeysig(args, scale, true, yTrebleStaff);
+        const auto b = drawKeysig(args, scale, false, yBassStaff);
+        keysigWidth = std::max(keysigWidth, a.first);
+        keysigWidth = std::max(keysigWidth, b.first);
+
+        keysigEnd = std::max(keysigWidth, a.second);
+        keysigEnd = std::max(keysigWidth, b.second);
     }
+    const std::pair<float, float> ksStuff = std::make_pair(keysigWidth, keysigEnd);
 
     drawBarLine(args, xStaff, yBassStaff);
 
-    const float secondBarLineX = 3 + .5f * (noteXPos(3, keysigWidth) + noteXPos(4, keysigWidth));
+  // const float secondBarLineX = 3 + .5f * (noteXPos(3, keysigWidth) + noteXPos(4, keysigWidth));
+    const float secondBarLineX = 2 + .5f * (noteXPos(3, ksStuff) + noteXPos(4, ksStuff));
     drawBarLine(args, secondBarLineX, yBassStaff);
 
     const float barlineX2 = args.clipBox.size.x - leftMargin;
     drawBarLine(args, barlineX2, yBassStaff);
 
-    return keysigWidth;
+    return std::make_pair(keysigWidth, keysigEnd);;
 }
 
+inline std::string intToRoman(int number) {
+    std::string output;
+    switch (number) {
+        case 1:
+            output = "I";
+            break;
+        case 2:
+            output = "II";
+            break;
+        case 3:
+            output = "III";
+            break;
+        case 4:
+            output = "IV";
+            break;
+        case 5:
+            output = "V";
+            break;
+        case 6:
+            output = "VI";
+            break;
+        case 7:
+            output = "VII";
+            break;
+        default:
+            assert(false);
+    }
+    return output;
+}
+
+// This is the new roman numeral way
+inline float Score::drawChordRoot(const DrawArgs &args, float x, const Comp::Chord &chord) const {
+    const std::string rootRoman = intToRoman(chord.root);
+
+    nvgText(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL);
+    const float rootWidth = nvgTextBounds(args.vg, x, yNoteInfo, rootRoman.c_str(), NULL, nullptr);
+    return x + rootWidth;
+}
+
+inline void Score::drawChordInversion(const DrawArgs &args, float x, const Comp::Chord &chord) const {
+    // const std::string rootRoman = intToRoman(chord.root);
+    switch (chord.inversion) {
+        case 1:
+            nvgText(args.vg, x, yNoteInfo - 5, "6", NULL);
+            break;
+        case 2:
+            nvgText(args.vg, x, yNoteInfo - 5, "6", NULL);
+            nvgText(args.vg, x, yNoteInfo - 1, "4", NULL);
+            break;
+    }
+}
+
+#if 0  // this is the old way
 inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const {
     {
         std::stringstream s;
@@ -458,11 +562,11 @@ inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chor
         nvgText(args.vg, x, yNoteInfo + 8, s.str().c_str(), NULL);
     }
 }
+#endif
 
 inline void Score::drawStaff(const DrawArgs &args, float yBase) const {
     const float x = xStaff;
     const float length = args.clipBox.size.x - 2 * leftMargin;
-    // auto color = nvgRGB(0xff, 0xff, 0xff);
     const auto color = getForegroundColor();
     for (int i = 0; i < 5; ++i) {
         float y = yBase - 2.f * float(i) * spaceBetweenLines;
@@ -472,7 +576,8 @@ inline void Score::drawStaff(const DrawArgs &args, float yBase) const {
 
 inline void Score::drawBarLine(const DrawArgs &args, float x, float y) const {
     auto color = getForegroundColor();
-    drawVLine(args.vg, color, x, y, barlineHeight, .5f);
+  //  drawVLine(args.vg, color, x, y, barlineHeight, .5f);
+   drawVLine(args.vg, color, x, y, barlineHeight, .75f);
 }
 
 void Score::drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const {
@@ -515,7 +620,33 @@ void Score::prepareFontMusic(const DrawArgs &args) const {
     nvgFontSize(args.vg, 54);
 }
 
-void Score::prepareFontText(const DrawArgs &args) const {
-    nvgFontFaceId(args.vg, APP->window->uiFont->handle);
+void Score::prepareFontText1(const DrawArgs &args) const {
+    // std::string fontPath("res/fonts/Roboto-Light.ttf");
+    std::string fontPath("res/fonts/Roboto-Regular.ttf");
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, fontPath.c_str()));
+    if (!font) {
+        WARN("Score font for text didn't load\n");
+        return;
+    }
+    nvgFontFaceId(args.vg, font->handle);
     nvgFontSize(args.vg, 7);
 }
+
+void Score::prepareFontText2(const DrawArgs &args) const {
+    //   std::string fontPath("res/fonts/Roboto-Light.ttf");
+    std::string fontPath("res/fonts/Roboto-Regular.ttf");
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, fontPath.c_str()));
+    if (!font) {
+        WARN("Score font for text didn't load\n");
+        return;
+    }
+    nvgFontFaceId(args.vg, font->handle);
+    nvgFontSize(args.vg, 5);
+}
+
+#if 0  // old version
+void Score::prepareFontText(const DrawArgs &args) const {
+   nvgFontFaceId(args.vg, APP->window->uiFont->handle);
+    nvgFontSize(args.vg, 7);
+}
+#endif

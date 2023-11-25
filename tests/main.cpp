@@ -35,6 +35,7 @@ extern void testAdditive();
 extern void testAdditiveGainLogic();
 extern void testAdditiveModLogic();
 extern void testFreqMeasure();
+extern void testFreqMeasure2();
 extern void testResettablePhaseAccumulator();
 extern void testOneShot();
 extern void testPhasePatterns();
@@ -50,8 +51,14 @@ extern void testRatchet();
 extern void testAllChords(bool);
 extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
+extern void testRawChordGenerator();
+extern void testChord4();
 
+#ifdef _DEBUG
 const bool doLongRunning = false;
+#else
+const bool doLongRunning = true;
+#endif
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -59,12 +66,17 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+    // testRawChordGenerator();
+    // testAllChords(doLongRunning);
+    // printf("put the early tests back\n");
+
     testSchmidtTrigger();
     testShiftMath();
     testOneShot();
     testOneShotSampleTimer();
     testResettablePhaseAccumulator();
     testFreqMeasure();
+    testFreqMeasure2();
     testShiftCalc();
     testClockShifter3();
     testClockShifter4();
@@ -90,7 +102,9 @@ int main(const char**, int) {
     testArpegRhythmPlayer();
     testArpegComposite();
 #if 1
+    testRawChordGenerator();
     testPitchKnowledge();
+    testChord4();
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChords2023();

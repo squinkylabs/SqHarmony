@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+
 #include <cstring>
 #include <string>
 
@@ -89,12 +90,12 @@ inline void SqStream::add(float f) {
             break;
         default:
             format = "%.2f";
-            //SQWARN("unimplemented precision %d \n", _precision);
+            // SQWARN("unimplemented precision %d \n", _precision);
     }
 
     snprintf(nextLoc, sizeRemaining, format, f);
     length = int(strlen(buffer));
-    //SQWARN("float was %f, printed to %s prec=%d\n", f, nextLoc, _precision);
+    // SQWARN("float was %f, printed to %s prec=%d\n", f, nextLoc, _precision);
 }
 
 inline std::string SqStream::str() {
