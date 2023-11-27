@@ -140,9 +140,9 @@ static void testAllChords(Style::Ranges range) {
 
 static void xtestAllChords() {
     // for all possible styles...
-    testAllChords(Style::Ranges::NORMAL_RANGE);
+    testAllChords(Style::Ranges::VOCAL_RANGE);
     testAllChords(Style::Ranges::ENCOURAGE_CENTER);
-    testAllChords(Style::Ranges::NARROW_RANGE);
+    testAllChords(Style::Ranges::WIDE_RANGE);
 }
 
 static std::string pitchToString(int pitch, const Options& options) {
@@ -154,8 +154,12 @@ static std::string pitchToString(int pitch, const Options& options) {
 static void showNarrow3() {
     SQINFO("------ here are all the allowed range is c maj -----");
     const Options options = makeOptions(false);
+
+    assert(int(Style::Ranges::ENCOURAGE_CENTER) == 0);
+    assert(int(Style::Ranges::WIDE_RANGE) == 2);
+
     for (int i = 0; i < 2; ++i) {
-        const auto range = (i == 0) ? Style::Ranges::NARROW_RANGE : Style::Ranges::NORMAL_RANGE;
+        const auto range = (i == 0) ? Style::Ranges::ENCOURAGE_CENTER : Style::Ranges::WIDE_RANGE;
         SQINFO("--- range = %d ---", range);
         options.style->setRangesPreference(range);
 
@@ -192,7 +196,7 @@ static void testNumberOfChords(bool narrow) {
     SQINFO("--- will generate all possible chords. narrow = %d", narrow);
     const Options options = makeOptions(false);
     if (narrow) {
-        options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+        options.style->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     }
     Chord4Manager mgr(options);
     for (int i = 1; i < 8; ++i) {
@@ -261,7 +265,7 @@ static void testNumberOfChords(bool narrow) {
 // with 2023 ranges prog goes to 1612
 static int timeChordProgressionGen() {
     testAllChords(
-        Style::Ranges::NORMAL_RANGE,
+        Style::Ranges::VOCAL_RANGE,
         Style::InversionPreference::DONT_CARE,
         Scale::Scales::Major,
         1,

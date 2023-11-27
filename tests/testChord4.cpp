@@ -6,7 +6,9 @@
 #include "asserts.h"
 
 static StylePtr makeStyle() {
-    return std::make_shared<Style>();
+    auto style = std::make_shared<Style>();
+    style->setRangesPreference(Style::Ranges::WIDE_RANGE);
+    return style;
 }
 
 static KeysigOldPtr makeKeysig(bool minor) {
@@ -81,6 +83,7 @@ static void testRootCInversion4() {
     // fourth: root position double root, good
     const Options options = makeOptions(false);
     auto chord = Chord4::fromString(options, 4, "F2A3F4C5");
+    assert(chord);
     assertEQ(chord->isCorrectDoubling(options), true);
 }
 

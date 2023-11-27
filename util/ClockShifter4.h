@@ -7,6 +7,7 @@
 
 class ClockShifter4 {
 public:
+    friend class TestClockShifter4;
     void setShift(float);
     bool process(bool trigger, bool clock);
     bool freqValid() const;
@@ -44,6 +45,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
 
     // Fire the clock when phase acc crosses the shift point.
     const float targetClockf = float(_freqMeasure.getPeriod()) * _shift;
+    SQINFO("in shifter process, period = %d shift=%f, acc=%d", _freqMeasure.getPeriod(), _shift, _phaseAccumulator);
     const int targetClock = int(targetClockf);
     if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1))) {
         ret = true;

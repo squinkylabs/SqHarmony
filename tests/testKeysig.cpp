@@ -71,7 +71,7 @@ static void testStyle1() {
     style->setInversionPreference(Style::InversionPreference::DONT_CARE);
     assert(style->getInversionPreference() == Style::InversionPreference::DONT_CARE);
 
-    assert(style->getRangesPreference() == Style::Ranges::NORMAL_RANGE);
+    assert(style->getRangesPreference() == Style::Ranges::VOCAL_RANGE);
     style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
     assert(style->getRangesPreference() == Style::Ranges::ENCOURAGE_CENTER);
 
@@ -82,6 +82,8 @@ static void testStyle1() {
 
 static void testStyle2() {
     auto style = std::make_shared<Style>();
+    style->setRangesPreference(Style::Ranges::WIDE_RANGE);
+    //assertLT(blw, style2->minBass());
     const int blw = style->minBass();
     const int bhw = style->maxBass();
     const int tlw = style->minTenor();
@@ -92,7 +94,7 @@ static void testStyle2() {
     const int shw = style->maxSop();
 
     auto style2 = std::make_shared<Style>();
-    style2->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    style2->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     assertLT(blw, style2->minBass());
     assertGT(bhw, style2->maxBass());
     assertLT(tlw, style2->minTenor());
@@ -115,7 +117,7 @@ void validateRanges() {
     validateRange(style);
     style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
     validateRange(style);
-    style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    style->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     validateRange(style);
 }
 

@@ -177,7 +177,7 @@ static void testNumChords() {
     Comp h;
     int x = h._size();
     assert(x > 100);  // plenty of chords, by default
-    h.params[Comp::CENTER_PREFERENCE_PARAM].value = float(int(Style::Ranges::NARROW_RANGE));
+    h.params[Comp::CENTER_PREFERENCE_PARAM].value = float(int(Style::Ranges::VOCAL_RANGE));
 
     h.process(TestComposite::ProcessArgs());
 

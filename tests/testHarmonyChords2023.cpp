@@ -144,7 +144,7 @@ static void analyzeChordGenForParallelCase() {
     }
     SQINFO("\n\n---------------------- bgf: start analyzeChordGenForParallelCasex");
     auto options = makeOptions(false);
-    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    options.style->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     //   Chord4Ptr chordB = Chord4::fromString(options, 3, "E2B2E3G3");
     Chord4ListPtr list = std::make_shared<Chord4List>(options, 3, show);
     SQINFO("\n\n---------------------- bgf: end analyzeChordGenForParallelCasex");
@@ -156,7 +156,7 @@ static void analyzeChordGenForParallelCase() {
 static void analyzeReportedParallel() {
     SQINFO("\n\n---------------------- bgf: start analyzeReportedParallel");
     auto options = makeOptions(false);
-    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    options.style->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     Chord4Manager mgr(options);
     Chord4Ptr chordA = Chord4::fromString(options, 7, "D2B2D3F3");
     Chord4Ptr chordB = Chord4::fromString(options, 3, "E2B2E3G3");

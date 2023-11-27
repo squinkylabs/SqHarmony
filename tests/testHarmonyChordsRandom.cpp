@@ -209,7 +209,7 @@ static void testValid() {
 static void testRand(int root, Scale::Scales scale) {
     auto options = makeOptions(root, scale);
     testRand(options);
-    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    options.style->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     testRand(options);
     options.style->setRangesPreference(Style::Ranges::ENCOURAGE_CENTER);
     testRand(options);
