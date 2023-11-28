@@ -71,6 +71,7 @@ static void testAtoB(int a, int b, bool minor, int bestExpected = 0) {
 
     auto next = HarmonyChords::findChord(false, options, mgr, *cp, b);
     assert(next);
+    SQINFO("first chord %s second %s", cp->toStringShort().c_str(), next->toStringShort().c_str());
     const int penalty = next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, false, nullptr);
     if (penalty != bestExpected) {
          next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, true, nullptr);
@@ -231,7 +232,9 @@ void testHarmonyChords() {
     testBasic1();
     testBasic2();
     test3to5();
+    SQINFO("here comes test 5 to 4");
     test5to4();
+     SQINFO("end test 5 to 4");
     test5to6();
     test1to2();
 
