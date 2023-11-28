@@ -227,8 +227,8 @@ void testHarmonyChords() {
     testBasic2();
 
     // This started failing with new ranges.
-    SQINFO("!! put back test3To5");
-    //test3to5();
+    // SQINFO("!! put back test3To5");
+    test3to5();
 
     // this was failing with 2023 ranges
     SQINFO("!! put back 5 to 4 test");
@@ -244,14 +244,13 @@ void testHarmonyChords() {
     //test2to1();
 
     SQINFO("!! put back 2 1 tests !!");  // this test fails. if should be perfect, but doesn't.
-
     //test2to1a();
-    //test2to1b();
+
+    test2to1b();
 
     test1to2to1();
 
-    SQINFO("put back 3 seq");
-    //testThreeSequence();
+    testThreeSequence();
     // testXtoY();
     // testXtoYtoX();
 
