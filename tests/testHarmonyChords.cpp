@@ -240,15 +240,15 @@ void testHarmonyChords() {
 
     test2to1();
     printf("put back 2 1 test\n");
-    // test2to1a();
+    //test2to1a();
     test2to1b();
 
     test1to2to1();
 
    
 
-    printf("put back 3 seq\n");
-    // testThreeSequence();
+    //printf("put back 3 seq\n");
+    testThreeSequence();
     // testXtoY();
     // testXtoYtoX();
 
