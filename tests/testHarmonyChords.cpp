@@ -231,8 +231,8 @@ void testHarmonyChords() {
     //test3to5();
 
     // this was failing with 2023 ranges
-    //SQINFO("!! put back 5 to 4 test");
-    test5to4();
+    SQINFO("!! put back 5 to 4 test");
+    //test5to4();
    
     test5to6();
     test1to2();

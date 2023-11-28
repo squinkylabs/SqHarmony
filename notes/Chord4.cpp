@@ -464,15 +464,18 @@ bool Chord4::isAcceptableDoubling(const Options& options) const {
 }
 
 bool Chord4::isCorrectDoubling(const Options& options) const {
-#if 1
-    return isCorrectDoublingTonal(options);
-#else
-    retun isCorrectDoublingBass(options);
-#endif
+    if (options.style->doubleBass()) {
+        // old rule.
+        return isCorrectDoublingBass(options);
+    } else {
+        // new rule, not fully debugged.
+        return isCorrectDoublingTonal(options);
+    }
 }
 
 bool Chord4::isCorrectDoublingTonal(const Options& options) const {
     assert(isAcceptableDoubling(options));
+    assert(false);  // this is not fully debugged.
     int degrees[8] = { 0 };
   //  int doubledDegree =
     const ScaleRelativeNote* doubledSRN = nullptr;

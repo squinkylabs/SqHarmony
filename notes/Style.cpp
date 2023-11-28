@@ -33,7 +33,9 @@ bool Style::getNoNotesInCommon() const {
 
 int Style::minSop() const {
     // new for 2023: make narrow not include C, it starts at D
-    return isNarrowRange() ? 62 : 60;
+   // return isNarrowRange() ? 62 : 60;
+   // For this release, let's keep middle C.
+   return 60;
 }
 
 int Style::maxSop() const {

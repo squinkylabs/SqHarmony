@@ -34,8 +34,8 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     if (!_freqMeasure.freqValid()) {
         return false;
     }
-    SQINFO("");
-    SQINFO("process, input freq stable");
+    //SQINFO("");
+    //SQINFO("process, input freq stable");
 
     bool ret = false;
 
@@ -51,24 +51,24 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     // Fire the clock when phase acc crosses the shift point.
     const float targetClockf = float(_freqMeasure.getPeriod()) * _shift;
     const int targetClock = int(targetClockf);
-    SQINFO("trigger in = %d, targetClock=%d, phase acc=%d", trigger, targetClock, _phaseAccumulator);
-    SQINFO("firstClock = %d elapsed = %d period=%d", _firstClock, _elapsedInputSamplesSinceLastOutput, _freqMeasure.getPeriod());
-    SQINFO("target-phaseAcc=%d", std::abs(_phaseAccumulator - targetClock)) ;
+    // SQINFO("trigger in = %d, targetClock=%d, phase acc=%d", trigger, targetClock, _phaseAccumulator);
+    // SQINFO("firstClock = %d elapsed = %d period=%d", _firstClock, _elapsedInputSamplesSinceLastOutput, _freqMeasure.getPeriod());
+    // SQINFO("target-phaseAcc=%d", std::abs(_phaseAccumulator - targetClock)) ;
     bool outputClock = false;
     if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1))) {
-        SQINFO("old path the always output clock");
+        //SQINFO("old path the always output clock");
 
         // period / 2 is too aggressive. Should probably make it depend on delay time, but haxoring around...
         if (_firstClock || (_elapsedInputSamplesSinceLastOutput >= (_freqMeasure.getPeriod() / 3))) {
             // TODO: suppress this if "too close" to last clocks.
-            SQINFO("sending a clock, elapsed = %d", _elapsedInputSamplesSinceLastOutput);
+            //SQINFO("sending a clock, elapsed = %d", _elapsedInputSamplesSinceLastOutput);
             ret = true;
             _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
             _elapsedInputSamplesSinceLastOutput = 0;
             _firstClock = false;
             outputClock = true;
         } else {
-            SQINFO("suppressed clock");
+            //SQINFO("suppressed clock");
         }
     } 
     
@@ -77,7 +77,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
         _clockWidthGenerator.run();
         ret = _clockWidthGenerator.isRunning();
         if (ret) {
-            SQINFO("clock extender is forcing clock return");
+            //SQINFO("clock extender is forcing clock return");
         }
         _elapsedInputSamplesSinceLastOutput++;
     }

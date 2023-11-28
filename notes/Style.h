@@ -79,6 +79,10 @@ public:
 
     bool isNarrowRange() const;
 
+    static bool doubleBass() {
+        return true;        // For now the new rule is not trustworthy.
+    }
+
 private:
     InversionPreference inversionPreference = InversionPreference::DISCOURAGE_CONSECUTIVE;
     Ranges rangesPreference = Ranges::VOCAL_RANGE;
