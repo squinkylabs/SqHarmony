@@ -27,7 +27,7 @@ New Harmony rules:
 
 * Forbid doubling of leading tones.
 * Chord of the leading tone prevented in root position.
-* Forbid melodic jumps in the soprano voice of more than a fifth.
+* Forbid melodic jumps in the soprano voice of more than five semitones.
 * Discourage motion in Bass, Tenor, and Alto. But less restrictive than the Soprano rule.
 * Implement the piston rule for V-VI progression.
 

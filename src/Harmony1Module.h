@@ -48,7 +48,7 @@ public:
         this->configParam(Comp::USE_FLATS_PARAM, 0, 1, 0, "Use Flats");
 
         this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"Don't care", "Discourage Consecutive", "Discourage Inversions"});
-        this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 2, "Centered preference", {"None (wide)", "Encourage Center", "Narrow Range"});
+        this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 2, "Centered preference", {"None (wide)", "Encourage Center", "Narrow (vocal range)"});
         this->configSwitch(Comp::NNIC_PREFERENCE_PARAM, 0, 1, 1, "No Notes in Common rule", {"Disabled", "Enabled"});
 
         this->configOutput(Comp::BASS_OUTPUT, "Bass voice pitch");
