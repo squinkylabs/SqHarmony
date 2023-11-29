@@ -167,9 +167,10 @@ static void testHalfCycleDelay2() {
 
 static void testDelaySub(int period, float rawDelay) {
    // SQINFO("--- testDelaySub period=%d, rawDelay = %f", period, rawDelay);
-    CompPtr shifter = makeAndPrime(period);
+    CompPtr shifter = makeAndPrime(period, rawDelay);
     bool sawAClock = false;
-    shifter->setShift(rawDelay);
+
+    // Now get the normalized delay from rawDelay.
     float delay = rawDelay;
     while (delay < 0) {
         delay += 1.0;
@@ -312,7 +313,7 @@ static void testPosThenNeg() {
 static void testDelay() {
     testDelaySub(8, .5);
     testDelaySub(12, .5);
-    //testDelaySub(8, .25);
+    testDelaySub(8, .25);
 }
 
 static void testDelayNeg() {
@@ -387,18 +388,12 @@ void testClockShifter4() {
     testStraightThrough2();
     testInputValid();
 
-    // for now don't run these old tests. They can be fixed.
-
     testHalfCycleDelay();
     testHalfCycleDelay2();
-
     testClockIt();
-    testDelay();
-#if 0
-  
+    testDelay();  
     testDelayNeg();
-    
-#endif
+
     testSetDelayMidCycle();
     testIncreaseDelayMidCycle();
     // This one doesn't work yet
