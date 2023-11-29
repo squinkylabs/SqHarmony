@@ -11,7 +11,7 @@ public:
 
 private:
     int pitch;
-    friend Chord4;  // so he can set us
+    friend Chord4;  // So he can set us.
     friend class RawChordGenerator;
     void set(int);
 };

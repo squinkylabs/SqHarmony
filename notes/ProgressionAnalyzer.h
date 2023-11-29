@@ -32,7 +32,6 @@ private:
 class ProgressionAnalyzer {
 public:
     ProgressionAnalyzer(const Chord4* C1, const Chord4* C2, bool fShow, PAStats* collectStats = nullptr);
-    // bool isLegal(const Options&) const;
 
     static const int PENALTY_FOR_REPEATED_CHORDS = {50};
     static const int PENALTY_FOR_FAR_APART = {80};
@@ -43,7 +42,7 @@ public:
     static const int SLIGHTLY_LOWER_PENALTY_PER_RULE = {90};
     static const int MAX_PENALTY = {AVG_PENALTY_PER_RULE * 100};
 
-    // 0 means perfect, negative numbers not allowed
+    // 0 means perfect, negative numbers not allowed.
     int getPenalty(const Options&, int upperBound) const;
 
     // Sets a PA to show analysis every time it runs.
@@ -57,11 +56,10 @@ private:
 
     int _motion[4];       // Derived motion for each voice (bipolar, in semitones).
     DIREC _direction[4];  // "    "
-    int _notesInCommon=0;
+    int _notesInCommon = 0;
     const bool _show;  // for debugging
     PAStats* const _stats;
 
-    //
     void figureMotion();
     int _CalcInCommon() const;
 
@@ -81,5 +79,5 @@ private:
     int ruleForSopranoJump(const Options& options) const;
     int ruleForDistanceMoved(const Options& options) const;
 
-    bool IsNearestNote(const Options&, int Vx) const;  // True if the voice went to the nearest available slot
+    bool IsNearestNote(const Options&, int Vx) const;  // True if the voice went to the nearest available slot.
 };
