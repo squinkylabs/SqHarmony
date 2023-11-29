@@ -59,7 +59,7 @@ static void testAllChords(
         false,
         nullptr);
     if (penalty > worstPenalty) {
-        // SQINFO("new worst penalty: %d", penalty);
+        SQINFO("new worst penalty: %d", penalty);
         worstPenalty = penalty;
     }
 
@@ -197,6 +197,8 @@ static void testNumberOfChords(bool narrow) {
     const Options options = makeOptions(false);
     if (narrow) {
         options.style->setRangesPreference(Style::Ranges::VOCAL_RANGE);
+    } else {
+        options.style->setRangesPreference(Style::Ranges::WIDE_RANGE);
     }
     Chord4Manager mgr(options);
     for (int i = 1; i < 8; ++i) {

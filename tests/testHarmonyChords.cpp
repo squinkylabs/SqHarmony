@@ -230,7 +230,7 @@ void testHarmonyChords() {
     // SQINFO("!! put back test3To5");
     test3to5();
 
-    // this was failing with 2023 ranges
+    // this fails with the new leading tone rule
     SQINFO("!! put back 5 to 4 test");
     //test5to4();
    

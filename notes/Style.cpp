@@ -78,7 +78,8 @@ int Style::maxTenor() const {
 int Style::minBass() const {
     // was 39
     // New for 2023: bass D on wide, F on narrow
-    return isNarrowRange() ? 41 : 38;
+    // well, back track from that 41 in vocal range back to 39
+    return isNarrowRange() ? 39 : 38;
 }
 
 int Style::maxBass() const {
