@@ -14,6 +14,10 @@ Harmony score drawing:
 * Use standard figured bass chord notation.
 * Adjust spacing of score layout to make it more readable.
 
+Phase patterns is now disabled (not visible to normal users).
+
+Changed license terms.
+
 ## 2.2.1
 
 Harmony:
