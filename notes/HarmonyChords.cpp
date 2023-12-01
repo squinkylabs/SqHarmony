@@ -70,7 +70,7 @@ const Chord4* HarmonyChords::findChord(
     int root,
     PAStats* stats) {
     const Chord4* ret = find(show, options, manager, &prevPrev, &prev, root, nullptr, stats);
-    assert(ret);  // we should always find something;
+    assert(ret);  // We should always find something;
     return ret;
 }
 
@@ -114,7 +114,6 @@ const Chord4* HarmonyChords::find(
 
     const int size = manager.size(root);
     int rankToTry = 0;
-    // printf("in find, rank start = %d, size=%d\n", rankToTry, size);
 
     int lowestPenalty = ProgressionAnalyzer::MAX_PENALTY;
     const Chord4* bestChord = nullptr;
@@ -131,11 +130,9 @@ const Chord4* HarmonyChords::find(
                 // SQINFO("isRepeat = %d", isRepeat);
             }
 
-            // if bad repeating chord, don't evaluate, just give terrible scored
+            // If bad repeating chord, don't evaluate, just give terrible scored.
             const int currentPenalty = isRepeat ? ProgressionAnalyzer::MAX_PENALTY : progressionPenalty(options, lowestPenalty, prevPrev, prev, currentChord, show, stats);
-            // SQINFO("curPen=%d", currentPenalty);
             if (currentPenalty == 0) {
-                // printf("found penalty 0\n");
                 if (history) {
                     history->onNewChord(currentChord->rank, root);
                 }
@@ -148,10 +145,7 @@ const Chord4* HarmonyChords::find(
             }
         }
     }
-    // assert(bestChord);
-    // printf("didn't find perfect, returning penalty = %d\n", lowestPenalty);
     if (history && bestChord) {
-        // SQINFO("will add to hist, bc = %p", bestChord);
         history->onNewChord(bestChord->rank, root);
     }
     return bestChord;
@@ -199,12 +193,6 @@ int HarmonyChords::progressionPenalty(
     const bool firstEqualsThird = (*current == *prevPrev);
 
     if (firstEqualsThird) {
-#if 0
-        printf("first equals third\n");
-        printf("penalty %s\n", current->toString().c_str());
-        printf("first = %s\n", prevPrev->toString().c_str());
-        printf("second = %s\n", prev->toString().c_str());
-#endif
         currentPenalty += ProgressionAnalyzer::PENALTY_FOR_REPEATED_CHORDS;
     }
     return currentPenalty;

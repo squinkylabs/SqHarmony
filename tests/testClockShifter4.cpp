@@ -5,24 +5,37 @@
 using Comp = ClockShifter4;
 using CompPtr = std::shared_ptr<Comp>;
 
-// clocks high once, then low
-static void clockIt(CompPtr shifter, int cyclesLow) {
-    shifter->process(true, true);
-    for (int i = 0; i < cyclesLow; ++i) {
-        shifter->process(false, false);  // Note very low duty cycle.
+static int clockItLow(CompPtr shifter, int count) {
+    int clocksSeen = 0;
+    for (int i = 0; i < count; ++i) {
+        const bool b = shifter->process(false, false);
+        if (b) {
+            clocksSeen++;
+        }
     }
+    return clocksSeen;
 }
 
-// Sends two clocks, with 7 non-clocks in-between.
+// Clocks high once, then low for period-1 cycles.
+static int clockIt(CompPtr shifter, int period) {
+    int clocksSeen = 0;
+    if (shifter->process(true, true)) {
+        clocksSeen++;
+    }
+    return clocksSeen + clockItLow(shifter, period - 1);
+}
+
+// Sends two clocks, with totalPeriod-1 non-clocks in-between.
 static void prime(CompPtr shifter, int totalPeriod) {
     assert(totalPeriod > 1);
-    clockIt(shifter, totalPeriod - 1);
+    clockIt(shifter, totalPeriod);
     shifter->process(true, true);
     assert(shifter->freqValid());
 }
 
-static CompPtr makeAndPrime(int totalPeriod) {
+static CompPtr makeAndPrime(int totalPeriod, float shift = 0) {
     CompPtr shifter = std::make_shared<Comp>();
+    shifter->setShift(shift);
     prime(shifter, totalPeriod);
     return shifter;
 }
@@ -52,16 +65,19 @@ static void testStraightThrough() {
 }
 
 static void testStraightThrough2() {
+   // SQINFO("--- test straight through2");
     CompPtr shifter = std::make_shared<Comp>();
     // Prime for period = 4, 75% duty cycle. no shift
     shifter->process(true, true);
     shifter->process(false, true);
     shifter->process(false, true);
     shifter->process(false, false);
+   // SQINFO("test done with prime, will send first clock");
     // first clock
     bool b = shifter->process(true, true);
     assertEQ(b, true);
 
+  //  SQINFO("test done with prime, will send first low clock");
     // second clock
     b = shifter->process(false, false);
     assertEQ(b, true);
@@ -76,6 +92,7 @@ static void testStraightThrough2() {
 }
 
 static void testHalfCycleDelay() {
+    //SQINFO("----- testHalfCycleDelay");
     // 8 periods, just at start
     CompPtr shifter = makeAndPrime(8);
     shifter->setShift(.5);
@@ -89,9 +106,15 @@ static void testHalfCycleDelay() {
     // 3
     b = shifter->process(false, false);
     assertEQ(b, false);
+
     // 4
     b = shifter->process(false, false);
     assertEQ(b, true);
+    // assertEQ(b, false);
+
+    // 5
+    b = shifter->process(false, false);
+    assertEQ(b, false);
 }
 
 static void testHalfCycleDelay2() {
@@ -143,9 +166,11 @@ static void testHalfCycleDelay2() {
 }
 
 static void testDelaySub(int period, float rawDelay) {
-    CompPtr shifter = makeAndPrime(period);
+   // SQINFO("--- testDelaySub period=%d, rawDelay = %f", period, rawDelay);
+    CompPtr shifter = makeAndPrime(period, rawDelay);
     bool sawAClock = false;
-    shifter->setShift(rawDelay);
+
+    // Now get the normalized delay from rawDelay.
     float delay = rawDelay;
     while (delay < 0) {
         delay += 1.0;
@@ -171,6 +196,116 @@ static void testDelaySub(int period, float rawDelay) {
     assertEQ(sawAClock, true);
 }
 
+static void testClockIt() {
+    const int period = 23;
+    CompPtr shifter = makeAndPrime(period);
+    int x = clockIt(shifter, period);
+    assertEQ(x, 1);
+}
+
+static void testSetDelayMidCycle() {
+ //   SQINFO("---- testSetDelayMidCycle ----");
+    const int period = 12;
+    CompPtr shifter = makeAndPrime(period);
+    // At this point we have put in trigger + 11 cycles no trigger + tritter
+
+    // we got one clock during the prime, right at the end
+    int clocksReceived = 1;
+    int clocksSent = 0;
+    shifter->setShift(.1);  // set for small delay
+ //   SQINFO("test just set shift to .1");
+    clocksReceived += clockItLow(shifter, 7);  // clocks a few more time;
+    assertEQ(clocksReceived, 1);
+}
+
+static void testIncreaseDelayMidCycle() {
+  //  SQINFO("---- testSetDelayMidCycle ----");
+
+    // start with period 12, shift .5
+    const int period = 12;
+    CompPtr shifter = makeAndPrime(period, .5);
+    // At this point we have put in trigger + 11 cycles no trigger + trigger
+    int clocksGenerated = 0;
+    clocksGenerated += clockItLow(shifter, 5);  // take almost to trigger.
+    assertEQ(clocksGenerated, 0);
+    clocksGenerated += shifter->process(false, false) ? 1 : 0;
+    // now we should emit a clock from shift = .5;
+    assertEQ(clocksGenerated, 1);
+
+    // b
+    clocksGenerated += clockItLow(shifter, 5);      // finish out this period
+    assertEQ(clocksGenerated, 1);
+
+  //  SQINFO("now clock and then 6 samples");
+    clocksGenerated += clockIt(shifter, 6);          // almost up to next clock
+    assertEQ(clocksGenerated, 1);
+
+    // c
+ //   SQINFO("now change shift");
+    shifter->setShift(.5 + .1);  // Set for small additional delay.
+
+    // with shift still at .5, we would expect a clock here,
+    // but with the extra .1 delay, that should be postponed/
+    clocksGenerated += shifter->process(false, false) ? 1 : 0;
+    assertEQ(clocksGenerated, 1);
+
+    // now should clock, delayed
+    clocksGenerated += shifter->process(false, false) ? 1 : 0;
+    assertEQ(clocksGenerated, 2);
+
+    clocksGenerated += clockItLow(shifter, 5);      // finish out this period
+    assertEQ(clocksGenerated, 2);                   // and no more clocks.
+}
+
+static void
+testDecreaseDelayMidCycle() {
+    // start with period 17, shift .5
+    const int period = 17;
+    CompPtr shifter = makeAndPrime(period, .5);
+    // At this point we have put in trigger + 11 cycles no trigger + trigger
+    int clocksGenerated = 0;
+    clocksGenerated += clockItLow(shifter, 7);  // take almost to trigger. 8 too high, 6 too low.
+    assertEQ(clocksGenerated, 0);
+    clocksGenerated += shifter->process(false, false) ? 1 : 0;
+    assertEQ(clocksGenerated, 1);
+
+    // b
+    clocksGenerated += clockItLow(shifter, 7);      // finish out this period
+    assertEQ(clocksGenerated, 1);
+
+#if 0   // this is without shift, for ref
+    SQINFO("now clock and then 8 samples");
+    clocksGenerated += clockIt(shifter, 8);          // almost up to next clock. 
+
+    //c
+    // this is without changing shift
+    clocksGenerated += shifter->process(false, false) ? 1 : 0;
+    assertEQ(clocksGenerated, 2);
+#else 
+ //SQINFO("now clock and then 8 samples");
+    clocksGenerated += clockIt(shifter, 8);          // almost up to next clock. (above, was 8)
+    assertEQ(clocksGenerated, 1);
+  //  SQINFO("just set shift amount");
+    shifter->setShift(.5 - .1);                     // this may move to "before" where we currently are.
+    //c
+    // this is without changing shift
+    clocksGenerated += shifter->process(false, false) ? 1 : 0;
+
+    // nomally we would go new, but shirt put us earlier.
+  //  assertEQ(clocksGenerated, 2);
+
+    clocksGenerated += clockItLow(shifter, 2);
+    assertEQ(clocksGenerated, 2);
+
+#endif
+    assert(false);
+}
+
+static void testPosThenNeg() {
+    // test not written yet.
+    assert(false);
+}
+
 static void testDelay() {
     testDelaySub(8, .5);
     testDelaySub(12, .5);
@@ -182,13 +317,99 @@ static void testDelayNeg() {
     testDelaySub(8, -.25);
 }
 
+class TestClockShifter4 {
+public:
+    static void testPeriod() {
+        CompPtr shifter = std::make_shared<Comp>();
+        bool b = shifter->process(false, false);
+        assertEQ(shifter->_freqMeasure.freqValid(), false);
+        assert(!b);
+        b = shifter->process(false, false);
+        assertEQ(shifter->_freqMeasure.freqValid(), false);
+
+        // first clock
+        b = shifter->process(true, true);
+        assertEQ(shifter->_freqMeasure.freqValid(), false);
+
+        // four low clocks.
+        for (int i = 0; i < 4; ++i) {
+            bool b = shifter->process(false, false);
+            assertEQ(shifter->_freqMeasure.freqValid(), false);
+        }
+        // now this clock should make us stable.
+        b = shifter->process(true, true);
+        assertEQ(shifter->_freqMeasure.freqValid(), true);
+        assertEQ(shifter->_freqMeasure.getPeriod(), 5);
+    }
+
+    static void testMakeAndPrime() {
+        const int period = 13;
+        CompPtr shifter = makeAndPrime(period);
+        assertEQ(shifter->_freqMeasure.freqValid(), true);
+        assertEQ(shifter->_freqMeasure.getPeriod(), 13);
+    }
+
+    static void testHalfCycleDelay() {
+    //    SQINFO("----- testHalfCycleDelay");
+        // 8 periods, just at start
+        CompPtr shifter = makeAndPrime(8);
+        shifter->setShift(.5);
+
+        // 1
+        bool b = shifter->process(false, false);
+        assertEQ(b, false);
+        // 2
+        b = shifter->process(false, false);
+        assertEQ(b, false);
+        // 3
+        b = shifter->process(false, false);
+        assertEQ(b, false);
+
+        // 4
+        b = shifter->process(false, false);
+        assertEQ(b, true);
+        // assertEQ(b, false);
+
+        // 5
+        b = shifter->process(false, false);
+        assertEQ(b, false);
+    }
+
+    static void testGetNormalizedPosition() {
+        auto shifter = makeAndPrime(10, 0);
+        auto acc = shifter->_phaseAccumulator;
+        assertEQ(acc, 0);
+        assertEQ(shifter->getNormalizedPosition(), 0);
+        clockItLow(shifter, 5);
+        acc = shifter->_phaseAccumulator;
+        assertEQ(acc, 5);
+        assertEQ(shifter->getNormalizedPosition(), .5);
+        clockItLow(shifter, 2);
+        acc = shifter->_phaseAccumulator;
+        assertEQ(acc, 7);
+        assertClose(shifter->getNormalizedPosition(), .7, .0001);
+    }
+};
+
 void testClockShifter4() {
     testCanCall();
+    TestClockShifter4::testPeriod();
+    TestClockShifter4::testMakeAndPrime();
+    TestClockShifter4::testGetNormalizedPosition();
+
     testStraightThrough();
     testStraightThrough2();
     testInputValid();
+
     testHalfCycleDelay();
     testHalfCycleDelay2();
-    testDelay();
+    testClockIt();
+    testDelay();  
     testDelayNeg();
+
+    testSetDelayMidCycle();
+    testIncreaseDelayMidCycle();
+    // This one doesn't work yet
+    //testDecreaseDelayMidCycle();
+    // testPosThenNeg();
 }

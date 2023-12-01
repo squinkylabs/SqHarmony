@@ -75,17 +75,17 @@ class PAStats;
 
 class Chord4 {
 public:
-    Chord4(const Options& options, int nDegree, bool show=false);  // pass scale degree in constructor
-                                                  // This construct will advance us to valid guy
+    Chord4(const Options& options, int nDegree, bool show = false);  // Pass scale degree in constructor.
+                                                                     // This construct will advance us to valid guy.
 
     bool operator==(const Chord4& that) const {
         return _notes == that._notes;
     }
-    // TODO: get rid of this default ctor
+
     Chord4();
     ~Chord4();
 
-    // just for hacky debugging support
+    // Just for hacky debugging support.
     void _addRef();
 
     /**
@@ -106,8 +106,8 @@ public:
 
     const HarmonyNote* fetchNotes() const;  // This returns pointer so you can get at all 4.
     const ScaleRelativeNote* fetchSRNNotes() const;
-    bool isInChord(const Options& op, HarmonyNote test) const;  // Tells if a note pitch is valid note in this chord
-    int fetchRoot() const;                                      // tell root of chord
+    bool isInChord(const Options& op, HarmonyNote test) const;  // Tells if a note pitch is valid note in this chord.
+    int fetchRoot() const;                                      // Tell root of chord.
     INVERSION inversion(const Options& op) const;               // 0 if root, 1 it 1st inv, etc..
 
 #ifdef _DEBUG
@@ -124,19 +124,19 @@ public:
     int rank = 0;  // lower rank is "better". Unique index into the chord lists.
 
     /**
-     * @brief 
-     * 
-     * @return ChordRelativeNote 
+     * @brief
+     *
+     * @return ChordRelativeNote
      * @param voiceNumber is BASS..SOP
      */
     ChordRelativeNote chordInterval(const Options&, int voiceNumber) const;
+
 private:
     bool isChordOk(const Options&) const;  // Tells if the current chord is "good"
     bool pitchesInRange(const Options&) const;
     ChordRelativeNote chordInterval(const Options&, HarmonyNote) const;  // converts from scale rel to chord rel
     bool isCorrectDoublingTonal(const Options& option) const;
     bool isCorrectDoublingBass(const Options& option) const;
-
 
     bool inc(const Options&);  // go to next chord (valid or not), return true if can't
 

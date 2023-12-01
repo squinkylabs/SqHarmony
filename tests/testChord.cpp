@@ -303,7 +303,7 @@ static void testRanges(bool minor) {
 
     Options options = makeOptions(minor);
     Chord4ListPtr lNorm = std::make_shared<Chord4List>(options, 1);
-    options.style->setRangesPreference(Style::Ranges::NARROW_RANGE);
+    options.style->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     Chord4ListPtr lNarrow = std::make_shared<Chord4List>(options, 1);
 
     sizeNorm = lNorm->size();

@@ -6,7 +6,9 @@
 #include "asserts.h"
 
 static StylePtr makeStyle() {
-    return std::make_shared<Style>();
+    auto style = std::make_shared<Style>();
+    style->setRangesPreference(Style::Ranges::WIDE_RANGE);
+    return style;
 }
 
 static KeysigOldPtr makeKeysig(bool minor) {
@@ -81,6 +83,7 @@ static void testRootCInversion4() {
     // fourth: root position double root, good
     const Options options = makeOptions(false);
     auto chord = Chord4::fromString(options, 4, "F2A3F4C5");
+    assert(chord);
     assertEQ(chord->isCorrectDoubling(options), true);
 }
 
@@ -93,6 +96,9 @@ static void testRootCInversion5() {
 }
 
 static void testRootCInversion6() {
+    if (Style::doubleBass()) {
+        return;     // this rule only for double root.
+    }
     // fourth: root position double fifth, ok
     const Options options = makeOptions(false);
     auto chord = Chord4::fromString(options, 4, "F2C3C4A4");
@@ -101,6 +107,9 @@ static void testRootCInversion6() {
 }
 
 static void testRootCInversion7() {
+    if (Style::doubleBass()) {
+        return;     // this rule only for double root.
+    }
     // second: root position double root, ng
     const Options options = makeOptions(false);
     auto chord = Chord4::fromString(options, 2, "D2F2A2D3");
@@ -109,6 +118,9 @@ static void testRootCInversion7() {
 }
 
 static void testRootCInversion8() {
+    if (Style::doubleBass()) {
+        return;     // this rule only for double root.
+    }
     // second: root position double third, good
     const Options options = makeOptions(false);
     auto chord = Chord4::fromString(options, 2, "D2F2A2F3");

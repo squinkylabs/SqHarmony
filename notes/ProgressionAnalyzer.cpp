@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <sstream>
 
 #include "Chord4.h"
@@ -16,9 +15,6 @@ void ProgressionAnalyzer::showAnalysis() {
     showAlways = true;
 }
 
-/* ProgressionAnalyzer::ProgressionAnalyzer(const Chord4 * const C1, const Chord4 * const C2)
-    : First (C1), Next(C2)
- */
 ProgressionAnalyzer::ProgressionAnalyzer(
     const Chord4* C1,
     const Chord4* C2,
@@ -43,6 +39,27 @@ ProgressionAnalyzer::ProgressionAnalyzer(
 #endif
 }
 
+class DebugStringAccumulator {
+public:
+    std::stringstream& get() {
+        return str;
+    }
+    ~DebugStringAccumulator() {
+        if (_shouldShow) {
+            const std::string s = str.str();
+            SQINFO("::: Will now output penalty string len %lld", s.length());
+            SQINFO("%s", s.c_str());
+            SQINFO(" ::: end :::");
+        }
+    }
+    DebugStringAccumulator(bool show) : _shouldShow(show) {
+    }
+
+private:
+    std::stringstream str;
+    const bool _shouldShow;
+};
+
 int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) const {
 #if 0  // let's get rid of this fake rule
     if (!FakeRuleForDesc(options)) {
@@ -51,16 +68,16 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
 #endif
     assert(&options);
     assert(this);
+    DebugStringAccumulator ds(_show);
 
-    std::stringstream str;
     if (_show) {
-        str << ".. enter getPenalty." << std::endl;
-        str << "first: ";
-        str << first->toString();
-        str << " second: ";
-        str << next->toString() << std::endl;
-        str << "upper bound ";
-        str << upperBound << std::endl;
+        ds.get() << ".. enter getPenalty." << std::endl;
+        ds.get() << "first: ";
+        ds.get() << first->toString();
+        ds.get() << " second: ";
+        ds.get() << next->toString() << std::endl;
+        ds.get() << "upper bound ";
+        ds.get() << upperBound << std::endl;
     }
 
     int totalPenalty = 0;
@@ -73,12 +90,12 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
         _stats->_ruleForPara++;
     }
     if (p && _show) {
-        str << "penalty: RuleForPara " << p << std::endl;
+        ds.get() << "penalty: RuleForPara " << p << std::endl;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after para with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after para with " << totalPenalty << std::endl;
+            // SQINFO("%s", str.str().c_str());
         }
         return totalPenalty;
     }
@@ -87,15 +104,14 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForCross();
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForCross " << p << std::endl;
+        ds.get() << "penalty: RuleForCross " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForCross++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after cross with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after cross with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
@@ -104,15 +120,14 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForNoneInCommon(options);
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForNoneInCommon " << p << std::endl;
+        ds.get() << "penalty: RuleForNoneInCommon " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForNoneInCommon++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after NIC with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after NIC with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
@@ -121,15 +136,14 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForSopranoJump(options);
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForSopranoJump " << p << std::endl;
+        ds.get() << "penalty: RuleForSopranoJump " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForSopranoJump++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after soprano jump size with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after soprano jump size with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
@@ -138,15 +152,14 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForLeadingTone();
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForLeadingTone " << p << std::endl;
+        ds.get() << "penalty: RuleForLeadingTone " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForLeadingTone++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after leading tone with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after leading tone with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
@@ -155,15 +168,14 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForJumpSize();
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForJumpSize " << p << std::endl;
+        ds.get() << "penalty: RuleForJumpSize " << p << std::endl;
     }
     if (p && _stats) {
         _stats->ruleForJumpSize++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after jump size with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after jump size with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
@@ -172,7 +184,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForInversions(options);
     totalPenalty += p;
     if (p && _show) {
-        str << "Penalty: RuleForConsecInversions " << p << std::endl;
+        ds.get() << "Penalty: RuleForConsecInversions " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForInversions++;
@@ -180,8 +192,7 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
 
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after consec inv with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after consec inv with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
@@ -189,19 +200,18 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     // ---- Rule4Same
     p = rule4Same();
     if (p && _show) {
-        str << "back from rule for same with " << p <<  std::endl;
+        ds.get() << "back from rule for same with " << p << std::endl;
     }
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: Rule4Same " << p << " tot=" << totalPenalty << std::endl;
+        ds.get() << "penalty: Rule4Same " << p << " tot=" << totalPenalty << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForSame++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after 4sam with " << totalPenalty << std::endl;
-            SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after 4sam with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
@@ -210,15 +220,15 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForDoubling(options);
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForDoubling " << p << std::endl;
+        ds.get() << "penalty: RuleForDoubling " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForDoubling++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after doubling with " << totalPenalty << std::endl;
-            //SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after doubling with " << totalPenalty << std::endl;
+            // SQINFO("%s", str.str().c_str());
         }
         return totalPenalty;
     }
@@ -227,15 +237,15 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForSpreading(options);
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForSpreading " << p << std::endl;
+        ds.get() << "penalty: RuleForSpreading " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForSpreading++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after spreading with " << totalPenalty << std::endl;
-            //SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after spreading with " << totalPenalty << std::endl;
+            // SQINFO("%s", str.str().c_str());
         }
         return totalPenalty;
     }
@@ -244,23 +254,21 @@ int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) cons
     p = ruleForDistanceMoved(options);
     totalPenalty += p;
     if (p && _show) {
-        str << "penalty: RuleForDistanceMoved " << p << std::endl;
+        ds.get() << "penalty: RuleForDistanceMoved " << p << std::endl;
     }
     if (p && _stats) {
         _stats->_ruleForDistanceMoved++;
     }
     if (totalPenalty >= upperBound) {
         if (_show) {
-            str << "-- leaving getPenalty after distance moved with " << totalPenalty << std::endl;
-            //SQINFO("%s", str.str().c_str());
+            ds.get() << "-- leaving getPenalty after distance moved with " << totalPenalty << std::endl;
         }
         return totalPenalty;
     }
 
     //---------------------
     if (_show) {
-        str << "-- leaving getPenalty 262 (bottom) with total " << totalPenalty << std::endl;
-        //SQINFO("%s", str.str().c_str());
+        ds.get() << "-- leaving getPenalty 278 (bottom) with total " << totalPenalty << std::endl;
     }
 
     return totalPenalty;
@@ -271,7 +279,8 @@ int ProgressionAnalyzer::ruleForJumpSize() const {
     for (int i = BASS; i <= SOP; i++) {
         const int jump = first->fetchNotes()[i] - next->fetchNotes()[i];
         if (abs(jump) > 8) {
-           // if (_show) SQINFO("BIG jump in voice %d", i);
+            // TODO: actually in this domain units are semitones.
+            // if (_show) SQINFO("BIG jump in voice %d", i);
             return AVG_PENALTY_PER_RULE;
         }
     }
@@ -279,16 +288,16 @@ int ProgressionAnalyzer::ruleForJumpSize() const {
 }
 
 int ProgressionAnalyzer::ruleForSopranoJump(const Options& options) const {
+    if (_show) SQINFO("enter rule for soprano jump");
     if (!options.style->limitSopranoJumps()) {
         return 0;
     }
     const int jump = first->fetchNotes()[SOP] - next->fetchNotes()[SOP];
+    if (_show) SQINFO("jump is %d", jump);
     if (abs(jump) > 4) {  // was 4, try 3
-        // if (_show) SQINFO("moderately big jump in SOP voice");
+        if (_show) SQINFO("moderately big jump in SOP voice");
         return AVG_PENALTY_PER_RULE;
     }
-
-    
     return 0;
 }
 
@@ -302,7 +311,6 @@ int ProgressionAnalyzer::ruleForInversions(const Options& options) const {
     const bool firstChordInverted = first->inversion(options) != ROOT_POS_INVERSION;
     const bool secondChordInverted = next->inversion(options) != ROOT_POS_INVERSION;
 
-    // bool fRet = true;
     bool twoInversionInARow = false;
     if (firstChordInverted && secondChordInverted) {
         twoInversionInARow = true;
@@ -319,7 +327,7 @@ int ProgressionAnalyzer::ruleForInversions(const Options& options) const {
     if (twoInversionInARow) {
         penalty += AVG_PENALTY_PER_RULE;
     }
-   
+
     return penalty;
 }
 
@@ -502,12 +510,11 @@ int ProgressionAnalyzer::ruleForNoneInCommon56(const Options& options) const {
     assert(leadingToneVoice >= BASS);
 
     const auto nextSRNotes = next->fetchSRNNotes();
-;
+
     // Leading-tone moves up one degree to the tonic.
     if ((int(nextSRNotes[leadingToneVoice]) != 1) ||
         (_motion[leadingToneVoice] > 2) ||
         (_motion[leadingToneVoice] < 1)) {
-
         return AVG_PENALTY_PER_RULE;
     }
 
@@ -526,15 +533,13 @@ int ProgressionAnalyzer::ruleForNoneInCommon56(const Options& options) const {
         return AVG_PENALTY_PER_RULE;
     }
 
-    // SQINFO("got here, third must be doubled");
-
-    // the other two voices descend to the nearest position in the chord
+    // The other two voices descend to the nearest position in the chord.
     // I think this means that one of the thirds descends.
     int thirdsAscending = 0;
     for (int i = BASS; i <= SOP; ++i) {
         if (i == leadingToneVoice) {
-            // we have already taken care of this at the start. so we are ok here,
-            // and can ignore that voice
+            // We have already taken care of this at the start. so we are ok here,
+            // and can ignore that voice.
             continue;
         }
         const auto voiceDirection = _direction[i];
@@ -550,30 +555,24 @@ int ProgressionAnalyzer::ruleForNoneInCommon56(const Options& options) const {
             ++thirdsAscending;
         }
         if (thirdsAscending > 1) {
-            // SQINFO("both thirds are ascending %s, %s",
-            //    first->toString().c_str(),
-            //    next->toString().c_str());
             return AVG_PENALTY_PER_RULE;
         }
     }
-
-    // SQINFO("got here, v-vi must be good");
-    // const int degree = int(nextNotes[i]);
-    // if (degree == 3) {
-    //     ++numThirdsInVI;
-    // }
-
-    // assert(false);
     return 0;
 }
 
 int ProgressionAnalyzer::ruleForNoneInCommonNorm(const Options& options) const {
+    if (_show) {
+        SQINFO("enter ruleForNoneInCommonNorm");
+    }
     const DIREC di = _direction[TENOR];
     // No notes in common: upper 3 move opposite of bass.
 
     for (int i = ALTO; i <= SOP; i++) {
         if (di != _direction[i]) {
-            if (_show) SQINFO("violates notes in common rule 1a");
+            if (_show) {
+                SQINFO("violates notes in common rule 1a");
+            }
             return SLIGHTLY_HIGHER_PENALTY_PER_RULE;
         }
     }
@@ -587,7 +586,9 @@ int ProgressionAnalyzer::ruleForNoneInCommonNorm(const Options& options) const {
     // to nearest
     for (int i = BASS; i <= SOP; i++) {
         if (!IsNearestNote(options, i)) {
-            if (_show) SQINFO("violates notes in common rule 1c");
+            if (_show) {
+                SQINFO("violates notes in common rule 1c");
+            }
             return AVG_PENALTY_PER_RULE;
         }
     }
@@ -596,7 +597,6 @@ int ProgressionAnalyzer::ruleForNoneInCommonNorm(const Options& options) const {
 }
 
 int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
-
     assert(first->isAcceptableDoubling(options));
     assert(next->isAcceptableDoubling(options));
 
@@ -610,8 +610,8 @@ int ProgressionAnalyzer::ruleForDoubling(const Options& options) const {
         (next->fetchRoot() == 6) &&
         options.style->getNoNotesInCommon() &&
         options.style->usePistonV_VI_exception()) {
-        // no notes in common rule for piston will already have its own doubling, which
-        // is "non standard"
+        // No notes in common rule for piston will already have its own doubling, which
+        // is "non standard".
         // SQINFO("not evaluating doubling for piston V VI");
         return 0;
     }
@@ -625,7 +625,7 @@ int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
     if (options.style->pullTogether()) {
         // Distance from bass to tenor 9 and 13 were ok for this.
 
-        // distance from bass to sop
+        // Distance from bass to sop.
         const int distance = next->fetchNotes()[3] - next->fetchNotes()[0];
         if (distance > 12) {
             ret = PENALTY_FOR_FAR_APART;
@@ -640,11 +640,9 @@ int ProgressionAnalyzer::ruleForSpreading(const Options& options) const {
 
 int ProgressionAnalyzer::ruleForDistanceMoved(const Options& options) const {
     if (_notesInCommon == 0) {
-        return 0;       // no notes in common rules may require more movement.
+        return 0;  // no notes in common rules may require more movement.
     }
-    // if (first->fetchRoot() == 5 && next->fetchRoot() == 6 && options.style->usePistonV_VI_exception()) {
-    //     return 0;
-    // }
+
     int totalPenalty = 0;
 
     // Skip sop voice, since we already have a rule for it.
@@ -654,10 +652,9 @@ int ProgressionAnalyzer::ruleForDistanceMoved(const Options& options) const {
         const int diffSquared = (firstPitch - nextPitch) * (firstPitch - nextPitch);
         totalPenalty += diffSquared;
     }
-   // SQINFO("seeing dist = %d", totalPenalty);
     // TODO: use defined values
-    const int differenceThreshold = 30; // 50 worked fine, 30ok 10 too small
-    return (totalPenalty > differenceThreshold) ? 50 : 0;       // 50 ok
+    const int differenceThreshold = 30;                    // 50 worked fine, 30ok 10 too small
+    return (totalPenalty > differenceThreshold) ? 50 : 0;  // 50 ok
 }
 
 /* bool ProgressionAnalyzer::IsNearestNote(int nVoice)
@@ -669,14 +666,13 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
 
     for (done = false, ntFirst = first->fetchNotes()[nVoice], ntNext = next->fetchNotes()[nVoice];
          !done;) {
-        // In this look, we will be moving the first note towords the next note...
-
+        // In this look, we will be moving the first note towards the next note...
         if ((int)ntFirst == (int)ntNext) {
             return true;
         }
-        if (next->isInChord(options, ntFirst))  // if while we are moving him, we hit a note
+        if (next->isInChord(options, ntFirst))  // If while we are moving him, we hit a note
                                                 // that is in the chord, first, then THAT note must be
-                                                // the first one
+                                                // the first one.
         {
             return false;
         }
@@ -689,8 +685,6 @@ bool ProgressionAnalyzer::IsNearestNote(const Options& options, int nVoice) cons
     return true;
 }
 
-/* void ProgressionAnalyzer::FigureMotion()
- */
 void ProgressionAnalyzer::figureMotion() {
     for (int i = BASS; i <= SOP; i++)  // for each voice
     {
@@ -706,26 +700,19 @@ void ProgressionAnalyzer::figureMotion() {
     }
 }
 
-/*  int Chord4::InCommon(const Chord4 * ThisGuy) const
- *
- * find how many voices are in common (by degree, not abs pitch)
- */
-
 int ProgressionAnalyzer::_CalcInCommon() const {
     bool test[10];  // 8 degrees + 0 + 1 spare
     int matches;
     int i, nPitch;
 
-    memset(test, 0, sizeof(test));  // clear our test hit array
+    memset(test, 0, sizeof(test));  // Clear our test hit array.
 
     for (i = 0; i < CHORD_SIZE; i++) {
-        //    nPitch = First.FetchNotes()[i];	// get the pitch of this chord member
-        nPitch = first->fetchSRNNotes()[i];  // get the scale degree of this chord member
-        test[nPitch] = true;                 // mark that we are here
+        nPitch = first->fetchSRNNotes()[i];  // Get the scale degree of this chord member.
+        test[nPitch] = true;                 // Mark that we are here.
     }
 
-    // We have now marked all the pitches in our chord
-
+    // We have now marked all the pitches in our chord.
     for (i = matches = 0; i < CHORD_SIZE; i++) {
         nPitch = next->fetchSRNNotes()[i];
         if (test[nPitch]) matches++;
@@ -733,16 +720,6 @@ int ProgressionAnalyzer::_CalcInCommon() const {
     return matches;
 }
 
-/*
- int _ruleForLeadingTone=0;
-    int _ruleForPara=0;
-    int _ruleForCross=0;
-    int _ruleForSame=0;
-    int _ruleForNoneInCommon=0;
-    int _ruleForDoubling=0;
-    int _ruleForSpreading=0;
-    int ruleForJumpSize=0;
-    int _ruleForSopranoJump=0;*/
 void PAStats::dump() const {
     SQINFO("ProgressionAnalyzer stats:");
     SQINFO("  _ruleForLeadingTone %d", _ruleForLeadingTone);

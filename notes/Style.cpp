@@ -33,7 +33,9 @@ bool Style::getNoNotesInCommon() const {
 
 int Style::minSop() const {
     // new for 2023: make narrow not include C, it starts at D
-    return isNarrowRange() ? 62 : 60;
+   // return isNarrowRange() ? 62 : 60;
+   // For this release, let's keep middle C.
+   return 60;
 }
 
 int Style::maxSop() const {
@@ -76,7 +78,8 @@ int Style::maxTenor() const {
 int Style::minBass() const {
     // was 39
     // New for 2023: bass D on wide, F on narrow
-    return isNarrowRange() ? 41 : 38;
+    // well, back track from that 41 in vocal range back to 39
+    return isNarrowRange() ? 39 : 38;
 }
 
 int Style::maxBass() const {

@@ -9,9 +9,9 @@
 
 class Chord4List {
 public:
-    Chord4List(const Options& options, int root, bool show=false);
+    Chord4List(const Options& options, int root, bool show = false);
 
-    int size() const;  // how many chords are in list
+    int size() const;  // How many chords are in list?
 
     // If there is an error constructing chords, this is how we signal it.
     bool isValid() const { return !chords.empty(); }
@@ -31,11 +31,11 @@ inline const Chord4* Chord4List::get2(int n) const {
     if (!isValid()) {
         return nullptr;
     }
-    // SQINFO("Chord4List::get2 n=%d size=%d", n, int(size()));
     if (n >= size()) {
         return nullptr;
     }
     assert(n < size());
     return chords[n].get();
 }
+
 using Chord4ListPtr = std::shared_ptr<Chord4List>;

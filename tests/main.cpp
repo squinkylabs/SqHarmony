@@ -42,6 +42,7 @@ extern void testPhasePatterns();
 extern void testOneShotSampleTimer();
 extern void testClockShifter3();
 extern void testClockShifter4();
+extern void testClockShifter4b();
 extern void testShiftMath();
 extern void testSchmidtTrigger();
 extern void testShiftCalc();
@@ -80,6 +81,7 @@ int main(const char**, int) {
     testShiftCalc();
     testClockShifter3();
     testClockShifter4();
+    testClockShifter4b();
     testPhasePatterns();
     testClockMult();
     testMultiplier();

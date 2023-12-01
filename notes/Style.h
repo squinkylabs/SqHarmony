@@ -2,6 +2,7 @@
 
 #define CRAZY_STYLE 0
 
+#include <assert.h>
 #include <iostream>
 #include <memory>
 
@@ -16,12 +17,12 @@ public:
     bool allowVoiceCrossing() const;  // True is we allow the alto to go above the sop in a given chord
     int maxUnison() const;            // may number of unisons allowed in a chord
     bool allow2ndInversion() const;
-    bool allow1stInversion() const ;
+    bool allow1stInversion() const;
 
     bool requireStdDoubling() const;  // chords required to double root, etc???
-                                // I think this means double root always!!
-    bool forceDescSop();        // silly test to force melody to descend
-                                //  bool allowConsecInversions();  // allow a first or second inversion to follow another?
+                                      // I think this means double root always!!
+    bool forceDescSop();              // silly test to force melody to descend
+                                      //  bool allowConsecInversions();  // allow a first or second inversion to follow another?
 
     int minSop() const;
     int maxSop() const;
@@ -44,9 +45,9 @@ public:
     InversionPreference getInversionPreference() const;
 
     enum class Ranges {
-        NORMAL_RANGE,
         ENCOURAGE_CENTER,  // weight rule
-        NARROW_RANGE       // limit extremes
+        VOCAL_RANGE,       // limit extremes to vocal range.
+        WIDE_RANGE,
     };
     void setRangesPreference(Ranges);
     Ranges getRangesPreference() const;
@@ -76,28 +77,46 @@ public:
         // return false;
     }
 
+    bool isNarrowRange() const;
+
+    static bool doubleBass() {
+        return true;        // For now the new rule is not trustworthy.
+    }
+
 private:
     InversionPreference inversionPreference = InversionPreference::DISCOURAGE_CONSECUTIVE;
-    Ranges rangesPreference = Ranges::NORMAL_RANGE;
+    Ranges rangesPreference = Ranges::VOCAL_RANGE;
     bool enableNoNotesInCommonRule = true;
-
-    bool isNarrowRange() const {
-        return (rangesPreference == Ranges::NARROW_RANGE);
-    }
 };
 
 using StylePtr = std::shared_ptr<Style>;
 
+inline bool Style::isNarrowRange() const {
+    bool narrow = false;
+    switch (rangesPreference) {
+        case Ranges::VOCAL_RANGE:
+        case Ranges::ENCOURAGE_CENTER:
+            narrow = true;
+            break;
+        case Ranges::WIDE_RANGE:
+            narrow = false;
+            break;
+        default:
+            assert(false);
+    }
+
+    return narrow;
+}
+
 /* Absolute pitch ranges: these are enforced!
  */
-
 inline int Style::absMaxPitch() const {
     int ret = 0;
 #if !CRAZY_STYLE
     ret = maxSop();  // used to be +5. seemed wrong
 #else
     a b c  // we won't support this any longer
-    SQWARN("crazy style is on");
+        SQWARN("crazy style is on");
     ret = maxSop() + 10;
 #endif
     return ret;

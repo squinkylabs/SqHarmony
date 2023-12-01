@@ -6,13 +6,17 @@ Harmony stuff other than score drawing:
 
 * Re-specify the ranges. Now "narrow" is very similar to old "don't care", and "don't care" is now even wider.
 * Enhanced rules for no-notes in common.
-* Changed defaults to "narrow mode"
-* Changed the doubling rules for triads.
+* Changed defaults to "narrow mode".
+* Added rules for leading tone in chords, and for chords whose root is the leading tone.
 
 Harmony score drawing:
 
 * Use standard figured bass chord notation.
 * Adjust spacing of score layout to make it more readable.
+
+Phase patterns is now disabled (not visible to normal users).
+
+Changed license terms.
 
 ## 2.2.1
 
@@ -27,7 +31,7 @@ New Harmony rules:
 
 * Forbid doubling of leading tones.
 * Chord of the leading tone prevented in root position.
-* Forbid melodic jumps in the soprano voice of more than a fifth.
+* Forbid melodic jumps in the soprano voice of more than five semitones.
 * Discourage motion in Bass, Tenor, and Alto. But less restrictive than the Soprano rule.
 * Implement the piston rule for V-VI progression.
 
