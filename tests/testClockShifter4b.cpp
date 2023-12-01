@@ -109,10 +109,11 @@ public:
         assert(!b);
         assertClose(shifter->getNormalizedPosition(), .6, .0001);
 
-        // now set shift to .7, on the other side of where we are
+        // Now set shift to .7, on the other side of where we are
         shifter->setShift(.7);
 
-        // now take us to the end. should have not clocks in here
+        // Now take us to the end. should have not clocks in here.
+        // We might have one, but it should be suppressed.
         b = clockItLow(shifter, 3);
         assert(!b);
 
@@ -122,5 +123,7 @@ public:
 
 void testClockShifter4b() {
     TestClockShifter::testCase1();
+
+    // case 2 doesn't pass yet.
     TestClockShifter::testCase2();
 }
