@@ -50,6 +50,9 @@ public:
     }
 
     static void testCase2() {
+        auto shifter = makeAndPrime(testPeriod, .5);
+        clockItLow(shifter, 4);         // should take us up close.
+        shifter->getNormalizedPosition();
         assert(false);
     }
 };

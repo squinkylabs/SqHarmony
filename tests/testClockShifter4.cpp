@@ -374,12 +374,29 @@ public:
         b = shifter->process(false, false);
         assertEQ(b, false);
     }
+
+    static void testGetNormalizedPosition() {
+        auto shifter = makeAndPrime(10, 0);
+        auto acc = shifter->_phaseAccumulator;
+        assertEQ(acc, 0);
+        assertEQ(shifter->getNormalizedPosition(), 0);
+        clockItLow(shifter, 5);
+        acc = shifter->_phaseAccumulator;
+        assertEQ(acc, 5);
+        assertEQ(shifter->getNormalizedPosition(), .5);
+        clockItLow(shifter, 2);
+        acc = shifter->_phaseAccumulator;
+        assertEQ(acc, 7);
+        assertClose(shifter->getNormalizedPosition(), .7, .0001);
+    }
 };
 
 void testClockShifter4() {
     testCanCall();
     TestClockShifter4::testPeriod();
     TestClockShifter4::testMakeAndPrime();
+    TestClockShifter4::testGetNormalizedPosition();
+
     testStraightThrough();
     testStraightThrough2();
     testInputValid();

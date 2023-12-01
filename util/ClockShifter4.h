@@ -12,6 +12,7 @@ public:
     bool process(bool trigger, bool clock);
     bool freqValid() const;
 
+    float getNormalizedPosition() const;
 private:
     /**
      * @brief reset on trigger, then counts up on each process count
@@ -86,4 +87,9 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
 
 inline bool ClockShifter4::freqValid() const {
     return _freqMeasure.freqValid();
+}
+
+inline float ClockShifter4::getNormalizedPosition() const {
+    assert(freqValid());
+    return float(_phaseAccumulator) / float(_freqMeasure.getPeriod());
 }
