@@ -6,8 +6,8 @@ Harmony stuff other than score drawing:
 
 * Re-specify the ranges. Now "narrow" is very similar to old "don't care", and "don't care" is now even wider.
 * Enhanced rules for no-notes in common.
-* Changed defaults to "narrow mode"
-* Changed the doubling rules for triads.
+* Changed defaults to "narrow mode".
+* Added rules for leading tone in chords, and for chords whose root is the leading tone.
 
 Harmony score drawing:
 

@@ -298,11 +298,7 @@ testDecreaseDelayMidCycle() {
     assertEQ(clocksGenerated, 2);
 
 #endif
-
-
-
     assert(false);
-
 }
 
 static void testPosThenNeg() {
