@@ -25,12 +25,12 @@ The most dramatic, and also typical control is the **Mode** control. But there a
 
 * **up** - the input is played from low to high, over and over.
 * **down** -  the input is played from high to low, over and over.
-* **up+down** - the input is played from low to high, then high to low.
-* **down+up** - the input is played from high to low, then low to high.
+* **up+down** - the input is played from low to high, then back down.
+* **down+up** - the input is played from high to low, then back down.
 * **up and down** - like up+down, except the highest and lowest are repeated.
 * **down and up** - like down+up, except the highest and lowest are repeated.
 * **inside out** - pitches are output highest, lowest, etc., working their way in to the middle. When all have been played it repeats.
-* **outside in** - Opposite of inside out. Pitches start in the middle and go outwards, getting alternately higher and lower.
+* **outside in** - opposite of inside out. Pitches start in the middle and go outwards, getting alternately higher and lower.
 * **order played** - voltages are output in the order they were input.
 * **repeat low** - the lowest note is played on all odd outputs, while the other notes are in-between, low to high.
 * **repeat high** - the highest note is played on all odd outputs, while the other notes are in-between, low to high.
@@ -43,7 +43,7 @@ The most dramatic, and also typical control is the **Mode** control. But there a
 * **Beats** - Sets the playback repetitions. When zero, does nothing. Other settings will determine the perceived number of beats in the output.
 * **Notes** - Sets the size of the input buffer. If the Notes knob is all way left, it's not limited (actually limited to 32) but other settings will only keep that many input samples.
 
-**Beats** and **Notes** are explained more in the [Rhythm](More-about-rhythms) section.
+**Beats** and **Notes** are explained more in the [Rhythm](#more-about-rhythms) section.
 
 ## Inputs
 
@@ -53,7 +53,7 @@ The most dramatic, and also typical control is the **Mode** control. But there a
 * **CV2** - A second value that will be carried around with CV. Whatever re-ordering and repeating is applied to CV will also be applied to CV2. Traditionally might be called "velocity input".
 * **Gate** - Gate input, often polyphonic. The module will sample the CV input when any gate goes from low to high. If a mono gate is patched, it will sample all the CV inputs on a low to high transition.
 * **Clk** - The master clock input. Notes are played when the clock is high, advancing to the next note on the next low to high clock transition.
-* **Rst** - reset input. Resets playback to the first step of the arpeggiator. see [below](#More-about-reset-and-clock)
+* **Rst** - reset input. Resets playback to the first step of the arpeggiator. see [below](#more-about-reset-and-clock).
 * **Strig** - shuffle trigger input. When patched, arpeggiator will not re-shuffle once it has played all the "notes", but a low to high transition on this input will force a shuffle at the end of the current loop.
 
 ## Outputs
@@ -134,4 +134,3 @@ Aside from being nice looking, it may help understand what's going in. For one t
 
 You can also see the reset logic only resets the playback buffer, it does not effect the note buffer.
 ![Arpeggiator block diagram](./arpeggiator.svg)
-
