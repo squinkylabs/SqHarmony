@@ -10,6 +10,4 @@ There are thee unfinished modules here:
 
 Follow the links, above, to learn more about each module.
 
-Note that this repo does not contain a license allowing redistribution or copying.
-
 ![Panels](./docs/panels.png)
