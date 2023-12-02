@@ -244,7 +244,7 @@ inline void Score::step() {
             _scoreIsDirty = true;
             auto ch = module->getChord();
             chords.push_back(ch);
-            // SQINFO("Now ui has %lld", chords.size());
+            // SQINFO("Now ui has %u", unsigned(chords.size()));
             if (chords.size() > 8) {
                 while (chords.size() > 1) {
                     // SQINFO("getting rid of stale input more than 8 chords");
