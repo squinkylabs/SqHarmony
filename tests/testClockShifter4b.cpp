@@ -43,9 +43,13 @@ static CompPtr makeAndPrime(int totalPeriod, float shift = 0) {
 const int testPeriod = 10;
 class TestClockShifter {
 public:
-    
-    // Case 1. Current position < 1, shift move from higher to even higher. Shift not near the ends. 
-    // (this needs work)
+    // Case 1. Current position << 1, shift move from higher to even higher. Shift not near the ends.
+    // shift starts at .5 current position goes to .2, then shift goes to .7
+    // input clocks x---------x---------x
+    // shift move   --| ->|--.---
+    // position     --x------.
+    // shift value  --.5 .7-.----
+    // exp out      -------x--.-------x----
     static void testCase1() {
         auto shifter = makeAndPrime(testPeriod, .5);
 
@@ -95,7 +99,7 @@ public:
     // exp out      ---x------.------x-----
     static void testCase2() {
         auto shifter = makeAndPrime(testPeriod, .3);
-        bool b = clockItLow(shifter, 2);         // should take us up close, to 2
+        bool b = clockItLow(shifter, 2);  // should take us up close, to 2
         assert(!b);
         assertClose(shifter->getNormalizedPosition(), .2, .0001);
 
@@ -114,33 +118,50 @@ public:
 
         // Now take us to the end of this period. should have not clocks in here.
         // We might have one, but it should be suppressed.
-#if 1
         b = clockItLow(shifter, 3);
         assert(!b);
-#else
-        b = clockItLow(shifter, 1);
-        assert(!b);
-        b = clockItLow(shifter, 1);
-        assert(!b);
-        b = clockItLow(shifter, 1);
-        assert(!b);
-#endif
+
         // now ready for a high clock
         assertClose(shifter->getNormalizedPosition(), .9, .0001);
         // Give it the expected input clock
         b = shifter->process(true, true);
         assert(!b);
-    
+
+        // Now, since shift is .7, we should have 6 low.
+        b = clockItLow(shifter, 6);
+        assert(!b);
+
+        // And then output.
+        b = clockItLow(shifter, 1);
+        assert(b);
+    }
+
+    // Case 2. Shift moves from > current position to < current position.
+    // shift starts at .8 current position goes to .6, then shift goes to .2
+    // input clocks x---------x---------x
+    // position     ------x---.
+    // shift value  --.8   .2-.----
+    // exp out      ------x---.-x---
+    static void testCase3() {
+        auto shifter = makeAndPrime(testPeriod, .8);
+        bool b = clockItLow(shifter, 5);  // should take us up close, to 5
+        assert(!b);
+        assertClose(shifter->getNormalizedPosition(), .5, .0001);
+
+        // now move the shift and clock low
+        shifter->setShift(.2);
+
+        // Now when we clock is should synthesize and output clock
+        b = clockItLow(shifter, 1);
+        assert(b);
 
 
-
-        assert(false); // finish test
+        assert(false);
     }
 };
 
 void testClockShifter4b() {
     TestClockShifter::testCase1();
-
-    // case 2 doesn't pass yet.
-   TestClockShifter::testCase2();
+    TestClockShifter::testCase2();
+    TestClockShifter::testCase3();
 }

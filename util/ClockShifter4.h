@@ -27,12 +27,13 @@ private:
     int _elapsedInputSamplesSinceLastOutput = 0;
     bool _firstClock = true;
 
- //   bool _forceGenerateClockNextSample = true;
+    bool _forceGenerateClockNextSample = false;
     bool _suppressNextClockOutput = false;
     //
     void _onShiftJumpsOverUsHigher();
     void _onShiftJumpsOverUsLower();
     void _requestSuppressTheNextClockOut();
+    void _requestForceGenerateClockNextSample();
 };
 
 inline void ClockShifter4::setShift(float x) {
@@ -57,8 +58,18 @@ inline void ClockShifter4::setShift(float x) {
 }
 
 inline void ClockShifter4::_requestSuppressTheNextClockOut() {
+    assert(!_firstClock);
+    assert(!_forceGenerateClockNextSample);
+    assert(!_suppressNextClockOutput);
     _suppressNextClockOutput = true;
- //   assert(!_forceGenerateClockNextSample);
+}
+
+inline void ClockShifter4::_requestForceGenerateClockNextSample() {
+ //   assert(!_firstClock);
+    SQINFO("_requestForceGenerateClockNextSample");
+    assert(!_forceGenerateClockNextSample);
+    assert(!_suppressNextClockOutput);
+    _forceGenerateClockNextSample = true;
 }
 
 // Higher, meaning later, shift increases.
@@ -69,8 +80,7 @@ inline void ClockShifter4::_onShiftJumpsOverUsHigher() {
 }
 
 inline void ClockShifter4::_onShiftJumpsOverUsLower() {
-   // assert(false);
-   SQINFO("_onShiftJumpsOverUsLower nimp");
+    _requestForceGenerateClockNextSample();
 }
 
 inline bool ClockShifter4::freqValid() const {
@@ -113,14 +123,20 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     // SQINFO("trigger in = %d, targetClock=%d, phase acc=%d", trigger, targetClock, _phaseAccumulator);
     // SQINFO("firstClock = %d elapsed = %d period=%d", _firstClock, _elapsedInputSamplesSinceLastOutput, _freqMeasure.getPeriod());
     // SQINFO("target-phaseAcc=%d", std::abs(_phaseAccumulator - targetClock)) ;
+    
     bool outputClock = false;
-    if ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1))) {
+    bool isTimeToOutputClock = ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1)));
+    if (_forceGenerateClockNextSample) {
+        assert(!isTimeToOutputClock);
+        SQINFO("attempting to execute force");
+        isTimeToOutputClock = true;
+    }
+    if (isTimeToOutputClock) {
         // SQINFO("old path the always output clock");
-
 
         // It's time to output, so let's output. Unless we are really far frome where we expect (it this still current?)
         // But don't do that check for the first clock - we probably won't we settled down.
-        // 
+        //
         // period / 2 is too aggressive. Should probably make it depend on delay time, but haxoring around...
         bool shouldFireClock = (_firstClock || (_elapsedInputSamplesSinceLastOutput >= (_freqMeasure.getPeriod() / 3)));
         if (_suppressNextClockOutput) {
