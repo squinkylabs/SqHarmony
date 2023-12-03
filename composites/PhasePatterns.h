@@ -1,11 +1,10 @@
 
 #pragma once
 
-#include "ClockShifter3.h"
+#include "ClockShifter4.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
-#include "SchmidtTrigger.h"
 #include "ShiftCalc.h"
 
 namespace rack {
@@ -56,9 +55,10 @@ private:
     void _updateButton();
     void _updateShiftAmount();
 
-    ClockShifter3 _clockShifter;
+    ClockShifter4 _clockShifter;
     ShiftCalc _shiftCalculator;
-    SchmidtTrigger _inputClockProc;
+  //  SchmidtTrigger _inputClockProc;
+    GateTrigger _inputClockProc;
     GateTrigger _buttonProc;
     Divider divn;
 };
@@ -77,12 +77,10 @@ inline void PhasePatterns<TBase>::_updateButton() {
     if (!_buttonProc.trigger()) {
         return;
     }
-
-    auto const freqMeasure = _clockShifter.getFreqMeasure();
-    if (!freqMeasure.freqValid()) {
+    if (!_clockShifter.freqValid()) {
         return;
     }
-    _shiftCalculator.trigger(freqMeasure.getPeriod());
+    _shiftCalculator.trigger(!_clockShifter.getPeriod());
 }
 
 template <class TBase>
@@ -106,8 +104,9 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
     divn.step();
     _shiftCalculator.go();
     const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage();
-    const bool clockIn = _inputClockProc.go(rawClockIn);
-    const bool rawClockOut = _clockShifter.run(clockIn);
+    _inputClockProc.go(rawClockIn);
+   // const bool clockIn = _inputClockProc.go(rawClockIn);
+    const bool rawClockOut = _clockShifter.process(_inputClockProc.trigger(), _inputClockProc.gate());
     const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
     TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
 }

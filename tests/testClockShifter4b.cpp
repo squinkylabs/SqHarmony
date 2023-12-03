@@ -112,12 +112,29 @@ public:
         // Now set shift to .7, on the other side of where we are
         shifter->setShift(.7);
 
-        // Now take us to the end. should have not clocks in here.
+        // Now take us to the end of this period. should have not clocks in here.
         // We might have one, but it should be suppressed.
+#if 1
         b = clockItLow(shifter, 3);
         assert(!b);
+#else
+        b = clockItLow(shifter, 1);
+        assert(!b);
+        b = clockItLow(shifter, 1);
+        assert(!b);
+        b = clockItLow(shifter, 1);
+        assert(!b);
+#endif
+        // now ready for a high clock
+        assertClose(shifter->getNormalizedPosition(), .9, .0001);
+        // Give it the expected input clock
+        b = shifter->process(true, true);
+        assert(!b);
+    
 
-        assert(false);
+
+
+        assert(false); // finish test
     }
 };
 
@@ -125,5 +142,5 @@ void testClockShifter4b() {
     TestClockShifter::testCase1();
 
     // case 2 doesn't pass yet.
-    TestClockShifter::testCase2();
+   TestClockShifter::testCase2();
 }
