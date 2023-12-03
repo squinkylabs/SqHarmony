@@ -80,7 +80,8 @@ inline void PhasePatterns<TBase>::_updateButton() {
     if (!_clockShifter.freqValid()) {
         return;
     }
-    _shiftCalculator.trigger(!_clockShifter.getPeriod());
+    // There was a ! in here. seemed odd.
+    _shiftCalculator.trigger(_clockShifter.getPeriod());
 }
 
 template <class TBase>

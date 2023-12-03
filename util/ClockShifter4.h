@@ -70,6 +70,7 @@ inline void ClockShifter4::_requestForceGenerateClockNextSample() {
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
     _forceGenerateClockNextSample = true;
+    SQINFO("set force from _requestForceGenerateClockNextSample");
 }
 
 // Higher, meaning later, shift increases.
@@ -128,8 +129,9 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     bool isTimeToOutputClock = ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1)));
     if (_forceGenerateClockNextSample) {
         assert(!isTimeToOutputClock);
-        SQINFO("attempting to execute force");
+        SQINFO("shifter4 131: attempting to execute force");
         isTimeToOutputClock = true;
+        _forceGenerateClockNextSample = false;
     }
     if (isTimeToOutputClock) {
         // SQINFO("old path the always output clock");
@@ -139,6 +141,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
         //
         // period / 2 is too aggressive. Should probably make it depend on delay time, but haxoring around...
         bool shouldFireClock = (_firstClock || (_elapsedInputSamplesSinceLastOutput >= (_freqMeasure.getPeriod() / 3)));
+        SQINFO("in shifter 142, should fire = %d, suppress = %d", shouldFireClock, _suppressNextClockOutput);
         if (_suppressNextClockOutput) {
             shouldFireClock = false;
             _suppressNextClockOutput = false;
