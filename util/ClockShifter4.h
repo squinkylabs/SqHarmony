@@ -42,6 +42,11 @@ private:
     ShiftPossibilities _calculateShiftOver(float newShiftValue) const;
 };
 
+inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(float newShiftValue) const {
+    assert(false);
+    return ShiftPossibilities::ShiftOverNone;
+}
+
 inline void ClockShifter4::setShift(float x) {
     const float newShift = (x - std::floor(x));
     if (_shift == newShift) {
