@@ -136,14 +136,13 @@ public:
         assert(b);
     }
 
-    // Case 2. Shift moves from > current position to < current position.
+    // Case 3. Shift moves from > current position to < current position.
     // shift starts at .8 current position goes to .6, then shift goes to .2
     // input clocks x---------x---------x
     // position     ------x---.
     // shift value  --.8   .2-.----
     // exp out      ------x---.-x---
     static void testCase3() {
-        SQINFO("---- Enter testCase3 ----");
         auto shifter = makeAndPrime(testPeriod, .8);
         bool b = clockItLow(shifter, 5);  // should take us up close, to 5
         assert(!b);
@@ -177,12 +176,40 @@ public:
         // now the clock
         b = clockItLow(shifter, 1);
         assert(b);
-
     }
+
+    // Case 5. Shift "wraps" around zero, but current pos is well away.
+    // shift starts at .9 current position goes to .5, then shift goes to .1
+    // input clocks x---------x---------x
+    // position     -----x----.
+    // shift value  --.9   .1-.----
+    // exp out      ----------.x----
+    static void testCase5() {
+        SQINFO("---- testCase5 -----");
+        auto shifter = makeAndPrime(testPeriod, .9);
+        bool b = clockItLow(shifter, 5);  // Should take us to middle, to 5.
+        assert(!b);
+        assertClose(shifter->getNormalizedPosition(), .5, .0001);
+
+        // Mow move the shift and clock low to near end
+        SQINFO("will set shift");
+        shifter->setShift(.1);
+        SQINFO("will clock after set shift");
+        b = clockItLow(shifter, 4);
+        assert(b);
+        assertClose(shifter->getNormalizedPosition(), .9, .0001);
+
+
+        assert(false);
+    }
+
+  
 };
 
 void testClockShifter4b() {
     TestClockShifter::testCase1();
     TestClockShifter::testCase2();
     TestClockShifter::testCase3();
+    TestClockShifter::testCase5();
+
 }

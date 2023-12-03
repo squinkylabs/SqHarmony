@@ -12,10 +12,15 @@ public:
     bool process(bool trigger, bool clock);
     bool freqValid() const;
     int getPeriod() const;
-
     float getNormalizedPosition() const;
 
 private:
+    enum class ShiftPossibilities {
+        ShiftOverForward,           
+        ShiftOverBackwards,
+        ShiftOverNone
+    };
+
     /**
      * @brief reset on trigger, then counts up on each process count
      *
@@ -34,6 +39,7 @@ private:
     void _onShiftJumpsOverUsLower();
     void _requestSuppressTheNextClockOut();
     void _requestForceGenerateClockNextSample();
+    ShiftPossibilities _calculateShiftOver(float newShiftValue) const;
 };
 
 inline void ClockShifter4::setShift(float x) {
@@ -53,11 +59,11 @@ inline void ClockShifter4::setShift(float x) {
     if ((newShift < currentPosition) && (_shift > currentPosition)) {
         _onShiftJumpsOverUsLower();
     }
-    // if (_shift)
     _shift = newShift;
 }
 
 inline void ClockShifter4::_requestSuppressTheNextClockOut() {
+    SQINFO("_requestSuppressTheNextClockOut, will set _supp.");
     assert(!_firstClock);
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
@@ -65,12 +71,10 @@ inline void ClockShifter4::_requestSuppressTheNextClockOut() {
 }
 
 inline void ClockShifter4::_requestForceGenerateClockNextSample() {
- //   assert(!_firstClock);
-    SQINFO("_requestForceGenerateClockNextSample");
+    SQINFO("_requestForceGenerateClockNextSample, will set _force.");
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
     _forceGenerateClockNextSample = true;
-    SQINFO("set force from _requestForceGenerateClockNextSample");
 }
 
 // Higher, meaning later, shift increases.
