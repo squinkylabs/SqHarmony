@@ -1,8 +1,10 @@
 #pragma once
 
-#include "SqLog.h"
 #include <assert.h>
+
 #include <functional>
+
+#include "SqLog.h"
 
 class NoteBuffer {
 public:
@@ -36,8 +38,6 @@ public:
     const Data* end() const;
     const Data& at(int index) const;
 
-   // using RejectFunction = std::function<bool(int index)>;
-
 private:
     int siz = 0;
     int curCapacity = 1;
@@ -49,7 +49,6 @@ private:
             cb(this);
         }
     }
-
     Data data[maxCapacity + 2];
     void removeAll();
 };
@@ -60,7 +59,6 @@ inline NoteBuffer::NoteBuffer(int cap) {
 }
 
 inline void NoteBuffer::setHold(bool h) {
-    // SQINFO("set hold (%d) cur=%d", h, holdMode);
     if (holdMode == h) {
         return;
     }
@@ -78,7 +76,6 @@ inline void NoteBuffer::setCapacity(int size) {
     size = std::min(size, maxCapacity);
     if (size != curCapacity) {
         curCapacity = size;
-      //  siz = std::min(siz, size);      // current size can't be more than we hold
 
         // if we are shrinking
         if (siz > size) {
@@ -89,7 +86,6 @@ inline void NoteBuffer::setCapacity(int size) {
             }
             siz = size;
         }
-
         callbackMaybe();
     }
 }
@@ -99,7 +95,6 @@ inline void NoteBuffer::onChange(callback callb) {
 }
 
 inline void NoteBuffer::push_back(float v1, float v2, int channel) {
-    // SQINFO("nb push, siz=%d, cap=%d this=%p", siz, curCapacity, this);
     if (siz >= curCapacity) {
         for (int i = 0; i < siz - 1; ++i) {
             data[i] = data[i + 1];
@@ -120,20 +115,17 @@ inline const NoteBuffer::Data* NoteBuffer::end() const {
     return data + size();
 }
 
-inline  const NoteBuffer::Data& NoteBuffer::at(int index) const {
+inline const NoteBuffer::Data& NoteBuffer::at(int index) const {
     assert(index < siz);
     return data[index];
 }
 
 inline void NoteBuffer::removeForChannel(int channel) {
-    // printf("remove for channel called ch=%d siz=%d\n", channel, siz);
     if (holdMode) {
-        // printf("remove does nothing, hold on\n");
         return;
     }
     for (int i = 0; i < siz; ++i) {
-        // printf("remove i=%d, data.ch=%d, p=%f\n", i, data[i].channel, data[i].cv);
-        if (channel == data[i].channel) {           
+        if (channel == data[i].channel) {
             return removeAtIndex(i);
         }
     }
@@ -150,7 +142,6 @@ inline void NoteBuffer::removeAtIndex(int index) {
 }
 
 inline void NoteBuffer::removeAll() {
-    // SQINFO("nb remove all");
     siz = 0;
     callbackMaybe();
 }

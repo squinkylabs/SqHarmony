@@ -44,9 +44,13 @@ private:
 
 inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(float newShiftValue) const {
 
+    
     // First we want to "unwrap" everything.
     float currentPosition = getNormalizedPosition();
+    SQINFO("Enter _calculateShiftOver2 nsv=%f, _sh=%f cp=%f", newShiftValue, _shift, currentPosition);
     if (currentPosition < .5) {
+        // this isn't right !
+        SQINFO("wrapping current position");
         currentPosition += 1; 
     }
     float before=0, after=0;
@@ -74,12 +78,15 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
    
     if ((after > before) && (before < currentPosition)) {
         // If it's jumping over us, in the increasing direction.
+        SQINFO("_calculateShiftOver returning forward");
         return ShiftPossibilities::ShiftOverForward;
     }
     if ((after < currentPosition) && (before > currentPosition)) {
+        SQINFO("_calculateShiftOver returning backward");
         return ShiftPossibilities::ShiftOverBackward;
     }
 
+    SQINFO("_calculateShiftOver returning no shift");
     return ShiftPossibilities::ShiftOverNone;
 }
 

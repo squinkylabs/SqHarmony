@@ -199,11 +199,8 @@ public:
         assert(b);
         assertClose(shifter->getNormalizedPosition(), .9, .0001);
 
-
         assert(false);
     }
-
-  
 };
 
 void testClockShifter4b() {
@@ -211,5 +208,4 @@ void testClockShifter4b() {
     TestClockShifter::testCase2();
     TestClockShifter::testCase3();
     TestClockShifter::testCase5();
-
 }

@@ -6,7 +6,7 @@
 
 /**
  * @brief a non-atomic ring buffer, size can change on the fly
- * 
+ *
  * note: we always have one extra location, so in==out always means empty;
  */
 class SqRingBuffer2 {
@@ -22,7 +22,7 @@ public:
     /**
      * @brief retrieve by index
      * last one pushed == index 0.
-     * one before that is index 1. 
+     * one before that is index 1.
      */
     int at(int index) const;
 
@@ -40,11 +40,11 @@ private:
     void advance(int& index) const;
 };
 
-inline SqRingBuffer2::SqRingBuffer2(bool allowOverflow, int size) : 
+inline SqRingBuffer2::SqRingBuffer2(bool allowOverflow, int size) :
 #ifdef _DEBUG
-    _allowOverflow(allowOverflow), 
+                                                                    _allowOverflow(allowOverflow),
 #endif
-    _size(size) {
+                                                                    _size(size) {
 }
 
 inline bool SqRingBuffer2::empty() const {
@@ -64,14 +64,14 @@ inline void SqRingBuffer2::push(int x) {
         pop();
     }
     assert(size() < _size);
-    
+
     data[inIndex] = x;
     advance(inIndex);
 }
 
 inline int SqRingBuffer2::pop() {
     assert(!empty());
-  
+
     int ret = data[outIndex];
     advance(outIndex);
     return ret;
@@ -80,12 +80,12 @@ inline int SqRingBuffer2::pop() {
 inline int SqRingBuffer2::size() const {
     int ret = inIndex - outIndex;
     if (ret < 0) {
-        ret += (_size + 1);         // account for the extra data cell
+        ret += (_size + 1);  // account for the extra data cell
     }
     return ret;
 }
 
-inline void SqRingBuffer2::advance(int &x) const {
+inline void SqRingBuffer2::advance(int& x) const {
     ++x;
     if (x > _size) {
         x = 0;
@@ -101,12 +101,10 @@ inline void SqRingBuffer2::setSize(int x) {
     _size = x;
 }
 
-
-inline int SqRingBuffer2::at(int x) const
-{
+inline int SqRingBuffer2::at(int x) const {
     assert(size() > x);
     assert(x >= 0);
-    
+
     int index = inIndex - 1;
     index -= x;
     if (index < 0) {
@@ -115,11 +113,9 @@ inline int SqRingBuffer2::at(int x) const
     return data[index];
 }
 
-
 class SqChordHistory {
 public:
-    SqChordHistory() : rb(true, 4)  {
-
+    SqChordHistory() : rb(true, 4) {
     }
     void onNewChord(int rank, int root) {
         const auto h = hash(rank, root);
@@ -127,7 +123,7 @@ public:
     }
     bool haveSeen(int rank, int root) const {
         const auto h = hash(rank, root);
-        for (int i=0; i< rb.size(); ++i) {
+        for (int i = 0; i < rb.size(); ++i) {
             if (rb.at(i) == h) {
                 return true;
             }
@@ -137,6 +133,7 @@ public:
     void setSize(int x) {
         rb.setSize(x);
     }
+
 private:
     SqRingBuffer2 rb;
 

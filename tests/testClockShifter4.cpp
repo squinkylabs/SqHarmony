@@ -213,6 +213,7 @@ static void testSetDelayMidCycle() {
 }
 
 static void testIncreaseDelayMidCycle() {
+    SQINFO("--- testIncreaseDelayMidCycle");
     // start with period 12, shift .5
     const int period = 12;
     CompPtr shifter = makeAndPrime(period, .5);
@@ -227,16 +228,24 @@ static void testIncreaseDelayMidCycle() {
     clocksGenerated += clockItLow(shifter, 5);  // finish out this period
     assertEQ(clocksGenerated, 1);
 
+    // period = 12, have sent 11?
+    assertClose(shifter->getNormalizedPosition(), 11.f/12.f, .0001);
+    // now 1 clock gets to 0, next 5 get to 5/12
     clocksGenerated += clockIt(shifter, 6);  // almost up to next clock
     assertEQ(clocksGenerated, 1);
+    assertClose(shifter->getNormalizedPosition(), 5.f/12.f, .0001);
 
+
+    SQINFO("now set shift to .6 pos is %f", 5.f / 12.f);
     shifter->setShift(.5 + .1);  // Set for small additional delay.
+    SQINFO("back from set shift");
 
     // With shift still at .5, we would expect a clock here,
     // but with the extra .1 delay, that should be postponed.
     clocksGenerated += shifter->process(false, false) ? 1 : 0;
     assertEQ(clocksGenerated, 1);
 
+    SQINFO("at 242");
     // now should clock, delayed
     clocksGenerated += shifter->process(false, false) ? 1 : 0;
     assertEQ(clocksGenerated, 2);
@@ -349,7 +358,16 @@ public:
         x = shifter->_calculateShiftOver(.9);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
-        assert(false);  // finish this test.
+        // Simple case that was giving errors.
+        shifter = makeAndPrime(testPeriod, .5);
+        assertClose(shifter->getNormalizedPosition(), 0, .0001);
+        clockItLow(shifter, 46);
+        assertClose(shifter->getNormalizedPosition(), .46, .0001);
+        x = shifter->_calculateShiftOver(.6);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+
+        assert(false); // finish test
+
     }
 
     static void testPeriod() {
