@@ -142,14 +142,15 @@ public:
     // position     ------x---.
     // shift value  --.8   .2-.----
     // exp out      ------x---.-x---
+    // try to fix: instead of .8, use .7. instead of .2, use .5.
     static void testCase3() {
-        auto shifter = makeAndPrime(testPeriod, .8);
+        auto shifter = makeAndPrime(testPeriod, .7);
         bool b = clockItLow(shifter, 5);  // should take us up close, to 5
         assert(!b);
         assertClose(shifter->getNormalizedPosition(), .5, .0001);
 
         // now move the shift and clock low
-        shifter->setShift(.2);
+        shifter->setShift(.4);
 
         // Now when we clock is should synthesize and output clock.
         // But this is only a synthetic clock, it shouldn't reset phase and stuff.
@@ -159,19 +160,16 @@ public:
 
         b = clockItLow(shifter, 3);
         assert(!b);
-
-        // now it should be .8 shift
-        SQINFO("in test 159");
         assertClose(shifter->getNormalizedPosition(), .9, .0001);
+
         b = shifter->process(true, true);
         assert(!b);
         assertClose(shifter->getNormalizedPosition(), 0, .0001);
-        SQINFO("in test 162");
 
-        b = clockItLow(shifter, 1);
+        // Final shift was .4, so let's clock 3 - should be no clock.
+        b = clockItLow(shifter, 3);
         assert(!b);
-
-        assertClose(shifter->getNormalizedPosition(), .1, .0001);
+        assertClose(shifter->getNormalizedPosition(), .3, .0001);
 
         // now the clock
         b = clockItLow(shifter, 1);

@@ -330,7 +330,7 @@ public:
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
         // .5 to .45, will cross .46
-         x = shifter->_calculateShiftOver(.45);
+        x = shifter->_calculateShiftOver(.45);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
 
         // --------------------- now shift .5
@@ -382,13 +382,21 @@ public:
         shifter->_shift = .1;  // Set the shift to after current pos.
         x = shifter->_calculateShiftOver(.9);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+
+        // Case from another test that isn't working. pos = .5, shift from .8 to .2.
+        // OK, that was (correctly) wrapping, so let's make test not wrap.
+        // .74 to .26 with pos = .5. That won't wrap.
+        assertClose(shifter->getNormalizedPosition(), .5, .0001);
+        shifter->_shift = .74;
+        x = shifter->_calculateShiftOver(.26);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
     }
 
     static void testCalculateShiftOver3() {
         const int testPeriod = 100;
         CompPtr shifter = makeAndPrime(testPeriod, .5);
         assertClose(shifter->getNormalizedPosition(), 0, .0001);
-        clockItLow(shifter, .95f * testPeriod );
+        clockItLow(shifter, .95f * testPeriod);
         assertClose(shifter->getNormalizedPosition(), .95, .0001);
         ClockShifter4::ShiftPossibilities x;
 

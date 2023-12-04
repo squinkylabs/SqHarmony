@@ -43,8 +43,6 @@ private:
 };
 
 inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(float newShiftValue) const {
-
-    
     // First we want to "unwrap" everything.
     float currentPosition = getNormalizedPosition();
     SQINFO("Enter _calculateShiftOver2 nsv=%f, _sh=%f cp=%f", newShiftValue, _shift, currentPosition);
@@ -52,39 +50,34 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
         // this isn't right !
         SQINFO("not wrapping current position");
 
-        // currentPosition += 1; 
+        // currentPosition += 1;
     }
-    float before=0, after=0;
+    float before = 0, after = 0;
     const float deltaShift = std::abs(newShiftValue - _shift);
+    SQINFO("delta=%f", deltaShift);
     if (deltaShift < .5) {
         // this is normal, no wrap
         before = _shift;
         after = newShiftValue;
     } else {
         // wrap case
+        SQINFO("wrap case from delta =%f", deltaShift);
         if (newShiftValue > _shift) {
             // new shift is the one "before" the wrap. _shift is after
-            before = _shift + 1;        // small one wraps
+            before = _shift + 1;  // small one wraps
             after = newShiftValue;
         } else {
             before = _shift;
             after = newShiftValue + 1;
         }
     }
-  //  const float deltaShift = std::abs(newShiftValue - _shift);
-  //  const float distanceShiftMoved1 = deltaShift;
-  //  const float distanceShiftMoved2 = std::abs(1 - deltaShift);
 
-    // old logic, doesn't know about wrapping.
-   
-        if ((before < currentPosition) && (currentPosition < after)) {
-  //  if ((after > before) && (before < currentPosition)) {
+    if ((before < currentPosition) && (currentPosition < after)) {
         // If it's jumping over us, in the increasing direction.
         SQINFO("_calculateShiftOver returning forward");
         return ShiftPossibilities::ShiftOverForward;
     }
     if ((before > currentPosition) && (currentPosition > after)) {
-    //if ((after < currentPosition) && (before > currentPosition)) {
         SQINFO("_calculateShiftOver returning backward");
         return ShiftPossibilities::ShiftOverBackward;
     }
