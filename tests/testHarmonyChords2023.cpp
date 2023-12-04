@@ -121,8 +121,8 @@ static void testAnalyze56() {
     auto options = makeOptions(false);
     Chord4Manager mgr(options);
     Chord4Ptr chordA = Chord4::fromString(options, 5, "G1B2D3G3");
-    Chord4Ptr chordB = Chord4::fromString(options, 6, "E1C3E3A3"); 
-                                   // only one A - should be illegal
+    Chord4Ptr chordB = Chord4::fromString(options, 6, "E1C3E3A3");
+    // only one A - should be illegal
     assert(chordA);
     assert(chordB);
     testAnalyzeProgression(mgr, options, chordA, chordB, ProgressionAnalyzer::AVG_PENALTY_PER_RULE);  // this illegal
@@ -186,11 +186,11 @@ void testHarmonyChords2023() {
     canFindExpected56();
 
     SQINFO("put back testAnalyze56");
-    //testAnalyze56();
+    // testAnalyze56();
     testAnalyze56piston();
     testNoneInCommmon12();
 
-   // analyzeReportedParallel();
+    // analyzeReportedParallel();
     SQINFO("do something for analyze parallel test");
 
     // this doesn't work. it finds its own chord, not the same as piston's

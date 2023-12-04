@@ -96,7 +96,7 @@ static void testTriggerDurring() {
 
     run(s, 1 + period * 4);
     assertEQ(s.busy(), true);
-    s.trigger(period);          // re-trigger.
+    s.trigger(period);  // re-trigger.
     run(s, 10 + period * 4);
     assertEQ(s.busy(), false);
     assertEQ(s.get(), 1);

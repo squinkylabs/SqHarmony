@@ -72,5 +72,4 @@ void testFreqMeasure() {
     testCanSample();
     testCanRemember();
     testHold();
-
 }

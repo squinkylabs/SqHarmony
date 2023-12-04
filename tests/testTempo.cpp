@@ -1,13 +1,14 @@
 
-#include "asserts.h"
 #include <memory>
+
+#include "asserts.h"
 
 // TODO: redo this as a normal 0..1 saw
 class Clicker {
 public:
     void setPeriodSeconds(float x) {
         assert(x > 0);
-        phaseDelta =  1/x;
+        phaseDelta = 1 / x;
     }
 
     // send some time, returns true if clock fires
@@ -24,9 +25,9 @@ public:
     double phase() const {
         return acc;
     }
+
 private:
     double acc = 0;
-  //  double period = .01;
     double phaseDelta = .1;
 };
 
@@ -47,12 +48,12 @@ public:
         }
     }
 
-    // return true if A is faster.
+    // Return true if A is faster.
     bool whichIsAhead() {
         return getAPhase() > getBPhase();
     }
 
-    // how many periods difference
+    // How many periods difference.
     double howManyPeriods() {
         return std::abs(getAPhase() - getBPhase());
     }
@@ -69,7 +70,6 @@ public:
     ClickerPtr b;
     int aCount = 0;
     int bCount = 0;
-
 };
 
 static void testTempo2() {
@@ -78,7 +78,7 @@ static void testTempo2() {
     c.b->setPeriodSeconds(1);
 
     // run for 10 seconds
-    for (int i=0; i < 100; ++i) {
+    for (int i = 0; i < 100; ++i) {
         c.clockSeconds(.1f);
     }
 
@@ -86,7 +86,6 @@ static void testTempo2() {
     assertEQ(c.howManyPeriods(), 0);
     assertClose(c.getAPhase(), 10, .001);
     assertClose(c.getBPhase(), 10, .001);
-
 }
 
 static void testTempo3() {
@@ -95,7 +94,7 @@ static void testTempo3() {
     c.b->setPeriodSeconds(.9f);
 
     // clock for one second
-    for (int i=0; i < 100; ++i) {
+    for (int i = 0; i < 100; ++i) {
         c.clockSeconds(.01f);
     }
 
@@ -117,7 +116,7 @@ static void testTempo1() {
     assert(!b);
     b = ck.clockSeconds(.26f);
     assert(b);
-     b = ck.clockSeconds(.26f);
+    b = ck.clockSeconds(.26f);
     assert(!b);
 }
 
@@ -131,10 +130,8 @@ static void testTempo1b() {
 }
 
 void testTempo() {
-
     testTempo1();
     testTempo1b();
     testTempo2();
     testTempo3();
-
 }

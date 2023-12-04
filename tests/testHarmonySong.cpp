@@ -3,13 +3,12 @@
 #include "Options.h"
 #include "Style.h"
 
-
 static StylePtr makeStyle() {
     return std::make_shared<Style>();
 }
 
 static KeysigOldPtr makeKeysig(bool minor) {
-    auto ret =  std::make_shared<KeysigOld>(Roots::C);
+    auto ret = std::make_shared<KeysigOld>(Roots::C);
     if (minor) {
         ret->set(MidiNote::C, Scale::Scales::Minor);
     }
@@ -23,7 +22,7 @@ static Options makeOptions(bool minor) {
 
 static void test0(bool minor) {
     auto o = makeOptions(minor);
-    int progression[] = { 1,4,5, 0 };
+    int progression[] = {1, 4, 5, 0};
     HarmonySong s(o, progression);
     assert(s.size() == 3);
 }
@@ -35,12 +34,12 @@ static void test0() {
 
 static void testGenerate(bool minor) {
     auto o = makeOptions(minor);
-    int progression[] = { 1,4,5, 0 };
+    int progression[] = {1, 4, 5, 0};
     HarmonySong s(o, progression);
     s.Generate(o, 0, false, nullptr);
     assert(s.size() == 3);
-  //  printf("\nnow will print song:\n");
-  //  s.print();
+    //  printf("\nnow will print song:\n");
+    //  s.print();
 }
 
 static void testGenerate() {
@@ -48,7 +47,7 @@ static void testGenerate() {
     testGenerate(true);
 }
 
-void  testHarmonySong() {
+void testHarmonySong() {
     test0();
     testGenerate();
 }

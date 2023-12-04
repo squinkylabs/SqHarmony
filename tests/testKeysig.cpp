@@ -83,7 +83,7 @@ static void testStyle1() {
 static void testStyle2() {
     auto style = std::make_shared<Style>();
     style->setRangesPreference(Style::Ranges::WIDE_RANGE);
-    //assertLT(blw, style2->minBass());
+    // assertLT(blw, style2->minBass());
     const int blw = style->minBass();
     const int bhw = style->maxBass();
     const int tlw = style->minTenor();

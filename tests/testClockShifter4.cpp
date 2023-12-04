@@ -229,12 +229,11 @@ static void testIncreaseDelayMidCycle() {
     assertEQ(clocksGenerated, 1);
 
     // period = 12, have sent 11?
-    assertClose(shifter->getNormalizedPosition(), 11.f/12.f, .0001);
+    assertClose(shifter->getNormalizedPosition(), 11.f / 12.f, .0001);
     // now 1 clock gets to 0, next 5 get to 5/12
     clocksGenerated += clockIt(shifter, 6);  // almost up to next clock
     assertEQ(clocksGenerated, 1);
-    assertClose(shifter->getNormalizedPosition(), 5.f/12.f, .0001);
-
+    assertClose(shifter->getNormalizedPosition(), 5.f / 12.f, .0001);
 
     SQINFO("now set shift to .6 pos is %f", 5.f / 12.f);
     shifter->setShift(.5 + .1);  // Set for small additional delay.
@@ -316,13 +315,23 @@ static void testDelayNeg() {
 
 class TestClockShifter4 {
 public:
-    static void testCalculateShiftOver() {
+    static void testCalculateShiftOver1() {
+        ClockShifter4::ShiftPossibilities x;
         const int testPeriod = 100;
+        // Simple case that was giving errors.
         CompPtr shifter = makeAndPrime(testPeriod, .5);
+        assertClose(shifter->getNormalizedPosition(), 0, .0001);
+        // .46 is less than half, so that triggers this error.
+        clockItLow(shifter, 46);
+        assertClose(shifter->getNormalizedPosition(), .46, .0001);
+        x = shifter->_calculateShiftOver(.6);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+
+        // now some simple cases with shift .5
+        shifter = makeAndPrime(testPeriod, .5);
         assertClose(shifter->getNormalizedPosition(), 0, .0001);
         clockItLow(shifter, testPeriod / 2);
         assertClose(shifter->getNormalizedPosition(), .5, .0001);
-        ClockShifter4::ShiftPossibilities x;
 
         // Simple case - slightly later not over.
         x = shifter->_calculateShiftOver(.6);
@@ -331,6 +340,15 @@ public:
         // Simple case - slightly earlier not over.
         x = shifter->_calculateShiftOver(.4);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+    }
+
+    static void testCalculateShiftOver2() {
+        const int testPeriod = 100;
+        CompPtr shifter = makeAndPrime(testPeriod, .5);
+        assertClose(shifter->getNormalizedPosition(), 0, .0001);
+        clockItLow(shifter, testPeriod / 2);
+        assertClose(shifter->getNormalizedPosition(), .5, .0001);
+        ClockShifter4::ShiftPossibilities x;
 
         // Shift from after to before
         shifter->_shift = .6;
@@ -358,16 +376,7 @@ public:
         x = shifter->_calculateShiftOver(.9);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
-        // Simple case that was giving errors.
-        shifter = makeAndPrime(testPeriod, .5);
-        assertClose(shifter->getNormalizedPosition(), 0, .0001);
-        clockItLow(shifter, 46);
-        assertClose(shifter->getNormalizedPosition(), .46, .0001);
-        x = shifter->_calculateShiftOver(.6);
-        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
-
-        assert(false); // finish test
-
+        assert(false);  // finish test
     }
 
     static void testPeriod() {
@@ -445,7 +454,8 @@ void testClockShifter4() {
     TestClockShifter4::testPeriod();
     TestClockShifter4::testMakeAndPrime();
     TestClockShifter4::testGetNormalizedPosition();
-    TestClockShifter4::testCalculateShiftOver();
+    TestClockShifter4::testCalculateShiftOver1();
+    TestClockShifter4::testCalculateShiftOver2();
 
     testStraightThrough();
     testStraightThrough2();

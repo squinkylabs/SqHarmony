@@ -271,7 +271,7 @@ void testHarmonyComposite() {
 
     //
     SQINFO("put back composite test num chords");
-    //testNumChords();
+    // testNumChords();
     testLabels();
 
     testTrigger(0);

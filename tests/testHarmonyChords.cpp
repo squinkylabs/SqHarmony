@@ -22,8 +22,8 @@ static KeysigOldPtr makeKeysig(bool minor) {
 
 static Options makeOptions(bool minor) {
     Options o(makeKeysig(minor), makeStyle());
-    //it's not this.
-    //o.style->setInversionPreference(Style::InversionPreference::DONT_CARE);
+    // it's not this.
+    // o.style->setInversionPreference(Style::InversionPreference::DONT_CARE);
     return o;
 }
 
@@ -68,10 +68,9 @@ static void testAtoB(int a, int b, bool minor, int bestExpected = 0) {
         SQINFO("first = %s", cp->toString().c_str());
         SQINFO("second = %s", next->toString().c_str());
         SQINFO("Here is evaluation of penalty:");
-        next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, true, nullptr);       
+        next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, cp, true, nullptr);
         assert(cp->isCorrectDoubling(options));
         assert(next->isCorrectDoubling(options));
-
     }
     assertEQ(penalty, bestExpected);
 }
@@ -135,7 +134,7 @@ static void test2to1a() {
 
     auto next = HarmonyChords::findChord(false, options, mgr, *chordA, 1);
     assert(next);
-    const int penalty = next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false, nullptr); 
+    const int penalty = next->penaltForFollowingThisGuy(options, ProgressionAnalyzer::MAX_PENALTY, chordA.get(), false, nullptr);
     if (penalty != 0) {
         SQINFO("..... here is finding the first chord .....");
         next = HarmonyChords::findChord(true, options, mgr, *chordA, 1);
@@ -232,19 +231,19 @@ void testHarmonyChords() {
 
     // this fails with the new leading tone rule
     SQINFO("!! put back 5 to 4 test");
-    //test5to4();
-   
+    // test5to4();
+
     test5to6();
     test1to2();
 
     // broke
     //   testFeb21Case();
 
-    //SQINFO("calling test2to1()");
-    //test2to1();
+    // SQINFO("calling test2to1()");
+    // test2to1();
 
     SQINFO("!! put back 2 1 tests !!");  // this test fails. if should be perfect, but doesn't.
-    //test2to1a();
+    // test2to1a();
 
     test2to1b();
 
