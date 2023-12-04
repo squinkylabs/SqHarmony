@@ -17,7 +17,7 @@ public:
 private:
     enum class ShiftPossibilities {
         ShiftOverForward,
-        ShiftOverBackwards,
+        ShiftOverBackward,
         ShiftOverNone
     };
 
@@ -77,7 +77,7 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
         return ShiftPossibilities::ShiftOverForward;
     }
     if ((after < currentPosition) && (before > currentPosition)) {
-        return ShiftPossibilities::ShiftOverBackwards;
+        return ShiftPossibilities::ShiftOverBackward;
     }
 
     return ShiftPossibilities::ShiftOverNone;
@@ -100,7 +100,7 @@ inline void ClockShifter4::setShift(float x) {
             // If it's jumping over us, in the increasing direction.
             _onShiftJumpsOverUsHigher();
             break;
-        case ShiftPossibilities::ShiftOverBackwards:
+        case ShiftPossibilities::ShiftOverBackward:
             _onShiftJumpsOverUsLower();
             break;
         default:

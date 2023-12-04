@@ -311,7 +311,7 @@ public:
         const int testPeriod = 100;
         CompPtr shifter = makeAndPrime(testPeriod, .5);
         assertClose(shifter->getNormalizedPosition(), 0, .0001);
-        clockItLow(shifter, testPeriod/2);
+        clockItLow(shifter, testPeriod / 2);
         assertClose(shifter->getNormalizedPosition(), .5, .0001);
         ClockShifter4::ShiftPossibilities x;
 
@@ -323,17 +323,29 @@ public:
         x = shifter->_calculateShiftOver(.4);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
-        shifter->_shift = .6;   // Set the shift to after current pos.
+        // Shift from after to before
+        shifter->_shift = .6;
         x = shifter->_calculateShiftOver(.4);
-        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackwards);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
 
+        // Shift from before to after
+        shifter->_shift = .4;
+        x = shifter->_calculateShiftOver(.6);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverForward);
+
+        // Change is well downstream from us.
+        shifter->_shift = .7;
+        x = shifter->_calculateShiftOver(.8);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+
+        // Shift from
         // Wrap, but way past position
-        shifter->_shift = .9;   // Set the shift to after current pos.
+        shifter->_shift = .9;  // Set the shift to after current pos.
         x = shifter->_calculateShiftOver(.1);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
         // Wrap, but way past position
-        shifter->_shift = .1;   // Set the shift to after current pos.
+        shifter->_shift = .1;  // Set the shift to after current pos.
         x = shifter->_calculateShiftOver(.9);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
