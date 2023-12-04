@@ -324,9 +324,16 @@ public:
         // .46 is less than half, so that triggers this error.
         clockItLow(shifter, 46);
         assertClose(shifter->getNormalizedPosition(), .46, .0001);
+
+        // shift .5 to .6, will not cross .46
         x = shifter->_calculateShiftOver(.6);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
+        // .5 to .45, will cross .46
+         x = shifter->_calculateShiftOver(.45);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
+
+        // --------------------- now shift .5
         // now some simple cases with shift .5
         shifter = makeAndPrime(testPeriod, .5);
         assertClose(shifter->getNormalizedPosition(), 0, .0001);
@@ -338,7 +345,7 @@ public:
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
         // Simple case - slightly earlier not over.
-        x = shifter->_calculateShiftOver(.4);
+        x = shifter->_calculateShiftOver(.47);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
     }
 
@@ -375,8 +382,22 @@ public:
         shifter->_shift = .1;  // Set the shift to after current pos.
         x = shifter->_calculateShiftOver(.9);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+    }
 
-        assert(false);  // finish test
+    static void testCalculateShiftOver3() {
+        const int testPeriod = 100;
+        CompPtr shifter = makeAndPrime(testPeriod, .5);
+        assertClose(shifter->getNormalizedPosition(), 0, .0001);
+        clockItLow(shifter, .95f * testPeriod );
+        assertClose(shifter->getNormalizedPosition(), .95, .0001);
+        ClockShifter4::ShiftPossibilities x;
+
+        // Shift from .9 to 1.1, cur pos .95.
+        shifter->_shift = .9;
+        x = shifter->_calculateShiftOver(.1);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverForward);
+
+        SQINFO("need more tests in testCalculateShiftOver3");
     }
 
     static void testPeriod() {
@@ -456,6 +477,7 @@ void testClockShifter4() {
     TestClockShifter4::testGetNormalizedPosition();
     TestClockShifter4::testCalculateShiftOver1();
     TestClockShifter4::testCalculateShiftOver2();
+    TestClockShifter4::testCalculateShiftOver3();
 
     testStraightThrough();
     testStraightThrough2();
