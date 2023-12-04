@@ -332,6 +332,11 @@ public:
         x = shifter->_calculateShiftOver(.1);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
+        // Wrap, but way past position
+        shifter->_shift = .1;   // Set the shift to after current pos.
+        x = shifter->_calculateShiftOver(.9);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+
         assert(false);  // finish this test.
     }
 

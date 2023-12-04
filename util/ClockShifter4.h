@@ -44,13 +44,39 @@ private:
 
 inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(float newShiftValue) const {
 
+    // First we want to "unwrap" everything.
+    float currentPosition = getNormalizedPosition();
+    if (currentPosition < .5) {
+        currentPosition += 1; 
+    }
+    float before=0, after=0;
+    const float deltaShift = std::abs(newShiftValue - _shift);
+    if (deltaShift < .5) {
+        // this is normal, no wrap
+        before = _shift;
+        after = newShiftValue;
+    } else {
+        // wrap case
+        if (newShiftValue > _shift) {
+            // new shift is the one "before" the wrap. _shift is after
+            before = _shift + 1;        // small one wraps
+            after = newShiftValue;
+        } else {
+            before = _shift;
+            after = newShiftValue + 1;
+        }
+    }
+  //  const float deltaShift = std::abs(newShiftValue - _shift);
+  //  const float distanceShiftMoved1 = deltaShift;
+  //  const float distanceShiftMoved2 = std::abs(1 - deltaShift);
+
     // old logic, doesn't know about wrapping.
-    const float currentPosition = getNormalizedPosition();
-    if ((newShiftValue > currentPosition) && (_shift < currentPosition)) {
+   
+    if ((after > before) && (before < currentPosition)) {
         // If it's jumping over us, in the increasing direction.
         return ShiftPossibilities::ShiftOverForward;
     }
-    if ((newShiftValue < currentPosition) && (_shift > currentPosition)) {
+    if ((after < currentPosition) && (before > currentPosition)) {
         return ShiftPossibilities::ShiftOverBackwards;
     }
 
