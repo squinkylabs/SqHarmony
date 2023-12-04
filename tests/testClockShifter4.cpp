@@ -308,8 +308,11 @@ static void testDelayNeg() {
 class TestClockShifter4 {
 public:
     static void testCalculateShiftOver() {
-        CompPtr shifter = makeAndPrime(100, .5);
+        const int testPeriod = 100;
+        CompPtr shifter = makeAndPrime(testPeriod, .5);
         assertClose(shifter->getNormalizedPosition(), 0, .0001);
+        clockItLow(shifter, testPeriod/2);
+        assertClose(shifter->getNormalizedPosition(), .5, .0001);
         ClockShifter4::ShiftPossibilities x;
 
         // Simple case - slightly later not over.
@@ -320,7 +323,16 @@ public:
         x = shifter->_calculateShiftOver(.4);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
 
-        assert(false);
+        shifter->_shift = .6;   // Set the shift to after current pos.
+        x = shifter->_calculateShiftOver(.4);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackwards);
+
+        // Wrap, but way past position
+        shifter->_shift = .9;   // Set the shift to after current pos.
+        x = shifter->_calculateShiftOver(.1);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
+
+        assert(false);  // finish this test.
     }
 
     static void testPeriod() {

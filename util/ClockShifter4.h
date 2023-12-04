@@ -16,7 +16,7 @@ public:
 
 private:
     enum class ShiftPossibilities {
-        ShiftOverForward,           
+        ShiftOverForward,
         ShiftOverBackwards,
         ShiftOverNone
     };
@@ -43,7 +43,17 @@ private:
 };
 
 inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(float newShiftValue) const {
-    assert(false);
+
+    // old logic, doesn't know about wrapping.
+    const float currentPosition = getNormalizedPosition();
+    if ((newShiftValue > currentPosition) && (_shift < currentPosition)) {
+        // If it's jumping over us, in the increasing direction.
+        return ShiftPossibilities::ShiftOverForward;
+    }
+    if ((newShiftValue < currentPosition) && (_shift > currentPosition)) {
+        return ShiftPossibilities::ShiftOverBackwards;
+    }
+
     return ShiftPossibilities::ShiftOverNone;
 }
 
@@ -56,13 +66,20 @@ inline void ClockShifter4::setShift(float x) {
         _shift = newShift;
         return;
     }
-    const float currentPosition = getNormalizedPosition();
-    if ((newShift > currentPosition) && (_shift < currentPosition)) {
-        // If it's jumping over us, in the increasing direction.
-        _onShiftJumpsOverUsHigher();
-    }
-    if ((newShift < currentPosition) && (_shift > currentPosition)) {
-        _onShiftJumpsOverUsLower();
+
+    const ShiftPossibilities shiftInfo = _calculateShiftOver(newShift);
+
+    switch (shiftInfo) {
+        case ShiftPossibilities::ShiftOverForward:
+            // If it's jumping over us, in the increasing direction.
+            _onShiftJumpsOverUsHigher();
+            break;
+        case ShiftPossibilities::ShiftOverBackwards:
+            _onShiftJumpsOverUsLower();
+            break;
+        default:
+            assert(shiftInfo == ShiftPossibilities::ShiftOverNone);
+            break;
     }
     _shift = newShift;
 }
@@ -133,7 +150,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     // SQINFO("trigger in = %d, targetClock=%d, phase acc=%d", trigger, targetClock, _phaseAccumulator);
     // SQINFO("firstClock = %d elapsed = %d period=%d", _firstClock, _elapsedInputSamplesSinceLastOutput, _freqMeasure.getPeriod());
     // SQINFO("target-phaseAcc=%d", std::abs(_phaseAccumulator - targetClock)) ;
-    
+
     bool outputClock = false;
     bool isTimeToOutputClock = ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1)));
     if (_forceGenerateClockNextSample) {
