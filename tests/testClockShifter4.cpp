@@ -394,18 +394,39 @@ public:
 
     static void testCalculateShiftOver3() {
         const int testPeriod = 100;
+        bool b;
         CompPtr shifter = makeAndPrime(testPeriod, .5);
         assertClose(shifter->getNormalizedPosition(), 0, .0001);
         clockItLow(shifter, .95f * testPeriod);
         assertClose(shifter->getNormalizedPosition(), .95, .0001);
         ClockShifter4::ShiftPossibilities x;
 
-        // Shift from .9 to 1.1, cur pos .95.
+        // Shift from .9 to 1.1, cur pos .95. Forward
         shifter->_shift = .9;
         x = shifter->_calculateShiftOver(.1);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverForward);
+        // ... then back.
+        shifter->_shift = .1;
+        x = shifter->_calculateShiftOver(.9);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
+
+
+        // Shift from .9 to 1.1, cur pos 1.05
+        // first to .99
+        const int clocksRemaining = (.99 - .95) * testPeriod;
+        b = clockItLow(shifter, clocksRemaining);
+        assertClose(shifter->getNormalizedPosition(), .99, .0001);
+        // now to zero.
+        shifter->process(true, true);
+        assertClose(shifter->getNormalizedPosition(), 0, .0001);
+        // Now cur pos = .05
+        b = clockItLow(shifter, .05 * testPeriod);
+        assertClose(shifter->getNormalizedPosition(), .05, .0001);
+
+
 
         SQINFO("need more tests in testCalculateShiftOver3");
+        assert(false);
     }
 
     static void testPeriod() {
