@@ -4,6 +4,8 @@
 
 Updated test suite to Visual Studio 2022, and re-enabled address sanitizer for test suite.
 
+Phase Patterns works better, and it re-enabled.
+
 ## 2.2.2
 
 Harmony stuff other than score drawing:
