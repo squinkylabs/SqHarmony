@@ -44,14 +44,11 @@ private:
 
 inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(float newShiftValue) const {
     // First we want to "unwrap" everything.
+ 
     float currentPosition = getNormalizedPosition();
+    bool didWrap = false;
     SQINFO("Enter _calculateShiftOver2 nsv=%f, _sh=%f cp=%f", newShiftValue, _shift, currentPosition);
-    if (currentPosition < .5) {
-        // this isn't right !
-        SQINFO("not wrapping current position");
-
-        // currentPosition += 1;
-    }
+   
     float before = 0, after = 0;
     const float deltaShift = std::abs(newShiftValue - _shift);
     SQINFO("delta=%f", deltaShift);
@@ -60,6 +57,7 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
         before = _shift;
         after = newShiftValue;
     } else {
+        didWrap = true;
         // wrap case
         SQINFO("wrap case from delta =%f", deltaShift);
         if (newShiftValue > _shift) {
@@ -70,6 +68,13 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
             before = _shift;
             after = newShiftValue + 1;
         }
+    }
+
+   
+    if (didWrap && (currentPosition < .5)) {
+        // this isn't right !
+        SQINFO("wrapping current position");
+        currentPosition += 1;
     }
 
     if ((before < currentPosition) && (currentPosition < after)) {
@@ -107,6 +112,7 @@ inline void ClockShifter4::setShift(float x) {
             _onShiftJumpsOverUsLower();
             break;
         default:
+            SQINFO("in set shift, no jump over");
             assert(shiftInfo == ShiftPossibilities::ShiftOverNone);
             break;
     }

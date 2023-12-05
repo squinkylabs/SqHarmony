@@ -190,9 +190,9 @@ public:
         assertClose(shifter->getNormalizedPosition(), .5, .0001);
 
         // Mow move the shift and clock low to near end
-        SQINFO("will set shift");
+        SQINFO("--- will set shift ---");
         shifter->setShift(.1);
-        SQINFO("will clock after set shift");
+        SQINFO("--- will clock after set shift ---");
         b = clockItLow(shifter, 4);
         assert(b);
         assertClose(shifter->getNormalizedPosition(), .9, .0001);

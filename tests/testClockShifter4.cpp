@@ -423,10 +423,15 @@ public:
         b = clockItLow(shifter, .05 * testPeriod);
         assertClose(shifter->getNormalizedPosition(), .05, .0001);
 
+        SQINFO("==== OK, here's the big wrap test ===");
+        // Shift from .9 to 1.1, cur pos .05. Forward
+        shifter->_shift = .9;
+        x = shifter->_calculateShiftOver(.1);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverForward);
 
-
-        SQINFO("need more tests in testCalculateShiftOver3");
-        assert(false);
+        shifter->_shift = .1;
+        x = shifter->_calculateShiftOver(.9);
+        assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
     }
 
     static void testPeriod() {
