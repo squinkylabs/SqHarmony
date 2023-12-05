@@ -189,13 +189,18 @@ public:
         assert(!b);
         assertClose(shifter->getNormalizedPosition(), .5, .0001);
 
-        // Mow move the shift and clock low to near end
+        // Mow move the shift and clock low to near end. should not change things for us
         SQINFO("--- will set shift ---");
         shifter->setShift(.1);
         SQINFO("--- will clock after set shift ---");
         b = clockItLow(shifter, 4);
-        assert(b);
+        assert(!b);
         assertClose(shifter->getNormalizedPosition(), .9, .0001);
+
+        // this clock won't tick, but will turn us over
+        b = shifter->process(true, true);
+        assert(!b);
+        assertClose(shifter->getNormalizedPosition(), 0.f, .0001);
 
         assert(false);
     }
