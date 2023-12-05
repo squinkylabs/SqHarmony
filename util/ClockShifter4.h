@@ -47,11 +47,11 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
  
     float currentPosition = getNormalizedPosition();
     bool didWrap = false;
-    SQINFO("Enter _calculateShiftOver2 nsv=%f, _sh=%f cp=%f", newShiftValue, _shift, currentPosition);
+    //SQINFO("Enter _calculateShiftOver2 nsv=%f, _sh=%f cp=%f", newShiftValue, _shift, currentPosition);
    
     float before = 0, after = 0;
     const float deltaShift = std::abs(newShiftValue - _shift);
-    SQINFO("delta=%f", deltaShift);
+    //SQINFO("delta=%f", deltaShift);
     if (deltaShift < .5) {
         // this is normal, no wrap
         before = _shift;
@@ -59,7 +59,7 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
     } else {
         didWrap = true;
         // wrap case
-        SQINFO("wrap case from delta =%f", deltaShift);
+        //SQINFO("wrap case from delta =%f", deltaShift);
         if (newShiftValue > _shift) {
             // new shift is the one "before" the wrap. _shift is after
             before = _shift + 1;  // small one wraps
@@ -73,21 +73,21 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
    
     if (didWrap && (currentPosition < .5)) {
         // this isn't right !
-        SQINFO("wrapping current position");
+        ///("wrapping current position");
         currentPosition += 1;
     }
 
     if ((before < currentPosition) && (currentPosition < after)) {
         // If it's jumping over us, in the increasing direction.
-        SQINFO("_calculateShiftOver returning forward");
+        //SQINFO("_calculateShiftOver returning forward");
         return ShiftPossibilities::ShiftOverForward;
     }
     if ((before > currentPosition) && (currentPosition > after)) {
-        SQINFO("_calculateShiftOver returning backward");
+        //SQINFO("_calculateShiftOver returning backward");
         return ShiftPossibilities::ShiftOverBackward;
     }
 
-    SQINFO("_calculateShiftOver returning no shift");
+    //SQINFO("_calculateShiftOver returning no shift");
     return ShiftPossibilities::ShiftOverNone;
 }
 
@@ -112,7 +112,7 @@ inline void ClockShifter4::setShift(float x) {
             _onShiftJumpsOverUsLower();
             break;
         default:
-            SQINFO("in set shift, no jump over");
+            //("in set shift, no jump over");
             assert(shiftInfo == ShiftPossibilities::ShiftOverNone);
             break;
     }
@@ -120,7 +120,7 @@ inline void ClockShifter4::setShift(float x) {
 }
 
 inline void ClockShifter4::_requestSuppressTheNextClockOut() {
-    SQINFO("_requestSuppressTheNextClockOut, will set _supp.");
+    //SQINFO("_requestSuppressTheNextClockOut, will set _supp.");
     assert(!_firstClock);
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
@@ -128,7 +128,7 @@ inline void ClockShifter4::_requestSuppressTheNextClockOut() {
 }
 
 inline void ClockShifter4::_requestForceGenerateClockNextSample() {
-    SQINFO("_requestForceGenerateClockNextSample, will set _force.");
+    //SQINFO("_requestForceGenerateClockNextSample, will set _force.");
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
     _forceGenerateClockNextSample = true;
@@ -190,7 +190,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     bool isTimeToOutputClock = ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1)));
     if (_forceGenerateClockNextSample) {
         assert(!isTimeToOutputClock);
-        SQINFO("shifter4 131: attempting to execute force");
+        //SQINFO("shifter4 131: attempting to execute force");
         isTimeToOutputClock = true;
         _forceGenerateClockNextSample = false;
     }
@@ -202,7 +202,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
         //
         // period / 2 is too aggressive. Should probably make it depend on delay time, but haxoring around...
         bool shouldFireClock = (_firstClock || (_elapsedInputSamplesSinceLastOutput >= (_freqMeasure.getPeriod() / 3)));
-        SQINFO("in shifter 142, should fire = %d, suppress = %d", shouldFireClock, _suppressNextClockOutput);
+        //SQINFO("in shifter 142, should fire = %d, suppress = %d", shouldFireClock, _suppressNextClockOutput);
         if (_suppressNextClockOutput) {
             shouldFireClock = false;
             _suppressNextClockOutput = false;
