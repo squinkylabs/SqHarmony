@@ -202,7 +202,9 @@ public:
         assert(!b);
         assertClose(shifter->getNormalizedPosition(), 0.f, .0001);
 
-        assert(false);
+        // shift is .1, so one more sample should do it.
+        b = clockItLow(shifter, 1);
+        assert(b);
     }
 };
 
