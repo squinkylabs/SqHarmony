@@ -310,6 +310,44 @@ public:
         b = clockItLow(shifter, 1);
         assert(b);
     }
+
+    // Case 7a. Shift "wraps" backwards through zero, crossing current pos. pos in first half.
+    // shift starts at .1 current position goes to .9, then shift goes to .8
+    // input clocks x---------x---------x
+    // position
+    // shift value
+    // exp out
+    static void testCase7a() {
+        // Make the shifter with the desired delay, click until we almost expect a clock.
+        auto shifter = makeAndPrime(testPeriod, .1);
+
+        // first sample take us to pos via normal case.
+        bool b = clockItLow(shifter, 1);
+        assert(b);
+        assertClose(shifter->getNormalizedPosition(), .1, .0001);
+
+        b = clockItLow(shifter, 8);
+        assert(!b);
+        assertClose(shifter->getNormalizedPosition(), .9, .0001);
+
+        // now, move shifter to before us.
+        shifter->setShift(.8);
+
+
+        // input clock+sample here should kick us to .1, and should
+        // generate a synthesized "make up" clock.
+        b = shifter->process(true, true);
+        assert(b);
+        assertClose(shifter->getNormalizedPosition(), 0, .0001);
+
+        b = clockItLow(shifter, 7);
+        assert(!b);
+        assertClose(shifter->getNormalizedPosition(), .7, .0001);
+
+        b = clockItLow(shifter, 1);
+        assert(b);
+        assertClose(shifter->getNormalizedPosition(), .8, .0001);
+    }
 };
 
 void testClockShifter4b() {
@@ -319,4 +357,5 @@ void testClockShifter4b() {
     TestClockShifter::testCase5();
     TestClockShifter::testCase6a();
     TestClockShifter::testCase6b();
+    TestClockShifter::testCase7a();
 }
