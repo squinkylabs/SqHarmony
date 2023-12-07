@@ -5,6 +5,11 @@
 
 const int testPeriod = 10;
 
+/**
+ * These are mainly tests around the different cases of shift times moving around.
+ * 
+ */
+
 // Case 1. Current position << 1, shift move from higher to even higher. Shift not near the ends.
 // shift starts at .5 current position goes to .2, then shift goes to .7
 // input clocks x---------x---------x
