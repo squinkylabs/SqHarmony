@@ -1,7 +1,9 @@
 
 #pragma once
 
+#include "ClockShifter4.h"
 #include <memory>
+
 static int clockItLow(std::shared_ptr<ClockShifter4> shifter, int count) {
     int clocksSeen = 0;
     for (int i = 0; i < count; ++i) {
