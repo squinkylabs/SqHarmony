@@ -197,16 +197,16 @@ static void testIncreaseDelayMidCycle() {
     assertEQ(clocksGenerated, 1);
     assertClose(shifter->getNormalizedPosition(), 5.f / 12.f, .0001);
 
-    SQINFO("now set shift to .6 pos is %f", 5.f / 12.f);
+  //  SQINFO("now set shift to .6 pos is %f", 5.f / 12.f);
     shifter->setShift(.5 + .1);  // Set for small additional delay.
-    SQINFO("back from set shift");
+  //  SQINFO("back from set shift");
 
     // With shift still at .5, we would expect a clock here,
     // but with the extra .1 delay, that should be postponed.
     clocksGenerated += shifter->process(false, false) ? 1 : 0;
     assertEQ(clocksGenerated, 1);
 
-    SQINFO("at 242");
+ //   SQINFO("at 242");
     // now should clock, delayed
     clocksGenerated += shifter->process(false, false) ? 1 : 0;
     assertEQ(clocksGenerated, 2);
@@ -385,7 +385,7 @@ public:
         b = clockItLow(shifter, .05 * testPeriod);
         assertClose(shifter->getNormalizedPosition(), .05, .0001);
 
-        SQINFO("==== OK, here's the big wrap test ===");
+      //  SQINFO("==== OK, here's the big wrap test ===");
         // Shift from .9 to 1.1, cur pos .05. Forward
         shifter->_shift = .9;
         x = shifter->_calculateShiftOver(.1);

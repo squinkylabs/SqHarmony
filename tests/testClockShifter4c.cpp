@@ -35,8 +35,25 @@ static void testSpeedUpOutputsClock() {
     assert(b);
 }
 
+// This is not debugged yet.
+static void testSpeedUpOutputsClockShifted() {
+    auto shifter = makeAndPrime(10, .9);
+    assertEQ(shifter->getPeriod(), 10);
+    bool b = clockItLow(shifter, 7);
+    assert(!b);
+    // we sped up, so output one now
+    b = shifter->process(true, true);
+    assert(b);
+    b = clockItLow(shifter, 7);
+    assert(!b);
+    // next cycle, we are still not firing (?)
+    b = shifter->process(true, true);
+    assert(b);
+}
+
 void testClockShifter4c() {
     testSpeedUp();
     testSlowDown();
     testSpeedUpOutputsClock();
+    testSpeedUpOutputsClockShifted();
 }
