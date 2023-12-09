@@ -23,6 +23,7 @@ public:
     int maxSamplesBetweenClocks = 0;
 
     void processPossibleClock(bool clock) {
+        samplesTicked++;
         if (!clock) {
             return;
         }
@@ -36,6 +37,14 @@ public:
         }
         lastClockSample = curSample;
     }
+
+    std::string toString() const {
+        std::stringstream s;
+        s << "samples=" << samplesTicked << std::endl;
+        s << "clocks =" << outputClocks << std::endl;
+        s << "min=" << minSamplesBetweenClocks << " max=" << maxSamplesBetweenClocks << std::endl;
+        return s.str();
+    }
 private:
     int lastClockSample = -1;
 };
@@ -46,15 +55,20 @@ static Outputs run(const Inputs& input) {
     assert(input.isValid());
     Outputs output;
 
+    // prime will feed in the "first" clock, so expect "off by one" errors.
     auto shifter = makeAndPrime(input.period, input.initialShift);
     for (int cycle = 0; cycle < input.cycles; cycle++) {
-        for (int sample = 0; sample < input.period; ++sample) {
-            output.samplesTicked++;
+
+        // First put out n-1 samples with no clock
+        for (int sample = 0; sample < (input.period-1); ++sample) {
+           // output.samplesTicked++;
             const bool b = clockItLow(shifter, 1);
             output.processPossibleClock(b);
         }
+
+        // Then one with a clock.
+        // Except at the very end. Don't output the last clock.
         if (cycle < input.cycles-1) {
-           // SQINFO("clock at end");
             const bool b = shifter->process(true, true);
             output.processPossibleClock(b);
         }
@@ -67,6 +81,7 @@ static void test0() {
     in.period = 2;
     in.cycles = 1;
     const Outputs o = run(in);
+  
 }
 
 static void test1() {
@@ -74,10 +89,13 @@ static void test1() {
     in.period = 10;
     in.cycles = 4;
     const auto output = run(in);
-    assertEQ(output.samplesTicked, 40);
+    SQINFO("end of test01, output = %s", output.toString().c_str());
+    assertEQ(output.samplesTicked, 40 - 1);
     assertEQ(output.outputClocks, 3);       // we don't count the start or end
     assertEQ(output.maxSamplesBetweenClocks, 10);
     assertEQ(output.minSamplesBetweenClocks, 10);
+
+   
 }
 
 void testClockShifter4d() {
