@@ -6,12 +6,13 @@
 class Inputs {
 public:
     int period = 0;
-    int cycles = 0;
+   // int cycles = 0;
+    int totalSamplesToTick = 0;
     float shiftPerSample = 0;
     float initialShift = 0;
 
     bool isValid() const {
-        return period >= 2 && cycles > 0;
+        return period >= 2 && totalSamplesToTick > period;
     }
 };
 
@@ -51,6 +52,23 @@ private:
 
 // std::shared_ptr<ClockShifter4> shifter
 
+/**
+ * The second clock in prime "counts" it is part of input.totalSamplesToTick,
+ * and if it generates a clock is will be in Outputs.outputClocks.
+ */
+static Outputs run(const Inputs& input) {
+    assert(input.isValid());
+    Outputs output;
+
+    // prime will feed in the "first" clock, so expect "off by one" errors.
+    auto result = makeAndPrime2(input.period, input.initialShift);
+    output.samplesTicked = 1;
+    output.outputClocks = result.clocked ? 1 : 0;
+    assert(false);
+    return output;
+}
+
+#if 0
 static Outputs run(const Inputs& input) {
     assert(input.isValid());
     Outputs output;
@@ -75,30 +93,45 @@ static Outputs run(const Inputs& input) {
     }
     return output;
 }
+#endif
 
 static void test0() {
     Inputs in;
     in.period = 2;
-    in.cycles = 1;
+   // in.cycles = 1;
+    in.totalSamplesToTick = 4;
     const Outputs o = run(in);
-  
 }
 
-static void test1() {
+static void testNoShift() {
     Inputs in;
     in.period = 10;
-    in.cycles = 4;
+   // in.cycles = 4;
+    in.totalSamplesToTick = 40;
     const auto output = run(in);
-    SQINFO("end of test01, output = %s", output.toString().c_str());
+   // SQINFO("end of test01, output = %s", output.toString().c_str());
     assertEQ(output.samplesTicked, 40 - 1);
     assertEQ(output.outputClocks, 3);       // we don't count the start or end
     assertEQ(output.maxSamplesBetweenClocks, 10);
     assertEQ(output.minSamplesBetweenClocks, 10);
-
-   
 }
 
+static void testShift2() {
+    Inputs in;
+    in.period = 10;
+  //  in.cycles = 4;
+    in.totalSamplesToTick = 4 * 10;
+    in.initialShift = .2;
+    const auto output = run(in);
+   SQINFO("end of testShift2, output = %s", output.toString().c_str());
+    assertEQ(output.samplesTicked, 40 - 1);
+    assertEQ(output.outputClocks, 3);       // we don't count the start or end
+    assertEQ(output.maxSamplesBetweenClocks, 10);
+    assertEQ(output.minSamplesBetweenClocks, 10);
+}
 void testClockShifter4d() {
     test0();
-    test1();
+    testNoShift();
+    testShift2();
+
 }
