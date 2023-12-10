@@ -47,6 +47,7 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
     // First we want to "unwrap" everything.
  
     float currentPosition = getNormalizedPosition();
+    SQINFO("_calculateShiftOver new shift value = %f, cur pos=%f", newShiftValue, currentPosition);
     bool didWrap = false;   
     float before = 0, after = 0;
     const float deltaShift = std::abs(newShiftValue - _shift);
@@ -70,13 +71,19 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
     if (didWrap && (currentPosition < .5)) {
         currentPosition += 1;
     }
+
+  
+  
     if ((before < currentPosition) && (currentPosition < after)) {
+    SQINFO("fwd at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);     
         return ShiftPossibilities::ShiftOverForward;
     }
     if ((before > currentPosition) && (currentPosition > after)) {
+          SQINFO("back at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
         return ShiftPossibilities::ShiftOverBackward;
     }
 
+  SQINFO("none at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
     return ShiftPossibilities::ShiftOverNone;
 }
 
@@ -108,6 +115,7 @@ inline void ClockShifter4::setShift(float x) {
 }
 
 inline void ClockShifter4::_requestSuppressTheNextClockOut() {
+    SQINFO("_requestSuppressTheNextClockOut");
     assert(!_firstClock);
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
@@ -115,7 +123,7 @@ inline void ClockShifter4::_requestSuppressTheNextClockOut() {
 }
 
 inline void ClockShifter4::_requestForceGenerateClockNextSample() {
-    //SQINFO("_requestForceGenerateClockNextSample, will set _force.");
+    SQINFO("_requestForceGenerateClockNextSample, will set _force.");
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
     _forceGenerateClockNextSample = true;
