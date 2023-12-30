@@ -56,6 +56,7 @@ extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
 extern void testRawChordGenerator();
 extern void testChord4();
+extern void   testPolyClockShifter();
 
 #ifdef _DEBUG
 const bool doLongRunning = false;
@@ -86,6 +87,7 @@ int main(const char**, int) {
     testClockShifter4b();
     testClockShifter4c();
     testClockShifter4d();
+    testPolyClockShifter();
     testPhasePatterns();
     testClockMult();
     testMultiplier();
