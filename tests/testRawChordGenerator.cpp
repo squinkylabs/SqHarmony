@@ -71,7 +71,7 @@ static void copyChord(int* dest, const int* src) {
     }
 }
 
-class TestRawChordGenerator {
+class TestX {
 public:
     static void init() {
         int temp[RawChordGenerator::chordSize];
@@ -211,18 +211,18 @@ public:
 };
 
 void testRawChordGenerator() {
-    TestRawChordGenerator::allNotesInChord();
-    TestRawChordGenerator::allNotesInChord2();
+    TestX::allNotesInChord();
+    TestX::allNotesInChord2();
     testCanCall();
     testCanGen();
     testCanGen2();
-    TestRawChordGenerator::init();
-    TestRawChordGenerator::nextChordInRange();
-    TestRawChordGenerator::nextChordInRange2();
-    TestRawChordGenerator::fixCrossingIfRequired();
+    TestX::init();
+    TestX::nextChordInRange();
+    TestX::nextChordInRange2();
+    TestX::fixCrossingIfRequired();
     // TestRawChordGenerator::getSRN();
     // TestRawChordGenerator::allNotesInScale();
     // TestRawChordGenerator::allNotesInScale2();
 
-    TestRawChordGenerator::isChordOk();
+    TestX::isChordOk();
 }

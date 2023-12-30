@@ -10,7 +10,7 @@
 class RawChordGenerator {
 public:
     const static int chordSize = 4;
-    friend class TestRawChordGenerator;
+    friend class TestX;
 
     /**
      * ctor will make one with all bad pitches. calling getNextChord
