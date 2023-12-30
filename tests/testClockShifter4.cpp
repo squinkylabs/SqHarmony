@@ -275,7 +275,7 @@ static void testDelayNeg() {
     testDelaySub(8, -.25);
 }
 
-class TestClockShifter4 {
+class TestX {
 public:
     static void testCalculateShiftOver1() {
         ClockShifter4::ShiftPossibilities x;
@@ -468,12 +468,12 @@ public:
 
 void testClockShifter4() {
     testCanCall();
-    TestClockShifter4::testPeriod();
-    TestClockShifter4::testMakeAndPrime();
-    TestClockShifter4::testGetNormalizedPosition();
-    TestClockShifter4::testCalculateShiftOver1();
-    TestClockShifter4::testCalculateShiftOver2();
-    TestClockShifter4::testCalculateShiftOver3();
+    TestX::testPeriod();
+    TestX::testMakeAndPrime();
+    TestX::testGetNormalizedPosition();
+    TestX::testCalculateShiftOver1();
+    TestX::testCalculateShiftOver2();
+    TestX::testCalculateShiftOver3();
 
     testStraightThrough();
     testStraightThrough2();

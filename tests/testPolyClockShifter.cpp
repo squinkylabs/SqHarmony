@@ -10,8 +10,8 @@ public:
         _clockOutput->channels = 1;  // fake connected.
         _clockInput->channels = 1;  // connect
         _clockInput->channels = numClockChannels;
-        assertEQ(ribsChannels, 1);
-        assertEQ(shiftChannels, 1);
+        _ribsTrigger->channels =  ribsChannels;
+        _shiftAmount->channels = shiftChannels;
     }
 
   
@@ -66,10 +66,14 @@ static void testChannelsSub(
 }
 
 static void testChannels() {
-    // testChannelsSub(0, 0, 0, 1);
-    //  testChannelsSub(1, 1, 1, 1);
+    testChannelsSub(0, 0, 0, 1);
+    testChannelsSub(1, 1, 1, 1);
 
     testChannelsSub(2, 1, 1, 2);
+    testChannelsSub(1, 2, 1, 2);
+    testChannelsSub(1, 1, 2, 2);
+
+    testChannelsSub(16, 16, 16, 16);
 }
 
 void testPolyClockShifter() {

@@ -7,7 +7,7 @@
 
 class ClockShifter4 {
 public:
-    friend class TestClockShifter4;
+    friend class TestX;
     void setShift(float);
     bool process(bool trigger, bool clock);
     bool freqValid() const;

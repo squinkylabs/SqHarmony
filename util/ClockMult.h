@@ -6,7 +6,7 @@
 
 class ClockMult {
 public:
-    friend class TestClockMult;
+    friend class TestX;
     bool run(bool clockIn);
     void setMul(double m) {
         _mul = m;

@@ -133,7 +133,7 @@ static void testRatchet() {
     assertEQ(count, 5);
 }
 
-class TestClockMult {
+class TestX {
 public:
     static void testSetMul() {
         ClockMult c;
@@ -236,12 +236,12 @@ public:
 
 void testClockMult() {
     testCanCall();
-    TestClockMult::testSetMul();
-    TestClockMult::testTime0();
-    TestClockMult::testTime1();
+    TestX::testSetMul();
+    TestX::testTime0();
+    TestX::testTime1();
 
-    TestClockMult::testFreq();
-    TestClockMult::testTargetTime();
+    TestX::testFreq();
+    TestX::testTargetTime();
 
     testMul1();
     testMul2();
