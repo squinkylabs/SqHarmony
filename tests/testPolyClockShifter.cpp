@@ -98,16 +98,18 @@ static void clockItHighLow(PolyShiftComposite& c, int channel, int numLow) {
 
 // does high + low, but not final high.
 static void prime(PolyShiftComposite& comp, int channel, int period = testPeriod) {
+    comp._clockOutput->channels = 1;            // connect the clock output
+    comp.runEveryBlock();
     clockItHighLow(comp, channel, period-1);
 }
 
 static void testCanBlockSub(int clockInChannels, int channelToTest) {
+    SQINFO("------ testCanBlockSub ");
     PolyShiftComposite comp(clockInChannels, 1, 1);
     prime(comp, channelToTest);
 
     comp._clockInput->setVoltage(10, channelToTest);
 
-    //assert(false);
     comp.runEverySample();
     for (int i = 0; i < 16; ++i) {
         const auto  v = comp._clockOutput->getVoltage(i);

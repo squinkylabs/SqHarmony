@@ -27,6 +27,18 @@ static void testStraightThrough() {
     assert(b);
 }
 
+
+static void testStraightThrough3() {
+    auto shifter = makeAndPrime(8);
+    for (int i = 0; i < 7; ++i) {
+        bool b = shifter->process(false, false);
+        assert(!b);
+    }
+
+    const bool b = shifter->process(true, true);
+    assert(b);
+}
+
 static void testStraightThrough2() {
     auto shifter = std::make_shared<ClockShifter4>();
     // Prime for period = 4, 75% duty cycle. no shift
@@ -477,6 +489,7 @@ void testClockShifter4() {
 
     testStraightThrough();
     testStraightThrough2();
+    testStraightThrough3();
     testInputValid();
 
     testHalfCycleDelay();

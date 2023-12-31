@@ -21,7 +21,10 @@ public:
 
 private:
     bool haveRunBlock = false;
-    GateTrigger _inputClockProc[16];
+    GateTrigger _inputClockProc[16] = {false, false, false, false,
+                                       false, false, false, false,
+                                       false, false, false, false,
+                                       false, false, false, false};
     ClockShifter4 _clockShifter[16];
     ShiftCalc _shiftCalculator[16];
 };
@@ -35,12 +38,18 @@ inline void PolyClockShifter::runEverySample(const PortInfo& info) {
         const bool rawClockOut = _clockShifter[0].process(_inputClockProc[0].trigger(), _inputClockProc[0].gate());
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
         info.clockOutput->setVoltage(clockOut);
+    } else {
+        SQWARN("running sample before block");
     }
 }
 
 inline void PolyClockShifter::runEveryBlock(const PortInfo& info) {
     haveRunBlock = true;
-    if (!info.clockOutput->isConnected()) {
+    const int channels = info.clockOutput->channels;
+    const bool conn = info.clockOutput->isConnected();
+    SQINFO("conn = %d", conn);
+    if (!conn) {
+        SQINFO("doing nothing, clock out not connected");
         return;
     }
     int numOutputs = 1;

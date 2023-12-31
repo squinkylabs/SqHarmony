@@ -45,10 +45,10 @@ private:
 
 inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(float newShiftValue) const {
     // First we want to "unwrap" everything.
- 
+
     float currentPosition = getNormalizedPosition();
     SQINFO("_calculateShiftOver new shift value = %f, cur pos=%f", newShiftValue, currentPosition);
-    bool didWrap = false;   
+    bool didWrap = false;
     float before = 0, after = 0;
     const float deltaShift = std::abs(newShiftValue - _shift);
     if (deltaShift < .5) {
@@ -72,18 +72,16 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
         currentPosition += 1;
     }
 
-  
-  
     if ((before < currentPosition) && (currentPosition < after)) {
-    SQINFO("fwd at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);     
+        SQINFO("fwd at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
         return ShiftPossibilities::ShiftOverForward;
     }
     if ((before > currentPosition) && (currentPosition > after)) {
-          SQINFO("back at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
+        SQINFO("back at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
         return ShiftPossibilities::ShiftOverBackward;
     }
 
-  SQINFO("none at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
+    SQINFO("none at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
     return ShiftPossibilities::ShiftOverNone;
 }
 
@@ -156,9 +154,10 @@ inline float ClockShifter4::getNormalizedPosition() const {
 inline bool ClockShifter4::process(bool trigger, bool clock) {
     // If both of these were true, what would we do???
     assert(!_firstClock || !_suppressNextClockOutput);
-    const bool freqWasValid = _freqMeasure.freqValid(); 
+    const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
+        SQINFO("input freq not settled, not processing");
         return false;
     }
 
@@ -169,15 +168,14 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     // if it's the edge of a new clock, re-sync
     if (trigger) {
         if (freqWasValid) {
-            //assert(_haveOutputClockThisInputPeriod);
+            // assert(_haveOutputClockThisInputPeriod);
             if (!_haveOutputClockThisInputPeriod) {
                 SQINFO("!!! one cycle with no output. pos=%f shift=%f",
-                    getNormalizedPosition(),
-                    this->_shift);
+                       getNormalizedPosition(),
+                       this->_shift);
                 if (this->_shift > .5) {
                     SQINFO("!!!!");
                 }
-                   
             }
         }
         _phaseAccumulator = 0;
@@ -193,7 +191,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     bool isTimeToOutputClock = ((_phaseAccumulator >= targetClock) && (_phaseAccumulator < (targetClock + 1)));
     if (_forceGenerateClockNextSample) {
         assert(!isTimeToOutputClock);
-        //SQINFO("shifter4 131: attempting to execute force");
+        // SQINFO("shifter4 131: attempting to execute force");
         isTimeToOutputClock = true;
         _forceGenerateClockNextSample = false;
     }
@@ -205,7 +203,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
         //
         // period / 2 is too aggressive. Should probably make it depend on delay time, but haxoring around...
         bool shouldFireClock = (_firstClock || (_elapsedInputSamplesSinceLastOutput >= (_freqMeasure.getPeriod() / 3)));
-        //SQINFO("in shifter 142, should fire = %d, suppress = %d", shouldFireClock, _suppressNextClockOutput);
+        // SQINFO("in shifter 142, should fire = %d, suppress = %d", shouldFireClock, _suppressNextClockOutput);
         if (_suppressNextClockOutput) {
             shouldFireClock = false;
             _suppressNextClockOutput = false;
