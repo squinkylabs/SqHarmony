@@ -81,19 +81,16 @@ static int testPeriod = 10;
 static void clockItLow(PolyShiftComposite& c, int numTimes, int channel, float expectedOutput) {
     const auto args = TestComposite::ProcessArgs();
     c._clockInput->setVoltage(0, channel);
-   // c.inputs[Comp::CK_INPUT].setVoltage(0);
     for (int i = 0; i < numTimes; ++i) {
         c.process(args);
         if (expectedOutput >= 0) {
              assertEQ(c._clockOutput->getVoltage(channel), expectedOutput);
-           // assertEQ(c.outputs[Comp::CK_OUTPUT].getVoltage(0), expectedOutput);
         }
     }
 }
 
 static void clockItHigh(PolyShiftComposite& c, int channel) {
     const auto args = TestComposite::ProcessArgs();
-  //  c.inputs[Comp::CK_INPUT].setVoltage(10);
     c._clockInput->setVoltage(10, channel);
     c.process(args);
 }
@@ -112,7 +109,13 @@ static void testCanBlockSub(int clockInChannels, int channelToTest) {
     PolyShiftComposite comp(clockInChannels, 1, 1);
     prime(comp, channelToTest);
 
-    assert(false);
+    //assert(false);
+    comp.runEverySample();
+    for (int i = 0; i < 16; ++i) {
+        const auto  v = comp._clockOutput->getVoltage(i);
+        const auto expect = (i == channelToTest) ? 10.f : 0.f;
+        assertEQ(v, expect);
+    }
 }
 
 static void testCanClock() {
