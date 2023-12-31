@@ -57,7 +57,6 @@ private:
 
     ClockShifter4 _clockShifter;
     ShiftCalc _shiftCalculator;
-  //  SchmidtTrigger _inputClockProc;
     GateTrigger _inputClockProc;
     GateTrigger _buttonProc;
     Divider divn;

@@ -6,7 +6,6 @@
 class PolyShiftComposite : public TestComposite {
 public:
     PolyShiftComposite(int numClockChannels, int ribsChannels, int shiftChannels) {
-       // assertEQ(numClockChannels, 1);
         _clockOutput->channels = 1;  // fake connected.
         _clockInput->channels = 1;  // connect
         _clockInput->channels = numClockChannels;
@@ -14,7 +13,6 @@ public:
         _shiftAmount->channels = shiftChannels;
     }
 
-  
     PolyClockShifter psh;
     Port* const _clockOutput = &outputs[0];
     Port* const _clockInput = &inputs[0];
@@ -68,11 +66,9 @@ static void testChannelsSub(
 static void testChannels() {
     testChannelsSub(0, 0, 0, 1);
     testChannelsSub(1, 1, 1, 1);
-
     testChannelsSub(2, 1, 1, 2);
     testChannelsSub(1, 2, 1, 2);
     testChannelsSub(1, 1, 2, 2);
-
     testChannelsSub(16, 16, 16, 16);
 }
 
@@ -108,6 +104,8 @@ static void prime(PolyShiftComposite& comp, int channel, int period = testPeriod
 static void testCanBlockSub(int clockInChannels, int channelToTest) {
     PolyShiftComposite comp(clockInChannels, 1, 1);
     prime(comp, channelToTest);
+
+    comp._clockInput->setVoltage(10, channelToTest);
 
     //assert(false);
     comp.runEverySample();

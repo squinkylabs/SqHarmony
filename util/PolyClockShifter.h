@@ -1,10 +1,10 @@
 #pragma once
 
+#include <algorithm>
+
 #include "ClockShifter4.h"
 #include "GateTrigger.h"
 #include "ShiftCalc.h"
-
-#include <algorithm>
 
 struct Port;
 class PolyClockShifter {
@@ -28,6 +28,13 @@ private:
 
 inline void PolyClockShifter::runEverySample(const PortInfo& info) {
     if (haveRunBlock) {
+        _shiftCalculator[0].go();
+        const float rawClockIn = info.clockInput->getVoltage(0);
+        _inputClockProc[0].go(rawClockIn);
+        // const bool clockIn = _inputClockProc.go(rawClockIn);
+        const bool rawClockOut = _clockShifter[0].process(_inputClockProc[0].trigger(), _inputClockProc[0].gate());
+        const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
+        info.clockOutput->setVoltage(clockOut);
     }
 }
 
