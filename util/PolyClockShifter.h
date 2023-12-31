@@ -1,5 +1,9 @@
 #pragma once
 
+#include "ClockShifter4.h"
+#include "GateTrigger.h"
+#include "ShiftCalc.h"
+
 #include <algorithm>
 
 struct Port;
@@ -8,8 +12,8 @@ public:
     class PortInfo {
     public:
         ::Port* clockOutput;
-        ::Port * clockInput;
-        ::Port * ribsTrigger;
+        ::Port* clockInput;
+        ::Port* ribsTrigger;
         ::Port* shiftAmount;
     };
     void runEveryBlock(const PortInfo& info);
@@ -17,6 +21,9 @@ public:
 
 private:
     bool haveRunBlock = false;
+    GateTrigger _inputClockProc[16];
+    ClockShifter4 _clockShifter[16];
+    ShiftCalc _shiftCalculator[16];
 };
 
 inline void PolyClockShifter::runEverySample(const PortInfo& info) {
@@ -29,7 +36,7 @@ inline void PolyClockShifter::runEveryBlock(const PortInfo& info) {
     if (!info.clockOutput->isConnected()) {
         return;
     }
-    int numOutputs = 1; 
+    int numOutputs = 1;
 
     numOutputs = std::max(numOutputs, int(info.clockInput->channels));
     numOutputs = std::max(numOutputs, int(info.ribsTrigger->channels));
