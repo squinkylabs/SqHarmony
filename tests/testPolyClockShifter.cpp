@@ -1,15 +1,17 @@
 
 #include "TestComposite.h"  // need a Port definition.
+
 #include "PolyClockShifter.h"
+
 #include "asserts.h"
 
 class PolyShiftComposite : public TestComposite {
 public:
     PolyShiftComposite(int numClockChannels, int ribsChannels, int shiftChannels) {
         _clockOutput->channels = 1;  // fake connected.
-        _clockInput->channels = 1;  // connect
+        _clockInput->channels = 1;   // connect
         _clockInput->channels = numClockChannels;
-        _ribsTrigger->channels =  ribsChannels;
+        _ribsTrigger->channels = ribsChannels;
         _shiftAmount->channels = shiftChannels;
     }
 
@@ -79,7 +81,7 @@ static void clockItLow(PolyShiftComposite& c, int numTimes, int channel, float e
     for (int i = 0; i < numTimes; ++i) {
         c.runEverySample();
         if (expectedOutput >= 0) {
-             assertEQ(c._clockOutput->getVoltage(channel), expectedOutput);
+            assertEQ(c._clockOutput->getVoltage(channel), expectedOutput);
         }
     }
 }
@@ -96,9 +98,9 @@ static void clockItHighLow(PolyShiftComposite& c, int channel, int numLow) {
 
 // does high + low, but not final high.
 static void prime(PolyShiftComposite& comp, int channel, int period = testPeriod) {
-    comp._clockOutput->channels = 1;            // connect the clock output
+    comp._clockOutput->channels = 1;  // connect the clock output
     comp.runEveryBlock();
-    clockItHighLow(comp, channel, period-1);
+    clockItHighLow(comp, channel, period - 1);
 }
 
 static void testCanBlockSub(int clockInChannels, int channelToTest) {
@@ -107,25 +109,22 @@ static void testCanBlockSub(int clockInChannels, int channelToTest) {
     prime(comp, channelToTest);
     // Even though we are "primed" we will not emit a clock for one more period,
     // if shift is zero.
-    clockItHighLow(comp, 1, testPeriod-1);
+    clockItHighLow(comp, 1, testPeriod - 1);
 
-   
     comp._clockInput->setVoltage(10, channelToTest);
 
     comp.runEverySample();
     for (int i = 0; i < 16; ++i) {
-        const auto  v = comp._clockOutput->getVoltage(i);
+        const auto v = comp._clockOutput->getVoltage(i);
         const auto expect = (i == channelToTest) ? 10.f : 0.f;
         assertEQ(v, expect);
     }
 }
 
 static void testCanClock() {
-   // testCanBlockSub(1, 0);      // this one ok
-
-    // this one NG.
+    testCanBlockSub(1, 0);  // this one ok
     testCanBlockSub(2, 0);
-   // testCanBlockSub(2, 1);
+    testCanBlockSub(2, 1);
 }
 
 void testPolyClockShifter() {
