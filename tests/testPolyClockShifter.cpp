@@ -103,12 +103,13 @@ static void prime(PolyShiftComposite& comp, int channel, int period = testPeriod
     clockItHighLow(comp, channel, period - 1);
 }
 
-static void testCanBlockSub(int clockInChannels, int channelToTest) {
+static void testCanClockPolySub(int clockInChannels, int channelToTest) {
     SQINFO("------ testCanBlockSub(%d, %d)", clockInChannels, channelToTest);
     PolyShiftComposite comp(clockInChannels, 1, 1);
     prime(comp, channelToTest);
     // Even though we are "primed" we will not emit a clock for one more period,
     // if shift is zero.
+    // TODO: what is this input on channel 1??
     clockItHighLow(comp, 1, testPeriod - 1);
 
     comp._clockInput->setVoltage(10, channelToTest);
@@ -119,16 +120,54 @@ static void testCanBlockSub(int clockInChannels, int channelToTest) {
         const auto expect = (i == channelToTest) ? 10.f : 0.f;
         assertEQ(v, expect);
     }
+
+    // one more clock and it should go down.
+     comp._clockInput->setVoltage(0, channelToTest);
+     comp.runEverySample();
+     assertEQ(comp._clockOutput->getVoltage(channelToTest), 0);
+}
+
+static void testCanClockMonoSub(int shiftChannels, int outputClockToTest) {
+    SQINFO("------ testCanBlockSub(%d, %d)", shiftChannels, outputClockToTest);
+    PolyShiftComposite comp(1, 1, shiftChannels);   //only poly input is shift amount
+    prime(comp, 0);
+    // Even though we are "primed" we will not emit a clock for one more period,
+    // if shift is zero.
+    clockItHighLow(comp, 0, testPeriod - 1);
+
+    // Set the mono clock high, and run.
+    comp._clockInput->setVoltage(10, 0);
+    comp.runEverySample();
+    for (int i = 0; i < 16; ++i) {
+        const auto v = comp._clockOutput->getVoltage(i);
+        const auto expect = (i < outputClockToTest) ? 10.f : 0.f;
+        assertEQ(v, expect);
+    }
+
+    // one more clock and it should go down.
+     comp._clockInput->setVoltage(0, 0);
+     comp.runEverySample();
+      for (int i = 0; i < 16; ++i) {
+        const auto v = comp._clockOutput->getVoltage(i);
+        const auto expect = 0.f;
+        assertEQ(v, expect);
+    }
+}
+
+static void testCanClockMono() {
+    testCanClockMonoSub(1, 0);
+    assert(false);
 }
 
 static void testCanClock() {
-    testCanBlockSub(1, 0);  // this one ok
-    testCanBlockSub(2, 0);
-    testCanBlockSub(2, 1);
+    testCanClockPolySub(1, 0);  // this one ok
+    testCanClockPolySub(2, 0);
+    testCanClockPolySub(2, 1);
 }
 
 void testPolyClockShifter() {
     test0b();
     testChannels();
     testCanClock();
+    testCanClockMono();
 }

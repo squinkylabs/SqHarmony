@@ -25,7 +25,7 @@ private:
     int _numOutputClocks = 0;
     int _numRibsGenerators = 0;
 
-    // initialize these guys to turn off the suppression of the first clo.c
+    // initialize these guys to turn off the suppression of the first clock
     GateTrigger _inputClockProc[16] = {false, false, false, false,
                                        false, false, false, false,
                                        false, false, false, false,

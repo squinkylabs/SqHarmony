@@ -6,6 +6,8 @@ class ShiftCalc {
 public:
     /**
      * @brief clocks generator once, returns current output.
+     * 
+     * If you don't want to use the return value, it can always be retrieved with a call to get().
      *
      * @return float
      */
