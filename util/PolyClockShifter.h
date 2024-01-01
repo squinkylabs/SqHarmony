@@ -2,11 +2,13 @@
 
 #include <algorithm>
 
+#include "TestComposite.h"  // need a Port definition.
+
 #include "ClockShifter4.h"
 #include "GateTrigger.h"
 #include "ShiftCalc.h"
 
-struct Port;
+// struct Port;
 class PolyClockShifter {
 public:
     class PortInfo {
@@ -63,7 +65,7 @@ inline void PolyClockShifter::runEverySample(const PortInfo& info) {
 inline void PolyClockShifter::runEveryBlock(const PortInfo& info) {
     _haveRunBlock = true;
 
-    const int channels = info.clockOutput->channels;
+ //   const int channels = info.clockOutput->channels;
     const bool conn = info.clockOutput->isConnected();
     SQINFO("conn = %d", conn);
     if (!conn) {

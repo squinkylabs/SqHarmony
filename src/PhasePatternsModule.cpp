@@ -3,15 +3,19 @@
 #include <sstream>
 
 #include "PhasePatterns.h"
+
+using Port = ::rack::engine::Port;
+#include "PhasePatterns2.h"
 #include "SqLog.h"
-#include "WidgetComposite.h"
+
 #include "plugin.hpp"
+#include "WidgetComposite.h"
 
 // These have to be included later. It's a bug, but....
 #include "SqLabel.h"
 #include "BufferingParent.h"
 
-using Comp = PhasePatterns<WidgetComposite>;
+using Comp = PhasePatterns2<WidgetComposite>;
 using Lab = SqLabel;
 
 template <>
