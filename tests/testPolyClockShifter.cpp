@@ -102,14 +102,14 @@ static void prime(PolyShiftComposite& comp, int channel, int period = testPeriod
 }
 
 static void testCanBlockSub(int clockInChannels, int channelToTest) {
-    SQINFO("------ testCanBlockSub ");
+    SQINFO("------ testCanBlockSub(%d, %d)", clockInChannels, channelToTest);
     PolyShiftComposite comp(clockInChannels, 1, 1);
     prime(comp, channelToTest);
     // Even though we are "primed" we will not emit a clock for one more period,
     // if shift is zero.
     clockItHighLow(comp, 1, testPeriod-1);
 
-  
+   
     comp._clockInput->setVoltage(10, channelToTest);
 
     comp.runEverySample();
@@ -121,7 +121,11 @@ static void testCanBlockSub(int clockInChannels, int channelToTest) {
 }
 
 static void testCanClock() {
-    testCanBlockSub(1, 0);
+   // testCanBlockSub(1, 0);      // this one ok
+
+    // this one NG.
+    testCanBlockSub(2, 0);
+   // testCanBlockSub(2, 1);
 }
 
 void testPolyClockShifter() {

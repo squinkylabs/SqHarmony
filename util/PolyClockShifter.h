@@ -20,7 +20,12 @@ public:
     void runEverySample(const PortInfo& info);
 
 private:
-    bool haveRunBlock = false;
+    bool _haveRunBlock = false;
+    int _numInputClocks = 0;
+    int _numOutputClocks = 0;
+    int _numRibsGenerators = 0;
+
+    // initialize these guys to turn off the suppression of the first clo.c
     GateTrigger _inputClockProc[16] = {false, false, false, false,
                                        false, false, false, false,
                                        false, false, false, false,
@@ -30,21 +35,34 @@ private:
 };
 
 inline void PolyClockShifter::runEverySample(const PortInfo& info) {
-    if (haveRunBlock) {
-        _shiftCalculator[0].go();
-        const float rawClockIn = info.clockInput->getVoltage(0);
-        _inputClockProc[0].go(rawClockIn);
-        // const bool clockIn = _inputClockProc.go(rawClockIn);
-        const bool rawClockOut = _clockShifter[0].process(_inputClockProc[0].trigger(), _inputClockProc[0].gate());
-        const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
-        info.clockOutput->setVoltage(clockOut);
-    } else {
+    if (!_haveRunBlock) {
         SQWARN("running sample before block");
+    }
+
+    for (int i = 0; i < _numInputClocks; ++i) {
+        const float rawClockIn = info.clockInput->getVoltage(i);
+        _inputClockProc[i].go(rawClockIn);
+    }
+
+ //   assert(_numOutputClocks == 1 || _numOutputClocks == 0);
+    assert(_numRibsGenerators == 1 || _numRibsGenerators == 0);
+
+    _shiftCalculator[0].go();  // TODO: should be done for all of the active ones (ribs channels);
+
+    if (_numOutputClocks > 0) {
+        for (int i = 0; i < _numOutputClocks; ++i) {
+          //  assert(_numInputClocks > 1);    
+         //   if (_numInputClocks)
+            const bool rawClockOut = _clockShifter[i].process(_inputClockProc[i].trigger(), _inputClockProc[i].gate());
+            const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
+            info.clockOutput->setVoltage(clockOut, i);
+        }
     }
 }
 
 inline void PolyClockShifter::runEveryBlock(const PortInfo& info) {
-    haveRunBlock = true;
+    _haveRunBlock = true;
+
     const int channels = info.clockOutput->channels;
     const bool conn = info.clockOutput->isConnected();
     SQINFO("conn = %d", conn);
@@ -53,9 +71,13 @@ inline void PolyClockShifter::runEveryBlock(const PortInfo& info) {
         return;
     }
     int numOutputs = 1;
+    _numInputClocks = info.clockInput->channels;
+    _numRibsGenerators = info.ribsTrigger->channels;
 
-    numOutputs = std::max(numOutputs, int(info.clockInput->channels));
-    numOutputs = std::max(numOutputs, int(info.ribsTrigger->channels));
+    numOutputs = std::max(numOutputs, _numInputClocks);
+    numOutputs = std::max(numOutputs, _numRibsGenerators);
     numOutputs = std::max(numOutputs, int(info.shiftAmount->channels));
+
+    _numOutputClocks = numOutputs;
     info.clockOutput->setChannels(numOutputs);
 }

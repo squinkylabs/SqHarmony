@@ -157,7 +157,7 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
     const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
-        SQINFO("input freq not settled, not processing");
+        // SQINFO("input freq not settled, not processing");
         return false;
     }
 
