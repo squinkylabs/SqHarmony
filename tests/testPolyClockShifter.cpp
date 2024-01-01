@@ -75,10 +75,9 @@ static void testChannels() {
 static int testPeriod = 10;
 
 static void clockItLow(PolyShiftComposite& c, int numTimes, int channel, float expectedOutput) {
-    const auto args = TestComposite::ProcessArgs();
     c._clockInput->setVoltage(0, channel);
     for (int i = 0; i < numTimes; ++i) {
-        c.process(args);
+        c.runEverySample();
         if (expectedOutput >= 0) {
              assertEQ(c._clockOutput->getVoltage(channel), expectedOutput);
         }
@@ -86,9 +85,8 @@ static void clockItLow(PolyShiftComposite& c, int numTimes, int channel, float e
 }
 
 static void clockItHigh(PolyShiftComposite& c, int channel) {
-    const auto args = TestComposite::ProcessArgs();
     c._clockInput->setVoltage(10, channel);
-    c.process(args);
+    c.runEverySample();
 }
 
 static void clockItHighLow(PolyShiftComposite& c, int channel, int numLow) {
@@ -107,7 +105,11 @@ static void testCanBlockSub(int clockInChannels, int channelToTest) {
     SQINFO("------ testCanBlockSub ");
     PolyShiftComposite comp(clockInChannels, 1, 1);
     prime(comp, channelToTest);
+    // Even though we are "primed" we will not emit a clock for one more period,
+    // if shift is zero.
+    clockItHighLow(comp, 1, testPeriod-1);
 
+  
     comp._clockInput->setVoltage(10, channelToTest);
 
     comp.runEverySample();
