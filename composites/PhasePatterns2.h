@@ -28,6 +28,7 @@ public:
     enum InputIds {
         CK_INPUT,
         SHIFT_INPUT,
+        RIBS_TRIGGER_INPUT,
         NUM_INPUTS
     };
 
@@ -101,7 +102,7 @@ inline void PhasePatterns2<TBase>::_stepn() {
     _updateShiftAmount();
     _updateButton();
     _updateShiftAmount();
-    
+
     PolyClockShifter::PortInfo info;
     _fillInfo(info);
     _shifter.runEveryBlock(info);
@@ -109,10 +110,11 @@ inline void PhasePatterns2<TBase>::_stepn() {
 
 template <class TBase>
 inline void PhasePatterns2<TBase>::_fillInfo(PolyClockShifter::PortInfo& info) {
-    Port* const _clockOutput = &TBase::outputs[0];
-    Port* const _clockInput = &TBase::inputs[0];
-    Port* const _ribsTrigger = &TBase::inputs[1];
-    Port* const _shiftAmount = &TBase::inputs[2];
+    Port* const _clockOutput = &TBase::outputs[CK_OUTPUT];
+    Port* const _clockInput = &TBase::inputs[CK_INPUT];
+    Port* const _ribsTrigger = &TBase::inputs[RIBS_TRIGGER_INPUT];
+    Port* const _shiftAmount = &TBase::inputs[SHIFT_INPUT];
+
 
     info.clockInput = _clockInput;
     info.clockOutput = _clockOutput;

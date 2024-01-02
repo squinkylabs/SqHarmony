@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "TestComposite.h"  // need a Port definition.
+//#include "TestComposite.h"  // need a Port definition.
 
 #include "ClockShifter4.h"
 #include "GateTrigger.h"

@@ -1,8 +1,8 @@
 
 #include <memory>
 
-#include "PhasePatterns2.h"
 #include "TestComposite.h"
+#include "PhasePatterns2.h"
 
 #include "asserts.h"
 
