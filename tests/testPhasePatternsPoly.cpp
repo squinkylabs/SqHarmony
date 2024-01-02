@@ -84,6 +84,11 @@ static void testCanClockPolySub(int clockInChannels, int channelToTest) {
     Comp comp;
     const auto args = TestComposite::ProcessArgs();
 
+    comp.outputs[Comp::CK_OUTPUT].channels = 1;     // connect the output
+    comp.inputs[Comp::CK_INPUT].channels = clockInChannels;
+  //  comp.inputs[Comp::SHIFT_INPUT].channels = shiftAmountChannels;
+  //  comp.inputs[Comp::RIB_INPUT].channels = ribsChannels;
+
     prime(comp, channelToTest);
     // Even though we are "primed" we will not emit a clock for one more period,
     // if shift is zero.

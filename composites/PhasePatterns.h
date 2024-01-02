@@ -61,7 +61,12 @@ private:
 
     ClockShifter4 _clockShifter[16];
     ShiftCalc _shiftCalculator[16];
-    GateTrigger _inputClockProc[16];
+
+    // TODO: get rid of these initializers. There are just here to make some test pass.
+    GateTrigger _inputClockProc[16] = {false, false, false, false,
+                                       false, false, false, false,
+                                       false, false, false, false,
+                                       false, false, false, false};
     GateTrigger _buttonProc;
     Divider divn;
 
@@ -143,10 +148,15 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
         _shiftCalculator[i].go();
     }
 
-    //  const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage();
-    // _inputClockProc.go(rawClockIn);
-    // const bool clockIn = _inputClockProc.go(rawClockIn);
-    const bool rawClockOut = _clockShifter[0].process(_inputClockProc[0].trigger(), _inputClockProc[0].gate());
-    const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
-    TBase::outputs[CK_OUTPUT].setVoltage(clockOut);
+    // this is the only case we can handle right now
+    if (_numOutputClocks > 1) {
+        if (_numInputClocks != _numOutputClocks) {
+            SQINFO("unequal clock case, nimp");
+        }
+    }
+    for (int i = 0; i < _numOutputClocks; ++i) {
+        const bool rawClockOut = _clockShifter[i].process(_inputClockProc[i].trigger(), _inputClockProc[i].gate());
+        const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
+        TBase::outputs[CK_OUTPUT].setVoltage(clockOut, i);
+    }
 }
