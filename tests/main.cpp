@@ -39,6 +39,7 @@ extern void testFreqMeasure2();
 extern void testResettablePhaseAccumulator();
 extern void testOneShot();
 extern void testPhasePatterns();
+extern void testPhasePatternsPoly();
 extern void testOneShotSampleTimer();
 extern void testClockShifter3();
 extern void testClockShifter4();
@@ -56,7 +57,7 @@ extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
 extern void testRawChordGenerator();
 extern void testChord4();
-extern void   testPolyClockShifter();
+
 
 #ifdef _DEBUG
 const bool doLongRunning = false;
@@ -87,8 +88,8 @@ int main(const char**, int) {
     testClockShifter4b();
     testClockShifter4c();
     testClockShifter4d();
-    testPolyClockShifter();
     testPhasePatterns();
+    testPhasePatternsPoly();
     testClockMult();
     testMultiplier();
     testRatchet();

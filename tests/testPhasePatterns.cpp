@@ -2,11 +2,11 @@
 #include <memory>
 
 #include "TestComposite.h"
-#include "PhasePatterns2.h"
+#include "PhasePatterns.h"
 
 #include "asserts.h"
 
-using Comp = PhasePatterns2<TestComposite>;
+using Comp = PhasePatterns<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
 static void test0() {

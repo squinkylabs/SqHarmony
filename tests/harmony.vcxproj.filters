@@ -255,7 +255,7 @@
     <ClCompile Include="testClockShifter4d.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testPolyClockShifter.cpp">
+    <ClCompile Include="testPhasePatternsPoly.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>
