@@ -52,18 +52,17 @@ static void testChannelsSub(
     Comp comp;
     const auto args = TestComposite::ProcessArgs();
 
-    comp.process(args); // process once so that the first time we don't to the block.
-    comp.outputs[Comp::CK_OUTPUT].channels = 1;     // connect the output
+    comp.process(args);                          // process once so that the first time we don't to the block.
+    comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
     comp.inputs[Comp::CK_INPUT].channels = clockInChannels;
     comp.inputs[Comp::SHIFT_INPUT].channels = shiftAmountChannels;
     comp.inputs[Comp::RIB_INPUT].channels = ribsChannels;
-
 
     // init, should be connected but not set
     assertEQ(int(comp.outputs[Comp::CK_OUTPUT].channels), 1);
     comp.process(args);  // this also should not set up any channels (since block won't run).
     assertEQ(int(comp.outputs[Comp::CK_OUTPUT].channels), 1);
-    for (int i=0; i < Comp::getSubSampleFactor(); ++i) {
+    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
         comp.process(args);
     }
     assertEQ(int(comp.outputs[Comp::CK_OUTPUT].channels), expectedClockChannels);
@@ -79,15 +78,12 @@ static void testChannels() {
 }
 
 static void testCanClockPolySub(int clockInChannels, int channelToTest) {
-    SQINFO("------ testCanBlockSub(%d, %d)", clockInChannels, channelToTest);
-    //  PhasePatterns comp(clockInChannels, 1, 1);
+    SQINFO("------ testCanClockPolySub(%d, %d)", clockInChannels, channelToTest);
     Comp comp;
     const auto args = TestComposite::ProcessArgs();
 
-    comp.outputs[Comp::CK_OUTPUT].channels = 1;     // connect the output
+    comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
     comp.inputs[Comp::CK_INPUT].channels = clockInChannels;
-  //  comp.inputs[Comp::SHIFT_INPUT].channels = shiftAmountChannels;
-  //  comp.inputs[Comp::RIB_INPUT].channels = ribsChannels;
 
     prime(comp, channelToTest);
     // Even though we are "primed" we will not emit a clock for one more period,
@@ -111,11 +107,14 @@ static void testCanClockPolySub(int clockInChannels, int channelToTest) {
     assertEQ(comp.outputs[Comp::CK_OUTPUT].getVoltage(channelToTest), 0);
 }
 
-static void testCanClockMonoSub(int shiftChannels, int outputClockToTest) {
-    SQINFO("------ testCanBlockSub(%d, %d)", shiftChannels, outputClockToTest);
-   // Comp comp(1, 1, shiftChannels);  // only poly input is shift amount
-    Comp comp;  // only poly input is shift amount
-     const auto args = TestComposite::ProcessArgs();
+static void testCanClockMonoSub(int shiftChannels) {
+    SQINFO("------ testCanClockMonoSub(%d)", shiftChannels);
+    Comp comp;                                   // only poly input is shift amount
+    comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
+    comp.inputs[Comp::SHIFT_INPUT].channels = shiftChannels;
+    comp.inputs[Comp::CK_INPUT].channels = 1;
+
+    const auto args = TestComposite::ProcessArgs();
     prime(comp, 0);
     // Even though we are "primed" we will not emit a clock for one more period,
     // if shift is zero.
@@ -123,31 +122,44 @@ static void testCanClockMonoSub(int shiftChannels, int outputClockToTest) {
 
     // Set the mono clock high, and run.
 
-     comp.inputs[Comp::CK_INPUT].setVoltage(10, 0);
+    comp.inputs[Comp::CK_INPUT].setVoltage(10, 0);
 
     comp.process(args);
+    const int actualShiftChannels = std::max(shiftChannels, 1);  // there is always one channel...
     for (int i = 0; i < 16; ++i) {
-     //  const auto v = comp._clockOutput->getVoltage(i);
-      const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
-        const auto expect = (i < outputClockToTest) ? 10.f : 0.f;
+        //  const auto v = comp._clockOutput->getVoltage(i);
+        const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
+
+        // this less than is problematic... It's not right...
+        const auto expect = (i < actualShiftChannels) ? 10.f : 0.f;
         assertEQ(v, expect);
+      //  SQINFO("i=%d v=%f exp=%f", i, v, expect);
     }
 
     // one more clock and it should go down.
-   // comp._clockInput->setVoltage(0, 0);
+    // comp._clockInput->setVoltage(0, 0);
     comp.inputs[Comp::CK_INPUT].setVoltage(0, 0);
-    
+
     comp.process(args);
     for (int i = 0; i < 16; ++i) {
         const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
         const auto expect = 0.f;
+      //  SQINFO("after: i=%d v=%f exp=%f", i, v, expect);
         assertEQ(v, expect);
     }
 }
 
 static void testCanClockMono() {
-    testCanClockMonoSub(1, 0);
-    assert(false);
+    testCanClockMonoSub(12);
+    testCanClockMonoSub(2);
+    testCanClockMonoSub(1);
+    testCanClockMonoSub(0);
+    testCanClockMonoSub(16);
+
+    // testCanClockMonoSub(1, 0);
+    // testCanClockMonoSub(0, 0);
+    // testCanClockMonoSub(2, 0);
+    // testCanClockMonoSub(2, 1);
 }
 
 static void testCanClock() {
@@ -159,6 +171,6 @@ static void testCanClock() {
 void testPhasePatternsPoly() {
     testChannels();
     testCanClock();
-    //  testCanClockMono();
+    testCanClockMono();
     SQINFO("can't test mono clock until we fix it");
 }

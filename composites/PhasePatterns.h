@@ -109,16 +109,14 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updatePoly() {
-    SQINFO("in update poly");
     const bool conn = TBase::outputs[CK_OUTPUT].isConnected();
-    SQINFO("conn = %d", conn);
     if (!conn) {
-        SQINFO("doing nothing, clock out not connected");
         return;
     }
     int numOutputs = 1;
     _numInputClocks = TBase::inputs[CK_INPUT].channels;
     _numRibsGenerators = TBase::inputs[RIB_INPUT].channels;
+    _numRibsGenerators = std::max(1, _numRibsGenerators);
 
     numOutputs = std::max(numOutputs, _numInputClocks);
     numOutputs = std::max(numOutputs, _numRibsGenerators);
@@ -126,6 +124,7 @@ inline void PhasePatterns<TBase>::_updatePoly() {
 
     _numOutputClocks = numOutputs;
     TBase::outputs[CK_OUTPUT].setChannels(numOutputs);
+    SQINFO("out=%d, ic=%d, rib=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators);
 }
 
 template <class TBase>
@@ -148,14 +147,19 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
         _shiftCalculator[i].go();
     }
 
+    bool monoClock = false;
     // this is the only case we can handle right now
     if (_numOutputClocks > 1) {
         if (_numInputClocks != _numOutputClocks) {
-            SQINFO("unequal clock case, nimp");
+            // SQINFO("unequal clock case, nimp");
+            monoClock = true;
         }
     }
     for (int i = 0; i < _numOutputClocks; ++i) {
-        const bool rawClockOut = _clockShifter[i].process(_inputClockProc[i].trigger(), _inputClockProc[i].gate());
+        const int clockInputIndex = monoClock ? 0 : i;
+        const bool rawClockOut = _clockShifter[clockInputIndex].process(
+            _inputClockProc[clockInputIndex].trigger(),
+            _inputClockProc[clockInputIndex].gate());
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
         TBase::outputs[CK_OUTPUT].setVoltage(clockOut, i);
     }
