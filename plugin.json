@@ -27,7 +27,7 @@
 		{
 			"slug": "sqh-phasepatterns",
 			"name": "Phase Patterns",
-			"disabled": true,
+			"disabled": false,
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/phasepatterns.md"
 		}
     ]

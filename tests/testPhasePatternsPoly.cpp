@@ -47,7 +47,6 @@ static void testChannelsSub(
     int shiftAmountChannels,
     int ribsChannels,
     int expectedClockChannels) {
-    SQINFO("testChannelsSub");
 
     Comp comp;
     const auto args = TestComposite::ProcessArgs();
@@ -78,7 +77,6 @@ static void testChannels() {
 }
 
 static void testCanClockPolySub(int clockInChannels, int channelToTest) {
-    SQINFO("------ testCanClockPolySub(%d, %d)", clockInChannels, channelToTest);
     Comp comp;
     const auto args = TestComposite::ProcessArgs();
 
@@ -108,7 +106,6 @@ static void testCanClockPolySub(int clockInChannels, int channelToTest) {
 }
 
 static void testCanClockMonoSub(int shiftChannels) {
-    SQINFO("------ testCanClockMonoSub(%d)", shiftChannels);
     Comp comp;                                   // only poly input is shift amount
     comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
     comp.inputs[Comp::SHIFT_INPUT].channels = shiftChannels;
@@ -127,13 +124,11 @@ static void testCanClockMonoSub(int shiftChannels) {
     comp.process(args);
     const int actualShiftChannels = std::max(shiftChannels, 1);  // there is always one channel...
     for (int i = 0; i < 16; ++i) {
-        //  const auto v = comp._clockOutput->getVoltage(i);
         const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
 
         // this less than is problematic... It's not right...
         const auto expect = (i < actualShiftChannels) ? 10.f : 0.f;
         assertEQ(v, expect);
-      //  SQINFO("i=%d v=%f exp=%f", i, v, expect);
     }
 
     // one more clock and it should go down.
@@ -144,7 +139,6 @@ static void testCanClockMonoSub(int shiftChannels) {
     for (int i = 0; i < 16; ++i) {
         const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
         const auto expect = 0.f;
-      //  SQINFO("after: i=%d v=%f exp=%f", i, v, expect);
         assertEQ(v, expect);
     }
 }
@@ -155,11 +149,6 @@ static void testCanClockMono() {
     testCanClockMonoSub(1);
     testCanClockMonoSub(0);
     testCanClockMonoSub(16);
-
-    // testCanClockMonoSub(1, 0);
-    // testCanClockMonoSub(0, 0);
-    // testCanClockMonoSub(2, 0);
-    // testCanClockMonoSub(2, 1);
 }
 
 static void testCanClock() {
@@ -172,5 +161,4 @@ void testPhasePatternsPoly() {
     testChannels();
     testCanClock();
     testCanClockMono();
-    SQINFO("can't test mono clock until we fix it");
 }

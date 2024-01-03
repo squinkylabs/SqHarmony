@@ -4,8 +4,6 @@
 
 #include "PhasePatterns.h"
 
-using Port = ::rack::engine::Port;
-#include "PhasePatterns2.h"
 #include "SqLog.h"
 
 #include "plugin.hpp"
@@ -15,7 +13,7 @@ using Port = ::rack::engine::Port;
 #include "SqLabel.h"
 #include "BufferingParent.h"
 
-using Comp = PhasePatterns2<WidgetComposite>;
+using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
 
 template <>
