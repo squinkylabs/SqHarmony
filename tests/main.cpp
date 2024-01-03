@@ -57,6 +57,7 @@ extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
 extern void testRawChordGenerator();
 extern void testChord4();
+extern void testNumberFormatter();
 
 
 #ifdef _DEBUG
@@ -76,6 +77,7 @@ int main(const char**, int) {
     // printf("put the early tests back\n");
 
     testSchmidtTrigger();
+    testNumberFormatter();
     testShiftMath();
     testOneShot();
     testOneShotSampleTimer();

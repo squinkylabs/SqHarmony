@@ -196,6 +196,7 @@
     <ClCompile Include="testChordRelativeNote.cpp" />
     <ClCompile Include="testHarmonyComposite.cpp" />
     <ClCompile Include="testKeysig.cpp" />
+    <ClCompile Include="testNumberFormatter.cpp" />
     <ClCompile Include="testOneShot.cpp" />
     <ClCompile Include="testOneShotSampleTimer.cpp" />
     <ClCompile Include="testPhasePatterns.cpp" />
