@@ -47,7 +47,6 @@ static void testChannelsSub(
     int shiftAmountChannels,
     int ribsChannels,
     int expectedClockChannels) {
-
     Comp comp;
     const auto args = TestComposite::ProcessArgs();
 
@@ -157,8 +156,85 @@ static void testCanClock() {
     testCanClockPolySub(2, 1);
 }
 
+static void testCanClockMonoWithRibSub(int ribChannels) {
+    Comp comp;                                   // only poly input is shift amount
+    comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
+    comp.inputs[Comp::SHIFT_INPUT].channels = 1;
+    comp.inputs[Comp::CK_INPUT].channels = 1;
+    comp.inputs[Comp::RIB_INPUT].channels = ribChannels;
+
+    const auto args = TestComposite::ProcessArgs();
+    prime(comp, 0);
+    // Even though we are "primed" we will not emit a clock for one more period,
+    // if shift is zero.
+    clockItHighLow(comp, 0, testPeriod - 1);
+
+    // Set the mono clock high, and run.
+
+    comp.inputs[Comp::CK_INPUT].setVoltage(10, 0);
+
+    comp.process(args);
+    const int actualRibChannels = std::max(ribChannels, 1);  // there is always one channel...
+    for (int i = 0; i < 16; ++i) {
+        const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
+
+        // this less than is problematic... It's not right...
+        const auto expect = (i < actualRibChannels) ? 10.f : 0.f;
+        assertEQ(v, expect);
+    }
+
+    // one more clock and it should go down.
+    // comp._clockInput->setVoltage(0, 0);
+    comp.inputs[Comp::CK_INPUT].setVoltage(0, 0);
+
+    comp.process(args);
+    for (int i = 0; i < 16; ++i) {
+        const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
+        const auto expect = 0.f;
+        assertEQ(v, expect);
+    }
+}
+
+static void testCanClockMonoWithRib() {
+    testCanClockMonoWithRibSub(1);
+}
+
+class TestX {
+public:
+    static void testTriggerRibsSub(int numRibs, int ribToTest) {
+        assert(ribToTest < numRibs);
+        Comp comp;                                   // only poly input is shift amount
+        comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
+        comp.inputs[Comp::SHIFT_INPUT].channels = 1;
+        comp.inputs[Comp::CK_INPUT].channels = 1;
+        comp.inputs[Comp::RIB_INPUT].channels = numRibs;
+
+        const auto args = TestComposite::ProcessArgs();
+        prime(comp, 0);
+        // Even though we are "primed" we will not emit a clock for one more period,
+        // if shift is zero.
+        clockItHighLow(comp, 0, testPeriod - 1);
+
+        // trigger the rib
+        comp.inputs[Comp::RIB_INPUT].setVoltage(10, ribToTest);
+        comp.process(args);
+
+        for (int i = 0; i < 16; ++i) {
+            const bool expectedRibState = (i == ribToTest);
+            assertEQ(comp._shiftCalculator[ribToTest].busy(), expectedRibState);
+        }
+    }
+};
+
+static void
+testTriggersRib() {
+    TestX::testTriggerRibsSub(1, 0);
+}
+
 void testPhasePatternsPoly() {
     testChannels();
     testCanClock();
     testCanClockMono();
+    testCanClockMonoWithRib();
+    testTriggersRib();
 }

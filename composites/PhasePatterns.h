@@ -17,6 +17,7 @@ using Module = ::rack::engine::Module;
 template <class TBase>
 class PhasePatterns : public TBase {
 public:
+    friend class TestX;
     enum ParamIds {
         SCHEMA_PARAM,
         SHIFT_PARAM,
@@ -84,28 +85,24 @@ inline void PhasePatterns<TBase>::_init() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButton() {
-   // SQINFO("update button");
+    // SQINFO("update button");
     // TODO: for now, just do channel 1 for this
     TBase::lights[RIB_LIGHT].value = _shiftCalculator[0].busy() ? 10 : 0;
     _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
     if (!_buttonProc.trigger()) {
-
         return;
     }
 
     for (int i = 0; i < _numOutputClocks; ++i) {
         if (!_clockShifter[i].freqValid()) {
-            SQINFO("freq not valid");
             return;
         }
     }
 
     if (_numRibsGenerators == 1) {
-
     }
 
     for (int i = 0; i < _numOutputClocks; ++i) {
-
         SQINFO("in loop busy=%d, will trig %d", _shiftCalculator[0].busy(), i);
         // TODO: this is totally wrong for poly
         _shiftCalculator[i].trigger(_clockShifter[0].getPeriod());
@@ -143,7 +140,7 @@ inline void PhasePatterns<TBase>::_updatePoly() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_stepn() {
- //   SQINFO("stepn");
+    //   SQINFO("stepn");
     _updatePoly();
     _updateShiftAmount();
     _updateButton();
@@ -152,9 +149,9 @@ inline void PhasePatterns<TBase>::_stepn() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
-  //  SQINFO("process");
+    //  SQINFO("process");
     divn.step();
-  //  SQINFO("process2");
+    //  SQINFO("process2");
 
     // First process all the input clock channels. They retain output, and don't have any
     // dependencies, so they are easy. Also update all the RIB ramp generators

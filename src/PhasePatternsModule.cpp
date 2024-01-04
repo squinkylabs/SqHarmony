@@ -3,15 +3,16 @@
 #include <sstream>
 
 #include "PhasePatterns.h"
-
 #include "SqLog.h"
 
 #include "plugin.hpp"
-#include "WidgetComposite.h"
-
-// These have to be included later. It's a bug, but....
 #include "SqLabel.h"
+#include "plugin.hpp"
 #include "BufferingParent.h"
+#include "NumberFormatter.h"
+
+#include "plugin.hpp"
+#include "WidgetComposite.h"
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
@@ -43,6 +44,7 @@ void inline PhasePatternsModule::addParams() {
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::SHIFT_INPUT, "Shift amount");
+    this->configInput(Comp::RIB_INPUT, "Rib trigger");
     this->configOutput(Comp::CK_OUTPUT, "Shifted output");
 }
 
@@ -73,8 +75,10 @@ private:
                 std::stringstream str;
                 str << std::setprecision(3) << shift;
 
+                std::string uiString = str.str();
+
                 SqLabel* label = _shiftDisplay->getChild();
-                label->updateText(str.str());
+                label->updateText(NumberFormatter::formatFloat(2, uiString));
             }
         }
     }
@@ -90,7 +94,9 @@ private:
             Comp::RIB_BUTTON_PARAM,
             Comp::RIB_LIGHT));
 
-        _shiftDisplay = addLabel(Vec(38, 210), "");
+        // 42 too far to left
+        // 46 too far right
+        _shiftDisplay = addLabel(Vec(44, 210), "");
     }
 
     void addIO(PhasePatternsModule* module) {
@@ -98,14 +104,19 @@ private:
         const int b = 85;
         const int c = (a + b) / 2;
 
-        const int jackY = 322;
+        int jackY = 322;
         const int dL = 20;
-        addInput(createInput<PJ301MPort>(Vec(13, jackY), module, Comp::CK_INPUT));
+        addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::CK_INPUT));
         addLabel(Vec(9, jackY-dL), "CkIn");
         addInput(createInput<PJ301MPort>(Vec(c, jackY), module, Comp::SHIFT_INPUT));
         addLabel(Vec(c-4, jackY-dL), "Shft");
         addOutput(createOutput<PJ301MPort>(Vec(85, jackY), module, Comp::CK_OUTPUT));
         addLabel(Vec(79, jackY-dL), "CkOut");
+
+        jackY -= 50;
+
+        addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::RIB_INPUT));
+        addLabel(Vec(a, jackY-dL), "Rib Trig");
     }
 
     /**

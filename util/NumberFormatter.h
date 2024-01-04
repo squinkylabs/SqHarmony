@@ -11,7 +11,6 @@ public:
         }
 
         const int excess = s.length() - (pos + 3);
-        SQINFO("excess =%d", excess);
         if (excess > 0) {
             return s.substr(0, s.length() - excess);
         }
