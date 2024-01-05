@@ -69,6 +69,7 @@ private:
                                        false, false, false, false,
                                        false, false, false, false};
     GateTrigger _buttonProc;
+    GateTrigger _ribTrigger[16];
     Divider divn;
 
     int _numInputClocks = 0;
@@ -85,11 +86,41 @@ inline void PhasePatterns<TBase>::_init() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButton() {
-    // SQINFO("update button");
+    SQINFO("update button");
     // TODO: for now, just do channel 1 for this
     TBase::lights[RIB_LIGHT].value = _shiftCalculator[0].busy() ? 10 : 0;
     _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
-    if (!_buttonProc.trigger()) {
+
+    if (_numRibsGenerators < 1) {
+        SQINFO("skip rib process, no input");
+        return;
+    }
+
+    // This loop assumes there are at least as many shifters as there are rib
+    // units. Which is fair.
+    const bool buttonTriggered = _buttonProc.trigger();
+    for (int i = 0; i < _numRibsGenerators; ++i) {
+        const float rawRibTrigger = TBase::inputs[RIB_INPUT].getVoltage(i);
+        _ribTrigger[i].go(rawRibTrigger);
+        const bool ribTriggered = _ribTrigger[i].trigger();
+        if (buttonTriggered || ribTriggered) {
+            // If this channel isn't stable yet, skip it.
+            if (!_clockShifter[i].freqValid()) {
+                continue;
+            }
+            SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
+            _shiftCalculator[i].trigger(_clockShifter[i].getPeriod());
+        }
+    }
+
+#if 0
+    // mono only - won't work with poly
+    const float rawRibTrigger = TBase::inputs[RIB_INPUT].getVoltage(0);
+    _ribTrigger[0].go(rawRibTrigger);
+    SQINFO("in btn, raw rib = %f trig=%d", rawRibTrigger, _ribTrigger[0].trigger());
+
+    if (_numRibsGenerators != 1) SQINFO("ribs is not poly yet %d", _numRibsGenerators);
+    if (!_buttonProc.trigger() && !_ribTrigger[0].trigger()) {
         return;
     }
 
@@ -97,25 +128,26 @@ inline void PhasePatterns<TBase>::_updateButton() {
         if (!_clockShifter[i].freqValid()) {
             return;
         }
+      
     }
-
-    if (_numRibsGenerators == 1) {
-    }
-
     for (int i = 0; i < _numOutputClocks; ++i) {
         SQINFO("in loop busy=%d, will trig %d", _shiftCalculator[0].busy(), i);
         // TODO: this is totally wrong for poly
         _shiftCalculator[i].trigger(_clockShifter[0].getPeriod());
     }
+#endif
 }
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateShiftAmount() {
-    float shift = TBase::params[SHIFT_PARAM].value;
-    shift += TBase::inputs[SHIFT_INPUT].value;
-    shift += _shiftCalculator[0].get();
-    _clockShifter[0].setShift(shift);
-    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shift;
+    // TODO: this code assumes that the shift input is mono
+    const float globalShift = TBase::params[SHIFT_PARAM].value + TBase::inputs[SHIFT_INPUT].value;
+    for (int i = 0; i < _numRibsGenerators; ++i) {
+        const float shift = globalShift + _shiftCalculator[i].get();
+        _clockShifter[i].setShift(shift);
+    }
+    // put channel 0 in the UI.
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = globalShift + _shiftCalculator[0].get();
 }
 
 template <class TBase>
