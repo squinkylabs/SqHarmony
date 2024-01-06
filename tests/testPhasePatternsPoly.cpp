@@ -251,7 +251,7 @@ public:
 
         for (int i = 0; i < 16; ++i) {
             const bool expectedRibState = (i == ribToTest);
-            assertEQ(comp._shiftCalculator[i].busy(), expectedRibState);
+            assertEQ(comp._ribGenerator[i].busy(), expectedRibState);
         }
     }
 
@@ -323,7 +323,7 @@ public:
         assert(channelToTest < numRibChannels);
 
         Comp comp;
-        comp.inputs[Comp::CK_INPUT].channels =1;              // connect the input clock
+        comp.inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
         assertEQ(comp.inputs[Comp::CK_INPUT].channels, 1);
         comp.outputs[Comp::CK_OUTPUT].channels = 1;              // connect the output
         comp.inputs[Comp::RIB_INPUT].channels = numRibChannels;  // connect the poly rib
@@ -335,7 +335,7 @@ public:
         // Even though we are "primed" we will not emit a clock for one more period,
         // if shift is zero.
         clockItHigh(comp, 0);
-        comp.process(args);
+        comp.process(args);  // why is this here?
         assert(comp._clockShifter[channelToTest].freqValid());
 
         comp.inputs[Comp::RIB_INPUT].setVoltage(0, channelToTest);
@@ -345,7 +345,7 @@ public:
         processBlock(comp);
 
         for (int i = 0; i < 16; ++i) {
-            const bool busy = comp._shiftCalculator[i].busy();
+            const bool busy = comp._ribGenerator[i].busy();
             const bool expectedBusy = (i == channelToTest);
             assertEQ(busy, expectedBusy);
         }
@@ -386,6 +386,12 @@ static void testPolyClockMonoShiftCV() {
 
 static void testPolyRibMonoClock() {
     TestX::testPolyRibMonoClock(1, 0);
+    TestX::testPolyRibMonoClock(2, 0);
+    TestX::testPolyRibMonoClock(2, 1);
+    TestX::testPolyRibMonoClock(16, 0);
+    TestX::testPolyRibMonoClock(16, 1);
+    TestX::testPolyRibMonoClock(16, 5);
+    TestX::testPolyRibMonoClock(16, 15);
 }
 
 void testPhasePatternsPoly() {

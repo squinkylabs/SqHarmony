@@ -61,7 +61,7 @@ private:
     void _updateShiftAmount();
 
     ClockShifter4 _clockShifter[16];
-    ShiftCalc _shiftCalculator[16];
+    ShiftCalc _ribGenerator[16];
 
     // TODO: get rid of these initializers. There are just here to make some test pass.
     GateTrigger _inputClockProc[16] = {false, false, false, false,
@@ -89,11 +89,10 @@ template <class TBase>
 inline void PhasePatterns<TBase>::_updateButton() {
     //SQINFO("update button");
     // TODO: for now, just do channel 1 for this
-    TBase::lights[RIB_LIGHT].value = _shiftCalculator[0].busy() ? 10 : 0;
+    TBase::lights[RIB_LIGHT].value = _ribGenerator[0].busy() ? 10 : 0;
     _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
 
     if (_numRibsGenerators < 1) {
-        SQINFO("skip rib process, no input");
         return;
     }
 
@@ -111,7 +110,7 @@ inline void PhasePatterns<TBase>::_updateButton() {
                 continue;
             }
             // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
-            _shiftCalculator[i].trigger(_clockShifter[i].getPeriod());
+            _ribGenerator[i].trigger(_clockShifter[i].getPeriod());
         }
     }
 }
@@ -128,13 +127,13 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
         const float shift = globalShift +
-                            _shiftCalculator[ribIndex].get() +
+                            _ribGenerator[ribIndex].get() +
                             TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);
         _clockShifter[i].setShift(shift);
     }
 
     // put channel 0 in the UI.
-    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = globalShift + _shiftCalculator[0].get();
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = globalShift + _ribGenerator[0].get();
 }
 
 template <class TBase>
@@ -174,28 +173,24 @@ template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
     //  SQINFO("process");
     divn.step();
-    //  SQINFO("process2");
+    //SQINFO("process2");
 
+   // const bool monoClocks = _n_numInputClock <= 1;
     // First process all the input clock channels. They retain output, and don't have any
     // dependencies, so they are easy. Also update all the RIB ramp generators
     for (int i = 0; i < _numInputClocks; ++i) {
         const float rawClockIn = TBase::inputs[CK_INPUT].getVoltage(i);
         _inputClockProc[i].go(rawClockIn);
-        _shiftCalculator[i].go();
     }
 
-    bool monoClock = false;
-    // this is the only case we can handle right now
-    if (_numOutputClocks > 1) {
-        if (_numInputClocks != _numOutputClocks) {
-            // SQINFO("unequal clock case, nimp");
-            monoClock = true;
-        }
+    for (int i = 0; i < _numRibsGenerators; ++i) {
+         _ribGenerator[i].go();
     }
-    // SQINFO("mono clock = %d", monoClock);
+
+    const bool monoClock = _numInputClocks <= 1;
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int clockInputIndex = monoClock ? 0 : i;
-        const bool rawClockOut = _clockShifter[clockInputIndex].process(
+        const bool rawClockOut = _clockShifter[i].process(
             _inputClockProc[clockInputIndex].trigger(),
             _inputClockProc[clockInputIndex].gate());
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
