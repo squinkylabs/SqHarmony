@@ -269,7 +269,7 @@ public:
 
         processBlock(comp);
 
-         for (int i = 0; i < 16; ++i) {
+        for (int i = 0; i < 16; ++i) {
             const float shift = comp._clockShifter[i]._shift;
             const float expectedShift = (i == channelToTest) ? shiftAmount : 0;
             SQINFO("channel %d shift %f", i, shift);
@@ -283,54 +283,78 @@ public:
         Comp comp;
         comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
         comp.inputs[Comp::CK_INPUT].channels = numClockChannels;
-       //comp.inputs[Comp::SHIFT_INPUT].setVoltage(1, channelToTest);
+        // comp.inputs[Comp::SHIFT_INPUT].setVoltage(1, channelToTest);
         comp.params[Comp::SHIFT_PARAM].value = .5;
 
-         processBlock(comp);
+        processBlock(comp);
 
-         for (int i = 0; i < 16; ++i) {
+        for (int i = 0; i < 16; ++i) {
             const float shift = comp._clockShifter[i]._shift;
-            const float expectedShift = (i < numClockChannels) ? .5 : 0;     // knob should affect all channels
+            const float expectedShift = (i < numClockChannels) ? .5 : 0;  // knob should affect all channels
             assertEQ(shift, expectedShift);
-           //SQINFO("channel %d shift %f", i, shift);
+            // SQINFO("channel %d shift %f", i, shift);
         }
     }
 
-  
+    // polyphonic clocks, mono shift CV.
+    static void testShiftMono(int channelsToTest) {
+        assert(channelsToTest >= 0);
+
+        const float shiftValue = .7f;
+        Comp comp;
+        comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
+        comp.inputs[Comp::CK_INPUT].channels = channelsToTest;
+
+        comp.inputs[Comp::SHIFT_INPUT].setVoltage(shiftValue, 0);
+        processBlock(comp);
+
+        for (int i = 0; i < 16; ++i) {
+            const float shift = comp._clockShifter[i]._shift;
+            const float expectedShift = (i < channelsToTest) ? shiftValue : 0;  // knob should affect all channels
+            assertEQ(shift, expectedShift);
+            // SQINFO("channel %d shift %f", i, shift);
+        }
+    }
 };
 
-static void
-testTriggersRib() {
-    TestX::testTriggerRibsSub(1, 0);
-    TestX::testTriggerRibsSub(2, 0);
-    TestX::testTriggerRibsSub(2, 1);
-}
+    static void
+    testTriggersRib() {
+        TestX::testTriggerRibsSub(1, 0);
+        TestX::testTriggerRibsSub(2, 0);
+        TestX::testTriggerRibsSub(2, 1);
+    }
 
-static void
-testShiftPropagation() {
-    TestX::testShiftSub(1, 0);
-    TestX::testShiftSub(2, 0);
-    TestX::testShiftSub(3, 0);
-    TestX::testShiftSub(16, 0);
-    TestX::testShiftSub(16, 1);
-    TestX::testShiftSub(16, 7);
-    TestX::testShiftSub(16, 15);
-}
+    // Tests poly shift CV
+    static void
+    testShiftPropagation() {
+        TestX::testShiftSub(1, 0);
+        TestX::testShiftSub(2, 0);
+        TestX::testShiftSub(3, 0);
+        TestX::testShiftSub(16, 0);
+        TestX::testShiftSub(16, 1);
+        TestX::testShiftSub(16, 7);
+        TestX::testShiftSub(16, 15);
+    }
 
-static void testShiftKnob() {
-    TestX::testShiftKnob(1);
-    TestX::testShiftKnob(2);
-    TestX::testShiftKnob(16);
-}
+    static void testShiftKnob() {
+        TestX::testShiftKnob(1);
+        TestX::testShiftKnob(2);
+        TestX::testShiftKnob(16);
+    }
 
-void testPhasePatternsPoly() {
-    testChannels();
-    testCanClock();
-    testCanClockMono();
-    // testTriggersRib();
-    //  testCanClockMonoWithRib();
-    SQINFO("put back RIB tests and make them work");
-    testShiftKnob();
-    testShiftPropagation();
-    
-}
+    static void testShiftMono() {
+        TestX::testShiftMono(1);
+        TestX::testShiftMono(2);
+    }
+
+    void testPhasePatternsPoly() {
+        testChannels();
+        testCanClock();
+        testCanClockMono();
+        // testTriggersRib();
+        //  testCanClockMonoWithRib();
+        SQINFO("put back RIB tests and make them work");
+        testShiftKnob();
+        testShiftPropagation();
+        testShiftMono();
+    }
