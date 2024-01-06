@@ -277,7 +277,8 @@ public:
         }
     }
 
-    static void testShiftKnob(int numClockChannels) {
+    // poly clock, shift knob
+    static void testShiftKnobPolyClock(int numClockChannels) {
         assert(numClockChannels > 0);
 
         Comp comp;
@@ -296,8 +297,7 @@ public:
         }
     }
 
-    // polyphonic clocks, mono shift CV.
-    static void testShiftMono(int channelsToTest) {
+    static void testPolyClockMonoShiftCV(int channelsToTest) {
         assert(channelsToTest >= 0);
 
         const float shiftValue = .7f;
@@ -337,17 +337,17 @@ public:
         TestX::testShiftSub(16, 15);
     }
 
-    static void testShiftKnob() {
-        TestX::testShiftKnob(1);
-        TestX::testShiftKnob(2);
-        TestX::testShiftKnob(16);
+    static void testShiftKnobPolyClock() {
+        TestX::testShiftKnobPolyClock(1);
+        TestX::testShiftKnobPolyClock(2);
+        TestX::testShiftKnobPolyClock(16);
     }
 
-    static void testShiftMono() {
-        TestX::testShiftMono(1);
-        TestX::testShiftMono(2);
-        TestX::testShiftMono(11);
-        TestX::testShiftMono(15);
+    static void testPolyClockMonoShiftCV() {
+        TestX::testPolyClockMonoShiftCV(1);
+        TestX::testPolyClockMonoShiftCV(2);
+        TestX::testPolyClockMonoShiftCV(11);
+        TestX::testPolyClockMonoShiftCV(15);
     }
 
     void testPhasePatternsPoly() {
@@ -357,7 +357,7 @@ public:
         // testTriggersRib();
         //  testCanClockMonoWithRib();
         SQINFO("put back RIB tests and make them work");
-        testShiftKnob();
+        testShiftKnobPolyClock();
         testShiftPropagation();
-        testShiftMono();
+        testPolyClockMonoShiftCV();
     }
