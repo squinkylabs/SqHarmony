@@ -305,6 +305,7 @@ public:
         comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
         comp.inputs[Comp::CK_INPUT].channels = channelsToTest;
 
+        comp.inputs[Comp::SHIFT_INPUT].channels = 1;
         comp.inputs[Comp::SHIFT_INPUT].setVoltage(shiftValue, 0);
         processBlock(comp);
 
@@ -345,6 +346,8 @@ public:
     static void testShiftMono() {
         TestX::testShiftMono(1);
         TestX::testShiftMono(2);
+        TestX::testShiftMono(11);
+        TestX::testShiftMono(15);
     }
 
     void testPhasePatternsPoly() {

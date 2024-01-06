@@ -75,6 +75,7 @@ private:
     int _numInputClocks = 0;
     int _numRibsGenerators = 0;
     int _numOutputClocks = 0;
+    int _numShiftInputs = 0;
 };
 
 template <class TBase>
@@ -143,18 +144,18 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
     // TODO: this code assumes that the shift input is mono
     const float globalShift = TBase::params[SHIFT_PARAM].value;
     const bool ribsPoly = _numRibsGenerators > 1;
+    const bool shiftCVPoly = _numShiftInputs > 1;
 
+ 
     for (int i = 0; i < _numOutputClocks; ++i) {
-        const int ribIndex = (ribsPoly) ? i : 0;
+        const int ribIndex = ribsPoly ? i : 0;
+        const int shiftCVIndex = shiftCVPoly ? i : 0;
         const float shift = globalShift +
                             _shiftCalculator[ribIndex].get() +
-                            TBase::inputs[SHIFT_INPUT].getVoltage(i);
+                            TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);
         _clockShifter[i].setShift(shift);
     }
-    // for (int i = 0; i < _numRibsGenerators; ++i) {
-    //     const float shift = globalShift + _shiftCalculator[i].get();
-    //     _clockShifter[i].setShift(shift);
-    // }
+
     // put channel 0 in the UI.
     TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = globalShift + _shiftCalculator[0].get();
 }
@@ -165,6 +166,7 @@ inline void PhasePatterns<TBase>::_updatePoly() {
     if (!conn) {
         return;
     }
+  
     int numOutputs = 1;
     _numInputClocks = TBase::inputs[CK_INPUT].channels;
     _numRibsGenerators = TBase::inputs[RIB_INPUT].channels;
@@ -176,7 +178,10 @@ inline void PhasePatterns<TBase>::_updatePoly() {
 
     _numOutputClocks = numOutputs;
     TBase::outputs[CK_OUTPUT].setChannels(numOutputs);
-    SQINFO("out=%d, ic=%d, rib=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators);
+
+    _numShiftInputs = TBase::inputs[SHIFT_INPUT].channels;
+
+    SQINFO("out=%d, ic=%d, rib=%d shiftInputs=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators, _numShiftInputs);
 }
 
 template <class TBase>
