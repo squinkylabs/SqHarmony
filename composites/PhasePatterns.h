@@ -87,7 +87,7 @@ inline void PhasePatterns<TBase>::_init() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButton() {
-    SQINFO("update button");
+    //SQINFO("update button");
     // TODO: for now, just do channel 1 for this
     TBase::lights[RIB_LIGHT].value = _shiftCalculator[0].busy() ? 10 : 0;
     _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
@@ -107,36 +107,13 @@ inline void PhasePatterns<TBase>::_updateButton() {
         if (buttonTriggered || ribTriggered) {
             // If this channel isn't stable yet, skip it.
             if (!_clockShifter[i].freqValid()) {
+                SQINFO("not triggering rib, no freq.");
                 continue;
             }
-            SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
+            // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
             _shiftCalculator[i].trigger(_clockShifter[i].getPeriod());
         }
     }
-
-#if 0
-    // mono only - won't work with poly
-    const float rawRibTrigger = TBase::inputs[RIB_INPUT].getVoltage(0);
-    _ribTrigger[0].go(rawRibTrigger);
-    SQINFO("in btn, raw rib = %f trig=%d", rawRibTrigger, _ribTrigger[0].trigger());
-
-    if (_numRibsGenerators != 1) SQINFO("ribs is not poly yet %d", _numRibsGenerators);
-    if (!_buttonProc.trigger() && !_ribTrigger[0].trigger()) {
-        return;
-    }
-
-    for (int i = 0; i < _numOutputClocks; ++i) {
-        if (!_clockShifter[i].freqValid()) {
-            return;
-        }
-      
-    }
-    for (int i = 0; i < _numOutputClocks; ++i) {
-        SQINFO("in loop busy=%d, will trig %d", _shiftCalculator[0].busy(), i);
-        // TODO: this is totally wrong for poly
-        _shiftCalculator[i].trigger(_clockShifter[0].getPeriod());
-    }
-#endif
 }
 
 template <class TBase>
@@ -181,7 +158,7 @@ inline void PhasePatterns<TBase>::_updatePoly() {
 
     _numShiftInputs = TBase::inputs[SHIFT_INPUT].channels;
 
-    SQINFO("out=%d, ic=%d, rib=%d shiftInputs=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators, _numShiftInputs);
+  //  SQINFO("updatePoly: out=%d, ic=%d, rib=%d shiftInputs=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators, _numShiftInputs);
 }
 
 template <class TBase>

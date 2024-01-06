@@ -255,7 +255,8 @@ public:
         }
     }
 
-    static void testShiftSub(int inputShiftChannels, int channelToTest) {
+    // polyphonic shift
+    static void testPolyphonicShiftSub(int inputShiftChannels, int channelToTest) {
         assert(inputShiftChannels > 0);
         assert(channelToTest >= 0);
         assert(channelToTest < inputShiftChannels);
@@ -272,7 +273,6 @@ public:
         for (int i = 0; i < 16; ++i) {
             const float shift = comp._clockShifter[i]._shift;
             const float expectedShift = (i == channelToTest) ? shiftAmount : 0;
-            SQINFO("channel %d shift %f", i, shift);
             assertEQ(shift, expectedShift);
         }
     }
@@ -293,7 +293,6 @@ public:
             const float shift = comp._clockShifter[i]._shift;
             const float expectedShift = (i < numClockChannels) ? .5 : 0;  // knob should affect all channels
             assertEQ(shift, expectedShift);
-            // SQINFO("channel %d shift %f", i, shift);
         }
     }
 
@@ -316,48 +315,88 @@ public:
             // SQINFO("channel %d shift %f", i, shift);
         }
     }
+
+    static void testPolyRibMonoClock(int numRibChannels, int channelToTest) {
+        SQINFO("----- testPolyRibMonoClock %d,%d", numRibChannels, channelToTest);
+        assert(numRibChannels > 0);
+        assert(channelToTest >= 0);
+        assert(channelToTest < numRibChannels);
+
+        Comp comp;
+        comp.inputs[Comp::CK_INPUT].channels =1;              // connect the input clock
+        assertEQ(comp.inputs[Comp::CK_INPUT].channels, 1);
+        comp.outputs[Comp::CK_OUTPUT].channels = 1;              // connect the output
+        comp.inputs[Comp::RIB_INPUT].channels = numRibChannels;  // connect the poly rib
+        processBlock(comp);
+        assertEQ(comp._numInputClocks, 1);
+
+        const auto args = TestComposite::ProcessArgs();
+        prime(comp, 0);
+        // Even though we are "primed" we will not emit a clock for one more period,
+        // if shift is zero.
+        clockItHigh(comp, 0);
+        comp.process(args);
+        assert(comp._clockShifter[channelToTest].freqValid());
+
+        comp.inputs[Comp::RIB_INPUT].setVoltage(0, channelToTest);
+        processBlock(comp);
+        // trigger the rib
+        comp.inputs[Comp::RIB_INPUT].setVoltage(10, channelToTest);
+        processBlock(comp);
+
+        for (int i = 0; i < 16; ++i) {
+            const bool busy = comp._shiftCalculator[i].busy();
+            const bool expectedBusy = (i == channelToTest);
+            assertEQ(busy, expectedBusy);
+        }
+    }
 };
 
-    static void
-    testTriggersRib() {
-        TestX::testTriggerRibsSub(1, 0);
-        TestX::testTriggerRibsSub(2, 0);
-        TestX::testTriggerRibsSub(2, 1);
-    }
+static void
+testTriggersRib() {
+    TestX::testTriggerRibsSub(1, 0);
+    TestX::testTriggerRibsSub(2, 0);
+    TestX::testTriggerRibsSub(2, 1);
+}
 
-    // Tests poly shift CV
-    static void
-    testShiftPropagation() {
-        TestX::testShiftSub(1, 0);
-        TestX::testShiftSub(2, 0);
-        TestX::testShiftSub(3, 0);
-        TestX::testShiftSub(16, 0);
-        TestX::testShiftSub(16, 1);
-        TestX::testShiftSub(16, 7);
-        TestX::testShiftSub(16, 15);
-    }
+// Tests poly shift CV
+static void
+testPolyphonicShift() {
+    TestX::testPolyphonicShiftSub(1, 0);
+    TestX::testPolyphonicShiftSub(2, 0);
+    TestX::testPolyphonicShiftSub(3, 0);
+    TestX::testPolyphonicShiftSub(16, 0);
+    TestX::testPolyphonicShiftSub(16, 1);
+    TestX::testPolyphonicShiftSub(16, 7);
+    TestX::testPolyphonicShiftSub(16, 15);
+}
 
-    static void testShiftKnobPolyClock() {
-        TestX::testShiftKnobPolyClock(1);
-        TestX::testShiftKnobPolyClock(2);
-        TestX::testShiftKnobPolyClock(16);
-    }
+static void testShiftKnobPolyClock() {
+    TestX::testShiftKnobPolyClock(1);
+    TestX::testShiftKnobPolyClock(2);
+    TestX::testShiftKnobPolyClock(16);
+}
 
-    static void testPolyClockMonoShiftCV() {
-        TestX::testPolyClockMonoShiftCV(1);
-        TestX::testPolyClockMonoShiftCV(2);
-        TestX::testPolyClockMonoShiftCV(11);
-        TestX::testPolyClockMonoShiftCV(15);
-    }
+static void testPolyClockMonoShiftCV() {
+    TestX::testPolyClockMonoShiftCV(1);
+    TestX::testPolyClockMonoShiftCV(2);
+    TestX::testPolyClockMonoShiftCV(11);
+    TestX::testPolyClockMonoShiftCV(15);
+}
 
-    void testPhasePatternsPoly() {
-        testChannels();
-        testCanClock();
-        testCanClockMono();
-        // testTriggersRib();
-        //  testCanClockMonoWithRib();
-        SQINFO("put back RIB tests and make them work");
-        testShiftKnobPolyClock();
-        testShiftPropagation();
-        testPolyClockMonoShiftCV();
-    }
+static void testPolyRibMonoClock() {
+    TestX::testPolyRibMonoClock(1, 0);
+}
+
+void testPhasePatternsPoly() {
+    testChannels();
+    testCanClock();
+    testCanClockMono();
+    // testTriggersRib();
+    //  testCanClockMonoWithRib();
+    SQINFO("put back RIB tests and make them work");
+    testShiftKnobPolyClock();
+    testPolyphonicShift();
+    testPolyClockMonoShiftCV();
+    testPolyRibMonoClock();
+}
