@@ -95,9 +95,24 @@ static void testSimpleInputNoShift() {
 //     testSimpleInput(10, -1);
 // }
 
+static void testUIDurations() {
+    assertEQ(Comp::getRibDurationLabels()[0], "1/3");
+    assertEQ(Comp::getRibDurationLabels()[1], "1/2");
+    assertEQ(Comp::getRibDurationLabels()[2], "1");
+    assertEQ(Comp::getRibDurationLabels()[3], "2");
+    assertEQ(Comp::getRibDurationLabels()[4], "3");
+
+    assertEQ(Comp::getRibDurationFromIndex(0), 1.f / 3.f);
+    assertEQ(Comp::getRibDurationFromIndex(1), 1.f / 2.f);
+    assertEQ(Comp::getRibDurationFromIndex(2), 1.f);
+    assertEQ(Comp::getRibDurationFromIndex(3), 2.f);
+    assertEQ(Comp::getRibDurationFromIndex(4), 3.f);   
+}
+
 void testPhasePatterns() {
     testOver1();
     SQINFO("fix testSimpleInputNoShift and put it back");
   //  testSimpleInputNoShift();
    // testSimpleInput();
+   testUIDurations();
 }
