@@ -141,11 +141,20 @@ inline void PhasePatterns<TBase>::_updateButton() {
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateShiftAmount() {
     // TODO: this code assumes that the shift input is mono
-    const float globalShift = TBase::params[SHIFT_PARAM].value + TBase::inputs[SHIFT_INPUT].value;
-    for (int i = 0; i < _numRibsGenerators; ++i) {
-        const float shift = globalShift + _shiftCalculator[i].get();
+    const float globalShift = TBase::params[SHIFT_PARAM].value;
+    const bool ribsPoly = _numRibsGenerators > 1;
+
+    for (int i = 0; i < _numOutputClocks; ++i) {
+        const int ribIndex = (ribsPoly) ? i : 0;
+        const float shift = globalShift +
+                            _shiftCalculator[ribIndex].get() +
+                            TBase::inputs[SHIFT_INPUT].getVoltage(i);
         _clockShifter[i].setShift(shift);
     }
+    // for (int i = 0; i < _numRibsGenerators; ++i) {
+    //     const float shift = globalShift + _shiftCalculator[i].get();
+    //     _clockShifter[i].setShift(shift);
+    // }
     // put channel 0 in the UI.
     TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = globalShift + _shiftCalculator[0].get();
 }

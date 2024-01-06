@@ -12,6 +12,7 @@ using Comp = PhasePatterns<TestComposite>;
 // was 10. 60 ok
 static int testPeriod = 100;
 
+//----------------- utilities -----------------------
 static void clockItLow(Comp& c, int numTimes, int channel, float expectedOutput) {
     const auto args = TestComposite::ProcessArgs();
     c.inputs[Comp::CK_INPUT].setVoltage(0, channel);
@@ -42,6 +43,16 @@ static void prime(Comp& comp, int channel, int period = testPeriod) {
     comp.process(args);
     clockItHighLow(comp, channel, period - 1);
 }
+
+static void processBlock(Comp& comp) {
+    const auto args = TestComposite::ProcessArgs();
+    // process enough times to do the ribs thing.
+    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
+        comp.process(args);
+    }
+}
+
+//---------------------------------------------------------------------
 
 static void testChannelsSub(
     int clockInChannels,
@@ -76,6 +87,13 @@ static void testChannels() {
     testChannelsSub(16, 16, 16, 16);
 }
 
+/**
+ * @brief tests multiple polyphonic clocks.
+ * Verifies one to one between inputs clock and output clock channels.
+ *
+ * @param clockInChannels
+ * @param channelToTest
+ */
 static void testCanClockPolySub(int clockInChannels, int channelToTest) {
     Comp comp;
     const auto args = TestComposite::ProcessArgs();
@@ -98,7 +116,7 @@ static void testCanClockPolySub(int clockInChannels, int channelToTest) {
         assertEQ(v, expect);
     }
 
-    // one more clock and it should go down.
+    // One more clock and it should go down.
     comp.inputs[Comp::CK_INPUT].setVoltage(0, channelToTest);
 
     comp.process(args);
@@ -175,7 +193,7 @@ static void testCanClockMonoWithRibSub(int ribChannels) {
 
     comp.inputs[Comp::CK_INPUT].setVoltage(10, 0);
 
-   // comp.process(args);
+    // comp.process(args);
 
     // process enough times to do the ribs thing.
     for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
@@ -236,6 +254,49 @@ public:
             assertEQ(comp._shiftCalculator[i].busy(), expectedRibState);
         }
     }
+
+    static void testShiftSub(int inputShiftChannels, int channelToTest) {
+        assert(inputShiftChannels > 0);
+        assert(channelToTest >= 0);
+        assert(channelToTest < inputShiftChannels);
+
+        Comp comp;
+
+        const float shiftAmount = .3f;
+        comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
+        comp.inputs[Comp::SHIFT_INPUT].channels = inputShiftChannels;
+        comp.inputs[Comp::SHIFT_INPUT].setVoltage(shiftAmount, channelToTest);
+
+        processBlock(comp);
+
+         for (int i = 0; i < 16; ++i) {
+            const float shift = comp._clockShifter[i]._shift;
+            const float expectedShift = (i == channelToTest) ? shiftAmount : 0;
+            SQINFO("channel %d shift %f", i, shift);
+            assertEQ(shift, expectedShift);
+        }
+    }
+
+    static void testShiftKnob(int numClockChannels) {
+        assert(numClockChannels > 0);
+
+        Comp comp;
+        comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
+        comp.inputs[Comp::CK_INPUT].channels = numClockChannels;
+       //comp.inputs[Comp::SHIFT_INPUT].setVoltage(1, channelToTest);
+        comp.params[Comp::SHIFT_PARAM].value = .5;
+
+         processBlock(comp);
+
+         for (int i = 0; i < 16; ++i) {
+            const float shift = comp._clockShifter[i]._shift;
+            const float expectedShift = (i < numClockChannels) ? .5 : 0;     // knob should affect all channels
+            assertEQ(shift, expectedShift);
+           //SQINFO("channel %d shift %f", i, shift);
+        }
+    }
+
+  
 };
 
 static void
@@ -245,11 +306,31 @@ testTriggersRib() {
     TestX::testTriggerRibsSub(2, 1);
 }
 
+static void
+testShiftPropagation() {
+    TestX::testShiftSub(1, 0);
+    TestX::testShiftSub(2, 0);
+    TestX::testShiftSub(3, 0);
+    TestX::testShiftSub(16, 0);
+    TestX::testShiftSub(16, 1);
+    TestX::testShiftSub(16, 7);
+    TestX::testShiftSub(16, 15);
+}
+
+static void testShiftKnob() {
+    TestX::testShiftKnob(1);
+    TestX::testShiftKnob(2);
+    TestX::testShiftKnob(16);
+}
+
 void testPhasePatternsPoly() {
     testChannels();
     testCanClock();
     testCanClockMono();
-    testTriggersRib();
-  //  testCanClockMonoWithRib();  
-    SQINFO("put back testCanClockMonoWithRib and make it work");
+    // testTriggersRib();
+    //  testCanClockMonoWithRib();
+    SQINFO("put back RIB tests and make them work");
+    testShiftKnob();
+    testShiftPropagation();
+    
 }
