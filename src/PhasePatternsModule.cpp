@@ -2,17 +2,15 @@
 #include <iomanip>
 #include <sstream>
 
-#include "PhasePatterns.h"
-#include "SqLog.h"
-
-#include "plugin.hpp"
-#include "SqLabel.h"
 #include "plugin.hpp"
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
-
-#include "plugin.hpp"
+#include "PhasePatterns.h"
+#include "PopupMenuParamWidget.h"
+#include "SqLabel.h"
+#include "SqLog.h"
 #include "WidgetComposite.h"
+//#include "plugin.hpp"
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
@@ -37,10 +35,13 @@ private:
 };
 
 void inline PhasePatternsModule::addParams() {
-    this->configParam(Comp::SHIFT_PARAM, 0, 4, 0, "Shift amount");
+    this->configParam(Comp::SHIFT_PARAM, -1, 1, 0, "Shift amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
-    this->configParam(Comp::RIB_BUTTON_PARAM, 0, 10, 0, "RIB");
+    this->configParam(Comp::RIB_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
+    this->configParam(Comp::RIB_MINUS_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
+    this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Rib total shift (numerator)");
+    this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "Rib shift time (denominator)");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::SHIFT_INPUT, "Shift amount");
@@ -57,7 +58,7 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
         addLabel(Vec(15, 6), "Phase Patterns", 20);
-        addLabel(Vec(28, 60), "Under Construction", 14);
+        // addLabel(Vec(28, 60), "Under Construction", 14);
         addLabel(Vec(30, 356), "Squinktronix", 16);
 #endif
         addControls(module);
@@ -83,20 +84,42 @@ private:
         }
     }
     void addControls(PhasePatternsModule* module) {
-        auto param = createParam<RoundBigBlackKnob>(Vec(38, 131), module, Comp::SHIFT_PARAM);
-        addParam(param);
+        const float shift_row = 71;
+        const float rib1_row = 150;
+        const float rib2_row = 200;
+
+        addParam(createParamCentered<RoundBlackKnob>(Vec(60, shift_row), module, Comp::SHIFT_PARAM));
 #ifdef _LAB
-        addLabel(Vec(46, 107), "Shift");
+        addLabel(Vec(4, shift_row - 10), "Shift");
 #endif
+        _shiftDisplay = addLabel(Vec(70, shift_row - 10), "");
+
+        // now all the RIB controls
+        auto p = createParam<PopupMenuParamWidget>(
+            Vec(14, rib1_row),
+            module,
+            Comp::RIB_DURATION_PARAM);
+        //   p->setShortLabels(Comp::getShortScaleLabels(true));
+        p->setLabels(Comp::getRibDurationLabels());
+        p->box.size.x = 40;  // width
+        p->box.size.y = 22;
+        p->text = "1";
+        addParam(p);
+
+        auto param = createParam<RoundBlackSnapKnob>(Vec(70, rib1_row), module, Comp::RIB_SPAN_PARAM);
+        addParam(param);
+
+        // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(52, 193),
+            Vec(20, rib2_row),
             module,
             Comp::RIB_BUTTON_PARAM,
             Comp::RIB_LIGHT));
-
-        // 42 too far to left
-        // 46 too far right
-        _shiftDisplay = addLabel(Vec(44, 210), "");
+        addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
+            Vec(70, rib2_row),
+            module,
+            Comp::RIB_MINUS_BUTTON_PARAM,
+            Comp::RIB_LIGHT));
     }
 
     void addIO(PhasePatternsModule* module) {
@@ -107,16 +130,16 @@ private:
         int jackY = 322;
         const int dL = 20;
         addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::CK_INPUT));
-        addLabel(Vec(9, jackY-dL), "CkIn");
+        addLabel(Vec(9, jackY - dL), "CkIn");
         addInput(createInput<PJ301MPort>(Vec(c, jackY), module, Comp::SHIFT_INPUT));
-        addLabel(Vec(c-4, jackY-dL), "Shft");
+        addLabel(Vec(c - 4, jackY - dL), "Shft");
         addOutput(createOutput<PJ301MPort>(Vec(85, jackY), module, Comp::CK_OUTPUT));
-        addLabel(Vec(79, jackY-dL), "CkOut");
+        addLabel(Vec(79, jackY - dL), "CkOut");
 
         jackY -= 50;
 
         addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::RIB_INPUT));
-        addLabel(Vec(a, jackY-dL), "Rib Trig");
+        addLabel(Vec(a, jackY - dL), "Rib Trig");
     }
 
     /**
@@ -142,7 +165,7 @@ private:
         auto adjustedPos = v;
 
         adjustedPos.x -= 1.5f * str.size();
-        parent->box.pos = adjustedPos; 
+        parent->box.pos = adjustedPos;
 
         lp->text = str;
         lp->color = white;

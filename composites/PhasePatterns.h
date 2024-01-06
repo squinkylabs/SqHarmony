@@ -23,6 +23,9 @@ public:
         SHIFT_PARAM,
         COMBINED_SHIFT_INTERNAL_PARAM,
         RIB_BUTTON_PARAM,
+        RIB_DURATION_PARAM,
+        RIB_SPAN_PARAM,
+        RIB_MINUS_BUTTON_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -41,6 +44,11 @@ public:
         RIB_LIGHT,
         NUM_LIGHTS
     };
+
+    static const std::vector<std::string> getRibDurationLabels() {
+        return {"1/3", "1/2", "1", "2", "3"};
+    }
+    // static std::vector<std::string> getRibDurationLabels();
 
     PhasePatterns(Module* module) : TBase(module) {
         _init();
@@ -87,8 +95,8 @@ inline void PhasePatterns<TBase>::_init() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButton() {
-    //SQINFO("update button");
-    // TODO: for now, just do channel 1 for this
+    // SQINFO("update button");
+    //  TODO: for now, just do channel 1 for this
     TBase::lights[RIB_LIGHT].value = _ribGenerator[0].busy() ? 10 : 0;
     _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
 
@@ -122,7 +130,6 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
     const bool ribsPoly = _numRibsGenerators > 1;
     const bool shiftCVPoly = _numShiftInputs > 1;
 
- 
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
@@ -142,7 +149,7 @@ inline void PhasePatterns<TBase>::_updatePoly() {
     if (!conn) {
         return;
     }
-  
+
     int numOutputs = 1;
     _numInputClocks = TBase::inputs[CK_INPUT].channels;
     _numRibsGenerators = TBase::inputs[RIB_INPUT].channels;
@@ -157,7 +164,7 @@ inline void PhasePatterns<TBase>::_updatePoly() {
 
     _numShiftInputs = TBase::inputs[SHIFT_INPUT].channels;
 
-  //  SQINFO("updatePoly: out=%d, ic=%d, rib=%d shiftInputs=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators, _numShiftInputs);
+    //  SQINFO("updatePoly: out=%d, ic=%d, rib=%d shiftInputs=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators, _numShiftInputs);
 }
 
 template <class TBase>
@@ -173,9 +180,9 @@ template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
     //  SQINFO("process");
     divn.step();
-    //SQINFO("process2");
+    // SQINFO("process2");
 
-   // const bool monoClocks = _n_numInputClock <= 1;
+    // const bool monoClocks = _n_numInputClock <= 1;
     // First process all the input clock channels. They retain output, and don't have any
     // dependencies, so they are easy. Also update all the RIB ramp generators
     for (int i = 0; i < _numInputClocks; ++i) {
@@ -184,7 +191,7 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
     }
 
     for (int i = 0; i < _numRibsGenerators; ++i) {
-         _ribGenerator[i].go();
+        _ribGenerator[i].go();
     }
 
     const bool monoClock = _numInputClocks <= 1;
