@@ -66,7 +66,7 @@ static void testChannelsSub(
     comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
     comp.inputs[Comp::CK_INPUT].channels = clockInChannels;
     comp.inputs[Comp::SHIFT_INPUT].channels = shiftAmountChannels;
-    comp.inputs[Comp::RIB_INPUT].channels = ribsChannels;
+    comp.inputs[Comp::RIB_POSITIVE_INPUT].channels = ribsChannels;
 
     // init, should be connected but not set
     assertEQ(int(comp.outputs[Comp::CK_OUTPUT].channels), 1);
@@ -181,7 +181,7 @@ static void testCanClockMonoWithRibSub(int ribChannels) {
     comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
     comp.inputs[Comp::SHIFT_INPUT].channels = 1;
     comp.inputs[Comp::CK_INPUT].channels = 1;
-    comp.inputs[Comp::RIB_INPUT].channels = ribChannels;
+    comp.inputs[Comp::RIB_POSITIVE_INPUT].channels = ribChannels;
 
     const auto args = TestComposite::ProcessArgs();
     prime(comp, 0);
@@ -233,7 +233,7 @@ public:
         comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
         comp.inputs[Comp::SHIFT_INPUT].channels = 1;
         comp.inputs[Comp::CK_INPUT].channels = 1;
-        comp.inputs[Comp::RIB_INPUT].channels = numRibs;
+        comp.inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibs;
 
         const auto args = TestComposite::ProcessArgs();
         prime(comp, 0);
@@ -243,7 +243,7 @@ public:
 
         // trigger the rib
         SQINFO("setting rib input %d to 10", ribToTest);
-        comp.inputs[Comp::RIB_INPUT].setVoltage(10, ribToTest);
+        comp.inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(10, ribToTest);
         // process enough times to do the ribs thing.
         for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
             comp.process(args);
@@ -326,7 +326,7 @@ public:
         comp.inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
         assertEQ(comp.inputs[Comp::CK_INPUT].channels, 1);
         comp.outputs[Comp::CK_OUTPUT].channels = 1;              // connect the output
-        comp.inputs[Comp::RIB_INPUT].channels = numRibChannels;  // connect the poly rib
+        comp.inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibChannels;  // connect the poly rib
         processBlock(comp);
         assertEQ(comp._numInputClocks, 1);
 
@@ -338,10 +338,10 @@ public:
         comp.process(args);  // why is this here?
         assert(comp._clockShifter[channelToTest].freqValid());
 
-        comp.inputs[Comp::RIB_INPUT].setVoltage(0, channelToTest);
+        comp.inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(0, channelToTest);
         processBlock(comp);
         // trigger the rib
-        comp.inputs[Comp::RIB_INPUT].setVoltage(10, channelToTest);
+        comp.inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(10, channelToTest);
         processBlock(comp);
 
         for (int i = 0; i < 16; ++i) {

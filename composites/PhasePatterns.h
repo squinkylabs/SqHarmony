@@ -25,16 +25,17 @@ public:
         SCHEMA_PARAM,
         SHIFT_PARAM,
         COMBINED_SHIFT_INTERNAL_PARAM,
-        RIB_BUTTON_PARAM,
+        RIB_POSITIVE_BUTTON_PARAM,
         RIB_DURATION_PARAM,
         RIB_SPAN_PARAM,
-        RIB_MINUS_BUTTON_PARAM,
+        RIB_NEGATIVE_BUTTON_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
         CK_INPUT,
         SHIFT_INPUT,
-        RIB_INPUT,
+        RIB_POSITIVE_INPUT,
+        RIB_NEGATIVE_INPUT,
         NUM_INPUTS
     };
 
@@ -90,7 +91,7 @@ public:
 private:
     void _init();
     void _stepn();
-    void _updateButton();
+    void _updateButtons();
     void _updatePoly();
     void _updateShiftAmount();
 
@@ -102,8 +103,10 @@ private:
                                        false, false, false, false,
                                        false, false, false, false,
                                        false, false, false, false};
-    GateTrigger _buttonProc;
-    GateTrigger _ribTrigger[16];
+    GateTrigger _positiveButtonProc;
+    GateTrigger _negativeButtonProc;
+    GateTrigger _ribPositiveTrigger[16];
+    GateTrigger _ribNegativeTrigger[16];
     Divider divn;
 
     int _numInputClocks = 0;
@@ -120,11 +123,11 @@ inline void PhasePatterns<TBase>::_init() {
 }
 
 template <class TBase>
-inline void PhasePatterns<TBase>::_updateButton() {
-    // SQINFO("update button");
-    //  TODO: for now, just do channel 1 for this
+inline void PhasePatterns<TBase>::_updateButtons() {
+    //  TODO: for now, just do channel 1 for this indicator
     TBase::lights[RIB_LIGHT].value = _ribGenerator[0].busy() ? 10 : 0;
-    _buttonProc.go(TBase::params[RIB_BUTTON_PARAM].value);
+    _positiveButtonProc.go(TBase::params[RIB_POSITIVE_BUTTON_PARAM].value);
+    _negativeButtonProc.go(TBase::params[RIB_NEGATIVE_BUTTON_PARAM].value);
 
     if (_numRibsGenerators < 1) {
         return;
@@ -132,12 +135,23 @@ inline void PhasePatterns<TBase>::_updateButton() {
 
     // This loop assumes there are at least as many shifters as there are rib
     // units. Which is fair.
-    const bool buttonTriggered = _buttonProc.trigger();
+    const bool positiveButtonTriggered = _positiveButtonProc.trigger();
+    const bool negativeButtonTriggered = _negativeButtonProc.trigger();
     for (int i = 0; i < _numRibsGenerators; ++i) {
-        const float rawRibTrigger = TBase::inputs[RIB_INPUT].getVoltage(i);
-        _ribTrigger[i].go(rawRibTrigger);
-        const bool ribTriggered = _ribTrigger[i].trigger();
-        if (buttonTriggered || ribTriggered) {
+        {
+            const float rawPositiveRibTrigger = TBase::inputs[RIB_POSITIVE_INPUT].getVoltage(i);
+            _ribPositiveTrigger[i].go(rawPositiveRibTrigger);
+            const float rawNegativeRibTrigger = TBase::inputs[RIB_NEGATIVE_INPUT].getVoltage(i);
+            _ribNegativeTrigger[i].go(rawNegativeRibTrigger);
+        }
+
+        const bool ribTriggeredPositive = _ribPositiveTrigger[i].trigger();
+        const bool ribTriggeredNegative = _ribPositiveTrigger[i].trigger();
+
+        const bool trigNegative = ribTriggeredNegative || negativeButtonTriggered;
+        const bool triggered = trigNegative || ribTriggeredPositive || positiveButtonTriggered;
+
+        if (triggered) {
             // If this channel isn't stable yet, skip it.
             if (!_clockShifter[i].freqValid()) {
                 SQINFO("not triggering rib, no freq.");
@@ -145,8 +159,15 @@ inline void PhasePatterns<TBase>::_updateButton() {
             }
             // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
             
-            assert(false);
-            // _ribGenerator[i].trigger(_clockShifter[i].getPeriod());
+            const int period = _clockShifter[i].getPeriod();
+            const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
+            float duration = this->getRibDurationFromIndex(durationIndex);
+            const float span = TBase::params[RIB_SPAN_PARAM].value;
+            if (trigNegative) {
+                duration = -duration;
+            }
+           
+            _ribGenerator[i].trigger(period, duration, span);
         }
     }
 }
@@ -180,7 +201,10 @@ inline void PhasePatterns<TBase>::_updatePoly() {
 
     int numOutputs = 1;
     _numInputClocks = TBase::inputs[CK_INPUT].channels;
-    _numRibsGenerators = TBase::inputs[RIB_INPUT].channels;
+    _numRibsGenerators = int(TBase::inputs[RIB_POSITIVE_INPUT].channels);
+    _numRibsGenerators = std::max(
+        _numRibsGenerators, 
+        int(TBase::inputs[RIB_NEGATIVE_INPUT].channels));
     _numRibsGenerators = std::max(1, _numRibsGenerators);
 
     numOutputs = std::max(numOutputs, _numInputClocks);
@@ -200,7 +224,7 @@ inline void PhasePatterns<TBase>::_stepn() {
     //   SQINFO("stepn");
     _updatePoly();
     _updateShiftAmount();
-    _updateButton();
+    _updateButtons();
     _updateShiftAmount();
 }
 
