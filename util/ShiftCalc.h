@@ -37,7 +37,10 @@ private:
 inline float ShiftCalc::go() {
     if (_delta) {
         _acc += _delta;
-        if (_acc >= _shiftAmountLimit) {
+        const bool positive = _shiftAmountLimit > 0;
+        if ((positive && (_acc >= _shiftAmountLimit)) ||
+            (!positive && (_acc <= _shiftAmountLimit)))
+        {
             _acc = _shiftAmountLimit;
             _delta = 0;
         }

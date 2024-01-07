@@ -102,10 +102,10 @@ static void testTriggerDurring() {
     assertEQ(s.get(), 1);
 }
 
-static void testLimit() {
+static void testLimitSub(float limit) {
     ShiftCalc s;
     const int period = 14;
-    const float limit = .47;
+  //  const float limit = .47;
     s.trigger(period, limit, 11);
     int ct = 0;
     for (bool done = false; !done;) {
@@ -126,15 +126,19 @@ static void testLimit() {
     assertClose(s.get(), limit, .0001);
 }
 
-
+static void testLimit() {
+    testLimitSub(.47f);
+    testLimitSub(1.3f);
+    testLimitSub(-.31f);
+    testLimitSub(-1.47f);
+}
 static void testRateSub(int period, float limit, float rampInClocks) {
-    SQINFO("--- test Rate");
     ShiftCalc s;
     s.trigger(period, limit, rampInClocks);
     int ct = 0;
     for (bool done = false; !done;) {
         const auto value = s.get();
-        const auto distance = (limit - value);
+        const auto distance = std::abs(limit - value);
         //  SQINFO("value = %f dist=%f", value, distance);
         ct++;
         assert(ct < 10000);
@@ -150,8 +154,8 @@ static void testRateSub(int period, float limit, float rampInClocks) {
 static void testRate() {
     testRateSub(100, 1.f / 3.f, 10);
     testRateSub(1000, 1.f / 3.f, 10);
-
-    assert(false);
+    testRateSub(11, 1.1f, 17);
+    testRateSub(11, -1.7f, 23);
 }
 
 void testShiftCalc() {
