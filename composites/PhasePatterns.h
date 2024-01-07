@@ -144,7 +144,9 @@ inline void PhasePatterns<TBase>::_updateButton() {
                 continue;
             }
             // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
-            _ribGenerator[i].trigger(_clockShifter[i].getPeriod());
+            
+            assert(false);
+            // _ribGenerator[i].trigger(_clockShifter[i].getPeriod());
         }
     }
 }
