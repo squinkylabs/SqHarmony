@@ -325,7 +325,7 @@ public:
     }
 
     static void testPolyRibMonoClock(int numRibChannels, int channelToTest) {
-        SQINFO("----- testPolyRibMonoClock %d,%d", numRibChannels, channelToTest);
+        // SQINFO("----- testPolyRibMonoClock %d,%d", numRibChannels, channelToTest);
         assert(numRibChannels > 0);
         assert(channelToTest >= 0);
         assert(channelToTest < numRibChannels);

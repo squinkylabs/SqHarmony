@@ -38,14 +38,15 @@ void inline PhasePatternsModule::addParams() {
     this->configParam(Comp::SHIFT_PARAM, -1, 1, 0, "Shift amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
-    this->configParam(Comp::RIB_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
-    this->configParam(Comp::RIB_MINUS_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
+    this->configParam(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
+    this->configParam(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
     this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Rib total shift (numerator)");
     this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "Rib shift time (denominator)");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::SHIFT_INPUT, "Shift amount");
-    this->configInput(Comp::RIB_INPUT, "Rib trigger");
+    this->configInput(Comp::RIB_POSITIVE_INPUT, "Rib trigger");
+    this->configInput(Comp::RIB_NEGATIVE_INPUT, "Rib negative trigger");
     this->configOutput(Comp::CK_OUTPUT, "Shifted output");
 }
 
@@ -113,13 +114,13 @@ private:
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
             Vec(20, rib2_row),
             module,
-            Comp::RIB_BUTTON_PARAM,
-            Comp::RIB_LIGHT));
+            Comp::RIB_POSITIVE_BUTTON_PARAM,
+            Comp::RIB_POSITIVE_LIGHT));
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
             Vec(70, rib2_row),
             module,
-            Comp::RIB_MINUS_BUTTON_PARAM,
-            Comp::RIB_LIGHT));
+            Comp::RIB_NEGATIVE_BUTTON_PARAM,
+            Comp::RIB_NEGATIVE_LIGHT));
     }
 
     void addIO(PhasePatternsModule* module) {
@@ -138,7 +139,7 @@ private:
 
         jackY -= 50;
 
-        addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::RIB_INPUT));
+        addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::RIB_POSITIVE_INPUT));
         addLabel(Vec(a, jackY - dL), "Rib Trig");
     }
 
