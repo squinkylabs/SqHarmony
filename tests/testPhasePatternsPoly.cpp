@@ -8,6 +8,7 @@
 #include "asserts.h"
 
 using Comp = PhasePatterns<TestComposite>;
+using CompPtr = std::shared_ptr<Comp>;
 
 // was 10. 60 ok
 static int testPeriod = 100;
@@ -50,6 +51,13 @@ static void processBlock(Comp& comp) {
     for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
         comp.process(args);
     }
+}
+
+static CompPtr factory() {
+    CompPtr comp = std::make_shared<Comp>();
+    comp->params[Comp::RIB_SPAN_PARAM].value = 1;      // 0 makes test fail.
+    comp->inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
+    return comp;
 }
 
 //---------------------------------------------------------------------
@@ -322,30 +330,32 @@ public:
         assert(channelToTest >= 0);
         assert(channelToTest < numRibChannels);
 
-        Comp comp;
-        comp.inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
-        assertEQ(comp.inputs[Comp::CK_INPUT].channels, 1);
-        comp.outputs[Comp::CK_OUTPUT].channels = 1;              // connect the output
-        comp.inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibChannels;  // connect the poly rib
-        processBlock(comp);
-        assertEQ(comp._numInputClocks, 1);
+        CompPtr comp = factory();
+        // Comp comp;
+        // comp.params[Comp::RIB_SPAN_PARAM].value = 1;      // 0 makes test fail.
+        // comp.inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
+        assertEQ(comp->inputs[Comp::CK_INPUT].channels, 1);
+        comp->outputs[Comp::CK_OUTPUT].channels = 1;              // connect the output
+        comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibChannels;  // connect the poly rib
+        processBlock(*comp);
+        assertEQ(comp->_numInputClocks, 1);
 
         const auto args = TestComposite::ProcessArgs();
-        prime(comp, 0);
+        prime(*comp, 0);
         // Even though we are "primed" we will not emit a clock for one more period,
         // if shift is zero.
-        clockItHigh(comp, 0);
-        comp.process(args);  // why is this here?
-        assert(comp._clockShifter[channelToTest].freqValid());
+        clockItHigh(*comp, 0);
+        comp->process(args);  // why is this here?
+        assert(comp->_clockShifter[channelToTest].freqValid());
 
-        comp.inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(0, channelToTest);
-        processBlock(comp);
+        comp->inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(0, channelToTest);
+        processBlock(*comp);
         // trigger the rib
-        comp.inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(10, channelToTest);
-        processBlock(comp);
+        comp->inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(10, channelToTest);
+        processBlock(*comp);
 
         for (int i = 0; i < 16; ++i) {
-            const bool busy = comp._ribGenerator[i].busy();
+            const bool busy = comp->_ribGenerator[i].busy();
             const bool expectedBusy = (i == channelToTest);
             assertEQ(busy, expectedBusy);
         }

@@ -146,7 +146,7 @@ inline void PhasePatterns<TBase>::_updateButtons() {
         }
 
         const bool ribTriggeredPositive = _ribPositiveTrigger[i].trigger();
-        const bool ribTriggeredNegative = _ribPositiveTrigger[i].trigger();
+        const bool ribTriggeredNegative = _ribNegativeTrigger[i].trigger();
 
         const bool trigNegative = ribTriggeredNegative || negativeButtonTriggered;
         const bool triggered = trigNegative || ribTriggeredPositive || positiveButtonTriggered;
@@ -163,6 +163,7 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
             float duration = this->getRibDurationFromIndex(durationIndex);
             const float span = TBase::params[RIB_SPAN_PARAM].value;
+            assert(span != 0);
             if (trigNegative) {
                 duration = -duration;
             }
