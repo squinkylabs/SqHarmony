@@ -100,10 +100,7 @@ private:
     ShiftCalc _ribGenerator[16];
 
     // TODO: get rid of these initializers. There are just here to make some test pass.
-    GateTrigger _inputClockProc[16] = {false, false, false, false,
-                                       false, false, false, false,
-                                       false, false, false, false,
-                                       false, false, false, false};
+    GateTrigger _inputClockProc[16];
     GateTrigger _positiveButtonProc;
     GateTrigger _negativeButtonProc;
     GateTrigger _ribPositiveTrigger[16];

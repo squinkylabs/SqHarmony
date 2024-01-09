@@ -66,7 +66,7 @@ private:
 static Outputs run(const Inputs& input) {
     assert(input.isValid());
     Outputs output;
-     SQINFO("enter run, input = %s", input.toString().c_str());
+    SQINFO("enter run, input = %s", input.toString().c_str());
 
     // prime will feed in the "first" clock, so expect "off by one" errors.
     auto result = makeAndPrime2(input.period, input.initialShift);
@@ -78,23 +78,25 @@ static Outputs run(const Inputs& input) {
 
     
     float shift = input.initialShift;
-    SQINFO("going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
+    SQINFO("run going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
 
     int samplesRemaining = input.totalSamplesToTick - output.samplesTicked;
     while (samplesRemaining) {
         int samplesThisTime = std::min(samplesRemaining, input.period - 1);
-          SQINFO("-in while, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
+        SQINFO("run -in while, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
         samplesRemaining -= samplesThisTime;
         for (int i = 0; i < samplesThisTime; ++i) {
+            SQINFO("run about to clock it low samp %d this time=%d", i, samplesThisTime);
             const bool b = clockItLow(shifter, 1);
          
             output.processPossibleClock(b);
             shift += input.shiftPerSample;
             shifter->setShift(shift);
-              SQINFO("tick low, ck=%d set shift to %f", b, shift);
+            SQINFO("run tick low, ck=%d set shift to %f", b, shift);
         }
         if (samplesRemaining > 0) {
             samplesRemaining--;
+            SQINFO("about to tick high");
             const bool b = shifter->process(true, true);
             SQINFO("tick high, ck=%d", b);
             output.processPossibleClock(b);
@@ -144,6 +146,7 @@ static void testShift2() {
 }
 
 static void testSlowDown() {
+    SQINFO("------- testSlowDown");
     Inputs in;
     const int cycles = 5;
     in.period = 10;
@@ -158,9 +161,9 @@ static void testSlowDown() {
 }
 
 void testClockShifter4d() {
-   // test0();
-  //  testNoShift();
+    test0();
+    // testNoShift();
    // testShift2();
     SQWARN("testSlowDown should work");
-   // testSlowDown();
+    //testSlowDown();
 }
