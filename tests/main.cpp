@@ -58,6 +58,7 @@ extern void testPitchKnowledge();
 extern void testRawChordGenerator();
 extern void testChord4();
 extern void testNumberFormatter();
+extern void testTwister();
 
 
 #ifdef _DEBUG
@@ -76,6 +77,7 @@ int main(const char**, int) {
     // testAllChords(doLongRunning);
     // printf("put the early tests back\n");
 
+    testTwister();
     testSchmidtTrigger();
     testNumberFormatter();
     testShiftMath();

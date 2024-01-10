@@ -1,6 +1,5 @@
 
-
-#include "plugin.hpp"
+#include "plugin.hpp" // must be first include (for now).
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -8,30 +7,56 @@
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
-#include "plugin.hpp"
+
 
 class LFN2Module : public rack::engine::Module {
 public:
-     void process(const ProcessArgs& args) override {
-       // comp->process(args);
-       SQINFO("xxx");
+    enum ParamIds {
+        NUM_PARAMS
+    };
+
+    enum InputIds {
+        NUM_INPUTS
+    };
+
+    enum OutputIds {
+        OUT,
+        NUM_OUTPUTS
+    };
+
+    enum LightIds {
+        NUM_LIGHTS
+    };
+    LFN2Module() {
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        // addParams();
     }
+    void process(const ProcessArgs& args) override {
+        // comp->process(args);
+        SQINFO("xxx");
+        const int x = gen32();
+        float f = float(x) /  float(std::numeric_limits<int>::max());
+        outputs[OUT].setVoltage(f);
+    }
+
+private:
+    std::mt19937 gen32;
 };
 
 class LFN2Widget : public ModuleWidget {
 public:
-    LFN2Widget(LFN2Module* module){
+    LFN2Widget(LFN2Module* module) {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
-#if 1 // def _LAB
+#if 1  // def _LAB
         addLabel(Vec(35, 6), "LFN II", 20);
         // addLabel(Vec(28, 60), "Under Construction", 14);
         addLabel(Vec(30, 356), "Squinktronix", 16);
 #endif
-      //  addControls(module);
-      //  addIO(module);
+        //  addControls(module);
+        //  addIO(module);
     }
-   /**
+    /**
      * @brief
      *
      * @param v is the position, panel relative
@@ -63,7 +88,6 @@ public:
         addChild(parent);
         return parent;
     }
-
 };
 
 Model* modelLFN2 = createModel<LFN2Module, LFN2Widget>("sqh-lfn2");

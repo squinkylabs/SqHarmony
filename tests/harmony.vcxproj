@@ -222,6 +222,7 @@
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testTempo.cpp" />
+    <ClCompile Include="testTwister.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\composites\Harmony.h" />
