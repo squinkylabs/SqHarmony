@@ -10,7 +10,6 @@
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
-//#include "plugin.hpp"
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;

@@ -19,3 +19,4 @@ extern Model* modelPhasePatterns;
 #ifdef _MULT
 extern Model* modelMult;
 #endif
+extern Model* modelLFN2;
