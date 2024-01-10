@@ -33,10 +33,10 @@ public:
     }
     void process(const ProcessArgs& args) override {
         // comp->process(args);
-        SQINFO("xxx");
+       //SQINFO("xxx");
         const int x = gen32();
         float f = float(x) /  float(std::numeric_limits<int>::max());
-        outputs[OUT].setVoltage(f);
+        outputs[OUT].setVoltage(10 * f);
     }
 
 private:
@@ -55,6 +55,8 @@ public:
 #endif
         //  addControls(module);
         //  addIO(module);
+        addOutput(createOutput<PJ301MPort>(Vec(85, 200), module, LFN2Module::OUT));
+        //addLabel(Vec(79, 1), "CkOut");
     }
     /**
      * @brief
