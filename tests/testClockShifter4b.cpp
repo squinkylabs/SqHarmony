@@ -81,9 +81,9 @@ static void testCase2() {
     assertClose(shifter->getNormalizedPosition(), .6, .0001);
 
     // Now set shift to .7, on the other side of where we are
-    shifter->setShift(.7);
+    shifter->setShift(.7f);
 
-    // Now take us to the end of this period. should have not clocks in here.
+    // Now take us to the end of this period. should have no clocks in here.
     // We might have one, but it should be suppressed.
     b = clockItLow(shifter, 3);
     assert(!b);

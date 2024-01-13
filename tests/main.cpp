@@ -1,6 +1,6 @@
 
+#include <assert.h>
 #include <stdio.h>
-
 #include <cstdlib>
 extern void testHarmonyNote();
 extern void testScaleRelativeNote();
@@ -60,6 +60,7 @@ extern void testChord4();
 extern void testNumberFormatter();
 extern void testTwister();
 
+#include "SqLog.h"
 
 #ifdef _DEBUG
 const bool doLongRunning = false;
@@ -76,6 +77,9 @@ int main(const char**, int) {
     // testRawChordGenerator();
     // testAllChords(doLongRunning);
     // printf("put the early tests back\n");
+    printf("running 4b first for temp debug\n");
+    assert(SqLog::errorCount == 0);
+    testClockShifter4d();
 
     testTwister();
     testSchmidtTrigger();

@@ -48,6 +48,7 @@ enum Level {
 };
 
 void log(Level level, const char* filename, int line, const char* format, ...);
+extern int errorCount;
 
 }  // namespace SqLog
 #endif

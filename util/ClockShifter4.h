@@ -47,10 +47,11 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
     // First we want to "unwrap" everything.
 
     float currentPosition = getNormalizedPosition();
-    //SQINFO("_calculateShiftOver new shift value = %f, cur pos=%f", newShiftValue, currentPosition);
     bool didWrap = false;
     float before = 0, after = 0;
     const float deltaShift = std::abs(newShiftValue - _shift);
+    // SQINFO("_calculateShiftOver new shift value = %f, cur pos=%f delta=%f", newShiftValue, currentPosition, deltaShift);
+
     if (deltaShift < .5) {
         // this is normal, no wrap
         before = _shift;
@@ -72,6 +73,9 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
         currentPosition += 1;
     }
 
+    // SQINFO("at 77 before=%f, cur=%f after=%f a-c=%f", before, currentPosition, after, after - currentPosition);
+    // SQINFO(" a-c=%f a==c: %d subd=%f", after - currentPosition, after == currentPosition, double(after) - double(currentPosition));
+
     if ((before < currentPosition) && (currentPosition < after)) {
         // SQINFO("fwd at bottom of calc, before=%f, currentPos=%f after=%f", before, currentPosition, after);
         return ShiftPossibilities::ShiftOverForward;
@@ -86,12 +90,15 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
 }
 
 inline void ClockShifter4::setShift(float x) {
+    // SQINFO("... setShift(%f)", x);
     const float newShift = (x - std::floor(x));
     if (_shift == newShift) {
+        // SQINFO("no change");
         return;
     }
     if (!freqValid()) {
         _shift = newShift;
+        // SQINFO("can't set, invalid");
         return;
     }
 
@@ -99,10 +106,12 @@ inline void ClockShifter4::setShift(float x) {
 
     switch (shiftInfo) {
         case ShiftPossibilities::ShiftOverForward:
+            // SQINFO("over forward");
             // If it's jumping over us, in the increasing direction.
             _onShiftJumpsOverUsHigher();
             break;
         case ShiftPossibilities::ShiftOverBackward:
+            // SQINFO("over backward");
             _onShiftJumpsOverUsLower();
             break;
         default:
@@ -113,15 +122,18 @@ inline void ClockShifter4::setShift(float x) {
 }
 
 inline void ClockShifter4::_requestSuppressTheNextClockOut() {
-    //SQINFO("_requestSuppressTheNextClockOut");
+    // SQINFO("_requestSuppressTheNextClockOut");
     assert(!_firstClock);
     assert(!_forceGenerateClockNextSample);
-    assert(!_suppressNextClockOutput);
+    // assert(!_suppressNextClockOutput);
+    if (_suppressNextClockOutput) {
+        SQWARN("potentially losing clock");
+    }
     _suppressNextClockOutput = true;
 }
 
 inline void ClockShifter4::_requestForceGenerateClockNextSample() {
-    //SQINFO("_requestForceGenerateClockNextSample, will set _force.");
+    // SQINFO("_requestForceGenerateClockNextSample, will set _force.");
     assert(!_forceGenerateClockNextSample);
     assert(!_suppressNextClockOutput);
     _forceGenerateClockNextSample = true;
@@ -131,6 +143,7 @@ inline void ClockShifter4::_requestForceGenerateClockNextSample() {
 // We will need to suppress the first clock at the new location, because
 // we already sent a clock for the old location.
 inline void ClockShifter4::_onShiftJumpsOverUsHigher() {
+    // SQINFO("requesting sup from _onShiftJumpsOverUsHigher");
     _requestSuppressTheNextClockOut();
 }
 
@@ -152,6 +165,7 @@ inline float ClockShifter4::getNormalizedPosition() const {
 }
 
 inline bool ClockShifter4::process(bool trigger, bool clock) {
+    // SQINFO("***** ClockShifter4::process trig=%d, phase acc=%d", trigger, _phaseAccumulator);
     // If both of these were true, what would we do???
     assert(!_firstClock || !_suppressNextClockOutput);
     const bool freqWasValid = _freqMeasure.freqValid();
@@ -177,9 +191,11 @@ inline bool ClockShifter4::process(bool trigger, bool clock) {
             }
         }
         _phaseAccumulator = 0;
+        // SQINFO("zero pa on trigger");
         _haveOutputClockThisInputPeriod = false;
     } else {
         _phaseAccumulator++;
+        // SQINFO("inc pa to %d period=%d", _phaseAccumulator, _freqMeasure.getPeriod());
     }
 
     // Now, see if enough samples of delay have gone by to generate a new output clock.

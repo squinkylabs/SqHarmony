@@ -66,7 +66,7 @@ private:
 static Outputs run(const Inputs& input) {
     assert(input.isValid());
     Outputs output;
-    SQINFO("enter run, input = %s", input.toString().c_str());
+    // SQINFO("enter run, input = %s", input.toString().c_str());
 
     // prime will feed in the "first" clock, so expect "off by one" errors.
     auto result = makeAndPrime2(input.period, input.initialShift);
@@ -78,30 +78,30 @@ static Outputs run(const Inputs& input) {
 
     
     float shift = input.initialShift;
-    SQINFO("run going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
+    // SQINFO("run going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
 
     int samplesRemaining = input.totalSamplesToTick - output.samplesTicked;
     while (samplesRemaining) {
         int samplesThisTime = std::min(samplesRemaining, input.period - 1);
-        SQINFO("run -in while, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
+        // SQINFO("run -in while, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
         samplesRemaining -= samplesThisTime;
         for (int i = 0; i < samplesThisTime; ++i) {
-            SQINFO("run about to clock it low samp %d this time=%d", i, samplesThisTime);
+            // SQINFO("run about to clock it low samp %d this time=%d", i, samplesThisTime);
             const bool b = clockItLow(shifter, 1);
          
             output.processPossibleClock(b);
             shift += input.shiftPerSample;
             shifter->setShift(shift);
-            SQINFO("run tick low, ck=%d set shift to %f", b, shift);
+            // SQINFO("run tick low, ck=%d set shift to %f", b, shift);
         }
         if (samplesRemaining > 0) {
             samplesRemaining--;
-            SQINFO("about to tick high");
+            // SQINFO("about to tick high");
             const bool b = shifter->process(true, true);
-            SQINFO("tick high, ck=%d", b);
+            // SQINFO("tick high, ck=%d", b);
             output.processPossibleClock(b);
         }
-        SQINFO("  bottom of loop, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
+        // SQINFO("  bottom of loop, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
     }
 
     return output;
@@ -146,24 +146,40 @@ static void testShift2() {
 }
 
 static void testSlowDown() {
-    SQINFO("------- testSlowDown");
+    assertEQ(SqLog::errorCount, 0);
     Inputs in;
     const int cycles = 5;
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
-    in.shiftPerSample = .1;
+    in.shiftPerSample = .1; // not that this is has the clock just about stopping - it can't really to that.
     const auto output = run(in);
-    // SQINFO("end of test01, output = %s", output.toString().c_str());
-    assertEQ(output.samplesTicked, in.totalSamplesToTick);
-    assertEQ(output.outputClocks, cycles);
-    assertEQ(output.maxSamplesBetweenClocks, 10);
-    assertEQ(output.minSamplesBetweenClocks, 10);
+   assertGT(SqLog::errorCount, 0);
+   SqLog::errorCount = 0;
 }
 
+static void testSlowDown2() {
+    // sSQINFO("\n\n\n--------------------------------------- testSlowDown2");
+    Inputs in;
+    const int cycles = 5;
+    in.period = 10;
+    in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
+    in.shiftPerSample = .05f; 
+    const auto output = run(in);
+    // SQINFO("end of testSlowDown2, output = %s", output.toString().c_str());
+    // SQINFO("input was %s", in.toString().c_str());
+    //  SQINFO("real end");
+    assertEQ(output.samplesTicked, in.totalSamplesToTick);
+
+    // We should have slowed down the clock output
+    assertLT(output.outputClocks, cycles);
+    assertGT(output.maxSamplesBetweenClocks, 10);
+
+    // rate should have been steady.
+    assertEQ(output.minSamplesBetweenClocks, output.maxSamplesBetweenClocks);
+}
 void testClockShifter4d() {
+    assertEQ(SqLog::errorCount, 0);
     test0();
-    // testNoShift();
-   // testShift2();
-    SQWARN("testSlowDown should work");
-    //testSlowDown();
+    testSlowDown();
+    testSlowDown2();
 }
