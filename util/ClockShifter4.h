@@ -90,7 +90,7 @@ inline ClockShifter4::ShiftPossibilities ClockShifter4::_calculateShiftOver(floa
 }
 
 inline void ClockShifter4::setShift(float x) {
-    // SQINFO("... setShift(%f)", x);
+    SQINFO("... Shifter::setShift(%f)", x);
     const float newShift = (x - std::floor(x));
     if (_shift == newShift) {
         // SQINFO("no change");
@@ -165,7 +165,7 @@ inline float ClockShifter4::getNormalizedPosition() const {
 }
 
 inline bool ClockShifter4::process(bool trigger, bool clock) {
-    // SQINFO("***** ClockShifter4::process trig=%d, phase acc=%d", trigger, _phaseAccumulator);
+    SQINFO("***** ClockShifter4::process trig=%d, phase acc=%d", trigger, _phaseAccumulator);
     // If both of these were true, what would we do???
     assert(!_firstClock || !_suppressNextClockOutput);
     const bool freqWasValid = _freqMeasure.freqValid();

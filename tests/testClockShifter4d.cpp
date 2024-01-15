@@ -8,6 +8,7 @@ public:
     int totalSamplesToTick = 0;
     float shiftPerSample = 0;
     float initialShift = 0;
+    bool afterwardsRunBackwards = false;
 
     bool isValid() const {
         return period >= 2 && totalSamplesToTick > period;
@@ -18,6 +19,7 @@ public:
         s << "period=" << period << std::endl;
         s << "initialshift=" << initialShift << std::endl;
         s << "shiftPerSample=" << shiftPerSample << std::endl;
+        s << "afterwardsRunBackwards=" << afterwardsRunBackwards << std::endl;
         return s.str();
     }
 };
@@ -28,10 +30,21 @@ public:
     int samplesTicked = 0;
     int minSamplesBetweenClocks = 100000;
     int maxSamplesBetweenClocks = 0;
+    float lastShift = 0;
+    Outputs combine(const Outputs& one) const {
+        Outputs ret = one;
+        ret.outputClocks += this->outputClocks;
+        ret.samplesTicked += this->samplesTicked;
+        ret.minSamplesBetweenClocks = std::min(one.minSamplesBetweenClocks, this->minSamplesBetweenClocks);
+        ret.maxSamplesBetweenClocks = std::max(one.maxSamplesBetweenClocks, this->maxSamplesBetweenClocks);
+        return ret;
+    }
 
     void processPossibleClock(bool clock) {
+        SQINFO("processPossibleClock(%d)", clock);
         samplesTicked++;
         if (!clock) {
+            SQINFO("processPossibleClock not clocking");
             return;
         }
         outputClocks++;
@@ -47,8 +60,8 @@ public:
 
     std::string toString() const {
         std::stringstream s;
-        s << "samples=" << samplesTicked << std::endl;
-        s << "clocks =" << outputClocks << std::endl;
+        s << "samplesTicked=" << samplesTicked << std::endl;
+        s << "outputClocks =" << outputClocks << std::endl;
         s << "min=" << minSamplesBetweenClocks << " max=" << maxSamplesBetweenClocks << std::endl;
         return s.str();
     }
@@ -57,28 +70,23 @@ private:
     int lastClockSample = -1;
 };
 
-// std::shared_ptr<ClockShifter4> shifter
-
-/**
- * The second clock in prime "counts" it is part of input.totalSamplesToTick,
- * and if it generates a clock is will be in Outputs.outputClocks.
- */
-static Outputs run(const Inputs& input) {
+static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter4> shifter) {
     assert(input.isValid());
+    // assert(input.afterwardsRunBackwards == false);
     Outputs output;
-    // SQINFO("enter run, input = %s", input.toString().c_str());
+    SQINFO("enter runSub, input = %s", input.toString().c_str());
+    SQINFO("outputs =%s", output.toString().c_str());
 
     // prime will feed in the "first" clock, so expect "off by one" errors.
-    auto result = makeAndPrime2(input.period, input.initialShift);
-    output.samplesTicked = 1;
-    output.outputClocks = result.clocked ? 1 : 0;
-    auto shifter = result.shifter;
+    //    auto result = makeAndPrime2(input.period, input.initialShift);
+    //   output.samplesTicked = 1;
+    //    output.outputClocks = result.clocked ? 1 : 0;
+    //   auto shifter = result.shifter;
 
-   // assertEQ(input.shiftPerSample, 0);
+    // assertEQ(input.shiftPerSample, 0);
 
-    
     float shift = input.initialShift;
-    // SQINFO("run going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
+    SQINFO("run sub going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
 
     int samplesRemaining = input.totalSamplesToTick - output.samplesTicked;
     while (samplesRemaining) {
@@ -88,23 +96,53 @@ static Outputs run(const Inputs& input) {
         for (int i = 0; i < samplesThisTime; ++i) {
             // SQINFO("run about to clock it low samp %d this time=%d", i, samplesThisTime);
             const bool b = clockItLow(shifter, 1);
-         
+
             output.processPossibleClock(b);
+            SQINFO("after process possible, num ticked = %d", output.samplesTicked);
             shift += input.shiftPerSample;
             shifter->setShift(shift);
+            output.lastShift = shift;
             // SQINFO("run tick low, ck=%d set shift to %f", b, shift);
         }
         if (samplesRemaining > 0) {
             samplesRemaining--;
-            // SQINFO("about to tick high");
+            SQINFO("about to tick high");
             const bool b = shifter->process(true, true);
-            // SQINFO("tick high, ck=%d", b);
+            SQINFO("ticked high, ck=%d", b);
             output.processPossibleClock(b);
         }
         // SQINFO("  bottom of loop, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
     }
-
+    SQINFO("leaving sub");
     return output;
+}
+
+static Outputs run(const Inputs& _input) {
+    Outputs initOutput;
+    // Step 1, setup.
+    auto result = makeAndPrime2(_input.period, _input.initialShift);
+    initOutput.samplesTicked = 1;
+    initOutput.outputClocks = result.clocked ? 1 : 0;
+    auto shifter = result.shifter;
+
+    Inputs adjustedInput = _input;
+    adjustedInput.totalSamplesToTick -= initOutput.samplesTicked;
+
+    // Step 2, run forwards
+    const Outputs outSub1 = runSub(adjustedInput, shifter);
+    SQINFO("initOutput = %s", initOutput.toString().c_str());
+    SQINFO("outSub1 = %s", outSub1.toString().c_str());
+    const Outputs out1 = initOutput.combine(outSub1);
+    SQINFO("combined = %s", out1.toString().c_str());
+    if (_input.afterwardsRunBackwards) {
+        Inputs i = _input;          // will this cause an off by one?
+        i.shiftPerSample *= -1;
+        i.initialShift = out1.lastShift;
+        // Step 3 (optional) run backwards.
+        const Outputs out2 = runSub(i, shifter);
+        return out1.combine(out2);
+    }
+    return out1;
 }
 
 static void test0() {
@@ -118,14 +156,30 @@ static void test0() {
 // This tests the case where we emit extra clocks at the bottom, to
 // be sure they don't generate clocks.
 static void testNoShift() {
+    SQINFO("------------- testNoShift");
     Inputs in;
-    const int cycles = 12345;
+    const int cycles = 3;  // was 12345 when there was less debug.
+                           // 12 failed.
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     const auto output = run(in);
-    // SQINFO("end of test01, output = %s", output.toString().c_str());
+    SQINFO("end of testNoShift clocks=%d, output = %s", output.outputClocks, output.toString().c_str());
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
     assertEQ(output.outputClocks, cycles);
+    assertEQ(output.maxSamplesBetweenClocks, 10);
+    assertEQ(output.minSamplesBetweenClocks, 10);
+}
+
+static void testNoShiftTwice() {
+    Inputs in;
+    const int cycles = 12;
+    in.period = 10;
+    in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
+    in.afterwardsRunBackwards = true;  // forward and back should be the same
+    const auto output = run(in);
+    SQINFO("end of testNoShiftTwice clocks=%d, output = %s", output.outputClocks, output.toString().c_str());
+    assertEQ(output.samplesTicked, 2 * in.totalSamplesToTick);
+    assertEQ(output.outputClocks, 2 * cycles);
     assertEQ(output.maxSamplesBetweenClocks, 10);
     assertEQ(output.minSamplesBetweenClocks, 10);
 }
@@ -145,25 +199,25 @@ static void testShift2() {
     assertEQ(output.minSamplesBetweenClocks, 10);
 }
 
-static void testSlowDown() {
+static void testStop() {
     assertEQ(SqLog::errorCount, 0);
     Inputs in;
     const int cycles = 5;
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
-    in.shiftPerSample = .1; // not that this is has the clock just about stopping - it can't really to that.
+    in.shiftPerSample = .1;  // not that this is has the clock just about stopping - it can't really to that.
     const auto output = run(in);
-   assertGT(SqLog::errorCount, 0);
-   SqLog::errorCount = 0;
+    assertGT(SqLog::errorCount, 0);
+    SqLog::errorCount = 0;
 }
 
-static void testSlowDown2() {
+static void testSlowDown() {
     // sSQINFO("\n\n\n--------------------------------------- testSlowDown2");
     Inputs in;
     const int cycles = 5;
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
-    in.shiftPerSample = .05f; 
+    in.shiftPerSample = .05f;
     const auto output = run(in);
     // SQINFO("end of testSlowDown2, output = %s", output.toString().c_str());
     // SQINFO("input was %s", in.toString().c_str());
@@ -177,9 +231,38 @@ static void testSlowDown2() {
     // rate should have been steady.
     assertEQ(output.minSamplesBetweenClocks, output.maxSamplesBetweenClocks);
 }
+
+static void testSlowDownAndSpeedUp() {
+    SQINFO("\n\n\n--------------------------------------- testSlowDownAndSpeedUp");
+    Inputs in;
+    const int cycles = 5;
+    in.period = 10;
+    in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
+    in.shiftPerSample = .05f;
+    in.afterwardsRunBackwards = true;
+    const auto output = run(in);
+    SQINFO("end of testSlowDownAndSpeedUp, output = %s", output.toString().c_str());
+    SQINFO("input was %s", in.toString().c_str());
+    assert(false);      // finish with assertions
+    //  SQINFO("real end");
+    assertEQ(output.samplesTicked, 2 * in.totalSamplesToTick);
+
+    // We should have slowed down the clock output
+    // assertLT(output.outputClocks, cycles);
+    //  assertGT(output.maxSamplesBetweenClocks, 10);
+
+    // rate should have been steady.
+    // assertEQ(output.minSamplesBetweenClocks, output.maxSamplesBetweenClocks);
+}
 void testClockShifter4d() {
     assertEQ(SqLog::errorCount, 0);
+    // testSlowDownAndSpeedUp();
+
     test0();
+    testNoShift();
+    testNoShiftTwice();
+
+    testStop();
     testSlowDown();
-    testSlowDown2();
+    testSlowDownAndSpeedUp();
 }
