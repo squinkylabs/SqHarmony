@@ -5,7 +5,7 @@
 #include <memory>
 
 static int clockItLow(std::shared_ptr<ClockShifter4> shifter, int count) {
-    SQINFO("clock it low %d", count);
+    //SQINFO("clock it low %d", count);
     int clocksSeen = 0;
     for (int i = 0; i < count; ++i) {
         const bool b = shifter->process(false, false);

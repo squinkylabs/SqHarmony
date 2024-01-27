@@ -59,6 +59,7 @@ extern void testRawChordGenerator();
 extern void testChord4();
 extern void testNumberFormatter();
 extern void testTwister();
+extern void testClockShifter5();
 
 #include "SqLog.h"
 
@@ -93,6 +94,8 @@ int main(const char**, int) {
     testShiftCalc();
     testClockShifter3();
     testClockShifter4();
+    testClockShifter5();
+
     testClockShifter4b();
     testClockShifter4c();
     testClockShifter4d();
