@@ -2,6 +2,7 @@
 #pragma once
 
 #include "rack.hpp"
+#include "plugin.hpp"
 
 // This is an interface that clients need to implement.
 class Dirty {
@@ -15,7 +16,6 @@ public:
     ~BufferingParent() {
         assert(_ownsChild);
         --_refCount;
-        // INFO("BufferingParent dtor, will be %d", _refCount);
     }
     /**
      * @brief Construct a new Buffering Parent object
@@ -26,7 +26,6 @@ public:
      */
     BufferingParent(T *childWidget, const Vec size, Dirty *dd) {
         this->box.size = size;
-        INFO("ctor of buffering parent, size = %f,%f", size.x, size.y);
         childWidget->box.size = size;
         _theWrappedChild = childWidget;
         _frameBufferWidget = new FramebufferWidget();
@@ -34,7 +33,6 @@ public:
         _frameBufferWidget->addChild(childWidget);
         _dirtyDetector = dd;
         ++_refCount;
-        // INFO("BufferingParent ctor, now are %d", _refCount);
     }
 
     T *getChild() {
@@ -42,11 +40,9 @@ public:
     }
 
     void step() override {
-        //   SQINFO("BufferingParent::step. this=%p", this);
         Widget::step();
         if (_dirtyDetector && _dirtyDetector->isDirty()) {
             _frameBufferWidget->dirty = true;
-            // SQINFO("BP set dirty true 46");
         }
     }
 

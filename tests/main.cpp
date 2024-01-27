@@ -1,6 +1,6 @@
 
+#include <assert.h>
 #include <stdio.h>
-
 #include <cstdlib>
 extern void testHarmonyNote();
 extern void testScaleRelativeNote();
@@ -39,10 +39,13 @@ extern void testFreqMeasure2();
 extern void testResettablePhaseAccumulator();
 extern void testOneShot();
 extern void testPhasePatterns();
+extern void testPhasePatternsPoly();
 extern void testOneShotSampleTimer();
 extern void testClockShifter3();
 extern void testClockShifter4();
 extern void testClockShifter4b();
+extern void testClockShifter4c();
+extern void testClockShifter4d();
 extern void testShiftMath();
 extern void testSchmidtTrigger();
 extern void testShiftCalc();
@@ -54,6 +57,10 @@ extern void testHarmonyChords2023();
 extern void testPitchKnowledge();
 extern void testRawChordGenerator();
 extern void testChord4();
+extern void testNumberFormatter();
+extern void testTwister();
+
+#include "SqLog.h"
 
 #ifdef _DEBUG
 const bool doLongRunning = false;
@@ -70,8 +77,13 @@ int main(const char**, int) {
     // testRawChordGenerator();
     // testAllChords(doLongRunning);
     // printf("put the early tests back\n");
+    printf("running 4b first for temp debug\n");
+    assert(SqLog::errorCount == 0);
+    testClockShifter4d();
 
+    testTwister();
     testSchmidtTrigger();
+    testNumberFormatter();
     testShiftMath();
     testOneShot();
     testOneShotSampleTimer();
@@ -82,12 +94,15 @@ int main(const char**, int) {
     testClockShifter3();
     testClockShifter4();
     testClockShifter4b();
+    testClockShifter4c();
+    testClockShifter4d();
     testPhasePatterns();
+    testPhasePatternsPoly();
     testClockMult();
     testMultiplier();
     testRatchet();
-    // printf("XX: leaving early for clock stuff");
-    // std::exit(0);
+    printf("XX: leaving early for clock stuff");
+    std::exit(0);
     testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();

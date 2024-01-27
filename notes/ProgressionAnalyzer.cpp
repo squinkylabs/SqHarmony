@@ -47,7 +47,7 @@ public:
     ~DebugStringAccumulator() {
         if (_shouldShow) {
             const std::string s = str.str();
-            SQINFO("::: Will now output penalty string len %lld", s.length());
+            SQINFO("::: Will now output penalty string len %u", unsigned(s.length()));
             SQINFO("%s", s.c_str());
             SQINFO(" ::: end :::");
         }

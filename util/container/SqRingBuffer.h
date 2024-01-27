@@ -43,14 +43,6 @@ public:
     void _dump();
 
 private:
-#if 0
-    // this constructor does not try to initialize
-    SqRingBuffer(bool b)
-    {
-        assert(!b);
-    }
-#endif
-
     T memory[SIZE];
     bool couldBeFull = false;  // full and empty are ambiguous, both are in--out
     int inIndex = 0;

@@ -1,11 +1,5 @@
 #pragma once
-
-//#include "SqMath.h"
 #include "asserts.h"
-
-//#include <simd/Vector.hpp>
-//#include <simd/functions.hpp>
-
 
 using float_4 = rack::simd::float_4;
 using int32_4 = rack::simd::int32_4;

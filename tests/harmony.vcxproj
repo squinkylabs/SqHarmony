@@ -29,14 +29,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>true</EnableASAN>
@@ -44,14 +44,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>false</EnableASAN>
+    <EnableASAN>true</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
@@ -182,6 +182,8 @@
     <ClCompile Include="testClockShifter3.cpp" />
     <ClCompile Include="testClockShifter4.cpp" />
     <ClCompile Include="testClockShifter4b.cpp" />
+    <ClCompile Include="testClockShifter4c.cpp" />
+    <ClCompile Include="testClockShifter4d.cpp" />
     <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testFreqMeasure2.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
@@ -194,9 +196,11 @@
     <ClCompile Include="testChordRelativeNote.cpp" />
     <ClCompile Include="testHarmonyComposite.cpp" />
     <ClCompile Include="testKeysig.cpp" />
+    <ClCompile Include="testNumberFormatter.cpp" />
     <ClCompile Include="testOneShot.cpp" />
     <ClCompile Include="testOneShotSampleTimer.cpp" />
     <ClCompile Include="testPhasePatterns.cpp" />
+    <ClCompile Include="testPhasePatternsPoly.cpp" />
     <ClCompile Include="testPitchKnowledge.cpp" />
     <ClCompile Include="testProgressions.cpp" />
     <ClCompile Include="testRatchet.cpp" />
@@ -218,6 +222,7 @@
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testTempo.cpp" />
+    <ClCompile Include="testTwister.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\composites\Harmony.h" />

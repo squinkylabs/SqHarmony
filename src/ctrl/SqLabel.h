@@ -4,9 +4,7 @@
 #include <algorithm>
 #include <string>
 
-// or should we just include rack.hpp?
-#include <nanovg.h>
-
+#include "plugin.hpp"
 #include "BufferingParent.h"
 
 class SqLabel : public widget::Widget, public Dirty {

@@ -180,7 +180,7 @@ void testRand(const Options& options) {
 
 static void testValid() {
     auto options = makeOptions(false);
-  //  options.style->setSpecialTestMode(dx);
+    //  options.style->setSpecialTestMode(dx);
     Chord4Manager mgr(options);
     if (!mgr.isValid()) {
         SQINFO("make manager failed in testValid");
@@ -199,12 +199,12 @@ static void testValid() {
     }
 }
 
-//static void testValid() {
-//    testValid(8);  // this is the magic bad number
-//    for (int i = 0; i < 10; ++i) {
-//        testValid(i);
-//    }
-//}
+// static void testValid() {
+//     testValid(8);  // this is the magic bad number
+//     for (int i = 0; i < 10; ++i) {
+//         testValid(i);
+//     }
+// }
 
 static void testRand(int root, Scale::Scales scale) {
     auto options = makeOptions(root, scale);

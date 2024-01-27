@@ -41,7 +41,12 @@ static void logVa(Level level, const char* filename, int line, const char* forma
     fflush(outputFile);
 }
 
+int errorCount = 0;
+
 void log(Level level, const char* filename, int line, const char* format, ...) {
+    if (level > INFO_LEVEL) {
+        errorCount++;
+    }
     va_list args;
     va_start(args, format);
     logVa(level, filename, line, format, args);

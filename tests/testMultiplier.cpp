@@ -1,9 +1,9 @@
 
+#include <memory>
+
 #include "Multiplier.h"
 #include "TestComposite.h"
-
 #include "asserts.h"
-#include <memory>
 
 using Comp = Multiplier<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
@@ -55,7 +55,7 @@ static void testOneShot() {
     assertEQ(x, 1);
 
     auto args = TestComposite::ProcessArgs();
-    args.sampleTime = .0001;        // tenth of a milliseconds
+    args.sampleTime = .0001;  // tenth of a milliseconds
 
     // now clock low and see how long the output it
     int measuredDuration = 0;
@@ -74,6 +74,6 @@ static void testOneShot() {
 
 void testMultiplier() {
     test0();
-   // testSomeOutput(); this fails now ???
- //   testOneShot();
+    // testSomeOutput(); this fails now ???
+    //   testOneShot();
 }

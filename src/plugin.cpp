@@ -16,4 +16,7 @@ void init(rack::Plugin* p) {
 #ifdef _MULT
     p->addModel(modelMult);
 #endif
+#ifdef _LFN
+    p->addModel(modelLFN2);
+#endif
 }

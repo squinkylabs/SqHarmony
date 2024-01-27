@@ -11,7 +11,7 @@
  */
 class ClockShifter3 {
 public:
-    friend class ClockShifter3Test;
+    friend class TestX;
     ClockShifter3();
     bool run(bool input);
   

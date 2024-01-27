@@ -8,7 +8,7 @@ static void testCanCall() {
     c.run(2);
 }
 
-class ClockShifter3Test {
+class TestX {
 private:
     // clocks high once, then low
     static void clockIt(ClockShifter3& c, int cyclesLow) {
@@ -179,10 +179,10 @@ public:
 void testClockShifter3() {
     testCanCall();
     // TODO: test Counters needs to prime the clock
-    ClockShifter3Test::testInit();
-    ClockShifter3Test::testCounters();
-    ClockShifter3Test::testSetShift();
-    ClockShifter3Test::testFreqMeasure();
-    ClockShifter3Test::testDelay();
-    ClockShifter3Test::testServiceDelay();
+    TestX::testInit();
+    TestX::testCounters();
+    TestX::testSetShift();
+    TestX::testFreqMeasure();
+    TestX::testDelay();
+    TestX::testServiceDelay();
 }

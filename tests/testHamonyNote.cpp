@@ -8,7 +8,7 @@ static StylePtr makeStyle() {
 }
 
 static KeysigOldPtr makeKeysig(bool minor) {
-    auto ret =  std::make_shared<KeysigOld>(Roots::C);
+    auto ret = std::make_shared<KeysigOld>(Roots::C);
     if (minor) {
         ret->set(MidiNote::C, Scale::Scales::Minor);
     }

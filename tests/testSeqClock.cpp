@@ -75,7 +75,6 @@ static void testClockExtEdge() {
         results = ck.updateMulti(55, 10, true, 0);  // low clock
 
         assert(!results.didClock);
-        // assertEQ(results.totalElapsedTime, metricTimePerClock);
     }
 
     // low more
@@ -83,7 +82,6 @@ static void testClockExtEdge() {
         results = ck.updateMulti(55, 0, true, 0);  // low clock
 
         assert(!results.didClock);
-        // assertEQ(results.totalElapsedTime, metricTimePerClock);
     }
 
     // then high some more
@@ -95,7 +93,6 @@ static void testClockExtEdge() {
             oneMoreClock = true;
         }
 
-        // assertEQ(results.totalElapsedTime, 2 * metricTimePerClock);
     }
     assert(oneMoreClock);
 }
@@ -234,8 +231,7 @@ static void testResetIgnoreClock(bool holdClockHigh) {
         // this clock should NOT be ignored
         results = ck.updateMulti(sampleRateI, 10, true, 0);
         assert(results.didClock);  // first clock after reset advance to start
-    }
-    else {
+    } else {
         // coming into here, we ignored the low to high clock transition.
         // not let's hold it high - should still ignore
         for (int i = 0; i < 2 * errorMargin; ++i) {
@@ -246,9 +242,8 @@ static void testResetIgnoreClock(bool holdClockHigh) {
         // now real low to high
         results = ck.updateOnce(0, true, 0);
         assert(!results.didClock);
-         results = ck.updateOnce(10, true, 0);
+        results = ck.updateOnce(10, true, 0);
         assert(results.didClock);
-        
     }
 }
 
@@ -323,8 +318,8 @@ static void testRunGeneratesClock() {
     assert(results.didClock);
 }
 
-#if 0   // I don't think this test is valid. We don't want this behavior
-        // 2/15/22
+#if 0  // I don't think this test is valid. We don't want this behavior
+       // 2/15/22
 template <typename TClock>
 static void testResetRetriggersClock() {
     const int sampleRateI = 44100;
@@ -493,9 +488,8 @@ static void testResetGoesAway(bool nordMode) {
     assert(!results.didClock);
 
     //  ClockResults updateMulti(int samplesElapsed, float externalClock, bool runStop, float reset);
-    
-    if (!nordMode) {
 
+    if (!nordMode) {
         // now reset low to high - request reset
         results = ck.updateOnce(0, true, 10);
         assert(results.didReset);
@@ -510,8 +504,7 @@ static void testResetGoesAway(bool nordMode) {
         results = ck.updateOnce(0, true, 0);
         assert(!results.didReset);
         assert(!results.didClock);
-    }
-    else {
+    } else {
         // now reset low to high - request reset
         results = ck.updateOnce(0, true, 10);
         assert(!results.didReset);
@@ -520,7 +513,7 @@ static void testResetGoesAway(bool nordMode) {
         // now clock it in
         results = ck.updateOnce(10, true, 10);
         assert(results.didReset);
-       // assert(!results.didClock);
+        // assert(!results.didClock);
 
         // second time
         results = ck.updateOnce(10, true, 10);
@@ -529,17 +522,15 @@ static void testResetGoesAway(bool nordMode) {
 
     // now keep reset low - should have no more
     // bug was making more resets come out here.
-    for (int i=0; i<100; ++i) {
+    for (int i = 0; i < 100; ++i) {
         // clock high
         results = ck.updateOnce(10, true, 0);
         assert(!results.didReset);
-         // clock low
+        // clock low
         results = ck.updateOnce(0, true, 0);
         assert(!results.didReset);
-
     }
 }
-
 
 template <typename T>
 void testSeqClock2() {
@@ -549,7 +540,7 @@ void testSeqClock2() {
     testResetIgnoreClock<T>(true);
     testNoNoteAfterReset<T>();
     testRunGeneratesClock<T>();
-  //  testResetRetriggersClock<T>();
+    //  testResetRetriggersClock<T>();
 }
 
 void testSeqClock() {

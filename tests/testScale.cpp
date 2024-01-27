@@ -1,9 +1,8 @@
 #include "FloatNote.h"
 #include "NoteConvert.h"
 #include "Scale.h"
-#include "asserts.h"
-
 #include "SqLog.h"
+#include "asserts.h"
 
 static void testCMaj() {
     Scale scale;
@@ -18,30 +17,24 @@ static void testCMaj() {
 }
 
 static void testNoCrash(const Scale& scale) {
-    for (int i=0; i<11; ++i) {
+    for (int i = 0; i < 11; ++i) {
         const int x = scale.quantize(i);
         assertGE(x, 0);
         assertLE(x, 7);
-      //  assertGE(x, i-1);
-       // assertLE(x, i+1);
     }
 }
 
 static void testGeneral() {
-    for (int root = 0; root<12; ++root) {
+    for (int root = 0; root < 12; ++root) {
         for (int mode = 0; mode <= int(Scale::Scales::Chromatic); ++mode) {
             Scale scale;
             Scale::Scales emode = Scale::Scales(mode);
             scale.set(root, emode);
             for (int testPitch = 0; testPitch < 12; testPitch++) {
-                 const int x = scale.quantize(testPitch);
-
+                const int x = scale.quantize(testPitch);
             }
         }
     }
-    //Scale scale;
-   // scale.set(0, Scale::Scales::Lydian);
-   // testNoCrash(scale);
 }
 
 static void testAMin() {
@@ -141,7 +134,6 @@ static void testm2sCMajC3() {
     Scale scale;
     scale.set(MidiNote::C, Scale::Scales::Major);
 
-
     MidiNote c(MidiNote::C3);
     ScaleNote sn = scale.m2s(c);
     assertEQ(sn.getDegree(), 0);
@@ -194,38 +186,38 @@ static void tests2mCMajC5() {
 }
 
 static void validate(const Scale::ScoreInfo& info) {
-   for (int i = 0; i < info.numSharps; ++i) {
-       assert(info.sharpsInBassClef);
-       assert(info.sharpsInTrebleClef);
+    for (int i = 0; i < info.numSharps; ++i) {
+        assert(info.sharpsInBassClef);
+        assert(info.sharpsInTrebleClef);
 
-       int t = info.sharpsInTrebleClef[i].get();
-       int b = info.sharpsInBassClef[i].get();
-       assertGT(t, MidiNote::MiddleC + 4);
-       assertLT(t, MidiNote::MiddleC + 20);
+        int t = info.sharpsInTrebleClef[i].get();
+        int b = info.sharpsInBassClef[i].get();
+        assertGT(t, MidiNote::MiddleC + 4);
+        assertLT(t, MidiNote::MiddleC + 20);
 
-       assertGE(b, MidiNote::MiddleC - (12 + 5));
-       assertLE(b, MidiNote::MiddleC - 3);
-   }
+        assertGE(b, MidiNote::MiddleC - (12 + 5));
+        assertLE(b, MidiNote::MiddleC - 3);
+    }
 
     for (int i = 0; i < info.numFlats; ++i) {
-       assert(info.flatsInBassClef);
-       assert(info.flatsInTrebleClef);
+        assert(info.flatsInBassClef);
+        assert(info.flatsInTrebleClef);
 
-       int t = info.flatsInTrebleClef[i].get();
-       int b = info.flatsInBassClef[i].get();
-       assertGT(t, MidiNote::MiddleC);
-       assertLT(t, MidiNote::MiddleC + 19);
+        int t = info.flatsInTrebleClef[i].get();
+        int b = info.flatsInBassClef[i].get();
+        assertGT(t, MidiNote::MiddleC);
+        assertLT(t, MidiNote::MiddleC + 19);
 
-       assertGE(b, MidiNote::MiddleC - (12 + 5));
-       assertLE(b, MidiNote::MiddleC - 3);
-   }
+        assertGE(b, MidiNote::MiddleC - (12 + 5));
+        assertLE(b, MidiNote::MiddleC - 3);
+    }
 }
 
 static void validate(const Scale::ScoreInfo& info, int expectedSharps, int expectedFlats) {
-    //assert(expectedFlats==0 || expectedSharps==0);
+    // assert(expectedFlats==0 || expectedSharps==0);
     assertEQ(info.numFlats, expectedFlats);
     assertEQ(info.numSharps, expectedSharps);
-    validate(info);    
+    validate(info);
 }
 
 static void testScore() {
@@ -256,7 +248,7 @@ static void testScore2() {
     assertEQ(info.numSharps, 0);
     validate(info);
 
-    // C Min is the relative minor 
+    // C Min is the relative minor
     scale.set(MidiNote::C, Scale::Scales::Minor);
     info = scale.getScoreInfo();
     assertEQ(info.numFlats, 3);
@@ -315,7 +307,6 @@ static void testScore3() {
     scale.set(MidiNote::C + 1, Scale::Scales::Locrian);
     validate(scale.getScoreInfo(), 2, 0);
 
-  
     scale.set(MidiNote::A, Scale::Scales::Major);
     validate(scale.getScoreInfo(), 3, 0);
 
@@ -330,7 +321,7 @@ static void testScore3() {
     validate(scale.getScoreInfo(), 6, 6);
 
     // c# major / d- major
-    scale.set(MidiNote::C +1, Scale::Scales::Major);
+    scale.set(MidiNote::C + 1, Scale::Scales::Major);
     validate(scale.getScoreInfo(), 7, 5);
 
     // one flat
@@ -361,7 +352,6 @@ static void testScore3() {
     scale.set(MidiNote::C + 12 - 1, Scale::Scales::Major);
     validate(scale.getScoreInfo(), 5, 7);
 }
-
 
 void testScale() {
     testCMaj();

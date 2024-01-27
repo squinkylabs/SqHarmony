@@ -37,7 +37,6 @@ static void testSimpleAccess2() {
     assert(rb.empty());
 }
 
-
 template <typename TRingBufer>
 static void testMultiAccess() {
     TRingBufer rb(false);
@@ -329,7 +328,7 @@ static void testAtomicRingBufferFull() {
     assert(!rb.full());
     assert(!rb.empty());
 
-     for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i) {
         int x = rb.pop();
         assertEQ(x, i);
     }
@@ -346,8 +345,6 @@ static void testAtomicRingBufferFull() {
         assertEQ(x, i + 100);
     }
     assert(rb.empty());
-
-
 }
 
 void testRingBuffer() {

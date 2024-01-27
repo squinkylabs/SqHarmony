@@ -69,7 +69,7 @@ static void testHold() {
 }
 
 static void testMeasurePeriod1() {
-    //SQINFO("inter testMeasurePeriod1");
+    // SQINFO("inter testMeasurePeriod1");
     FreqMeasure2 x;
     x.process(true, true);
     x.process(false, true);
@@ -79,7 +79,7 @@ static void testMeasurePeriod1() {
     x.process(true, true);
     assert(x.freqValid());
     assertEQ(x.getPeriod(), 5);
-    //SQINFO("measured %d", x.getPeriod());
+    // SQINFO("measured %d", x.getPeriod());
     assertEQ(x.getHighDuration(), 3);
 }
 

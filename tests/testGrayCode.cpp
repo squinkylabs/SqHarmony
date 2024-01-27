@@ -107,7 +107,7 @@ static void testShortestRun27() {
      0 0 1 0 hex=2
      */
     std::vector<uint16_t> x;
-  
+
     // when this zero is in, we fail
     x.push_back(0x0);
     x.push_back(0x1);
@@ -121,17 +121,16 @@ static void testShortestRun27() {
     x.push_back(0x1);
     x.push_back(0x0);
     x.push_back(0x0);
- //   x.push_back(0x0);
- //   x.push_back(0x0);
-   // x.push_back(0x0);
+    //   x.push_back(0x0);
+    //   x.push_back(0x0);
+    // x.push_back(0x0);
 
     GcUtils::dumpBinary(1, x);
     printf("done dump init\n");
     auto y = GcUtils::getShortestRun(1, x);
-    //auto y = GcUtils::getShortestRun(4, x);
+    // auto y = GcUtils::getShortestRun(4, x);
     assert(y == 2);
 }
-
 
 static void testShortestRun3() {
     printf("--- xstart testShortestRun30\n");
@@ -154,7 +153,6 @@ static void testShortestRun3() {
      0 0 1 0 hex=2
      */
     std::vector<uint16_t> x;
-  
 
     x.push_back(0x0);
     x.push_back(0x1);
@@ -175,7 +173,7 @@ static void testShortestRun3() {
     GcUtils::dumpBinary(1, x);
     printf("done dump init\n");
     auto y = GcUtils::getShortestRun(1, x);
-    //auto y = GcUtils::getShortestRun(4, x);
+    // auto y = GcUtils::getShortestRun(4, x);
     assert(y == 2);
 }
 
