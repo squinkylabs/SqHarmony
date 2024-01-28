@@ -25,7 +25,6 @@ private:
      * @brief true if a clock has been output in the current cycle.
      */
     bool _haveClocked = false;
-  //  float _shift;
 
     bool arePastDelay(float candidateDelay) const;
 };
@@ -52,11 +51,10 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
         _phaseAccumulator = 0;
         _haveClocked = false;
     }
-    const float targetClockf = float(_freqMeasure.getPeriod()) * shift;
-    const int targetClock = int(targetClockf);
 
     _phaseAccumulator++;
-    if (!_haveClocked && (_phaseAccumulator > targetClock)) {
+    const bool _arePastDelay = arePastDelay(shift);
+    if (!_haveClocked && _arePastDelay) {
         ret = true;
         _haveClocked = true;
     }
