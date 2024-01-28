@@ -37,8 +37,11 @@ static bool prime(std::shared_ptr<ClockShifter5> shifter, int totalPeriod, float
 
 static std::shared_ptr<ClockShifter5> makeAndPrime(int totalPeriod, float shift = 0) {
     std::shared_ptr<ClockShifter5> shifter = std::make_shared<ClockShifter5>();
-  //  shifter->setShift(shift);
-    prime(shifter, totalPeriod, shift);
+    const bool b = prime(shifter, totalPeriod, shift);
+
+    const bool expectClock = (shift == 0);
+    assert(b == expectClock);   // if you want to test other cases, then
+                                // use makeAndPrime2. will clock when shift is zero;
     return shifter;
 }
 

@@ -22,17 +22,13 @@ private:
      * @brief true if a clock has been output in the current cycle.
      */
     bool _haveClocked = false;
-    float _shift;
+  //  float _shift;
 };
 
 inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
-    if (shift != 0) {
-        SQINFO("Ignoring shift");
-    }
-    if (trigger != false || (clock != false)) {
-        SQINFO("Ignoring clock");
-    }
-
+    assert(shift >= 0);
+    assert(shift <= 1);
+    
     const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
@@ -45,11 +41,11 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
         _phaseAccumulator = 0;
         _haveClocked = false;
     }
-    const float targetClockf = float(_freqMeasure.getPeriod()) * _shift;
+    const float targetClockf = float(_freqMeasure.getPeriod()) * shift;
     const int targetClock = int(targetClockf);
 
     _phaseAccumulator++;
-    if (!_haveClocked && (_phaseAccumulator >= targetClock)) {
+    if (!_haveClocked && (_phaseAccumulator > targetClock)) {
         ret = true;
         _haveClocked = true;
     }

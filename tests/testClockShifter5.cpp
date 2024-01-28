@@ -21,7 +21,7 @@ static void testInputValid() {
 static void testStraightThrough() {
     auto primeResult = makeAndPrime2(8);
     auto shifter = primeResult.shifter;
-    assertEQ(primeResult.clocked, true);        // Since no shift, should get a clock during prime.
+    assertEQ(primeResult.clocked, true);  // Since no shift, should get a clock during prime.
     bool b = shifter->process(false, false, 0);
     assert(!b);
     b = shifter->process(false, false, 0);
@@ -31,10 +31,9 @@ static void testStraightThrough() {
 
     b = shifter->process(false, false, 0);
     assert(!b);
-     b = shifter->process(false, false, 0);
+    b = shifter->process(false, false, 0);
     assert(!b);
 }
-
 
 static void testStraightThrough3() {
     auto shifter = makeAndPrime(8);
@@ -70,32 +69,62 @@ static void testStraightThrough2() {
     b = shifter->process(false, false, 0);
     assertEQ(b, false);
 }
-#if 0
+
+static void testDelay10(float shift) {
+    SQINFO("testDelay10 %f", shift);
+    const int period = 10;
+    auto shifter = makeAndPrime(period, shift);
+
+    const int initialQuietPeriod = int(shift * period) - 1;
+    assert(initialQuietPeriod >= 0);
+    for (int i = 0; i < initialQuietPeriod; ++i) {
+        const bool b = shifter->process(false, false, shift);
+        assertEQ(b, false);
+    }
+    // now on our turn we should clock.
+    const bool b = shifter->process(false, false, shift);
+    assertEQ(b, true);
+
+    {
+        const bool b = shifter->process(false, false, shift);
+        assertEQ(b, false);
+    }
+}
+
+static void testDelay10() {
+    for (int i= 1; i<10; ++i) {
+        const float shift = float(i) / 10.f;
+        testDelay10(shift);
+    }
+}
 
 static void testHalfCycleDelay() {
     // 8 periods, just at start
-    auto shifter = makeAndPrime(8);
-    shifter->setShift(.5);
+    const float shift = .5;
+    auto shifter = makeAndPrime(8, shift);
+    //  shifter->setShift(.5);
 
     // 1
-    bool b = shifter->process(false, false);
+    bool b = shifter->process(false, false, shift);
     assertEQ(b, false);
     // 2
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, shift);
     assertEQ(b, false);
     // 3
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, shift);
     assertEQ(b, false);
 
     // 4
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, shift);
     assertEQ(b, true);
     // assertEQ(b, false);
 
     // 5
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, shift);
     assertEQ(b, false);
 }
+
+#if 0
 
 static void testHalfCycleDelay2() {
     // 8 periods, just at start
@@ -455,7 +484,7 @@ public:
         assertEQ(shifter->_freqMeasure.getPeriod(), 13);
     }
 
-     static void testMakeAndPrime2() {
+    static void testMakeAndPrime2() {
         const int period = 13;
         auto primeResult = makeAndPrime2(period);
         assertEQ(primeResult.clocked, true);
@@ -465,29 +494,32 @@ public:
     }
 
 #if 0
-    static void testHalfCycleDelay() {
+    static void testHalfCycleDelayold() {
         // 8 periods, just at start
-        auto shifter = makeAndPrime(8);
-        shifter->setShift(.5);
+       auto shifter = makeAndPrime(8);
+
+        const float shift = .5;
+       // shifter->setShift(.5);
 
         // 1
-        bool b = shifter->process(false, false);
+        bool b = shifter->process(false, false, shift);
         assertEQ(b, false);
         // 2
-        b = shifter->process(false, false);
+        b = shifter->process(false, false, shift);
         assertEQ(b, false);
         // 3
-        b = shifter->process(false, false);
+        b = shifter->process(false, false, shift);
         assertEQ(b, false);
 
         // 4
-        b = shifter->process(false, false);
+        b = shifter->process(false, false, shift);
         assertEQ(b, true);
 
         // 5
-        b = shifter->process(false, false);
+        b = shifter->process(false, false, shift);
         assertEQ(b, false);
     }
+
 
     static void testGetNormalizedPosition() {
         auto shifter = makeAndPrime(10, 0);
@@ -519,10 +551,11 @@ void testClockShifter5() {
 
     testStraightThrough();
     testStraightThrough2();
-    // testStraightThrough3();
-    // testInputValid();
+    testStraightThrough3();
+    testInputValid();
 
-    // testHalfCycleDelay();
+    testDelay10();
+    testHalfCycleDelay();
     // testHalfCycleDelay2();
     // testClockIt();
     // testDelay();
