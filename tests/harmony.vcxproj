@@ -185,6 +185,7 @@
     <ClCompile Include="testClockShifter4c.cpp" />
     <ClCompile Include="testClockShifter4d.cpp" />
     <ClCompile Include="testClockShifter5.cpp" />
+    <ClCompile Include="testClockShifter5b.cpp" />
     <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testFreqMeasure2.cpp" />
     <ClCompile Include="testGrayCode.cpp" />

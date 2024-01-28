@@ -231,16 +231,17 @@ static void testSetDelayMidCycle() {
 static void testIncreaseDelayMidCycle() {
     // start with period 12, shift .5
     const int period = 12;
+    float shift = .5;
     auto shifter = makeAndPrime(period, .5);
     // At this point we have put in trigger + 11 cycles no trigger + trigger
     int clocksGenerated = 0;
-    clocksGenerated += clockItLow(shifter, 5, 0);  // take almost to trigger.
+    clocksGenerated += clockItLow(shifter, 5, shift);  // take almost to trigger.
     assertEQ(clocksGenerated, 0);
-    clocksGenerated += shifter->process(false, false, 0) ? 1 : 0;
+    clocksGenerated += shifter->process(false, false, shift) ? 1 : 0;
     // now we should emit a clock from shift = .5;
     assertEQ(clocksGenerated, 1);
 
-    clocksGenerated += clockItLow(shifter, 5, 0);  // finish out this period
+    clocksGenerated += clockItLow(shifter, 5, shift);  // finish out this period
     assertEQ(clocksGenerated, 1);
 
     // period = 12, have sent 11?
@@ -249,14 +250,14 @@ static void testIncreaseDelayMidCycle() {
 
 
     // now 1 clock gets to 0, next 5 get to 5/12
-    clocksGenerated += clockIt(shifter, 6, 0);  // almost up to next clock
+    clocksGenerated += clockIt(shifter, 6, shift);  // almost up to next clock
     assertEQ(clocksGenerated, 1);
    
     //assertClose(shifter->getNormalizedPosition(), 5.f / 12.f, .0001);
 
   //  SQINFO("now set shift to .6 pos is %f", 5.f / 12.f);
  //   shifter->setShift(.5 + .1);  // Set for small additional delay.
-    const float shift = (.5 + .1);
+    shift = (.5 + .1);
   //  SQINFO("back from set shift");
 
     // With shift still at .5, we would expect a clock here,
@@ -552,10 +553,11 @@ public:
 
 void testClockShifter5() {
     testCanCall();
-    SQINFO("---- implement all the following, from test clock shifter 4");
     TestX::testPeriod();
     TestX::testMakeAndPrime();
     TestX::testMakeAndPrime2();
+
+    // These test don't make sense (yet) for ClockShifter5.
     //     TestX::testGetNormalizedPosition();
     //     TestX::testCalculateShiftOver1();
     //     TestX::testCalculateShiftOver2();
@@ -574,5 +576,5 @@ void testClockShifter5() {
   //  testDelayNeg();
 
     testSetDelayMidCycle();
-    // testIncreaseDelayMidCycle();
+    testIncreaseDelayMidCycle();
 }
