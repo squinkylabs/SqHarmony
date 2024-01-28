@@ -18,15 +18,21 @@ static void testInputValid() {
     assertEQ(shifter->freqValid(), true);
 }
 
-
 static void testStraightThrough() {
-    auto shifter = makeAndPrime(8);
+    auto primeResult = makeAndPrime2(8);
+    auto shifter = primeResult.shifter;
+    assertEQ(primeResult.clocked, true);        // Since no shift, should get a clock during prime.
     bool b = shifter->process(false, false, 0);
     assert(!b);
     b = shifter->process(false, false, 0);
     assert(!b);
     b = shifter->process(true, true, 0);
     assert(b);
+
+    b = shifter->process(false, false, 0);
+    assert(!b);
+     b = shifter->process(false, false, 0);
+    assert(!b);
 }
 
 #if 0
@@ -447,6 +453,16 @@ public:
         assertEQ(shifter->_freqMeasure.freqValid(), true);
         assertEQ(shifter->_freqMeasure.getPeriod(), 13);
     }
+
+     static void testMakeAndPrime2() {
+        const int period = 13;
+        auto primeResult = makeAndPrime2(period);
+        assertEQ(primeResult.clocked, true);
+        auto shifter = primeResult.shifter;
+        assertEQ(shifter->_freqMeasure.freqValid(), true);
+        assertEQ(shifter->_freqMeasure.getPeriod(), 13);
+    }
+
 #if 0
     static void testHalfCycleDelay() {
         // 8 periods, just at start
@@ -494,6 +510,7 @@ void testClockShifter5() {
     SQINFO("---- implement all the following, from test clock shifter 4");
     TestX::testPeriod();
     TestX::testMakeAndPrime();
+    TestX::testMakeAndPrime2();
     //     TestX::testGetNormalizedPosition();
     //     TestX::testCalculateShiftOver1();
     //     TestX::testCalculateShiftOver2();
