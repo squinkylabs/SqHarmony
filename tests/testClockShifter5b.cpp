@@ -151,7 +151,7 @@ static void testCase3() {
     assert(b);
 }
 
-#if 0
+
 
 // Case 5. Shift "wraps" around zero, but current pos is well away.
 // shift starts at .9 current position goes to .5, then shift goes to .1
@@ -160,26 +160,30 @@ static void testCase3() {
 // shift value  --.9   .1-.----
 // exp out      ----------.x----
 static void testCase5() {
-    auto shifter = makeAndPrime(testPeriod, .9);
-    bool b = clockItLow(shifter, 5);  // Should take us to middle, to 5.
+    float shift = .9;
+    auto shifter = makeAndPrime(testPeriod, shift);
+    bool b = clockItLow(shifter, 5, shift);  // Should take us to middle, to 5.
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .5, .0001);
+  //  assertClose(shifter->getNormalizedPosition(), .5, .0001);
 
     // Mow move the shift and clock low to near end. should not change things for us
-    shifter->setShift(.1);
-    b = clockItLow(shifter, 4);
+   // shifter->setShift(.1);
+    shift = .1;
+    b = clockItLow(shifter, 4, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .9, .0001);
+  //  assertClose(shifter->getNormalizedPosition(), .9, .0001);
 
     // this clock won't tick, but will turn us over
-    b = shifter->process(true, true);
+    b = shifter->process(true, true, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), 0.f, .0001);
+  //  assertClose(shifter->getNormalizedPosition(), 0.f, .0001);
 
     // shift is .1, so one more sample should do it.
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
 }
+
+#if 0
 
 // Case 6a. Shift "wraps" around zero, crossing current pos. pos still in first half.
 // shift starts at .8 current position goes to .9, then shift goes to .1
@@ -330,7 +334,7 @@ void testClockShifter5b() {
     testCase1();
     testCase2();
     testCase3();
-    // testCase5();
+    testCase5();
     // testCase6a();
     // testCase6b();
     // testCase7a();
