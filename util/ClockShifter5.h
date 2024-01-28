@@ -36,7 +36,6 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
     const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
-        // SQINFO("input freq not settled, not processing");
         return false;
     }
 
@@ -51,9 +50,15 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
 
     _phaseAccumulator++;
     if (!_haveClocked && (_phaseAccumulator >= targetClock)) {
-        SQINFO("crossed target");
         ret = true;
         _haveClocked = true;
+    }
+
+    if (ret) {
+        _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
+    } else {
+        _clockWidthGenerator.run();
+        ret = _clockWidthGenerator.isRunning();
     }
 
     return ret;

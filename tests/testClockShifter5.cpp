@@ -35,41 +35,42 @@ static void testStraightThrough() {
     assert(!b);
 }
 
-#if 0
+
 static void testStraightThrough3() {
     auto shifter = makeAndPrime(8);
     for (int i = 0; i < 7; ++i) {
-        bool b = shifter->process(false, false);
+        bool b = shifter->process(false, false, 0);
         assert(!b);
     }
 
-    const bool b = shifter->process(true, true);
+    const bool b = shifter->process(true, true, 0);
     assert(b);
 }
 
 static void testStraightThrough2() {
-    auto shifter = std::make_shared<ClockShifter4>();
+    auto shifter = std::make_shared<ClockShifter5>();
     // Prime for period = 4, 75% duty cycle. no shift
-    shifter->process(true, true);
-    shifter->process(false, true);
-    shifter->process(false, true);
-    shifter->process(false, false);
+    shifter->process(true, true, 0);
+    shifter->process(false, true, 0);
+    shifter->process(false, true, 0);
+    shifter->process(false, false, 0);
     // first clock
-    bool b = shifter->process(true, true);
+    bool b = shifter->process(true, true, 0);
     assertEQ(b, true);
 
     // second clock
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, 0);
     assertEQ(b, true);
 
     // third clock
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, 0);
     assertEQ(b, true);
 
     // fourth clock
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, 0);
     assertEQ(b, false);
 }
+#if 0
 
 static void testHalfCycleDelay() {
     // 8 periods, just at start
@@ -517,7 +518,7 @@ void testClockShifter5() {
     //     Tes::testCalculateShiftOver3();
 
     testStraightThrough();
-    // testStraightThrough2();
+    testStraightThrough2();
     // testStraightThrough3();
     // testInputValid();
 
