@@ -1,13 +1,12 @@
 
-#include "SqLog.h"
-
 #include "ClockShifter5.h"
-#include "testShifter5TestUtils.h"
+#include "SqLog.h"
 #include "asserts.h"
+#include "testShifter5TestUtils.h"
 
 static void testCanCall() {
     ClockShifter5 c;
-  //  c.setShift(.5);
+    //  c.setShift(.5);
     c.process(true, true, .5);
     c.freqValid();
 }
@@ -19,18 +18,18 @@ static void testInputValid() {
     assertEQ(shifter->freqValid(), true);
 }
 
-#if 0
+
 static void testStraightThrough() {
     auto shifter = makeAndPrime(8);
-    bool b = shifter->process(false, false);
+    bool b = shifter->process(false, false, 0);
     assert(!b);
-    b = shifter->process(false, false);
+    b = shifter->process(false, false, 0);
     assert(!b);
-    b = shifter->process(true, true);
+    b = shifter->process(true, true, 0);
     assert(b);
 }
 
-
+#if 0
 static void testStraightThrough3() {
     auto shifter = makeAndPrime(8);
     for (int i = 0; i < 7; ++i) {
@@ -290,8 +289,11 @@ static void testDelayNeg() {
     testDelaySub(8, -.25);
 }
 
+#endif
+
 class TestX {
 public:
+#if 0
     static void testCalculateShiftOver1() {
         ClockShifter4::ShiftPossibilities x;
         const int testPeriod = 100;
@@ -325,7 +327,9 @@ public:
         x = shifter->_calculateShiftOver(.47);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverNone);
     }
+#endif
 
+#if 0
     static void testCalculateShiftOver2() {
         const int testPeriod = 100;
         auto shifter = makeAndPrime(testPeriod, .5);
@@ -368,7 +372,9 @@ public:
         x = shifter->_calculateShiftOver(.26);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
     }
+#endif
 
+#if 0
     static void testCalculateShiftOver3() {
         const int testPeriod = 100;
         bool b;
@@ -410,26 +416,27 @@ public:
         x = shifter->_calculateShiftOver(.9);
         assert(x == ClockShifter4::ShiftPossibilities::ShiftOverBackward);
     }
+#endif
 
     static void testPeriod() {
-        auto shifter = std::make_shared<ClockShifter4>();
-        bool b = shifter->process(false, false);
+        auto shifter = std::make_shared<ClockShifter5>();
+        bool b = shifter->process(false, false, 0);
         assertEQ(shifter->_freqMeasure.freqValid(), false);
         assert(!b);
-        b = shifter->process(false, false);
+        b = shifter->process(false, false, 0);
         assertEQ(shifter->_freqMeasure.freqValid(), false);
 
         // first clock
-        b = shifter->process(true, true);
+        b = shifter->process(true, true, 0);
         assertEQ(shifter->_freqMeasure.freqValid(), false);
 
         // four low clocks.
         for (int i = 0; i < 4; ++i) {
-            bool b = shifter->process(false, false);
+            bool b = shifter->process(false, false, 0);
             assertEQ(shifter->_freqMeasure.freqValid(), false);
         }
         // now this clock should make us stable.
-        b = shifter->process(true, true);
+        b = shifter->process(true, true, 0);
         assertEQ(shifter->_freqMeasure.freqValid(), true);
         assertEQ(shifter->_freqMeasure.getPeriod(), 5);
     }
@@ -440,7 +447,7 @@ public:
         assertEQ(shifter->_freqMeasure.freqValid(), true);
         assertEQ(shifter->_freqMeasure.getPeriod(), 13);
     }
-
+#if 0
     static void testHalfCycleDelay() {
         // 8 periods, just at start
         auto shifter = makeAndPrime(8);
@@ -479,20 +486,20 @@ public:
         assertEQ(acc, 7);
         assertClose(shifter->getNormalizedPosition(), .7, .0001);
     }
-};
 #endif
+};
 
 void testClockShifter5() {
     testCanCall();
     SQINFO("---- implement all the following, from test clock shifter 4");
-//    tX TestX::testPeriod();
-//     TestX::testMakeAndPrime();
-//     TestX::testGetNormalizedPosition();
-//     TestX::testCalculateShiftOver1();
-//     TestX::testCalculateShiftOver2();
-//     Tes::testCalculateShiftOver3();
+    TestX::testPeriod();
+    TestX::testMakeAndPrime();
+    //     TestX::testGetNormalizedPosition();
+    //     TestX::testCalculateShiftOver1();
+    //     TestX::testCalculateShiftOver2();
+    //     Tes::testCalculateShiftOver3();
 
-    // testStraightThrough();
+    testStraightThrough();
     // testStraightThrough2();
     // testStraightThrough3();
     // testInputValid();
