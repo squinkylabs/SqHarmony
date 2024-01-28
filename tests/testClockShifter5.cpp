@@ -532,23 +532,37 @@ public:
         b = shifter->process(false, false, shift);
         assertEQ(b, false);
     }
+#endif
 
 
     static void testGetNormalizedPosition() {
+        const float shift = 0;
         auto shifter = makeAndPrime(10, 0);
         auto acc = shifter->_phaseAccumulator;
         assertEQ(acc, 0);
         assertEQ(shifter->getNormalizedPosition(), 0);
-        clockItLow(shifter, 5);
+        clockItLow(shifter, 5, shift);
         acc = shifter->_phaseAccumulator;
         assertEQ(acc, 5);
         assertEQ(shifter->getNormalizedPosition(), .5);
-        clockItLow(shifter, 2);
+        clockItLow(shifter, 2, shift);
         acc = shifter->_phaseAccumulator;
         assertEQ(acc, 7);
         assertClose(shifter->getNormalizedPosition(), .7, .0001);
     }
-#endif
+
+    static void testArePastDelay() {
+        auto shifter = makeAndPrime(10, 0);
+
+        // trivial case, acc = 0, delay.5
+        bool b = shifter->arePastDelay(.5);
+        assertEQ(b, false);
+
+        shifter->_phaseAccumulator = 6;
+        b = shifter->arePastDelay(.5);
+        assertEQ(b, true);
+    }
+
 };
 
 void testClockShifter5() {
@@ -558,10 +572,11 @@ void testClockShifter5() {
     TestX::testMakeAndPrime2();
 
     // These test don't make sense (yet) for ClockShifter5.
-    //     TestX::testGetNormalizedPosition();
+    TestX::testGetNormalizedPosition();
     //     TestX::testCalculateShiftOver1();
     //     TestX::testCalculateShiftOver2();
     //     Tes::testCalculateShiftOver3();
+    TestX::testArePastDelay();
 
     testStraightThrough();
     testStraightThrough2();

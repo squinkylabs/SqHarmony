@@ -9,6 +9,9 @@ public:
     bool process(bool trigger, bool clock, float shift);
     bool freqValid() const;
 
+    // This used to be used internally, now just for test
+    float getNormalizedPosition() const;
+
 private:
     FreqMeasure2 _freqMeasure;
     OneShotSampleTimer _clockWidthGenerator;
@@ -23,7 +26,15 @@ private:
      */
     bool _haveClocked = false;
   //  float _shift;
+
+    bool arePastDelay(float candidateDelay) const;
 };
+
+inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
+    const float targetClockf = float(_freqMeasure.getPeriod()) * candidateDelay;
+    const int targetClock = int(targetClockf);
+    return _phaseAccumulator > targetClock;
+}
 
 inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
     assert(shift >= 0);
@@ -63,4 +74,9 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
 inline bool ClockShifter5::freqValid() const {
     return _freqMeasure.freqValid();
     ;
+}
+
+inline float ClockShifter5::getNormalizedPosition() const {
+    assert(freqValid());
+    return float(_phaseAccumulator) / float(_freqMeasure.getPeriod());
 }
