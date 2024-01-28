@@ -59,7 +59,7 @@ static void testCase1() {
     assert(b);
 }
 
-#if 0
+
 // Case 2. Shift moves from < current position to > current position.
 // shift starts at .3 current position goes to .6, then shift goes to .7
 // input clocks x---------x---------x
@@ -68,43 +68,46 @@ static void testCase1() {
 // shift value  --.3   .7-.----
 // exp out      ---x------.------x-----
 static void testCase2() {
-    auto shifter = makeAndPrime(testPeriod, .3);
-    bool b = clockItLow(shifter, 2);  // should take us up close, to 2
+    float shift = .3;
+    auto shifter = makeAndPrime(testPeriod, shift);
+    bool b = clockItLow(shifter, 2, shift);  // should take us up close, to 2
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .2, .0001);
+  //  assertClose(shifter->getNormalizedPosition(), .2, .0001);
 
     // next one to 3, where we should output a clock
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
-    assertClose(shifter->getNormalizedPosition(), .3, .0001);
+  //  assertClose(shifter->getNormalizedPosition(), .3, .0001);
 
     // now to .6, where we will to the test.
-    b = clockItLow(shifter, 3);
+    b = clockItLow(shifter, 3, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .6, .0001);
+ //   assertClose(shifter->getNormalizedPosition(), .6, .0001);
 
     // Now set shift to .7, on the other side of where we are
-    shifter->setShift(.7f);
+  //  shifter->setShift(.7f);
+    shift = .7;
 
     // Now take us to the end of this period. should have no clocks in here.
     // We might have one, but it should be suppressed.
-    b = clockItLow(shifter, 3);
+    b = clockItLow(shifter, 3, shift);
     assert(!b);
 
     // now ready for a high clock
-    assertClose(shifter->getNormalizedPosition(), .9, .0001);
+   // assertClose(shifter->getNormalizedPosition(), .9, .0001);
     // Give it the expected input clock
-    b = shifter->process(true, true);
+    b = shifter->process(true, true, shift);
     assert(!b);
 
     // Now, since shift is .7, we should have 6 low.
-    b = clockItLow(shifter, 6);
+    b = clockItLow(shifter, 6, shift);
     assert(!b);
 
     // And then output.
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
 }
+
 
 // Case 3. Shift moves from > current position to < current position.
 // shift starts at .8 current position goes to .6, then shift goes to .2
@@ -114,37 +117,41 @@ static void testCase2() {
 // exp out      ------x---.-x---
 // try to fix: instead of .8, use .7. instead of .2, use .5.
 static void testCase3() {
-    auto shifter = makeAndPrime(testPeriod, .7);
-    bool b = clockItLow(shifter, 5);  // should take us up close, to 5
+    float shift = .7;
+    auto shifter = makeAndPrime(testPeriod, shift);
+    bool b = clockItLow(shifter, 5, shift);  // should take us up close, to 5
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .5, .0001);
+   // assertClose(shifter->getNormalizedPosition(), .5, .0001);
 
     // now move the shift and clock low
-    shifter->setShift(.4);
+   // shifter->setShift(.4);
+    shift = .4;
 
     // Now when we clock is should synthesize and output clock.
     // But this is only a synthetic clock, it shouldn't reset phase and stuff.
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
-    assertClose(shifter->getNormalizedPosition(), .6, .0001);
+ //   assertClose(shifter->getNormalizedPosition(), .6, .0001);
 
-    b = clockItLow(shifter, 3);
+    b = clockItLow(shifter, 3, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .9, .0001);
+  //  assertClose(shifter->getNormalizedPosition(), .9, .0001);
 
-    b = shifter->process(true, true);
+    b = shifter->process(true, true, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), 0, .0001);
+ //   assertClose(shifter->getNormalizedPosition(), 0, .0001);
 
     // Final shift was .4, so let's clock 3 - should be no clock.
-    b = clockItLow(shifter, 3);
+    b = clockItLow(shifter, 3, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .3, .0001);
+ //   assertClose(shifter->getNormalizedPosition(), .3, .0001);
 
     // now the clock
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
 }
+
+#if 0
 
 // Case 5. Shift "wraps" around zero, but current pos is well away.
 // shift starts at .9 current position goes to .5, then shift goes to .1
@@ -321,8 +328,8 @@ static void testCase7a() {
 
 void testClockShifter5b() {
     testCase1();
-    // testCase2();
-    // testCase3();
+    testCase2();
+    testCase3();
     // testCase5();
     // testCase6a();
     // testCase6b();
