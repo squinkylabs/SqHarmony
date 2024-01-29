@@ -182,7 +182,7 @@ static void testCase5() {
     assert(b);
 }
 
-#if 0
+
 
 // Case 6a. Shift "wraps" around zero, crossing current pos. pos still in first half.
 // shift starts at .8 current position goes to .9, then shift goes to .1
@@ -192,48 +192,52 @@ static void testCase5() {
 // exp out      ----------.x----
 static void testCase6a() {
     // Make the shifter with the desired delay, click until we almost expect a clock.
-    auto shifter = makeAndPrime(testPeriod, .8);
-    bool b = clockItLow(shifter, 7);
+    float shift = .8;
+    auto shifter = makeAndPrime(testPeriod, shift);
+    bool b = clockItLow(shifter, 7, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .7, .0001);
+    assertClose(shifter->getNormalizedPosition(), .7 + .1, .0001);
 
     // Next sample will generate a clock as we cross the shift location.
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
-    assertClose(shifter->getNormalizedPosition(), .8, .0001);
+    assertClose(shifter->getNormalizedPosition(), .8 + .1, .0001);
 
     // One more sample and we will be at the end of this cycle.
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .9, .0001);
+    assertClose(shifter->getNormalizedPosition(), .9 + .1, .0001);
 
     // Now, for the test case, we move the shift from before cur to after.
-    shifter->setShift(.1);
+   // shifter->setShift(.1);
+    shift = .1f;
 
     // And the input clock. We generate an output for the shift passing over us.
-    b = shifter->process(true, true);
+    b = shifter->process(true, true, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), 0, .0001);
+    assertClose(shifter->getNormalizedPosition(), 0 + .1, .0001);
 
     // Again, run samples until almost the end. No reason to generate a clock here.
-    b = clockItLow(shifter, 9);
+    b = clockItLow(shifter, 9, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .9, .0001);
+    assertClose(shifter->getNormalizedPosition(), .9 + .1, .0001);
 
     // now the input clock. This time there is no "debt", so we won't generate.
-    b = shifter->process(true, true);
+    b = shifter->process(true, true, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), 0, .0001);
+    assertClose(shifter->getNormalizedPosition(), 0 + .1, .0001);
 
     // Now the sample takes us to shift point, so we should generate a normal delay clock.
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
-    assertClose(shifter->getNormalizedPosition(), .1, .0001);
+    assertClose(shifter->getNormalizedPosition(), .1 + .1, .0001);
 
-    b = clockItLow(shifter, 8);
+    b = clockItLow(shifter, 8, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .9, .0001);
+    assertClose(shifter->getNormalizedPosition(), .9 + .1, .0001);
 }
+
+#if 0
 
 // Case 6b. Shift "wraps" around zero, crossing current pos. pos in second half.
 // shift starts at .9 current position goes to .1, then shift goes to .2
@@ -334,9 +338,11 @@ void testClockShifter5b() {
     testCase2();
     testCase3();
 
+    
+    testCase5();
+    testCase6a();
     SQINFO("-- make the other cases in 5b work");
-    //testCase5();
-    // testCase6a();
+   
     // testCase6b();
     // testCase7a();
    // assert(false);
