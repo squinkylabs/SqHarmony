@@ -93,7 +93,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     // If a change in shift has moved us to a later time, thought zero, then
     // we must suppress the clocks we would generate.
     if (std::get<2>(processedShift)) {
-        SQINFO("suppressing on zero wrap cross. Probably wrong");
+        SQINFO("suppressing on shift wrap around zero");
         _haveClocked = true;
     }
 

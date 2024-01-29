@@ -297,7 +297,7 @@ static void testCase6b() {
     assert(b);
 }
 
-#if 0
+
 
 // Case 7a. Shift "wraps" backwards through zero, crossing current pos. pos in first half.
 // shift starts at .1 current position goes to .9, then shift goes to .8
@@ -306,36 +306,38 @@ static void testCase6b() {
 // shift value
 // exp out
 static void testCase7a() {
+    SQINFO("---- testCase7a");
+    float shift = .1;
     // Make the shifter with the desired delay, click until we almost expect a clock.
-    auto shifter = makeAndPrime(testPeriod, .1);
+    auto shifter = makeAndPrime(testPeriod, shift);
 
     // first sample take us to pos via normal case.
-    bool b = clockItLow(shifter, 1);
+    bool b = clockItLow(shifter, 1, shift);
     assert(b);
-    assertClose(shifter->getNormalizedPosition(), .1, .0001);
+    assertClose(shifter->getNormalizedPosition(), .1 + .1, .0001);
 
-    b = clockItLow(shifter, 8);
+    b = clockItLow(shifter, 8, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .9, .0001);
+    assertClose(shifter->getNormalizedPosition(), .9 + .1, .0001);
 
     // now, move shifter to before us.
-    shifter->setShift(.8);
+   // shifter->setShift(.8);
+    shift = .8f;
 
     // input clock+sample here should kick us to .1, and should
     // generate a synthesized "make up" clock.
-    b = shifter->process(true, true);
+    b = shifter->process(true, true, shift);
     assert(b);
-    assertClose(shifter->getNormalizedPosition(), 0, .0001);
+    assertClose(shifter->getNormalizedPosition(), 0 + .1, .0001);
 
-    b = clockItLow(shifter, 7);
+    b = clockItLow(shifter, 7, shift);
     assert(!b);
-    assertClose(shifter->getNormalizedPosition(), .7, .0001);
+    assertClose(shifter->getNormalizedPosition(), .7 + .1, .0001);
 
-    b = clockItLow(shifter, 1);
+    b = clockItLow(shifter, 1, shift);
     assert(b);
-    assertClose(shifter->getNormalizedPosition(), .8, .0001);
+    assertClose(shifter->getNormalizedPosition(), .8 + .1, .0001);
 }
-#endif
 
 void testClockShifter5b() {
     testCase1();
@@ -346,10 +348,9 @@ void testClockShifter5b() {
     testCase5();
     testCase6a();
     testCase6b();
-    SQINFO("-- make the other cases in 5b work");
-   
+    testCase7a();
 
-    // testCase7a();
+    SQINFO("-- make the other cases in 5b work");
    // assert(false);
     // TODO: testCase7b
 }
