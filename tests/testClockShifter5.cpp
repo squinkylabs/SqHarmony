@@ -525,9 +525,9 @@ public:
     }
 #endif
 
-    static void testGetNormalizedPosition() {
-        const float shift = 0;
-        auto shifter = makeAndPrime(10, 0);
+    static void testGetNormalizedPosition(float shift) {
+
+        auto shifter = makeAndPrime(10, shift);
         auto acc = shifter->_phaseAccumulator;
         assertEQ(acc, 0);
         assertEQ(shifter->getNormalizedPosition(), 0);
@@ -540,6 +540,11 @@ public:
         assertEQ(acc, 7);
         assertClose(shifter->getNormalizedPosition(), .7, .0001);
     }
+
+     static void testGetNormalizedPosition() {
+        testGetNormalizedPosition(0);
+        testGetNormalizedPosition(.2f);
+     }
 
     static void testArePastDelay() {
         auto shifter = makeAndPrime(10, 0);

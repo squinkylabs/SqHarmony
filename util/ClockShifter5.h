@@ -67,8 +67,8 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         return false;
     }
 
-    const auto t = processShift(rawShift);
-    float shift = std::get<0>(t);
+    const auto processedShift = processShift(rawShift);
+    float shift = std::get<0>(processedShift);
 
     assert(shift >= 0);
     assert(shift <= 1);
@@ -78,6 +78,13 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         // This clock for processing on the first clock
         _phaseAccumulator = 0;
         _haveClocked = false;
+    }
+
+    // If a change in shift has moved us to before, then we have already output
+    // the clocks, so do this to avoid clocking again.
+    if (std::get<1>(processedShift)) {
+        SQINFO("suppressing on backward cross");
+        _haveClocked = true;
     }
 
     _phaseAccumulator++;
