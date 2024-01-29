@@ -53,7 +53,7 @@ inline std::tuple<float, bool>  ClockShifter5::processShift(float rawShift) cons
     }
     const float newShift = (rawShift - std::floor(rawShift));
     const float position = getNormalizedPosition();
-    const bool crossedBackwards =  ((_lastProcessedShift < position) && (newShift > position));
+    const bool crossedBackwards =  ((_lastProcessedShift > position) && (newShift < position));
 
     _lastRawShift = rawShift;
     _lastProcessedShift = newShift;

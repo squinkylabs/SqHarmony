@@ -572,9 +572,10 @@ public:
         assertEQ(std::get<0>(x), .9f);
         assertEQ(std::get<1>(x), false);
 
+        // effective shift was .9, going to zero
         x = shifter->processShift(2);
         assertEQ(std::get<0>(x), 0);
-        assertEQ(std::get<1>(x), false);
+        assertEQ(std::get<1>(x), true);
 
         x = shifter->processShift(-5);
         assertEQ(std::get<0>(x), 0);
