@@ -90,10 +90,10 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         _haveClocked = false;
     }
 
-    // If a change in shift has moved us to before, then we have already output
-    // the clocks, so do this to avoid clocking again.
-    if (std::get<1>(processedShift)) {
-        SQINFO("suppressing on backward cross. Probably wrong");
+    // If a change in shift has moved us to a later time, thought zero, then
+    // we must suppress the clocks we would generate.
+    if (std::get<2>(processedShift)) {
+        SQINFO("suppressing on zero wrap cross. Probably wrong");
         _haveClocked = true;
     }
 
