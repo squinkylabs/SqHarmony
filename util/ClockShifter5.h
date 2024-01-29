@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cmath>
+#include <tuple>
+
 #include "FreqMeasure2.h"
 #include "OneShotSampleTimer.h"
 
@@ -11,6 +14,7 @@ public:
 
     // This used to be used internally, now just for test
     float getNormalizedPosition() const;
+    
 
 private:
     FreqMeasure2 _freqMeasure;
@@ -25,8 +29,14 @@ private:
      * @brief true if a clock has been output in the current cycle.
      */
     bool _haveClocked = false;
+    mutable float _lastRawShift = 0;
+    mutable float _lastProcessedShift = 0;
 
     bool arePastDelay(float candidateDelay) const;
+   // float processShift(float rawShift) const;
+    // ret[0] is the normalized shift
+    // ret[1] is true if the shift crossed over the phase backwards
+   std::tuple<float, bool> processShift(float rawShift) const;
 };
 
 inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
@@ -35,15 +45,33 @@ inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
     return _phaseAccumulator > targetClock;
 }
 
-inline bool ClockShifter5::process(bool trigger, bool clock, float shift) {
-    assert(shift >= 0);
-    assert(shift <= 1);
-    
+inline std::tuple<float, bool>  ClockShifter5::processShift(float rawShift) const {
+    if (rawShift == _lastRawShift) {
+       // return c;
+       SQINFO("no change, ret %f", _lastProcessedShift );
+        return std::make_tuple(_lastProcessedShift, false);
+    }
+    const float newShift = (rawShift - std::floor(rawShift));
+    const float position = getNormalizedPosition();
+    const bool crossedBackwards =  ((_lastProcessedShift < position) && (newShift > position));
+
+    _lastRawShift = rawShift;
+    _lastProcessedShift = newShift;
+    return std::make_tuple(newShift, crossedBackwards);
+} 
+
+inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
         return false;
     }
+
+    const auto t = processShift(rawShift);
+    float shift = std::get<0>(t);
+
+    assert(shift >= 0);
+    assert(shift <= 1);
 
     bool ret = false;
     if (trigger) {

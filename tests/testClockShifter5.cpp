@@ -92,7 +92,7 @@ static void testDelay10(float shift) {
 }
 
 static void testDelay10() {
-    for (int i= 1; i<10; ++i) {
+    for (int i = 1; i < 10; ++i) {
         const float shift = float(i) / 10.f;
         testDelay10(shift);
     }
@@ -124,14 +124,12 @@ static void testHalfCycleDelay() {
     assertEQ(b, false);
 }
 
-
-
 static void testHalfCycleDelay2() {
     // 8 periods, just at start
     const float shift = .5;
     auto shifter = makeAndPrime(8, .5);
 
-   // shifter->setShift(.5);
+    // shifter->setShift(.5);
 
     // 1
     bool b = shifter->process(false, false, shift);
@@ -223,7 +221,7 @@ static void testSetDelayMidCycle() {
     int clocksReceived = 1;
     int clocksSent = 0;
 
-    const float delay = .1;                     // Set for small delay.
+    const float delay = .1;                           // Set for small delay.
     clocksReceived += clockItLow(shifter, 7, delay);  // Clock a few more time;
     assertEQ(clocksReceived, 1);
 }
@@ -245,33 +243,31 @@ static void testIncreaseDelayMidCycle() {
     assertEQ(clocksGenerated, 1);
 
     // period = 12, have sent 11?
-    //assertClose(shifter->getNormalizedPosition(), 11.f / 12.f, .0001);
-
-
+    // assertClose(shifter->getNormalizedPosition(), 11.f / 12.f, .0001);
 
     // now 1 clock gets to 0, next 5 get to 5/12
     clocksGenerated += clockIt(shifter, 6, shift);  // almost up to next clock
     assertEQ(clocksGenerated, 1);
-   
-    //assertClose(shifter->getNormalizedPosition(), 5.f / 12.f, .0001);
 
-  //  SQINFO("now set shift to .6 pos is %f", 5.f / 12.f);
- //   shifter->setShift(.5 + .1);  // Set for small additional delay.
+    // assertClose(shifter->getNormalizedPosition(), 5.f / 12.f, .0001);
+
+    //  SQINFO("now set shift to .6 pos is %f", 5.f / 12.f);
+    //   shifter->setShift(.5 + .1);  // Set for small additional delay.
     shift = (.5 + .1);
-  //  SQINFO("back from set shift");
+    //  SQINFO("back from set shift");
 
     // With shift still at .5, we would expect a clock here,
     // but with the extra .1 delay, that should be postponed.
     clocksGenerated += shifter->process(false, false, shift) ? 1 : 0;
     assertEQ(clocksGenerated, 1);
 
- //   SQINFO("at 242");
+    //   SQINFO("at 242");
     // now should clock, delayed
     clocksGenerated += shifter->process(false, false, shift) ? 1 : 0;
     assertEQ(clocksGenerated, 2);
 
     clocksGenerated += clockItLow(shifter, 5, shift);  // finish out this period
-    assertEQ(clocksGenerated, 2);               // and no more clocks.
+    assertEQ(clocksGenerated, 2);                      // and no more clocks.
 }
 
 static void
@@ -303,8 +299,8 @@ testDecreaseDelayMidCycle() {
     clocksGenerated += clockIt(shifter, 8, 0);  // almost up to next clock. (above, was 8)
     assertEQ(clocksGenerated, 1);
     //  SQINFO("just set shift amount");
-  //  shifter->setShift(.5 - .1);  // this may move to "before" where we currently are.
-    const float shift = .5 - .1; // this may move to "before" where we currently are.
+    //  shifter->setShift(.5 - .1);  // this may move to "before" where we currently are.
+    const float shift = .5 - .1;  // this may move to "before" where we currently are.
     // c
     //  this is without changing shift
     clocksGenerated += shifter->process(false, false, shift) ? 1 : 0;
@@ -324,21 +320,16 @@ static void testPosThenNeg() {
     assert(false);
 }
 
-
 static void testDelay() {
     testDelaySub(8, .5);
     testDelaySub(12, .5);
     testDelaySub(8, .25);
 }
 
-#if 0 // this doesn't make sense with the new API
 static void testDelayNeg() {
     testDelaySub(8, -.5);
     testDelaySub(8, -.25);
 }
-#endif
-
-
 
 class TestX {
 public:
@@ -534,7 +525,6 @@ public:
     }
 #endif
 
-
     static void testGetNormalizedPosition() {
         const float shift = 0;
         auto shifter = makeAndPrime(10, 0);
@@ -563,6 +553,47 @@ public:
         assertEQ(b, true);
     }
 
+    static void testProcessShift() {
+        auto shifter = makeAndPrime(10, 0);
+        auto x = shifter->processShift(0);
+        assertEQ(std::get<0>(x), 0);
+        assertEQ(std::get<1>(x), false);
+
+        x = shifter->processShift(.9f);
+        assertEQ(std::get<0>(x), .9f);
+        assertEQ(std::get<1>(x), false);
+
+        x = shifter->processShift(-.1f);
+        assertEQ(std::get<0>(x), .9f);
+        assertEQ(std::get<1>(x), false);
+
+        // check caching
+        x = shifter->processShift(-.1f);
+        assertEQ(std::get<0>(x), .9f);
+        assertEQ(std::get<1>(x), false);
+
+        x = shifter->processShift(2);
+        assertEQ(std::get<0>(x), 0);
+        assertEQ(std::get<1>(x), false);
+
+        x = shifter->processShift(-5);
+        assertEQ(std::get<0>(x), 0);
+        assertEQ(std::get<1>(x), false);
+    }
+
+    static void testProcessShift2() {
+        auto shifter = makeAndPrime(10, 0);
+        shifter->_phaseAccumulator = 5;         // in the middle
+        auto x = shifter->processShift(.6f);     // phase is past
+        assertEQ(std::get<0>(x), .6f);
+        assertEQ(std::get<1>(x), false);
+
+        x = shifter->processShift(.4f);     // phase is before
+        assertEQ(std::get<0>(x), .4f);
+        assertEQ(std::get<1>(x), true);     // crossed over backwards
+
+
+    }
 };
 
 void testClockShifter5() {
@@ -577,6 +608,8 @@ void testClockShifter5() {
     //     TestX::testCalculateShiftOver2();
     //     Tes::testCalculateShiftOver3();
     TestX::testArePastDelay();
+    TestX::testProcessShift();
+    TestX::testProcessShift2();
 
     testStraightThrough();
     testStraightThrough2();
@@ -588,7 +621,7 @@ void testClockShifter5() {
     testHalfCycleDelay2();
     testClockIt();
     testDelay();
-  //  testDelayNeg();
+    testDelayNeg();
 
     testSetDelayMidCycle();
     testIncreaseDelayMidCycle();

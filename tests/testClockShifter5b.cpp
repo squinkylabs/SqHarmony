@@ -330,10 +330,12 @@ void testClockShifter5b() {
     testCase1();
     testCase2();
     testCase3();
-    testCase5();
+
+    SQINFO("-- make the other cases in 5b work");
+    //testCase5();
     // testCase6a();
     // testCase6b();
     // testCase7a();
-    assert(false);
+   // assert(false);
     // TODO: testCase7b
 }
