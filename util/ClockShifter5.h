@@ -11,6 +11,7 @@ public:
     friend class TestX;
     bool process(bool trigger, bool clock, float shift);
     bool freqValid() const;
+    int getPeriod() const;
 
     // This used to be used internally, now just for test
     float getNormalizedPosition() const;
@@ -122,4 +123,8 @@ inline bool ClockShifter5::freqValid() const {
 inline float ClockShifter5::getNormalizedPosition() const {
     assert(freqValid());
     return float(_phaseAccumulator) / float(_freqMeasure.getPeriod());
+}
+
+inline int ClockShifter5::getPeriod() const {
+    return _freqMeasure.getPeriod();
 }
