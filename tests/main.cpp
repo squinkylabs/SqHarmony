@@ -63,6 +63,7 @@ extern void testNumberFormatter();
 extern void testTwister();
 extern void testClockShifter5();
 extern void testClockShifter5b();
+extern void testFirst();
 
 #include "SqLog.h"
 
@@ -81,9 +82,10 @@ int main(const char**, int) {
     // testRawChordGenerator();
     // testAllChords(doLongRunning);
     // printf("put the early tests back\n");
-    printf("running 4b first for temp debug\n");
+    printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
-    testClockShifter4d();
+    testFirst();
+    std::exit(0);
 
     testTwister();
     testSchmidtTrigger();
