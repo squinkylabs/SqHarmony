@@ -21,10 +21,13 @@ static void testCase1() {
     float shift = .5;
     auto shifter = makeAndPrime(testPeriod, shift);
 
+    // During prime we clock the first clock.
+    assertClose(shifter->getNormalizedPosition(), .1, .0001);
+
     // We are will in front of the shift amount now
     bool b = clockItLow(shifter, 2, shift);
     assert(!b);
-    //   assertClose(shifter->getNormalizedPosition(), .2, .0001);
+    assertClose(shifter->getNormalizedPosition(), .3, .0001);
 
     // Move shift even father away - we don't care.
     shift = .7;
@@ -33,7 +36,7 @@ static void testCase1() {
     // Clock to the last clock before roll the new shift time.
     b = clockItLow(shifter, 4, shift);
     assert(!b);
-    //  assertClose(shifter->getNormalizedPosition(), .6, .0001);
+    assertClose(shifter->getNormalizedPosition(), .7, .0001);
 
     // Now when we hit the shift we should output a clock.
     b = clockItLow(shifter, 1, shift);
@@ -42,16 +45,16 @@ static void testCase1() {
     // Now two more low to get the end of first cycle.
     b = clockItLow(shifter, 2, shift);
     assert(!b);
-    //  assertClose(shifter->getNormalizedPosition(), .9, .0001);
+    assertClose(shifter->getNormalizedPosition(), 1, .0001);
 
     // now time for an input clock (period 10)
     b = shifter->process(true, true, shift);
     assert(!b);
-    //   assertEQ(shifter->getNormalizedPosition(), 0);
+    assertClose(shifter->getNormalizedPosition(), .1, .0001);
 
     // now take us up to 6 (clock + 5 low in second period)
     b = clockItLow(shifter, 6, shift);
-    // assertClose(shifter->getNormalizedPosition(), .6, .0001);
+    assertClose(shifter->getNormalizedPosition(), .7, .0001);
     assert(!b);
 
     // Now when we hit the shift we should output a clock.
@@ -119,7 +122,7 @@ static void testCase3() {
     auto shifter = makeAndPrime(testPeriod, shift);
     bool b = clockItLow(shifter, 5, shift);  // should take us up close, to 5
     assert(!b);
-    //assertClose(shifter->getNormalizedPosition(), .5, .0001);
+    assertClose(shifter->getNormalizedPosition(), .6, .0001);
 
     // now move the shift and clock low
     // shifter->setShift(.4);
@@ -129,7 +132,7 @@ static void testCase3() {
     // But this is only a synthetic clock, it shouldn't reset phase and stuff.
     b = clockItLow(shifter, 1, shift);
     assert(b);
-    //assertClose(shifter->getNormalizedPosition(), .6, .0001);
+    assertClose(shifter->getNormalizedPosition(), .7, .0001);
 
     b = clockItLow(shifter, 3, shift);
     assert(!b);

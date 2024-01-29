@@ -36,7 +36,8 @@ private:
    // float processShift(float rawShift) const;
     // ret[0] is the normalized shift
     // ret[1] is true if the shift crossed over the phase backwards
-   std::tuple<float, bool> processShift(float rawShift) const;
+    // ret[2] is true if the shift got larger, wrapping through zero
+   std::tuple<float, bool, bool> processShift(float rawShift) const;
 };
 
 inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
@@ -45,19 +46,28 @@ inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
     return _phaseAccumulator > targetClock;
 }
 
-inline std::tuple<float, bool>  ClockShifter5::processShift(float rawShift) const {
+inline std::tuple<float, bool, bool>  ClockShifter5::processShift(float rawShift) const {
     if (rawShift == _lastRawShift) {
        // return c;
-       SQINFO("no change, ret %f", _lastProcessedShift );
-        return std::make_tuple(_lastProcessedShift, false);
+       // SQINFO("no change, ret %f", _lastProcessedShift );
+        return std::make_tuple(_lastProcessedShift, false, false);
     }
+
+
     const float newShift = (rawShift - std::floor(rawShift));
     const float position = getNormalizedPosition();
+
+    // If we reduced the phase of the delay, such that it goes over the phase
     const bool crossedBackwards =  ((_lastProcessedShift > position) && (newShift < position));
+
+    // If the phase increases from, say .95 to .05, it wraps in the increasing direction/
+    const bool phaseWrappedIncreasing = ((_lastProcessedShift > .75) && ( newShift < .25));
 
     _lastRawShift = rawShift;
     _lastProcessedShift = newShift;
-    return std::make_tuple(newShift, crossedBackwards);
+
+
+    return std::make_tuple(newShift, crossedBackwards, phaseWrappedIncreasing);
 } 
 
 inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
@@ -83,7 +93,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     // If a change in shift has moved us to before, then we have already output
     // the clocks, so do this to avoid clocking again.
     if (std::get<1>(processedShift)) {
-        SQINFO("suppressing on backward cross");
+        SQINFO("suppressing on backward cross. Probably wrong");
         _haveClocked = true;
     }
 
