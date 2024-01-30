@@ -289,5 +289,5 @@ void testClockShifter5d() {
 }
 
 void testFirst() {
-  //  testSpeedUp();
+    testSpeedUp();
 }

@@ -503,6 +503,7 @@ public:
     }
 
     static void testMakeAndPrime2() {
+        SQINFO("testMakeAndPrime2");
         const int period = 13;
         auto primeResult = makeAndPrime2(period);
         assertEQ(primeResult.clocked, true);

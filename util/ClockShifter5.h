@@ -77,6 +77,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
+        SQINFO("leaving unstable");
         return false;
     }
 
@@ -88,6 +89,12 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
 
     bool ret = false;
     if (trigger) {
+       // If we get a trigger, but haven't finished the period, then  we either have a rounding error, or
+       // the clock has sped up. But check phase acc to make sure we are running (not priming).
+        if (!_haveClocked && (_phaseAccumulator > 0)) {
+            SQINFO("we owe a trigger");
+            ret = true;
+        }
         // This clock for processing on the first clock
         _phaseAccumulator = 0;
         _haveClocked = false;

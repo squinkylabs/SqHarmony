@@ -48,7 +48,9 @@ static void testSpeedUpOutputsClockShifted() {
     // we sped up, so output one now
     b = shifter->process(true, true, shift);
     assert(b);
-    b = clockItLow(shifter, 7, shift);
+
+    // Now we have measured a shorter period.
+    b = clockItLow(shifter, 6, shift);  // then no more for the remaining short time
     assert(!b);
     // next cycle, we are still not firing (?)
     b = shifter->process(true, true, shift);
