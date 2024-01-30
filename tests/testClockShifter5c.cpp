@@ -59,6 +59,6 @@ void testClockShifter5c() {
     testSpeedUp();
     testSlowDown();
     testSpeedUpOutputsClock();
-    SQINFO("testSpeedUpOutputsClockShifted not working yet");
-    //testSpeedUpOutputsClockShifted();
+  //  SQINFO("testSpeedUpOutputsClockShifted not working yet");
+    testSpeedUpOutputsClockShifted();
 }

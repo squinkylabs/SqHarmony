@@ -71,6 +71,7 @@ private:
 };
 
 static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter5> shifter) {
+    SQINFO("*** run Sub ");
     assert(input.isValid());
     // assert(input.afterwardsRunBackwards == false);
     Outputs output;
@@ -118,6 +119,7 @@ static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter5> shifte
 }
 
 static Outputs run(const Inputs& _input) {
+    SQINFO("*** testRun %s", _input.toString().c_str());
     Outputs initOutput;
     // Step 1, setup.
     auto result = makeAndPrime2(_input.period, _input.initialShift);
@@ -287,5 +289,5 @@ void testClockShifter5d() {
 }
 
 void testFirst() {
-    testSpeedUp();
+  //  testSpeedUp();
 }

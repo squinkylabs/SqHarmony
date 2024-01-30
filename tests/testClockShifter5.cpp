@@ -70,6 +70,20 @@ static void testStraightThrough2() {
     assertEQ(b, false);
 }
 
+#if 0
+static void testDelay10b() {
+    const int period = 10;
+    float shift = .99;
+    auto shifter = makeAndPrime(period, shift);  
+    for (int i=0; i<period-1; ++i) {
+        const bool b = shifter->process(false, false, shift);
+        assertEQ(b, false);
+    }
+    const bool b = shifter->process(true, true, shift);
+    assertEQ(b, true);
+}
+#endif
+
 static void testDelay10(float shift) {
     SQINFO("testDelay10 %f", shift);
     const int period = 10;
@@ -639,6 +653,7 @@ void testClockShifter5() {
     testInputValid();
 
     testDelay10();
+  //  testDelay10b();
     testHalfCycleDelay();
     testHalfCycleDelay2();
     testClockIt();

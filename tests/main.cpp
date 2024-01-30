@@ -84,8 +84,8 @@ int main(const char**, int) {
     // printf("put the early tests back\n");
     printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
-    testFirst();
-    std::exit(0);
+    // testFirst();
+    // std::exit(0);
 
     testTwister();
     testSchmidtTrigger();
