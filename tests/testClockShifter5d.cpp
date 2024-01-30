@@ -73,18 +73,8 @@ private:
 static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter5> shifter) {
     SQINFO("*** run Sub ");
     assert(input.isValid());
-    // assert(input.afterwardsRunBackwards == false);
+
     Outputs output;
-    //SQINFO("enter runSub, input = %s", input.toString().c_str());
-    //SQINFO("outputs =%s", output.toString().c_str());
-
-    // prime will feed in the "first" clock, so expect "off by one" errors.
-    //    auto result = makeAndPrime2(input.period, input.initialShift);
-    //   output.samplesTicked = 1;
-    //    output.outputClocks = result.clocked ? 1 : 0;
-    //   auto shifter = result.shifter;
-
-    // assertEQ(input.shiftPerSample, 0);
 
     float shift = input.initialShift;
     //SQINFO("run sub going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
@@ -101,7 +91,6 @@ static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter5> shifte
             output.processPossibleClock(b);
           //  SQINFO("after process possible, num ticked = %d", output.samplesTicked);
             shift += input.shiftPerSample;
-           // shifter->setShift(shift);
             output.lastShift = shift;
             // SQINFO("run tick low, ck=%d set shift to %f", b, shift);
         }

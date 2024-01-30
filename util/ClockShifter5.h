@@ -15,7 +15,6 @@ public:
 
     // This used to be used internally, now just for test
     float getNormalizedPosition() const;
-    
 
 private:
     FreqMeasure2 _freqMeasure;
@@ -34,46 +33,45 @@ private:
     mutable float _lastProcessedShift = 0;
 
     bool arePastDelay(float candidateDelay) const;
-   // float processShift(float rawShift) const;
+    // float processShift(float rawShift) const;
     // ret[0] is the normalized shift
     // ret[1] is true if the shift crossed over the phase backwards
     // ret[2] is true if the shift got larger, wrapping through zero
-   std::tuple<float, bool, bool> processShift(float rawShift) const;
+    std::tuple<float, bool, bool> processShift(float rawShift) const;
 };
 
 inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
     const float targetClockf = float(_freqMeasure.getPeriod()) * candidateDelay;
     const int targetClock = int(targetClockf);
-    SQINFO("are past delay, cand=%f tc=%d acc=%d ret=%d", candidateDelay, targetClock, _phaseAccumulator, _phaseAccumulator > targetClock);
+    SQINFO("int are past delay, cand=%f tc=%d acc=%d ret=%d", candidateDelay, targetClock, _phaseAccumulator, (_phaseAccumulator > targetClock));
     return _phaseAccumulator > targetClock;
 }
 
-inline std::tuple<float, bool, bool>  ClockShifter5::processShift(float rawShift) const {
+inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift) const {
     if (rawShift == _lastRawShift) {
-       // return c;
-       // SQINFO("no change, ret %f", _lastProcessedShift );
+        // return c;
+        SQINFO("no change, ret %f", _lastProcessedShift);
         return std::make_tuple(_lastProcessedShift, false, false);
     }
-
 
     const float newShift = (rawShift - std::floor(rawShift));
     const float position = getNormalizedPosition();
 
     // If we reduced the phase of the delay, such that it goes over the phase
-    const bool crossedBackwards =  ((_lastProcessedShift > position) && (newShift < position));
+    const bool crossedBackwards = ((_lastProcessedShift > position) && (newShift < position));
 
     // If the phase increases from, say .95 to .05, it wraps in the increasing direction/
-    const bool phaseWrappedIncreasing = ((_lastProcessedShift > .75) && ( newShift < .25));
+    const bool phaseWrappedIncreasing = ((_lastProcessedShift > .75) && (newShift < .25));
 
     _lastRawShift = rawShift;
     _lastProcessedShift = newShift;
 
-
     return std::make_tuple(newShift, crossedBackwards, phaseWrappedIncreasing);
-} 
+}
 
 inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     SQINFO("-- cs5::process (%d, %d, %f) acc=%d", trigger, clock, rawShift, _phaseAccumulator);
+    if (trigger) SQINFO("\n*** clock in*");
     const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
@@ -89,8 +87,8 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
 
     bool ret = false;
     if (trigger) {
-       // If we get a trigger, but haven't finished the period, then  we either have a rounding error, or
-       // the clock has sped up. But check phase acc to make sure we are running (not priming).
+        // If we get a trigger, but haven't finished the period, then  we either have a rounding error, or
+        // the clock has sped up. But check phase acc to make sure we are running (not priming).
         if (!_haveClocked && (_phaseAccumulator > 0)) {
             SQINFO("we owe a trigger");
             ret = true;
@@ -109,7 +107,9 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
 
     _phaseAccumulator++;
     const bool _arePastDelay = arePastDelay(shift);
+    SQINFO("ret from _arePast = %d _haveClocked = %d", _arePastDelay, _haveClocked);
     if (!_haveClocked && _arePastDelay) {
+        SQINFO("clocking from are past");
         ret = true;
         _haveClocked = true;
     }
@@ -123,6 +123,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
 
     if (ret) {
         SQINFO("process ret clock: %d", ret);
+        SQINFO("\n*** Clock Out");
     } else {
         SQINFO("process no clock");
     }

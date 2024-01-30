@@ -632,6 +632,29 @@ public:
      }
 };
 
+static void testFreeRun(int period) {
+    SQINFO("--- testFreeRun(%d)", period); 
+    const float shift = 0;
+    auto shifter = makeAndPrime(period, shift);
+    SQINFO("-- test done with make and prime");
+    int i = clockItLow(shifter, period - 1, shift);
+    assertEQ(i, 0);
+    i = clockItLow(shifter, 1, shift);
+    assertEQ(i, 1);
+
+    i = clockItLow(shifter, period - 1, shift);
+    assertEQ(i, 0);
+    i = clockItLow(shifter, 1, shift);
+    assertEQ(i, 1);
+
+    assert(false);
+}
+
+static void testFreeRun() {
+    testFreeRun(4);
+}
+
+
 void testClockShifter5() {
     testCanCall();
     TestX::testPeriod();
@@ -663,4 +686,7 @@ void testClockShifter5() {
 
     testSetDelayMidCycle();
     testIncreaseDelayMidCycle();
+
+    // does not free run.
+ //   testFreeRun();
 }

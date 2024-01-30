@@ -79,13 +79,13 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
-    // testRawChordGenerator();
-    // testAllChords(doLongRunning);
-    // printf("put the early tests back\n");
+
+#if 0
     printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
-    // testFirst();
-    // std::exit(0);
+    testFirst();
+    std::exit(0);
+#endif
 
     testTwister();
     testSchmidtTrigger();
