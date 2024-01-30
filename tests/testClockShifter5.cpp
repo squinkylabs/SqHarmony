@@ -503,13 +503,21 @@ public:
     }
 
     static void testMakeAndPrime2() {
-        SQINFO("testMakeAndPrime2");
         const int period = 13;
         auto primeResult = makeAndPrime2(period);
         assertEQ(primeResult.clocked, true);
         auto shifter = primeResult.shifter;
         assertEQ(shifter->_freqMeasure.freqValid(), true);
         assertEQ(shifter->_freqMeasure.getPeriod(), 13);
+    }
+
+    static void testMakeAndPrime3() {
+        SQINFO("--- testMakeAndPrime3");
+        const int period = 4;
+        auto primeResult = makeAndPrime2(period);
+        auto shifter = primeResult.shifter;
+        // to fix other problems, we want to avoid _haveClocked true all the time.
+        assertEQ(shifter->_haveClocked, false);
     }
 
 #if 0
@@ -541,7 +549,6 @@ public:
 #endif
 
     static void testGetNormalizedPosition(float shift) {
-
         auto shifter = makeAndPrime(10, shift);
         auto acc = shifter->_phaseAccumulator;
         assertEQ(acc, 0);
@@ -556,10 +563,10 @@ public:
         assertClose(shifter->getNormalizedPosition(), .7, .0001);
     }
 
-     static void testGetNormalizedPosition() {
+    static void testGetNormalizedPosition() {
         testGetNormalizedPosition(0);
         testGetNormalizedPosition(.2f);
-     }
+    }
 
     static void testArePastDelay() {
         auto shifter = makeAndPrime(10, 0);
@@ -610,30 +617,30 @@ public:
 
     static void testProcessShift2() {
         auto shifter = makeAndPrime(10, 0);
-        shifter->_phaseAccumulator = 5;         // in the middle
-        auto x = shifter->processShift(.6f);     // phase is past
+        shifter->_phaseAccumulator = 5;       // in the middle
+        auto x = shifter->processShift(.6f);  // phase is past
         assertEQ(std::get<0>(x), .6f);
         assertEQ(std::get<1>(x), false);
 
-        x = shifter->processShift(.4f);     // phase is before
+        x = shifter->processShift(.4f);  // phase is before
         assertEQ(std::get<0>(x), .4f);
-        assertEQ(std::get<1>(x), true);     // crossed over backwards
+        assertEQ(std::get<1>(x), true);  // crossed over backwards
     }
 
-     static void testProcessShift3() {
+    static void testProcessShift3() {
         auto shifter = makeAndPrime(10, 0);
-        shifter->_phaseAccumulator = 5;         // in the middle
-        auto x = shifter->processShift(.9f);     // phase is very late
-        x = shifter->processShift(.1f);     // phase goes through zero to be even later
+        shifter->_phaseAccumulator = 5;       // in the middle
+        auto x = shifter->processShift(.9f);  // phase is very late
+        x = shifter->processShift(.1f);       // phase goes through zero to be even later
         assertEQ(std::get<2>(x), true);
 
-        x = shifter->processShift(.9f);     // now wrap in the other direction,
+        x = shifter->processShift(.9f);  // now wrap in the other direction,
         assertEQ(std::get<2>(x), false);
-     }
+    }
 };
 
 static void testFreeRun(int period) {
-    SQINFO("--- testFreeRun(%d)", period); 
+    SQINFO("--- testFreeRun(%d)", period);
     const float shift = 0;
     auto shifter = makeAndPrime(period, shift);
     SQINFO("-- test done with make and prime");
@@ -654,12 +661,12 @@ static void testFreeRun() {
     testFreeRun(4);
 }
 
-
 void testClockShifter5() {
     testCanCall();
     TestX::testPeriod();
     TestX::testMakeAndPrime();
     TestX::testMakeAndPrime2();
+    TestX::testMakeAndPrime3();
 
     // These test don't make sense (yet) for ClockShifter5.
     TestX::testGetNormalizedPosition();
@@ -677,7 +684,7 @@ void testClockShifter5() {
     testInputValid();
 
     testDelay10();
-  //  testDelay10b();
+    //  testDelay10b();
     testHalfCycleDelay();
     testHalfCycleDelay2();
     testClockIt();
@@ -688,5 +695,9 @@ void testClockShifter5() {
     testIncreaseDelayMidCycle();
 
     // does not free run.
- //   testFreeRun();
+    //   testFreeRun();
+}
+
+void testFirst() {
+    TestX::testMakeAndPrime3();
 }

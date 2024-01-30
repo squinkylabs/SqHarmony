@@ -95,13 +95,14 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         }
         // This clock for processing on the first clock
         _phaseAccumulator = 0;
+        SQINFO("clear hc");
         _haveClocked = false;
     }
 
     // If a change in shift has moved us to a later time, thought zero, then
     // we must suppress the clocks we would generate.
     if (std::get<2>(processedShift)) {
-        SQINFO("suppressing on shift wrap around zero");
+        SQINFO("suppressing on shift wrap around zero. set hc");
         _haveClocked = true;
     }
 
@@ -109,7 +110,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     const bool _arePastDelay = arePastDelay(shift);
     SQINFO("ret from _arePast = %d _haveClocked = %d", _arePastDelay, _haveClocked);
     if (!_haveClocked && _arePastDelay) {
-        SQINFO("clocking from are past");
+        SQINFO("clocking from are past, set hc");
         ret = true;
         _haveClocked = true;
     }
