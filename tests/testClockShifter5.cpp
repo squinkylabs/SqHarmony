@@ -586,57 +586,67 @@ public:
         auto x = shifter->processShift(0);
         assertEQ(std::get<0>(x), 0);
         assertEQ(std::get<1>(x), false);
-     //   assertEQ(std::get<2>(x), false);
+        //   assertEQ(std::get<2>(x), false);
 
         x = shifter->processShift(.9f);
         assertEQ(std::get<0>(x), .9f);
         assertEQ(std::get<1>(x), false);
-     //   assertEQ(std::get<2>(x), false);
+        //   assertEQ(std::get<2>(x), false);
 
         x = shifter->processShift(-.1f);
         assertEQ(std::get<0>(x), .9f);
         assertEQ(std::get<1>(x), false);
-     //   assertEQ(std::get<2>(x), false);
+        //   assertEQ(std::get<2>(x), false);
 
         // check caching
         x = shifter->processShift(-.1f);
         assertEQ(std::get<0>(x), .9f);
         assertEQ(std::get<1>(x), false);
-     //   assertEQ(std::get<2>(x), false);
+        //   assertEQ(std::get<2>(x), false);
 
         // effective shift was .9, going to zero
         x = shifter->processShift(2);
         assertEQ(std::get<0>(x), 0);
         assertEQ(std::get<1>(x), true);
-     //   assertEQ(std::get<2>(x), true);
+        //   assertEQ(std::get<2>(x), true);
 
         x = shifter->processShift(-5);
         assertEQ(std::get<0>(x), 0);
         assertEQ(std::get<1>(x), false);
-     //   assertEQ(std::get<2>(x), false);
+        //   assertEQ(std::get<2>(x), false);
     }
-
-    // static void testProcessShift2() {
-    //     auto shifter = makeAndPrime(10, 0);
-    //     shifter->_phaseAccumulator = 5;       // in the middle
-    //     auto x = shifter->processShift(.6f);  // phase is past
-    //     assertEQ(std::get<0>(x), .6f);
-    //     assertEQ(std::get<1>(x), false);
-
-    //     x = shifter->processShift(.4f);  // phase is before
-    //     assertEQ(std::get<0>(x), .4f);
-    //     assertEQ(std::get<1>(x), true);  // crossed over backwards
-    // }
 
     static void testProcessShift3() {
         auto shifter = makeAndPrime(10, 0);
-        shifter->_phaseAccumulator = 5;       // in the middle
         auto x = shifter->processShift(.9f);  // phase is very late
         x = shifter->processShift(.1f);       // phase goes through zero to be even later
         assertEQ(std::get<1>(x), true);
 
         x = shifter->processShift(.9f);  // now wrap in the other direction,
         assertEQ(std::get<1>(x), false);
+    }
+
+    static void testProcessShift4() {
+        auto shifter = makeAndPrime(10, 0);
+        auto x = shifter->processShift(0);
+
+        // primary case, 0[1] -> .99
+        x = shifter->processShift(.99);
+        assertEQ(std::get<2>(x), true);
+
+        // inverse case of above
+        x = shifter->processShift(0);
+        assertEQ(std::get<2>(x), false);
+
+        // it's getting lower, but not through zero
+        x = shifter->processShift(.9);
+        x = shifter->processShift(.8);
+        assertEQ(std::get<2>(x), false);
+
+         // it's getting lower, and through zero
+        x = shifter->processShift(.2);
+        x = shifter->processShift(.8);
+        assertEQ(std::get<2>(x), true);
     }
 };
 
@@ -667,7 +677,7 @@ void testClockShifter5() {
     TestX::testPeriod();
     TestX::testMakeAndPrime();
     TestX::testMakeAndPrime2();
-   // TestX::testMakeAndPrime3();
+    // TestX::testMakeAndPrime3();
 
     // These test don't make sense (yet) for ClockShifter5.
     TestX::testGetNormalizedPosition();
@@ -676,8 +686,9 @@ void testClockShifter5() {
     //     Tes::testCalculateShiftOver3();
     TestX::testArePastDelay();
     TestX::testProcessShift();
-    //TestX::testProcessShift2();
+    // TestX::testProcessShift2();
     TestX::testProcessShift3();
+    TestX::testProcessShift4();
 
     testStraightThrough();
     testStraightThrough2();
