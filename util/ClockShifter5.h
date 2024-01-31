@@ -31,6 +31,7 @@ private:
     bool _haveClocked = false;
     mutable float _lastRawShift = 0;
     mutable float _lastProcessedShift = 0;
+    static int llv;  // log level
 
     bool arePastDelay(float candidateDelay) const;
     // float processShift(float rawShift) const;
@@ -43,22 +44,22 @@ private:
 inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
     const float targetClockf = float(_freqMeasure.getPeriod()) * candidateDelay;
     const int targetClock = int(targetClockf);
-    SQINFO("int are past delay, cand=%f tc=%d acc=%d ret=%d", candidateDelay, targetClock, _phaseAccumulator, (_phaseAccumulator > targetClock));
+    if (llv > 0) SQINFO("int are past delay, cand=%f tc=%d acc=%d ret=%d", candidateDelay, targetClock, _phaseAccumulator, (_phaseAccumulator > targetClock));
     return _phaseAccumulator > targetClock;
 }
 
 inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift) const {
     if (rawShift == _lastRawShift) {
         // return c;
-        SQINFO("no change, ret %f", _lastProcessedShift);
+        if (llv > 0) SQINFO("no change, ret %f", _lastProcessedShift);
         return std::make_tuple(_lastProcessedShift, false, false);
     }
 
     const float newShift = (rawShift - std::floor(rawShift));
-//    const float position = getNormalizedPosition();
+    //    const float position = getNormalizedPosition();
 
     // If we reduced the phase of the delay, such that it goes over the current position.
-  //  const bool crossedBackwards = ((_lastProcessedShift > position) && (newShift < position));
+    //  const bool crossedBackwards = ((_lastProcessedShift > position) && (newShift < position));
 
     // If the phase increases from, say .95 to .05, it wraps in the increasing direction;
     const bool phaseWrappedIncreasing = ((_lastProcessedShift > .75) && (newShift < .25));
@@ -73,18 +74,20 @@ inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift)
 }
 
 inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
-    SQINFO("\n-- cs5::process (%d, %d, %f) acc=%d hvck=%d", trigger, clock, rawShift, _phaseAccumulator, _haveClocked);
-    if (trigger) SQINFO("\n*** clock in*");
+    if (llv > 0) {
+        SQINFO("\n-- cs5::process (%d, %d, %f) acc=%d hvck=%d", trigger, clock, rawShift, _phaseAccumulator, _haveClocked);
+        if (trigger) SQINFO("\n*** clock in*");
+    }
     const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
-        SQINFO("leaving unstable");
+        if (llv > 0) SQINFO("leaving unstable");
         return false;
     }
 
     const auto processedShift = processShift(rawShift);
     float shift = std::get<0>(processedShift);
-    SQINFO("processed shift = %f, %d", std::get<0>(processedShift), std::get<1>(processedShift));
+    if (llv > 0) SQINFO("processed shift = %f, %d %d", std::get<0>(processedShift), std::get<1>(processedShift), std::get<2>(processedShift));
 
     assert(shift >= 0);
     assert(shift <= 1);
@@ -94,27 +97,33 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         // If we get a trigger, but haven't finished the period, then  we either have a rounding error, or
         // the clock has sped up. But check phase acc to make sure we are running (not priming).
         if (!_haveClocked && (_phaseAccumulator > 0)) {
-            SQINFO("we owe a trigger");
+            if (llv > 0) SQINFO("we owe a trigger");
             ret = true;
         }
         // This clock for processing on the first clock
         _phaseAccumulator = 0;
-        SQINFO("clear hc");
+        if (llv > 0) SQINFO("clear hc");
         _haveClocked = false;
     }
 
     // If a change in shift has moved us to a later time, thought zero, then
     // we must suppress the clocks we would generate.
     if (std::get<1>(processedShift)) {
-        SQINFO("suppressing on shift wrap around zero. set hc");
+        if (llv > 0) SQINFO("suppressing on shift wrap around zero. set hc");
         _haveClocked = true;
+    }
+    if (std::get<2>(processedShift)) {
+        if (llv > 0) SQINFO("allowing clock on wrap around zero. clr hc");
+        if (_haveClocked) {      // just for test, to find out who is calling us this way.
+        }
+        _haveClocked = false;
     }
 
     _phaseAccumulator++;
     const bool _arePastDelay = arePastDelay(shift);
-    SQINFO("ret from _arePast = %d _haveClocked = %d", _arePastDelay, _haveClocked);
+    if (llv > 0) SQINFO("ret from _arePast = %d _haveClocked = %d", _arePastDelay, _haveClocked);
     if (!_haveClocked && _arePastDelay) {
-        SQINFO("clocking from are past, set hc");
+        if (llv > 0) SQINFO("clocking from are past, set hc");
         ret = true;
         _haveClocked = true;
     }
@@ -127,10 +136,10 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     }
 
     if (ret) {
-        SQINFO("process ret clock: %d", ret);
-        SQINFO("\n*** Clock Out");
+        if (llv > 0) SQINFO("process ret clock: %d", ret);
+        if (llv > 0) SQINFO("\n*** Clock Out");
     } else {
-        SQINFO("process no clock");
+        if (llv > 0) SQINFO("process no clock");
     }
     return ret;
 }

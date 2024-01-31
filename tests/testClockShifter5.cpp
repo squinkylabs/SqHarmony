@@ -4,6 +4,8 @@
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
 
+int ClockShifter5::llv = 1;
+
 static void testCanCall() {
     ClockShifter5 c;
     //  c.setShift(.5);
@@ -85,7 +87,7 @@ static void testDelay10b() {
 #endif
 
 static void testDelay10(float shift) {
-    SQINFO("testDelay10 %f", shift);
+    //SQINFO("testDelay10 %f", shift);
     const int period = 10;
     auto shifter = makeAndPrime(period, shift);
 
