@@ -4,7 +4,7 @@
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
 
-int ClockShifter5::llv = 1;
+int ClockShifter5::llv = 0;
 
 static void testCanCall() {
     ClockShifter5 c;

@@ -16,6 +16,7 @@ public:
     // This used to be used internally, now just for test
     float getNormalizedPosition() const;
 
+    static int llv;  // log level
 private:
     FreqMeasure2 _freqMeasure;
     OneShotSampleTimer _clockWidthGenerator;
@@ -31,7 +32,7 @@ private:
     bool _haveClocked = false;
     mutable float _lastRawShift = 0;
     mutable float _lastProcessedShift = 0;
-    static int llv;  // log level
+   
 
     bool arePastDelay(float candidateDelay) const;
     // float processShift(float rawShift) const;
