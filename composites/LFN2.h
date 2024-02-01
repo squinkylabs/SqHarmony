@@ -1,5 +1,10 @@
 
 #pragma once
+
+
+#include "LFNDsp.h"
+
+
 namespace rack {
 namespace engine {
 struct Module;
@@ -33,10 +38,22 @@ public:
         NUM_LIGHTS
     };
 
+     void process(const typename TBase::ProcessArgs& args) override;
+
 private:
+    LFNDsp _dsp;
+
+
     void init();
 };
 
 template <class TBase>
 inline void LFN2<TBase>::init() {
+}
+
+template <class TBase>
+inline void LFN2<TBase>::process(const typename TBase::ProcessArgs& args) {
+    float_4 x = _dsp.process();
+    //     void setVoltageSimd(T voltage, int firstChannel) {
+    TBase::outputs[OUT].setVoltageSimd(x, 0);
 }

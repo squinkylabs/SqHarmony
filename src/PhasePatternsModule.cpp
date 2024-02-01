@@ -14,6 +14,9 @@
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
 
+
+int ClockShifter5::llv = 0;
+
 template <>
 int BufferingParent<SqLabel>::_refCount = 0;
 

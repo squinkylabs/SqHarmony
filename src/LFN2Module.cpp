@@ -19,14 +19,17 @@ public:
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         // addParams();
     }
-    void process(const ProcessArgs& args) override {
-        // comp->process(args);
-       //SQINFO("xxx");
-        const int x = gen32();
-        float f = float(x) /  float(std::numeric_limits<int>::max());
-        outputs[Comp::OUT].setVoltage(10 * f);
-    }
+    // void process(const ProcessArgs& args) override {
+    //     // comp->process(args);
+    //    //SQINFO("xxx");
+    //     const int x = gen32();
+    //     float f = float(x) /  float(std::numeric_limits<int>::max());
+    //     outputs[Comp::OUT].setVoltage(10 * f);
+    // }
 
+    void process(const ProcessArgs& args) override {
+        comp->process(args);
+    }
 private:
     std::mt19937 gen32;
 };

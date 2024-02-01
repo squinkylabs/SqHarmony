@@ -79,7 +79,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         SQINFO("\n-- cs5::process (%d, %d, %f) acc=%d hvck=%d", trigger, clock, rawShift, _phaseAccumulator, _haveClocked);
         if (trigger) SQINFO("\n*** clock in*");
     }
-    const bool freqWasValid = _freqMeasure.freqValid();
+ //   const bool freqWasValid = _freqMeasure.freqValid();
     _freqMeasure.process(trigger, clock);
     if (!_freqMeasure.freqValid()) {
         if (llv > 0) SQINFO("leaving unstable");
