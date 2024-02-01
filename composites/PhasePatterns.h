@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "ClockShifter4.h"
+#include "ClockShifter5.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
@@ -96,7 +96,7 @@ private:
     void _updatePoly();
     void _updateShiftAmount();
 
-    ClockShifter4 _clockShifter[16];
+    ClockShifter5 _clockShifter[16];
     ShiftCalc _ribGenerator[16];
 
     // TODO: get rid of these initializers. There are just here to make some test pass.
@@ -105,6 +105,7 @@ private:
     GateTrigger _negativeButtonProc;
     GateTrigger _ribPositiveTrigger[16];
     GateTrigger _ribNegativeTrigger[16];
+    float _curShift[16] = {0};
     Divider divn;
 
     int _numInputClocks = 0;
@@ -184,7 +185,8 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
         const float shift = globalShift +
                             _ribGenerator[ribIndex].get() +
                             TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);
-        _clockShifter[i].setShift(shift);
+       // _clockShifter[i].setShift(shift);
+        _curShift[i] = shift;
     }
 
     // put channel 0 in the UI.
@@ -250,7 +252,8 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
         const int clockInputIndex = monoClock ? 0 : i;
         const bool rawClockOut = _clockShifter[i].process(
             _inputClockProc[clockInputIndex].trigger(),
-            _inputClockProc[clockInputIndex].gate());
+            _inputClockProc[clockInputIndex].gate(),
+            _curShift[i]);
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
         TBase::outputs[CK_OUTPUT].setVoltage(clockOut, i);
     }
