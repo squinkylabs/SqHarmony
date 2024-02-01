@@ -111,7 +111,7 @@ static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter5> shifte
 }
 
 static Outputs run(const Inputs& _input) {
-    SQINFO("*** testRun input=%s", _input.toString().c_str());
+    //SQINFO("*** testRun input=%s", _input.toString().c_str());
     Outputs initOutput;
     // Step 1, setup.
     auto result = makeAndPrime2(_input.period, _input.initialShift);
@@ -136,7 +136,7 @@ static Outputs run(const Inputs& _input) {
         const Outputs out2 = runSub(i, shifter);
         return out1.combine(out2);
     }
-    SQINFO("*** testRun out %s", out1.toString().c_str());
+    //SQINFO("*** testRun out %s", out1.toString().c_str());
     return out1;
 }
 
@@ -151,7 +151,7 @@ static void test0() {
 // This tests the case where we emit extra clocks at the bottom, to
 // be sure they don't generate clocks.
 static void testNoShift() {
-    SQINFO("------------- testNoShift");
+    //SQINFO("------------- testNoShift");
     Inputs in;
     const int cycles = 3;  // was 12345 when there was less debug.
                            // 12 failed.
@@ -227,24 +227,16 @@ static void testSlowDown() {
 
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
-    SQINFO("--------------------------");
-    SQINFO("------- testSpeedUp per=%d\n\n", period);
     Inputs in;
-   // const int cycles = 5;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.shiftPerSample = shiftPerSample;
     const auto output = run(in);
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
 
-  //  SQINFO("output = %s", output.toString().c_str());
-
-   
-
     // rate should have been steady.
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
-    SQINFO("jitter = %d", jitter);
-#if 0
+#if 1
     assertLE(jitter, allowableJitter);
     //assertEQ(output.minSamplesBetweenClocks, output.maxSamplesBetweenClocks);
 
@@ -265,23 +257,10 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
 static void testSpeedUp() {
    int period = 10;
    for (int i = 0; i < 8; ++i) {
-    //   float x = -float(period) / 200.f;
        float x = -10.f / (20.f * period);
        testSpeedUp(5, period, x, 2);
        period *= 2;
    }
-
-
-  // period = 40;
-  // x = -float(period) / 200.f;
-  // testSpeedUp(5, period, x, 8);
-
-#if 0
-   period = 100;
-   x = -float(period) / 200.f;
-   testSpeedUp(5, period, x, 4);    // need to increase jitter tolerance??
-#endif
-
 }
 
 static void testSlowDownAndSpeedUp() {
