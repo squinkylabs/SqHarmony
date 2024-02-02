@@ -31,7 +31,7 @@ public:
         comp->process(args);
     }
 private:
-    std::mt19937 gen32;
+  //  std::mt19937 gen32;
 };
 
 class LFN2Widget : public ModuleWidget {
