@@ -83,9 +83,11 @@ inline float_4 NoiseGen::get() {
         b4 = _ka4 * b5 + white + _kb4;
         b5 = _ka5 * b1 + white + _kb5;
       //  ret = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.015;  // Roughly compensate for gain
+        ret = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.003;
         b6 = white * _ka6;
         // float_4
     } else {
+        SQINFO("not pink");
         ret = white;
     }
 

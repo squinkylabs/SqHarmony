@@ -15,10 +15,10 @@ using Module = ::rack::engine::Module;
 template <class TBase>
 class LFN2 : public TBase {
 public:
-    LFN2(Module* module) : TBase(module) {
+    LFN2(Module* module) : TBase(module), _dsp(0) {
         init();
     }
-    LFN2() : TBase() {
+    LFN2() : TBase(), _dsp(0) {
         init();
     }
     enum ParamIds {
