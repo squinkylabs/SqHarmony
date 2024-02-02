@@ -51,8 +51,9 @@ private:
     float sumSquares = 0;
 };
 
-static void testRMS() {
+static void testRMS(bool pink) {
     NoiseGen n(0);
+    n.isPink = pink;
     RMS x;
     for (int i=0; i< 1000; ++i) {
         x.accept(n.get()[0]);
@@ -64,7 +65,17 @@ static void testRMS() {
     assertGT(f, .5);
 }
 
-static void testReset(int i) {
+static void testRMS() {
+    testRMS(false);
+}
+
+static void testPinkRMS() {
+     testRMS(true);
+}
+
+static void testReset(int testChannel) {
+    assert(testChannel >= 0);
+    assert(testChannel < 4);
     NoiseGen n(0);
     const auto xInit = n.get();
     n.get();
@@ -72,12 +83,18 @@ static void testReset(int i) {
     n.get();
     n.get();
 
-    const auto mask = SimdBlocks::maskTrue1(i);
+    const auto mask = SimdBlocks::maskTrue1(testChannel);
+
     n.reset(mask);
     const auto x2 = n.get();
 
     for (int i = 1; i < 4; ++i) {
-        assertNE(xInit[0], x2[i]);
+        if (i == testChannel) {
+            assertEQ(xInit[i], x2[i]);
+        }
+        else {
+            assertNE(xInit[i], x2[i]);
+        }
     }
 
 }
@@ -113,5 +130,6 @@ void testNoiseGen() {
     testRMS();
     testMaskTrue1();
     testReset();
+    testPinkRMS();
 
 }
