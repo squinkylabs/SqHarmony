@@ -34,6 +34,7 @@ public:
 
     static float_4 maskTrue();
     static float_4 maskFalse();
+    static float_4 maskTrue1(int channel);
     static bool isChannelTrue(int channel, float_4 x);
     static bool isTrue(float_4);
     static bool areMasksEqual(float_4, float_4);
@@ -42,6 +43,12 @@ public:
  inline bool SimdBlocks::isChannelTrue(int channel, float_4 x) {
     int32_4 mi = x;
     return mi[channel] != 0;    
+ }
+
+ inline float_4 SimdBlocks::maskTrue1(int channel) {
+    float_4 x = 1;
+    x[channel] = 0;
+    return float_4(1) > x;
  }
 
  inline  bool SimdBlocks::areMasksEqual(float_4 a, float_4 b) {
@@ -64,6 +71,7 @@ inline bool SimdBlocks::isTrue(float_4 x) {
 inline float_4 SimdBlocks::maskTrue() {
     return float_4(1) > float_4(0);
 }
+
 
 inline float_4 SimdBlocks::maskFalse() {
     return float_4(0);

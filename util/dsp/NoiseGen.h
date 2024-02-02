@@ -7,6 +7,8 @@ public:
     NoiseGen(int base);
     // generates a new random
     float_4 get();
+
+    void reset(float_4);
 private:
     std::mt19937 gen32[4];
 };
@@ -22,5 +24,9 @@ inline float_4 NoiseGen::get() {
     for (int i=0; i<4; ++i) {
         ret[i] = gen32[i]();
     }
-    return ret;
+    return ret / std::numeric_limits<int>::max();
+}
+
+inline void NoiseGen::reset(float_4 flags) {
+    
 }
