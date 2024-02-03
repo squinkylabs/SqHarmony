@@ -65,8 +65,7 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
         addLabel(Vec(15, 6), "Phase Patterns", 20);
-        // addLabel(Vec(28, 60), "Under Construction", 14);
-        addLabel(Vec(30, 356), "Squinktronix", 16);
+        addLabel(Vec(33, 356), "Squinktronix", 16);
 #endif
         addControls(module);
         addIO(module);
@@ -135,20 +134,20 @@ private:
         const int c = (a + b) / 2;
 
         int jackY = 322;
-        const int dL = 18;
+        const int dL = 20;
         addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::CK_INPUT));
-        addLabel(Vec(9, jackY - dL), "CkIn");
+        addLabel(Vec(11, jackY - dL), "CkIn");
         addInput(createInput<PJ301MPort>(Vec(c, jackY), module, Comp::SHIFT_INPUT));
-        addLabel(Vec(c - 4, jackY - dL), "Shft");
+        addLabel(Vec(c - 1, jackY - dL), "Shft");
         addOutput(createOutput<PJ301MPort>(Vec(85, jackY), module, Comp::CK_OUTPUT));
-        addLabel(Vec(79, jackY - dL), "CkOut");
+        addLabel(Vec(81, jackY - dL), "CkOut");
 
-        jackY -= 50;
+        jackY -= 70;
 
         addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::RIB_POSITIVE_INPUT));
-        addLabel(Vec(a, jackY - dL), "Rib Trig+");
+        addLabel(Vec(a, jackY - dL), "RIB+");
         addInput(createInput<PJ301MPort>(Vec(85, jackY), module, Comp::RIB_NEGATIVE_INPUT));
-        addLabel(Vec(78, jackY - dL), "Rib Trig-");
+        addLabel(Vec(85, jackY - dL), "RIB-");
     }
 
     /**
