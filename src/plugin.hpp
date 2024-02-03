@@ -5,7 +5,7 @@ using namespace rack;
 // #define _ADD
 #define _PM
 // #define _MULT
-#define _LFN
+//#define _LFN
 
 extern Plugin* pluginInstance;
 

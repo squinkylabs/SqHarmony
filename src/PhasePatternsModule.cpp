@@ -40,8 +40,12 @@ void inline PhasePatternsModule::addParams() {
     this->configParam(Comp::SHIFT_PARAM, -1, 1, 0, "Shift amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
-    this->configParam(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
-    this->configParam(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
+
+    //this->configParam(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
+    //this->configParam(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
+    // configSwitch(MUTE_PARAMS + i, 0.f, 1.f, 0.f, string::f("Row %d mute", i + 1));
+    this->configSwitch(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
+    this->configSwitch(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
     this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Rib total shift (numerator)");
     this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "Rib shift time (denominator)");
 
@@ -131,7 +135,7 @@ private:
         const int c = (a + b) / 2;
 
         int jackY = 322;
-        const int dL = 20;
+        const int dL = 18;
         addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::CK_INPUT));
         addLabel(Vec(9, jackY - dL), "CkIn");
         addInput(createInput<PJ301MPort>(Vec(c, jackY), module, Comp::SHIFT_INPUT));
@@ -142,7 +146,9 @@ private:
         jackY -= 50;
 
         addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::RIB_POSITIVE_INPUT));
-        addLabel(Vec(a, jackY - dL), "Rib Trig");
+        addLabel(Vec(a, jackY - dL), "Rib Trig+");
+        addInput(createInput<PJ301MPort>(Vec(85, jackY), module, Comp::RIB_NEGATIVE_INPUT));
+        addLabel(Vec(78, jackY - dL), "Rib Trig-");
     }
 
     /**
@@ -157,7 +163,7 @@ private:
         // TODO: what are these arbitrary numbers?
         // This "max size" is lame - do something better; was 200, 20
         // with 20, 2 is totally invisible.
-        // with 200, 20 it disappears at zoom > 250
+        // with 200, 20 it disappears at zoom > 250clichéd
         // 400, 40 is no better
         // at 100, 10 it's truncated, but it still zooms up to about 240
         const Vec size(200, 20);
