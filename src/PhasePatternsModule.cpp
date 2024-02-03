@@ -64,8 +64,8 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(15, 6), "Phase Patterns", 20);
-        addLabel(Vec(33, 356), "Squinktronix", 16);
+        addLabel(Vec(16, 6), "Phase Patterns", 17); // was 20
+        addLabel(Vec(24, 356), "Squinktronix", 16);
 #endif
         addControls(module);
         addIO(module);
@@ -90,19 +90,15 @@ private:
         }
     }
     void addControls(PhasePatternsModule* module) {
-        const float shift_row = 71;
-        const float rib1_row = 150;
-        const float rib2_row = 200;
-
-        addParam(createParamCentered<RoundBlackKnob>(Vec(60, shift_row), module, Comp::SHIFT_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(42, 51), module, Comp::SHIFT_PARAM));
 #ifdef _LAB
-        addLabel(Vec(4, shift_row - 10), "Shift");
+        addLabel(Vec(40, 29), "Shift");
 #endif
-        _shiftDisplay = addLabel(Vec(70, shift_row - 10), "");
+        _shiftDisplay = addLabel(Vec(42, 83), "");
 
         // now all the RIB controls
         auto p = createParam<PopupMenuParamWidget>(
-            Vec(14, rib1_row),
+            Vec(6,138),
             module,
             Comp::RIB_DURATION_PARAM);
         //   p->setShortLabels(Comp::getShortScaleLabels(true));
@@ -111,43 +107,39 @@ private:
         p->box.size.y = 22;
         p->text = "1";
         addParam(p);
+        addLabel(Vec(11, 110), "Total");
 
-        auto param = createParam<RoundBlackSnapKnob>(Vec(70, rib1_row), module, Comp::RIB_SPAN_PARAM);
+        auto param = createParam<RoundBlackSnapKnob>(Vec(64, 134), module, Comp::RIB_SPAN_PARAM);
         addParam(param);
+        addLabel(Vec(67, 110), "Dur");
 
         // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(20, rib2_row),
+            Vec(17, 178),
             module,
             Comp::RIB_POSITIVE_BUTTON_PARAM,
             Comp::RIB_POSITIVE_LIGHT));
+        addLabel(Vec(37, 170), "+");
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(70, rib2_row),
+            Vec(73, 178),
             module,
             Comp::RIB_NEGATIVE_BUTTON_PARAM,
             Comp::RIB_NEGATIVE_LIGHT));
+        addLabel(Vec(89, 170), "-");
     }
 
     void addIO(PhasePatternsModule* module) {
-        const int a = 13;
-        const int b = 85;
-        const int c = (a + b) / 2;
+        addInput(createInput<PJ301MPort>(Vec(12, 273), module, Comp::CK_INPUT));
+        addLabel(Vec(9, 255), "CkIn");
+        addInput(createInput<PJ301MPort>(Vec(68, 273), module, Comp::SHIFT_INPUT));
+        addLabel(Vec(68, 255), "Shft");
 
-        int jackY = 322;
-        const int dL = 20;
-        addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::CK_INPUT));
-        addLabel(Vec(11, jackY - dL), "CkIn");
-        addInput(createInput<PJ301MPort>(Vec(c, jackY), module, Comp::SHIFT_INPUT));
-        addLabel(Vec(c - 1, jackY - dL), "Shft");
-        addOutput(createOutput<PJ301MPort>(Vec(85, jackY), module, Comp::CK_OUTPUT));
-        addLabel(Vec(81, jackY - dL), "CkOut");
-
-        jackY -= 70;
-
-        addInput(createInput<PJ301MPort>(Vec(a, jackY), module, Comp::RIB_POSITIVE_INPUT));
-        addLabel(Vec(a, jackY - dL), "RIB+");
-        addInput(createInput<PJ301MPort>(Vec(85, jackY), module, Comp::RIB_NEGATIVE_INPUT));
-        addLabel(Vec(85, jackY - dL), "RIB-");
+        addOutput(createOutput<PJ301MPort>(Vec(40, 322), module, Comp::CK_OUTPUT));
+        addLabel(Vec(37, 300), "CkOut");
+        addInput(createInput<PJ301MPort>(Vec(12, 226), module, Comp::RIB_POSITIVE_INPUT));
+        addLabel(Vec(11, 206), "RIB+");
+        addInput(createInput<PJ301MPort>(Vec(67, 226), module, Comp::RIB_NEGATIVE_INPUT));
+        addLabel(Vec(67, 206), "RIB-");
     }
 
     /**
