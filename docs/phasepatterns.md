@@ -1,15 +1,11 @@
 # Squinktronix Phase Patterns manual
 
-This module is under construction at the moment. This means:
+This module is under test at the moment. This means:
 
-* The panel is ugly.
-* The feature set will change a lot.
+* The panel is not finalize.
+* The feature set will change.
 * The patch format may change, such that patches saved with this module may not load correctly in future versions.
-* There are bugs and limitations that will be addressed in the future.
-
-However, it is still enabled, so that if you happen to be using it successfully, you may continue to use it.
-
-There is not much reason to test it in its current state - there are a lot of suggestions for improving it, and it will be significantly re-written inside.
+* There are probably bugs and limitations.
 
 ## What it does
 
@@ -20,21 +16,11 @@ Phase Patterns is very simple - it takes an input clocks and delays it. The dela
 
 The output clock will be at the same rate (tempo) as the input clock, but it will be delayed by half a clock. If the clocks are perhaps quarter notes, the output will be shifted/delayed by an eighth note.
 
-There is also a built in shift generator that will over the course of 8 clocks delay the output by one clock. This is referred to as the "RIB generator", for "Reich In a Box", the original name of the modules.
+There is also a built in shift generator that will over the course of 'n' clocks delay the output by 'm' clock. This is referred to as the "RIB generator", for "Reich In a Box", the original name of the modules.
 
 There are many, many uses for this clock shifter, and most can be "unlocked" by feeding clever signals into the shift CV input.
 
-## Things that may change
-
-Hopefully users will suggest new features, and they will be implemented.
-
-The RIB generator is not very flexible.
-
-RIB generator could use a trigger input.
-
-RIB button take effect immediately. It might be nice to wait for a clock input before starting?
-
-The Shift CV convention of one cycle == 1.0 may not give a wide enough range in many applications
+Also, the module is fully polyphonic, so there is great potential for signal mangling.
 
 ## Possible uses
 
@@ -46,22 +32,36 @@ Please remember that there are many potential uses of this module - recreating t
 
 ## Panel
 
-The various controls and displays are all to compute and modulate the shift amount, and to display the shift amount. We use an arbitrary convention here that 1.0 is the duration of a clock. so shift = .25 would delay by a quarter of a clock. Shift 2.5 would delay by two clocks and a half. This 0.0 to 1.0 range would be 0 to 2*pi in radians, or 0 to 360 degrees in cartesian coordinates.
+The various controls and displays are all to compute and modulate the shift amount, and to display the shift amount. We use an arbitrary convention here that 1.0 is the duration of a clock, and that positive numbers mean a delay. so shift = .25 would delay by a quarter of a clock. Shift 2.5 would delay by two clocks and a half. If the delay is negative then the output clock will "advance" by the shift amount. This 0.0 to 1.0 range would be 0 to 2*pi in radians, or 0 to 360 degrees in cartesian coordinates.
 
-Next to the shift controls is a display that shows the current shift amount being applied. The shift amount is basically the sum of the shift knob, the shift control voltage, and the output of the "RIB generator".
+The RIB controls are labeled "Total" and "Dur". The total control is the total amount of shift that will be applied when the RIB generator hits its max value. The "Dur" control is how long it takes to get there. So, if Dur is one, and Total is four, then each RIB will over the course of four clocks shift by one clock.
+
+The buttons labeled "+" and "-" will trigger the RIB generator. + for a slowly increasing delay, - for a slowly increasing lead. The buttons will light up when the RIB generator is moving.
+
+The controls on the front panel are monophonic, and will affect all delay channels. More on polyphony later.
+
+Next to the shift controls is a display that shows the current shift amount being applied. The shift amount is basically the sum of the shift knob, the shift control voltage, and the output of the "RIB generator". If you are using polyphony such that there are multiple RIB generators, then this display will just show the total delay for the first channel.
 
 ### The inputs
 
 Clock input. This is the clock that Phase Patterns will lock onto and delay. It follows the VCV standard - any input above 1.0 is treated as a high clock, and any input below .1 is treated as a low clock. In practice this means you can run most anything into it.
 
-Shift amount input is combined with the other shift inputs to give the final shift amount. Here 0v is "no shift", 1v is "shift of one", which as explained above is one clock. The shift amount input responds to positive voltage.
+Shift amount input is combined with the other shift inputs to give the final shift amount. Here 0v is "no shift", 5v is "shift of one", which as explained above is one clock. Negative voltages will apply a negative shift.
 
 ### The outputs
 
-Clock output is the only output of the module. If follows the VCV recommendations where output low is 0, output high is 10.
+Clock output is the only output of the module. If follows the VCV recommendations where output low is 0, output high is 10. It is of course polyphonic.
 
 ### The controls
 
 Shift amount is a fixed shift that is added to the other shift sources. It currently has a range of 0..4.
 
 The RIB button triggers a new varying shift cycle when it is pressed. This causes the LED to go on and the shift will start to increase. Once the shift had increased by one, the RIB generator stops.
+
+### More about delay and advance
+
+[TBD]
+
+### More about polyphony
+
+[TBD]
