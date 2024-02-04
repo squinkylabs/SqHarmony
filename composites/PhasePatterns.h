@@ -124,7 +124,8 @@ inline void PhasePatterns<TBase>::_init() {
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButtons() {
     //  TODO: for now, just do channel 1 for this indicator
-    TBase::lights[RIB_POSITIVE_LIGHT].value = _ribGenerator[0].busy() ? 10 : 0;
+    TBase::lights[RIB_POSITIVE_LIGHT].value = _ribGenerator[0].busyPositive() ? 10 : 0;
+    TBase::lights[RIB_NEGATIVE_LIGHT].value = _ribGenerator[0].busyNegative() ? 10 : 0;
     _positiveButtonProc.go(TBase::params[RIB_POSITIVE_BUTTON_PARAM].value);
     _negativeButtonProc.go(TBase::params[RIB_NEGATIVE_BUTTON_PARAM].value);
 

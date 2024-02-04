@@ -261,7 +261,7 @@ public:
 
         for (int i = 0; i < 16; ++i) {
             const bool expectedRibState = (i == ribToTest);
-            assertEQ(comp->_ribGenerator[i].busy(), expectedRibState);
+            assertEQ(comp->_ribGenerator[i].busyEither(), expectedRibState);
         }
     }
 
@@ -356,7 +356,7 @@ public:
         processBlock(*comp);
 
         for (int i = 0; i < 16; ++i) {
-            const bool busy = comp->_ribGenerator[i].busy();
+            const bool busy = comp->_ribGenerator[i].busyEither();
             const bool expectedBusy = (i == channelToTest);
             assertEQ(busy, expectedBusy);
         }

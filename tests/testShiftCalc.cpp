@@ -61,15 +61,15 @@ static void testMulti() {
 
 static void testBusy() {
     ShiftCalc s;
-    assertEQ(s.busy(), false);
+    assertEQ(s.busyPositive(), false);
     const int period = 10;
     s.trigger(period, 3, 4);
-    assertEQ(s.busy(), true);
+    assertEQ(s.busyPositive(), true);
 }
 
 static void testTriggerSecondTime() {
     ShiftCalc s;
-    assertEQ(s.busy(), false);
+    assertEQ(s.busyPositive(), false);
     assertEQ(s.get(), 0);
     const int period = 10;
 
@@ -78,7 +78,7 @@ static void testTriggerSecondTime() {
     // TODO: why do we need to clock one "extra"?
     run(s, 1 + period * 8);
     assertEQ(s.get(), 1);
-    assertEQ(s.busy(), false);
+    assertEQ(s.busyEither(), false);
 
     s.trigger(period, 1, 8);
     run(s, 1);
@@ -87,7 +87,7 @@ static void testTriggerSecondTime() {
 
 static void testTriggerDurring() {
     ShiftCalc s;
-    assertEQ(s.busy(), false);
+    assertEQ(s.busyEither(), false);
     assertEQ(s.get(), 0);
     const int period = 10;
 
@@ -95,10 +95,10 @@ static void testTriggerDurring() {
     s.trigger(period, 1, 8);
 
     run(s, 1 + period * 4);
-    assertEQ(s.busy(), true);
+    assertEQ(s.busyPositive(), true);
     s.trigger(period, 1, 8);  // re-trigger.
     run(s, 10 + period * 4);
-    assertEQ(s.busy(), false);
+    assertEQ(s.busyEither(), false);
     assertEQ(s.get(), 1);
 }
 
