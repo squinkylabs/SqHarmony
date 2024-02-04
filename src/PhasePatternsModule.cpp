@@ -90,11 +90,11 @@ private:
         }
     }
     void addControls(PhasePatternsModule* module) {
-        addParam(createParam<RoundBlackKnob>(Vec(42, 51), module, Comp::SHIFT_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(39, 51), module, Comp::SHIFT_PARAM));
 #ifdef _LAB
-        addLabel(Vec(40, 29), "Shift");
+        addLabel(Vec(39+2, 29), "Shift");
 #endif
-        _shiftDisplay = addLabel(Vec(42, 83), "");
+        _shiftDisplay = addLabel(Vec(42-8, 83), "");
 
         // now all the RIB controls
         auto p = createParam<PopupMenuParamWidget>(
@@ -107,39 +107,39 @@ private:
         p->box.size.y = 22;
         p->text = "1";
         addParam(p);
-        addLabel(Vec(11, 110), "Total");
+        addLabel(Vec(11, 112), "Total");
 
-        auto param = createParam<RoundBlackSnapKnob>(Vec(64, 134), module, Comp::RIB_SPAN_PARAM);
+        auto param = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
         addParam(param);
-        addLabel(Vec(67, 110), "Dur");
+        addLabel(Vec(68, 112), "Dur");
 
         // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(17, 178),
+            Vec(17-2, 178),
             module,
             Comp::RIB_POSITIVE_BUTTON_PARAM,
             Comp::RIB_POSITIVE_LIGHT));
-        addLabel(Vec(37, 170), "+");
+        addLabel(Vec(15, 159), "+");
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(73, 178),
+            Vec(70, 178),
             module,
             Comp::RIB_NEGATIVE_BUTTON_PARAM,
             Comp::RIB_NEGATIVE_LIGHT));
-        addLabel(Vec(89, 170), "-");
+        addLabel(Vec(71, 159), "-", 16);
     }
 
     void addIO(PhasePatternsModule* module) {
         addInput(createInput<PJ301MPort>(Vec(12, 273), module, Comp::CK_INPUT));
-        addLabel(Vec(9, 255), "CkIn");
+        addLabel(Vec(9, 253), "CkIn");
         addInput(createInput<PJ301MPort>(Vec(68, 273), module, Comp::SHIFT_INPUT));
-        addLabel(Vec(68, 255), "Shft");
+        addLabel(Vec(68, 253), "Shft");
 
         addOutput(createOutput<PJ301MPort>(Vec(40, 322), module, Comp::CK_OUTPUT));
-        addLabel(Vec(37, 300), "CkOut");
+        addLabel(Vec(36, 300), "CkOut");
         addInput(createInput<PJ301MPort>(Vec(12, 226), module, Comp::RIB_POSITIVE_INPUT));
-        addLabel(Vec(11, 206), "RIB+");
+        addLabel(Vec(12, 206), "RIB+");
         addInput(createInput<PJ301MPort>(Vec(67, 226), module, Comp::RIB_NEGATIVE_INPUT));
-        addLabel(Vec(67, 206), "RIB-");
+        addLabel(Vec(68, 206), "RIB-");
     }
 
     /**
