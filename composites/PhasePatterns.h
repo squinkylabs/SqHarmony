@@ -185,7 +185,7 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
         const int shiftCVIndex = shiftCVPoly ? i : 0;
         const float shift = globalShift +
                             _ribGenerator[ribIndex].get() +
-                            TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);
+                            .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);       // .2 so 5 volts -> 1
        // _clockShifter[i].setShift(shift);
         _curShift[i] = shift;
     }

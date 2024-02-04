@@ -56,7 +56,20 @@ Clock output is the only output of the module. If follows the VCV recommendation
 
 Shift amount is a fixed shift that is added to the other shift sources. It currently has a range of 0..4.
 
-The RIB button triggers a new varying shift cycle when it is pressed. This causes the LED to go on and the shift will start to increase. Once the shift had increased by one, the RIB generator stops.
+The RIB buttons (labeled "+" and "-") trigger a new varying shift cycle when they are pressed. This causes an LED to go on and the shift will start to change. Once the RIB generator get to the end ("Total), it stops and the led goes off.
+
+### More about what is going on inside
+
+As you can see in the block diagram, there is not a ton going on inside this module.
+![Phase Patterns block diagram](./phase-block.svg)
+
+A key thing to observe, however, is that there are only three or four CVs going into the module: shift, RIB trigger (+,-), and clock in. These are the three inputs that can force Phase Patterns to be polyphonic. The polyphony of the clock output is always the greatest of the polyphony of the CV inputs.
+
+When Phase Patterns had a polyphony of "n", there are always "n" clock shifters. When the input clock is polyphonic, then there are "n" clock processing units. When and of the RIBs inputs is polyphonic there will be "n" RIBs generators.
+
+Notice also to block that wraps the delay into the 0..1 range. The clock shifter itself only understands delays in this range.
+
+You can also see that there is a frequency measure in between the clock and the shifter. The shifter needs to know the input frequency so that it can interpret [0..1] as [0..full] period.
 
 ### More about delay and advance
 

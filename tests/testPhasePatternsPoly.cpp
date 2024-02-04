@@ -282,7 +282,7 @@ public:
 
         for (int i = 0; i < 16; ++i) {
             const float shift = comp._curShift[i];
-            const float expectedShift = (i == channelToTest) ? shiftAmount : 0;
+            const float expectedShift = (i == channelToTest) ? shiftAmount * .2 : 0;
             assertEQ(shift, expectedShift);
         }
     }
@@ -319,7 +319,7 @@ public:
 
         for (int i = 0; i < 16; ++i) {
             const float shift = comp._curShift[i];
-            const float expectedShift = (i < channelsToTest) ? shiftValue : 0;  // knob should affect all channels
+            const float expectedShift = (i < channelsToTest) ? shiftValue * .2 : 0;  // knob should affect all channels
             assertEQ(shift, expectedShift);
             // SQINFO("channel %d shift %f", i, shift);
         }
