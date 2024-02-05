@@ -26,8 +26,8 @@ public:
         SHIFT_PARAM,
         COMBINED_SHIFT_INTERNAL_PARAM,
         RIB_POSITIVE_BUTTON_PARAM,
-        RIB_DURATION_PARAM,
-        RIB_SPAN_PARAM,
+        RIB_DURATION_PARAM, // This is is the "numerator", controlled by the widget currently called "Total"
+        RIB_SPAN_PARAM,     // This is the denominator, controlled by that widget called "Dur"
         RIB_NEGATIVE_BUTTON_PARAM,
         NUM_PARAMS
     };

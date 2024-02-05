@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "plugin.hpp"
+
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -11,9 +12,9 @@
 #include "SqLog.h"
 #include "WidgetComposite.h"
 
+
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
-
 
 int ClockShifter5::llv = 0;
 
@@ -41,19 +42,34 @@ void inline PhasePatternsModule::addParams() {
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
 
-    //this->configParam(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
-    //this->configParam(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
-    // configSwitch(MUTE_PARAMS + i, 0.f, 1.f, 0.f, string::f("Row %d mute", i + 1));
+    // this->configParam(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
+    // this->configParam(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
+    //  configSwitch(MUTE_PARAMS + i, 0.f, 1.f, 0.f, string::f("Row %d mute", i + 1));
     this->configSwitch(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
     this->configSwitch(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
-    this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Rib total shift (numerator)");
-    this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "Rib shift time (denominator)");
+    //    this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Rib total shift (numerator)");
+    this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "Rib total duration (denominator)");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::SHIFT_INPUT, "Shift amount");
     this->configInput(Comp::RIB_POSITIVE_INPUT, "Rib trigger");
     this->configInput(Comp::RIB_NEGATIVE_INPUT, "Rib negative trigger");
     this->configOutput(Comp::CK_OUTPUT, "Shifted output");
+
+    class TotalParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            //  const bool useFlats = module->params[Comp::USE_FLATS_PARAM].value > .5;
+            auto const labels = Comp::getRibDurationLabels();
+            const int index = int(std::round(module->params[Comp::RIB_DURATION_PARAM].value));
+            std::string ret;
+            if (index < int(labels.size()) && index >= 0) {
+                ret = labels[index];
+            }
+            return ret;
+        }
+    };
+    this->configParam<TotalParam>(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Total clocks (numerator)");
 }
 
 #define _LAB
@@ -64,7 +80,7 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(16, 6), "Phase Patterns", 17); // was 20
+        addLabel(Vec(16, 6), "Phase Patterns", 17);  // was 20
         addLabel(Vec(24, 356), "Squinktronix", 16);
 #endif
         addControls(module);
@@ -92,13 +108,13 @@ private:
     void addControls(PhasePatternsModule* module) {
         addParam(createParam<RoundBlackKnob>(Vec(39, 51), module, Comp::SHIFT_PARAM));
 #ifdef _LAB
-        addLabel(Vec(39+2, 29), "Shift");
+        addLabel(Vec(39 + 2, 29), "Shift");
 #endif
-        _shiftDisplay = addLabel(Vec(42-8, 83), "");
+        _shiftDisplay = addLabel(Vec(42 - 8, 83), "");
 
         // now all the RIB controls
         auto p = createParam<PopupMenuParamWidget>(
-            Vec(6,138),
+            Vec(6, 138),
             module,
             Comp::RIB_DURATION_PARAM);
         //   p->setShortLabels(Comp::getShortScaleLabels(true));
@@ -115,7 +131,7 @@ private:
 
         // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(17-2, 178),
+            Vec(17 - 2, 178),
             module,
             Comp::RIB_POSITIVE_BUTTON_PARAM,
             Comp::RIB_POSITIVE_LIGHT));
