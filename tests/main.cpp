@@ -45,7 +45,9 @@ extern void testClockShifter3();
 extern void testClockShifter4();
 extern void testClockShifter4b();
 extern void testClockShifter4c();
+extern void testClockShifter5c();
 extern void testClockShifter4d();
+extern void testClockShifter5d();
 extern void testShiftMath();
 extern void testSchmidtTrigger();
 extern void testShiftCalc();
@@ -59,6 +61,10 @@ extern void testRawChordGenerator();
 extern void testChord4();
 extern void testNumberFormatter();
 extern void testTwister();
+extern void testClockShifter5();
+extern void testClockShifter5b();
+extern void testFirst();
+extern void testNoiseGen();
 
 #include "SqLog.h"
 
@@ -74,14 +80,16 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
-    // testRawChordGenerator();
-    // testAllChords(doLongRunning);
-    // printf("put the early tests back\n");
-    printf("running 4b first for temp debug\n");
+
+#if 0
+    printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
-    testClockShifter4d();
+    testFirst();
+    std::exit(0);
+#endif
 
     testTwister();
+    testNoiseGen();
     testSchmidtTrigger();
     testNumberFormatter();
     testShiftMath();
@@ -93,9 +101,14 @@ int main(const char**, int) {
     testShiftCalc();
     testClockShifter3();
     testClockShifter4();
+    testClockShifter5();
+
     testClockShifter4b();
+    testClockShifter5b();
     testClockShifter4c();
+    testClockShifter5c();
     testClockShifter4d();
+    testClockShifter5d();
     testPhasePatterns();
     testPhasePatternsPoly();
     testClockMult();

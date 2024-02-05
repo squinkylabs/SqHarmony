@@ -8,39 +8,30 @@
 #include "SqLog.h"
 #include "WidgetComposite.h"
 
+#include "LFN2.h"
+
+using Comp = LFN2<WidgetComposite>;
 
 class LFN2Module : public rack::engine::Module {
 public:
-    enum ParamIds {
-        NUM_PARAMS
-    };
-
-    enum InputIds {
-        NUM_INPUTS
-    };
-
-    enum OutputIds {
-        OUT,
-        NUM_OUTPUTS
-    };
-
-    enum LightIds {
-        NUM_LIGHTS
-    };
+    std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);
     LFN2Module() {
-        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         // addParams();
     }
-    void process(const ProcessArgs& args) override {
-        // comp->process(args);
-       //SQINFO("xxx");
-        const int x = gen32();
-        float f = float(x) /  float(std::numeric_limits<int>::max());
-        outputs[OUT].setVoltage(10 * f);
-    }
+    // void process(const ProcessArgs& args) override {
+    //     // comp->process(args);
+    //    //SQINFO("xxx");
+    //     const int x = gen32();
+    //     float f = float(x) /  float(std::numeric_limits<int>::max());
+    //     outputs[Comp::OUT].setVoltage(10 * f);
+    // }
 
+    void process(const ProcessArgs& args) override {
+        comp->process(args);
+    }
 private:
-    std::mt19937 gen32;
+  //  std::mt19937 gen32;
 };
 
 class LFN2Widget : public ModuleWidget {
@@ -55,7 +46,7 @@ public:
 #endif
         //  addControls(module);
         //  addIO(module);
-        addOutput(createOutput<PJ301MPort>(Vec(85, 200), module, LFN2Module::OUT));
+        addOutput(createOutput<PJ301MPort>(Vec(85, 200), module, Comp::OUT));
         //addLabel(Vec(79, 1), "CkOut");
     }
     /**

@@ -261,7 +261,7 @@ public:
 
         for (int i = 0; i < 16; ++i) {
             const bool expectedRibState = (i == ribToTest);
-            assertEQ(comp->_ribGenerator[i].busy(), expectedRibState);
+            assertEQ(comp->_ribGenerator[i].busyEither(), expectedRibState);
         }
     }
 
@@ -281,8 +281,8 @@ public:
         processBlock(comp);
 
         for (int i = 0; i < 16; ++i) {
-            const float shift = comp._clockShifter[i]._shift;
-            const float expectedShift = (i == channelToTest) ? shiftAmount : 0;
+            const float shift = comp._curShift[i];
+            const float expectedShift = (i == channelToTest) ? shiftAmount * .2 : 0;
             assertEQ(shift, expectedShift);
         }
     }
@@ -294,13 +294,12 @@ public:
         Comp comp;
         comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
         comp.inputs[Comp::CK_INPUT].channels = numClockChannels;
-        // comp.inputs[Comp::SHIFT_INPUT].setVoltage(1, channelToTest);
         comp.params[Comp::SHIFT_PARAM].value = .5;
 
         processBlock(comp);
 
         for (int i = 0; i < 16; ++i) {
-            const float shift = comp._clockShifter[i]._shift;
+            const float shift = comp._curShift[i];
             const float expectedShift = (i < numClockChannels) ? .5 : 0;  // knob should affect all channels
             assertEQ(shift, expectedShift);
         }
@@ -319,8 +318,8 @@ public:
         processBlock(comp);
 
         for (int i = 0; i < 16; ++i) {
-            const float shift = comp._clockShifter[i]._shift;
-            const float expectedShift = (i < channelsToTest) ? shiftValue : 0;  // knob should affect all channels
+            const float shift = comp._curShift[i];
+            const float expectedShift = (i < channelsToTest) ? shiftValue * .2 : 0;  // knob should affect all channels
             assertEQ(shift, expectedShift);
             // SQINFO("channel %d shift %f", i, shift);
         }
@@ -357,7 +356,7 @@ public:
         processBlock(*comp);
 
         for (int i = 0; i < 16; ++i) {
-            const bool busy = comp->_ribGenerator[i].busy();
+            const bool busy = comp->_ribGenerator[i].busyEither();
             const bool expectedBusy = (i == channelToTest);
             assertEQ(busy, expectedBusy);
         }

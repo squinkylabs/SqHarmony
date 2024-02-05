@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "ClockShifter4.h"
+#include "ClockShifter5.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
@@ -26,8 +26,8 @@ public:
         SHIFT_PARAM,
         COMBINED_SHIFT_INTERNAL_PARAM,
         RIB_POSITIVE_BUTTON_PARAM,
-        RIB_DURATION_PARAM,
-        RIB_SPAN_PARAM,
+        RIB_DURATION_PARAM, // This is is the "numerator", controlled by the widget currently called "Total"
+        RIB_SPAN_PARAM,     // This is the denominator, controlled by that widget called "Dur"
         RIB_NEGATIVE_BUTTON_PARAM,
         NUM_PARAMS
     };
@@ -96,7 +96,7 @@ private:
     void _updatePoly();
     void _updateShiftAmount();
 
-    ClockShifter4 _clockShifter[16];
+    ClockShifter5 _clockShifter[16];
     ShiftCalc _ribGenerator[16];
 
     // TODO: get rid of these initializers. There are just here to make some test pass.
@@ -105,6 +105,7 @@ private:
     GateTrigger _negativeButtonProc;
     GateTrigger _ribPositiveTrigger[16];
     GateTrigger _ribNegativeTrigger[16];
+    float _curShift[16] = {0};
     Divider divn;
 
     int _numInputClocks = 0;
@@ -123,7 +124,8 @@ inline void PhasePatterns<TBase>::_init() {
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButtons() {
     //  TODO: for now, just do channel 1 for this indicator
-    TBase::lights[RIB_POSITIVE_LIGHT].value = _ribGenerator[0].busy() ? 10 : 0;
+    TBase::lights[RIB_POSITIVE_LIGHT].value = _ribGenerator[0].busyPositive() ? 10 : 0;
+    TBase::lights[RIB_NEGATIVE_LIGHT].value = _ribGenerator[0].busyNegative() ? 10 : 0;
     _positiveButtonProc.go(TBase::params[RIB_POSITIVE_BUTTON_PARAM].value);
     _negativeButtonProc.go(TBase::params[RIB_NEGATIVE_BUTTON_PARAM].value);
 
@@ -183,8 +185,9 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
         const int shiftCVIndex = shiftCVPoly ? i : 0;
         const float shift = globalShift +
                             _ribGenerator[ribIndex].get() +
-                            TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);
-        _clockShifter[i].setShift(shift);
+                            .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);       // .2 so 5 volts -> 1
+       // _clockShifter[i].setShift(shift);
+        _curShift[i] = shift;
     }
 
     // put channel 0 in the UI.
@@ -250,7 +253,8 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
         const int clockInputIndex = monoClock ? 0 : i;
         const bool rawClockOut = _clockShifter[i].process(
             _inputClockProc[clockInputIndex].trigger(),
-            _inputClockProc[clockInputIndex].gate());
+            _inputClockProc[clockInputIndex].gate(),
+            _curShift[i]);
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
         TBase::outputs[CK_OUTPUT].setVoltage(clockOut, i);
     }

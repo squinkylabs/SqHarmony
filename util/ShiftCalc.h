@@ -15,7 +15,9 @@ public:
     float go();
 
     float get() const;
-    bool busy() const;
+    bool busyPositive() const;
+    bool busyNegative() const;
+    bool busyEither() const;
 
     /**
      * @brief set up to generate a shift what will go from 0 to 1 in 8 periods.
@@ -52,10 +54,17 @@ inline float ShiftCalc::get() const {
     return float(_masterAccumulator + _acc);
 }
 
-inline bool ShiftCalc::busy() const {
+inline bool ShiftCalc::busyEither() const {
+    return _delta != 0;
+}
+
+inline bool ShiftCalc::busyPositive() const {
     return _delta > 0;
 }
 
+inline bool ShiftCalc::busyNegative() const {
+    return _delta < 0;
+}
 // inline void ShiftCalc::trigger(int periodOfClock) {
 //     if (busy()) {
 //         return;  // ignore triggers while running
@@ -67,7 +76,7 @@ inline bool ShiftCalc::busy() const {
 // }
 
 inline void ShiftCalc::trigger(int periodOfClock, float totalShiftAmount, float totalShiftDurationInClocks) {
-    if (busy()) {
+    if (busyEither()) {
         return;  // ignore triggers while running
     }
     assert(periodOfClock > 0);
