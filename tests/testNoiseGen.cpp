@@ -96,7 +96,6 @@ static void testReset(int testChannel) {
             assertNE(xInit[i], x2[i]);
         }
     }
-
 }
 
 static void testReset() {
@@ -131,5 +130,4 @@ void testNoiseGen() {
     testMaskTrue1();
     testReset();
     testPinkRMS();
-
 }
