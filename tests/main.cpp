@@ -66,6 +66,7 @@ extern void testClockShifter5b();
 extern void testFirst();
 extern void testNoiseGen();
 extern void testLFNDsp();
+extern void testButter();
 
 #include "SqLog.h"
 
@@ -91,6 +92,7 @@ int main(const char**, int) {
 
     testTwister();
     testNoiseGen();
+    testButter();
     testLFNDsp();
     testSchmidtTrigger();
     testNumberFormatter();
