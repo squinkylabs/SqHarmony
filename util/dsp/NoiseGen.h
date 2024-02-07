@@ -87,7 +87,6 @@ inline float_4 NoiseGen::get() {
         b6 = white * _ka6;
         // float_4
     } else {
-        SQINFO("not pink");
         ret = white;
     }
 

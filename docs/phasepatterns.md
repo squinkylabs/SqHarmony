@@ -77,4 +77,24 @@ You can also see that there is a frequency measure in between the clock and the 
 
 ### More about polyphony
 
-[TBD]
+because any of the input can be monophonic or polyphonic, and because Phase Patters is kind of odd anyway, the polyphonic possibilities are be a litte difficult to understand. Here are a couple of "simple" configurations for illustration.
+
+#### All inputs mono except clock in is n voice polyphonic
+
+The clock output will have n voices. There will be n clock shifters, but only one RIB generator.
+
+In this configuration, each clock in to clock out will be independent, but they will all share the shift knob, the shift CV input, and the RIB generator.  If the different clock inputs are all at different rates, the outputs will be, too. Since the shift in each will be a fraction of a clock, the absolute shift (in seconds) will be different for each.
+
+If the RIB generator is triggered, it will affect all the clock shifters the same. Sort of.
+
+#### All inputs mono except shift input is polyphonic
+
+In this case a single mono clock will got to n clock shifters and end up as a poly clock output. Each channel will have its own shift, so each output will be at the same rate as the input clock, but each will be shifted by a different amount.
+
+#### All inputs mono except rib trigger input is polyphonic
+
+### More about the clock shifter
+
+Take away some of the features, and Phase Patterns is basically a clock shifter. In this particular case what it wants to do is output a single clock for every input clock, but delayed by some fraction of a clock period. It is not a delay line, so you can't use it as an echo effect.
+
+Because it only outputs a single clock for each input clock, and wants to know the input frequency of the clock, it behaves very predictably with a steady repeating clock. With a near random input, it's uncertain what would come out.

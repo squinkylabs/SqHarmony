@@ -46,7 +46,7 @@ public:
 #endif
         //  addControls(module);
         //  addIO(module);
-        addOutput(createOutput<PJ301MPort>(Vec(85, 200), module, Comp::OUT));
+        addOutput(createOutput<PJ301MPort>(Vec(25, 200), module, Comp::OUT));
         //addLabel(Vec(79, 1), "CkOut");
     }
     /**
