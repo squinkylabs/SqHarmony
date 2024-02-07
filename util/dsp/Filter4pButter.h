@@ -2,6 +2,7 @@
 
 // VCV usually uses a c++ "struct" as an object. We use the more common way of doing it, using
 // a c++ "class". The two only differ in small ways.
+template <typename T>
 class Filter4PButter {
 public:
     //	void setParameters(Type type, float f, float Q, float V) {
@@ -20,15 +21,16 @@ public:
     //  It's much easier to look them up.
     //
     //  3) Here is the online calculator we use to get the Q numbers: https://www.earlevel.com/main/2016/09/29/cascading-filters/
+ //   void setParameters(Type type, float f, float Q, float V) {
     void setCutoffFreq(float normalizedCutoff) {
         assert(normalizedCutoff > 0 && normalizedCutoff < .5f);
-        f[0].setParameters(rack::dsp::TBiquadFilter<float>::LOWPASS, normalizedCutoff, 0.54119610, 1);
-        f[1].setParameters(rack::dsp::TBiquadFilter<float>::LOWPASS, normalizedCutoff, 1.3065630, 1);
+        f[0].setParameters(rack::dsp::TBiquadFilter<T>::LOWPASS, normalizedCutoff, 0.54119610, 1);
+        f[1].setParameters(rack::dsp::TBiquadFilter<T>::LOWPASS, normalizedCutoff, 1.3065630, 1);
       
     }
 
     // Process takes one sample of input, and generates one sample of output.
-    float process(float x) {
+    T process(T x) {
         x = f[0].process(x);  // filter input through biquad #1
         x = f[1].process(x);  // filter the output of biquad #1 through biquad #2
         return x;             // return the output of biquad #3
@@ -42,5 +44,5 @@ private:
     // It is a very reasonable implementation of a biquad, and
     // it may be templatized with float_4 for SIMD operation. Here
     // we are just using float.
-    rack::dsp::TBiquadFilter<float> f[2];
+    rack::dsp::TBiquadFilter<T> f[2];
 };
