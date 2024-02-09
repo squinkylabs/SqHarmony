@@ -22,7 +22,7 @@ private:
 
     const int _base;
 
-    // Noise filter cofficients
+    // Noise filter coefficients
     // From Paul Kellete. Way more poles than we need, but why not?
     const float_4 _ka0 = .99886;
     const float_4 _ka1 = 0.9933;
@@ -47,10 +47,15 @@ private:
     float_4 b4 = 0;
     float_4 b5 = 0;
     float_4 b6 = 0;
+
+   //  std::uniform_real_distribution<> dis( 0.0, 1.0);
 };
 
 // TODO: are these seeds spread out enough?
 inline NoiseGen::NoiseGen(int base) : _base(base) {
+    SQINFO("ng ctor, max=%f min=%f", double(std::mt19937::max()), double(std::mt19937::min()));
+    SQINFO("max32= %f", double(std::numeric_limits<int>::max()));
+    SQINFO("max32u= %f", double(std::numeric_limits<unsigned int>::max()));
     for (int i = 0; i < 4; ++i) {
         _gen32[i].seed(_getSeed(base, i));
     }
@@ -69,12 +74,19 @@ var sample = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.15; // Roug
 b6 = white * 0.115926;
 */
 inline float_4 NoiseGen::get() {
+    std::uniform_real_distribution<double> distribution(-.5, .5);
     float_4 white;
     float_4 ret;
     for (int i = 0; i < 4; ++i) {
-        white[i] = _gen32[i]();
+        white[i] = (distribution(_gen32[i]));
     }
-    white /= std::numeric_limits<int>::max();
+    // white = 0..1
+  //  white /= double(std::mt19937::max());
+
+   // SQINFO("white = %f %f %f %f", white[0], white[1],white[2],white[3]);
+    // 
+  //  white -= 0.5f;
+   //  SQINFO("white2 = %f %f %f %f", white[0], white[1],white[2],white[3]);
     if (isPink) {
         b0 = _ka0 * b0 + white + _kb0;
         b1 = _ka1 * b1 + white + _kb1;

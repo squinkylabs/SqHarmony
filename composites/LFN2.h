@@ -54,6 +54,5 @@ inline void LFN2<TBase>::init() {
 template <class TBase>
 inline void LFN2<TBase>::process(const typename TBase::ProcessArgs& args) {
     float_4 x = _dsp.process();
-    //     void setVoltageSimd(T voltage, int firstChannel) {
     TBase::outputs[OUT].setVoltageSimd(x, 0);
 }

@@ -1,9 +1,7 @@
 
 
 #include "NoiseGen.h"
-
 #include "SimdBlocks.h"
-
 #include "asserts.h"
 
 static void testCanCall() {
@@ -16,17 +14,17 @@ static void testDifferentValues() {
     NoiseGen n(0);
     float_4 x = n.get();
     float_4 y = n.get();
-    for (int i=0; i<4; ++i) {
+    for (int i = 0; i < 4; ++i) {
         assertNE(x[i], y[i]);
     }
-} 
+}
 
 static void testChannelsDifferent() {
     NoiseGen n(12);
     float_4 x = n.get();
-     for (int i=1; i<4; ++i) {
+    for (int i = 1; i < 4; ++i) {
         assertNE(x[0], x[i]);
-     }
+    }
 }
 
 static void testDifferentSeeds() {
@@ -34,7 +32,6 @@ static void testDifferentSeeds() {
     NoiseGen n2(1);
     assertNE(n.get()[0], n2.get()[0]);
 }
-
 
 class RMS {
 public:
@@ -46,6 +43,7 @@ public:
         float x = sumSquares / float(n);
         return std::sqrt(x);
     }
+
 private:
     int n = 0;
     float sumSquares = 0;
@@ -55,7 +53,7 @@ static void testRMS(bool pink) {
     NoiseGen n(0);
     n.isPink = pink;
     RMS x;
-    for (int i=0; i< 1000; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         x.accept(n.get()[0]);
     }
 
@@ -70,7 +68,7 @@ static void testRMS() {
 }
 
 static void testPinkRMS() {
-     testRMS(true);
+    testRMS(true);
 }
 
 static void testReset(int testChannel) {
@@ -91,11 +89,37 @@ static void testReset(int testChannel) {
     for (int i = 1; i < 4; ++i) {
         if (i == testChannel) {
             assertEQ(xInit[i], x2[i]);
-        }
-        else {
+        } else {
             assertNE(xInit[i], x2[i]);
         }
     }
+}
+
+static void testDC(bool pink) {
+    NoiseGen n(0);
+    n.isPink = pink;
+    double acc = 0;
+    // with 10 avg was 1.2
+    // with 100 was -3.6
+    // with 1000 was -5
+    // with 10k was -20
+    // with 100k was -200
+    const int ct = 10000;
+    for (int i=0; i<ct; ++i) {
+        const auto x = n.get();
+        for (int j = 0; j < 4; ++j) {
+            acc += x[j];
+        }
+    }
+    SQINFO("avg = %f ct=%d", acc, ct);
+    assert(false);
+    assertLT(acc, 30);
+    assertGT(acc, -30);
+}
+
+static void testDC() {
+    testDC(false);
+    testDC(true);
 }
 
 static void testReset() {
@@ -105,18 +129,18 @@ static void testReset() {
 }
 
 static void testMaskTrue1(int channel) {
-     const auto a = SimdBlocks::maskTrue1(channel);
-     for (int i=0; i<4; ++i) {
+    const auto a = SimdBlocks::maskTrue1(channel);
+    for (int i = 0; i < 4; ++i) {
         if (i == channel) {
             assertEQ(SimdBlocks::isChannelTrue(i, a), true);
         } else {
-             assertEQ(SimdBlocks::isChannelTrue(i, a), false);
+            assertEQ(SimdBlocks::isChannelTrue(i, a), false);
         }
-     }
+    }
 }
 
 static void testMaskTrue1() {
-  for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; ++i) {
         testMaskTrue1(i);
     }
 }
@@ -126,6 +150,7 @@ void testNoiseGen() {
     testDifferentValues();
     testChannelsDifferent();
     testDifferentSeeds();
+    testDC();
     testRMS();
     testMaskTrue1();
     testReset();
