@@ -48,7 +48,7 @@ private:
     float_4 b5 = 0;
     float_4 b6 = 0;
 
-   //  std::uniform_real_distribution<> dis( 0.0, 1.0);
+    //  std::uniform_real_distribution<> dis( 0.0, 1.0);
 };
 
 // TODO: are these seeds spread out enough?
@@ -81,12 +81,12 @@ inline float_4 NoiseGen::get() {
         white[i] = (distribution(_gen32[i]));
     }
     // white = 0..1
-  //  white /= double(std::mt19937::max());
+    //  white /= double(std::mt19937::max());
 
-   // SQINFO("white = %f %f %f %f", white[0], white[1],white[2],white[3]);
-    // 
-  //  white -= 0.5f;
-   //  SQINFO("white2 = %f %f %f %f", white[0], white[1],white[2],white[3]);
+    // SQINFO("white = %f %f %f %f", white[0], white[1],white[2],white[3]);
+    //
+    //  white -= 0.5f;
+    //  SQINFO("white2 = %f %f %f %f", white[0], white[1],white[2],white[3]);
     if (isPink) {
         b0 = _ka0 * b0 + white + _kb0;
         b1 = _ka1 * b1 + white + _kb1;
@@ -94,7 +94,7 @@ inline float_4 NoiseGen::get() {
         b3 = _ka3 * b3 + white + _kb3;
         b4 = _ka4 * b5 + white + _kb4;
         b5 = _ka5 * b1 + white + _kb5;
-      //  ret = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.015;  // Roughly compensate for gain
+        //  ret = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.015;  // Roughly compensate for gain
         ret = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.003;
         b6 = white * _ka6;
         // float_4

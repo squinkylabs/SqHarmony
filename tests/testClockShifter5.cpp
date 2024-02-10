@@ -4,6 +4,7 @@
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
 
+// Declare this static member
 int ClockShifter5::llv = 0;
 
 static void testCanCall() {
