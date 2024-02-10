@@ -160,6 +160,8 @@ void testNoiseGen() {
     testPinkRMS();
 }
 
+#if 0
 void testFirst() {
     testDC(true);
 }
+#endif
