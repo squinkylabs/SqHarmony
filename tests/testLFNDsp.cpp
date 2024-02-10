@@ -39,8 +39,9 @@ static void testStraight() {
 
 void testLFNDsp() {
 
+
     testCanCall();
     testMakesSound();
-    SQINFO("fix all these tests!!");
- //   testStraight();
+ //   SQINFO("fix all these tests!!");
+    testStraight();
 }

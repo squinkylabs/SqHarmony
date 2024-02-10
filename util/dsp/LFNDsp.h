@@ -19,9 +19,12 @@ private:
     // all simd
     NoiseGen _noiseGen;
     Filter4PButter<float_4> _lpf;
+
+    bool _genStraight = false;
 };
 
-inline void LFNDsp::genStraightNoise(bool) {
+inline void LFNDsp::genStraightNoise(bool b) {
+    _genStraight = b;
 }
 
 inline LFNDsp::LFNDsp(int base) : _noiseGen(base) {
@@ -31,6 +34,9 @@ inline LFNDsp::LFNDsp(int base) : _noiseGen(base) {
 
 inline float_4 LFNDsp::process() {
     float_4 temp = _noiseGen.get();
-  //  temp = _lpf.process(temp);
+    if (_genStraight == true) {
+        return temp;
+    }
+    temp = _lpf.process(temp);
     return temp;
 }
