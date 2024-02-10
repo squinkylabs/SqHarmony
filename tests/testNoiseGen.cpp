@@ -59,9 +59,8 @@ static void testRMS(bool pink) {
 
     float f = x.get();
     SQINFO("rms = %f", f);
-    assertLT(f, 2);
-    // Something wrong now!
-   // assertGT(f, .5);
+    assertLT(f, 1.2);
+    assertGT(f, .7);
 }
 
 static void testRMS() {
@@ -100,23 +99,25 @@ static void testDC(bool pink) {
     NoiseGen n(0);
     n.isPink = pink;
     double acc = 0;
-    // with 10 avg was 1.2
-    // with 100 was -3.6
-    // with 1000 was -5
-    // with 10k was -20
-    // with 100k was -200
-    const int ct = 10000;
+    // with 10 avg was -.1 white .6 pink
+    // with 100 was 12 / 36
+    // with 1000 was -12 / -91
+    // with 10k was 20 / 755
+    // with 100k was -32 / -780
+    // 1M  / 5000
+    const int ct = 1 * 1000;
     for (int i=0; i<ct; ++i) {
         const auto x = n.get();
         for (int j = 0; j < 4; ++j) {
             acc += x[j];
         }
     }
-    SQINFO("avg = %f ct=%d", acc, ct);
+    const double offset = acc / (ct * 4);
+    SQINFO("avg = %f ct=%d offset=%f", acc, ct, offset);
 
-    // Something is messed up here!!
- //   assertLT(acc, 30);
-//    assertGT(acc, -30);
+    // This offset is more than I would like - may be to much bass in the pink noise?
+    assertLT(offset, .1);
+    assertGT(offset, -.1);
 }
 
 static void testDC() {
@@ -157,4 +158,8 @@ void testNoiseGen() {
     testMaskTrue1();
     testReset();
     testPinkRMS();
+}
+
+void testFirst() {
+    testDC(true);
 }

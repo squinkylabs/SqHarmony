@@ -118,8 +118,10 @@ int main(const char**, int) {
     testClockMult();
     testMultiplier();
     testRatchet();
+
     printf("XX: leaving early for clock stuff");
     std::exit(0);
+
     testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();

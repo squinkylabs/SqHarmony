@@ -69,7 +69,7 @@ inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift)
     const bool delayDecreasingFromZero = (_lastProcessedShift < .3) && (newShift > .7);
     if (llv > 1) {
         SQINFO("process shift, wrap inc=%d, wrap dec=%d, newShift=%f", phaseWrappedIncreasing, delayDecreasingFromZero, newShift);
-        SQINFO("last shift %d new shft %d", _lastProcessedShift, newShift);
+        SQINFO("last shift %f new shft %f", _lastProcessedShift, newShift);
     }
 
     _lastRawShift = rawShift;

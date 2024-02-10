@@ -31,6 +31,6 @@ inline LFNDsp::LFNDsp(int base) : _noiseGen(base) {
 
 inline float_4 LFNDsp::process() {
     float_4 temp = _noiseGen.get();
-    temp = _lpf.process(temp);
+  //  temp = _lpf.process(temp);
     return temp;
 }

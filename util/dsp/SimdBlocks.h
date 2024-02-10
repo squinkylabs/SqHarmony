@@ -10,8 +10,8 @@ public:
     static float_4 wrapPhase01(float_4 phase);
 
     /*
-    * only accurate for 0 <= x <= two
-    */
+     * only accurate for 0 <= x <= two
+     */
     static float_4 sinTwoPi(float_4 _x);
 
     static float_4 min(float_4 a, float_4 b);
@@ -38,30 +38,39 @@ public:
     static bool isChannelTrue(int channel, float_4 x);
     static bool isTrue(float_4);
     static bool areMasksEqual(float_4, float_4);
+    static std::string toStr(float_4);
 };
 
- inline bool SimdBlocks::isChannelTrue(int channel, float_4 x) {
-    int32_4 mi = x;
-    return mi[channel] != 0;    
- }
+inline std::string SimdBlocks::toStr(float_4 x) {
+    std::stringstream s;
+    s << x[3];
+    s << "," << x[2];
+    s << "," << x[1];
+    s << "," << x[0];
+    return s.str();
+}
 
- inline float_4 SimdBlocks::maskTrue1(int channel) {
+inline bool SimdBlocks::isChannelTrue(int channel, float_4 x) {
+    int32_4 mi = x;
+    return mi[channel] != 0;
+}
+
+inline float_4 SimdBlocks::maskTrue1(int channel) {
     float_4 x = 1;
     x[channel] = 0;
     return float_4(1) > x;
- }
+}
 
- inline  bool SimdBlocks::areMasksEqual(float_4 a, float_4 b) {
-     for (int i=0; i<4; ++i) {
-         
-         bool x = isTrue(a[i]);
-         bool y = isTrue(b[i]);
-         if (x != y) {
-             return false;
-         }
-     }
-     return true;
- }
+inline bool SimdBlocks::areMasksEqual(float_4 a, float_4 b) {
+    for (int i = 0; i < 4; ++i) {
+        bool x = isTrue(a[i]);
+        bool y = isTrue(b[i]);
+        if (x != y) {
+            return false;
+        }
+    }
+    return true;
+}
 
 inline bool SimdBlocks::isTrue(float_4 x) {
     // This is a dumb, slow way to do it, but...
@@ -71,7 +80,6 @@ inline bool SimdBlocks::isTrue(float_4 x) {
 inline float_4 SimdBlocks::maskTrue() {
     return float_4(1) > float_4(0);
 }
-
 
 inline float_4 SimdBlocks::maskFalse() {
     return float_4(0);
