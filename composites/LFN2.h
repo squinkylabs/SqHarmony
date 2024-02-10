@@ -26,6 +26,7 @@ public:
     };
 
     enum InputIds {
+        DEBUG_IN,
         NUM_INPUTS
     };
 

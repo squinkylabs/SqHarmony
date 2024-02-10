@@ -67,6 +67,7 @@ extern void testFirst();
 extern void testNoiseGen();
 extern void testLFNDsp();
 extern void testButter();
+extern void testPinkFilter();
 
 #include "SqLog.h"
 
@@ -91,6 +92,7 @@ int main(const char**, int) {
 #endif
 
     testTwister();
+    testPinkFilter();
     testNoiseGen();
     testButter();
     testLFNDsp();

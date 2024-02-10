@@ -208,6 +208,7 @@
     <ClCompile Include="testOneShotSampleTimer.cpp" />
     <ClCompile Include="testPhasePatterns.cpp" />
     <ClCompile Include="testPhasePatternsPoly.cpp" />
+    <ClCompile Include="testPinkFilter.cpp" />
     <ClCompile Include="testPitchKnowledge.cpp" />
     <ClCompile Include="testProgressions.cpp" />
     <ClCompile Include="testRatchet.cpp" />
