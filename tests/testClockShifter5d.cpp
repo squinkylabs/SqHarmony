@@ -2,7 +2,7 @@
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
 
-class Inputs {
+class Inputs5 {
 public:
     int period = 0;
     int totalSamplesToTick = 0;
@@ -24,15 +24,15 @@ public:
     }
 };
 
-class Outputs {
+class Outputs5 {
 public:
     int outputClocks = 0;
     int samplesTicked = 0;
     int minSamplesBetweenClocks = 100000;
     int maxSamplesBetweenClocks = 0;
     float lastShift = 0;
-    Outputs combine(const Outputs& one) const {
-        Outputs ret = one;
+    Outputs5 combine(const Outputs5& one) const {
+        Outputs5 ret = one;
         ret.outputClocks += this->outputClocks;
         ret.samplesTicked += this->samplesTicked;
         ret.minSamplesBetweenClocks = std::min(one.minSamplesBetweenClocks, this->minSamplesBetweenClocks);
@@ -47,13 +47,16 @@ public:
             // SQINFO("processPossibleClock not clocking");
             return;
         }
+        SQINFO("got a clock 5d");
         outputClocks++;
         const int curSample = this->samplesTicked;
         if (lastClockSample >= 0) {
             const int delta = curSample - lastClockSample;
+            SQINFO("delta = %d", delta);
             assert(delta > 1);
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
+            assert(maxSamplesBetweenClocks < 5300);
         }
         lastClockSample = curSample;
     }
@@ -70,11 +73,11 @@ private:
     int lastClockSample = -1;
 };
 
-static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter5> shifter) {
+static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shifter) {
     if (ClockShifter5::llv) SQINFO("*** run Sub ");
     assert(input.isValid());
 
-    Outputs output;
+    Outputs5 output;
 
     float shift = input.initialShift;
     // SQINFO("run sub going into loop, samples ticked = %d, clocks= %d", output.samplesTicked, output.outputClocks);
@@ -110,30 +113,30 @@ static Outputs runSub(const Inputs& input, std::shared_ptr<ClockShifter5> shifte
     return output;
 }
 
-static Outputs run(const Inputs& _input) {
+static Outputs5 run(const Inputs5& _input) {
     // SQINFO("*** testRun input=%s", _input.toString().c_str());
-    Outputs initOutput;
+    Outputs5 initOutput;
     // Step 1, setup.
     auto result = makeAndPrime2(_input.period, _input.initialShift);
     initOutput.samplesTicked = 1;
     initOutput.outputClocks = result.clocked ? 1 : 0;
     auto shifter = result.shifter;
 
-    Inputs adjustedInput = _input;
+    Inputs5 adjustedInput = _input;
     adjustedInput.totalSamplesToTick -= initOutput.samplesTicked;
 
     // Step 2, run forwards
-    const Outputs outSub1 = runSub(adjustedInput, shifter);
+    const Outputs5 outSub1 = runSub(adjustedInput, shifter);
     // SQINFO("initOutput = %s", initOutput.toString().c_str());
     // SQINFO("outSub1 = %s", outSub1.toString().c_str());
-    const Outputs out1 = initOutput.combine(outSub1);
+    const Outputs5 out1 = initOutput.combine(outSub1);
     // SQINFO("combined = %s", out1.toString().c_str());
     if (_input.afterwardsRunBackwards) {
-        Inputs i = _input;  // will this cause an off by one?
+        Inputs5 i = _input;  // will this cause an off by one?
         i.shiftPerSample *= -1;
         i.initialShift = out1.lastShift;
         // Step 3 (optional) run backwards.
-        const Outputs out2 = runSub(i, shifter);
+        const Outputs5 out2 = runSub(i, shifter);
         return out1.combine(out2);
     }
     // SQINFO("*** testRun out %s", out1.toString().c_str());
@@ -141,16 +144,16 @@ static Outputs run(const Inputs& _input) {
 }
 
 static void test0() {
-    Inputs in;
+    Inputs5 in;
     in.period = 2;
     // in.cycles = 1;
     in.totalSamplesToTick = 4;
-    const Outputs o = run(in);
+    const Outputs5 o = run(in);
 }
 
 static void testNoShift() {
     // SQINFO("------------- testNoShift");
-    Inputs in;
+    Inputs5 in;
     const int cycles = 3;  // was 12345 when there was less debug.
                            // 12 failed.
     in.period = 10;
@@ -164,7 +167,7 @@ static void testNoShift() {
 }
 
 static void testNoShiftTwice() {
-    Inputs in;
+    Inputs5 in;
     const int cycles = 12;
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -179,7 +182,7 @@ static void testNoShiftTwice() {
 
 static void testShift2() {
     const int cycles = 54321;
-    Inputs in;
+    Inputs5 in;
     in.period = 10;
     in.initialShift = .2;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -194,7 +197,7 @@ static void testShift2() {
 
 static void testStop() {
     assertEQ(SqLog::errorCount, 0);
-    Inputs in;
+    Inputs5 in;
     const int cycles = 5;
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -207,7 +210,7 @@ static void testStop() {
 }
 
 static void testSlowDown(int period, int cycles) {
-    Inputs in;
+    Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.shiftPerSample = .5f / float(period);
@@ -237,7 +240,7 @@ static void testSlowDown() {
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
     SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
-    Inputs in;
+    Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.shiftPerSample = shiftPerSample;
@@ -288,15 +291,15 @@ static void testSpeedUp(int period) {
 }
 
 static void testSpeedUp() {
-    //  SQINFO("doing the orig period 10 tests");
-    //  testSpeedUp(10);
-    SQINFO("doing the new period 123 tests");
-    testSpeedUp(123);
+   SQINFO("doing the orig period 10 tests");
+    testSpeedUp(10);
+    //SQINFO("doing the new period 123 tests");
+      //testSpeedUp(123);
 }
 
 static void testSlowDownAndSpeedUp() {
     // SQINFO("\n\n\n--------------------------------------- testSlowDownAndSpeedUp");
-    Inputs in;
+    Inputs5 in;
     const int cycles = 5;
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -321,8 +324,11 @@ void testClockShifter5d() {
     testSlowDownAndSpeedUp();
 }
 
-#if 1
+#if 0
 void testFirst() {
+   // testSpeedUp();
+
+    // max bigger than 5300 is bad
       testSpeedUp(5, 7872, -0.000063516257796437, 10);
 }
 #endif
