@@ -327,7 +327,7 @@ void testClockShifter5d() {
     testSlowDownAndSpeedUp();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // testSpeedUp();
 
