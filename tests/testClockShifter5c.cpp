@@ -38,7 +38,6 @@ static void testSpeedUpOutputsClock() {
     assert(b);
 }
 
-// This is not debugged yet.
 static void testSpeedUpOutputsClockShifted() {
     float shift = .9;
     auto shifter = makeAndPrime(10, shift);
@@ -61,6 +60,5 @@ void testClockShifter5c() {
     testSpeedUp();
     testSlowDown();
     testSpeedUpOutputsClock();
-  //  SQINFO("testSpeedUpOutputsClockShifted not working yet");
     testSpeedUpOutputsClockShifted();
 }

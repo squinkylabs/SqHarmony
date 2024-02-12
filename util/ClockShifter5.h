@@ -44,7 +44,7 @@ private:
 inline bool ClockShifter5::arePastDelay(float candidateDelay) const {
     const float targetClockf = float(_freqMeasure.getPeriod()) * candidateDelay;
     const int targetClock = int(targetClockf);
-    if (llv > 0) SQINFO("int are past delay, cand=%f tc=%d acc=%d ret=%d", candidateDelay, targetClock, _phaseAccumulator, (_phaseAccumulator > targetClock));
+    if (llv > 0) SQINFO("in cs5::arePastDelay, cand=%f target clock=%d acc=%d ret=%d (acc> td)", candidateDelay, targetClock, _phaseAccumulator, (_phaseAccumulator > targetClock));
     return _phaseAccumulator > targetClock;
 }
 
@@ -80,7 +80,8 @@ inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift)
 
 inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     if (llv > 0) {
-        SQINFO("\n-- cs5::process (%d, %d, %f) acc=%d hvck=%d", trigger, clock, rawShift, _phaseAccumulator, _haveClocked);
+        const int period = _freqMeasure.freqValid() ? _freqMeasure.getPeriod() : -1;
+        SQINFO("\n-- enter cs5::process (%d, %d, %f) acc=%d haveckd=%d period=%d", trigger, clock, rawShift, _phaseAccumulator, _haveClocked, period);
         if (trigger) SQINFO("\n*** clock in*");
     }
     //   const bool freqWasValid = _freqMeasure.freqValid();

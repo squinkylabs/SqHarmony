@@ -6,7 +6,7 @@
 
 // Declare this static member.
 // Normally 1 to suppress output
-int ClockShifter5::llv = 0;
+int ClockShifter5::llv = 1;
 
 static void testCanCall() {
     ClockShifter5 c;

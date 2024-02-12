@@ -47,7 +47,7 @@ public:
             // SQINFO("processPossibleClock not clocking");
             return;
         }
-        SQINFO("got a clock 5d");
+        SQINFO("got a clock 5d last=%d", lastClockSample);
         outputClocks++;
         const int curSample = this->samplesTicked;
         if (lastClockSample >= 0) {
@@ -57,6 +57,9 @@ public:
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
             assert(maxSamplesBetweenClocks < 5300);
+            SQINFO("*********************************************************************");
+            SQINFO("*** we just output the second clock. next period we will miss one ***");
+          //  ClockShifter5::llv = 1;         // turn on verbose logging now
         }
         lastClockSample = curSample;
     }
@@ -291,10 +294,10 @@ static void testSpeedUp(int period) {
 }
 
 static void testSpeedUp() {
-   SQINFO("doing the orig period 10 tests");
+    SQINFO("doing the orig period 10 tests");
     testSpeedUp(10);
-    //SQINFO("doing the new period 123 tests");
-      //testSpeedUp(123);
+    // SQINFO("doing the new period 123 tests");
+    // testSpeedUp(123);
 }
 
 static void testSlowDownAndSpeedUp() {
@@ -324,11 +327,13 @@ void testClockShifter5d() {
     testSlowDownAndSpeedUp();
 }
 
-#if 0
+#if 1
 void testFirst() {
-   // testSpeedUp();
+    // testSpeedUp();
 
     // max bigger than 5300 is bad
-      testSpeedUp(5, 7872, -0.000063516257796437, 10);
+    // These are the exact numbers picked of from a bigger run.
+    SQINFO("---- testFist ----");
+    testSpeedUp(5, 7872, -0.000063516257796437, 10);
 }
 #endif
