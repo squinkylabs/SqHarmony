@@ -242,7 +242,7 @@ static void testSlowDown() {
 }
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
-  //  SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
+    SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -294,10 +294,10 @@ static void testSpeedUp(int period) {
 }
 
 static void testSpeedUp() {
-   // SQINFO("doing the orig period 10 tests");
+    SQINFO("doing the orig period 10 tests");
     testSpeedUp(10);
-    // SQINFO("doing the new period 123 tests");
-    // testSpeedUp(123);
+    SQINFO("doing the new period 123 tests");
+    testSpeedUp(123);
 }
 
 static void testSlowDownAndSpeedUp() {
@@ -336,6 +336,8 @@ void testFirst() {
     // max bigger than 5300 is bad
     // These are the exact numbers picked of from a bigger run.
     SQINFO("---- testFist ----");
+    testSpeedUp();
+    SQINFO("--- now special case ---");
     testSpeedUp(5, 7872, -0.000063516257796437, 10);
 }
 #endif
