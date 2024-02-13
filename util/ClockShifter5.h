@@ -75,7 +75,7 @@ inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift)
     _lastRawShift = rawShift;
     _lastProcessedShift = newShift;
     if (llv > 1) {
-        SQINFO("78 just set _lastProcessedShift to %f", _lastProcessedShift );
+        SQINFO("78 just set _lastProcessedShift to %f", _lastProcessedShift);
     }
 
     return std::make_tuple(newShift, phaseWrappedIncreasing, delayDecreasingFromZero);
@@ -127,8 +127,10 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
 
         // SQINFO("removed code for negative wrap");
         if (trigger) {
-            SQINFO("bgf: got a wrap and a trigger on the same call. May lose clock!!!");
-            assert(false);
+            //   SQINFO("bgf: got a wrap and a trigger on the same call. May lose clock!!!");
+
+            assert(!ret);  // if already forcing, this will do nothing.
+            ret = true;
         }
         _haveClocked = false;
     }

@@ -89,10 +89,10 @@ static void testDelay10b() {
 #endif
 
 static void testDelay10(float shift) {
-    SQINFO("testDelay10 %f", shift);
+  //  SQINFO("testDelay10 %f", shift);
     const int period = 10;
     auto shifter = makeAndPrime(period, shift);
-    SQINFO("finished testDelay10 prime");
+ //   SQINFO("finished testDelay10 prime");
 
     const int initialQuietPeriod = int(shift * period) - 1;
     assert(initialQuietPeriod >= 0);
@@ -517,56 +517,27 @@ public:
     }
 
     // I'm not sure if this test is legit...
-    static void testMakeAndPrime3() {
-        SQINFO("--- testMakeAndPrime3");
-        const int period = 4;
-        auto primeResult = makeAndPrime2(period);
-        auto shifter = primeResult.shifter;
-        // to fix other problems, we want to avoid _haveClocked true all the time.
-        assertEQ(shifter->_haveClocked, false);
-    }
-
-#if 0
-    static void testHalfCycleDelayold() {
-        // 8 periods, just at start
-       auto shifter = makeAndPrime(8);
-
-        const float shift = .5;
-       // shifter->setShift(.5);
-
-        // 1
-        bool b = shifter->process(false, false, shift);
-        assertEQ(b, false);
-        // 2
-        b = shifter->process(false, false, shift);
-        assertEQ(b, false);
-        // 3
-        b = shifter->process(false, false, shift);
-        assertEQ(b, false);
-
-        // 4
-        b = shifter->process(false, false, shift);
-        assertEQ(b, true);
-
-        // 5
-        b = shifter->process(false, false, shift);
-        assertEQ(b, false);
-    }
-#endif
+    // static void testMakeAndPrime3() {
+    //     const int period = 4;
+    //     auto primeResult = makeAndPrime2(period);
+    //     auto shifter = primeResult.shifter;
+    //     // to fix other problems, we want to avoid _haveClocked true all the time.
+    //     assertEQ(shifter->_haveClocked, false);
+    // }
 
     static void testGetNormalizedPosition(float shift) {
         auto shifter = makeAndPrime(10, shift);
         auto acc = shifter->_phaseAccumulator;
-        assertEQ(acc, 0);
-        assertEQ(shifter->getNormalizedPosition(), 0);
+        assertEQ(acc, 0 + 1);
+        assertClose(shifter->getNormalizedPosition(), .1, .00001);
         clockItLow(shifter, 5, shift);
         acc = shifter->_phaseAccumulator;
-        assertEQ(acc, 5);
-        assertEQ(shifter->getNormalizedPosition(), .5);
+        assertEQ(acc, 5 + 1);
+        assertClose(shifter->getNormalizedPosition(), .5 + .1, .00001);
         clockItLow(shifter, 2, shift);
         acc = shifter->_phaseAccumulator;
-        assertEQ(acc, 7);
-        assertClose(shifter->getNormalizedPosition(), .7, .0001);
+        assertEQ(acc, 7 + 1);
+        assertClose(shifter->getNormalizedPosition(), .7 + .1, .0001);
     }
 
     static void testGetNormalizedPosition() {

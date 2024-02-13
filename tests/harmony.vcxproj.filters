@@ -204,9 +204,6 @@
     <ClCompile Include="testOneShotSampleTimer.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testClockShifter3.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="testShiftMath.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
@@ -234,9 +231,6 @@
     <ClCompile Include="testPitchKnowledge.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testClockShifter4.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="testFreqMeasure2.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
@@ -244,15 +238,6 @@
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="testChord4.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="testClockShifter4b.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="testClockShifter4c.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="testClockShifter4d.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="testPhasePatternsPoly.cpp">

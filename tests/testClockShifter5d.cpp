@@ -47,18 +47,18 @@ public:
             // SQINFO("processPossibleClock not clocking");
             return;
         }
-        SQINFO("got a clock 5d last=%d", lastClockSample);
+       // SQINFO("got a clock 5d last=%d", lastClockSample);
         outputClocks++;
         const int curSample = this->samplesTicked;
         if (lastClockSample >= 0) {
             const int delta = curSample - lastClockSample;
-            SQINFO("delta = %d", delta);
+           // SQINFO("delta = %d", delta);
             assert(delta > 1);
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
             assert(maxSamplesBetweenClocks < 5300);
-            SQINFO("*********************************************************************");
-            SQINFO("*** we just output the second clock. next period we will miss one ***");
+          //  SQINFO("*********************************************************************");
+          //  SQINFO("*** we just output the second clock. next period we will miss one ***");
           //  ClockShifter5::llv = 1;         // turn on verbose logging now
         }
         lastClockSample = curSample;
@@ -162,7 +162,7 @@ static void testNoShift() {
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     const auto output = run(in);
-    SQINFO("end of testNoShift clocks=%d, output = %s", output.outputClocks, output.toString().c_str());
+    //SQINFO("end of testNoShift clocks=%d, output = %s", output.outputClocks, output.toString().c_str());
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
     assertEQ(output.outputClocks, cycles);
     assertEQ(output.maxSamplesBetweenClocks, 10);
@@ -242,7 +242,7 @@ static void testSlowDown() {
 }
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
-    SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
+  //  SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -250,11 +250,11 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
     const auto output = run(in);
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
 
-    SQINFO("input = %s", in.toString().c_str());
-    SQINFO("output = %s", output.toString().c_str());
+   // SQINFO("input = %s", in.toString().c_str());
+ //   SQINFO("output = %s", output.toString().c_str());
     // rate should have been steady.
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
-    SQINFO("measured jitter %d allowable=%d", jitter, allowableJitter);
+ //   SQINFO("measured jitter %d allowable=%d", jitter, allowableJitter);
 
     assertLE(jitter, allowableJitter);
     // assertEQ(output.minSamplesBetweenClocks, output.maxSamplesBetweenClocks);
@@ -294,7 +294,7 @@ static void testSpeedUp(int period) {
 }
 
 static void testSpeedUp() {
-    SQINFO("doing the orig period 10 tests");
+   // SQINFO("doing the orig period 10 tests");
     testSpeedUp(10);
     // SQINFO("doing the new period 123 tests");
     // testSpeedUp(123);
@@ -312,7 +312,7 @@ static void testSlowDownAndSpeedUp() {
     assertEQ(output.samplesTicked, 2 * in.totalSamplesToTick);
 }
 void testClockShifter5d() {
-    SQINFO("start testClockShifter5d");
+  //  SQINFO("start testClockShifter5d");
     assertEQ(SqLog::errorCount, 0);
     // testSlowDownAndSpeedUp();
 
