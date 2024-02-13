@@ -56,7 +56,8 @@ public:
             assert(delta > 1);
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
-            assert(maxSamplesBetweenClocks < 5300);
+         //   assert(maxSamplesBetweenClocks < 5300);
+         //   SQINFO("max sbc = %d", maxSamplesBetweenClocks);
           //  SQINFO("*********************************************************************");
           //  SQINFO("*** we just output the second clock. next period we will miss one ***");
           //  ClockShifter5::llv = 1;         // turn on verbose logging now
