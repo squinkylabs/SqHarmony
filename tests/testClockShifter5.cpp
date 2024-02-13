@@ -6,7 +6,7 @@
 
 // Declare this static member.
 // Normally 1 to suppress output
-int ClockShifter5::llv = 1;
+int ClockShifter5::llv = 0;
 
 static void testCanCall() {
     ClockShifter5 c;
@@ -89,9 +89,10 @@ static void testDelay10b() {
 #endif
 
 static void testDelay10(float shift) {
-    //SQINFO("testDelay10 %f", shift);
+    SQINFO("testDelay10 %f", shift);
     const int period = 10;
     auto shifter = makeAndPrime(period, shift);
+    SQINFO("finished testDelay10 prime");
 
     const int initialQuietPeriod = int(shift * period) - 1;
     assert(initialQuietPeriod >= 0);
@@ -714,6 +715,9 @@ void testClockShifter5() {
     //   testFreeRun();
 }
 
-// void testFirst() {
-//     TestX::testMakeAndPrime3();
-// }
+#if 0
+void testFirst() {
+    SQINFO("---- testFist ----");
+    testHalfCycleDelay();
+}
+#endif

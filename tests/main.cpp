@@ -85,7 +85,7 @@ int main(const char**, int) {
     specialDumpList();
 #else
 
-#if 1
+#if 0
     printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();

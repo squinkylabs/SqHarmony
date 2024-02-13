@@ -30,8 +30,8 @@ private:
      * @brief true if a clock has been output in the current cycle.
      */
     bool _haveClocked = false;
-    mutable float _lastRawShift = 0;
-    mutable float _lastProcessedShift = 0;
+    mutable float _lastRawShift = -1;
+    mutable float _lastProcessedShift = -1;
 
     bool arePastDelay(float candidateDelay) const;
     // float processShift(float rawShift) const;
@@ -66,14 +66,17 @@ inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift)
 
     // phase wrapping in the decreasing direction
     // all .3 were .25, and all .7 were .75
-    const bool delayDecreasingFromZero = (_lastProcessedShift < .3) && (newShift > .7);
+    const bool delayDecreasingFromZero = _lastProcessedShift < 0 ? false : (_lastProcessedShift < .3) && (newShift > .7);
     if (llv > 1) {
-        SQINFO("process shift, wrap inc=%d, wrap dec=%d, newShift=%f", phaseWrappedIncreasing, delayDecreasingFromZero, newShift);
-        SQINFO("last shift %f new shft %f", _lastProcessedShift, newShift);
+        SQINFO("a) process shift, wrap inc=%d, wrap dec=%d, newShift=%f", phaseWrappedIncreasing, delayDecreasingFromZero, newShift);
+        SQINFO("b) last shift %f new shft %f", _lastProcessedShift, newShift);
     }
 
     _lastRawShift = rawShift;
     _lastProcessedShift = newShift;
+    if (llv > 1) {
+        SQINFO("78 just set _lastProcessedShift to %f", _lastProcessedShift );
+    }
 
     return std::make_tuple(newShift, phaseWrappedIncreasing, delayDecreasingFromZero);
 }
@@ -100,6 +103,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
 
     bool ret = false;
     if (trigger) {
+        if (llv > 0) SQINFO("processing an external trigger");
         // If we get a trigger, but haven't finished the period, then  we either have a rounding error, or
         // the clock has sped up. But check phase acc to make sure we are running (not priming).
         if (!_haveClocked && (_phaseAccumulator > 0)) {
@@ -108,7 +112,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         }
         // This clock for processing on the first clock
         _phaseAccumulator = 0;
-        if (llv > 0) SQINFO("clear hc");
+        if (llv > 0) SQINFO("clear hc for new trigger");
         _haveClocked = false;
     }
 
@@ -119,9 +123,13 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         _haveClocked = true;
     }
     if (std::get<2>(processedShift)) {
-        if (llv > 0) SQINFO("allowing clock on wrap around zero. clr hc");
+        if (llv > 0) SQINFO("allowing clock on wrap around zero. clr hc. was %d", _haveClocked);
 
         // SQINFO("removed code for negative wrap");
+        if (trigger) {
+            SQINFO("bgf: got a wrap and a trigger on the same call. May lose clock!!!");
+            assert(false);
+        }
         _haveClocked = false;
     }
 
