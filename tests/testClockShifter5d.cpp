@@ -213,11 +213,13 @@ static void testStop() {
     SqLog::errorCount = 0;
 }
 
-static void testSlowDown(int period, int cycles) {
+static void testSlowDown(int cycles, int period, float shiftPerSample, int allowableJitter) {
+    SQINFO("testSlowDown %d, %d", cycles, period);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
-    in.shiftPerSample = .5f / float(period);
+  //  in.shiftPerSample = .5f / float(period);
+    in.shiftPerSample = shiftPerSample;
     const auto output = run(in);
 
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
@@ -231,16 +233,12 @@ static void testSlowDown(int period, int cycles) {
     assertLT(output.maxSamplesBetweenClocks, expecteSpacingUpperBound);
 
     // it seems that jitter of 2 is common. Probably a few "off by one errors coming along
-    const int allowableJitter = 2;
+  //  const int allowableJitter = 2;
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
     assertLE(jitter, allowableJitter);
 }
 
-static void testSlowDown() {
-    testSlowDown(10, 5);
-    testSlowDown(10, 50);
-    testSlowDown(123, 50);
-}
+
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
   //  SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
@@ -277,13 +275,32 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
     assertLT(output.maxSamplesBetweenClocks, period);
 }
 
-/**
-  variables:
-   cycles to test
-  period
-    shift per sample
 
- */
+
+static void testSlowDown(int period) {
+    for (int i = 0; i < 8; ++i) {
+        float x = 10.f / (20.f * period);
+        const int allowableJitter = std::max(5, period / 500);
+        testSlowDown(5, period, x, allowableJitter);
+        period *= 2;
+    }
+}
+
+static void testSlowDown() {
+    testSlowDown(10);
+    for (int i=110; i < 140; ++i) {
+        testSlowDown(i);
+    }
+}
+
+static void testSlowDownOld() {
+    // period, cycles (shift per sample, allowable jitter)
+  //  in.shiftPerSample = .5f / float(period);
+    testSlowDown(5, 10, .5f / 10, 2);
+    testSlowDown(50, 10, .5f / 10, 2);
+    testSlowDown(50, 123, .5f / 123, 2);
+}
+
 
 static void testSpeedUp(int period) {
     for (int i = 0; i < 8; ++i) {
@@ -323,6 +340,7 @@ void testClockShifter5d() {
     testNoShiftTwice();
 
     testStop();
+    testSlowDownOld();
     testSlowDown();
 
     testSpeedUp();
