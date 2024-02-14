@@ -127,7 +127,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
 
         // SQINFO("removed code for negative wrap");
         if (trigger) {
-            SQINFO("bgf: got a wrap and a trigger on the same call. Restoring clock!!!");
+            if (llv > 0) SQINFO("bgf: got a wrap and a trigger on the same call. Restoring clock!!!");
 
             assert(!ret);  // if already forcing, this will do nothing.
             ret = true;

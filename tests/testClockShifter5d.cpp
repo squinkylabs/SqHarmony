@@ -243,7 +243,7 @@ static void testSlowDown() {
 }
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
-    SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
+  //  SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -255,22 +255,22 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
  //   SQINFO("output = %s", output.toString().c_str());
     // rate should have been steady.
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
- //   SQINFO("measured jitter %d allowable=%d", jitter, allowableJitter);
+ //   SQINFO("measured jitter %d allowable=%d clock min=%d", jitter, allowableJitter, output.minSamplesBetweenClocks);
 
     assertLE(jitter, allowableJitter);
-    // assertEQ(output.minSamplesBetweenClocks, output.maxSamplesBetweenClocks);
+
 
     /*
-    * here are the slow down asserts:
-    *    // We should have slowed down the clock output
-    const int expectecClocksUpperBound = (cycles / 1.9) + 3;
+    * here are the slow down asserts: */
+      // We should have slowed down the clock output
+    const int expectecClocksUpperBound = (cycles * 1.9) + 3;
     assertLT(output.outputClocks, expectecClocksUpperBound);
 
 
-    assertGT(output.maxSamplesBetweenClocks, period);
-    const int expecteSpacingUpperBound = period * 2;
+    assertLT(output.maxSamplesBetweenClocks, period);
+    const int expecteSpacingUpperBound = period;
     assertLT(output.maxSamplesBetweenClocks, expecteSpacingUpperBound);
-    */
+
 
     // We should have sped up the clock output
     assertGT(output.outputClocks, cycles);
@@ -288,17 +288,17 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
 static void testSpeedUp(int period) {
     for (int i = 0; i < 8; ++i) {
         float x = -10.f / (20.f * period);
-        const int allowableJitter = 10;
+        const int allowableJitter = std::max(5, period / 500);
         testSpeedUp(5, period, x, allowableJitter);
         period *= 2;
     }
 }
 
 static void testSpeedUp() {
-    SQINFO("doing the orig period 10 tests");
     testSpeedUp(10);
-    SQINFO("doing the new period 123 tests");
-    testSpeedUp(123);
+    for (int i=110; i < 140; ++i) {
+        testSpeedUp(i);
+    }
 }
 
 static void testSlowDownAndSpeedUp() {
@@ -312,6 +312,7 @@ static void testSlowDownAndSpeedUp() {
     const auto output = run(in);
     assertEQ(output.samplesTicked, 2 * in.totalSamplesToTick);
 }
+
 void testClockShifter5d() {
   //  SQINFO("start testClockShifter5d");
     assertEQ(SqLog::errorCount, 0);
