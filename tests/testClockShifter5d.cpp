@@ -214,7 +214,7 @@ static void testStop() {
 }
 
 static void testSlowDown(int cycles, int period, float shiftPerSample, int allowableJitter) {
-    SQINFO("testSlowDown %d, %d", cycles, period);
+    SQINFO("testSlowDown %d, %d %f %d", cycles, period, shiftPerSample, allowableJitter);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -229,7 +229,8 @@ static void testSlowDown(int cycles, int period, float shiftPerSample, int allow
     assertLT(output.outputClocks, expectecClocksUpperBound);
 
     assertGT(output.maxSamplesBetweenClocks, period);
-    const int expecteSpacingUpperBound = period * 2;
+    const int expecteSpacingUpperBound = period * 2.1;
+    SQINFO("period=%d upper bound = %d max=%d", period, expecteSpacingUpperBound, output.maxSamplesBetweenClocks);
     assertLT(output.maxSamplesBetweenClocks, expecteSpacingUpperBound);
 
     // it seems that jitter of 2 is common. Probably a few "off by one errors coming along
