@@ -2,6 +2,23 @@
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
 
+class TestLFO {
+public:
+    // Normalized freq: 1 = fs.
+    void setFreq(float f);
+
+    // 1 will go from 0..1
+    void setAmp(float a);
+
+    float process();
+private:
+};
+
+class TestContext {
+public:
+    TestLFO _testLFO;
+};
+
 class Inputs5 {
 public:
     int period = 0;
@@ -77,10 +94,11 @@ private:
     int lastClockSample = -1;
 };
 
-static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shifter) {
+static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shifter, TestContext* context) {
     if (ClockShifter5::llv) SQINFO("*** run Sub ");
     assert(input.isValid());
 
+    
     Outputs5 output;
 
     float shift = input.initialShift;
@@ -117,7 +135,7 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
     return output;
 }
 
-static Outputs5 run(const Inputs5& _input) {
+static Outputs5 run(const Inputs5& _input, TestContext* context) {
     // SQINFO("*** testRun input=%s", _input.toString().c_str());
     Outputs5 initOutput;
     // Step 1, setup.
@@ -129,8 +147,10 @@ static Outputs5 run(const Inputs5& _input) {
     Inputs5 adjustedInput = _input;
     adjustedInput.totalSamplesToTick -= initOutput.samplesTicked;
 
+ //   TestContext context;
+
     // Step 2, run forwards
-    const Outputs5 outSub1 = runSub(adjustedInput, shifter);
+    const Outputs5 outSub1 = runSub(adjustedInput, shifter, context);
     // SQINFO("initOutput = %s", initOutput.toString().c_str());
     // SQINFO("outSub1 = %s", outSub1.toString().c_str());
     const Outputs5 out1 = initOutput.combine(outSub1);
@@ -140,7 +160,7 @@ static Outputs5 run(const Inputs5& _input) {
         i.shiftPerSample *= -1;
         i.initialShift = out1.lastShift;
         // Step 3 (optional) run backwards.
-        const Outputs5 out2 = runSub(i, shifter);
+        const Outputs5 out2 = runSub(i, shifter, context);
         return out1.combine(out2);
     }
     // SQINFO("*** testRun out %s", out1.toString().c_str());
@@ -152,7 +172,7 @@ static void test0() {
     in.period = 2;
     // in.cycles = 1;
     in.totalSamplesToTick = 4;
-    const Outputs5 o = run(in);
+    const Outputs5 o = run(in, nullptr);
 }
 
 static void testNoShift() {
@@ -162,7 +182,7 @@ static void testNoShift() {
                            // 12 failed.
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
-    const auto output = run(in);
+    const auto output = run(in, nullptr);
     //SQINFO("end of testNoShift clocks=%d, output = %s", output.outputClocks, output.toString().c_str());
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
     assertEQ(output.outputClocks, cycles);
@@ -176,7 +196,7 @@ static void testNoShiftTwice() {
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.afterwardsRunBackwards = true;  // forward and back should be the same
-    const auto output = run(in);
+    const auto output = run(in, nullptr);
     //   SQINFO("end of testNoShiftTwice clocks=%d, output = %s", output.outputClocks, output.toString().c_str());
     assertEQ(output.samplesTicked, 2 * in.totalSamplesToTick);
     assertEQ(output.outputClocks, 2 * cycles);
@@ -191,7 +211,7 @@ static void testShift2() {
     in.initialShift = .2;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
 
-    const auto output = run(in);
+    const auto output = run(in, nullptr);
     //  SQINFO("end of testShift2, output = %s", output.toString().c_str());
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
     assertEQ(output.outputClocks, cycles);
@@ -206,7 +226,7 @@ static void testStop() {
     in.period = 10;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.shiftPerSample = .1;  // Note that this is has the clock just about stopping - it can't really to that.
-    const auto output = run(in);
+    const auto output = run(in, nullptr);
 
     SQINFO("what's up with errors in testStop?");
     //  assertGT(SqLog::errorCount, 0);
@@ -220,7 +240,7 @@ static void testSlowDown(int cycles, int period, float shiftPerSample, int allow
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
   //  in.shiftPerSample = .5f / float(period);
     in.shiftPerSample = shiftPerSample;
-    const auto output = run(in);
+    const auto output = run(in, nullptr);
 
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
 
@@ -247,7 +267,7 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.shiftPerSample = shiftPerSample;
-    const auto output = run(in);
+    const auto output = run(in, nullptr);
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
 
    // SQINFO("input = %s", in.toString().c_str());
@@ -277,6 +297,22 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
 }
 
 
+// LFO centered at .5
+static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp) {
+    Inputs5 in;
+    in.period = period;
+    in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
+  //  in.shiftPerSample = shiftPerSample;
+    TestContext context;
+    assert(false); // set up the lfo
+    const auto output = run(in, &context);
+    assert(false);
+}
+
+
+static void testWithLFO() {
+    testWithLFO(5, 10, .5, .5);
+}
 
 static void testSlowDown(int period) {
     for (int i = 0; i < 8; ++i) {
@@ -327,7 +363,7 @@ static void testSlowDownAndSpeedUp() {
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.shiftPerSample = .05f;
     in.afterwardsRunBackwards = true;
-    const auto output = run(in);
+    const auto output = run(in, nullptr);
     assertEQ(output.samplesTicked, 2 * in.totalSamplesToTick);
 }
 
@@ -348,17 +384,13 @@ void testClockShifter5d() {
     testSlowDownAndSpeedUp();
 
     testSpeedUp(5, 7872, -0.000063516257796437, 10);
+
+    testWithLFO();
 }
 
 #if 1
 void testFirst() {
-    // testSpeedUp();
-
-    // max bigger than 5300 is bad
-    // These are the exact numbers picked of from a bigger run.
-    SQINFO("---- testFist ----");
-    testSpeedUp();
-    SQINFO("--- now special case ---");
-    testSpeedUp(5, 7872, -0.000063516257796437, 10);
+    testWithLFO();
+   
 }
 #endif
