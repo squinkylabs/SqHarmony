@@ -36,11 +36,28 @@ static void testLFO2() {
     assertClose(x, 0, .000001);
 }
 
+static void testLFOAmpl(float ampl) {
+    TestLFO lfo;
+    lfo.setFreq(.25f);
+    lfo.setAmp(ampl);
+    float x = lfo.process();
+    assertEQ(x, ampl);
+    x = lfo.process();
+    x = lfo.process();
+    assertEQ(x, -ampl);
+}
+
+static void testLFOAmpl() {
+    testLFOAmpl(0);
+    testLFOAmpl(2);
+    testLFOAmpl(.01f);
+}
+
 void testTestLFO() {
     testLFO0();
     testLFO1();
     testLFO2();
-    assert(false);
+    testLFOAmpl();
 }
 
 #if 1

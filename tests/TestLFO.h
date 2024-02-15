@@ -27,7 +27,7 @@ public:
         while (_phase >= 2 * M_PI) {
             _phase -= 2 * float(M_PI);
         }
-        return ret;
+        return ret * _amp;
     }
 private:
     float _freq = 0;
