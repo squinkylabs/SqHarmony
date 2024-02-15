@@ -34,7 +34,9 @@ inline size_t __atomic_sub_fetch(volatile size_t *, size_t, int) {
 }
 
 // Some constants that VCV needs that MSVC doesn't have
+#ifndef M_PI
 #define M_PI AudioMath::Pi
+#endif
 #define M_SQRT2 1.41421356237309504880
 #endif
 

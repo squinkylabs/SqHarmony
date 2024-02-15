@@ -69,6 +69,7 @@ extern void testNoiseGen();
 extern void testLFNDsp();
 extern void testButter();
 extern void testPinkFilter();
+extern void testTestLFO();
 
 #include "SqLog.h"
 
@@ -100,6 +101,7 @@ int main(const char**, int) {
     testSchmidtTrigger();
     testNumberFormatter();
     testShiftMath();
+    testTestLFO();
     testOneShot();
     testOneShotSampleTimer();
     testResettablePhaseAccumulator();

@@ -1,60 +1,9 @@
 
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
+#include "TestLFO.h"
 
-class TestLFO {
-public:
-    // Normalized freq: 1 = fs.
-    void setFreq(float f) { 
-        assert(f >= 0 && f < .5);
-        _freq = f;
-    }
 
-    // 1 will go from 0..1
-    void setAmp(float a) { 
-        assert(a >= 0);
-        _amp = a;
-    }
-
-    float process() {
-        const auto ret = std::cos(_phase);
-        _phase += _freq;
-        while (_phase >= 1) {
-            _phase -= 1;
-        }
-        return ret;
-    }
-private:
-    float _freq = 0;
-    float _amp = 0;
-    float _phase = 0;
-};
-
-static void testLFO0() {
-    TestLFO lfo;
-    lfo.setFreq(.4);
-    lfo.setAmp(1);
-    const float x = lfo.process();
-}
-
-static void testLFO1() {
-    TestLFO lfo;
-    lfo.setFreq(.4);
-    lfo.setAmp(1);
-    float x = lfo.process();
-
-    // cosine starts at 1;
-    assertEQ(x, 1);
-    x = lfo.process();
-    assertLT(x, 1);
-    assertGT(x, .9);
-}
-
-static void testLFO() {
-    testLFO0();
-    testLFO1();
-    assert(false);
-}
 
 class TestContext {
 public:
@@ -415,7 +364,6 @@ void testClockShifter5d() {
     // testSlowDownAndSpeedUp();
 
     test0();
-    testLFO();
     testNoShift();
     testNoShiftTwice();
 
@@ -431,9 +379,9 @@ void testClockShifter5d() {
     testWithLFO();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    testLFO();
+
     testWithLFO();
    
 }
