@@ -261,12 +261,8 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
     const auto output = run(in, nullptr);
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
 
-   // SQINFO("input = %s", in.toString().c_str());
- //   SQINFO("output = %s", output.toString().c_str());
-    // rate should have been steady.
+ 
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
- //   SQINFO("measured jitter %d allowable=%d clock min=%d", jitter, allowableJitter, output.minSamplesBetweenClocks);
-
     assertLE(jitter, allowableJitter);
 
 
@@ -288,15 +284,27 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
 }
 
 
-// LFO centered at .5
+// 
 static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp) {
+    SQINFO("----- testWithLFO");
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
   //  in.shiftPerSample = shiftPerSample;
+    float normalizeLFOFreq = lfoFreq / cycles;
     TestContext context;
-    assert(false); // set up the lfo
+    context._testLFO.setFreq(normalizeLFOFreq);
+    context._testLFO.setAmp(lfoAmp);
+    
     const auto output = run(in, &context);
+    SQINFO("input = %s", in.toString().c_str());
+    SQINFO("out = %s", output.toString().c_str());
+
+    const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
+    assertGT(jitter, 0);
+
+    
+
     assert(false);
 }
 
@@ -379,10 +387,8 @@ void testClockShifter5d() {
     testWithLFO();
 }
 
-#if 0
+#if 1
 void testFirst() {
-
     testWithLFO();
-   
 }
 #endif
