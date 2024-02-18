@@ -5,6 +5,7 @@ static void testLFO0() {
     TestLFO lfo;
     lfo.setFreq(.4);
     lfo.setAmp(1);
+    lfo.setSin(true);
     const float x = lfo.process();
 }
 
@@ -53,15 +54,50 @@ static void testLFOAmpl() {
     testLFOAmpl(.01f);
 }
 
+static void testSetSineFalse() {
+    TestLFO l;
+    l.setAmp(1);
+    l.setFreq(.1);
+    l.setSin(false);
+    // cosine of zero is 1
+    assertClose(l.process(), 1, .00001);
+}
+
+static void testSetSineTrue() {
+      TestLFO l;
+    l.setAmp(1);
+    l.setFreq(.1);
+    l.setSin(true);
+    // sine of zero is 0
+    assertClose(l.process(), 0, .00001);
+}
+
+static void testSetSine() {
+    testSetSineFalse();
+    testSetSineTrue();
+}
+
 void testTestLFO() {
     testLFO0();
     testLFO1();
     testLFO2();
     testLFOAmpl();
+    testSetSine();
 }
 
-#if 0
+static void showLFO() {
+    TestLFO lfo;
+    lfo.setFreq(.02f);
+    lfo.setAmp(10);
+    for (int i = 0; i < 50; ++i) {
+        const float f = lfo.process();
+        SQINFO("i=%d %f", i, f);
+    }
+}
+
+#if 1
 void testFirst() {
     testTestLFO();
+    // showLFO();
 }
 #endif

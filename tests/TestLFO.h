@@ -15,6 +15,11 @@ public:
         _freq = f * 2 * float(M_PI);
     }
 
+    // if false, sets cosine.
+    void setSin(bool sineFlag) {
+        _phase = sineFlag ? (.25f * 2 * float(M_PI)) : .0f;
+    }
+
     // 1 will go from 0..1
     void setAmp(float a) { 
         assert(a >= 0);
