@@ -186,7 +186,7 @@ static void showSumLFO() {
     SQINFO("at end, min=%f, max=%f", minSum, maxSum);
 }
 
-#if 1
+#if 0
 void testFirst() {
     testTestLFO();
     showSumLFO();

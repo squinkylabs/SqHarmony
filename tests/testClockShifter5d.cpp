@@ -60,7 +60,7 @@ public:
         const int curSample = this->samplesTicked;
         if (lastClockSample >= 0) {
             const int delta = curSample - lastClockSample;
-            // SQINFO("delta = %d", delta);
+            SQINFO("delta = %d", delta);
             assert(delta > 1);
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
@@ -130,6 +130,7 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
         k += samplesThisTime;
         k++;  // the high one.
     }
+    assert(output.maxSamplesBetweenClocks > output.minSamplesBetweenClocks);    // maybe not enough cycles
     return output;
 }
 
@@ -312,7 +313,7 @@ static void testWithLFO() {
     SQINFO("\n---------- testWithLFO");
 
     // tests with period 10
-    int period = 10;
+    int period = 16;
     float lfoFreq = 1 / float(period);
   //  testWithLFO(4, period, lfoFreq, 0);
    // testWithLFO(4, period, lfoFreq, .01);
@@ -395,7 +396,7 @@ void testClockShifter5d() {
     //testWithLFO();
 }
 
-#if 0
+#if 1
 void testFirst() {
     testWithLFO();
 }
