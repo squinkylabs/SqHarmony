@@ -130,7 +130,8 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
         k += samplesThisTime;
         k++;  // the high one.
     }
-    assert(output.maxSamplesBetweenClocks > output.minSamplesBetweenClocks);    // maybe not enough cycles
+  
+    assertGE(output.maxSamplesBetweenClocks, output.minSamplesBetweenClocks);// maybe not enough cycles
     return output;
 }
 
@@ -317,7 +318,7 @@ static void testWithLFO() {
     float lfoFreq = 1 / float(period);
   //  testWithLFO(4, period, lfoFreq, 0);
    // testWithLFO(4, period, lfoFreq, .01);
-    testWithLFO(2, period, lfoFreq, .1);
+    testWithLFO(3, period, lfoFreq, .1);
 
    
     assert(false);
