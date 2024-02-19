@@ -93,6 +93,27 @@ static void testSinValue() {
     assertClose(x, -1, .000001);
 }
 
+static void testMoves(bool sin) {
+     TestLFO lfo;
+    lfo.setFreq(.1f);
+    lfo.setAmp(1);
+    lfo.setSin(sin);
+
+    float f1 = lfo.process();
+    float f2 = lfo.process();
+    if (sin) {
+        assertGT(f2, f1);
+    }
+    else {
+        assertLT(f2, f1);
+    }
+}
+
+static void testMoves() {
+    testMoves(false);
+    testMoves(true);
+}
+
 void testTestLFO() {
     testLFO0();
     testLFO1();
@@ -100,6 +121,7 @@ void testTestLFO() {
     testLFOAmpl();
     testSetSine();
     testSinValue();
+    testMoves();
 }
 
 static void showOnePeriodLFO() {
@@ -143,7 +165,7 @@ static void showSumLFO() {
     SQINFO("at end, min=%f, max=%f", minSum, maxSum);
 }
 
-#if 1
+#if 0
 void testFirst() {
     testTestLFO();
   //  showSumLFO();

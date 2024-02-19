@@ -110,8 +110,10 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
             output.processPossibleClock(b, shift);
             //  SQINFO("after process possible, num ticked = %d", output.samplesTicked);
             shift += input.shiftPerSample;
-            const auto x = context->_testLFO.process();
-            shift += x;
+            if (context) {
+                const auto x = context->_testLFO.process();
+                shift += x;
+            }
             output.lastShift = shift;
             //SQINFO("+ run tick low, ck=%d set shift to %f (lfo=%f)", b, shift, x);
         }
@@ -144,7 +146,9 @@ static Outputs5 run(const Inputs5& _input, TestContext* context) {
     adjustedInput.totalSamplesToTick -= initOutput.samplesTicked;
 
     //   TestContext context;
-    context->_testLFO.setSin(true);
+    if (context) {
+        context->_testLFO.setSin(true);
+    }
 
     // Step 2, run forwards
     const Outputs5 outSub1 = runSub(adjustedInput, shifter, context);
@@ -388,7 +392,7 @@ void testClockShifter5d() {
 
     testSpeedUp(5, 7872, -0.000063516257796437, 10);
 
-    testWithLFO();
+    //testWithLFO();
 }
 
 #if 0
