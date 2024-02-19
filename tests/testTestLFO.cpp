@@ -77,27 +77,76 @@ static void testSetSine() {
     testSetSineTrue();
 }
 
+static void testSinValue() {
+    TestLFO lfo;
+    lfo.setFreq(.25f);
+    lfo.setAmp(1);
+    lfo.setSin(true);
+
+    float x = lfo.process();
+    assertClose(x, 0, .000001);
+    x = lfo.process();
+    assertClose(x, 1, .000001);
+    x = lfo.process();
+    assertClose(x, 0, .000001);
+    x = lfo.process();
+    assertClose(x, -1, .000001);
+}
+
 void testTestLFO() {
     testLFO0();
     testLFO1();
     testLFO2();
     testLFOAmpl();
     testSetSine();
+    testSinValue();
 }
 
-static void showLFO() {
-    TestLFO lfo;
-    lfo.setFreq(.02f);
+static void showOnePeriodLFO() {
+    TestLFO lfo, sinLFO;
+    int period = 10;
+    lfo.setFreq(1 / float(period));
+    sinLFO.setFreq(1 / float(period));
     lfo.setAmp(10);
-    for (int i = 0; i < 50; ++i) {
+    sinLFO.setAmp(10);
+
+    sinLFO.setSin(true);
+
+    for (int i = 0; i < period; ++i) {
         const float f = lfo.process();
-        SQINFO("i=%d %f", i, f);
+        const float fSin = sinLFO.process();
+        SQINFO("i=%d cos=%f sin=%f", i, f, fSin);
     }
+}
+
+static void showSumLFO() {
+    TestLFO lfo;
+    lfo.setFreq(.1);
+    lfo.setAmp(1);
+    float sum = 0;
+    float maxSum = -1000;
+    float minSum = 1000;
+    for (int i = 0; i < 10; ++i) {
+        const float f = lfo.process();
+       // SQINFO("i=%d %f sum=%f", i, f, sum);
+        sum += f;
+        if (sum > maxSum) {
+            SQINFO("new max at %d = %f  lfo=%f", i, sum, f);
+                    maxSum = sum;
+        }
+
+         if (sum < minSum) {
+            SQINFO("new min at %d = %f lfo=%f", i, sum, f);
+            minSum = sum;
+        }
+    }
+    SQINFO("at end, min=%f, max=%f", minSum, maxSum);
 }
 
 #if 1
 void testFirst() {
     testTestLFO();
-    // showLFO();
+  //  showSumLFO();
+    showOnePeriodLFO();
 }
 #endif

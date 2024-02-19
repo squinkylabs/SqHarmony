@@ -17,7 +17,8 @@ public:
 
     // if false, sets cosine.
     void setSin(bool sineFlag) {
-        _phase = sineFlag ? (.25f * 2 * float(M_PI)) : .0f;
+        // .25 had wrong sign.
+        _phase = sineFlag ? (.75f * 2 * float(M_PI)) : .0f;
     }
 
     // 1 will go from 0..1
