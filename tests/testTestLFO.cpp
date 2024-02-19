@@ -64,7 +64,7 @@ static void testSetSineFalse() {
 }
 
 static void testSetSineTrue() {
-      TestLFO l;
+    TestLFO l;
     l.setAmp(1);
     l.setFreq(.1);
     l.setSin(true);
@@ -94,7 +94,7 @@ static void testSinValue() {
 }
 
 static void testMoves(bool sin) {
-     TestLFO lfo;
+    TestLFO lfo;
     lfo.setFreq(.1f);
     lfo.setAmp(1);
     lfo.setSin(sin);
@@ -103,8 +103,7 @@ static void testMoves(bool sin) {
     float f2 = lfo.process();
     if (sin) {
         assertGT(f2, f1);
-    }
-    else {
+    } else {
         assertLT(f2, f1);
     }
 }
@@ -112,6 +111,26 @@ static void testMoves(bool sin) {
 static void testMoves() {
     testMoves(false);
     testMoves(true);
+}
+
+static void testIntegrate(bool sin) {
+    TestLFO lfo;
+    const int period = 16;  // pick one that's even for sin and cos
+    lfo.setFreq(1 / float(period));
+    lfo.setAmp(1);
+    lfo.setSin(sin);
+    float sum = 0;
+    for (int i = 0; i < period; ++i) {
+        const float f = lfo.process();
+        sum += f;
+    }
+
+    assertClose(sum, 0, .0001);
+}
+
+static void testIntegrate() {
+    testIntegrate(false);
+    testIntegrate(true);
 }
 
 void testTestLFO() {
@@ -122,11 +141,12 @@ void testTestLFO() {
     testSetSine();
     testSinValue();
     testMoves();
+    testIntegrate();
 }
 
 static void showOnePeriodLFO() {
     TestLFO lfo, sinLFO;
-    int period = 10;
+    int period = 16;
     lfo.setFreq(1 / float(period));
     sinLFO.setFreq(1 / float(period));
     lfo.setAmp(10);
@@ -143,21 +163,22 @@ static void showOnePeriodLFO() {
 
 static void showSumLFO() {
     TestLFO lfo;
-    lfo.setFreq(.1);
-    lfo.setAmp(1);
+    int period = 16;
+    lfo.setFreq(1 / float(period));
+    lfo.setAmp(10);
     float sum = 0;
     float maxSum = -1000;
     float minSum = 1000;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < period; ++i) {
         const float f = lfo.process();
-       // SQINFO("i=%d %f sum=%f", i, f, sum);
+        // SQINFO("i=%d %f sum=%f", i, f, sum);
         sum += f;
         if (sum > maxSum) {
             SQINFO("new max at %d = %f  lfo=%f", i, sum, f);
-                    maxSum = sum;
+            maxSum = sum;
         }
 
-         if (sum < minSum) {
+        if (sum < minSum) {
             SQINFO("new min at %d = %f lfo=%f", i, sum, f);
             minSum = sum;
         }
@@ -165,10 +186,10 @@ static void showSumLFO() {
     SQINFO("at end, min=%f, max=%f", minSum, maxSum);
 }
 
-#if 0
+#if 1
 void testFirst() {
     testTestLFO();
-  //  showSumLFO();
-    showOnePeriodLFO();
+    showSumLFO();
+    // showOnePeriodLFO();
 }
 #endif
