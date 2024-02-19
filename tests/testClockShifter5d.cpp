@@ -60,7 +60,7 @@ public:
         const int curSample = this->samplesTicked;
         if (lastClockSample >= 0) {
             const int delta = curSample - lastClockSample;
-            SQINFO("delta = %d", delta);
+            // SQINFO("delta = %d", delta);
             assert(delta > 1);
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
@@ -79,14 +79,23 @@ public:
         std::stringstream s;
         s << "samplesTicked=" << samplesTicked << std::endl;
         s << "outputClocks =" << outputClocks << std::endl;
-        s << "min=" << minSamplesBetweenClocks << " max=" << maxSamplesBetweenClocks << std::endl;
-        s << "minShift=" << minShift << " maxShift=" << maxShift << std::endl;
+        s << "* min=" << minSamplesBetweenClocks << " max=" << maxSamplesBetweenClocks << std::endl;
+        s << "* minShift=" << minShift << " maxShift=" << maxShift << std::endl;
         return s.str();
     }
 
 private:
     int lastClockSample = -1;
 };
+
+static void updateShift(const Inputs5& input, Outputs5& output, TestContext* context, float& shift) {
+    shift += input.shiftPerSample;
+    if (context) {
+        const auto x = context->_testLFO.process();
+        shift += x;
+    }
+    output.lastShift = shift;
+}
 
 static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shifter, TestContext* context) {
     if (ClockShifter5::llv) SQINFO("*** run Sub ");
@@ -108,30 +117,24 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
             const bool b = clockItLow(shifter, 1, shift);
 
             output.processPossibleClock(b, shift);
-            //  SQINFO("after process possible, num ticked = %d", output.samplesTicked);
-            shift += input.shiftPerSample;
-            if (context) {
-                const auto x = context->_testLFO.process();
-                shift += x;
-            }
-            output.lastShift = shift;
-            //SQINFO("+ run tick low, ck=%d set shift to %f (lfo=%f)", b, shift, x);
+            updateShift(input, output, context, shift);
         }
         if (samplesRemaining > 0) {
             samplesRemaining--;
             if (ClockShifter5::llv) {
-            //if (true) {
+                // if (true) {
                 SQINFO("- about to tick high %d", k + samplesThisTime);
             }
             const bool b = shifter->process(true, true, shift);
             // SQINFO("ticked high, ck=%d", b);
             output.processPossibleClock(b, shift);
+            updateShift(input, output, context, shift);
         }
         k += samplesThisTime;
         k++;  // the high one.
     }
-  
-    assertGE(output.maxSamplesBetweenClocks, output.minSamplesBetweenClocks);// maybe not enough cycles
+
+    assertGE(output.maxSamplesBetweenClocks, output.minSamplesBetweenClocks);  // maybe not enough cycles
     return output;
 }
 
@@ -300,7 +303,7 @@ static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp) {
     //  SQINFO("normalized LFO freq %f amp =%f", normalizedLFOFreq, lfoAmp);
 
     const auto output = run(in, &context);
-    SQINFO("input = %s", in.toString().c_str());
+    // SQINFO("input = %s", in.toString().c_str());
     SQINFO("out = %s", output.toString().c_str());
 
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
@@ -313,14 +316,20 @@ static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp) {
 static void testWithLFO() {
     SQINFO("\n---------- testWithLFO");
 
-    // tests with period 10
+    // these show no jitter, but may be doing nothing
     int period = 16;
     float lfoFreq = 1 / float(period);
-  //  testWithLFO(4, period, lfoFreq, 0);
-   // testWithLFO(4, period, lfoFreq, .01);
-    testWithLFO(3, period, lfoFreq, .1);
+    int cycles = 3;
+    // testWithLFO(cycles, period, lfoFreq, 0);
+    // testWithLFO(cycles, period, lfoFreq, .01);
+    // testWithLFO(cycles, period, lfoFreq, .1);
 
-   
+    testWithLFO(4, period, lfoFreq, .1);
+    testWithLFO(8, period, lfoFreq, .1);
+
+    testWithLFO(20, period, lfoFreq, .1);
+    testWithLFO(200, period, lfoFreq, .1);
+
     assert(false);
 }
 
@@ -394,7 +403,7 @@ void testClockShifter5d() {
 
     testSpeedUp(5, 7872, -0.000063516257796437, 10);
 
-    //testWithLFO();
+    // testWithLFO();
 }
 
 #if 1
