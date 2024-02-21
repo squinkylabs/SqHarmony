@@ -360,6 +360,29 @@ static void testCase9() {
     assertEQ(b, true);
 }
 
+static void testSmallVibrations() {
+    float shift = .000;
+    auto shifter = makeAndPrime(testPeriod, shift);
+    // we will have output a clock at the very start.
+    ClockShifter5::llv = 1;
+    SQINFO("Just after prime");
+    shift = .001f;
+    bool b = clockItLow(shifter, testPeriod-3, shift);
+    assert(!b);
+
+    // last sample before the clock
+    shift = -.001f;
+    b = clockItLow(shifter, 1, shift);
+    
+    b = shifter->process(true, true, shift);
+    SQINFO("after next clock high, outptu=%d", b);
+    assert(b);
+
+
+
+    assert(false);
+}
+
 void testClockShifter5b() {
     testCase1();
     testCase2();
@@ -379,7 +402,7 @@ void testClockShifter5b() {
 
 #if 0
 void testFirst() {
-    testCase9();
+    testSmallVibrations();
 }
 #endif
 

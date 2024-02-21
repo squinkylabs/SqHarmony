@@ -51,6 +51,8 @@ public:
     void processPossibleClock(bool clock, float shift) {
         // SQINFO("processPossibleClock(%d)", clock);
         samplesTicked++;
+        minShift = std::min(minShift, shift);
+        maxShift = std::max(maxShift, shift);
         if (!clock) {
             // SQINFO("processPossibleClock not clocking");
             return;
@@ -69,10 +71,10 @@ public:
             //  SQINFO("*********************************************************************");
             //  SQINFO("*** we just output the second clock. next period we will miss one ***");
             //  ClockShifter5::llv = 1;         // turn on verbose logging now
+        } else {
+            SQINFO("skipping first clock - we aren't stable yet");
         }
         lastClockSample = curSample;
-        minShift = std::min(minShift, shift);
-        maxShift = std::max(maxShift, shift);
     }
 
     std::string toString() const {
@@ -93,6 +95,7 @@ static void updateShift(const Inputs5& input, Outputs5& output, TestContext* con
     if (context) {
         const auto x = context->_testLFO.process();
         shift += x;
+        if (ClockShifter5::llv) SQINFO("LFO = %f, shift = %f", x, shift);
     }
     output.lastShift = shift;
 }
@@ -110,7 +113,6 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
     int samplesRemaining = input.totalSamplesToTick - output.samplesTicked;
     while (samplesRemaining) {
         int samplesThisTime = std::min(samplesRemaining, input.period - 1);
-        // SQINFO("run -in while, this time = %d remaining =%d ticked = %d", samplesThisTime, samplesRemaining, output.samplesTicked);
         samplesRemaining -= samplesThisTime;
         for (int i = 0; i < samplesThisTime; ++i) {
             if (ClockShifter5::llv) SQINFO("run about to clock it low samp %d", k + i);
@@ -122,7 +124,6 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
         if (samplesRemaining > 0) {
             samplesRemaining--;
             if (ClockShifter5::llv) {
-                // if (true) {
                 SQINFO("- about to tick high %d", k + samplesThisTime);
             }
             const bool b = shifter->process(true, true, shift);
@@ -139,10 +140,10 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
 }
 
 static Outputs5 run(const Inputs5& _input, TestContext* context) {
-    // SQINFO("*** testRun input=%s", _input.toString().c_str());
     Outputs5 initOutput;
     // Step 1, setup.
     auto result = makeAndPrime2(_input.period, _input.initialShift);
+    SQINFO("-- finished make a and prime --");
     initOutput.samplesTicked = 1;
     initOutput.outputClocks = result.clocked ? 1 : 0;
     auto shifter = result.shifter;
@@ -150,7 +151,6 @@ static Outputs5 run(const Inputs5& _input, TestContext* context) {
     Inputs5 adjustedInput = _input;
     adjustedInput.totalSamplesToTick -= initOutput.samplesTicked;
 
-    //   TestContext context;
     if (context) {
         context->_testLFO.setSin(true);
     }
@@ -172,7 +172,6 @@ static Outputs5 run(const Inputs5& _input, TestContext* context) {
 static void test0() {
     Inputs5 in;
     in.period = 2;
-    // in.cycles = 1;
     in.totalSamplesToTick = 4;
     const Outputs5 o = run(in, nullptr);
 }
@@ -199,7 +198,7 @@ static void testNoShiftTwice() {
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
     in.afterwardsRunBackwards = true;  // forward and back should be the same
     const auto output = run(in, nullptr);
-    //   SQINFO("end of testNoShiftTwice clocks=%d, output = %s", output.outputClocks, output.toString().c_str());
+
     assertEQ(output.samplesTicked, 2 * in.totalSamplesToTick);
     assertEQ(output.outputClocks, 2 * cycles);
     assertEQ(output.maxSamplesBetweenClocks, 10);
@@ -214,7 +213,7 @@ static void testShift2() {
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
 
     const auto output = run(in, nullptr);
-    //  SQINFO("end of testShift2, output = %s", output.toString().c_str());
+
     assertEQ(output.samplesTicked, in.totalSamplesToTick);
     assertEQ(output.outputClocks, cycles);
     assertEQ(output.maxSamplesBetweenClocks, 10);
@@ -240,7 +239,6 @@ static void testSlowDown(int cycles, int period, float shiftPerSample, int allow
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
-    //  in.shiftPerSample = .5f / float(period);
     in.shiftPerSample = shiftPerSample;
     const auto output = run(in, nullptr);
 
@@ -262,7 +260,6 @@ static void testSlowDown(int cycles, int period, float shiftPerSample, int allow
 }
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
-    //  SQINFO("--testSpeedUp(%d, %d, %.18f, %d)", cycles, period, shiftPerSample, allowableJitter);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -273,9 +270,6 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
     assertLE(jitter, allowableJitter);
 
-    /*
-     * here are the slow down asserts: */
-    // We should have slowed down the clock output
     const int expectecClocksUpperBound = (cycles * 1.9) + 3;
     assertLT(output.outputClocks, expectecClocksUpperBound);
 
@@ -289,14 +283,12 @@ static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowa
 }
 
 //
-static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp) {
+static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp, int allowedJitter) {
     SQINFO("----- testWithLFO %d, %d, %f, %f", cycles, period, lfoFreq, lfoAmp);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
-    //  in.shiftPerSample = shiftPerSample;
     assertEQ(in.shiftPerSample, 0);
-    //   const float normalizedLFOFreq = lfoFreq / cycles;
     TestContext context;
     context._testLFO.setFreq(lfoFreq);
     context._testLFO.setAmp(lfoAmp);
@@ -307,10 +299,11 @@ static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp) {
     SQINFO("out = %s", output.toString().c_str());
 
     const int jitter = std::abs(output.minSamplesBetweenClocks - output.maxSamplesBetweenClocks);
-    // assertGT(jitter, 0);
     SQINFO("jitter = %d", jitter);
-
-    // assert(false);
+    assertLE(jitter, allowedJitter);
+    if (jitter == 0) {
+        assertEQ(output.minSamplesBetweenClocks, period);
+    }
 }
 
 static void testWithLFO() {
@@ -319,16 +312,14 @@ static void testWithLFO() {
     // these show no jitter, but may be doing nothing
     int period = 16;
     float lfoFreq = 1 / float(period);
-    int cycles = 3;
-    // testWithLFO(cycles, period, lfoFreq, 0);
-    // testWithLFO(cycles, period, lfoFreq, .01);
-    // testWithLFO(cycles, period, lfoFreq, .1);
+    int cycles = 4;
 
-    testWithLFO(4, period, lfoFreq, .1);
-    testWithLFO(8, period, lfoFreq, .1);
+    // ClockShifter5::llv = 1;
 
-    testWithLFO(20, period, lfoFreq, .1);
-    testWithLFO(200, period, lfoFreq, .1);
+    // lfo freq == clock freq is weird.
+    // with this very high delay it's freaking out
+    // .45 is ok
+    testWithLFO(cycles, period, lfoFreq, .45, 0);
 
     assert(false);
 }

@@ -323,5 +323,8 @@
     <ClInclude Include="..\util\FreqMeasure.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\util\ClockShifter5.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
