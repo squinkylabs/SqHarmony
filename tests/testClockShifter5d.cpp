@@ -316,23 +316,7 @@ static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp, int
     }
 }
 
-static void testWithLFO() {
-    SQINFO("\n---------- testWithLFO");
 
-    // these show no jitter, but may be doing nothing
-    int period = 16;
-    float lfoFreq = 1 / float(period);
-    int cycles = 4;
-
-    // ClockShifter5::llv = 1;
-
-    // lfo freq == clock freq is weird.
-    // with this very high delay it's freaking out
-    // .45 is ok
-    testWithLFO(cycles, period, lfoFreq, .45, 0);
-
-    SQINFO("make more LFO tests!");
-}
 
 static void testSlowDown(int period) {
     for (int i = 0; i < 8; ++i) {
@@ -404,6 +388,32 @@ static void testSpeedUp() {
     }
 }
 
+static void testWithLFO() {
+    SQINFO("\n---------- testWithLFO");
+
+    // LFO freq same as clock
+    int period = 16;
+    float lfoFreq = 1 / float(period);
+    int cycles = 40;
+
+    // ClockShifter5::llv = 1;
+
+    testWithLFO(cycles, period, lfoFreq, 0, 0);     // no lfo at all - just a sanity check
+    // high ampl, freq the same
+    testWithLFO(cycles, period, lfoFreq, .45, 0);
+
+    // LFO half clock speed
+    period = 16;
+    lfoFreq = 2 / float(period);
+    cycles = 4;
+    testWithLFO(cycles, period, lfoFreq, .1, 0);
+
+    // normal case - LFO slower than clock
+    assert(false);
+
+    SQINFO("make more LFO tests!");
+}
+
 static void testSlowDownAndSpeedUp() {
     // SQINFO("\n\n\n--------------------------------------- testSlowDownAndSpeedUp");
     Inputs5 in;
@@ -435,7 +445,7 @@ void testClockShifter5d() {
 
     testSpeedUp(5, 7872, -0.000063516257796437, 10);
 
-    // testWithLFO();
+    testWithLFO();
 }
 
 #if 0

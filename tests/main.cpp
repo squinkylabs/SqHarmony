@@ -74,7 +74,7 @@ extern void testTestLFO();
 #include "SqLog.h"
 
 #ifdef _DEBUG
-bool doLongRunning = true;
+bool doLongRunning = false;
 #else
 bool doLongRunning = true;
 #endif
