@@ -74,9 +74,9 @@ extern void testTestLFO();
 #include "SqLog.h"
 
 #ifdef _DEBUG
-const bool doLongRunning = false;
+bool doLongRunning = true;
 #else
-const bool doLongRunning = true;
+bool doLongRunning = true;
 #endif
 
 int main(const char**, int) {
@@ -85,6 +85,10 @@ int main(const char**, int) {
 #if 0
     specialDumpList();
 #else
+
+    if (doLongRunning) {
+        SQINFO("doing special long run");
+    }
 
 #if 0
     printf("running first for temp debug\n");
