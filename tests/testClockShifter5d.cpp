@@ -372,7 +372,7 @@ static void testSpeedUp(int inPeriod, float shiftPerSampleFactor) {
         const int cycles = 11;
         for (int i = 0; i < 8; ++i) {
             float x = -10.f / (shiftPerSampleFactor * period * (cycles / 5));
-            const int allowableJitter = std::max(5, (period * cycles) / 50);
+            const int allowableJitter = std::max(5, (period * cycles) / 500); // was 50
             testSpeedUp(cycles, period, x, allowableJitter);
             period *= 2;
         }
