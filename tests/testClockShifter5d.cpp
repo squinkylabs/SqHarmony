@@ -67,10 +67,10 @@ public:
         if (lastClockSample >= 0) {
             const int delta = curSample - lastClockSample;
             // SQINFO("delta = %d", delta);
-           // assert(delta > 1);
-            if (delta <= 1) {
-                SQINFO("small delta: %d", delta);
-            }
+            assert(delta > 1);
+            // if (delta <= 1) {
+            //     SQINFO("small delta: %d", delta);
+            // }
 
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
@@ -252,7 +252,7 @@ static void testStop() {
     SqLog::errorCount = 0;
 }
 
-static void testSlowDown(int cycles, int period, double shiftPerSample, int allowableJitter) {
+static void testSlowDown(int cycles, int period, float shiftPerSample, int allowableJitter) {
     SQINFO("testSlowDown3 %d, %d, %.10f, %d", cycles, period, shiftPerSample, allowableJitter);
     Inputs5 in;
     in.period = period;
@@ -336,8 +336,7 @@ static void testWithLFO(int cycles, int period, float lfoFreq, float lfoAmp, int
 static void testSlowDown(int period) {
     SQINFO("testSlowDown(%d)");
     for (int i = 0; i < 8; ++i) {
-      //  float x = 10.f / (20.f * period);
-      const double x = 10.f / (20.f * period);
+        float x = 10.f / (20.f * period);
         const int allowableJitter = std::max(5, period / 500);
         testSlowDown(5, period, x, allowableJitter);
         period *= 2;
@@ -453,13 +452,8 @@ static void testSlowDownAndSpeedUp() {
 void testClockShifter5d() {
     //  SQINFO("start testClockShifter5d");
     assertEQ(SqLog::errorCount, 0);
-    // testSlowDownAndSpeedUp();
-SQINFO("run test early");
-testSlowDown();// DOES IT FAIL IF RUN FIRST?
-SQINFO("done run test early");
     test0();
-    testNoShift();
-    SQINFO("EARLY TEST");
+    testNoShift();;
     testNoShiftTwice();
 
     SQINFO("why is test stop not working?");
