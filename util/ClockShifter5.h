@@ -82,6 +82,7 @@ inline std::tuple<float, bool, bool> ClockShifter5::processShift(float rawShift)
 }
 
 inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
+    bool haveClockedThisCycle = false;
     if (llv > 0) {
         const int period = _freqMeasure.freqValid() ? _freqMeasure.getPeriod() : -1;
         SQINFO("\n-- enter cs5::process (%d, %d, %f) acc=%d haveckd=%d period=%d", trigger, clock, rawShift, _phaseAccumulator, _haveClocked, period);
@@ -114,13 +115,21 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         _phaseAccumulator = 0;
         if (llv > 0) SQINFO("clear _haveClocked and add for new trigger");
         _haveClocked = false;
+        haveClockedThisCycle = true;
+
     }
 
     // If a change in shift has moved us to a later time, thought zero, then
     // we must suppress the clocks we would generate.
     if (std::get<1>(processedShift)) {
-        if (llv > 0) SQINFO("suppressing on shift wrap around zero. set _haveClocked ");
-        _haveClocked = true;
+       
+        if (!haveClockedThisCycle) {  // this is the case where we clear it and then immediately set it.
+            if (llv > 0) SQINFO("suppressing on shift wrap around zero. set _haveClocked ");
+            _haveClocked = true;
+            //assert(false);
+        } else {
+             if (llv >= 0) SQINFO("delay wrap around zero, but taking no action, as haveClockedThisCycle");
+        }
     }
     if (std::get<2>(processedShift)) {
         if (llv > 0) SQINFO("allowing clock on wrap around zero. clr _haveClocked. was %d", _haveClocked);
