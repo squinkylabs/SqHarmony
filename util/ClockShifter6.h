@@ -54,22 +54,17 @@ inline std::tuple<unsigned, unsigned> ClockShifter6::_getIndexAndBit(unsigned bi
 }
 
 inline bool ClockShifter6::_extractBit(unsigned word, unsigned bit) {
-    //unsigned shifted = word >> bit;
     const unsigned mask = 1 << bit;
-  //  SQINFO("word=%x bit=%d mask=%x", word, bit, mask);
     const unsigned _and = word & mask;
     return bool(_and);
 }
 
 inline  uint32_t ClockShifter6::_packBit(uint32_t word, unsigned bit, bool value) {
-    uint32_t uvalue = value;
+   // uint32_t uvalue = value;
     uint32_t mask = value << bit;
-
     uint32_t nonMask = ~ (1 << bit);
-
     auto cleared = word & nonMask;
     auto combined = cleared | mask;
-
     return combined;
 }
 

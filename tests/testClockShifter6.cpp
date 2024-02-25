@@ -57,6 +57,12 @@ public:
 
         assertEQ(ClockShifter6::_packBit(0x80, 0, 1), 0x81);
         assertEQ(ClockShifter6::_packBit(0x80, 0, 0), 0x80);
+         for (int i=0; i<32; ++i) {
+            assertEQ(ClockShifter6::_packBit(0, i, 1),  1 << i);
+            assertEQ(ClockShifter6::_packBit(0, i, 0),  0);
+            assertEQ(ClockShifter6::_packBit(0xffffffff, i, 1),  0xffffffff);
+            assertEQ(ClockShifter6::_packBit(0xffffffff, i, 0),  (0xffffffff & (~(1 << i))));
+         }
     }
 };
 
