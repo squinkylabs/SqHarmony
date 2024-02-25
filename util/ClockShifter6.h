@@ -34,7 +34,8 @@ private:
     void _insertDelayInput(bool data);
 
     std::tuple<unsigned, unsigned> _getIndexAndBit(unsigned bitIndex);
-    static bool _extractBit(unsigned word, unsigned bit);
+    static bool _extractBit(uint32_t word, unsigned bit);
+    static uint32_t _packBit(uint32_t word, unsigned bit, bool value);
 };
 
 size_t ClockShifter6::_maxDelaySize() {
@@ -55,9 +56,21 @@ inline std::tuple<unsigned, unsigned> ClockShifter6::_getIndexAndBit(unsigned bi
 inline bool ClockShifter6::_extractBit(unsigned word, unsigned bit) {
     //unsigned shifted = word >> bit;
     const unsigned mask = 1 << bit;
-    SQINFO("word=%x bit=%d mask=%x", word, bit, mask);
+  //  SQINFO("word=%x bit=%d mask=%x", word, bit, mask);
     const unsigned _and = word & mask;
     return bool(_and);
+}
+
+inline  uint32_t ClockShifter6::_packBit(uint32_t word, unsigned bit, bool value) {
+    uint32_t uvalue = value;
+    uint32_t mask = value << bit;
+
+    uint32_t nonMask = ~ (1 << bit);
+
+    auto cleared = word & nonMask;
+    auto combined = cleared | mask;
+
+    return combined;
 }
 
 inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {

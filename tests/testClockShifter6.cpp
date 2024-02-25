@@ -48,6 +48,16 @@ public:
             assertEQ(ClockShifter6::_extractBit(word, i), true);
         }
     }
+
+    // t(uint32_t word, unsigned bit, value);
+    static void canPackBit() {
+        // simple cases for debugging.
+        assertEQ(ClockShifter6::_packBit(0, 0, 0), 0);
+        assertEQ(ClockShifter6::_packBit(0, 0, 1), 1);
+
+        assertEQ(ClockShifter6::_packBit(0x80, 0, 1), 0x81);
+        assertEQ(ClockShifter6::_packBit(0x80, 0, 0), 0x80);
+    }
 };
 
 static void canDelayZero() {
@@ -63,6 +73,7 @@ static void canDelayZero() {
 
 void testClockShifter6() {
     TestX::canExtractBit();
+    TestX::canPackBit();
   //  TestX::canDelayZero();
 
    // testCanCreate();
