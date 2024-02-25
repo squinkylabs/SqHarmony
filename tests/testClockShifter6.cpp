@@ -20,52 +20,6 @@ static void canReturnSizeError() {
     assert(err == ClockShifter6::Errors::NoError);
 }
 
-class TestX {
-public:
-    static void canDelayZero() {
-        ClockShifter6 c;
-        c.setMaxDelaySamples(0);
-        c._insertDelayInput(false);
-        bool x = c._getDelayOutput(0);
-        assertEQ(x, false);
-
-        c._insertDelayInput(true);
-        x = c._getDelayOutput(0);
-        assertEQ(x, true);
-    }
-    static void canExtractBit() {
-        assertEQ(ClockShifter6::_extractBit(0, 0), false);
-        assertEQ(ClockShifter6::_extractBit(1, 0), true);
-
-        assertEQ(ClockShifter6::_extractBit(0x80000000, 0), false);
-        assertEQ(ClockShifter6::_extractBit(0x80000000, 31), true);
-
-        for (int i=0; i<32; ++i) {
-            assertEQ(ClockShifter6::_extractBit(0, i), false);
-            assertEQ(ClockShifter6::_extractBit(0xffffffff, i), true);
-
-            const unsigned word = 1 << i;
-            assertEQ(ClockShifter6::_extractBit(word, i), true);
-        }
-    }
-
-    // t(uint32_t word, unsigned bit, value);
-    static void canPackBit() {
-        // simple cases for debugging.
-        assertEQ(ClockShifter6::_packBit(0, 0, 0), 0);
-        assertEQ(ClockShifter6::_packBit(0, 0, 1), 1);
-
-        assertEQ(ClockShifter6::_packBit(0x80, 0, 1), 0x81);
-        assertEQ(ClockShifter6::_packBit(0x80, 0, 0), 0x80);
-         for (int i=0; i<32; ++i) {
-            assertEQ(ClockShifter6::_packBit(0, i, 1),  1 << i);
-            assertEQ(ClockShifter6::_packBit(0, i, 0),  0);
-            assertEQ(ClockShifter6::_packBit(0xffffffff, i, 1),  0xffffffff);
-            assertEQ(ClockShifter6::_packBit(0xffffffff, i, 0),  (0xffffffff & (~(1 << i))));
-         }
-    }
-};
-
 static void canDelayZero() {
     ClockShifter6 c;
     c.setMaxDelaySamples(0);
@@ -78,11 +32,10 @@ static void canDelayZero() {
 }
 
 void testClockShifter6() {
-    TestX::canExtractBit();
-    TestX::canPackBit();
-    TestX::canDelayZero();
+  
+    assert(false);
 
-   // testCanCreate();
-   // canReturnSizeError();
-   // canDelayZero();
+    // testCanCreate();
+    // canReturnSizeError();
+    // canDelayZero();
 }

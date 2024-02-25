@@ -71,6 +71,7 @@ extern void testButter();
 extern void testPinkFilter();
 extern void testTestLFO();
 extern void testClockShifter6();
+extern void testBitDelay();
 
 #include "SqLog.h"
 
@@ -120,6 +121,7 @@ int main(const char**, int) {
     testClockMult();
     testMultiplier();
     testRatchet();
+    testBitDelay();
     testClockShifter6();
 
     printf("XX: leaving early for clock stuff");
