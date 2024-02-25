@@ -8,7 +8,7 @@
 
 #include "ProgressionAnalyzer.h"
 
-HarmonySong::HarmonySong(const Options& options, const int* pS) : chordManager(options), firstTime(true) {
+HarmonySong_unused::HarmonySong_unused(const Options& options, const int* pS) : chordManager(options), firstTime(true) {
     int i;
     bool done;
 
@@ -16,13 +16,13 @@ HarmonySong::HarmonySong(const Options& options, const int* pS) : chordManager(o
         if (pS[i] == 0) {
             done = true;
         } else {
-            auto ch = std::make_shared<RankedChord>(chordManager, pS[i]);
+            auto ch = std::make_shared<RankedChord_unused>(chordManager, pS[i]);
             chords.push_back(ch);
         }
     }
 }
 
-void HarmonySong::print() const {
+void HarmonySong_unused::print() const {
     int nChord;
 
     assert(this);
@@ -33,7 +33,7 @@ void HarmonySong::print() const {
     }
 }
 
-void HarmonySong::analyze(const Options& options) const {
+void HarmonySong_unused::analyze(const Options& options) const {
     const int size = int(chords.size());
     for (int nChord = 1; nChord < size; nChord++) {
         ProgressionAnalyzer* p = new ProgressionAnalyzer(
@@ -48,7 +48,7 @@ void HarmonySong::analyze(const Options& options) const {
     }
 }
 
-bool HarmonySong::isValid() const {
+bool HarmonySong_unused::isValid() const {
 #if 1
     return true;
 
@@ -65,7 +65,7 @@ bool HarmonySong::isValid() const {
 #endif
 }
 
-bool HarmonySong::Generate(const Options& options, int nStep, bool show, PAStats* stats) {
+bool HarmonySong_unused::Generate(const Options& options, int nStep, bool show, PAStats* stats) {
     bool done, ret;
     const int size = int(chords.size());
     // if (nStep < 5) printf("Just started level %d\n", nStep);

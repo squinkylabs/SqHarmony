@@ -7,7 +7,7 @@ const int testPeriod = 10;
 
 /**
  * These are mainly tests around the different cases of shift times moving around.
- *
+ * This try to be minimal cases the exercise specific functionality.
  */
 
 // Case 1. Current position << 1, shift move from higher to even higher. Shift not near the ends.
@@ -378,10 +378,10 @@ static void testSmallVibrations() {
     SQINFO("after next clock high, outptu=%d", b);
     assert(b);
 
-
-
-    assert(false);
+  //  assert(false);
 }
+
+
 
 void testClockShifter5b() {
     testCase1();

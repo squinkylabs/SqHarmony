@@ -4,6 +4,11 @@
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
 
+/**
+ * These are main "classic" unit tests. They tend to exercise
+ * basic functionality.
+ * 
+ */
 // Declare this static member.
 // Normally 1 to suppress output
 int ClockShifter5::llv = 0;

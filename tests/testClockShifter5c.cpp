@@ -5,6 +5,7 @@
 
 /**
  * These are mostly tests around the external clock speed changing.
+ * They are mainly short unit tests.
  * 
  */
 

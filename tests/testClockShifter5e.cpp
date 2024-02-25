@@ -33,19 +33,23 @@ void testWrapAtZero()  {
 
 }
 
-
+static void  testSlowDownBug() {
+    assert(false);
+ }
 
 void testClockShifter5e() {
     testWrapAtZero();
+    testSlowDownBug();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // testSpeedUp();
 
     // max bigger than 5300 is bad
     // These are the exact numbers picked of from a bigger run.
     SQINFO("---- testFist ----");
-    testWrapAtZero();
+   // testWrapAtZero();
+   testSlowDownBug();
 }
 #endif

@@ -112,7 +112,10 @@ int main(const char**, int) {
     testFreqMeasure();
     testFreqMeasure2();
     testShiftCalc();
+
     testClockShifter5();
+    testClockShifter5b();
+    testClockShifter5c();
     testClockShifter5e();
     testClockShifter5d();
     testPhasePatterns();

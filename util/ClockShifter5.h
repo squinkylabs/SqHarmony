@@ -113,7 +113,7 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
         }
         // This clock for processing on the first clock
         _phaseAccumulator = 0;
-        if (llv > 0) SQINFO("clear _haveClocked and add for new trigger");
+        if (llv > 0) SQINFO("clear _haveClocked and cc for new trigger");
         _haveClocked = false;
         haveClockedThisCycle = true;
 
@@ -124,9 +124,8 @@ inline bool ClockShifter5::process(bool trigger, bool clock, float rawShift) {
     if (std::get<1>(processedShift)) {
        
         if (!haveClockedThisCycle) {  // this is the case where we clear it and then immediately set it.
-            if (llv > 0) SQINFO("suppressing on shift wrap around zero. set _haveClocked ");
+            if (llv > 0) SQINFO("NEW: suppressing on shift wrap around zero. set _haveClocked ");
             _haveClocked = true;
-            //assert(false);
         } else {
              if (llv >= 0) SQINFO("delay wrap around zero, but taking no action, as haveClockedThisCycle");
         }

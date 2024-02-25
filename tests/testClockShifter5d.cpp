@@ -3,6 +3,13 @@
 #include "asserts.h"
 #include "testShifter5TestUtils.h"
 
+/**
+ * These tests are almost all tests the run over a longer period
+ * of time, and tend to exercise "real world" scernarios.
+ * Every time the show a bug, a more traditional unit tests should be
+ * made to test that particular function.
+ */
+
 extern bool doLongRunning;
 
 class TestContext {
@@ -67,25 +74,17 @@ public:
         if (lastClockSample >= 0) {
             const int delta = curSample - lastClockSample;
             // SQINFO("delta = %d", delta);
+
+            if (delta <= 1) {
+                // Getting bug at 14208 samples ticked
+                SQINFO("small delta: %d", delta);
+                SQINFO("%s", this->toString().c_str());
+            }
+
             assert(delta > 1);
-            // if (delta <= 1) {
-            //     SQINFO("small delta: %d", delta);
-            // }
 
             minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
             maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
-
-            // if (maxSamplesBetweenClocks >= 10) {
-            //     SQINFO("max = %d", maxSamplesBetweenClocks);
-            //     SQINFO("output = %s", this->toString().c_str());
-            // }
-            // assert(maxSamplesBetweenClocks < 10);
-
-            //   assert(maxSamplesBetweenClocks < 5300);
-            //   SQINFO("max sbc = %d", maxSamplesBetweenClocks);
-            //  SQINFO("*********************************************************************");
-            //  SQINFO("*** we just output the second clock. next period we will miss one ***");
-            //  ClockShifter5::llv = 1;         // turn on verbose logging now
         } else {
             // SQINFO("skipping first clock - we aren't stable yet");
         }
@@ -135,6 +134,13 @@ static Outputs5 runSub(const Inputs5& input, std::shared_ptr<ClockShifter5> shif
         int samplesThisTime = std::min(samplesRemaining, input.period - 1);
         samplesRemaining -= samplesThisTime;
         for (int i = 0; i < samplesThisTime; ++i) {
+
+            // Debug code to catch bug. remove later.
+            // 14205 is a good value to capture the slow down bug.
+            // 5 ok for lfo bug?
+            if (output.samplesTicked >= 14205) {
+                ClockShifter5::llv = 1;
+            }
             if (ClockShifter5::llv) SQINFO("run about to clock it low samp %d", k + i);
             const bool b = clockItLow(shifter, 1, shiftInstantaneous);
             output.processPossibleClock(b, shiftInstantaneous);
@@ -283,7 +289,7 @@ static void testSlowDown(int cycles, int period, float shiftPerSample, int allow
 }
 
 static void testSpeedUp(int cycles, int period, float shiftPerSample, int allowableJitter) {
-   // SQINFO("test speed up (%d, %d %f %d)", cycles, period, shiftPerSample, allowableJitter);
+    // SQINFO("test speed up (%d, %d %f %d)", cycles, period, shiftPerSample, allowableJitter);
     Inputs5 in;
     in.period = period;
     in.totalSamplesToTick = (cycles + in.initialShift) * in.period;
@@ -372,7 +378,7 @@ static void testSpeedUp(int inPeriod, float shiftPerSampleFactor) {
         const int cycles = 11;
         for (int i = 0; i < 8; ++i) {
             float x = -10.f / (shiftPerSampleFactor * period * (cycles / 5));
-            const int allowableJitter = std::max(5, (period * cycles) / 500); // was 50
+            const int allowableJitter = std::max(5, (period * cycles) / 500);  // was 50
             testSpeedUp(cycles, period, x, allowableJitter);
             period *= 2;
         }
@@ -382,7 +388,7 @@ static void testSpeedUp(int inPeriod, float shiftPerSampleFactor) {
 static void testSpeedUp() {
     SQINFO("testSpeedUp step 1");
     testSpeedUp(10, 20.0);
-   
+
     SQINFO("testSpeedUp step 2");
     for (int i = 110; i < 140; ++i) {
         testSpeedUp(i, 20.0);
@@ -400,7 +406,7 @@ static void testSpeedUp() {
                 testSpeedUp(i, float(j));
             }
         }
-         SQINFO("testSpeedUp step 5");
+        SQINFO("testSpeedUp step 5");
     }
 }
 
@@ -414,7 +420,7 @@ static void testWithLFO() {
 
     // ClockShifter5::llv = 1;
 
-    testWithLFO(cycles, period, lfoFreq, 0, 0);     // no lfo at all - just a sanity check
+    testWithLFO(cycles, period, lfoFreq, 0, 0);  // no lfo at all - just a sanity check
     // high ampl, freq the same
     testWithLFO(cycles, period, lfoFreq, .45, 0);
 
@@ -427,7 +433,7 @@ static void testWithLFO() {
     // normal case - LFO slower than clock
     for (int i = 0; i < 10; ++i) {
         period = 16;
-        lfoFreq = (2 + float(i)/11) / float(period);
+        lfoFreq = (2 + float(i) / 11) / float(period);
         cycles = 4;
 
         int allowableJitter = 1.f + i;
@@ -453,13 +459,13 @@ void testClockShifter5d() {
     //  SQINFO("start testClockShifter5d");
     assertEQ(SqLog::errorCount, 0);
     test0();
-    testNoShift();;
+    testNoShift();
+    ;
     testNoShiftTwice();
 
     SQINFO("why is test stop not working?");
     // testStop();
     testSlowDownOld();
-   
 
     testSpeedUp();
     testSlowDownAndSpeedUp();
@@ -469,12 +475,12 @@ void testClockShifter5d() {
     testWithLFO();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    //ClockShifter5::llv = 1;
-    // This is the case that is bad without the dodgy "fix"
+    // ClockShifter5::llv = 1;
+    //  This is the case that is bad without the dodgy "fix"
    // testWithLFO(4, 16, 0.136364, 0.400000, 3);
 
-    testSlowDown(5, 3552, 0.0001407658, 7);
+   testSlowDown(5, 3552, 0.0001407658, 7);
 }
 #endif

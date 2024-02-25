@@ -23,7 +23,7 @@ static Options makeOptions(bool minor) {
 static void test0(bool minor) {
     auto o = makeOptions(minor);
     int progression[] = {1, 4, 5, 0};
-    HarmonySong s(o, progression);
+    HarmonySong_unused s(o, progression);
     assert(s.size() == 3);
 }
 
@@ -35,7 +35,7 @@ static void test0() {
 static void testGenerate(bool minor) {
     auto o = makeOptions(minor);
     int progression[] = {1, 4, 5, 0};
-    HarmonySong s(o, progression);
+    HarmonySong_unused s(o, progression);
     s.Generate(o, 0, false, nullptr);
     assert(s.size() == 3);
     //  printf("\nnow will print song:\n");
