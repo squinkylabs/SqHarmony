@@ -80,7 +80,7 @@ static void canDelayZero() {
 void testClockShifter6() {
     TestX::canExtractBit();
     TestX::canPackBit();
-  //  TestX::canDelayZero();
+    TestX::canDelayZero();
 
    // testCanCreate();
    // canReturnSizeError();
