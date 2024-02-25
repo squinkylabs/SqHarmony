@@ -48,7 +48,7 @@ void testFirst() {
 
     // max bigger than 5300 is bad
     // These are the exact numbers picked of from a bigger run.
-    SQINFO("---- testFist ----");
+    SQINFO("---- testFirst ----");
    // testWrapAtZero();
    testSlowDownBug();
 }

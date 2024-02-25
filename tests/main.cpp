@@ -70,6 +70,7 @@ extern void testLFNDsp();
 extern void testButter();
 extern void testPinkFilter();
 extern void testTestLFO();
+extern void testClockShifter6();
 
 #include "SqLog.h"
 
@@ -90,7 +91,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 1
+#if 0
     printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -113,19 +114,22 @@ int main(const char**, int) {
     testFreqMeasure2();
     testShiftCalc();
 
-    testClockShifter5();
-    testClockShifter5b();
-    testClockShifter5c();
-    testClockShifter5e();
-    testClockShifter5d();
+   
     testPhasePatterns();
     testPhasePatternsPoly();
     testClockMult();
     testMultiplier();
     testRatchet();
+    testClockShifter6();
 
     printf("XX: leaving early for clock stuff");
     std::exit(0);
+
+    testClockShifter5();
+    testClockShifter5b();
+    testClockShifter5c();
+    testClockShifter5e();
+    testClockShifter5d();
 
     testAdditiveModLogic();
     testAdditivePitchLogic();
