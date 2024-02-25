@@ -36,6 +36,17 @@ public:
     static void canExtractBit() {
         assertEQ(ClockShifter6::_extractBit(0, 0), false);
         assertEQ(ClockShifter6::_extractBit(1, 0), true);
+
+        assertEQ(ClockShifter6::_extractBit(0x80000000, 0), false);
+        assertEQ(ClockShifter6::_extractBit(0x80000000, 31), true);
+
+        for (int i=0; i<32; ++i) {
+            assertEQ(ClockShifter6::_extractBit(0, i), false);
+            assertEQ(ClockShifter6::_extractBit(0xffffffff, i), true);
+
+            const unsigned word = 1 << i;
+            assertEQ(ClockShifter6::_extractBit(word, i), true);
+        }
     }
 };
 

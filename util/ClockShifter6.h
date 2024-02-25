@@ -53,9 +53,11 @@ inline std::tuple<unsigned, unsigned> ClockShifter6::_getIndexAndBit(unsigned bi
 }
 
 inline bool ClockShifter6::_extractBit(unsigned word, unsigned bit) {
-    unsigned shifted = word >> bit;
-    unsigned mask = 1 << bit;
-    return bool(shifted & mask);
+    //unsigned shifted = word >> bit;
+    const unsigned mask = 1 << bit;
+    SQINFO("word=%x bit=%d mask=%x", word, bit, mask);
+    const unsigned _and = word & mask;
+    return bool(_and);
 }
 
 inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
