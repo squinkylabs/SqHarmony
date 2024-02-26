@@ -30,6 +30,8 @@ public:
 
     bool freqValid() const;
 
+     static int llv;  // log level
+
 private:
     BitDelay _bitDelay;
     FreqMeasure2 _freqMeasure;
@@ -39,6 +41,11 @@ inline bool ClockShifter6::freqValid() const {
     return _freqMeasure.freqValid();
 }
 inline bool ClockShifter6::process(bool trigger, bool clock, float delay, Errors* error) {
+    _freqMeasure.process(trigger, clock);
+     if (!_freqMeasure.freqValid()) {
+        if (llv > 0) SQINFO("leaving unstable");
+        return false;
+    }
     SQINFO("!! ClockShifter6::process is fake");
     return false;
 }

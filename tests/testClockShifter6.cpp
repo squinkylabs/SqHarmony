@@ -6,6 +6,8 @@
 
 #include "asserts.h"
 
+int ClockShifter6::llv = 0;
+
 static void testCanCreate() {
     ClockShifter6 c;
     c.setMaxDelaySamples(1);
@@ -16,6 +18,14 @@ static void testInitNotStable() {
     ClockShifter6 c;
     c.setMaxDelaySamples(1);
     assertEQ(c.freqValid(), false);
+}
+
+static void testInitStable() {
+   // ClockShifter6 c;
+   // c.setMaxDelaySamples(1);
+    const auto ret = makeAndPrime2(10, 0);
+   // assertEQ(ret.clocked, true
+    assertEQ(ret.shifter->freqValid(), true);
 }
 
 static void canReturnSizeError() {
@@ -46,6 +56,7 @@ static void canDelayZero() {
 void testClockShifter6() {
     testCanCreate();
     testInitNotStable();
+    testInitStable();
     SQINFO("make size error work again");
     //canReturnSizeError();
     // canDelayZero();
