@@ -25,14 +25,19 @@ public:
      * @param error is where errors are returned to the caller. nullptr is legal.
      * @return the delayed clock.
      */
-    bool process(bool trigger, bool clock, float delay, Errors* error);
+    bool process(bool trigger, bool clock, float delay, Errors* error = nullptr);
     void setMaxDelaySamples(unsigned samples);
+
+    bool freqValid() const;
 
 private:
     BitDelay _bitDelay;
     FreqMeasure2 _freqMeasure;
 };
 
+inline bool ClockShifter6::freqValid() const {
+    return _freqMeasure.freqValid();
+}
 inline bool ClockShifter6::process(bool trigger, bool clock, float delay, Errors* error) {
     SQINFO("!! ClockShifter6::process is fake");
     return false;
