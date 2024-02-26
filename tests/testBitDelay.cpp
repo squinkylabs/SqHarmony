@@ -16,7 +16,9 @@ public:
 
         delay._insertDelayInput(true);
         x = delay._getDelayOutput(0);
+        SQINFO("at 19");
         assertEQ(x, true);
+        SQINFO("at 19");
     }
 
     static void canDelay(unsigned delaySamples) {
@@ -25,7 +27,7 @@ public:
 
         delay._insertDelayInput(true);
         for (unsigned i = 0; i < delaySamples + 10; ++i) {
-            bool x = delay._getDelayOutput(i);
+            bool x = delay._getDelayOutput(delaySamples);
             assertEQ(x, (i == delaySamples));
             delay._insertDelayInput(false);
         }
@@ -65,12 +67,22 @@ public:
             assertEQ(BitDelay::_packBit(0xffffffff, i, 0), (0xffffffff & (~(1 << i))));
         }
     }
+
+    static void testNextPtr() {
+        assert(false);
+    }
+
+     static void testPrevPtr() {
+        assert(false);
+    }
 };
 
 
 void testBitDelay() {
     TestX::canExtractBit();
     TestX::canPackBit();
+    TestX::testNextPtr();
+    TestX::testPrevPtr();
     TestX::canDelayZero();
     TestX::canDelay();
 }

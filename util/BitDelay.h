@@ -22,22 +22,35 @@ private:
     // delay memory as 32 bit unsigned, but accesses as a bit.
     std::vector<uint32_t> _delayMemory;
 
-    size_t _maxDelaySize();
+    // These are the virtual buffer pointers. Units are bits.
     unsigned _delayInSamples = 0;
-    unsigned _delayOutSamples = 0;
+  //  unsigned _delayOutSamples = 0;
+
+    size_t _maxDelaySize();
     bool _getDelayOutput(float delay);
     void _insertDelayInput(bool data);
 
     std::tuple<unsigned, unsigned> _getIndexAndBit(unsigned bitIndex);
     static bool _extractBit(uint32_t word, unsigned bit);
     static uint32_t _packBit(uint32_t word, unsigned bit, bool value);
+    void _nextDelayPointer(uint32_t& ptr);
+    void _prevDelayPointer(uint32_t& ptr);
 };
 
 inline size_t BitDelay::_maxDelaySize() {
     return _delayMemory.size() * 32;
 }
 
+inline void BitDelay::_nextDelayPointer(uint32_t& ptr) {
+
+}
+
+inline void BitDelay::_prevDelayPointer(uint32_t& ptr) {
+
+}
+
 inline void BitDelay::_insertDelayInput(bool data) {
+    const auto x = _delayMemory[0];
     const auto indexAndBit = _getIndexAndBit(_delayInSamples);
     const unsigned index = std::get<0>(indexAndBit);
     const unsigned bit = std::get<1>(indexAndBit);
@@ -46,6 +59,10 @@ inline void BitDelay::_insertDelayInput(bool data) {
     uint32_t word = _delayMemory.at(index);
     word = _packBit(word, bit, data);
     _delayMemory.at(index) = word;
+    const auto y = _delayMemory[0];
+
+   // _delayInSamples++;      // really needs wrapping logic here.
+    _nextDelayPointer(_delayInSamples);
 }
 
 inline std::tuple<unsigned, unsigned> BitDelay::_getIndexAndBit(unsigned bitIndex) {
