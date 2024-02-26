@@ -42,7 +42,7 @@ void testClockShifter5e() {
     testSlowDownBug();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // testSpeedUp();
 
