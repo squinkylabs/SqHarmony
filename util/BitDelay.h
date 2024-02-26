@@ -17,7 +17,7 @@ public:
     };
     bool process(bool InputClock, float delay, Errors* error = nullptr);
     void setMaxDelaySamples(unsigned samples);
-
+    size_t getMaxDelaySize() const;
 private:
     // delay memory as 32 bit unsigned, but accesses as a bit.
     std::vector<uint32_t> _delayMemory;
@@ -26,7 +26,7 @@ private:
     unsigned _delayInSamples = 0;
   //  unsigned _delayOutSamples = 0;
 
-    size_t _maxDelaySize();
+   
     bool _getDelayOutput(float delay);
     void _insertDelayInput(bool data);
 
@@ -37,16 +37,19 @@ private:
     void _prevDelayPointer(uint32_t& ptr);
 };
 
-inline size_t BitDelay::_maxDelaySize() {
+inline size_t BitDelay::getMaxDelaySize() const {
     return _delayMemory.size() * 32;
 }
 
 inline void BitDelay::_nextDelayPointer(uint32_t& ptr) {
-
+    ++ptr;
+    if (ptr >= getMaxDelaySize()) {
+        ptr = 0;
+    }
 }
 
 inline void BitDelay::_prevDelayPointer(uint32_t& ptr) {
-
+    --ptr;
 }
 
 inline void BitDelay::_insertDelayInput(bool data) {
@@ -91,7 +94,7 @@ inline bool BitDelay::process(bool clock, float delay, Errors* error) {
     if (error) {
         *error = Errors::NoError;
 
-        if (delay > _maxDelaySize()) {
+        if (delay > getMaxDelaySize()) {
             *error = Errors::ExceededDelaySize;
             return false;
         }

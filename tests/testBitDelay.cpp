@@ -69,7 +69,18 @@ public:
     }
 
     static void testNextPtr() {
-        assert(false);
+        BitDelay delay;
+        delay.setMaxDelaySamples(16);
+        uint32_t p = 0;
+        delay._nextDelayPointer(p);
+        assertEQ(p, 1);
+        delay._nextDelayPointer(p);
+        assertEQ(p, 2);
+
+        p = delay.getMaxDelaySize() - 1;
+        assertGT(p, 10);
+        delay._nextDelayPointer(p);
+        assertEQ(p, 0);
     }
 
      static void testPrevPtr() {
