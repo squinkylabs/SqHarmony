@@ -13,7 +13,7 @@ static void canReturnSizeError() {
 
     ClockShifter6::Errors err;
 
-    c.process(false, 10, 1, &err);
+    c.process(false, false, 1, &err);
     assert(err == ClockShifter6::Errors::ExceededDelaySize);
 
     // clock period 100, can delay 1/100 of that
@@ -25,7 +25,7 @@ static void canDelayZero() {
     ClockShifter6 c;
     c.setMaxDelaySamples(0);
     ClockShifter6::Errors err;
-    bool x = c.process(true, 0, 1000, &err);
+    bool x = c.process(true, true, 0, &err);
     assertEQ(x, true);
 
     x = c.process(false, 0, 1000, &err);
