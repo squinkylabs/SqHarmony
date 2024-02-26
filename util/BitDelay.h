@@ -41,7 +41,7 @@ private:
      */
     void _insertDelayInput(bool data);
 
-    std::tuple<unsigned, unsigned> _getIndexAndBit(unsigned bitIndex);
+    static std::tuple<unsigned, unsigned> _getIndexAndBit(unsigned bitIndex);
     static bool _extractBit(uint32_t word, unsigned bit);
     static uint32_t _packBit(uint32_t word, unsigned bit, bool value);
     void _nextDelayPointer(uint32_t& ptr);
@@ -79,8 +79,8 @@ inline void BitDelay::_insertDelayInput(bool data) {
 }
 
 inline std::tuple<unsigned, unsigned> BitDelay::_getIndexAndBit(unsigned bitIndex) {
-    unsigned index = _currentLocation / 32;
-    unsigned bit = _currentLocation % 32;
+    unsigned index = bitIndex / 32;
+    unsigned bit = bitIndex % 32;
     return std::make_tuple(index, bit);
 }
 

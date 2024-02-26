@@ -1,9 +1,6 @@
 
 #include "BitDelay.h"
-
 #include "asserts.h"
-
-
 
 class TestX {
 public:
@@ -20,37 +17,31 @@ public:
     }
 
     // one fixed, simple case.
-     static void canAccessDelay2() {
+    static void canAccessDelay2() {
         BitDelay delay;
         delay.setMaxDelaySamples(21);
-        delay._currentLocation = 1;      // let's work on the second bit
+        delay._currentLocation = 1;  // let's work on the second bit
 
         delay._insertDelayInput(true);
 
-        bool x = delay._getDelayOutput(1);      // read it back with no dely
+        bool x = delay._getDelayOutput(0);  // read it back with no dely
         assertEQ(x, true);
-        SQINFO("passed canAccessDelay2");
     }
 
-     static void canAccessDelay3() {
-         BitDelay delay;
-         int delayAmount = 40;    // a nice uneven values
-         delay.setMaxDelaySamples(100);
-         delay._currentLocation = delayAmount;      // let's work on the second bit
+    static void canAccessDelay3() {
+        BitDelay delay;
+        int delayAmount = 40;  // a nice uneven values
+        delay.setMaxDelaySamples(100);
+        delay._currentLocation = delayAmount;  // let's work on the second bit
 
-         delay._insertDelayInput(true);
+        delay._insertDelayInput(true);
 
-         bool x = delay._getDelayOutput(delayAmount);      // read it back with no dely
-         assertEQ(x, true);
+        bool x = delay._getDelayOutput(0);  // read it back with no dely
+        assertEQ(x, true);
 
-         x = delay._getDelayOutput(delayAmount -1);      // read it back with no dely
-         assertEQ(x, false);
-
-         x = delay._getDelayOutput(delayAmount + 1);      // read it back with no dely
-         assertEQ(x, false);
-     }
-
-
+        x = delay._getDelayOutput(1);  // read it back with one sample delay
+        assertEQ(x, false);
+    }
 
     static void canExtractBit() {
         assertEQ(BitDelay::_extractBit(0, 0), false);
@@ -96,22 +87,41 @@ public:
         assertEQ(p, 0);
     }
 
-     static void testPrevPtr() {
+    static void testPrevPtr() {
         BitDelay delay;
         delay.setMaxDelaySamples(4);
         uint32_t p = 1;
         delay._prevDelayPointer(p);
         assertEQ(p, 0);
         delay._prevDelayPointer(p);
-        SQINFO("A");
         assertEQ(p, delay.getMaxDelaySize() - 1);
-        SQINFO("B");
+    }
+
+    static void verifyIndexAndBit(unsigned input, unsigned expectedIndex, unsigned expectedBit) {
+        const auto indexAndBit = BitDelay::_getIndexAndBit(input);
+        const unsigned index = std::get<0>(indexAndBit);
+        const unsigned bit = std::get<1>(indexAndBit);
+        assertEQ(index, expectedIndex);
+        assertEQ(bit, expectedBit);
+    }
+
+    static void getIndexAndBit() {
+        verifyIndexAndBit(0, 0, 0);
+        verifyIndexAndBit(1, 0, 1);
+        verifyIndexAndBit(31, 0, 31);
+
+        verifyIndexAndBit(32, 1, 0);
+        verifyIndexAndBit(40, 1, 8);
+        verifyIndexAndBit(41, 1, 9);
+
+        verifyIndexAndBit(39, 1, 7);
+        verifyIndexAndBit(64, 2, 0);
     }
 };
 
-
 void testBitDelay() {
     TestX::canExtractBit();
+    TestX::getIndexAndBit();
     TestX::canPackBit();
     TestX::testNextPtr();
     TestX::testPrevPtr();
