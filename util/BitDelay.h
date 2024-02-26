@@ -99,7 +99,7 @@ inline uint32_t BitDelay::_packBit(uint32_t word, unsigned bit, bool value) {
 }
 
 inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
-    SQINFO("in process, delay mem=%u", _delayMemory.size());
+    // SQINFO("in process, delay mem=%u", _delayMemory.size());
     if (error) {
         *error = Errors::NoError;
 
@@ -111,7 +111,7 @@ inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
 
     _insertDelayInput(clock);
     const bool outputClock = _getDelayOutput(delay);
-    
+
       // We have added one, so move up the buffer pointer.
     _nextDelayPointer(_currentLocation);
     return outputClock;

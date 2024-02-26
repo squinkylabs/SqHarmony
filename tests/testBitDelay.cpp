@@ -80,7 +80,6 @@ static void testDelay20() {
     b = delay.process(false, 20, &err);
     assertEQ(b, true);
     assert(err == BitDelay::Errors::NoError);
-
 }
 
 class TestX {
