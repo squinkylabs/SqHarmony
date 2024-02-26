@@ -35,6 +35,51 @@ static void testDelay0() {
     b = delay.process(true, 0, &err);
     assertEQ(b, true);
     assert(err == BitDelay::Errors::NoError);
+}
+
+static void testDelay20() {
+    BitDelay delay;
+    BitDelay::Errors err;
+    delay.setMaxDelaySamples(100);
+    bool b = delay.process(true, 20, &err);
+    assertEQ(b, false);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(false, 20, &err);
+    assertEQ(b, false);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(true, 20, &err);
+    assertEQ(b, false);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(true, 20, &err);
+    assertEQ(b, false);
+    assert(err == BitDelay::Errors::NoError);
+
+    // ok, have done four cycles. So doing 15
+    // more should get use to 20, the test.
+    for (int i = 0; i < 16; ++i) {
+        b = delay.process(true, 20, &err);
+        assertEQ(b, false);
+        assert(err == BitDelay::Errors::NoError);
+    }
+
+    b = delay.process(false, 20, &err);
+    assertEQ(b, true);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(false, 20, &err);
+    assertEQ(b, false);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(false, 20, &err);
+    assertEQ(b, true);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(false, 20, &err);
+    assertEQ(b, true);
+    assert(err == BitDelay::Errors::NoError);
 
 }
 
@@ -168,6 +213,7 @@ void testBitDelay() {
     testCanCall();
     testDelaySize();
     testDelay0();
+    testDelay20();
 }
 
 #if 1

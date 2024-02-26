@@ -111,6 +111,9 @@ inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
 
     _insertDelayInput(clock);
     const bool outputClock = _getDelayOutput(delay);
+    
+      // We have added one, so move up the buffer pointer.
+    _nextDelayPointer(_currentLocation);
     return outputClock;
 }
 
@@ -129,7 +132,6 @@ inline bool BitDelay::_getDelayOutput(unsigned delayOffset, Errors* err) {
 
     int combinedLoc = _currentLocation - delayOffset;
     if (combinedLoc < 0) {
-        assert(false);  // just to break - we need a unit test for this path
         combinedLoc += (getMaxDelaySize() - 1);
     }
     const auto indexAndBit = _getIndexAndBit(combinedLoc);
