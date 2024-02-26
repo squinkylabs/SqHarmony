@@ -109,8 +109,8 @@ inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
         }
     }
 
-    const bool outputClock = _getDelayOutput(delay);
     _insertDelayInput(clock);
+    const bool outputClock = _getDelayOutput(delay);
     return outputClock;
 }
 

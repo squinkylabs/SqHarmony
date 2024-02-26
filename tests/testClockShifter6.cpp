@@ -32,10 +32,7 @@ static void canDelayZero() {
 }
 
 void testClockShifter6() {
-  
-    assert(false);
-
-    // testCanCreate();
+    testCanCreate();
     // canReturnSizeError();
     // canDelayZero();
 }

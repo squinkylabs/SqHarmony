@@ -2,6 +2,42 @@
 #include "BitDelay.h"
 #include "asserts.h"
 
+static void testCanCall() {
+    BitDelay delay;
+    delay.setMaxDelaySamples(100);
+    delay.getMaxDelaySize();
+    delay.process(false, 0);
+}
+
+static void testDelaySize() {
+    BitDelay delay;
+    delay.setMaxDelaySamples(100);
+    const auto x = delay.getMaxDelaySize();
+    assertGE(x, 100);
+}
+
+static void testDelay0() {
+    BitDelay delay;
+    BitDelay::Errors err;
+    delay.setMaxDelaySamples(100);
+    bool b = delay.process(true, 0, &err);
+    assertEQ(b, true);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(false, 0, &err);
+    assertEQ(b, false);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(true, 0, &err);
+    assertEQ(b, true);
+    assert(err == BitDelay::Errors::NoError);
+
+    b = delay.process(true, 0, &err);
+    assertEQ(b, true);
+    assert(err == BitDelay::Errors::NoError);
+
+}
+
 class TestX {
 public:
     static void canAccessDelayAtZero() {
@@ -128,6 +164,10 @@ void testBitDelay() {
     TestX::canAccessDelayAtZero();
     TestX::canAccessDelay2();
     TestX::canAccessDelay3();
+
+    testCanCall();
+    testDelaySize();
+    testDelay0();
 }
 
 #if 1

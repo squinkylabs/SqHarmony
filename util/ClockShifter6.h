@@ -1,18 +1,17 @@
 #pragma once
 
-
 #include <assert.h>
 
-//#include <tuple>
+// #include <tuple>
 
 // #include "FreqMeasure2.h"
 // #include "OneShotSampleTimer.h"
 
 #include <cstdint>
-//#include <vector>
+// #include <vector>
 
-#include "SqLog.h"
 #include "BitDelay.h"
+#include "SqLog.h"
 
 class ClockShifter6 {
 public:
@@ -26,5 +25,12 @@ public:
     void setMaxDelaySamples(unsigned samples);
 
 private:
-    BitDelay _bitDelay;  
+    BitDelay _bitDelay;
 };
+
+inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
+    return false;
+}
+
+inline void ClockShifter6::setMaxDelaySamples(unsigned samples) {
+}
