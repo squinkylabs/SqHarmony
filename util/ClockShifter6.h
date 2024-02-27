@@ -12,9 +12,9 @@ class ClockShifter6 {
 public:
     friend class TestX;
     enum class Errors {
-        NoError = BitDelay::Errors::NoError,
-        ExceededDelaySize = BitDelay::Errors::ExceededDelaySize,
-        LostClocks = BitDelay::Errors::LostClocks
+        NoError = static_cast<int>(BitDelay::Errors::NoError),
+        ExceededDelaySize = static_cast<int>(BitDelay::Errors::ExceededDelaySize),
+        LostClocks = static_cast<int>(BitDelay::Errors::LostClocks)
     };
     ClockShifter6();
     /**
@@ -30,6 +30,7 @@ public:
     void setMaxDelaySamples(unsigned samples);
 
     bool freqValid() const;
+    unsigned getPeriod() const;
 
      static int llv;  // log level
 
@@ -45,6 +46,11 @@ inline  ClockShifter6:: ClockShifter6() {
 inline bool ClockShifter6::freqValid() const {
     return _freqMeasure.freqValid();
 }
+
+inline unsigned ClockShifter6::getPeriod() const {
+    return _freqMeasure.getPeriod();
+}
+
 inline bool ClockShifter6::process(bool trigger, bool clock, float delay, Errors* error) {
     _freqMeasure.process(trigger, clock);
      if (!_freqMeasure.freqValid()) {

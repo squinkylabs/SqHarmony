@@ -1,12 +1,13 @@
 
 #pragma once
 
-#include "ClockShifter5.h"
+#include "ClockShifter6.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
 #include "ShiftCalc.h"
 
+#include <cmath>
 #include <vector>
 #include <string>
 
@@ -96,7 +97,7 @@ private:
     void _updatePoly();
     void _updateShiftAmount();
 
-    ClockShifter5 _clockShifter[16];
+    ClockShifter6 _clockShifter[16];
     ShiftCalc _ribGenerator[16];
 
     // TODO: get rid of these initializers. There are just here to make some test pass.

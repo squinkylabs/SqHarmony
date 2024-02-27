@@ -17,8 +17,8 @@ using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
 
 // This is a debug feature. should always be zero here.
-int ClockShifter5::llv = 0;
-//int ClockShifter6::llv = 0;
+//int ClockShifter5::llv = 0;
+int ClockShifter6::llv = 0;
 
 
 template <>
