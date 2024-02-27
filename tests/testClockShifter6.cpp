@@ -21,10 +21,7 @@ static void testInitNotStable() {
 }
 
 static void testInitStable() {
-   // ClockShifter6 c;
-   // c.setMaxDelaySamples(1);
     const auto ret = makeAndPrime2(10, 0);
-   // assertEQ(ret.clocked, true
     assertEQ(ret.shifter->freqValid(), true);
 }
 
@@ -43,13 +40,15 @@ static void canReturnSizeError() {
 }
 
 static void canDelayZero() {
-    ClockShifter6 c;
-    c.setMaxDelaySamples(0);
+    // ClockShifter6 c;
+    // c.setMaxDelaySamples(0);
     ClockShifter6::Errors err;
-    bool x = c.process(true, true, 0, &err);
+    // prime();
+    auto shifter = makeAndPrime(10, 0);
+    bool x = shifter->process(true, true, 0, &err);
     assertEQ(x, true);
 
-    x = c.process(false, 0, 1000, &err);
+    x = shifter->process(false, 0, 1000, &err);
     assertEQ(x, false);
 }
 
@@ -59,5 +58,5 @@ void testClockShifter6() {
     testInitStable();
     SQINFO("make size error work again");
     //canReturnSizeError();
-    // canDelayZero();
+    canDelayZero();
 }

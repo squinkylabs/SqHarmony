@@ -16,6 +16,7 @@ public:
         ExceededDelaySize = BitDelay::Errors::ExceededDelaySize,
         LostClocks = BitDelay::Errors::LostClocks
     };
+    ClockShifter6();
     /**
      * @brief 
      * 
@@ -37,6 +38,10 @@ private:
     FreqMeasure2 _freqMeasure;
 };
 
+inline  ClockShifter6:: ClockShifter6() {
+    _bitDelay.setMaxDelaySamples(100000);
+}
+
 inline bool ClockShifter6::freqValid() const {
     return _freqMeasure.freqValid();
 }
@@ -47,9 +52,10 @@ inline bool ClockShifter6::process(bool trigger, bool clock, float delay, Errors
         return false;
     }
     SQINFO("!! ClockShifter6::process is fake");
-    return false;
+    const unsigned delayAbsolute = unsigned( float(_freqMeasure.getPeriod()) * delay);
+    return _bitDelay.process(trigger, delayAbsolute);
 }
 
 inline void ClockShifter6::setMaxDelaySamples(unsigned samples) {
-    SQINFO("!! ClockShifter6::setMaxDelaySamples is fake");
+    _bitDelay.setMaxDelaySamples(samples);
 }
