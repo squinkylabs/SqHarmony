@@ -6,6 +6,7 @@
 
 #include "BitDelay.h"
 #include "FreqMeasure2.h"
+#include "OneShotSampleTimer.h"
 #include "SqLog.h"
 
 class ClockShifter6 {
@@ -37,6 +38,7 @@ public:
 private:
     BitDelay _bitDelay;
     FreqMeasure2 _freqMeasure;
+    OneShotSampleTimer _clockWidthGenerator;
 };
 
 inline  ClockShifter6:: ClockShifter6() {
@@ -57,9 +59,22 @@ inline bool ClockShifter6::process(bool trigger, bool clock, float delay, Errors
         if (llv > 0) SQINFO("leaving unstable");
         return false;
     }
-    SQINFO("!! ClockShifter6::process is fake");
     const unsigned delayAbsolute = unsigned( float(_freqMeasure.getPeriod()) * delay);
-    return _bitDelay.process(trigger, delayAbsolute);
+    float ret = _bitDelay.process(trigger, delayAbsolute);
+
+     if (ret) {
+        _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
+    } else {
+        _clockWidthGenerator.run();
+        ret = _clockWidthGenerator.isRunning();
+    }
+
+    if (ret) {
+        if (llv > 0) SQINFO("process ret clock");
+    } else {
+        if (llv > 0) SQINFO("process no clock");
+    }
+    return ret;
 }
 
 inline void ClockShifter6::setMaxDelaySamples(unsigned samples) {

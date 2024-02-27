@@ -1,10 +1,8 @@
 
 
-#include "testShifter6TestUtils.h"
-
 #include "ClockShifter6.h"
-
 #include "asserts.h"
+#include "testShifter6TestUtils.h"
 
 int ClockShifter6::llv = 0;
 
@@ -52,11 +50,34 @@ static void canDelayZero() {
     assertEQ(x, false);
 }
 
+static void testClockWidthZero() {
+    auto shifter = makeAndPrime(10, 0);
+    // sample zero - own feel clock with 3 high duty cycle.
+    shifter->process(true, true, 0);
+    shifter->process(false, true, 0);
+    shifter->process(false, true, 0);
+
+    // and 7 more low
+    bool x = clockItLow(shifter, 7, 0);
+    assert(!x);
+
+    // three high out now
+    x = shifter->process(true, true, 0);
+    assert(x);
+    x = shifter->process(false, false, 0);
+    assert(x);
+    x = shifter->process(false, false, 0);
+    assert(x);
+    x = shifter->process(false, false, 0);
+    assert(!x);
+}
+
 void testClockShifter6() {
     testCanCreate();
     testInitNotStable();
     testInitStable();
     SQINFO("make size error work again");
-    //canReturnSizeError();
+    // canReturnSizeError();
     canDelayZero();
+    testClockWidthZero();
 }
