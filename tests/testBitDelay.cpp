@@ -215,7 +215,7 @@ void testBitDelay() {
     testDelay20();
 }
 
-#if 1
+#if 0
 void testFirst() {
     TestX::canAccessDelay3();
 }

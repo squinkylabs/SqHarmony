@@ -71,6 +71,7 @@ extern void testButter();
 extern void testPinkFilter();
 extern void testTestLFO();
 extern void testClockShifter6();
+extern void testClockShifter6d();
 extern void testBitDelay();
 
 #include "SqLog.h"
@@ -92,7 +93,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -123,6 +124,7 @@ int main(const char**, int) {
     testRatchet();
     testBitDelay();
     testClockShifter6();
+    testClockShifter6d();
 
     printf("XX: leaving early for clock stuff");
     std::exit(0);
