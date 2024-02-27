@@ -25,7 +25,7 @@ public:
         return false;
     }
     float getDelay() const override {
-        return 0;
+        return _currentDelay;
     }
     bool isMoreData() const override {
         return _samplesRemaining > 0;
@@ -81,8 +81,14 @@ static void testDelayRamp() {
     const unsigned dur = 100;
     SignalSource s;
     s.initForDelayRamp(0, 1, 100);
+    float x = -.001;
     for (int i=0; i<100; ++i) {
         assertEQ(s.isMoreData(), true);
+        const float y = s.getDelay();
+        assertGT(y, x);
+        x = y;
+        assertGE(y, 0);
+        assertLT(y, 1);
         s.next();
     }
     assertEQ(s.isMoreData(), false);
