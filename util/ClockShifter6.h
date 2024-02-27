@@ -54,13 +54,21 @@ inline unsigned ClockShifter6::getPeriod() const {
 }
 
 inline bool ClockShifter6::process(bool trigger, bool clock, float delay, Errors* error) {
+     if (llv > 0) SQINFO("ClockShifter6::process(%d, %d, %f, %p)", trigger, clock, delay, error);
+    if (error) {
+        *error = Errors::NoError;
+    }
     _freqMeasure.process(trigger, clock);
      if (!_freqMeasure.freqValid()) {
         if (llv > 0) SQINFO("leaving unstable");
         return false;
     }
     const unsigned delayAbsolute = unsigned( float(_freqMeasure.getPeriod()) * delay);
-    float ret = _bitDelay.process(trigger, delayAbsolute);
+    BitDelay::Errors bderr;
+    float ret = _bitDelay.process(trigger, delayAbsolute, &bderr);
+    if (error) {
+        *error = Errors(bderr);
+    }
 
      if (ret) {
         _clockWidthGenerator.arm(_freqMeasure.getHighDuration());

@@ -151,7 +151,9 @@ static Outputs6 runSub(const Inputs6& input, std::shared_ptr<ClockShifter6> shif
             if (ClockShifter6::llv) {
                 SQINFO("- about to tick high %d", k + shiftAccumulator);
             }
-            const bool b = shifter->process(true, true, shiftInstantaneous);
+            ClockShifter6::Errors err;
+            const bool b = shifter->process(true, true, shiftInstantaneous, &err);
+            assert(err == ClockShifter6::Errors::NoError);
             // SQINFO("ticked high, ck=%d", b);
             output.processPossibleClock(b, shiftInstantaneous);
             shiftInstantaneous = updateShift(input, output, context, shiftAccumulator);
@@ -476,7 +478,7 @@ void testClockShifter6d() {
 
 #if 1
 void testFirst() {
-    // ClockShifter5::llv = 1;
+    ClockShifter6::llv = 1;
     //  This is the case that is bad without the dodgy "fix"
    // testWithLFO(4, 16, 0.136364, 0.400000, 3);
 
