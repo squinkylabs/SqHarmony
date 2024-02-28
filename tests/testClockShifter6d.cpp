@@ -45,7 +45,8 @@ public:
         assert(dutycycle < 100);
 
         _clockHighSamples = (period * dutycycle) / 100;
-        _clockLowSamples = (period * (100 - dutycycle)) / 100;
+       // _clockLowSamples = (period * (100 - dutycycle)) / 100;
+       _clockLowSamples = period - _clockHighSamples;
         assert(period == (_clockLowSamples + _clockHighSamples));
         assert(_samplesRemaining == 0 || _samplesRemaining == duration);
         _samplesRemaining = duration;
@@ -214,11 +215,10 @@ static void testClockGen() {
     testClockGen(10);
 }
 
-static void testRunZero() {
+static void testRunZero(unsigned period) {
     SignalSource src;
     Output6 output;
 
-    unsigned period = 10;
     unsigned duration = period * 5;
     src.initClock(period, 50, duration);
     src.initForConstant(0, duration);
@@ -227,12 +227,33 @@ static void testRunZero() {
     assert(output.maxSamplesBetweenClocks == output.minSamplesBetweenClocks);
 }
 
+static void testRunZero() {
+    testRunZero(10);
+    testRunZero(113);
+    testRunZero(4321);
+}
+
+static void testRunSlowDown() {
+    SignalSource src;
+    Output6 output;
+
+    unsigned period = 10;
+    unsigned duration = 400;
+    src.initClock(period, 50, duration);
+    src.initForDelayRamp(0, 1, duration);            // delay one clock over 8 input
+    run(&src, &output);
+    unsigned jitter = std::abs(output.maxSamplesBetweenClocks - output.minSamplesBetweenClocks);
+    assertLE(jitter, 1);
+    assertEQ(output.maxSamplesBetweenClocks, 11);
+}
+
 void testClockShifter6d() {
     testCanCall();
     testDelayRamp();
     testConstantRamp();
     testClockGen();
     testRunZero();
+    testRunSlowDown();
     assertEQ(SqLog::errorCount, 0);
 }
 
