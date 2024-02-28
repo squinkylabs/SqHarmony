@@ -129,10 +129,10 @@ static void run(SignalSourceInterface* source, Output6* output) {
     for (bool done = false; !done;) {
         if (source->isMoreData()) {
             const bool clock = source->getClock();
-            const bool trigger = clock && !lastClock;
+         //   const bool trigger = clock && !lastClock;
             float delay = source->getDelay();
             ClockShifter6::Errors err;
-            const bool newClock = shifter->process(trigger, clock, delay, &err);
+            const bool newClock = shifter->process(clock, delay, &err);
             assert(err == ClockShifter6::Errors::NoError);
             lastClock = clock;
 

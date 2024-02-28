@@ -21,13 +21,12 @@ public:
     /**
      * @brief
      *
-     * @param triggers is the leading edge of the clock, used for sync.
-     * @param clock is the clock we are delaying - the input clock. Only used for setting output clock width.
+     * @param clock is the clock we are delaying - the input clock. Leading edge is trigger.
      * @param delay is normalized to 1 == one clocking input period.
      * @param error is where errors are returned to the caller. nullptr is legal.
      * @return the delayed clock.
      */
-    bool process(bool trigger, bool clock, float delay, Errors* error = nullptr);
+    bool process(bool clock, float delay, Errors* error = nullptr);
     void setMaxDelaySamples(unsigned samples);
 
     bool freqValid() const;
@@ -56,7 +55,7 @@ inline unsigned ClockShifter6::getPeriod() const {
     return _freqMeasure.getPeriod();
 }
 
-inline bool ClockShifter6::process(bool dummytrigger, bool clock, float delay, Errors* error) {
+inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     if (llv > 0) SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
     if (error) {
         *error = Errors::NoError;

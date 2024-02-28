@@ -253,7 +253,6 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int clockInputIndex = monoClock ? 0 : i;
         const bool rawClockOut = _clockShifter[i].process(
-            _inputClockProc[clockInputIndex].trigger(),
             _inputClockProc[clockInputIndex].gate(),
             _curShift[i]);
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;

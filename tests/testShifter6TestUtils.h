@@ -12,7 +12,7 @@ inline int clockItLow(ShiftPtr shifter, int count, float shift) {
     int clocksSeen = 0;
     ClockShifter6::Errors err;
     for (int i = 0; i < count; ++i) {
-        const bool b = shifter->process(false, false, shift, &err);
+        const bool b = shifter->process(false, shift, &err);
         assert(err == ClockShifter6::Errors::NoError);
         if (b) {
             clocksSeen++;
@@ -25,7 +25,7 @@ inline int clockItLow(ShiftPtr shifter, int count, float shift) {
 inline int clockIt(std::shared_ptr<ClockShifter6> shifter, int period, float shift) {
     int clocksSeen = 0;
     ClockShifter6::Errors err;
-    if (shifter->process(true, true, shift, &err)) {
+    if (shifter->process(true, shift, &err)) {
         clocksSeen++;
     }
     assert(err == ClockShifter6::Errors::NoError);
@@ -38,7 +38,7 @@ inline bool prime(ShiftPtr shifter, int totalPeriod, float shift) {
     assert(totalPeriod > 1);
     clockIt(shifter, totalPeriod, shift);
     ClockShifter6::Errors err;
-    const bool b = shifter->process(true, true, shift, &err);
+    const bool b = shifter->process(true, shift, &err);
     assert(err == ClockShifter6::Errors::NoError);
     assert(shifter->freqValid());
     return b;

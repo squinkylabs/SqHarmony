@@ -9,7 +9,7 @@ int ClockShifter6::llv = 0;
 static void testCanCreate() {
     ClockShifter6 c;
     c.setMaxDelaySamples(1);
-    c.process(false, .2f, 10, nullptr);
+    c.process(false, .2f, nullptr);
 }
 
 static void testInitNotStable() {
@@ -29,11 +29,10 @@ static void canReturnSizeError() {
 
     ClockShifter6::Errors err;
 
-    c.process(false, false, 1, &err);
+    c.process(false, 1, &err);
     assert(err == ClockShifter6::Errors::ExceededDelaySize);
 
-    // clock period 100, can delay 1/100 of that
-    c.process(false, .01f, 100, &err);
+    c.process(false, .01f, &err);
     assert(err == ClockShifter6::Errors::NoError);
 }
 
@@ -43,10 +42,10 @@ static void canDelayZero() {
     ClockShifter6::Errors err;
     // prime();
     auto shifter = makeAndPrime(10, 0);
-    bool x = shifter->process(true, true, 0, &err);
+    bool x = shifter->process(true, 0, &err);
     assertEQ(x, true);
 
-    x = shifter->process(false, 0, 1000, &err);
+    x = shifter->process(false, 0, &err);
     assertEQ(x, false);
 }
 
@@ -56,12 +55,13 @@ static void testClockWidthZeroDelayFiniteWidth() {
     const unsigned numLow = 5;
     assertEQ(period, (numLow + numHigh));
     auto shifter = makeAndPrime(period, 0);
+    SQINFO("done with prime");
     // above already put out one clock (end of prime)
     // here is #2
-    shifter->process(true, true, 0);
+    shifter->process(true, 0, 0);
 
     // and here is #3
-    shifter->process(false, true, 0);
+    shifter->process(true, 0, 0);
    // shifter->process(false, true, 0);
 
     // and 5 more low
@@ -69,13 +69,13 @@ static void testClockWidthZeroDelayFiniteWidth() {
     assert(!x);
 
     // three high out now
-    x = shifter->process(true, true, 0);
+    x = shifter->process(true, 0, 0);
     assert(x);
-    x = shifter->process(true, true, 0);
+    x = shifter->process(true, 0, 0);
     assert(x);
-    x = shifter->process(true, true, 0);
+    x = shifter->process(true, 0, 0);
     assert(x);
-    x = shifter->process(false, false, 0);
+    x = shifter->process(false, 0, 0);
     assert(!x);
 }
 
