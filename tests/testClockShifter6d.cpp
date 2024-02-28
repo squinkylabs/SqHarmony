@@ -17,6 +17,7 @@ public:
     virtual float getDelay() const = 0;
     virtual bool isMoreData() const = 0;
     virtual void next() = 0;
+    virtual unsigned getPeriod() = 0;
 };
 
 class SignalSource : public SignalSourceInterface {
@@ -35,6 +36,9 @@ public:
         assert(isMoreData());
         _generateNextSample();
     }
+    unsigned getPeriod() override {
+        return _clockPeriod;
+    }
 
     void initClock(unsigned  period, float dutycycle, unsigned duration) {
         assert(dutycycle > 0);
@@ -45,6 +49,7 @@ public:
         assert(period == (_clockLowSamples + _clockHighSamples));
         assert(_samplesRemaining==0 || _samplesRemaining == duration);
         _samplesRemaining = duration;
+        _clockPeriod = period;
     }
 
     void initForDelayRamp(float initial, float final, unsigned duration) {
@@ -75,6 +80,7 @@ private:
     unsigned _sampleCounter = 0;
     int _samplesRemaining = 0;
     double _deltaDelayPerSample = 0;
+    unsigned _clockPeriod = 0;
 
     void _generateNextSample() {
         _sampleCounter++;
@@ -95,9 +101,15 @@ public:
 
     float maxDelay = -100;
     float minDelay = 100;
+
+    void onClock(bool ck, unsigned sample);
 };
 
-static void run(SignalSourceInterface*, Output6* theResults) {
+static void run(SignalSourceInterface* source, Output6* output) {
+    unsigned period = source->getPeriod();
+    float delay = source->getDelay();
+    auto shifter = makeAndPrime(period, delay);
+
 }
 
 static void testCanCall() {
