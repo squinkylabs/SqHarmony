@@ -103,11 +103,19 @@ public:
     float minDelay = 100;
 
     bool lastClock = false;
+    int lastTriggerSample = -1;
     void onClock(bool ck, unsigned sample) {
         SQINFO("onClock(%d, %u)", ck, sample);
         const bool risingEdge = ck && !lastClock;
         if (risingEdge) {
             SQINFO("rising edge");
+            if (lastTriggerSample >= 0) {
+               
+                int delta = sample - lastTriggerSample;
+                 SQINFO("full period delta=%d", delta);
+            }
+            lastTriggerSample = sample;
+
         }
         lastClock = ck;
 
