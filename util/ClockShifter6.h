@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #include "BitDelay.h"
-#include "FreqMeasure2.h"
+#include "FreqMeasure3.h"
 #include "OneShotSampleTimer.h"
 #include "SqLog.h"
 
@@ -37,8 +37,11 @@ public:
 
 private:
     BitDelay _bitDelay;
-    FreqMeasure2 _freqMeasure;
-    OneShotSampleTimer _clockWidthGenerator;
+
+    // was FreqMeasure2, when we had trigger input
+    // I think we need FreqMesaure3.
+    FreqMeasure3 _freqMeasure;
+//    OneShotSampleTimer _clockWidthGenerator;
 };
 
 inline  ClockShifter6:: ClockShifter6() {
@@ -53,29 +56,30 @@ inline unsigned ClockShifter6::getPeriod() const {
     return _freqMeasure.getPeriod();
 }
 
-inline bool ClockShifter6::process(bool trigger, bool clock, float delay, Errors* error) {
-     if (llv > 0) SQINFO("ClockShifter6::process(%d, %d, %f, %p)", trigger, clock, delay, error);
+inline bool ClockShifter6::process(bool dummytrigger, bool clock, float delay, Errors* error) {
+     if (llv > 0) SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
     if (error) {
         *error = Errors::NoError;
     }
-    _freqMeasure.process(trigger, clock);
+    _freqMeasure.process(clock);
+
      if (!_freqMeasure.freqValid()) {
         if (llv > 0) SQINFO("leaving unstable");
         return false;
     }
     const unsigned delayAbsolute = unsigned( float(_freqMeasure.getPeriod()) * delay);
     BitDelay::Errors bderr;
-    float ret = _bitDelay.process(trigger, delayAbsolute, &bderr);
+    float ret = _bitDelay.process(clock, delayAbsolute, &bderr);
     if (error) {
         *error = Errors(bderr);
     }
 
-     if (ret) {
-        _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
-    } else {
-        _clockWidthGenerator.run();
-        ret = _clockWidthGenerator.isRunning();
-    }
+    //  if (ret) {
+    //     _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
+    // } else {
+    //     _clockWidthGenerator.run();
+    //     ret = _clockWidthGenerator.isRunning();
+    // }
 
     if (ret) {
         if (llv > 0) SQINFO("process ret clock");

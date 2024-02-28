@@ -257,7 +257,7 @@ void testClockShifter6d() {
     assertEQ(SqLog::errorCount, 0);
 }
 
-#if 1
+#if 0
 void testFirst() {
     ClockShifter6::llv = 1;
     //  This is the case that is bad without the dodgy "fix"

@@ -1,11 +1,26 @@
 
 #include "FreqMeasure2.h"
+#include "FreqMeasure3.h"
 #include "asserts.h"
 
+/**
+ * @brief Tests FreqMeasure2 and 3
+ * 
+ */
 static void testCanCall() {
     FreqMeasure2 x;
     // x.onSample(false);
     x.process(false, false);
+    const bool f = x.freqValid();
+    if (f) {
+        x.getPeriod();
+    }
+}
+
+static void testCanCall3() {
+    FreqMeasure3 x;
+    // x.onSample(false);
+    x.process(false);
     const bool f = x.freqValid();
     if (f) {
         x.getPeriod();
@@ -17,16 +32,36 @@ static void testInitialConditions() {
     assert(!x.freqValid());
 }
 
-static void testRequiresTwo() {
+static void testInitialConditions3() {
+    FreqMeasure3 x;
+    assert(!x.freqValid());
+}
+
+static void testRequiresTwoClocks() {
     FreqMeasure2 x;
     x.process(true, true);
     assertEQ(x.freqValid(), false);
 }
 
-static void testRequiresTwoB() {
+static void testRequiresTwoClocks3() {
+    FreqMeasure3 x;
+    x.process(true);
+    assertEQ(x.freqValid(), false);
+}
+
+
+static void testRequiresTwoClocksB() {
     FreqMeasure2 x;
     x.process(true, true);
     x.process(false, false);
+
+    assertEQ(x.freqValid(), false);
+}
+
+static void testRequiresTwoClocks3B() {
+    FreqMeasure3 x;
+    x.process(true);
+    x.process(false);
 
     assertEQ(x.freqValid(), false);
 }
@@ -37,6 +72,17 @@ static void testCanSample() {
     x.process(false, false);
     x.process(false, false);
     x.process(true, true);
+
+    assert(x.freqValid());
+    assert(x.getPeriod() == 3);
+}
+
+static void testCanSample3() {
+    FreqMeasure3 x;
+    x.process(true);
+    x.process(false);
+    x.process(false);
+    x.process(true);
 
     assert(x.freqValid());
     assert(x.getPeriod() == 3);
@@ -53,6 +99,21 @@ static void testCanRemember() {
 
     // should remember last full period
     x.process(false, false);
+    assert(x.freqValid());
+    assert(x.getPeriod() == 3);
+}
+
+static void testCanRemember3() {
+    FreqMeasure3 x;
+    x.process(true);
+    x.process(false);
+    x.process(false);
+    x.process(true);
+    assert(x.freqValid());
+    assert(x.getPeriod() == 3);
+
+    // should remember last full period
+    x.process(false);
     assert(x.freqValid());
     assert(x.getPeriod() == 3);
 }
@@ -102,13 +163,25 @@ static void testCanFollow() {
 
 void testFreqMeasure2() {
     testCanCall();
+    testCanCall3();
     testInitialConditions();
-    testRequiresTwo();
-    testRequiresTwoB();
+    testInitialConditions3();
+    testRequiresTwoClocks();
+    testRequiresTwoClocksB();
+    testRequiresTwoClocks3();
+    testRequiresTwoClocks3B();
     testCanSample();
+    testCanSample3();
     testCanRemember();
+    testCanRemember3();
     testHold();
 
     testMeasurePeriod1();
     testCanFollow();
 }
+
+#if 1
+void testFirst() {
+    testFreqMeasure2();
+}
+#endif

@@ -1,6 +1,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+
 #include <cstdlib>
 extern void testHarmonyNote();
 extern void testScaleRelativeNote();
@@ -93,7 +94,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -116,15 +117,15 @@ int main(const char**, int) {
     testFreqMeasure2();
     testShiftCalc();
 
-   
-    testPhasePatterns();
-    testPhasePatternsPoly();
     testClockMult();
     testMultiplier();
     testRatchet();
     testBitDelay();
     testClockShifter6();
     testClockShifter6d();
+
+    testPhasePatterns();
+    testPhasePatternsPoly();
 
     printf("XX: leaving early for clock stuff");
     std::exit(0);
