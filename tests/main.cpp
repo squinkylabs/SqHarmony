@@ -94,7 +94,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 1
+#if 0
     printf("running first for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();

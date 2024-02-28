@@ -205,7 +205,7 @@ void testFreqMeasure2() {
     testCanFollow3();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testFreqMeasure2();
 }

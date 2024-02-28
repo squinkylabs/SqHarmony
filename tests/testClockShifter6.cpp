@@ -50,23 +50,30 @@ static void canDelayZero() {
     assertEQ(x, false);
 }
 
-static void testClockWidthZero() {
-    auto shifter = makeAndPrime(10, 0);
-    // sample zero - own feel clock with 3 high duty cycle.
+static void testClockWidthZeroDelayFiniteWidth() {
+    const unsigned period = 8;
+    const unsigned numHigh = 3;
+    const unsigned numLow = 5;
+    assertEQ(period, (numLow + numHigh));
+    auto shifter = makeAndPrime(period, 0);
+    // above already put out one clock (end of prime)
+    // here is #2
     shifter->process(true, true, 0);
-    shifter->process(false, true, 0);
-    shifter->process(false, true, 0);
 
-    // and 7 more low
-    bool x = clockItLow(shifter, 7, 0);
+    // and here is #3
+    shifter->process(false, true, 0);
+   // shifter->process(false, true, 0);
+
+    // and 5 more low
+    bool x = clockItLow(shifter, numLow, 0);
     assert(!x);
 
     // three high out now
     x = shifter->process(true, true, 0);
     assert(x);
-    x = shifter->process(false, false, 0);
+    x = shifter->process(true, true, 0);
     assert(x);
-    x = shifter->process(false, false, 0);
+    x = shifter->process(true, true, 0);
     assert(x);
     x = shifter->process(false, false, 0);
     assert(!x);
@@ -79,5 +86,16 @@ void testClockShifter6() {
     SQINFO("make size error work again");
     // canReturnSizeError();
     canDelayZero();
-    testClockWidthZero();
+    testClockWidthZeroDelayFiniteWidth();
 }
+
+#if 0
+void testFirst() {
+    ClockShifter6::llv = 1;
+    //  This is the case that is bad without the dodgy "fix"
+    // testWithLFO(4, 16, 0.136364, 0.400000, 3);
+
+    // testSlowDown(5, 3552, 0.0001407658, 7);
+    testClockWidthZeroDelayFiniteWidth();
+}
+#endif

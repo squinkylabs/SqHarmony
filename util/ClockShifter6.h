@@ -19,8 +19,8 @@ public:
     };
     ClockShifter6();
     /**
-     * @brief 
-     * 
+     * @brief
+     *
      * @param triggers is the leading edge of the clock, used for sync.
      * @param clock is the clock we are delaying - the input clock. Only used for setting output clock width.
      * @param delay is normalized to 1 == one clocking input period.
@@ -33,7 +33,7 @@ public:
     bool freqValid() const;
     unsigned getPeriod() const;
 
-     static int llv;  // log level
+    static int llv;  // log level
 
 private:
     BitDelay _bitDelay;
@@ -41,10 +41,10 @@ private:
     // was FreqMeasure2, when we had trigger input
     // I think we need FreqMesaure3.
     FreqMeasure3 _freqMeasure;
-//    OneShotSampleTimer _clockWidthGenerator;
+    //    OneShotSampleTimer _clockWidthGenerator;
 };
 
-inline  ClockShifter6:: ClockShifter6() {
+inline ClockShifter6::ClockShifter6() {
     _bitDelay.setMaxDelaySamples(100000);
 }
 
@@ -57,17 +57,17 @@ inline unsigned ClockShifter6::getPeriod() const {
 }
 
 inline bool ClockShifter6::process(bool dummytrigger, bool clock, float delay, Errors* error) {
-     if (llv > 0) SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
+    if (llv > 0) SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
     if (error) {
         *error = Errors::NoError;
     }
     _freqMeasure.process(clock);
 
-     if (!_freqMeasure.freqValid()) {
+    if (!_freqMeasure.freqValid()) {
         if (llv > 0) SQINFO("leaving unstable");
         return false;
     }
-    const unsigned delayAbsolute = unsigned( float(_freqMeasure.getPeriod()) * delay);
+    const unsigned delayAbsolute = unsigned(float(_freqMeasure.getPeriod()) * delay);
     BitDelay::Errors bderr;
     float ret = _bitDelay.process(clock, delayAbsolute, &bderr);
     if (error) {
@@ -82,7 +82,7 @@ inline bool ClockShifter6::process(bool dummytrigger, bool clock, float delay, E
     // }
 
     if (ret) {
-        if (llv > 0) SQINFO("process ret clock");
+        if (llv > 0) SQINFO("process output clock\n");
     } else {
         if (llv > 0) SQINFO("process no clock");
     }
