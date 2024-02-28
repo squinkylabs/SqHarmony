@@ -40,14 +40,14 @@ public:
         return _clockPeriod;
     }
 
-    void initClock(unsigned  period, float dutycycle, unsigned duration) {
+    void initClock(unsigned period, float dutycycle, unsigned duration) {
         assert(dutycycle > 0);
         assert(dutycycle < 100);
 
         _clockHighSamples = (period * dutycycle) / 100;
         _clockLowSamples = (period * (100 - dutycycle)) / 100;
         assert(period == (_clockLowSamples + _clockHighSamples));
-        assert(_samplesRemaining==0 || _samplesRemaining == duration);
+        assert(_samplesRemaining == 0 || _samplesRemaining == duration);
         _samplesRemaining = duration;
         _clockPeriod = period;
     }
@@ -55,7 +55,7 @@ public:
     void initForDelayRamp(float initial, float final, unsigned duration) {
         assert(initial != final);
         _sampleCounter = 0;
-        assert(_samplesRemaining==0 || _samplesRemaining == duration);
+        assert(_samplesRemaining == 0 || _samplesRemaining == duration);
         _samplesRemaining = duration;
 
         _currentDelay = initial;
@@ -105,20 +105,16 @@ public:
     bool lastClock = false;
     int lastTriggerSample = -1;
     void onClock(bool ck, unsigned sample) {
-        SQINFO("onClock(%d, %u)", ck, sample);
         const bool risingEdge = ck && !lastClock;
         if (risingEdge) {
-            SQINFO("rising edge");
             if (lastTriggerSample >= 0) {
-               
                 int delta = sample - lastTriggerSample;
-                 SQINFO("full period delta=%d", delta);
+                minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
+                maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
             }
             lastTriggerSample = sample;
-
         }
         lastClock = ck;
-
     }
 };
 
@@ -129,9 +125,8 @@ static void run(SignalSourceInterface* source, Output6* output) {
 
     bool lastClock = false;
     unsigned sample = 0;
-    for (bool done = false; !done; ) {
+    for (bool done = false; !done;) {
         if (source->isMoreData()) {
-             
             const bool clock = source->getClock();
             const bool trigger = clock && !lastClock;
             float delay = source->getDelay();
@@ -143,8 +138,7 @@ static void run(SignalSourceInterface* source, Output6* output) {
             source->next();
             output->onClock(newClock, sample);
             ++sample;
-        }
-        else {
+        } else {
             done = true;
         }
     }
@@ -163,7 +157,7 @@ static void testDelayRamp() {
     SignalSource s;
     s.initForDelayRamp(0, 1, 100);
     float x = -.001;
-    for (int i=0; i<100; ++i) {
+    for (int i = 0; i < 100; ++i) {
         assertEQ(s.isMoreData(), true);
         const float y = s.getDelay();
         assertGT(y, x);
@@ -180,7 +174,7 @@ static void testConstantRamp() {
     const unsigned dur = 100;
     SignalSource s;
     s.initForConstant(4, 7);
-    for (int i=0; i<7; ++i) {
+    for (int i = 0; i < 7; ++i) {
         assertEQ(s.isMoreData(), true);
         const float y = s.getDelay();
         assertEQ(y, 4);
@@ -198,7 +192,7 @@ static void testClockGen(float dutyCycle) {
     const unsigned clocksHigh = period * dutyCycle / 100;
     const unsigned clocksLow = period * (100 - dutyCycle) / 100;
 
-    for (unsigned  i = 0; i < clocksHigh; ++i) {
+    for (unsigned i = 0; i < clocksHigh; ++i) {
         const bool x = s.getClock();
         assertEQ(x, true);
         s.next();
@@ -229,10 +223,8 @@ static void testRunZero() {
     src.initClock(period, 50, duration);
     src.initForConstant(0, duration);
     run(&src, &output);
-    assert(output.maxSamplesBetweenClocks > 0);
+    assert(output.maxSamplesBetweenClocks == period);
     assert(output.maxSamplesBetweenClocks == output.minSamplesBetweenClocks);
-
-    assert(false);
 }
 
 void testClockShifter6d() {
