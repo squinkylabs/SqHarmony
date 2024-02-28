@@ -102,7 +102,14 @@ public:
     float maxDelay = -100;
     float minDelay = 100;
 
+    bool lastClock = false;
     void onClock(bool ck, unsigned sample) {
+        SQINFO("onClock(%d, %u)", ck, sample);
+        const bool risingEdge = ck && !lastClock;
+        if (risingEdge) {
+            SQINFO("rising edge");
+        }
+        lastClock = ck;
 
     }
 };
