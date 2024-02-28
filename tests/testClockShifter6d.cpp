@@ -102,7 +102,9 @@ public:
     float maxDelay = -100;
     float minDelay = 100;
 
-    void onClock(bool ck, unsigned sample);
+    void onClock(bool ck, unsigned sample) {
+
+    }
 };
 
 static void run(SignalSourceInterface* source, Output6* output) {
@@ -110,11 +112,33 @@ static void run(SignalSourceInterface* source, Output6* output) {
     float delay = source->getDelay();
     auto shifter = makeAndPrime(period, delay);
 
+    bool lastClock = false;
+    unsigned sample = 0;
+    for (bool done = false; !done; ) {
+        if (source->isMoreData()) {
+             
+            const bool clock = source->getClock();
+            const bool trigger = clock && !lastClock;
+            float delay = source->getDelay();
+            ClockShifter6::Errors err;
+            const bool newClock = shifter->process(trigger, clock, delay, &err);
+            assert(err == ClockShifter6::Errors::NoError);
+            lastClock = clock;
+
+            source->next();
+            output->onClock(newClock, sample);
+            ++sample;
+        }
+        else {
+            done = true;
+        }
+    }
 }
 
 static void testCanCall() {
     SignalSource s;
     s.initForDelayRamp(0, 1, 100);
+    s.initClock(10, 50, 100);
     Output6 results;
     run(&s, &results);
 }
@@ -182,6 +206,17 @@ static void testClockGen() {
 }
 
 static void testRunZero() {
+    SignalSource src;
+    Output6 output;
+
+    unsigned period = 10;
+    unsigned duration = period * 5;
+    src.initClock(period, 50, duration);
+    src.initForConstant(0, duration);
+    run(&src, &output);
+    assert(output.maxSamplesBetweenClocks > 0);
+    assert(output.maxSamplesBetweenClocks == output.minSamplesBetweenClocks);
+
     assert(false);
 }
 
