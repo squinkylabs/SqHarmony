@@ -49,7 +49,6 @@ static void testRequiresTwoClocks3() {
     assertEQ(x.freqValid(), false);
 }
 
-
 static void testRequiresTwoClocksB() {
     FreqMeasure2 x;
     x.process(true, true);
@@ -120,17 +119,13 @@ static void testCanRemember3() {
 
 static void testHold() {
     FreqMeasure2 x;
-
     // two clock high in a row with no triggers should not count.
     x.process(false, true);
     x.process(false, true);
-
-    // const int y = x.getPeriod();
     assert(!x.freqValid());
 }
 
-static void testMeasurePeriod1() {
-    // SQINFO("inter testMeasurePeriod1");
+static void testMeasurePeriod() {
     FreqMeasure2 x;
     x.process(true, true);
     x.process(false, true);
@@ -140,8 +135,19 @@ static void testMeasurePeriod1() {
     x.process(true, true);
     assert(x.freqValid());
     assertEQ(x.getPeriod(), 5);
-    // SQINFO("measured %d", x.getPeriod());
     assertEQ(x.getHighDuration(), 3);
+}
+
+static void testMeasurePeriod3() {
+    FreqMeasure3 x;
+    x.process(true);
+    x.process(false);
+    x.process(false);
+    x.process(false);
+    x.process(false);
+    x.process(true);
+    assert(x.freqValid());
+    assertEQ(x.getPeriod(), 5);
 }
 
 static void testCanFollow() {
@@ -161,6 +167,23 @@ static void testCanFollow() {
     assertEQ(x.getPeriod(), 14);
 }
 
+static void testCanFollow3() {
+    FreqMeasure3 x;
+    x.process(true);
+    x.process(false);
+    x.process(false);
+    x.process(true);
+    assert(x.freqValid());
+    assertEQ(x.getPeriod(), 3);
+
+    for (int i = 0; i < 13; ++i) {
+        x.process(false);
+    }
+    x.process(true);
+    assert(x.freqValid());
+    assertEQ(x.getPeriod(), 14);
+}
+
 void testFreqMeasure2() {
     testCanCall();
     testCanCall3();
@@ -176,8 +199,10 @@ void testFreqMeasure2() {
     testCanRemember3();
     testHold();
 
-    testMeasurePeriod1();
+    testMeasurePeriod();
+    testMeasurePeriod3();
     testCanFollow();
+    testCanFollow3();
 }
 
 #if 1

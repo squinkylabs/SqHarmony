@@ -6,8 +6,9 @@
 #include "assert.h"
 
 /**
- * @brief takes a standard "gate" input (like square wave LFO), converts to period
- * 
+ * @brief takes a standard "gate" input (like square wave LFO), converts to period.
+ * Does not have the duty cycle measurement that FreqMesure2 has
+ *
  */
 class FreqMeasure3 {
 public:
@@ -17,14 +18,23 @@ public:
     int getPeriod() const;
 private:
     int _countSinceTrigger = 0;
-    int _clockHighCountSinceTrigger = 0;
     int _period = 0;
-    int _highCount = 0;
     int _clocksReceived = 0;
     bool _lastClock = false;
 };
 
 inline void FreqMeasure3::process(bool clock) {
+    if ((clock != _lastClock) && clock) {
+        _clocksReceived++;
+        if (_clocksReceived > 10) {
+            _clocksReceived = 10;
+        }
+        _period = _countSinceTrigger;
+        _countSinceTrigger = 0;
+    } else {
+        _countSinceTrigger++;
+    }
+    _lastClock = clock;
 }
 
 inline bool FreqMeasure3::freqValid() const {
