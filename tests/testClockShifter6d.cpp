@@ -22,7 +22,8 @@ public:
 class SignalSource : public SignalSourceInterface {
 public:
     bool getClock() const override {
-        return false;
+        const bool ret = _clockAcc < _clockHighSamples;
+        return ret;
     }
     float getDelay() const override {
         return _currentDelay;
@@ -35,16 +36,41 @@ public:
         _generateNextSample();
     }
 
+    void initClock(unsigned  period, float dutycycle, unsigned duration) {
+        assert(dutycycle > 0);
+        assert(dutycycle < 100);
+
+        _clockHighSamples = (period * dutycycle) / 100;
+        _clockLowSamples = (period * (100 - dutycycle)) / 100;
+        assert(period == (_clockLowSamples + _clockHighSamples));
+        assert(_samplesRemaining==0 || _samplesRemaining == duration);
+        _samplesRemaining = duration;
+    }
+
     void initForDelayRamp(float initial, float final, unsigned duration) {
         assert(initial != final);
         _sampleCounter = 0;
+        assert(_samplesRemaining==0 || _samplesRemaining == duration);
         _samplesRemaining = duration;
 
         _currentDelay = initial;
         _deltaDelayPerSample = (final - initial) / duration;
         assert(_deltaDelayPerSample != 0);
     }
+
+    void initForConstant(float value, unsigned duration) {
+        _sampleCounter = 0;
+        _samplesRemaining = duration;
+        _currentDelay = value;
+        _deltaDelayPerSample = 0;
+    }
+
 private:
+    // These bars for clock
+    unsigned _clockHighSamples = 0;
+    unsigned _clockLowSamples = 0;
+    unsigned _clockAcc = 0;
+    // These vars for implementing ramp / const
     double _currentDelay = 0;
     unsigned _sampleCounter = 0;
     int _samplesRemaining = 0;
@@ -54,6 +80,10 @@ private:
         _sampleCounter++;
         _samplesRemaining--;
         _currentDelay += _deltaDelayPerSample;
+        ++_clockAcc;
+        if (_clockAcc >= (_clockHighSamples + _clockLowSamples)) {
+            _clockAcc = 0;
+        }
     }
 };
 
@@ -91,13 +121,64 @@ static void testDelayRamp() {
         assertLT(y, 1);
         s.next();
     }
+    assertClose(x, .99, .005);
     assertEQ(s.isMoreData(), false);
+}
 
+static void testConstantRamp() {
+    const unsigned dur = 100;
+    SignalSource s;
+    s.initForConstant(4, 7);
+    for (int i=0; i<7; ++i) {
+        assertEQ(s.isMoreData(), true);
+        const float y = s.getDelay();
+        assertEQ(y, 4);
+        s.next();
+    }
+    assertEQ(s.isMoreData(), false);
+}
+
+static void testClockGen(float dutyCycle) {
+    //  void initClock(int period, float dutycycle)
+    SignalSource s;
+
+    const int period = 200;
+    s.initClock(period, dutyCycle, 500);
+    const unsigned clocksHigh = period * dutyCycle / 100;
+    const unsigned clocksLow = period * (100 - dutyCycle) / 100;
+
+    for (unsigned  i = 0; i < clocksHigh; ++i) {
+        const bool x = s.getClock();
+        assertEQ(x, true);
+        s.next();
+    }
+    for (unsigned i = 0; i < clocksLow; ++i) {
+        const bool x = s.getClock();
+        assertEQ(x, false);
+        s.next();
+    }
+    for (unsigned i = 0; i < clocksHigh; ++i) {
+        const bool x = s.getClock();
+        assertEQ(x, true);
+        s.next();
+    }
+}
+
+static void testClockGen() {
+    testClockGen(50);
+    testClockGen(10);
+}
+
+static void testRunZero() {
+    assert(false);
 }
 
 void testClockShifter6d() {
     testCanCall();
     testDelayRamp();
+    testConstantRamp();
+    testClockGen();
+    testRunZero();
     assertEQ(SqLog::errorCount, 0);
 }
 
