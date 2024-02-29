@@ -35,6 +35,12 @@
 			"name": "LFN II",
 			"disabled": false,
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/phasepatterns.md"
+		},
+		{
+			"slug": "sqh-harmony3",
+			"name": "Harmony III",
+			"disabled": false,
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/phasepatterns.md"
 		}
     ]
 }
