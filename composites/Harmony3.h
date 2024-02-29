@@ -46,6 +46,6 @@ inline void Harmony3<TBase>::init() {
 }
 
 template <class TBase>
-inline void process(const typename TBase::ProcessArgs& args) {
+inline void Harmony3<TBase>::process(const typename TBase::ProcessArgs& args) {
 
  }
