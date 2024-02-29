@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 namespace rack {
 namespace engine {
 struct Module;
@@ -17,6 +20,8 @@ public:
     Harmony3() : TBase() {
         this->init();
     }
+
+    static std::vector<std::string> getTransposeLabels();
 
     enum ParamIds {
         XPOSE1_PARAM,
@@ -53,6 +58,21 @@ public:
 private:
     void init();
 };
+
+template <class TBase>
+inline std::vector<std::string>  Harmony3<TBase>::getTransposeLabels() {
+    return {
+        "off",
+        "+1",
+        "+2",
+        "+3",
+        "+4",
+        "+5",
+        "+6",
+        "+7",
+        "1:+0"
+    };
+}
 
 template <class TBase>
 inline void Harmony3<TBase>::init() {

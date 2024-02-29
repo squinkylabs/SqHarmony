@@ -3,14 +3,13 @@
 #ifdef _H3
 
 #include "BufferingParent.h"
+#include "Harmony3.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
-
-#include "Harmony3.h"
 
 using Comp = Harmony3<WidgetComposite>;
 
@@ -31,15 +30,33 @@ public:
 #if 1  // def _LAB
         addLabel(Vec(23, 6), "Harmony III", 20);
         // addLabel(Vec(28, 60), "Under Construction", 14);
-        addLabel(Vec(23, 340), "Squinktronix", 16);
+        addLabel(Vec(30, 356), "Squinktronix", 16);
 #endif
         //  addControls(module);
         //  addIO(module);
-     //   addOutput(createOutput<PJ301MPort>(Vec(25, 200), module, Comp::OUT));
-
+        //   addOutput(createOutput<PJ301MPort>(Vec(25, 200), module, Comp::OUT));
+        addTranposeControls(module);
     }
 
-      /**
+private:
+    void addTranposeControls(Harmony3Module* module) {
+        const float y0= 50;
+        const float deltaY = 30;
+        for (int i = 0; i < 6; ++i) {
+            const float y = y0 + i * deltaY;
+            PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
+                Vec(8, y),
+                module,
+                Comp::XPOSE1_PARAM);
+            p->setLabels(Comp::getTransposeLabels());  // just default to sharps, we will change. TODO: do it right.
+            p->box.size.x = 40;                         // width
+            p->box.size.y = 22;
+           // p->text = "C";
+            addParam(p);
+        }
+    }
+
+    /**
      * @brief
      *
      * @param v is the position, panel relative
