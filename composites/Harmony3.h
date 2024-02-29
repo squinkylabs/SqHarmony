@@ -13,21 +13,34 @@ public:
     Harmony3(Module* module) : TBase(module) {
         this->init();
     }
+
     Harmony3() : TBase() {
         this->init();
     }
 
     enum ParamIds {
+        XPOSE1_PARAM,
+        XPOSE2_PARAM,
+        XPOSE3_PARAM,
+        XPOSE4_PARAM,
+        XPOSE5_PARAM,
+        XPOSE6_PARAM,
         NUM_PARAMS
     };
 
     enum InputIds {
     //    DEBUG_IN,
+        XPOSE_CV1_INPUT,
+        XPOSE_CV2_INPUT,
+        XPOSE_CV3_INPUT,
+        XPOSE_CV4_INPUT,
+        XPOSE_CV5_INPUT,
+        XPOSE_CV6_INPUT,
         NUM_INPUTS
     };
 
     enum OutputIds {
-        OUT,
+        PITCH_OUTPUT,
         NUM_OUTPUTS
     };
 
