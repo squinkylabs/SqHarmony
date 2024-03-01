@@ -19,7 +19,7 @@ void init(rack::Plugin* p) {
 #ifdef _LFN
     p->addModel(modelLFN2);
 #endif
-#ifdef _H3
-    p->addModel(modelHarmony3);
+#ifdef _H2
+    p->addModel(modelHarmony2);
 #endif
 }

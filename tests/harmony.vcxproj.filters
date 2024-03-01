@@ -288,7 +288,7 @@
     <ClCompile Include="testClockShifter6d.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testHarmony3.cpp">
+    <ClCompile Include="testHarmony2.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>

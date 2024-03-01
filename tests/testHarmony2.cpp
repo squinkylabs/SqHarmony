@@ -1,9 +1,9 @@
 #include "asserts.h"
 
-#include "Harmony3.h"
+#include "Harmony2.h"
 #include "TestComposite.h"
 
-using Comp = Harmony3<TestComposite>;
+using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
  
@@ -27,7 +27,7 @@ static void testLabels() {
     assertEQ(count, x.size());
 }
 
-void testHarmony3() {
+void testHarmony2() {
     testCanCall();
     testLabels();
 }

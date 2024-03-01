@@ -191,7 +191,7 @@
     <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testFreqMeasure2.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
-    <ClCompile Include="testHarmony3.cpp" />
+    <ClCompile Include="testHarmony2.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChords2023.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />

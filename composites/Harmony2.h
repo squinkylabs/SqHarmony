@@ -11,13 +11,13 @@ struct Module;
 using Module = ::rack::engine::Module;
 
 template <class TBase>
-class Harmony3 : public TBase {
+class Harmony2 : public TBase {
 public:
-    Harmony3(Module* module) : TBase(module) {
+    Harmony2(Module* module) : TBase(module) {
         this->init();
     }
 
-    Harmony3() : TBase() {
+    Harmony2() : TBase() {
         this->init();
     }
 
@@ -60,7 +60,7 @@ private:
 };
 
 template <class TBase>
-inline std::vector<std::string>  Harmony3<TBase>::getTransposeLabels() {
+inline std::vector<std::string>  Harmony2<TBase>::getTransposeLabels() {
     return {
         "off",
         "+1",
@@ -75,10 +75,10 @@ inline std::vector<std::string>  Harmony3<TBase>::getTransposeLabels() {
 }
 
 template <class TBase>
-inline void Harmony3<TBase>::init() {
+inline void Harmony2<TBase>::init() {
 }
 
 template <class TBase>
-inline void Harmony3<TBase>::process(const typename TBase::ProcessArgs& args) {
+inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
 
  }

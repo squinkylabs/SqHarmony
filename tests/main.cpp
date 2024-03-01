@@ -74,7 +74,7 @@ extern void testTestLFO();
 extern void testClockShifter6();
 extern void testClockShifter6d();
 extern void testBitDelay();
-extern void testHarmony3();
+extern void testHarmony2();
 
 #include "SqLog.h"
 
@@ -128,7 +128,7 @@ int main(const char**, int) {
     testPhasePatterns();
     testPhasePatternsPoly();
 
-    testHarmony3();
+    testHarmony2();
     printf("XX: leaving early for clock stuff");
     std::exit(0);
 

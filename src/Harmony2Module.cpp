@@ -1,9 +1,9 @@
 
 #include "plugin.hpp"
-#ifdef _H3
+#ifdef _H2
 
 #include "BufferingParent.h"
-#include "Harmony3.h"
+#include "Harmony2.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
@@ -11,20 +11,20 @@
 #include "SqLog.h"
 #include "WidgetComposite.h"
 
-using Comp = Harmony3<WidgetComposite>;
+using Comp = Harmony2<WidgetComposite>;
 
-class Harmony3Module : public rack::engine::Module {
+class Harmony2Module : public rack::engine::Module {
 public:
     std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);
-    Harmony3Module() {
+    Harmony2Module() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         // addParams();
     }
 };
 
-class Harmony3Widget : public ModuleWidget {
+class Harmony2Widget : public ModuleWidget {
 public:
-    Harmony3Widget(Harmony3Module* module) {
+    Harmony2Widget(Harmony2Module* module) {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel.svg")));
 #if 1  // def _LAB
@@ -39,7 +39,7 @@ public:
     }
 
 private:
-    void addTranposeControls(Harmony3Module* module) {
+    void addTranposeControls(Harmony2Module* module) {
         const float y0= 50;
         const float deltaY = 30;
         for (int i = 0; i < 6; ++i) {
@@ -90,5 +90,5 @@ private:
     }
 };
 
-Model* modelHarmony3 = createModel<Harmony3Module, Harmony3Widget>("sqh-harmony3");
+Model* modelHarmony2 = createModel<Harmony2Module, Harmony2Widget>("sqh-harmony2");
 #endif
