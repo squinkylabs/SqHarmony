@@ -12,6 +12,8 @@
 #include "SqLog.h"
 #include "WidgetComposite.h"
 
+#define _LAB
+
 using Comp = Harmony2<WidgetComposite>;
 
 class Harmony2Module : public rack::engine::Module {
@@ -32,7 +34,7 @@ public:
 #if 1  // def _LAB
         addLabel(Vec(43, 6), "Harmony II", 20);
         // addLabel(Vec(28, 60), "Under Construction", 14);
-        addLabel(Vec(40, 353), "Squinktronix", 17);
+        addLabel(Vec(44, 353), "Squinktronix", 17);
 #endif
         //  addControls(module);
         //  addIO(module);
@@ -45,15 +47,22 @@ public:
 
 private:
     void addMainCV() {
-
+        const float y = 317;
+        addInputL(Vec(19, y), Comp::PITCH_INPUT, "CVI"); 
+      //   addInputL(const Vec& vec, int outputNumber, const std::string& text) {
+        addOutputL(Vec(60, y), Comp::PITCH_OUTPUT, "CVO");
     }
-     void addModCV() {
-        
-    }
 
+    void addModCV() {
+        const float y = 270;
+        addInputL(Vec(19, y), Comp::XPOSE_INPUT, "XP"); 
+
+        addInputL(Vec(60, y), Comp::KEY_INPUT, "Key"); 
+        addInputL(Vec(100, y), Comp::MODE_INPUT, "Mode"); 
+    }
 
     void addKeysig() {
-        const float yScale = 250;
+        const float yScale = 220;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -80,6 +89,7 @@ private:
         p->text = "Maj";
         addParam(p);
     }
+
     void addTranposeControls(Harmony2Module* module) {  
         for (int i = 0; i < 6; ++i) {
             addTransposeControls(i);
@@ -87,7 +97,7 @@ private:
     }
 
     static constexpr float y0 = 40;
-    static constexpr float deltaY = 30;
+    static constexpr float deltaY = 28;
     static constexpr float xbutton = 5;
     static constexpr float xoctave = 28;
     static constexpr float xdegree = 75;
@@ -118,7 +128,6 @@ private:
         p->box.size.x = 40;                        // width
         p->box.size.y = 22;
         addParam(p);
-
     }
 
     /**
@@ -152,6 +161,30 @@ private:
 
         addChild(parent);
         return parent;
+    }
+
+    void addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
+        addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
+        Vec vlabel(vec.x, vec.y);
+        vlabel.y -= 20;
+        vlabel.x += 4;
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
+        vlabel.x -= xOffset;
+        addLabel(vlabel, text);
+#endif
+    }
+
+    void addInputL(const Vec& vec, int outputNumber, const std::string& text) {
+        addInput(createInput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
+        Vec vlabel(vec.x, vec.y);
+        vlabel.y -= 20;
+         vlabel.x += 4;
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
+        vlabel.x -= xOffset;
+        addLabel(vlabel, text);
+#endif
     }
 };
 
