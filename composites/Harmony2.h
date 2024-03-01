@@ -21,15 +21,14 @@ public:
         this->init();
     }
 
-    static std::vector<std::string> getTransposeLabels();
+    static std::vector<std::string> getTransposeOctaveLabels();
+    static std::vector<std::string> getTransposeDegreeLabels();
 
     enum ParamIds {
-        XPOSE1_PARAM,
-        XPOSE2_PARAM,
-        XPOSE3_PARAM,
-        XPOSE4_PARAM,
-        XPOSE5_PARAM,
-        XPOSE6_PARAM,
+        XPOSE_DEGREE1_PARAM, XPOSE_DEGREE_2_PARAM, XPOSE_DEGREE_3_PARAM, XPOSE_DEGREE_4_PARAM,XPOSE_DEGREE_5_PARAM, XPOSE_DEGREE_6_PARAM,
+        XPOSE_OCTAVE1_PARAM, XPOSE_OCTAVE_2_PARAM, XPOSE_OCTAVE_3_PARAM, XPOSE_OCTAVE_4_PARAM,XPOSEO_OCTAVE_5_PARAM, XPOSE_OCTAVE_6_PARAM,
+        XPOSE_ENABLE1_PARAM, XPOSE_ENABLE_2_PARAM, XPOSE_ENABLE_3_PARAM, XPOSE_ENABLE_4_PARAM, XPOSE_ENABLE_5_PARAM, XPOSE_ENABLE_6_PARAM,
+        XPOSE_TOTAL1_PARAM, XPOSE_TOTAL_2_PARAM,XPOSE_TOTAL_3_PARAM,XPOSE_TOTAL_4_PARAM,XPOSE_TOTAL_5_PARAM,XPOSE_TOTAL_6_PARAM,
         NUM_PARAMS
     };
 
@@ -50,6 +49,7 @@ public:
     };
 
     enum LightIds {
+        XPOSE_ENABLE1_LIGHT, XPOSE_ENABLE2_LIGHT,XPOSE_ENABLE3_LIGHT,XPOSE_ENABLE4_LIGHT,XPOSE_ENABLE5_LIGHT,XPOSE_ENABLE6_LIGHT, 
         NUM_LIGHTS
     };
 
@@ -60,20 +60,29 @@ private:
 };
 
 template <class TBase>
-inline std::vector<std::string>  Harmony2<TBase>::getTransposeLabels() {
+inline std::vector<std::string>  Harmony2<TBase>::getTransposeDegreeLabels() {
     return {
-        "off",
+        "0",
         "+1",
         "+2",
         "+3",
         "+4",
         "+5",
         "+6",
-        "+7",
-        "1:+0"
+        "+7"
     };
 }
 
+template <class TBase>
+inline std::vector<std::string>  Harmony2<TBase>::getTransposeOctaveLabels() {
+    return {
+        "-2",
+        "-1",
+        "0",
+        "+1",
+        "+2",
+    };
+}
 template <class TBase>
 inline void Harmony2<TBase>::init() {
 }

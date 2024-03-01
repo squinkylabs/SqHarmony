@@ -40,20 +40,26 @@ public:
 
 private:
     void addTranposeControls(Harmony2Module* module) {
-        const float y0= 50;
-        const float deltaY = 30;
+       
         for (int i = 0; i < 6; ++i) {
-            const float y = y0 + i * deltaY;
-            PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-                Vec(8, y),
-                module,
-                Comp::XPOSE1_PARAM);
-            p->setLabels(Comp::getTransposeLabels());  // just default to sharps, we will change. TODO: do it right.
-            p->box.size.x = 40;                         // width
-            p->box.size.y = 22;
-           // p->text = "C";
-            addParam(p);
+            addTransposeControls(i);
         }
+    }
+
+    static constexpr float y0 = 50;
+    static constexpr float deltaY = 30;
+
+    void addTransposeControls(int index) {
+        const float y = y0 + index * deltaY;
+        PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
+            Vec(8, y),
+            module,
+            Comp::XPOSE_OCTAVE_1_PARAM + index);
+        p->setLabels(Comp::getTransposeOctaveLabels());  // just default to sharps, we will change. TODO: do it right.
+        p->box.size.x = 40;                        // width
+        p->box.size.y = 22;
+        // p->text = "C";
+        addParam(p);
     }
 
     /**
