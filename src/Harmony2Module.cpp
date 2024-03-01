@@ -7,6 +7,7 @@
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
+#include "Scale.h"
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
@@ -37,17 +38,55 @@ public:
         //  addIO(module);
         //   addOutput(createOutput<PJ301MPort>(Vec(25, 200), module, Comp::OUT));
         addTranposeControls(module);
+        addKeysig();
+        addMainCV();
+        addModCV();
     }
 
 private:
-    void addTranposeControls(Harmony2Module* module) {
-       
+    void addMainCV() {
+
+    }
+     void addModCV() {
+        
+    }
+
+
+    void addKeysig() {
+        const float yScale = 250;
+        const float yMode = yScale;
+
+        PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
+            Vec(8, yScale),
+            module,
+            Comp::KEY_PARAM);
+        p->setLabels(Scale::getRootLabels(false));  // just default to sharps, we will change. TODO: do it right.
+        p->box.size.x = 40;                         // width
+        p->box.size.y = 22;
+        p->text = "C";
+        addParam(p);
+    // don't know yet if we need this...
+     //   _keyRootWidget = p;  // remember this so we can poll it.
+
+        p = createParam<PopupMenuParamWidget>(
+            Vec(74, yMode),
+            module,
+            Comp::MODE_PARAM);
+        p->setShortLabels(Scale::getShortScaleLabels(true));
+        p->setLabels(Scale::getScaleLabels(true));
+
+        p->box.size.x = 70;  // width
+        p->box.size.y = 22;
+        p->text = "Maj";
+        addParam(p);
+    }
+    void addTranposeControls(Harmony2Module* module) {  
         for (int i = 0; i < 6; ++i) {
             addTransposeControls(i);
         }
     }
 
-    static constexpr float y0 = 50;
+    static constexpr float y0 = 40;
     static constexpr float deltaY = 30;
     static constexpr float xbutton = 5;
     static constexpr float xoctave = 28;

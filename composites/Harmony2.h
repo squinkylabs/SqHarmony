@@ -23,23 +23,26 @@ public:
 
     static std::vector<std::string> getTransposeOctaveLabels();
     static std::vector<std::string> getTransposeDegreeLabels();
+ //   static std::vector<std::string> getRootLabels(bool);
+ //   static std::vector<std::string> getShortScaleLabels(bool);
 
     enum ParamIds {
         XPOSE_DEGREE1_PARAM, XPOSE_DEGREE_2_PARAM, XPOSE_DEGREE_3_PARAM, XPOSE_DEGREE_4_PARAM,XPOSE_DEGREE_5_PARAM, XPOSE_DEGREE_6_PARAM,
         XPOSE_OCTAVE1_PARAM, XPOSE_OCTAVE_2_PARAM, XPOSE_OCTAVE_3_PARAM, XPOSE_OCTAVE_4_PARAM,XPOSEO_OCTAVE_5_PARAM, XPOSE_OCTAVE_6_PARAM,
         XPOSE_ENABLE1_PARAM, XPOSE_ENABLE_2_PARAM, XPOSE_ENABLE_3_PARAM, XPOSE_ENABLE_4_PARAM, XPOSE_ENABLE_5_PARAM, XPOSE_ENABLE_6_PARAM,
         XPOSE_TOTAL1_PARAM, XPOSE_TOTAL_2_PARAM,XPOSE_TOTAL_3_PARAM,XPOSE_TOTAL_4_PARAM,XPOSE_TOTAL_5_PARAM,XPOSE_TOTAL_6_PARAM,
+        KEY_PARAM, MODE_PARAM,
         NUM_PARAMS
     };
 
     enum InputIds {
     //    DEBUG_IN,
-        XPOSE_CV1_INPUT,
-        XPOSE_CV2_INPUT,
-        XPOSE_CV3_INPUT,
-        XPOSE_CV4_INPUT,
-        XPOSE_CV5_INPUT,
-        XPOSE_CV6_INPUT,
+        XPOSE_INPUT,
+        KEY_INPUT,
+        MODE_INPUT,
+
+        PITCH_INPUT,
+
         NUM_INPUTS
     };
 
