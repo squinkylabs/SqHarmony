@@ -22,15 +22,16 @@ public:
     }
 };
 
+
 class Harmony2Widget : public ModuleWidget {
 public:
     Harmony2Widget(Harmony2Module* module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/blank-panel.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/harmony2-panel.svg")));
 #if 1  // def _LAB
-        addLabel(Vec(23, 6), "Harmony III", 20);
+        addLabel(Vec(43, 6), "Harmony II", 20);
         // addLabel(Vec(28, 60), "Under Construction", 14);
-        addLabel(Vec(30, 356), "Squinktronix", 16);
+        addLabel(Vec(40, 353), "Squinktronix", 17);
 #endif
         //  addControls(module);
         //  addIO(module);
@@ -48,18 +49,37 @@ private:
 
     static constexpr float y0 = 50;
     static constexpr float deltaY = 30;
+    static constexpr float xbutton = 5;
+    static constexpr float xoctave = 28;
+    static constexpr float xdegree = 75;
 
     void addTransposeControls(int index) {
         const float y = y0 + index * deltaY;
-        PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(8, y),
+
+                // RIB trigger button
+        addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
+            Vec(xbutton, y),
             module,
-            Comp::XPOSE_OCTAVE_1_PARAM + index);
+            Comp::XPOSE_ENABLE1_PARAM + index,
+            Comp::XPOSE_ENABLE1_LIGHT + index));
+        PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
+            Vec(xoctave, y),
+            module,
+            Comp::XPOSE_OCTAVE1_PARAM + index);
         p->setLabels(Comp::getTransposeOctaveLabels());  // just default to sharps, we will change. TODO: do it right.
         p->box.size.x = 40;                        // width
         p->box.size.y = 22;
-        // p->text = "C";
         addParam(p);
+
+         p = createParam<PopupMenuParamWidget>(
+            Vec(xdegree, y),
+            module,
+            Comp::XPOSE_DEGREE1_PARAM + index);
+        p->setLabels(Comp::getTransposeDegreeLabels());  // just default to sharps, we will change. TODO: do it right.
+        p->box.size.x = 40;                        // width
+        p->box.size.y = 22;
+        addParam(p);
+
     }
 
     /**
