@@ -26,6 +26,9 @@ const void testOver1() {
     proc(p, 16);  // just want to be sure this doesn't assert or crash
 }
 
+
+/** If expectedOutput < 0, will not check. Normal values are 0 and 10
+ */
 static void clockItLow(Comp& c, int numTimes, float expectedOutput) {
     const auto args = TestComposite::ProcessArgs();
     c.inputs[Comp::CK_INPUT].setVoltage(0);
@@ -66,6 +69,7 @@ static void processBlock(CompPtr comp) {
 
 static void testSimpleInputNoShift() {
   //  Comp c;
+    SQINFO("testSimpleInputNoShift");
     auto c = factory();
     processBlock(c);        // so it can see the ins and outs
 
@@ -91,14 +95,20 @@ static void testSimpleInputNoShift() {
     clockItLow(*c, 1, -1);
     assertEQ(c->outputs[Comp::CK_OUTPUT].getVoltage(), 0);
 
-    // clock going low should be an event, too
+    // clock  should stay low, too
     clockItLow(*c, 3, -1);
-
-    // second input real should do something
-    // clockItHigh(c);
-    // failing down here
     assertEQ(c->outputs[Comp::CK_OUTPUT].getVoltage(), 0);
 }
+
+static void testWithShift(float shiftParam, float rangeParam) {
+    assert(false);
+}
+
+static void testWithShift() {
+    testWithShift(.5, 0);
+    assert(false);
+}
+
 
 static void testUIDurations() {
     assertEQ(Comp::getRibDurationLabels()[0], "1/3");
@@ -116,7 +126,18 @@ static void testUIDurations() {
 
 void testPhasePatterns() {
     testOver1();
-    SQINFO("testSimpleInputNoShift should work");
-    //testSimpleInputNoShift();
+    testSimpleInputNoShift();
+    testWithShift();
     testUIDurations();
 }
+
+#if 1
+void testFirst() {
+   // ClockShifter6::llv = 1;
+    //  This is the case that is bad without the dodgy "fix"
+    // testWithLFO(4, 16, 0.136364, 0.400000, 3);
+
+    // testSlowDown(5, 3552, 0.0001407658, 7);
+    testWithShift();
+}
+#endif

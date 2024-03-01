@@ -41,9 +41,10 @@ private:
 };
 
 void inline PhasePatternsModule::addParams() {
-    this->configParam(Comp::SHIFT_PARAM, -1, 1, 0, "Shift amount");
+    this->configParam(Comp::SHIFT_PARAM, 0, 1, 0, "Shift amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
+    this->configParam(Comp::SHIFT_RANGE_PARAM, 0, 2, 0, "Shift control range");
 
     // this->configParam(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
     // this->configParam(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
@@ -109,11 +110,13 @@ private:
         }
     }
     void addControls(PhasePatternsModule* module) {
-        addParam(createParam<RoundBlackKnob>(Vec(39, 51), module, Comp::SHIFT_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(9, 51), module, Comp::SHIFT_PARAM));
+        addParam(createParam<RoundBlackSnapKnob>(Vec(68, 51), module, Comp::SHIFT_RANGE_PARAM));
 #ifdef _LAB
-        addLabel(Vec(39 + 2, 29), "Shift");
+        addLabel(Vec(10 + 1, 29), "Shift");
+        addLabel(Vec(67, 29), "Range");
 #endif
-        _shiftDisplay = addLabel(Vec(42 - 8, 83), "");
+        _shiftDisplay = addLabel(Vec(6, 83), "");
 
         // now all the RIB controls
         auto p = createParam<PopupMenuParamWidget>(
