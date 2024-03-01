@@ -3,6 +3,12 @@
 #include <string>
 #include <vector>
 
+#include "Divider.h"
+#include "GateTrigger.h"
+#include "SqLog.h"
+
+#define NUM_TRANPOSERS 6
+
 namespace rack {
 namespace engine {
 struct Module;
@@ -14,29 +20,54 @@ template <class TBase>
 class Harmony2 : public TBase {
 public:
     Harmony2(Module* module) : TBase(module) {
-        this->init();
+        this->_init();
     }
 
     Harmony2() : TBase() {
-        this->init();
+        this->_init();
     }
 
     static std::vector<std::string> getTransposeOctaveLabels();
     static std::vector<std::string> getTransposeDegreeLabels();
- //   static std::vector<std::string> getRootLabels(bool);
- //   static std::vector<std::string> getShortScaleLabels(bool);
 
     enum ParamIds {
-        XPOSE_DEGREE1_PARAM, XPOSE_DEGREE_2_PARAM, XPOSE_DEGREE_3_PARAM, XPOSE_DEGREE_4_PARAM,XPOSE_DEGREE_5_PARAM, XPOSE_DEGREE_6_PARAM,
-        XPOSE_OCTAVE1_PARAM, XPOSE_OCTAVE_2_PARAM, XPOSE_OCTAVE_3_PARAM, XPOSE_OCTAVE_4_PARAM,XPOSEO_OCTAVE_5_PARAM, XPOSE_OCTAVE_6_PARAM,
-        XPOSE_ENABLE1_PARAM, XPOSE_ENABLE_2_PARAM, XPOSE_ENABLE_3_PARAM, XPOSE_ENABLE_4_PARAM, XPOSE_ENABLE_5_PARAM, XPOSE_ENABLE_6_PARAM,
-        XPOSE_TOTAL1_PARAM, XPOSE_TOTAL_2_PARAM,XPOSE_TOTAL_3_PARAM,XPOSE_TOTAL_4_PARAM,XPOSE_TOTAL_5_PARAM,XPOSE_TOTAL_6_PARAM,
-        KEY_PARAM, MODE_PARAM,
+        XPOSE_DEGREE1_PARAM,
+        XPOSE_DEGREE_2_PARAM,
+        XPOSE_DEGREE_3_PARAM,
+        XPOSE_DEGREE_4_PARAM,
+        XPOSE_DEGREE_5_PARAM,
+        XPOSE_DEGREE_6_PARAM,
+        XPOSE_OCTAVE1_PARAM,
+        XPOSE_OCTAVE_2_PARAM,
+        XPOSE_OCTAVE_3_PARAM,
+        XPOSE_OCTAVE_4_PARAM,
+        XPOSEO_OCTAVE_5_PARAM,
+        XPOSE_OCTAVE_6_PARAM,
+        XPOSE_ENABLE1_PARAM,
+        XPOSE_ENABLE_2_PARAM,
+        XPOSE_ENABLE_3_PARAM,
+        XPOSE_ENABLE_4_PARAM,
+        XPOSE_ENABLE_5_PARAM,
+        XPOSE_ENABLE_6_PARAM,
+        XPOSE_TOTAL1_PARAM,
+        XPOSE_TOTAL_2_PARAM,
+        XPOSE_TOTAL_3_PARAM,
+        XPOSE_TOTAL_4_PARAM,
+        XPOSE_TOTAL_5_PARAM,
+        XPOSE_TOTAL_6_PARAM,
+        XPOSE_ENABLEREQ1_PARAM,
+        XPOSE_ENABLEREQ2_PARAM,
+        XPOSE_ENABLEREQ3_PARAM,
+        XPOSE_ENABLEREQ4_PARAM,
+        XPOSE_ENABLEREQ5_PARAM,
+        XPOSE_ENABLEREQ6_PARAM,
+        KEY_PARAM,
+        MODE_PARAM,
         NUM_PARAMS
     };
 
     enum InputIds {
-    //    DEBUG_IN,
+        //    DEBUG_IN,
         XPOSE_INPUT,
         KEY_INPUT,
         MODE_INPUT,
@@ -52,18 +83,28 @@ public:
     };
 
     enum LightIds {
-        XPOSE_ENABLE1_LIGHT, XPOSE_ENABLE2_LIGHT,XPOSE_ENABLE3_LIGHT,XPOSE_ENABLE4_LIGHT,XPOSE_ENABLE5_LIGHT,XPOSE_ENABLE6_LIGHT, 
+        XPOSE_ENABLE1_LIGHT,
+        XPOSE_ENABLE2_LIGHT,
+        XPOSE_ENABLE3_LIGHT,
+        XPOSE_ENABLE4_LIGHT,
+        XPOSE_ENABLE5_LIGHT,
+        XPOSE_ENABLE6_LIGHT,
         NUM_LIGHTS
     };
 
-     void process(const typename TBase::ProcessArgs& args) override;
+    void process(const typename TBase::ProcessArgs& args) override;
 
 private:
-    void init();
+    Divider _divn;
+    GateTrigger _ButtonProcs[NUM_TRANPOSERS];
+
+    void _init();
+    void _stepn();
+    void _serviceEnableButtons();
 };
 
 template <class TBase>
-inline std::vector<std::string>  Harmony2<TBase>::getTransposeDegreeLabels() {
+inline std::vector<std::string> Harmony2<TBase>::getTransposeDegreeLabels() {
     return {
         "0",
         "+1",
@@ -72,12 +113,11 @@ inline std::vector<std::string>  Harmony2<TBase>::getTransposeDegreeLabels() {
         "+4",
         "+5",
         "+6",
-        "+7"
-    };
+        "+7"};
 }
 
 template <class TBase>
-inline std::vector<std::string>  Harmony2<TBase>::getTransposeOctaveLabels() {
+inline std::vector<std::string> Harmony2<TBase>::getTransposeOctaveLabels() {
     return {
         "-2",
         "-1",
@@ -87,10 +127,34 @@ inline std::vector<std::string>  Harmony2<TBase>::getTransposeOctaveLabels() {
     };
 }
 template <class TBase>
-inline void Harmony2<TBase>::init() {
+inline void Harmony2<TBase>::_init() {
+    _divn.setup(32, [this]() {
+        this->_stepn();
+    });
+}
+
+template <class TBase>
+inline void Harmony2<TBase>::_stepn() {
+    _serviceEnableButtons();
+}
+
+template <class TBase>
+inline void Harmony2<TBase>::_serviceEnableButtons() {
+
+    if (TBase::params[XPOSE_ENABLEREQ1_PARAM].value > 5) SQINFO("pressed");
+    for (int i = 0; i < NUM_TRANPOSERS; ++i) {
+        _ButtonProcs[i].go(TBase::params[XPOSE_ENABLEREQ1_PARAM + i].value);
+        if (_ButtonProcs[i].trigger()) {
+            SQINFO("trigger");
+            // Toggle the value
+            TBase::params[XPOSE_ENABLE1_PARAM + i].value = TBase::params[XPOSE_ENABLE1_PARAM + i].value < 5 ? 10 : 0;
+        }
+        TBase::lights[XPOSE_ENABLE1_LIGHT + i].value = TBase::params[XPOSE_ENABLE1_PARAM + i].value;
+    }
+  //  SQINFO("light =%f", TBase::lights[XPOSE_ENABLE1_LIGHT].value);
 }
 
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
-
- }
+    _divn.step();
+}

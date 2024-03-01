@@ -21,10 +21,25 @@ public:
     std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);
     Harmony2Module() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
-        // addParams();
+        addParams();
+    }
+    void process(const ProcessArgs& args) override {
+        comp->process(args);
+    }
+
+private:
+    void addParams() {
+        for (int i = 0; i < NUM_TRANPOSERS; ++i) {
+            this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, 7, 0, "Transpose Degrees");
+            this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 7, 0, "Transpose Octaves");
+            this->configParam(Comp::XPOSE_ENABLE1_PARAM + i, 0, 10, 0, "hidden");
+            this->configParam(Comp::XPOSE_TOTAL1_PARAM + i, 0, 10, 0, "hidden");
+            this->configParam(Comp::XPOSE_ENABLEREQ1_PARAM + i, 0, 10, 0, "Enable Channel");
+        }
+        this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
+        this->configParam(Comp::MODE_PARAM, 0, 7, 0, "Key signature mode");
     }
 };
-
 
 class Harmony2Widget : public ModuleWidget {
 public:
@@ -48,17 +63,17 @@ public:
 private:
     void addMainCV() {
         const float y = 317;
-        addInputL(Vec(19, y), Comp::PITCH_INPUT, "CVI"); 
-      //   addInputL(const Vec& vec, int outputNumber, const std::string& text) {
+        addInputL(Vec(19, y), Comp::PITCH_INPUT, "CVI");
+        //   addInputL(const Vec& vec, int outputNumber, const std::string& text) {
         addOutputL(Vec(60, y), Comp::PITCH_OUTPUT, "CVO");
     }
 
     void addModCV() {
         const float y = 270;
-        addInputL(Vec(19, y), Comp::XPOSE_INPUT, "XP"); 
+        addInputL(Vec(19, y), Comp::XPOSE_INPUT, "XP");
 
-        addInputL(Vec(60, y), Comp::KEY_INPUT, "Key"); 
-        addInputL(Vec(100, y), Comp::MODE_INPUT, "Mode"); 
+        addInputL(Vec(60, y), Comp::KEY_INPUT, "Key");
+        addInputL(Vec(100, y), Comp::MODE_INPUT, "Mode");
     }
 
     void addKeysig() {
@@ -74,8 +89,8 @@ private:
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
-    // don't know yet if we need this...
-     //   _keyRootWidget = p;  // remember this so we can poll it.
+        // don't know yet if we need this...
+        //   _keyRootWidget = p;  // remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
             Vec(74, yMode),
@@ -90,7 +105,7 @@ private:
         addParam(p);
     }
 
-    void addTranposeControls(Harmony2Module* module) {  
+    void addTranposeControls(Harmony2Module* module) {
         for (int i = 0; i < 6; ++i) {
             addTransposeControls(i);
         }
@@ -104,28 +119,26 @@ private:
 
     void addTransposeControls(int index) {
         const float y = y0 + index * deltaY;
-
-                // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
             Vec(xbutton, y),
             module,
-            Comp::XPOSE_ENABLE1_PARAM + index,
+            Comp::XPOSE_ENABLEREQ1_PARAM + index,
             Comp::XPOSE_ENABLE1_LIGHT + index));
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
             Vec(xoctave, y),
             module,
             Comp::XPOSE_OCTAVE1_PARAM + index);
         p->setLabels(Comp::getTransposeOctaveLabels());  // just default to sharps, we will change. TODO: do it right.
-        p->box.size.x = 40;                        // width
+        p->box.size.x = 40;                              // width
         p->box.size.y = 22;
         addParam(p);
 
-         p = createParam<PopupMenuParamWidget>(
+        p = createParam<PopupMenuParamWidget>(
             Vec(xdegree, y),
             module,
             Comp::XPOSE_DEGREE1_PARAM + index);
         p->setLabels(Comp::getTransposeDegreeLabels());  // just default to sharps, we will change. TODO: do it right.
-        p->box.size.x = 40;                        // width
+        p->box.size.x = 40;                              // width
         p->box.size.y = 22;
         addParam(p);
     }
@@ -180,7 +193,7 @@ private:
 #ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
-         vlabel.x += 4;
+        vlabel.x += 4;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
