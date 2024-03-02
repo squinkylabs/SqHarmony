@@ -104,7 +104,7 @@ inline uint32_t BitDelay::_packBit(uint32_t word, unsigned bit, bool value) {
 }
 
 inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
-    SQINFO("BitDelay::process, delay mem=%u. passedck=%d delay=%d this=%p", _delayMemory.size(), clock, delay, this);
+    // SQINFO("BitDelay::process, delay mem=%u. passedck=%d delay=%d this=%p", _delayMemory.size(), clock, delay, this);
     if (error) {
         *error = Errors::NoError;
 
@@ -119,7 +119,7 @@ inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
 
     // We have added one, so move up the buffer pointer.
     _nextDelayPointer(_currentLocation);
-    SQINFO("BitDelay::process will return %d", outputClock);
+    // SQINFO("BitDelay::process will return %d", outputClock);
     return outputClock;
 }
 

@@ -206,7 +206,7 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
                             _ribGenerator[ribIndex].get() +
                             .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
-        SQINFO("shift set to %f", shift);
+        // SQINFO("shift set to %f", shift);
         _curShift[i] = shift;
     }
 

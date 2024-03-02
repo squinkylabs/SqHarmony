@@ -73,7 +73,7 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     
     const unsigned delayAbsolute = unsigned(float(_freqMeasure.getPeriod()) * delay);
     if (llv) {
-        SQINFO("sc6 derived delay samp =%d from period= %d, delay=%f prod=",
+        SQINFO("sc6 derived delay samp =%d from period= %d, delay=%f prod=%f",
                delayAbsolute,
                _freqMeasure.getPeriod(),
                delay,

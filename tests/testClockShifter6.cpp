@@ -58,7 +58,7 @@ static void testClockWidthZeroDelayFiniteWidth() {
     const unsigned numLow = 5;
     assertEQ(period, (numLow + numHigh));
     auto shifter = makeAndPrime(period, 0);
-    SQINFO("done with prime");
+    //SQINFO("done with prime");
     // above already put out one clock (end of prime)
     // here is #2
     shifter->process(true, 0, 0);
@@ -94,7 +94,7 @@ static void testClockWithDelay() {
     const float delay = .5;
 
     auto shifter = makeAndPrime(period, delay);
-    SQINFO("--- done with prime");
+    //SQINFO("--- done with prime");
 
     // Now a high was clocked in, should see it after delay 4.
     // That previous one was the first delay.
