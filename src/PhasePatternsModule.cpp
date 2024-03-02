@@ -2,8 +2,6 @@
 #include <iomanip>
 #include <sstream>
 
-#include "plugin.hpp"
-
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -11,15 +9,14 @@
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
-
+#include "plugin.hpp"
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
 
 // This is a debug feature. should always be zero here.
-//int ClockShifter5::llv = 0;
+// int ClockShifter5::llv = 0;
 int ClockShifter6::llv = 0;
-
 
 template <>
 int BufferingParent<SqLabel>::_refCount = 0;
@@ -41,7 +38,18 @@ private:
 };
 
 void inline PhasePatternsModule::addParams() {
-    this->configParam(Comp::SHIFT_PARAM, 0, 1, 0, "Shift amount");
+    class ShiftAmountParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            const auto value = getValue();
+            std::stringstream str;
+            str << std::setprecision(2) << value;
+            return str.str();
+        }
+
+    private:
+    };
+    this->configParam<ShiftAmountParam>(Comp::SHIFT_PARAM, 0, 1, 0, "Global shift amount");
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
     this->configParam(Comp::SHIFT_RANGE_PARAM, 0, 2, 0, "Shift control range");
@@ -99,11 +107,11 @@ private:
         if (module) {
             if (_shiftDisplay) {
                 const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
+
                 std::stringstream str;
-                str << std::setprecision(3) << shift;
-
+                str << std::setprecision(2) << shift;
                 std::string uiString = str.str();
-
+                SQINFO("in draw, uistr=%s float=%f", uiString.c_str(), shift);
                 SqLabel* label = _shiftDisplay->getChild();
                 label->updateText(NumberFormatter::formatFloat(2, uiString));
             }
@@ -111,7 +119,8 @@ private:
     }
     void addControls(PhasePatternsModule* module) {
         addParam(createParam<RoundBlackKnob>(Vec(9, 51), module, Comp::SHIFT_PARAM));
-        addParam(createParam<RoundBlackSnapKnob>(Vec(68, 51), module, Comp::SHIFT_RANGE_PARAM));
+        //  addParam(createParam<RoundBlackSnapKnob>(Vec(68, 51), module, Comp::SHIFT_RANGE_PARAM));
+        addParam(createParam<CKSSThree>(Vec(78, 51), module, Comp::SHIFT_RANGE_PARAM));
 #ifdef _LAB
         addLabel(Vec(10 + 1, 29), "Shift");
         addLabel(Vec(67, 29), "Range");
