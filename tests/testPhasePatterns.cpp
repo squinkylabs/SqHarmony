@@ -26,7 +26,6 @@ const void testOver1() {
     proc(p, 16);  // just want to be sure this doesn't assert or crash
 }
 
-
 /** If expectedOutput < 0, will not check. Normal values are 0 and 10
  */
 static void clockItLow(Comp& c, int numTimes, float expectedOutput) {
@@ -40,22 +39,27 @@ static void clockItLow(Comp& c, int numTimes, float expectedOutput) {
     }
 }
 
-static void clockItHigh(Comp& c) {
+static void clockItHigh(Comp& c, float expectedClock) {
     const auto args = TestComposite::ProcessArgs();
     c.inputs[Comp::CK_INPUT].setVoltage(10);
     c.process(args);
+    if (expectedClock >= 0) {
+        //assert(false);
+        const float v = c.outputs[Comp::CK_OUTPUT].getVoltage(0);
+        assertClose(v, expectedClock, .001);
+    }
 }
 
 static void clockItHighLow(Comp& c, int numLow) {
-    clockItHigh(c);
+    clockItHigh(c, -1);
     clockItLow(c, numLow, -1);
 }
 
 static CompPtr factory() {
     CompPtr comp = std::make_shared<Comp>();
-    comp->params[Comp::RIB_SPAN_PARAM].value = 1;      // 0 makes test fail.
-    comp->inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
-    comp->outputs[Comp::CK_OUTPUT].channels = 1;    // and connect one output
+    comp->params[Comp::RIB_SPAN_PARAM].value = 1;  // 0 makes test fail.
+    comp->inputs[Comp::CK_INPUT].channels = 1;     // connect the input clock
+    comp->outputs[Comp::CK_OUTPUT].channels = 1;   // and connect one output
     return comp;
 }
 
@@ -68,11 +72,10 @@ static void processBlock(CompPtr comp) {
 }
 
 static void testSimpleInputNoShift() {
-  //  Comp c;
+    //  Comp c;
     SQINFO("testSimpleInputNoShift");
     auto c = factory();
-    processBlock(c);        // so it can see the ins and outs
-
+    processBlock(c);  // so it can see the ins and outs
 
     // Let's make input clock period == 10.
     // Send first two clocks to prime, should still have no output.
@@ -82,13 +85,13 @@ static void testSimpleInputNoShift() {
     assertEQ(c->outputs[Comp::CK_OUTPUT].getVoltage(), 0);
 
     // Then the third clock will actually do something. (low to high if no shift)
-    clockItHigh(*c);
+    clockItHigh(*c, -1);
     assertEQ(c->outputs[Comp::CK_OUTPUT].getVoltage(), 10);
 
     // clock staying high should continue to output high (total three periods high
-    clockItHigh(*c);
+    clockItHigh(*c, -1);
     assertEQ(c->outputs[Comp::CK_OUTPUT].getVoltage(), 10);
-    clockItHigh(*c);
+    clockItHigh(*c, -1);
     assertEQ(c->outputs[Comp::CK_OUTPUT].getVoltage(), 10);
 
     // Now, first low after the three high should force a low output (since no shift).
@@ -101,14 +104,50 @@ static void testSimpleInputNoShift() {
 }
 
 static void testWithShift(float shiftParam, float rangeParam) {
-    assert(false);
+    SQINFO("start test");
+    assertEQ(shiftParam, .5f);
+    assertEQ(rangeParam, 0);
+   // ClockShifter6::llv = 1;
+    auto c = factory();
+    processBlock(c);  // so it can see the ins and outs
+
+    float shift = .5;
+    c->params[Comp::SHIFT_PARAM].value = shift;
+
+    // Let's make input clock period == 8.
+    // Send first two clocks to prime, should still have no output.
+
+    clockItHighLow(*c, 8);
+
+    // first clock established the period, and is first clock.
+    // clock 4 to get a 50% duty cycle.
+    // with delay, expect zeros.
+    clockItHigh(*c, 0);
+    clockItHigh(*c, 0);
+    clockItHigh(*c, 0);
+    clockItHigh(*c, 0);
+
+    // now clock low, but output will have delayed high
+    clockItLow(*c, 1, 10);
+    clockItLow(*c, 1, 10);
+    clockItLow(*c, 1, 10);
+    clockItLow(*c, 1, 10);
+
+
+    
+
+    // bool clockIn = true;
+    // float clockV = (clockIn) ? 10 : 0;
+    // // now raise the clock
+    // c->inputs[Comp::CK_INPUT].setVoltage(clockV, 0);
+
 }
 
 static void testWithShift() {
     testWithShift(.5, 0);
-    assert(false);
+    testWithShift(.5, 1);
+    testWithShift(.5, 2);
 }
-
 
 static void testUIDurations() {
     assertEQ(Comp::getRibDurationLabels()[0], "1/3");
@@ -133,7 +172,7 @@ void testPhasePatterns() {
 
 #if 1
 void testFirst() {
-   // ClockShifter6::llv = 1;
+    // ClockShifter6::llv = 1;
     //  This is the case that is bad without the dodgy "fix"
     // testWithLFO(4, 16, 0.136364, 0.400000, 3);
 

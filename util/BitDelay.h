@@ -72,15 +72,20 @@ inline void BitDelay::_insertDelayInput(bool data) {
     const unsigned index = std::get<0>(indexAndBit);
     const unsigned bit = std::get<1>(indexAndBit);
     assert(index < _delayMemory.size());
+    // SQINFO("_insertDelayInput index=%x", index);
 
     uint32_t word = _delayMemory.at(index);
+    auto x = word;
     word = _packBit(word, bit, data);
+    // SQINFO("_insertDelayInput was=%x, will be=%d", x, word);
+    //assert(word == 0);
     _delayMemory.at(index) = word;
 }
 
 inline std::tuple<unsigned, unsigned> BitDelay::_getIndexAndBit(unsigned bitIndex) {
     unsigned index = bitIndex / 32;
     unsigned bit = bitIndex % 32;
+    // SQINFO("bi=%d index=%d, bit=%d", bitIndex, index, bit);
     return std::make_tuple(index, bit);
 }
 
@@ -99,7 +104,7 @@ inline uint32_t BitDelay::_packBit(uint32_t word, unsigned bit, bool value) {
 }
 
 inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
-    // SQINFO("in process, delay mem=%u", _delayMemory.size());
+    // SQINFO("in process, delay mem=%u. passedck=%d delay=%d this=%p", _delayMemory.size(), clock, delay, this);
     if (error) {
         *error = Errors::NoError;
 
@@ -112,17 +117,19 @@ inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
     _insertDelayInput(clock);
     const bool outputClock = _getDelayOutput(delay);
 
-      // We have added one, so move up the buffer pointer.
+    // We have added one, so move up the buffer pointer.
     _nextDelayPointer(_currentLocation);
     return outputClock;
 }
 
 inline void BitDelay::setMaxDelaySamples(unsigned samples) {
     size_t size = 1 + samples / 32;
+    // SQINFO("setMaxDelaySamples %d -> size %d", samples, size);
     _delayMemory.resize(size, 0);
 }
 
 inline bool BitDelay::_getDelayOutput(unsigned delayOffset, Errors* err) {
+    // SQNFO("get delay output %d", delayOffset);
     if (delayOffset >= getMaxDelaySize()) {
         if (err) {
             *err = Errors::ExceededDelaySize;
@@ -131,12 +138,17 @@ inline bool BitDelay::_getDelayOutput(unsigned delayOffset, Errors* err) {
     }
 
     int combinedLoc = _currentLocation - delayOffset;
+    // SQINFO("combined loc = %d", combinedLoc);
     if (combinedLoc < 0) {
+        //  SQINFO("output delay mem size = %d, in bits %d", _delayMemory.size(), _delayMemory.size() * 32 );
+        //  SQINFO(" ratio = %d", getMaxDelaySize() / 32);
         combinedLoc += (getMaxDelaySize() - 1);
     }
+    //  SQINFO("final combined loc = %d", combinedLoc);
     const auto indexAndBit = _getIndexAndBit(combinedLoc);
     const unsigned index = std::get<0>(indexAndBit);
     const unsigned bit = std::get<1>(indexAndBit);
     unsigned x = _delayMemory.at(index);
+    // SQINFO("got delay mem = %x", x);
     return _extractBit(x, bit);
 }
