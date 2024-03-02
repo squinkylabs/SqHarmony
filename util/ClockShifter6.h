@@ -41,6 +41,7 @@ private:
     // I think we need FreqMesaure3.
     FreqMeasure3 _freqMeasure;
     //    OneShotSampleTimer _clockWidthGenerator;
+    int _debug_counter = 0;
 };
 
 inline ClockShifter6::ClockShifter6() {
@@ -56,7 +57,10 @@ inline unsigned ClockShifter6::getPeriod() const {
 }
 
 inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
-    if (llv > 0) SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
+    if (llv > 0) {
+        SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
+        SQINFO("counter = %d", _debug_counter);
+    }
     if (error) {
         *error = Errors::NoError;
     }
@@ -66,7 +70,16 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
         if (llv > 0) SQINFO("leaving unstable");
         return false;
     }
+    
     const unsigned delayAbsolute = unsigned(float(_freqMeasure.getPeriod()) * delay);
+    if (llv) {
+        SQINFO("sc6 derived delay samp =%d from period= %d, delay=%f prod=",
+               delayAbsolute,
+               _freqMeasure.getPeriod(),
+               delay,
+               float(_freqMeasure.getPeriod()) * delay);
+    }
+    ++_debug_counter;
     BitDelay::Errors bderr;
     float ret = _bitDelay.process(clock, delayAbsolute, &bderr);
     if (error) {

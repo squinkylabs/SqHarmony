@@ -24,15 +24,18 @@ static void testInitStable() {
 }
 
 static void canReturnSizeError() {
-    ClockShifter6 c;
-    c.setMaxDelaySamples(1);
+    auto c = makeAndPrime(4, 0);
+    c->setMaxDelaySamples(1);
+
 
     ClockShifter6::Errors err;
 
-    c.process(false, 1, &err);
+    // Need a huge delay here to get the error, since bit delay
+    // has a lot of padding in it.
+    c->process(false, 10, &err);
     assert(err == ClockShifter6::Errors::ExceededDelaySize);
 
-    c.process(false, .01f, &err);
+    c->process(false, .01f, &err);
     assert(err == ClockShifter6::Errors::NoError);
 }
 
@@ -62,7 +65,7 @@ static void testClockWidthZeroDelayFiniteWidth() {
 
     // and here is #3
     shifter->process(true, 0, 0);
-   // shifter->process(false, true, 0);
+    // shifter->process(false, true, 0);
 
     // and 5 more low
     bool x = clockItLow(shifter, numLow, 0);
@@ -79,23 +82,61 @@ static void testClockWidthZeroDelayFiniteWidth() {
     assert(!x);
 }
 
+/**
+ * For this test, withe period 8, delay5, put in 50% clock
+ *
+ * Prime followed by 3 extra clocks in, for total 4
+ *  ck in: x-------xxxx--------------------
+ * ck out: ------------xxxx--------
+ */
+static void testClockWithDelay() {
+    const unsigned period = 8;
+    const float delay = .5;
+
+    auto shifter = makeAndPrime(period, delay);
+    SQINFO("--- done with prime");
+
+    // Now a high was clocked in, should see it after delay 4.
+    // That previous one was the first delay.
+
+    // Clock 3 more so we clock so delay 3. 
+    bool b = shifter->process(false, .5);
+    assertEQ(b, false);
+    b = shifter->process(false, .5);
+    assertEQ(b, false);
+    b = shifter->process(false, .5);
+    assertEQ(b, false);
+
+    // Now we have clocked 4 times, expect to see the delayed clock pulse.
+    b = shifter->process(false, .5);
+    assertEQ(b, true);
+    
+    // And then nothing after that...
+    for (int i = 0; i < 20; ++i) {
+        b = shifter->process(false, .5);
+        assertEQ(b, false);
+    }
+}
+
 void testClockShifter6() {
     testCanCreate();
     testInitNotStable();
     testInitStable();
-    SQINFO("make size error work again");
-    // canReturnSizeError();
+    canReturnSizeError();
     canDelayZero();
     testClockWidthZeroDelayFiniteWidth();
+    testClockWithDelay();
 }
 
 #if 0
 void testFirst() {
-    ClockShifter6::llv = 1;
+   // ClockShifter6::llv = 1;
     //  This is the case that is bad without the dodgy "fix"
     // testWithLFO(4, 16, 0.136364, 0.400000, 3);
 
     // testSlowDown(5, 3552, 0.0001407658, 7);
-    testClockWidthZeroDelayFiniteWidth();
+    // testClockWidthZeroDelayFiniteWidth();
+   // testClockWithDelay();
+    canReturnSizeError();
 }
 #endif

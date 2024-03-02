@@ -216,7 +216,23 @@ void testBitDelay() {
 }
 
 #if 0
+static void showDelay4() {
+    BitDelay delay;
+    delay.setMaxDelaySamples(100);
+    int time = 4;
+    for (int i=0; i< 8; ++i) {
+        const bool b = delay.process(false, time);
+        SQINFO("t=%d, input=false delay = %d out=%d", i, time, b);
+    }
+     for (int i=0; i< 8; ++i) {
+        const bool b = delay.process(true, time);
+        SQINFO("t=%d, input=true delay = %d out=%d", i + 8, time, b);
+    }
+}
+
+
 void testFirst() {
-    TestX::canAccessDelay3();
+    showDelay4();
+    //TestX::canAccessDelay3();
 }
 #endif
