@@ -44,7 +44,7 @@ static void clockItHigh(Comp& c, float expectedClock) {
     c.inputs[Comp::CK_INPUT].setVoltage(10);
     c.process(args);
     if (expectedClock >= 0) {
-        //assert(false);
+        // assert(false);
         const float v = c.outputs[Comp::CK_OUTPUT].getVoltage(0);
         assertClose(v, expectedClock, .001);
     }
@@ -105,13 +105,17 @@ static void testSimpleInputNoShift() {
 
 static void testWithShift(float shiftParam, float rangeParam) {
     SQINFO("start test");
+    const int period = 8;
     assertEQ(shiftParam, .5f);
 
- //   assertEQ(rangeParam, 0);
-   // ClockShifter6::llv = 1;
+    //   assertEQ(rangeParam, 0);
+    // ClockShifter6::llv = 1;
     auto c = factory();
     c->params[Comp::SHIFT_RANGE_PARAM].value = rangeParam;
     processBlock(c);  // so it can see the ins and outs
+    int expectedDelay = period * shiftParam;
+    if (rangeParam > .5) expectedDelay *= 10;
+    if (rangeParam > 1.5) expectedDelay *= 10;
 
     float shift = .5;
     c->params[Comp::SHIFT_PARAM].value = shift;
@@ -119,30 +123,43 @@ static void testWithShift(float shiftParam, float rangeParam) {
     // Let's make input clock period == 8.
     // Send first two clocks to prime, should still have no output.
 
-    clockItHighLow(*c, 8);
+    clockItHighLow(*c, period);
 
     // first clock established the period, and is first clock.
     // clock 4 to get a 50% duty cycle.
     // with delay, expect zeros.
-    clockItHigh(*c, 0);
-    clockItHigh(*c, 0);
-    clockItHigh(*c, 0);
-    clockItHigh(*c, 0);
+    for (int i = 0; i < period / 2; ++i) {
+        clockItHigh(*c, 0);
+    }
+
+    // will only have output clock in first period if dealy rang small
+    const float expectedClockInFirstPeriod = (rangeParam < .5) ? 10 : 0;
 
     // now clock low, but output will have delayed high
-    clockItLow(*c, 1, 10);
-    clockItLow(*c, 1, 10);
-    clockItLow(*c, 1, 10);
-    clockItLow(*c, 1, 10);
+    for (int i = 0; i < period / 2; ++i) {
+        clockItLow(*c, 1, expectedClockInFirstPeriod);
+    }
 
-    assertEQ(rangeParam, 0);    // the above should only pass in this case
+    // all done for short range
+    if (rangeParam < .5) {
+        return;
+    }
+
+    const int cyclesToOutput = (rangeParam < 1.5) ? 5 : 50;
+    // we have already done on period of samples
+    int samplesToOutput = (cyclesToOutput * period) - period;
+
+
+    while (samplesToOutput) {
+        int samplesThisTime = std::min(samplesToOutput, period);
+        SQINFO("in loop, this time =%d", samplesThisTime);
+        clockItHigh(*c, 0);
+        clockItLow(*c, samplesThisTime -1, 0);
+        samplesToOutput -= samplesThisTime;
+    }
+    assert(false);
+         
     
-
-    // bool clockIn = true;
-    // float clockV = (clockIn) ? 10 : 0;
-    // // now raise the clock
-    // c->inputs[Comp::CK_INPUT].setVoltage(clockV, 0);
-
 }
 
 static void testWithShift() {
