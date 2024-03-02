@@ -106,9 +106,11 @@ static void testSimpleInputNoShift() {
 static void testWithShift(float shiftParam, float rangeParam) {
     SQINFO("start test");
     assertEQ(shiftParam, .5f);
-    assertEQ(rangeParam, 0);
+
+ //   assertEQ(rangeParam, 0);
    // ClockShifter6::llv = 1;
     auto c = factory();
+    c->params[Comp::SHIFT_RANGE_PARAM].value = rangeParam;
     processBlock(c);  // so it can see the ins and outs
 
     float shift = .5;
@@ -133,7 +135,7 @@ static void testWithShift(float shiftParam, float rangeParam) {
     clockItLow(*c, 1, 10);
     clockItLow(*c, 1, 10);
 
-
+    assertEQ(rangeParam, 0);    // the above should only pass in this case
     
 
     // bool clockIn = true;

@@ -1,15 +1,15 @@
 
 #pragma once
 
+#include <cmath>
+#include <string>
+#include <vector>
+
 #include "ClockShifter6.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
 #include "ShiftCalc.h"
-
-#include <cmath>
-#include <vector>
-#include <string>
 
 namespace rack {
 namespace engine {
@@ -27,8 +27,8 @@ public:
         SHIFT_PARAM,
         COMBINED_SHIFT_INTERNAL_PARAM,
         RIB_POSITIVE_BUTTON_PARAM,
-        RIB_DURATION_PARAM, // This is is the "numerator", controlled by the widget currently called "Total"
-        RIB_SPAN_PARAM,     // This is the denominator, controlled by that widget called "Dur"
+        RIB_DURATION_PARAM,  // This is is the "numerator", controlled by the widget currently called "Total"
+        RIB_SPAN_PARAM,      // This is the denominator, controlled by that widget called "Dur"
         RIB_NEGATIVE_BUTTON_PARAM,
         SHIFT_RANGE_PARAM,
         NUM_PARAMS
@@ -109,6 +109,7 @@ private:
     GateTrigger _ribNegativeTrigger[16];
     float _curShift[16] = {0};
     Divider divn;
+    //  float _shiftMult = 1;
 
     int _numInputClocks = 0;
     int _numRibsGenerators = 0;
@@ -160,7 +161,7 @@ inline void PhasePatterns<TBase>::_updateButtons() {
                 continue;
             }
             // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
-            
+
             const int period = _clockShifter[i].getPeriod();
             const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
             float duration = this->getRibDurationFromIndex(durationIndex);
@@ -169,7 +170,7 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             if (trigNegative) {
                 duration = -duration;
             }
-           
+
             _ribGenerator[i].trigger(period, duration, span);
         }
     }
@@ -177,23 +178,39 @@ inline void PhasePatterns<TBase>::_updateButtons() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateShiftAmount() {
-    // TODO: this code assumes that the shift input is mono
+    const int sens = int(std::round(TBase::params[SHIFT_RANGE_PARAM].value));
+    float shiftMult = 1;
+    switch (sens) {
+        case 0:
+            shiftMult = 1;
+            break;
+        case 1:
+            shiftMult = 10;
+            break;
+        case 2:
+            shiftMult = 100;
+            break;
+        default:
+            assert(0);
+    }
+
     const float globalShift = TBase::params[SHIFT_PARAM].value;
     const bool ribsPoly = _numRibsGenerators > 1;
     const bool shiftCVPoly = _numShiftInputs > 1;
 
+    // SQINFO("mul = %f", shiftMult);
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
-        const float shift = globalShift +
+        float shift = globalShift +
                             _ribGenerator[ribIndex].get() +
-                            .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);       // .2 so 5 volts -> 1
-       // _clockShifter[i].setShift(shift);
+                            .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
+        shift *= shiftMult;
         _curShift[i] = shift;
     }
 
     // put channel 0 in the UI.
-    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = globalShift + _ribGenerator[0].get();
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get());
 }
 
 template <class TBase>
@@ -207,7 +224,7 @@ inline void PhasePatterns<TBase>::_updatePoly() {
     _numInputClocks = TBase::inputs[CK_INPUT].channels;
     _numRibsGenerators = int(TBase::inputs[RIB_POSITIVE_INPUT].channels);
     _numRibsGenerators = std::max(
-        _numRibsGenerators, 
+        _numRibsGenerators,
         int(TBase::inputs[RIB_NEGATIVE_INPUT].channels));
     _numRibsGenerators = std::max(1, _numRibsGenerators);
 

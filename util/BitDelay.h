@@ -75,7 +75,7 @@ inline void BitDelay::_insertDelayInput(bool data) {
     // SQINFO("_insertDelayInput index=%x", index);
 
     uint32_t word = _delayMemory.at(index);
-    auto x = word;
+ //  auto x = word;
     word = _packBit(word, bit, data);
     // SQINFO("_insertDelayInput was=%x, will be=%d", x, word);
     //assert(word == 0);
