@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 
+#include "plugin.hpp"   // MUST BE FIRST
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -9,7 +10,7 @@
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
-#include "plugin.hpp"
+
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
@@ -46,20 +47,32 @@ void inline PhasePatternsModule::addParams() {
             str << std::setprecision(2) << value;
             return str.str();
         }
-
-    private:
     };
     this->configParam<ShiftAmountParam>(Comp::SHIFT_PARAM, 0, 1, 0, "Global shift amount");
+
+    class ShiftRangeParam : public ParamQuantity {
+    public:
+        std::string getDisplayValueString() override {
+            const auto value = int(std::round(getValue()));
+            switch (value) {
+                case 0:
+                    return "0..1";
+                case 1:
+                    return "0..10";
+                case 2:
+                    return "0..100";
+                default:
+                    assert(false);
+                    return "";
+            }
+        }
+    };
+    this->configParam<ShiftRangeParam>(Comp::SHIFT_RANGE_PARAM, 0, 2, 0, "Shift control range");
+
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
-    this->configParam(Comp::SHIFT_RANGE_PARAM, 0, 2, 0, "Shift control range");
-
-    // this->configParam(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
-    // this->configParam(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
-    //  configSwitch(MUTE_PARAMS + i, 0.f, 1.f, 0.f, string::f("Row %d mute", i + 1));
     this->configSwitch(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
     this->configSwitch(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
-    //    this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Rib total shift (numerator)");
     this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "Rib total duration (denominator)");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
@@ -71,10 +84,9 @@ void inline PhasePatternsModule::addParams() {
     class TotalParam : public ParamQuantity {
     public:
         std::string getDisplayValueString() override {
-            //  const bool useFlats = module->params[Comp::USE_FLATS_PARAM].value > .5;
             auto const labels = Comp::getRibDurationLabels();
             const int index = int(std::round(module->params[Comp::RIB_DURATION_PARAM].value));
-            std::string ret;
+            std::string ret = "";
             if (index < int(labels.size()) && index >= 0) {
                 ret = labels[index];
             }
@@ -111,7 +123,6 @@ private:
                 std::stringstream str;
                 str << std::setprecision(2) << shift;
                 std::string uiString = str.str();
-                SQINFO("in draw, uistr=%s float=%f", uiString.c_str(), shift);
                 SqLabel* label = _shiftDisplay->getChild();
                 label->updateText(NumberFormatter::formatFloat(2, uiString));
             }
