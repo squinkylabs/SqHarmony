@@ -42,12 +42,7 @@ extern void testOneShot();
 extern void testPhasePatterns();
 extern void testPhasePatternsPoly();
 extern void testOneShotSampleTimer();
-extern void testClockShifter3();
-extern void testClockShifter4();
-extern void testClockShifter4b();
-extern void testClockShifter4c();
 extern void testClockShifter5c();
-extern void testClockShifter4d();
 extern void testClockShifter5d();
 extern void testClockShifter5e();
 extern void testShiftMath();
@@ -131,12 +126,6 @@ int main(const char**, int) {
     testHarmony2();
     printf("XX: leaving early for clock stuff");
     std::exit(0);
-
-    testClockShifter5();
-    testClockShifter5b();
-    testClockShifter5c();
-    testClockShifter5e();
-    testClockShifter5d();
 
     testAdditiveModLogic();
     testAdditivePitchLogic();
