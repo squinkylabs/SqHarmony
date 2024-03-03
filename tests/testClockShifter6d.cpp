@@ -1,4 +1,6 @@
 
+#include <tuple>
+
 #include "TestLFO.h"
 #include "asserts.h"
 #include "testShifter6TestUtils.h"
@@ -18,6 +20,7 @@ public:
     virtual bool isMoreData() const = 0;
     virtual void next() = 0;
     virtual unsigned getPeriod() = 0;
+    virtual std::tuple<float, float> getMinMaxDelay() = 0;
 };
 
 class SignalSource : public SignalSourceInterface {
@@ -40,13 +43,16 @@ public:
         return _clockPeriod;
     }
 
+    std::tuple<float, float> getMinMaxDelay() override {
+        return std::make_tuple(_minDelay, _maxDelay);
+    }
+
     void initClock(unsigned period, float dutycycle, unsigned duration) {
         assert(dutycycle > 0);
         assert(dutycycle < 100);
 
         _clockHighSamples = (period * dutycycle) / 100;
-       // _clockLowSamples = (period * (100 - dutycycle)) / 100;
-       _clockLowSamples = period - _clockHighSamples;
+        _clockLowSamples = period - _clockHighSamples;
         assert(period == (_clockLowSamples + _clockHighSamples));
         assert(_samplesRemaining == 0 || _samplesRemaining == duration);
         _samplesRemaining = duration;
@@ -60,6 +66,8 @@ public:
         _samplesRemaining = duration;
 
         _currentDelay = initial;
+        _updateDelay();
+
         _deltaDelayPerSample = (final - initial) / duration;
         assert(_deltaDelayPerSample != 0);
     }
@@ -68,6 +76,7 @@ public:
         _sampleCounter = 0;
         _samplesRemaining = duration;
         _currentDelay = value;
+        _updateDelay();
         _deltaDelayPerSample = 0;
     }
 
@@ -82,15 +91,23 @@ private:
     int _samplesRemaining = 0;
     double _deltaDelayPerSample = 0;
     unsigned _clockPeriod = 0;
+    float _minDelay = 10000;
+    float _maxDelay = -10000;
 
     void _generateNextSample() {
         _sampleCounter++;
         _samplesRemaining--;
         _currentDelay += _deltaDelayPerSample;
+        _updateDelay();
         ++_clockAcc;
         if (_clockAcc >= (_clockHighSamples + _clockLowSamples)) {
             _clockAcc = 0;
         }
+    }
+
+    void _updateDelay() {
+        _minDelay = std::min(_minDelay, float(_currentDelay));
+        _maxDelay = std::max(_maxDelay, float(_currentDelay));
     }
 };
 
@@ -129,7 +146,7 @@ static void run(SignalSourceInterface* source, Output6* output) {
     for (bool done = false; !done;) {
         if (source->isMoreData()) {
             const bool clock = source->getClock();
-         //   const bool trigger = clock && !lastClock;
+            //   const bool trigger = clock && !lastClock;
             float delay = source->getDelay();
             ClockShifter6::Errors err;
             const bool newClock = shifter->process(clock, delay, &err);
@@ -143,6 +160,8 @@ static void run(SignalSourceInterface* source, Output6* output) {
             done = true;
         }
     }
+
+    SQINFO("at end of run, min/max=%f, %f", std::get<0>(source->getMinMaxDelay()), std::get<1>(source->getMinMaxDelay()));
 }
 
 static void testCanCall() {
@@ -240,7 +259,7 @@ static void testRunSlowDown() {
     unsigned period = 10;
     unsigned duration = 400;
     src.initClock(period, 50, duration);
-    src.initForDelayRamp(0, 1, duration);            // delay one clock over 8 input
+    src.initForDelayRamp(0, 1, duration);  // delay one clock over 8 input
     run(&src, &output);
     unsigned jitter = std::abs(output.maxSamplesBetweenClocks - output.minSamplesBetweenClocks);
     assertLE(jitter, 1);
@@ -257,12 +276,9 @@ void testClockShifter6d() {
     assertEQ(SqLog::errorCount, 0);
 }
 
-#if 0
+#if 1
 void testFirst() {
-    ClockShifter6::llv = 1;
-    //  This is the case that is bad without the dodgy "fix"
-    // testWithLFO(4, 16, 0.136364, 0.400000, 3);
-
-    // testSlowDown(5, 3552, 0.0001407658, 7);
+    // ClockShifter6::llv = 1;
+    testRunSlowDown();
 }
 #endif
