@@ -79,6 +79,8 @@ bool doLongRunning = false;
 bool doLongRunning = true;
 #endif
 
+int logLevel = 0;
+
 int main(const char**, int) {
     //  testGrayCode();
     //  std::exit(0);
@@ -90,7 +92,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 1
+#if 0
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();

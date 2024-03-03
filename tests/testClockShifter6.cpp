@@ -4,8 +4,6 @@
 #include "asserts.h"
 #include "testShifter6TestUtils.h"
 
-int ClockShifter6::llv = 0;
-
 static void testCanCreate() {
     ClockShifter6 c;
     c.setMaxDelaySamples(1);

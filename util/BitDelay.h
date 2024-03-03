@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "SqLog.h"
+extern int logLevel;
 
 class BitDelay {
 public:
@@ -104,7 +105,7 @@ inline uint32_t BitDelay::_packBit(uint32_t word, unsigned bit, bool value) {
 }
 
 inline bool BitDelay::process(bool clock, unsigned delay, Errors* error) {
-    // SQINFO("BitDelay::process, delay mem=%u. passedck=%d delay=%d this=%p", _delayMemory.size(), clock, delay, this);
+    if (logLevel) SQINFO("BitDelay::process, delay mem=%u. passedck=%d delay=%d this=%p", _delayMemory.size(), clock, delay, this);
     if (error) {
         *error = Errors::NoError;
 

@@ -9,6 +9,8 @@
 #include "OneShotSampleTimer.h"
 #include "SqLog.h"
 
+extern int logLevel;
+
 class ClockShifter6 {
 public:
     friend class TestX;
@@ -31,8 +33,6 @@ public:
 
     bool freqValid() const;
     unsigned getPeriod() const;
-
-    static int llv;  // log level
 
 private:
     BitDelay _bitDelay;
@@ -57,7 +57,7 @@ inline unsigned ClockShifter6::getPeriod() const {
 }
 
 inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
-    if (llv > 0) {
+    if (logLevel > 0) {
         SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
         SQINFO("counter = %d", _debug_counter);
     }
@@ -67,12 +67,12 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     _freqMeasure.process(clock);
 
     if (!_freqMeasure.freqValid()) {
-        if (llv > 0) SQINFO("leaving unstable");
+        if (logLevel > 0) SQINFO("leaving unstable");
         return false;
     }
     
     const unsigned delayAbsolute = unsigned(float(_freqMeasure.getPeriod()) * delay);
-    if (llv) {
+    if (logLevel) {
         SQINFO("sc6 derived delay samp =%d from period= %d, delay=%f prod=%f",
                delayAbsolute,
                _freqMeasure.getPeriod(),
@@ -94,9 +94,9 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     // }
 
     if (ret) {
-        if (llv > 0) SQINFO("process output clock\n");
+        if (logLevel > 0) SQINFO("process output clock\n");
     } else {
-        if (llv > 0) SQINFO("process no clock");
+        if (logLevel > 0) SQINFO("process no clock");
     }
     return ret;
 }
