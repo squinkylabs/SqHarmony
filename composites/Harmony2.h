@@ -1,8 +1,5 @@
 #pragma once
 
-
-#include "ScaleNote.h"
-
 #include <string>
 #include <vector>
 
@@ -10,9 +7,9 @@
 #include "FloatNote.h"
 #include "GateTrigger.h"
 #include "NoteConvert.h"
-
-#include "SqLog.h"
+#include "ScaleNote.h"
 #include "ScaleQuantizer.h"
+#include "SqLog.h"
 
 #define NUM_TRANPOSERS 6
 
@@ -51,11 +48,11 @@ public:
         XPOSEO_OCTAVE_5_PARAM,
         XPOSE_OCTAVE_6_PARAM,
         XPOSE_ENABLE1_PARAM,
-        XPOSE_ENABLE_2_PARAM,
-        XPOSE_ENABLE_3_PARAM,
-        XPOSE_ENABLE_4_PARAM,
-        XPOSE_ENABLE_5_PARAM,
-        XPOSE_ENABLE_6_PARAM,
+        XPOSE_ENABLE2_PARAM,
+        XPOSE_ENABLE3_PARAM,
+        XPOSE_ENABLE4_PARAM,
+        XPOSE_ENABLE5_PARAM,
+        XPOSE_ENABLE6_PARAM,
         XPOSE_TOTAL1_PARAM,
         XPOSE_TOTAL_2_PARAM,
         XPOSE_TOTAL_3_PARAM,
@@ -100,7 +97,7 @@ public:
     };
 
     void process(const typename TBase::ProcessArgs& args) override;
-
+    static int getSubSampleFactor() { return 32; }
 private:
     Divider _divn;
     GateTrigger _ButtonProcs[NUM_TRANPOSERS];
@@ -109,8 +106,11 @@ private:
 
     void _init();
     void _stepn();
+    void _servicePolyphony();
     void _serviceEnableButtons();
     void _serviceKeysigInput();
+    void _serviceTranspose();
+    void _serviceTranspose(int channel, int& outputChannel);
 };
 
 template <class TBase>
@@ -136,9 +136,10 @@ inline std::vector<std::string> Harmony2<TBase>::getTransposeOctaveLabels() {
         "+2",
     };
 }
+
 template <class TBase>
 inline void Harmony2<TBase>::_init() {
-    _divn.setup(32, [this]() {
+    _divn.setup(Harmony2<TBase>::getSubSampleFactor(), [this]() {
         this->_stepn();
     });
 
@@ -152,6 +153,7 @@ template <class TBase>
 inline void Harmony2<TBase>::_stepn() {
     _serviceEnableButtons();
     _serviceKeysigInput();
+    _servicePolyphony();
 }
 
 template <class TBase>
@@ -163,27 +165,34 @@ inline void Harmony2<TBase>::_serviceKeysigInput() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceEnableButtons() {
-
     if (TBase::params[XPOSE_ENABLEREQ1_PARAM].value > 5) SQINFO("pressed");
     for (int i = 0; i < NUM_TRANPOSERS; ++i) {
         _ButtonProcs[i].go(TBase::params[XPOSE_ENABLEREQ1_PARAM + i].value);
         if (_ButtonProcs[i].trigger()) {
-            // SQINFO("trigger");
             // Toggle the value
             TBase::params[XPOSE_ENABLE1_PARAM + i].value = TBase::params[XPOSE_ENABLE1_PARAM + i].value < 5 ? 10 : 0;
         }
         TBase::lights[XPOSE_ENABLE1_LIGHT + i].value = TBase::params[XPOSE_ENABLE1_PARAM + i].value;
     }
-  //  SQINFO("light =%f", TBase::lights[XPOSE_ENABLE1_LIGHT].value);
 }
 
-static int count=0;
+template <class TBase>
+inline void Harmony2<TBase>::_servicePolyphony() {
+    int numEnabled = 0;
+    for (int i=0; i< NUM_TRANPOSERS; ++i) {
+        if (TBase::params[XPOSE_ENABLE1_PARAM + i].value > 5) {
+            ++numEnabled;
+        }
+    }
+    TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
+}
+
+static int count = 0;
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
     float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);
-    
 
     const int xposeSteps = int(TBase::params[XPOSE_DEGREE1_PARAM].value);
     ScaleNote scaleNote;
@@ -193,9 +202,8 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
 
     FloatNote f;
     NoteConvert::m2f(f, quantizedInput);
- 
 
-     if (count == 0) {
+    if (count == 0) {
         SQINFO("\ninput = %f quantized = %d", input, quantizedInput.get());
         SQINFO("xoseSteps %d final CV=%f", xposeSteps, f.get());
     }
@@ -203,4 +211,34 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     if (count > 80000) {
         count = 0;
     }
+}
+
+template <class TBase>
+void Harmony2<TBase>::_serviceTranspose() {
+    int outputChannel = 0;
+    for (int i = 0; i < NUM_TRANPOSERS; ++i) {
+        _serviceTranspose(i, outputChannel);
+    }
+}
+
+template <class TBase>
+void Harmony2<TBase>::_serviceTranspose(int channel, int& outputChannel) {
+    const bool enabled = TBase::params[XPOSE_ENABLE1_PARAM + channel].value > 5;
+    if (!enabled) {
+        return;
+    }
+
+    float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
+    MidiNote quantizedInput = _quantizer->run(input);
+
+    const int xposeSteps = int(TBase::params[XPOSE_DEGREE1_PARAM].value);
+    ScaleNote scaleNote;
+    NoteConvert::m2s(scaleNote, *_quantizerOptions->scale, quantizedInput);
+    scaleNote.transposeDegree(xposeSteps);
+    NoteConvert::s2m(quantizedInput, *_quantizerOptions->scale, scaleNote);
+
+    FloatNote f;
+    NoteConvert::m2f(f, quantizedInput);
+    TBase::outputs[PITCH_OUTPUT].setVoltage(f.get(), outputChannel);
+    outputChannel++;
 }
