@@ -31,7 +31,7 @@ private:
     void addParams() {
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
             this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, 7, 0, "Transpose Degrees");
-            this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 7, 0, "Transpose Octaves");
+            this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 5, 2, "Transpose Octaves");
             this->configParam(Comp::XPOSE_ENABLE1_PARAM + i, 0, 10, 0, "hidden");
             this->configParam(Comp::XPOSE_TOTAL1_PARAM + i, 0, 10, 0, "hidden");
             this->configParam(Comp::XPOSE_ENABLEREQ1_PARAM + i, 0, 10, 0, "Enable Channel");
@@ -107,7 +107,7 @@ private:
 
     void addTranposeControls(Harmony2Module* module) {
         for (int i = 0; i < 6; ++i) {
-            addTransposeControls(i);
+            addTransposeControls(i, module != nullptr);
         }
     }
 
@@ -117,7 +117,7 @@ private:
     static constexpr float xoctave = 28;
     static constexpr float xdegree = 75;
 
-    void addTransposeControls(int index) {
+    void addTransposeControls(int index, bool haveModule) {
         const float y = y0 + index * deltaY;
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
             Vec(xbutton, y),
@@ -132,6 +132,9 @@ private:
         p->box.size.x = 40;                              // width
         p->box.size.y = 22;
         addParam(p);
+        if (!haveModule) {
+            p->text = "0";
+        }
 
         p = createParam<PopupMenuParamWidget>(
             Vec(xdegree, y),
@@ -140,6 +143,9 @@ private:
         p->setLabels(Comp::getTransposeDegreeLabels());  // just default to sharps, we will change. TODO: do it right.
         p->box.size.x = 40;                              // width
         p->box.size.y = 22;
+        if (!haveModule) {
+            p->text = "0";
+        }
         addParam(p);
     }
 
