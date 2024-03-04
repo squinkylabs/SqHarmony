@@ -127,7 +127,7 @@ inline void PhasePatterns<TBase>::_init() {
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButtons() {
     //SQINFO("update buttons rib+ req = %f", TBase::params[RIB_POSITIVE_BUTTON_PARAM].value);
-    SQINFO("update buttons, zero busy = %d, %d",  _ribGenerator[0].busyPositive(),  _ribGenerator[0].busyNegative());
+   // SQINFO("update buttons, zero busy = %d, %d",  _ribGenerator[0].busyPositive(),  _ribGenerator[0].busyNegative());
     //  TODO: for now, just do channel 1 for this indicator
     TBase::lights[RIB_POSITIVE_LIGHT].value = _ribGenerator[0].busyPositive() ? 10 : 0;
     TBase::lights[RIB_NEGATIVE_LIGHT].value = _ribGenerator[0].busyNegative() ? 10 : 0;
@@ -137,9 +137,9 @@ inline void PhasePatterns<TBase>::_updateButtons() {
     if (_numRibsGenerators < 1) {
         return;
     }
-    if (_positiveButtonProc.trigger() || _negativeButtonProc.trigger()) {
-        SQINFO("triggered a rib");
-    }
+    // if (_positiveButtonProc.trigger() || _negativeButtonProc.trigger()) {
+    //     SQINFO("triggered a rib");
+    // }
 
     // This loop assumes there are at least as many shifters as there are rib
     // units. Which is fair.
@@ -162,7 +162,7 @@ inline void PhasePatterns<TBase>::_updateButtons() {
         if (triggered) {
             // If this channel isn't stable yet, skip it.
             if (!_clockShifter[i].freqValid()) {
-                SQINFO("not triggering rib, no freq.");
+                //SQINFO("not triggering rib, no freq.");
                 continue;
             }
             // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
@@ -177,8 +177,8 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             }
 
             _ribGenerator[i].trigger(period, duration, span);
-            assert(_ribGenerator[i].busyEither());
-            SQINFO("just triggered, and it took");
+            //assert(_ribGenerator[i].busyEither());
+            //SQINFO("just triggered, and it took");
         }
     }
 }
@@ -221,10 +221,11 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updatePoly() {
-    const bool conn = TBase::outputs[CK_OUTPUT].isConnected();
-    if (!conn) {
-        return;
-    }
+   // const bool conn = TBase::outputs[CK_OUTPUT].isConnected();
+    // if (!conn) {
+    //    // return;
+    //    SQINFO("took out the return if output not connected");
+    // }
 
     int numOutputs = 1;
     _numInputClocks = TBase::inputs[CK_INPUT].channels;

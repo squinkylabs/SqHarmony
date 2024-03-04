@@ -187,7 +187,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
     TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
-static int count = 0;
+//static int count = 0;
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
@@ -203,14 +203,14 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     FloatNote f;
     NoteConvert::m2f(f, quantizedInput);
 
-    if (count == 0) {
-        SQINFO("\ninput = %f quantized = %d", input, quantizedInput.get());
-        SQINFO("xoseSteps %d final CV=%f", xposeSteps, f.get());
-    }
-    ++count;
-    if (count > 80000) {
-        count = 0;
-    }
+    // if (count == 0) {
+    //     SQINFO("\ninput = %f quantized = %d", input, quantizedInput.get());
+    //     SQINFO("xoseSteps %d final CV=%f", xposeSteps, f.get());
+    // }
+    // ++count;
+    // if (count > 80000) {
+    //     count = 0;
+    // }
 }
 
 template <class TBase>

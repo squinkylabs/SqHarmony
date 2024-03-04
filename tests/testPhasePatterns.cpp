@@ -208,7 +208,7 @@ static void testRIBButtons(bool outputConnected) {
 
     assertLT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
     c->params[Comp::RIB_POSITIVE_BUTTON_PARAM].value = 10;
-    SQINFO("Just set the button down, will proc a couple of times");
+   // SQINFO("Just set the button down, will proc a couple of times");
     processBlock(c);
     processBlock(c); 
     assertGT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
@@ -228,7 +228,7 @@ void testPhasePatterns() {
     testRIBButtons();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testRIBButtons();
 }
