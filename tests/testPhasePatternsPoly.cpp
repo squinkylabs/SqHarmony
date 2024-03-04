@@ -87,6 +87,7 @@ static void testChannelsSub(
     assertEQ(int(comp.outputs[Comp::CK_OUTPUT].channels), expectedClockChannels);
 }
 
+// Verify that the output has the the expected number of channels for the given input
 static void testChannels() {
     testChannelsSub(0, 0, 0, 1);
     testChannelsSub(1, 1, 1, 1);
@@ -113,7 +114,6 @@ static void testCanClockPolySub(int clockInChannels, int channelToTest) {
     prime(comp, channelToTest);
     // Even though we are "primed" we will not emit a clock for one more period,
     // if shift is zero.
-    // TODO: what is this input on channel 1??
     clockItHighLow(comp, 1, testPeriod - 1);
 
     comp.inputs[Comp::CK_INPUT].setVoltage(10, channelToTest);
@@ -132,6 +132,8 @@ static void testCanClockPolySub(int clockInChannels, int channelToTest) {
     assertEQ(comp.outputs[Comp::CK_OUTPUT].getVoltage(channelToTest), 0);
 }
 
+// input: shift polyphonic, clock in mono
+// checks that the shift input is controlling the active outputs
 static void testCanClockMonoSub(int shiftChannels) {
     Comp comp;                                   // only poly input is shift amount
     comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
@@ -145,23 +147,18 @@ static void testCanClockMonoSub(int shiftChannels) {
     clockItHighLow(comp, 0, testPeriod - 1);
 
     // Set the mono clock high, and run.
-
     comp.inputs[Comp::CK_INPUT].setVoltage(10, 0);
-
     comp.process(args);
     const int actualShiftChannels = std::max(shiftChannels, 1);  // there is always one channel...
     for (int i = 0; i < 16; ++i) {
         const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
 
-        // this less than is problematic... It's not right...
         const auto expect = (i < actualShiftChannels) ? 10.f : 0.f;
         assertEQ(v, expect);
     }
 
     // one more clock and it should go down.
-    // comp._clockInput->setVoltage(0, 0);
     comp.inputs[Comp::CK_INPUT].setVoltage(0, 0);
-
     comp.process(args);
     for (int i = 0; i < 16; ++i) {
         const auto v = comp.outputs[Comp::CK_OUTPUT].getVoltage(i);
@@ -184,13 +181,8 @@ static void testCanClock() {
     testCanClockPolySub(2, 1);
 }
 
+// shift and clock are mono, but ribs can be poly
 static void testCanClockMonoWithRibSub(int ribChannels) {
-    SQINFO("---- testCanClockMonoWithRibSub %d", ribChannels);
-    // Comp comp;                                   // only poly input is shift amount
-    // comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
-    // comp.inputs[Comp::SHIFT_INPUT].channels = 1;
-    // comp.inputs[Comp::CK_INPUT].channels = 1;
-    // comp.inputs[Comp::RIB_POSITIVE_INPUT].channels = ribChannels;
     CompPtr comp = factory();
     comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = ribChannels;
     comp->inputs[Comp::SHIFT_INPUT].channels = 1;
@@ -210,16 +202,12 @@ static void testCanClockMonoWithRibSub(int ribChannels) {
     const int actualRibChannels = std::max(ribChannels, 1);  // there is always one channel...
     for (int i = 0; i < 16; ++i) {
         const auto v = comp->outputs[Comp::CK_OUTPUT].getVoltage(i);
-
-        // this less than is problematic... It's not right...
         const auto expect = (i < actualRibChannels) ? 10.f : 0.f;
         assertEQ(v, expect);
     }
 
     // one more clock and it should go down.
-    // comp._clockInput->setVoltage(0, 0);
     comp->inputs[Comp::CK_INPUT].setVoltage(0, 0);
-
     comp->process(args);
     for (int i = 0; i < 16; ++i) {
         const auto v = comp->outputs[Comp::CK_OUTPUT].getVoltage(i);
@@ -230,19 +218,17 @@ static void testCanClockMonoWithRibSub(int ribChannels) {
 
 static void testCanClockMonoWithRib() {
     testCanClockMonoWithRibSub(1);
-    assert(false);          // let's add some more.
+    testCanClockMonoWithRibSub(2);
+    testCanClockMonoWithRibSub(5);
+    testCanClockMonoWithRibSub(11);
+    testCanClockMonoWithRibSub(16);
 }
 
 class TestX {
 public:
     static void testMonoClockPolyTriggerRibsSub(int numRibs, int ribToTest) {
-   //     SQINFO("------- testTriggerRibsSub %d %d", numRibs, ribToTest);
         assert(ribToTest < numRibs);
-       // Comp comp;                                   // only poly input is shift amount
         CompPtr comp = factory();
-     //   comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
-     //   comp.inputs[Comp::SHIFT_INPUT].channels = 1;
-    //    comp.inputs[Comp::CK_INPUT].channels = 1;
         comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibs;
 
         const auto args = TestComposite::ProcessArgs();
@@ -252,7 +238,6 @@ public:
         clockItHighLow(*comp, 0, testPeriod - 1);
 
         // trigger the rib
-      //  SQINFO("setting rib input %d to 10", ribToTest);
         comp->inputs[Comp::RIB_POSITIVE_INPUT].setVoltage(10, ribToTest);
         // process enough times to do the ribs thing.
         for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
@@ -321,7 +306,6 @@ public:
             const float shift = comp._curShift[i];
             const float expectedShift = (i < channelsToTest) ? shiftValue * .2 : 0;  // knob should affect all channels
             assertEQ(shift, expectedShift);
-            // SQINFO("channel %d shift %f", i, shift);
         }
     }
 
@@ -332,9 +316,6 @@ public:
         assert(channelToTest < numRibChannels);
 
         CompPtr comp = factory();
-        // Comp comp;
-        // comp.params[Comp::RIB_SPAN_PARAM].value = 1;      // 0 makes test fail.
-        // comp.inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
         assertEQ(comp->inputs[Comp::CK_INPUT].channels, 1);
         comp->outputs[Comp::CK_OUTPUT].channels = 1;              // connect the output
         comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibChannels;  // connect the poly rib
@@ -409,15 +390,15 @@ void testPhasePatternsPoly() {
     testChannels();
     testCanClock();
     testCanClockMono();
-
     testMonoClockPolyTriggerRibs();
-
-    // I don't even remember what this was supposed to do - such an early test.
-    // Why not let the poly tests do all the work?
-    //testCanClockMonoWithRib();
-    // SQINFO("put back RIB tests and make them work");
     testShiftKnobPolyClock();
     testPolyphonicShift();
     testPolyClockMonoShiftCV();
     testPolyRibMonoClock();
 }
+
+#if 0
+void testFirst() {
+    testCanClockMonoWithRib();
+}
+#endif

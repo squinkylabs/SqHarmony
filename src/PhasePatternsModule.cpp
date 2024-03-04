@@ -17,7 +17,8 @@ using Lab = SqLabel;
 
 // This is a debug feature. should always be zero here.
 // int ClockShifter5::llv = 0;
-int ClockShifter6::llv = 0;
+//int ClockShifter6::llv = 0;
+int logLevel = 0;
 
 template <>
 int BufferingParent<SqLabel>::_refCount = 0;

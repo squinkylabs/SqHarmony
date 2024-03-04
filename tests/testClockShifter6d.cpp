@@ -166,7 +166,7 @@ static void run(SignalSourceInterface* source, Output6* output) {
     auto const x = source->getMinMaxDelay();
     assert(std::get<1>(x) >= std::get<0>(x));
 
-    SQINFO("at end of run, min/max=%f, %f", std::get<0>(source->getMinMaxDelay()), std::get<1>(source->getMinMaxDelay()));
+   // SQINFO("at end of run, min/max=%f, %f", std::get<0>(source->getMinMaxDelay()), std::get<1>(source->getMinMaxDelay()));
 }
 
 static void testCanCall() {
@@ -258,8 +258,8 @@ static void testRunZero() {
     testRunZero(4321);
 }
 
-static void testRunRamp(unsigned duration, float initDelay, float finalDelay, unsigned period) {
-    SQINFO("\ntestRunRamp(%u, %f, %f, %u)", duration, initDelay, finalDelay, period);
+static void testRunRamp(unsigned duration, float initDelay, float finalDelay, unsigned period, unsigned acceptableJitter) {
+    //SQINFO("\ntestRunRamp(%u, %f, %f, %u)", duration, initDelay, finalDelay, period);
     SignalSource src;
     Output6 output;
 
@@ -267,28 +267,29 @@ static void testRunRamp(unsigned duration, float initDelay, float finalDelay, un
     src.initForDelayRamp(initDelay, finalDelay, duration);  // delay one clock over 8 input
     run(&src, &output);
     unsigned jitter = std::abs(output.maxSamplesBetweenClocks - output.minSamplesBetweenClocks);
-  //  assertLE(jitter, 1);
-   // assertEQ(output.maxSamplesBetweenClocks, 11);
-    SQINFO("in new test, jitter=%d, maxSamples=%d min=%d", jitter, output.maxSamplesBetweenClocks, output.minSamplesBetweenClocks);
+    assertLE(jitter, acceptableJitter);
+    //SQINFO("in new test, jitter=%d, maxSamples=%d min=%d", jitter, output.maxSamplesBetweenClocks, output.minSamplesBetweenClocks);
 }
 
-static void testRunSlowDown() {
-    testRunRamp(400, 0, 1, 10);
+
+
+static void testRunRamp() {
+
+    // values from some old test.
+    testRunRamp(400, 0, 1, 10, 1);
+
+    // ramp up from xx to 1
+    for (float x=0; x < 1; x += .00958) {
+        testRunRamp(1400, x, 1, 112, 4);        // jitter 4/112 is ok with me.
+    }
+
+    // ramp down from 1 to xx
+    for (float x = .999; x > 0; x -= .00958) {
+        testRunRamp(1400, 1, x, 112, 4);        // jitter 4/112 is ok with me.
+    }
 }
 
-// static void testRunSlowDown() {
-//     SignalSource src;
-//     Output6 output;
 
-//     unsigned period = 10;
-//     unsigned duration = 400;
-//     src.initClock(period, 50, duration);
-//     src.initForDelayRamp(0, 1, duration);  // delay one clock over 8 input
-//     run(&src, &output);
-//     unsigned jitter = std::abs(output.maxSamplesBetweenClocks - output.minSamplesBetweenClocks);
-//     assertLE(jitter, 1);
-//     assertEQ(output.maxSamplesBetweenClocks, 11);
-// }
 
 void testClockShifter6d() {
     testCanCall();
@@ -296,7 +297,7 @@ void testClockShifter6d() {
     testConstantRamp();
     testClockGen();
     testRunZero();
-    testRunSlowDown();
+    testRunRamp();
     assertEQ(SqLog::errorCount, 0);
 }
 
