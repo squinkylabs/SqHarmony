@@ -196,20 +196,40 @@ static void testUIDurations() {
     assertEQ(Comp::getRibDurationFromIndex(4), 3.f);
 }
 
+static void testRIBButtons(bool outputConnected) {
+    auto c = factory();
+    c->outputs[Comp::CK_OUTPUT].channels =  outputConnected ? 1 : 0;
+
+    //SQINFO("--- test back from factory, will process block");
+  //  c->params[Comp::SHIFT_RANGE_PARAM].value = rangeParam;
+    processBlock(c);  // so it can see the ins and outs
+    clockItHighLow(*c, 100);      // prime
+    clockItHighLow(*c, 100);
+
+    assertLT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
+    c->params[Comp::RIB_POSITIVE_BUTTON_PARAM].value = 10;
+    SQINFO("Just set the button down, will proc a couple of times");
+    processBlock(c);
+    processBlock(c); 
+    assertGT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
+}
+
+static void testRIBButtons() {
+    testRIBButtons(true);
+    testRIBButtons(false);
+}
+
+
 void testPhasePatterns() {
     testOver1();
     testSimpleInputNoShift();
     testWithShift();
     testUIDurations();
+    testRIBButtons();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    ClockShifter6::llv = 1;
-    //  This is the case that is bad without the dodgy "fix"
-    // testWithLFO(4, 16, 0.136364, 0.400000, 3);
-
-    // testSlowDown(5, 3552, 0.0001407658, 7);
-    testWithShift();
+    testRIBButtons();
 }
 #endif

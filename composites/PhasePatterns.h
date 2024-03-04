@@ -126,6 +126,8 @@ inline void PhasePatterns<TBase>::_init() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButtons() {
+    //SQINFO("update buttons rib+ req = %f", TBase::params[RIB_POSITIVE_BUTTON_PARAM].value);
+    SQINFO("update buttons, zero busy = %d, %d",  _ribGenerator[0].busyPositive(),  _ribGenerator[0].busyNegative());
     //  TODO: for now, just do channel 1 for this indicator
     TBase::lights[RIB_POSITIVE_LIGHT].value = _ribGenerator[0].busyPositive() ? 10 : 0;
     TBase::lights[RIB_NEGATIVE_LIGHT].value = _ribGenerator[0].busyNegative() ? 10 : 0;
@@ -134,6 +136,9 @@ inline void PhasePatterns<TBase>::_updateButtons() {
 
     if (_numRibsGenerators < 1) {
         return;
+    }
+    if (_positiveButtonProc.trigger() || _negativeButtonProc.trigger()) {
+        SQINFO("triggered a rib");
     }
 
     // This loop assumes there are at least as many shifters as there are rib
@@ -172,6 +177,8 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             }
 
             _ribGenerator[i].trigger(period, duration, span);
+            assert(_ribGenerator[i].busyEither());
+            SQINFO("just triggered, and it took");
         }
     }
 }
@@ -197,8 +204,7 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
     const float globalShift = TBase::params[SHIFT_PARAM].value;
     const bool ribsPoly = _numRibsGenerators > 1;
     const bool shiftCVPoly = _numShiftInputs > 1;
-
-    // SQINFO("mul = %f", shiftMult);
+;
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
@@ -206,7 +212,6 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
                             _ribGenerator[ribIndex].get() +
                             .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
-        // SQINFO("shift set to %f", shift);
         _curShift[i] = shift;
     }
 
@@ -243,7 +248,6 @@ inline void PhasePatterns<TBase>::_updatePoly() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_stepn() {
-    //   SQINFO("stepn");
     _updatePoly();
     _updateShiftAmount();
     _updateButtons();
