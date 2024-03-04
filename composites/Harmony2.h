@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "Divider.h"
@@ -98,6 +99,7 @@ public:
 
     void process(const typename TBase::ProcessArgs& args) override;
     static int getSubSampleFactor() { return 32; }
+
 private:
     Divider _divn;
     GateTrigger _ButtonProcs[NUM_TRANPOSERS];
@@ -108,7 +110,8 @@ private:
     void _stepn();
     void _servicePolyphony();
     void _serviceEnableButtons();
-    void _serviceKeysigInput();
+    void _serviceKeysigParam();
+    void _serviceKeysigCV();
     void _serviceTranspose();
     void _serviceTranspose(int channel, int& outputChannel);
 };
@@ -152,15 +155,39 @@ inline void Harmony2<TBase>::_init() {
 template <class TBase>
 inline void Harmony2<TBase>::_stepn() {
     _serviceEnableButtons();
-    _serviceKeysigInput();
+    _serviceKeysigParam();
+    _serviceKeysigCV();
     _servicePolyphony();
 }
 
 template <class TBase>
-inline void Harmony2<TBase>::_serviceKeysigInput() {
+inline void Harmony2<TBase>::_serviceKeysigParam() {
     const int basePitch = int(std::round(TBase::params[KEY_PARAM].value));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
     _quantizerOptions->scale->set(basePitch, mode);
+}
+
+template <class TBase>
+inline void Harmony2<TBase>::_serviceKeysigCV() {
+    if (TBase::inputs[KEY_INPUT].channels == 0) {
+        return;
+    }
+
+    const int newKey = int(std::round(TBase::inputs[KEY_INPUT].value));
+
+    const Scale* oldKey = _quantizerOptions->scale.get();
+    // std::pair<const MidiNote, Scales> get() const;
+    const auto x = oldKey->get();
+
+    const MidiNote oldRoot = std::get<0>(x);
+    FloatNote oldRootFloat;
+    NoteConvert::m2f(oldRootFloat, oldRoot);
+    const float oldKeyVCV = oldRootFloat.get() + 6;  // I don't remember what this off set is...
+    const float y = oldKeyVCV * 12;
+    const int z = int(std::round(y));
+    //  SQINFO("oldKey %f newKey %d y=%f x = %d", oldKeyVCV, newKey, y, z);
+    SQINFO("oldKey z=%d, newKey=%d", z, newKey);
+
 }
 
 template <class TBase>
@@ -179,7 +206,7 @@ inline void Harmony2<TBase>::_serviceEnableButtons() {
 template <class TBase>
 inline void Harmony2<TBase>::_servicePolyphony() {
     int numEnabled = 0;
-    for (int i=0; i< NUM_TRANPOSERS; ++i) {
+    for (int i = 0; i < NUM_TRANPOSERS; ++i) {
         if (TBase::params[XPOSE_ENABLE1_PARAM + i].value > 5) {
             ++numEnabled;
         }
@@ -187,7 +214,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
     TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
-//static int count = 0;
+// static int count = 0;
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();

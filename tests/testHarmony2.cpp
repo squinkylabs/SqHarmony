@@ -7,6 +7,14 @@ using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
 
+static void processBlock(CompPtr comp) {
+    const auto args = TestComposite::ProcessArgs();
+    // process enough times to do the ribs thing.
+    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
+        comp->process(args);
+    }
+}
+
 static void testCanCall() {
     CompPtr comp = std::make_shared<Comp>();
     Comp::getTransposeDegreeLabels();
@@ -31,11 +39,8 @@ static void testLabels() {
     testLabels(y);
 }
 
-
-
 static void testPolyOutput() {
     auto comp = std::make_shared<Comp>();
-    // comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
 
     comp->inputs[Comp::PITCH_INPUT].channels = 1;   // connect the input
     comp->outputs[Comp::PITCH_OUTPUT].channels = 1; // and output
@@ -53,8 +58,33 @@ static void testPolyOutput() {
     assertEQ(int(comp->outputs[Comp::PITCH_OUTPUT].channels), 3);
 }
 
+static void testKeyCV(bool cvConnected) {
+     auto comp = std::make_shared<Comp>();
+     comp->inputs[Comp::KEY_INPUT].setVoltage(3.f / 12.f);    // 'E'
+     comp->inputs[Comp::KEY_INPUT].channels = cvConnected ? 1 : 0;
+     processBlock(comp);
+    
+    // Expect that changing the CV will change the key param
+     const float expectedKey = cvConnected ? 3.f / 12.f : 0;
+    assertEQ( comp->params[Comp::KEY_PARAM].value, expectedKey);
+}
+
+static void testKeyCV() {
+    testKeyCV(true);
+    testKeyCV(false);
+}
+
 void testHarmony2() {
     testCanCall();
     testLabels();
     testPolyOutput();
+
+    SQINFO("add back testKeyCV() and make it work");
+    // testKeyCV();
 }
+
+#if 0
+void testFirst() {
+    testKeyCV(true);
+}
+#endif
