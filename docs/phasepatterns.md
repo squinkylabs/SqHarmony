@@ -2,10 +2,10 @@
 
 This module is under test at the moment. This means:
 
-* The panel is not finalize.
-* The feature set will change.
+* The panel is not finalized.
+* The feature set may change.
 * The patch format may change, such that patches saved with this module may not load correctly in future versions.
-* There are probably bugs and limitations.
+* There are probably bugs.
 
 ## What it does
 
@@ -20,7 +20,7 @@ There is also a built in shift generator that will over the course of 'n' clocks
 
 There are many, many uses for this clock shifter, and most can be "unlocked" by feeding clever signals into the shift CV input.
 
-Also, the module is fully polyphonic, so there is great potential for signal mangling.
+Also, the module is fully polyphonic, so there is great potential for control mangling.
 
 ## Possible uses
 
@@ -32,7 +32,7 @@ Please remember that there are many potential uses of this module - recreating t
 
 ## Panel
 
-The various controls and displays are all to compute and modulate the shift amount, and to display the shift amount. We use an arbitrary convention here that 1.0 is the duration of a clock, and that positive numbers mean a delay. so shift = .25 would delay by a quarter of a clock. Shift 2.5 would delay by two clocks and a half. If the delay is negative then the output clock will "advance" by the shift amount. This 0.0 to 1.0 range would be 0 to 2*pi in radians, or 0 to 360 degrees in cartesian coordinates.
+The various controls and displays are all to compute and modulate the shift amount, and to display the shift amount. We use an arbitrary convention here that 1.0 is the duration of a clock, and that positive numbers mean a delay. so shift = .25 would delay by a quarter of a clock. Shift 2.5 would delay by two clocks and a half.
 
 The RIB controls are labeled "Total" and "Dur". The total control is the total amount of shift that will be applied when the RIB generator hits its max value. The "Dur" control is how long it takes to get there. So, if Dur is one, and Total is four, then each RIB will over the course of four clocks shift by one clock.
 
@@ -65,9 +65,7 @@ As you can see in the block diagram, there is not a ton going on inside this mod
 
 A key thing to observe, however, is that there are only three or four CVs going into the module: shift, RIB trigger (+,-), and clock in. These are the three inputs that can force Phase Patterns to be polyphonic. The polyphony of the clock output is always the greatest of the polyphony of the CV inputs.
 
-When Phase Patterns had a polyphony of "n", there are always "n" clock shifters. When the input clock is polyphonic, then there are "n" clock processing units. When and of the RIBs inputs is polyphonic there will be "n" RIBs generators.
-
-Notice also to block that wraps the delay into the 0..1 range. The clock shifter itself only understands delays in this range.
+When Phase Patterns had a polyphony of "n", there are always "n" clock shifters. When the input clock is polyphonic, then there are "n" clock processing units. When the RIBs trigger inputs(s) are polyphonic there will be "n" RIBs generators.
 
 You can also see that there is a frequency measure in between the clock and the shifter. The shifter needs to know the input frequency so that it can interpret [0..1] as [0..full] period.
 
@@ -77,7 +75,7 @@ You can also see that there is a frequency measure in between the clock and the 
 
 ### More about polyphony
 
-because any of the input can be monophonic or polyphonic, and because Phase Patters is kind of odd anyway, the polyphonic possibilities are be a litte difficult to understand. Here are a couple of "simple" configurations for illustration.
+because any of the input can be monophonic or polyphonic, and because Phase Patters is kind of odd anyway, the polyphonic possibilities are be a little difficult to understand. Here are a couple of "simple" configurations for illustration.
 
 #### All inputs mono except clock in is n voice polyphonic
 
@@ -93,8 +91,4 @@ In this case a single mono clock will got to n clock shifters and end up as a po
 
 #### All inputs mono except rib trigger input is polyphonic
 
-### More about the clock shifter
-
-Take away some of the features, and Phase Patterns is basically a clock shifter. In this particular case what it wants to do is output a single clock for every input clock, but delayed by some fraction of a clock period. It is not a delay line, so you can't use it as an echo effect.
-
-Because it only outputs a single clock for each input clock, and wants to know the input frequency of the clock, it behaves very predictably with a steady repeating clock. With a near random input, it's uncertain what would come out.
+[ tbd ]
