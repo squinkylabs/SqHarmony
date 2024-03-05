@@ -1,5 +1,6 @@
 
 #include "plugin.hpp" // must be first include (for now).
+#ifdef _LFN
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -86,3 +87,4 @@ public:
 };
 
 Model* modelLFN2 = createModel<LFN2Module, LFN2Widget>("sqh-lfn2");
+#endif
