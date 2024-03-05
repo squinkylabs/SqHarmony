@@ -219,6 +219,21 @@ static void testRIBButtons() {
     testRIBButtons(false);
 }
 
+static void testShiftCV(int shift, float expectedShift) {
+    auto c = factory();
+    c->inputs[Comp::SHIFT_INPUT].channels =  1;
+    c->inputs[Comp::SHIFT_INPUT].setVoltage(10, 0);
+    c->params[Comp::SHIFT_RANGE_PARAM].value = shift;
+    processBlock(c);  // so it can see the ins and outs
+    const float f = c->params[Comp::COMBINED_SHIFT_INTERNAL_PARAM].value;
+    assertClose(f, expectedShift, .001);
+}
+
+static void testShiftCV() {
+    testShiftCV(0, 1);
+    testShiftCV(1, 10);
+    testShiftCV(2, 100);
+}
 
 void testPhasePatterns() {
     testOver1();
@@ -226,10 +241,11 @@ void testPhasePatterns() {
     testWithShift();
     testUIDurations();
     testRIBButtons();
+    testShiftCV();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testRIBButtons();
+    testShiftCV();
 }
 #endif

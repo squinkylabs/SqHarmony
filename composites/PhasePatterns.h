@@ -204,19 +204,19 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
     const float globalShift = TBase::params[SHIFT_PARAM].value;
     const bool ribsPoly = _numRibsGenerators > 1;
     const bool shiftCVPoly = _numShiftInputs > 1;
-;
+
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
         float shift = globalShift +
                             _ribGenerator[ribIndex].get() +
-                            .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
+                            .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
         _curShift[i] = shift;
     }
 
     // put channel 0 in the UI.
-    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get());
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get()) + _curShift[0];
 }
 
 template <class TBase>
