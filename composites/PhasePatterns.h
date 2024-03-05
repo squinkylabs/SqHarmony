@@ -91,6 +91,10 @@ public:
 
     static int getSubSampleFactor() { return 32; }
 
+    float _getShift(unsigned channel) const {
+        assert(channel < 16);
+        return _curShift[channel];
+    }
 private:
     void _init();
     void _stepn();
@@ -101,7 +105,6 @@ private:
     ClockShifter6 _clockShifter[16];
     ShiftCalc _ribGenerator[16];
 
-    // TODO: get rid of these initializers. There are just here to make some test pass.
     GateTrigger _inputClockProc[16];
     GateTrigger _positiveButtonProc;
     GateTrigger _negativeButtonProc;
@@ -109,7 +112,6 @@ private:
     GateTrigger _ribNegativeTrigger[16];
     float _curShift[16] = {0};
     Divider divn;
-    //  float _shiftMult = 1;
 
     int _numInputClocks = 0;
     int _numRibsGenerators = 0;
@@ -126,8 +128,6 @@ inline void PhasePatterns<TBase>::_init() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateButtons() {
-    //SQINFO("update buttons rib+ req = %f", TBase::params[RIB_POSITIVE_BUTTON_PARAM].value);
-   // SQINFO("update buttons, zero busy = %d, %d",  _ribGenerator[0].busyPositive(),  _ribGenerator[0].busyNegative());
     //  TODO: for now, just do channel 1 for this indicator
     TBase::lights[RIB_POSITIVE_LIGHT].value = _ribGenerator[0].busyPositive() ? 10 : 0;
     TBase::lights[RIB_NEGATIVE_LIGHT].value = _ribGenerator[0].busyNegative() ? 10 : 0;
@@ -137,9 +137,6 @@ inline void PhasePatterns<TBase>::_updateButtons() {
     if (_numRibsGenerators < 1) {
         return;
     }
-    // if (_positiveButtonProc.trigger() || _negativeButtonProc.trigger()) {
-    //     SQINFO("triggered a rib");
-    // }
 
     // This loop assumes there are at least as many shifters as there are rib
     // units. Which is fair.
@@ -162,10 +159,8 @@ inline void PhasePatterns<TBase>::_updateButtons() {
         if (triggered) {
             // If this channel isn't stable yet, skip it.
             if (!_clockShifter[i].freqValid()) {
-                //SQINFO("not triggering rib, no freq.");
                 continue;
             }
-            // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
 
             const int period = _clockShifter[i].getPeriod();
             const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
@@ -177,8 +172,6 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             }
 
             _ribGenerator[i].trigger(period, duration, span);
-            //assert(_ribGenerator[i].busyEither());
-            //SQINFO("just triggered, and it took");
         }
     }
 }
@@ -221,12 +214,6 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updatePoly() {
-   // const bool conn = TBase::outputs[CK_OUTPUT].isConnected();
-    // if (!conn) {
-    //    // return;
-    //    SQINFO("took out the return if output not connected");
-    // }
-
     int numOutputs = 1;
     _numInputClocks = TBase::inputs[CK_INPUT].channels;
     _numRibsGenerators = int(TBase::inputs[RIB_POSITIVE_INPUT].channels);
@@ -243,8 +230,6 @@ inline void PhasePatterns<TBase>::_updatePoly() {
     TBase::outputs[CK_OUTPUT].setChannels(numOutputs);
 
     _numShiftInputs = TBase::inputs[SHIFT_INPUT].channels;
-
-    //  SQINFO("updatePoly: out=%d, ic=%d, rib=%d shiftInputs=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators, _numShiftInputs);
 }
 
 template <class TBase>
@@ -257,11 +242,8 @@ inline void PhasePatterns<TBase>::_stepn() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
-    //  SQINFO("process");
     divn.step();
-    // SQINFO("process2");
 
-    // const bool monoClocks = _n_numInputClock <= 1;
     // First process all the input clock channels. They retain output, and don't have any
     // dependencies, so they are easy. Also update all the RIB ramp generators
     for (int i = 0; i < _numInputClocks; ++i) {

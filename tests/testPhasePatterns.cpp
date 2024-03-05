@@ -244,7 +244,7 @@ void testPhasePatterns() {
     testShiftCV();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testShiftCV();
 }

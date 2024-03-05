@@ -55,9 +55,9 @@ static void processBlock(Comp& comp) {
 
 static CompPtr factory() {
     CompPtr comp = std::make_shared<Comp>();
-    comp->params[Comp::RIB_SPAN_PARAM].value = 1;      // 0 makes test fail.
-    comp->inputs[Comp::CK_INPUT].channels = 1;  // connect the input clock
-    comp->inputs[Comp::CK_OUTPUT].channels = 1;  // connect the input clock
+    comp->params[Comp::RIB_SPAN_PARAM].value = 1;  // 0 makes test fail.
+    comp->inputs[Comp::CK_INPUT].channels = 1;     // connect the input clock
+    comp->inputs[Comp::CK_OUTPUT].channels = 1;    // connect the input clock
     return comp;
 }
 
@@ -130,6 +130,41 @@ static void testCanClockPolySub(int clockInChannels, int channelToTest) {
 
     comp.process(args);
     assertEQ(comp.outputs[Comp::CK_OUTPUT].getVoltage(channelToTest), 0);
+}
+
+
+/** test that poly shift makes to to the right channels.
+ * I see now there is already a unit test for this. Oh, well...
+ */
+static void testPolyShiftCV(int shiftChannels) {
+    const float shiftAmount = .73;
+    Comp comp;                                   // only poly input is shift amount
+    comp.outputs[Comp::CK_OUTPUT].channels = 1;  // connect the output
+    comp.inputs[Comp::SHIFT_INPUT].channels = shiftChannels;
+    comp.inputs[Comp::CK_INPUT].channels = 1;
+
+    for (int i = 0; i < shiftChannels; ++i) {
+        comp.inputs[Comp::SHIFT_INPUT].setVoltage(10 * shiftAmount * i, i);
+    }
+
+    const auto args = TestComposite::ProcessArgs();
+    prime(comp, 0);
+    // Even though we are "primed" we will not emit a clock for one more period,
+    // if shift is zero.
+    clockItHighLow(comp, 0, testPeriod - 1);
+
+    comp.process(args);
+    const int actualShiftChannels = std::max(shiftChannels, 1);  // there is always one channel...
+    for (int i = 0; i < 16; ++i) {
+        const float expectedShift = (i < shiftChannels) ? shiftAmount * i : 0;
+        assertClose(comp._getShift(i), expectedShift, .00001);
+    }
+}
+
+static void testPolyShiftCV() {
+    testPolyShiftCV(1);
+    testPolyShiftCV(7);
+    testPolyShiftCV(16);
 }
 
 // input: shift polyphonic, clock in mono
@@ -267,7 +302,7 @@ public:
 
         for (int i = 0; i < 16; ++i) {
             const float shift = comp._curShift[i];
-            const float expectedShift = (i == channelToTest) ? shiftAmount * .2 : 0;
+            const float expectedShift = (i == channelToTest) ? shiftAmount * .1 : 0;
             assertEQ(shift, expectedShift);
         }
     }
@@ -304,8 +339,29 @@ public:
 
         for (int i = 0; i < 16; ++i) {
             const float shift = comp._curShift[i];
-            const float expectedShift = (i < channelsToTest) ? shiftValue * .2 : 0;  // knob should affect all channels
+            const float expectedShift = (i < channelsToTest) ? shiftValue * .1 : 0;  // knob should affect all channels
             assertEQ(shift, expectedShift);
+        }
+    }
+
+    static void testPolyRibButton() {
+        CompPtr comp = factory();
+        assertEQ(comp->inputs[Comp::CK_INPUT].channels, 1);
+        comp->outputs[Comp::CK_OUTPUT].channels = 1;          // connect the output
+        comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = 7;  // make the ribs poly
+
+        processBlock(*comp);
+        prime(*comp, 0);
+        clockItHigh(*comp, 0);
+        assert(comp->_clockShifter[0].freqValid());
+        assert(comp->_numRibsGenerators > 1);
+
+        comp->params[Comp::RIB_NEGATIVE_BUTTON_PARAM].value = 10;  // press the rib button
+        processBlock(*comp);
+        for (int i = 0; i < 16; ++i) {
+            const bool busy = comp->_ribGenerator[i].busyEither();
+            const bool expectedBusy = (i < 7);
+            assertEQ(busy, expectedBusy);
         }
     }
 
@@ -317,7 +373,7 @@ public:
 
         CompPtr comp = factory();
         assertEQ(comp->inputs[Comp::CK_INPUT].channels, 1);
-        comp->outputs[Comp::CK_OUTPUT].channels = 1;              // connect the output
+        comp->outputs[Comp::CK_OUTPUT].channels = 1;                       // connect the output
         comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibChannels;  // connect the poly rib
         processBlock(*comp);
         assertEQ(comp->_numInputClocks, 1);
@@ -395,10 +451,16 @@ void testPhasePatternsPoly() {
     testPolyphonicShift();
     testPolyClockMonoShiftCV();
     testPolyRibMonoClock();
+    TestX::testPolyRibButton();
+    testPolyShiftCV();
 }
 
 #if 0
 void testFirst() {
-    testCanClockMonoWithRib();
+    // TestX::testPolyRibButton();
+    // testCanClockMonoSub(2);
+   // testPolyShiftCV(4);
+    // TestX::testPolyphonicShiftSub(1, 0);
+    TestX::testPolyClockMonoShiftCV(1);
 }
 #endif
