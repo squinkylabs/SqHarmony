@@ -82,7 +82,7 @@ static void processBlock(CompPtr comp) {
 
 static void testSimpleInputNoShift() {
     //  Comp c;
-    //SQINFO("testSimpleInputNoShift");
+    // SQINFO("testSimpleInputNoShift");
     auto c = factory();
     processBlock(c);  // so it can see the ins and outs
 
@@ -113,19 +113,19 @@ static void testSimpleInputNoShift() {
 }
 
 static void testWithShift(float shiftParam, float rangeParam) {
-    //SQINFO(" ---- start testWithShift(%f, %f)", shiftParam, rangeParam);
+    // SQINFO(" ---- start testWithShift(%f, %f)", shiftParam, rangeParam);
     const int period = 8;
     assertEQ(shiftParam, .5f);
 
     auto c = factory();
-    //SQINFO("--- test back from factory, will process block");
+    // SQINFO("--- test back from factory, will process block");
     c->params[Comp::SHIFT_RANGE_PARAM].value = rangeParam;
     processBlock(c);  // so it can see the ins and outs
 
     int expectedDelay = period * shiftParam;
     if (rangeParam > .5) expectedDelay *= 10;
     if (rangeParam > 1.5) expectedDelay *= 10;
-    //SQINFO("--- test done with initial process block. expected delay = %d", expectedDelay);
+    // SQINFO("--- test done with initial process block. expected delay = %d", expectedDelay);
     float shift = .5;
     c->params[Comp::SHIFT_PARAM].value = shift;
 
@@ -133,7 +133,7 @@ static void testWithShift(float shiftParam, float rangeParam) {
     // Send first clock to prime, should still have no output.
     clockItHighLow(*c, period);
 
-    //SQINFO("--- test done with initial 'prime'");
+    // SQINFO("--- test done with initial 'prime'");
 
     // first clock established the period, and is first clock.
     // clock 4 to get a 50% duty cycle.
@@ -142,7 +142,7 @@ static void testWithShift(float shiftParam, float rangeParam) {
         clockItHigh(*c, 0);
     }
 
-    //SQINFO("--- test clocked in the fat clock.");
+    // SQINFO("--- test clocked in the fat clock.");
 
     // will only have output clock in first period if delay rang small
     const float expectedClockInFirstPeriod = (rangeParam < .5) ? 10 : 0;
@@ -157,7 +157,7 @@ static void testWithShift(float shiftParam, float rangeParam) {
     const int cyclesToOutput = (rangeParam < 1.5) ? 5 : 50;
     // We have already done one half period of fat clock and half period on low clock.
     int samplesToOutput = (cyclesToOutput * period) - period;
-    //SQINFO("--- now will finish: samples to output = %d", samplesToOutput);
+    // SQINFO("--- now will finish: samples to output = %d", samplesToOutput);
 
     while (samplesToOutput) {
         int samplesThisTime = std::min(samplesToOutput, period);
@@ -170,9 +170,9 @@ static void testWithShift(float shiftParam, float rangeParam) {
     assertEQ(samplesToOutput, 0);
 
     // now, after the delay, we see out 50% period clock come out.
-    //SQINFO("--- In test, now we expect the clock to come");
+    // SQINFO("--- In test, now we expect the clock to come");
     clockItLow(*c, period / 2, 10);
-    //SQINFO("--- after block of high, will look for all low");
+    // SQINFO("--- after block of high, will look for all low");
     clockItLow(*c, period * 2, 0);
 }
 
@@ -198,19 +198,19 @@ static void testUIDurations() {
 
 static void testRIBButtons(bool outputConnected) {
     auto c = factory();
-    c->outputs[Comp::CK_OUTPUT].channels =  outputConnected ? 1 : 0;
+    c->outputs[Comp::CK_OUTPUT].channels = outputConnected ? 1 : 0;
 
-    //SQINFO("--- test back from factory, will process block");
-  //  c->params[Comp::SHIFT_RANGE_PARAM].value = rangeParam;
-    processBlock(c);  // so it can see the ins and outs
-    clockItHighLow(*c, 100);      // prime
+    // SQINFO("--- test back from factory, will process block");
+    //  c->params[Comp::SHIFT_RANGE_PARAM].value = rangeParam;
+    processBlock(c);          // so it can see the ins and outs
+    clockItHighLow(*c, 100);  // prime
     clockItHighLow(*c, 100);
 
     assertLT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
     c->params[Comp::RIB_POSITIVE_BUTTON_PARAM].value = 10;
-   // SQINFO("Just set the button down, will proc a couple of times");
+    // SQINFO("Just set the button down, will proc a couple of times");
     processBlock(c);
-    processBlock(c); 
+    processBlock(c);
     assertGT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
 }
 
@@ -221,7 +221,7 @@ static void testRIBButtons() {
 
 static void testShiftCV(int shift, float expectedShift) {
     auto c = factory();
-    c->inputs[Comp::SHIFT_INPUT].channels =  1;
+    c->inputs[Comp::SHIFT_INPUT].channels = 1;
     c->inputs[Comp::SHIFT_INPUT].setVoltage(10, 0);
     c->params[Comp::SHIFT_RANGE_PARAM].value = shift;
     processBlock(c);  // so it can see the ins and outs
@@ -235,6 +235,15 @@ static void testShiftCV() {
     testShiftCV(2, 100);
 }
 
+static void testNegativeCV() {
+    auto c = factory();
+    c->inputs[Comp::SHIFT_INPUT].channels = 1;
+    c->inputs[Comp::SHIFT_INPUT].setVoltage(-10, 0);
+    processBlock(c);  //
+    const float v = c->_getShift(0);
+    assertGE(v, 0);
+}
+
 void testPhasePatterns() {
     testOver1();
     testSimpleInputNoShift();
@@ -242,10 +251,11 @@ void testPhasePatterns() {
     testUIDurations();
     testRIBButtons();
     testShiftCV();
+    testNegativeCV();
 }
 
 #if 0
 void testFirst() {
-    testShiftCV();
+    testNegativeCV();
 }
 #endif

@@ -205,7 +205,7 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
                             _ribGenerator[ribIndex].get() +
                             .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
-        _curShift[i] = shift;
+        _curShift[i] = std::max(shift, 0.f);
     }
 
     // put channel 0 in the UI.
