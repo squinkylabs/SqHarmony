@@ -2,7 +2,10 @@
 
 ## 2.2.4
 
-Phase Patterns: Brought back to life. New panel design. V2 UI. Less bugs.
+Phase Patterns: Brought back to life. New panel design. V2 UI. New implementation.
+
+All modules: fixed typos in the manuals.
+
 
 ## 2.2.3
 
