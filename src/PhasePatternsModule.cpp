@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "plugin.hpp"   // MUST BE FIRST
+#include "plugin.hpp"  // MUST BE FIRST
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -11,13 +11,12 @@
 #include "SqLog.h"
 #include "WidgetComposite.h"
 
-
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
 
 // This is a debug feature. should always be zero here.
 // int ClockShifter5::llv = 0;
-//int ClockShifter6::llv = 0;
+// int ClockShifter6::llv = 0;
 int logLevel = 0;
 
 template <>
@@ -119,13 +118,18 @@ private:
         ModuleWidget::step();
         if (module) {
             if (_shiftDisplay) {
-                const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
-
-                std::stringstream str;
-                str << std::setprecision(2) << shift;
-                std::string uiString = str.str();
+                const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);   
                 SqLabel* label = _shiftDisplay->getChild();
-                label->updateText(NumberFormatter::formatFloat(2, uiString));
+                if (shift > 99) {
+                    std::stringstream str;
+                    str <<  std::setprecision(4) << shift;
+                    label->updateText(str.str());
+                } else {
+                    std::stringstream str;
+                    str << std::setprecision(2) << shift;
+                    const auto s = str.str();
+                    label->updateText(NumberFormatter::formatFloat(2, s));
+                }
             }
         }
     }
