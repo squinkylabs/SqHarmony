@@ -73,7 +73,7 @@ void inline PhasePatternsModule::addParams() {
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
     this->configSwitch(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
     this->configSwitch(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
-    this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "Rib total duration (denominator)");
+    this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "RIB total duration clocks");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::SHIFT_INPUT, "Shift amount");
@@ -93,7 +93,7 @@ void inline PhasePatternsModule::addParams() {
             return ret;
         }
     };
-    this->configParam<TotalParam>(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Total clocks (numerator)");
+    this->configParam<TotalParam>(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Total clocks per RIB");
 }
 
 #define _LAB
@@ -124,11 +124,13 @@ private:
                     std::stringstream str;
                     str <<  std::setprecision(4) << shift;
                     label->updateText(str.str());
+                    // SQINFO("a shift=%f lab=%s", shift, str.str().c_str());
                 } else {
                     std::stringstream str;
-                    str << std::setprecision(2) << shift;
+                    str << std::setprecision(4) << shift;
                     const auto s = str.str();
                     label->updateText(NumberFormatter::formatFloat(2, s));
+                    // SQINFO("b shift=%f lab=%s final=%s", shift, s.c_str(), NumberFormatter::formatFloat(2, s).c_str());
                 }
             }
         }
