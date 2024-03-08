@@ -1,5 +1,6 @@
 
 #include "plugin.hpp" // must be first include (for now).
+#ifdef _LFN
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -46,7 +47,9 @@ public:
 #endif
         //  addControls(module);
         //  addIO(module);
-        addOutput(createOutput<PJ301MPort>(Vec(85, 200), module, Comp::OUT));
+        addOutput(createOutput<PJ301MPort>(Vec(25, 200), module, Comp::OUT));
+        //  addInput(createInput<PJ301MPort>(vec, module, outputNumber));
+      //   addInput(createInput<PJ301MPort>(Vec(25, 150), module, Comp::DEBUG_IN));
         //addLabel(Vec(79, 1), "CkOut");
     }
     /**
@@ -84,3 +87,4 @@ public:
 };
 
 Model* modelLFN2 = createModel<LFN2Module, LFN2Widget>("sqh-lfn2");
+#endif

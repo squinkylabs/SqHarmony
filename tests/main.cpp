@@ -1,6 +1,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+
 #include <cstdlib>
 extern void testHarmonyNote();
 extern void testScaleRelativeNote();
@@ -41,13 +42,9 @@ extern void testOneShot();
 extern void testPhasePatterns();
 extern void testPhasePatternsPoly();
 extern void testOneShotSampleTimer();
-extern void testClockShifter3();
-extern void testClockShifter4();
-extern void testClockShifter4b();
-extern void testClockShifter4c();
 extern void testClockShifter5c();
-extern void testClockShifter4d();
 extern void testClockShifter5d();
+extern void testClockShifter5e();
 extern void testShiftMath();
 extern void testSchmidtTrigger();
 extern void testShiftCalc();
@@ -65,14 +62,24 @@ extern void testClockShifter5();
 extern void testClockShifter5b();
 extern void testFirst();
 extern void testNoiseGen();
+extern void testLFNDsp();
+extern void testButter();
+extern void testPinkFilter();
+extern void testTestLFO();
+extern void testClockShifter6();
+extern void testClockShifter6d();
+extern void testBitDelay();
+extern void testHarmony2();
 
 #include "SqLog.h"
 
 #ifdef _DEBUG
-const bool doLongRunning = false;
+bool doLongRunning = false;
 #else
-const bool doLongRunning = true;
+bool doLongRunning = true;
 #endif
+
+int logLevel = 0;
 
 int main(const char**, int) {
     //  testGrayCode();
@@ -81,41 +88,47 @@ int main(const char**, int) {
     specialDumpList();
 #else
 
+    if (doLongRunning) {
+        SQINFO("doing special long run");
+    }
+
 #if 0
-    printf("running first for temp debug\n");
+    printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
     std::exit(0);
 #endif
 
     testTwister();
+    testPinkFilter();
     testNoiseGen();
+    testButter();
+    testLFNDsp();
     testSchmidtTrigger();
     testNumberFormatter();
     testShiftMath();
+    testTestLFO();
     testOneShot();
     testOneShotSampleTimer();
     testResettablePhaseAccumulator();
     testFreqMeasure();
     testFreqMeasure2();
     testShiftCalc();
-    testClockShifter3();
-    testClockShifter4();
-    testClockShifter5();
 
-    testClockShifter4b();
-    testClockShifter5b();
-    testClockShifter4c();
-    testClockShifter5c();
-    testClockShifter4d();
-    testClockShifter5d();
-    testPhasePatterns();
-    testPhasePatternsPoly();
     testClockMult();
     testMultiplier();
     testRatchet();
+    testBitDelay();
+    testClockShifter6();
+    testClockShifter6d();
+
+    testPhasePatterns();
+    testPhasePatternsPoly();
+
+    testHarmony2();
     printf("XX: leaving early for clock stuff");
     std::exit(0);
+
     testAdditiveModLogic();
     testAdditivePitchLogic();
     testAdditiveGainLogic();

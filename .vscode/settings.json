@@ -62,6 +62,10 @@
         "map": "cpp",
         "xtree": "cpp",
         "set": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "optional": "cpp",
+        "charconv": "cpp",
+        "format": "cpp",
+        "numeric": "cpp"
     }
 }

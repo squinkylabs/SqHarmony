@@ -204,9 +204,6 @@
     <ClCompile Include="testOneShotSampleTimer.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testClockShifter3.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="testShiftMath.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
@@ -234,9 +231,6 @@
     <ClCompile Include="testPitchKnowledge.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testClockShifter4.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
     <ClCompile Include="testFreqMeasure2.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
@@ -244,15 +238,6 @@
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="testChord4.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="testClockShifter4b.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="testClockShifter4c.cpp">
-      <Filter>Source Files\tests</Filter>
-    </ClCompile>
-    <ClCompile Include="testClockShifter4d.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="testPhasePatternsPoly.cpp">
@@ -277,6 +262,33 @@
       <Filter>Source Files\tests</Filter>
     </ClCompile>
     <ClCompile Include="testNoiseGen.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testLFNDsp.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testButter.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testPinkFilter.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testClockShifter5e.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testTestLFO.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testClockShifter6.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testBitDelay.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testClockShifter6d.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testHarmony2.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>
@@ -321,6 +333,9 @@
       <Filter>Header Files\util\gray_code</Filter>
     </ClInclude>
     <ClInclude Include="..\util\FreqMeasure.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\ClockShifter5.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
   </ItemGroup>

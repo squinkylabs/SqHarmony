@@ -1,5 +1,12 @@
 # Changelog for Squinktronix plugins
 
+## 2.2.4
+
+Phase Patterns: Brought back to life. New panel design. V2 UI. New implementation.
+
+All modules: fixed typos in the manuals.
+
+
 ## 2.2.3
 
 Updated test suite to Visual Studio 2022, and re-enabled address sanitizer for test suite.

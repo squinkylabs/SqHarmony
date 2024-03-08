@@ -176,24 +176,26 @@
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
+    <ClCompile Include="testBitDelay.cpp" />
+    <ClCompile Include="testButter.cpp" />
     <ClCompile Include="testChord4.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
     <ClCompile Include="testClockMult.cpp" />
-    <ClCompile Include="testClockShifter3.cpp" />
-    <ClCompile Include="testClockShifter4.cpp" />
-    <ClCompile Include="testClockShifter4b.cpp" />
-    <ClCompile Include="testClockShifter4c.cpp" />
-    <ClCompile Include="testClockShifter4d.cpp" />
     <ClCompile Include="testClockShifter5.cpp" />
     <ClCompile Include="testClockShifter5b.cpp" />
     <ClCompile Include="testClockShifter5c.cpp" />
     <ClCompile Include="testClockShifter5d.cpp" />
+    <ClCompile Include="testClockShifter5e.cpp" />
+    <ClCompile Include="testClockShifter6.cpp" />
+    <ClCompile Include="testClockShifter6d.cpp" />
     <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testFreqMeasure2.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
+    <ClCompile Include="testHarmony2.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChords2023.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
+    <ClCompile Include="testLFNDsp.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
     <ClCompile Include="testNoiseGen.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
@@ -206,6 +208,7 @@
     <ClCompile Include="testOneShotSampleTimer.cpp" />
     <ClCompile Include="testPhasePatterns.cpp" />
     <ClCompile Include="testPhasePatternsPoly.cpp" />
+    <ClCompile Include="testPinkFilter.cpp" />
     <ClCompile Include="testPitchKnowledge.cpp" />
     <ClCompile Include="testProgressions.cpp" />
     <ClCompile Include="testRatchet.cpp" />
@@ -227,6 +230,7 @@
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testTempo.cpp" />
+    <ClCompile Include="testTestLFO.cpp" />
     <ClCompile Include="testTwister.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -235,6 +239,7 @@
     <ClInclude Include="..\notes\HarmonyNote.h" />
     <ClInclude Include="..\notes\PitchKnowledge.h" />
     <ClInclude Include="..\notes\Style.h" />
+    <ClInclude Include="..\util\ClockShifter5.h" />
     <ClInclude Include="..\util\FreqMeasure.h" />
     <ClInclude Include="..\util\gray_code\GcUtils.h" />
     <ClInclude Include="..\util\quant\Scale.h" />

@@ -26,6 +26,7 @@ public:
     };
 
     enum InputIds {
+    //    DEBUG_IN,
         NUM_INPUTS
     };
 
@@ -42,6 +43,7 @@ public:
 
 private:
     LFNDsp _dsp;
+    PinkFilter<float> _filter;
 
 
     void init();
@@ -54,6 +56,9 @@ inline void LFN2<TBase>::init() {
 template <class TBase>
 inline void LFN2<TBase>::process(const typename TBase::ProcessArgs& args) {
     float_4 x = _dsp.process();
-    //     void setVoltageSimd(T voltage, int firstChannel) {
+   // float input = TBase::inputs[DEBUG_IN].value;
+  //  float x = _filter.process(input);
+    x *= 10;
     TBase::outputs[OUT].setVoltageSimd(x, 0);
+   // TBase::outputs[OUT].setVoltage(x, 0);
 }

@@ -7,7 +7,7 @@ const int testPeriod = 10;
 
 /**
  * These are mainly tests around the different cases of shift times moving around.
- *
+ * This try to be minimal cases the exercise specific functionality.
  */
 
 // Case 1. Current position << 1, shift move from higher to even higher. Shift not near the ends.
@@ -339,6 +339,50 @@ static void testCase7a() {
     assertClose(shifter->getNormalizedPosition(), .8 + .1, .0001);
 }
 
+// Case 7a. Shift "wraps" backwards through zero, crossing current pos. pos in first half.
+// shift starts at .1 current position goes to .9, then shift goes to .8
+// input clocks x---------x---------x
+// position
+// shift value
+// exp out
+static void testCase9() {
+    SQINFO("---- testCase9");
+      float shift = 0;
+    // Make the shifter with the desired delay, click until we almost expect a clock.
+    auto shifter = makeAndPrime(testPeriod, shift);
+    bool b = clockItLow(shifter, 8, shift);
+    assert(!b);
+    assertClose(shifter->getNormalizedPosition(), .8 + .1, .0001);
+
+    SQINFO("test9: now clock with shift .75");
+    shift = .75f;
+    b = clockItLow(shifter, 1, shift);
+    assertEQ(b, true);
+}
+
+static void testSmallVibrations() {
+    float shift = .000;
+    auto shifter = makeAndPrime(testPeriod, shift);
+    // we will have output a clock at the very start.
+    ClockShifter5::llv = 1;
+    SQINFO("Just after prime");
+    shift = .001f;
+    bool b = clockItLow(shifter, testPeriod-3, shift);
+    assert(!b);
+
+    // last sample before the clock
+    shift = -.001f;
+    b = clockItLow(shifter, 1, shift);
+    
+    b = shifter->process(true, true, shift);
+    SQINFO("after next clock high, outptu=%d", b);
+    assert(b);
+
+  //  assert(false);
+}
+
+
+
 void testClockShifter5b() {
     testCase1();
     testCase2();
@@ -349,8 +393,16 @@ void testClockShifter5b() {
     testCase6a();
     testCase6b();
     // testCase7a();
+    testCase9();
 
     SQINFO("-- make the other cases in 5b work (why doesn't 7a work?)");
    // assert(false);
     // TODO: testCase7b
 }
+
+#if 0
+void testFirst() {
+    testSmallVibrations();
+}
+#endif
+

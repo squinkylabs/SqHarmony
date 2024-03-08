@@ -1,14 +1,15 @@
 
 #pragma once
 
-#include "ClockShifter5.h"
+#include <cmath>
+#include <string>
+#include <vector>
+
+#include "ClockShifter6.h"
 #include "Divider.h"
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
 #include "ShiftCalc.h"
-
-#include <vector>
-#include <string>
 
 namespace rack {
 namespace engine {
@@ -26,9 +27,10 @@ public:
         SHIFT_PARAM,
         COMBINED_SHIFT_INTERNAL_PARAM,
         RIB_POSITIVE_BUTTON_PARAM,
-        RIB_DURATION_PARAM, // This is is the "numerator", controlled by the widget currently called "Total"
-        RIB_SPAN_PARAM,     // This is the denominator, controlled by that widget called "Dur"
+        RIB_DURATION_PARAM,  // This is is the "numerator", controlled by the widget currently called "Total"
+        RIB_SPAN_PARAM,      // This is the denominator, controlled by that widget called "Dur"
         RIB_NEGATIVE_BUTTON_PARAM,
+        SHIFT_RANGE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -89,6 +91,10 @@ public:
 
     static int getSubSampleFactor() { return 32; }
 
+    float _getShift(unsigned channel) const {
+        assert(channel < 16);
+        return _curShift[channel];
+    }
 private:
     void _init();
     void _stepn();
@@ -96,10 +102,9 @@ private:
     void _updatePoly();
     void _updateShiftAmount();
 
-    ClockShifter5 _clockShifter[16];
+    ClockShifter6 _clockShifter[16];
     ShiftCalc _ribGenerator[16];
 
-    // TODO: get rid of these initializers. There are just here to make some test pass.
     GateTrigger _inputClockProc[16];
     GateTrigger _positiveButtonProc;
     GateTrigger _negativeButtonProc;
@@ -154,11 +159,9 @@ inline void PhasePatterns<TBase>::_updateButtons() {
         if (triggered) {
             // If this channel isn't stable yet, skip it.
             if (!_clockShifter[i].freqValid()) {
-                SQINFO("not triggering rib, no freq.");
                 continue;
             }
-            // SQINFO("will trigger rib for ch %d period %d", i, (_clockShifter[i].getPeriod()));
-            
+
             const int period = _clockShifter[i].getPeriod();
             const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
             float duration = this->getRibDurationFromIndex(durationIndex);
@@ -167,7 +170,7 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             if (trigNegative) {
                 duration = -duration;
             }
-           
+
             _ribGenerator[i].trigger(period, duration, span);
         }
     }
@@ -175,7 +178,22 @@ inline void PhasePatterns<TBase>::_updateButtons() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updateShiftAmount() {
-    // TODO: this code assumes that the shift input is mono
+    const int sens = int(std::round(TBase::params[SHIFT_RANGE_PARAM].value));
+    float shiftMult = 1;
+    switch (sens) {
+        case 0:
+            shiftMult = 1;
+            break;
+        case 1:
+            shiftMult = 10;
+            break;
+        case 2:
+            shiftMult = 100;
+            break;
+        default:
+            assert(0);
+    }
+
     const float globalShift = TBase::params[SHIFT_PARAM].value;
     const bool ribsPoly = _numRibsGenerators > 1;
     const bool shiftCVPoly = _numShiftInputs > 1;
@@ -183,29 +201,24 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
-        const float shift = globalShift +
+        float shift = globalShift +
                             _ribGenerator[ribIndex].get() +
-                            .2 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);       // .2 so 5 volts -> 1
-       // _clockShifter[i].setShift(shift);
-        _curShift[i] = shift;
+                            .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
+        shift *= shiftMult;
+        _curShift[i] = std::max(shift, 0.f);
     }
 
     // put channel 0 in the UI.
-    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = globalShift + _ribGenerator[0].get();
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get()) + _curShift[0];
 }
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_updatePoly() {
-    const bool conn = TBase::outputs[CK_OUTPUT].isConnected();
-    if (!conn) {
-        return;
-    }
-
     int numOutputs = 1;
     _numInputClocks = TBase::inputs[CK_INPUT].channels;
     _numRibsGenerators = int(TBase::inputs[RIB_POSITIVE_INPUT].channels);
     _numRibsGenerators = std::max(
-        _numRibsGenerators, 
+        _numRibsGenerators,
         int(TBase::inputs[RIB_NEGATIVE_INPUT].channels));
     _numRibsGenerators = std::max(1, _numRibsGenerators);
 
@@ -217,13 +230,10 @@ inline void PhasePatterns<TBase>::_updatePoly() {
     TBase::outputs[CK_OUTPUT].setChannels(numOutputs);
 
     _numShiftInputs = TBase::inputs[SHIFT_INPUT].channels;
-
-    //  SQINFO("updatePoly: out=%d, ic=%d, rib=%d shiftInputs=%d", _numOutputClocks, _numInputClocks, _numRibsGenerators, _numShiftInputs);
 }
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_stepn() {
-    //   SQINFO("stepn");
     _updatePoly();
     _updateShiftAmount();
     _updateButtons();
@@ -232,11 +242,8 @@ inline void PhasePatterns<TBase>::_stepn() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
-    //  SQINFO("process");
     divn.step();
-    // SQINFO("process2");
 
-    // const bool monoClocks = _n_numInputClock <= 1;
     // First process all the input clock channels. They retain output, and don't have any
     // dependencies, so they are easy. Also update all the RIB ramp generators
     for (int i = 0; i < _numInputClocks; ++i) {
@@ -252,7 +259,6 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
     for (int i = 0; i < _numOutputClocks; ++i) {
         const int clockInputIndex = monoClock ? 0 : i;
         const bool rawClockOut = _clockShifter[i].process(
-            _inputClockProc[clockInputIndex].trigger(),
             _inputClockProc[clockInputIndex].gate(),
             _curShift[i]);
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;

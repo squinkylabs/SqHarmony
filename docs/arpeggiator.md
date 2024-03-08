@@ -91,7 +91,7 @@ It you change the **Beats** to 7 the same input will give <4, 3, 2, 1, 4, 3, 2> 
 
 If the input is longer than the **Beats** setting, then only the first notes will play. Same input, Beats 3 will give <4, 3, 2, 4, 3, 2, ...>, and the 1 will never play (unless the settings are changed).
 
-**Notes** can be similar to **Beats**, but it isn't. **Notes** determines how many notes Arpeggiator will hold onto. For example, if **mode** is **up** and **Notes** is three you play: <1, 2, 3, 4, 5> you will get out \<\3, 4, 5, 3, 4, 5> because 3, 4, and 5 were the last three notes entered. Then if you play <6>, you will get <4, 5, 6, ...> as 4, 5, and 6 are the last three.
+**Notes** can be similar to **Beats**, but it isn't. **Notes** determines how many notes Arpeggiator will hold onto. For example, if **mode** is **up** and **Notes** is three you play: <1, 2, 3, 4, 5> you will get out \<3, 4, 5, 3, 4, 5> because 3, 4, and 5 were the last three notes entered. Then if you play <6>, you will get <4, 5, 6, ...> as 4, 5, and 6 are the last three.
 
 The Notes setting can really be useful when the hold switch is on. When hold is on, all the notes you enter are accumulated, up to the last 32 notes. If you set length to a lower number 'n', only the last 'n' notes will be held.
 
@@ -110,7 +110,7 @@ In this case the correct pitch comes in one sample after the gate. So a synth mo
 
 So we (and others) build a delay into our modules to delay the gate, and avoid these issues. A fixed delay of 5 samples is perfect. Undetectable, but will cover many patching delays.
 
-With Arpeggiator it's a little more complicated. Arpeggiator does sample the input pitch when the gate goes high, but it plays notes and its output when the clock input rises. So there are several ways that Arpeggiator could output the "wrong" thing if there are any delays between the CV, Gate, and Clock.
+With Arpeggiator it's a little more complicated. Arpeggiator does sample the input pitch when the gate goes high, but it plays notes to its output when the clock input rises. So there are several ways that Arpeggiator could output the "wrong" thing if there are any delays between the CV, Gate, and Clock.
 
 For this reason, Arpeggiator has "Gate+Clock Delay". What this does is delay the gate input by 5 sample, but also delays the clock input by 10 samples. This will tend to correct for any mismatched delays between the three signals.
 
@@ -130,7 +130,7 @@ This reset mode is often called "Nord mode" because it is how the original Nord 
 
 ## Block diagram
 
-Aside from being nice looking, it may help understand what's going in. For one thing, you can see that the note buffer holds all the recent notes/voltages that were input. And that input of data is controlled only by CV and Gate. That is all totally independent of the arpeggiation, which is applied as data is copied from the note buffer to the playback buffer. There data is played over and over until something happens to make Arpeggiator copy from the note buffer again.
+Aside from being nice looking, it may help understand what's going on. For one thing, you can see that the note buffer holds all the recent notes/voltages that were input. And that input of data is controlled only by CV and Gate. That is all totally independent of the arpeggiation, which is applied as data is copied from the note buffer to the playback buffer. There data is played over and over until something happens to make Arpeggiator copy from the note buffer again.
 
 You can also see the reset logic only resets the playback buffer, it does not effect the note buffer.
 ![Arpeggiator block diagram](./arpeggiator.svg)

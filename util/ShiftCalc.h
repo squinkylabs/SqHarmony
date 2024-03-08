@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include "SqLog.h"
 
 class ShiftCalc {
 public:
@@ -65,24 +66,15 @@ inline bool ShiftCalc::busyPositive() const {
 inline bool ShiftCalc::busyNegative() const {
     return _delta < 0;
 }
-// inline void ShiftCalc::trigger(int periodOfClock) {
-//     if (busy()) {
-//         return;  // ignore triggers while running
-//     }
-//     assert(periodOfClock > 0);
-//     _masterAccumulator += _acc;
-//     _acc = 0;
-//     _delta = 1.0 / (8.0 * double(periodOfClock));
-// }
 
 inline void ShiftCalc::trigger(int periodOfClock, float totalShiftAmount, float totalShiftDurationInClocks) {
+   // SQINFO("ShiftCalc::trigger(%d, %f, %f)", periodOfClock, totalShiftAmount, totalShiftDurationInClocks);
     if (busyEither()) {
         return;  // ignore triggers while running
     }
     assert(periodOfClock > 0);
     _masterAccumulator += _acc;
     _acc = 0;
- //   _delta = 1.0 / (8.0 * double(periodOfClock));
     _delta = totalShiftAmount / (double(periodOfClock) * totalShiftDurationInClocks);
     _shiftAmountLimit = totalShiftAmount;
 }

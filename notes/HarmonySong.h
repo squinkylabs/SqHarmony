@@ -12,14 +12,14 @@
  * It knows how to find a legal sequence of chords, given the roots.
  * It knows how to search for an optimal song, using branch and bound.
  */
-class HarmonySong {
+class HarmonySong_unused {
     friend class HarmonySong2SequencerTrack;
 
 public:
-    HarmonySong(const Options&, const int*);  // pass the progression this way
+    HarmonySong_unused(const Options&, const int*);  // pass the progression this way
 
     void print() const;
-    std::shared_ptr<RankedChord> get(int n) {
+    std::shared_ptr<RankedChord_unused> get(int n) {
         assert(n < int(chords.size()));
         return chords[n];
     }
@@ -29,7 +29,7 @@ public:
     bool Generate(const Options& options, int Nlevel, bool show, PAStats* stats);  // Ret true if ok!
 private:
     // the final chords we make
-    std::vector<std::shared_ptr<RankedChord>> chords;
+    std::vector<std::shared_ptr<RankedChord_unused>> chords;
 
     Chord4Manager chordManager;
 

@@ -6,6 +6,7 @@ using namespace rack;
 #define _PM
 // #define _MULT
 //#define _LFN
+//#define _H2
 
 extern Plugin* pluginInstance;
 
@@ -22,4 +23,7 @@ extern Model* modelMult;
 #endif
 #ifdef _LFN
 extern Model* modelLFN2;
+#endif
+#ifdef _H2
+extern Model* modelHarmony2;
 #endif
