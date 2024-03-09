@@ -79,15 +79,28 @@ ScaleNote Scale::makeScaleNote(int offset) const {
 }
 
 std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
-    assert(justDiatonic);
-    return {
-        "Major",
-        "Dorian",
-        "Phrygian",
-        "Lydian",
-        "Mixo.",
-        "Minor",
-        "Locrian"};
+    if (justDiatonic) {
+        return {
+                                "Major",
+                                "Dorian",
+                                "Phrygian",
+                                "Lydian",
+                                "Mixo.",
+                                "Minor",
+                                "Locrian" };
+    }
+    else {
+        return                   {
+                              "Major",
+                              "Dorian",
+                              "Phrygian",
+                              "Lydian",
+                              "Mixo.",
+                              "Minor",
+                              "Locrian",
+                              "Min Pent", "H Minor", "Diminished", "Dom. Diminished", "Whole Tone"
+        };
+    }
 }
 
 std::vector<std::string>

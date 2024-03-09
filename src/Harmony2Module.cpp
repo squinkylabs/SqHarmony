@@ -97,8 +97,9 @@ private:
             Vec(74, yMode),
             module,
             Comp::MODE_PARAM);
-        p->setShortLabels(Scale::getShortScaleLabels(true));
-        p->setLabels(Scale::getScaleLabels(true));
+        const bool diatonicOnly = Comp::diatonicOnly();
+        p->setShortLabels(Scale::getShortScaleLabels(diatonicOnly));
+        p->setLabels(Scale::getScaleLabels(diatonicOnly));
 
         p->box.size.x = 70;  // width
         p->box.size.y = 22;

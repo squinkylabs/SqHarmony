@@ -353,6 +353,29 @@ static void testScore3() {
     validate(scale.getScoreInfo(), 5, 7);
 }
 
+static void testLabels(const std::vector<std::string>& labels) {
+    std::set<std::string> x;
+    assert(!labels.empty());
+    for (auto s : labels) {
+        assert(!s.empty());
+        if (x.find(s) != x.end()) assert(false);
+        x.insert(s);
+    }
+    assert(!x.empty());
+}
+
+static void testLabels() {
+    assertEQ(Scale::getShortScaleLabels(false).size(), Scale::getScaleLabels(false).size());
+    assertEQ(Scale::getShortScaleLabels(true).size(), Scale::getScaleLabels(true).size());
+    assertGT(Scale::getShortScaleLabels(false).size(), Scale::getShortScaleLabels(true).size());
+   
+
+    testLabels(Scale::getShortScaleLabels(false));
+    testLabels(Scale::getShortScaleLabels(true));
+    testLabels(Scale::getScaleLabels(false));
+    testLabels(Scale::getScaleLabels(true));
+}
+
 void testScale() {
     testCMaj();
     testAMin();
@@ -373,4 +396,12 @@ void testScale() {
     testScore();
     testScore2();
     testScore3();
+
+     testLabels();
 }
+
+#if 0
+void testFirst() {
+   testLabels();
+}
+#endif

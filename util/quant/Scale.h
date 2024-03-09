@@ -26,7 +26,7 @@ public:
     };
 
     static std::vector<std::string> getScaleLabels(bool onlyDiatonic);
-    static std::vector<std::string> getShortScaleLabels(bool);
+    static std::vector<std::string> getShortScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getRootLabels(bool useFlats);
 
     void set(const MidiNote& base, Scales mode);
@@ -65,7 +65,7 @@ public:
     bool getWasSet() const { return wasSet; }
 
     /**
-     * @brief data for draing key signatures
+     * @brief data for drawing key signatures
      * 
      */
     class ScoreInfo {

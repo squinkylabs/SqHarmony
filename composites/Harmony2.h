@@ -101,6 +101,8 @@ public:
     void process(const typename TBase::ProcessArgs& args) override;
     static int getSubSampleFactor() { return 32; }
 
+    static bool diatonicOnly() { return false; }
+
 private:
     Divider _divn;
     GateTrigger _ButtonProcs[NUM_TRANPOSERS];
