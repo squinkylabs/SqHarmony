@@ -94,10 +94,11 @@ static void testModeCV(float cv, int expectedParam) {
 
 static void testModeCV() {
     const float degree = 1.f / 8.f;
- //   testModeCV(0, 0);
+    testModeCV(0, 0);
     testModeCV(degree, 1);
-
-
+    testModeCV(degree * 7, 7);
+    testModeCV(-1, 0);
+    testModeCV(-5 + degree, 1);
 }
 
 static void testChord(
@@ -159,13 +160,13 @@ void testHarmony2() {
 
     testKeyCV();
     testKeyCVWrap();
-
+    testModeCV();
 
     testChord2();
     testChord3();
 }
 
-#if 1
+#if 0
 void testFirst() {
    testModeCV();
 }
