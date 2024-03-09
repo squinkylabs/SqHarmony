@@ -102,6 +102,7 @@ public:
     static int getSubSampleFactor() { return 32; }
 
     static bool diatonicOnly() { return false; }
+    static int numModes() { return 12; }
 
 private:
     Divider _divn;

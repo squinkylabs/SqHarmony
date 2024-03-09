@@ -98,7 +98,7 @@ std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
                               "Mixo.",
                               "Minor",
                               "Locrian",
-                              "Min Pent", "H Minor", "Diminished", "Dom. Diminished", "Whole Tone"
+                              "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T"
         };
     }
 }
