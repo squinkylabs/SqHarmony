@@ -165,7 +165,9 @@ template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigParam() {
     const int basePitch = int(std::round(TBase::params[KEY_PARAM].value));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
+    // really only need to do this on a change.
     _quantizerOptions->scale->set(basePitch, mode);
+   // SQINFO("just set ks base=%d", basePitch);
 }
 
 template <class TBase>
@@ -174,7 +176,9 @@ inline void Harmony2<TBase>::_serviceKeysigCV() {
         return;
     }
 
-    const int newKey = int(std::round(TBase::inputs[KEY_INPUT].value));
+
+    const float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
+    const int newKeyScaledAndRounded = int(std::round(12 * newKeyF));
 
     const Scale* oldKey = _quantizerOptions->scale.get();
     const auto x = oldKey->get();
@@ -182,10 +186,16 @@ inline void Harmony2<TBase>::_serviceKeysigCV() {
     const MidiNote oldRoot = std::get<0>(x);
     FloatNote oldRootFloat;
     NoteConvert::m2f(oldRootFloat, oldRoot);
-    const float oldKeyVCV = oldRootFloat.get() + 6;  // I don't remember what this off set is...
-    const float y = oldKeyVCV * 12;
-    const int z = int(std::round(y));
-    SQINFO("oldKey z=%d, newKey=%d", z, newKey);
+    const float oldKeyCV = oldRootFloat.get() + 6;  // I don't remember what this offset is...
+    const float oldKeyVSCaled = oldKeyCV * 12;
+    const int oldKeyScaledAndRounded = int(std::round(oldKeyVSCaled));
+    if (oldKeyScaledAndRounded != newKeyScaledAndRounded) {
+        //TBase::params[KEY_PARAM].value = newKeyF;
+        SQINFO("need to update. old=%d new=%d", oldKeyScaledAndRounded, newKeyScaledAndRounded);
+        TBase::params[KEY_PARAM].value = newKeyScaledAndRounded;
+
+    }
+    //SQINFO("oldKey z=%d, newKeyCV=%d", z, newKey);
 }
 
 template <class TBase>
@@ -212,7 +222,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
     TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
-//static int count = 0;
+// static int count = 0;
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
@@ -234,7 +244,7 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
             noteForBank.transposeDegree(xposeSteps);
 
             FloatNote f;
-        //    NoteConvert::m2f(f, quantizedInput);
+            //    NoteConvert::m2f(f, quantizedInput);
             NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
             const float cv = f.get() + float(xposeOctaves);
             TBase::outputs[PITCH_OUTPUT].setVoltage(cv, outputChannel);
