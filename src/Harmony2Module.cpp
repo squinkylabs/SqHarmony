@@ -30,8 +30,9 @@ public:
 private:
     void addParams() {
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
+          //  SQINFO("setting params bank %d", i);
             this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, 7, 0, "Transpose Degrees");
-            this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 5, 2, "Transpose Octaves");
+            this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 5, 2, "Transpose Octaves", "", 0.f, 1.f, -2.f);
             this->configParam(Comp::XPOSE_ENABLE1_PARAM + i, 0, 10, 0, "hidden");
             this->configParam(Comp::XPOSE_TOTAL1_PARAM + i, 0, 10, 0, "hidden");
             this->configParam(Comp::XPOSE_ENABLEREQ1_PARAM + i, 0, 10, 0, "Enable Channel");

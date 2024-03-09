@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -37,17 +38,17 @@ public:
 
     enum ParamIds {
         XPOSE_DEGREE1_PARAM,
-        XPOSE_DEGREE_2_PARAM,
-        XPOSE_DEGREE_3_PARAM,
-        XPOSE_DEGREE_4_PARAM,
-        XPOSE_DEGREE_5_PARAM,
-        XPOSE_DEGREE_6_PARAM,
+        XPOSE_DEGREE2_PARAM,
+        XPOSE_DEGREE3_PARAM,
+        XPOSE_DEGREE4_PARAM,
+        XPOSE_DEGREE5_PARAM,
+        XPOSE_DEGREE6_PARAM,
         XPOSE_OCTAVE1_PARAM,
-        XPOSE_OCTAVE_2_PARAM,
-        XPOSE_OCTAVE_3_PARAM,
-        XPOSE_OCTAVE_4_PARAM,
-        XPOSEO_OCTAVE_5_PARAM,
-        XPOSE_OCTAVE_6_PARAM,
+        XPOSE_OCTAVE2_PARAM,
+        XPOSE_OCTAVE3_PARAM,
+        XPOSE_OCTAVE4_PARAM,
+        XPOSEO_OCTAVE5_PARAM,
+        XPOSE_OCTAVE6_PARAM,
         XPOSE_ENABLE1_PARAM,
         XPOSE_ENABLE2_PARAM,
         XPOSE_ENABLE3_PARAM,
@@ -55,11 +56,11 @@ public:
         XPOSE_ENABLE5_PARAM,
         XPOSE_ENABLE6_PARAM,
         XPOSE_TOTAL1_PARAM,
-        XPOSE_TOTAL_2_PARAM,
-        XPOSE_TOTAL_3_PARAM,
-        XPOSE_TOTAL_4_PARAM,
-        XPOSE_TOTAL_5_PARAM,
-        XPOSE_TOTAL_6_PARAM,
+        XPOSE_TOTAL2_PARAM,
+        XPOSE_TOTAL3_PARAM,
+        XPOSE_TOTAL4_PARAM,
+        XPOSE_TOTAL5_PARAM,
+        XPOSE_TOTAL6_PARAM,
         XPOSE_ENABLEREQ1_PARAM,
         XPOSE_ENABLEREQ2_PARAM,
         XPOSE_ENABLEREQ3_PARAM,
@@ -176,7 +177,6 @@ inline void Harmony2<TBase>::_serviceKeysigCV() {
     const int newKey = int(std::round(TBase::inputs[KEY_INPUT].value));
 
     const Scale* oldKey = _quantizerOptions->scale.get();
-    // std::pair<const MidiNote, Scales> get() const;
     const auto x = oldKey->get();
 
     const MidiNote oldRoot = std::get<0>(x);
@@ -185,14 +185,12 @@ inline void Harmony2<TBase>::_serviceKeysigCV() {
     const float oldKeyVCV = oldRootFloat.get() + 6;  // I don't remember what this off set is...
     const float y = oldKeyVCV * 12;
     const int z = int(std::round(y));
-    //  SQINFO("oldKey %f newKey %d y=%f x = %d", oldKeyVCV, newKey, y, z);
     SQINFO("oldKey z=%d, newKey=%d", z, newKey);
-
 }
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceEnableButtons() {
-    if (TBase::params[XPOSE_ENABLEREQ1_PARAM].value > 5) SQINFO("pressed");
+    // if (TBase::params[XPOSE_ENABLEREQ1_PARAM].value > 5) SQINFO("pressed");
     for (int i = 0; i < NUM_TRANPOSERS; ++i) {
         _ButtonProcs[i].go(TBase::params[XPOSE_ENABLEREQ1_PARAM + i].value);
         if (_ButtonProcs[i].trigger()) {
@@ -214,25 +212,49 @@ inline void Harmony2<TBase>::_servicePolyphony() {
     TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
-// static int count = 0;
+//static int count = 0;
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
     float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);
 
-    const int xposeSteps = int(TBase::params[XPOSE_DEGREE1_PARAM].value);
     ScaleNote scaleNote;
     NoteConvert::m2s(scaleNote, *_quantizerOptions->scale, quantizedInput);
-    scaleNote.transposeDegree(xposeSteps);
-    NoteConvert::s2m(quantizedInput, *_quantizerOptions->scale, scaleNote);
+    // scaleNote.transposeDegree(xposeSteps);
+    //  NoteConvert::s2m(quantizedInput, *_quantizerOptions->scale, scaleNote);
 
-    FloatNote f;
-    NoteConvert::m2f(f, quantizedInput);
+    int outputChannel = 0;
+    for (int bank = 0; bank < NUM_TRANPOSERS; ++bank) {
+        const bool bankEnabled = TBase::params[XPOSE_ENABLE1_PARAM + bank].value > 5;
+        if (bankEnabled) {
+           // SQINFO("in look, param = %f", TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
 
+            // 8 degrees / octave
+            const int xposeSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
+            ScaleNote noteForBank = scaleNote;
+            noteForBank.transposeDegree(xposeSteps);
+
+            FloatNote f;
+        //    NoteConvert::m2f(f, quantizedInput);
+            NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
+            TBase::outputs[PITCH_OUTPUT].setVoltage(f.get(), outputChannel);
+            outputChannel++;
+            // if (count == 0) {
+            //     SQINFO("bank %d xp(steps) = %d snote=%d,%d out = %f outch=%d",
+            //            bank,
+            //            xposeSteps,
+            //            scaleNote.getOctave(), scaleNote.getDegree(),
+            //            f.get(),
+            //            outputChannel);
+            // }
+        }
+    }
+
+    // float pitch = f.get() + 5;
     // if (count == 0) {
     //     SQINFO("\ninput = %f quantized = %d", input, quantizedInput.get());
-    //     SQINFO("xoseSteps %d final CV=%f", xposeSteps, f.get());
+    //     SQINFO("xoseSteps %d final CV=%f ", xposeSteps, f.get());
     // }
     // ++count;
     // if (count > 80000) {
