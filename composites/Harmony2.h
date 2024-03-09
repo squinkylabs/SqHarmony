@@ -228,17 +228,16 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     for (int bank = 0; bank < NUM_TRANPOSERS; ++bank) {
         const bool bankEnabled = TBase::params[XPOSE_ENABLE1_PARAM + bank].value > 5;
         if (bankEnabled) {
-           // SQINFO("in look, param = %f", TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
-
-            // 8 degrees / octave
             const int xposeSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
+            const int xposeOctaves = int(TBase::params[XPOSE_OCTAVE1_PARAM + bank].value) - 2;
             ScaleNote noteForBank = scaleNote;
             noteForBank.transposeDegree(xposeSteps);
 
             FloatNote f;
         //    NoteConvert::m2f(f, quantizedInput);
             NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
-            TBase::outputs[PITCH_OUTPUT].setVoltage(f.get(), outputChannel);
+            const float cv = f.get() + float(xposeOctaves);
+            TBase::outputs[PITCH_OUTPUT].setVoltage(cv, outputChannel);
             outputChannel++;
             // if (count == 0) {
             //     SQINFO("bank %d xp(steps) = %d snote=%d,%d out = %f outch=%d",

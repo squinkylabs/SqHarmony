@@ -67,6 +67,43 @@ static void testKeyCV(bool cvConnected) {
     assertEQ(comp->params[Comp::KEY_PARAM].value, expectedKey);
 }
 
+static void testChord(
+    const std::vector<float>& degreeParamValues,
+    const std::vector<float>& octaveParamValues,
+    const std::vector<float>& expectedCV) {
+    assert(!degreeParamValues.empty());
+    assertEQ(degreeParamValues.size(), octaveParamValues.size());
+    assertEQ(expectedCV.size(), octaveParamValues.size());
+
+    auto comp = std::make_shared<Comp>();
+
+    comp->inputs[Comp::PITCH_INPUT].channels = 1;    // connect the input
+    comp->outputs[Comp::PITCH_OUTPUT].channels = 1;  // and output
+
+    for (int i = 0; i < degreeParamValues.size(); ++i) {
+        // enable channels
+        comp->params[Comp::XPOSE_ENABLE1_PARAM + i].value = 10;
+
+        // transpose
+        comp->params[Comp::XPOSE_DEGREE1_PARAM + i].value = degreeParamValues[i];
+
+        // octaves
+        comp->params[Comp::XPOSE_OCTAVE1_PARAM + i].value = octaveParamValues[i];  // root
+    }
+
+    // run a block
+    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
+        const auto args = TestComposite::ProcessArgs();
+        comp->process(args);
+    }
+
+    for (int i = 0; i < 16; ++i) {
+        const float expectedOut = (i < degreeParamValues.size()) ? expectedCV[i] : 0;
+        assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(i), expectedOut, .00001);
+    }
+}
+
+#if 0
 static void testChord() {
     auto comp = std::make_shared<Comp>();
 
@@ -78,9 +115,7 @@ static void testChord() {
     comp->params[Comp::XPOSE_ENABLE4_PARAM].value = 10;
     comp->params[Comp::XPOSE_ENABLE5_PARAM].value = 10;
 
-   
-   
-    comp->params[Comp::XPOSE_DEGREE1_PARAM].value = 0;           // root
+    comp->params[Comp::XPOSE_DEGREE1_PARAM].value = 0;  // root
     comp->params[Comp::XPOSE_DEGREE4_PARAM].value = 2;  // third
     comp->params[Comp::XPOSE_DEGREE5_PARAM].value = 4;  // fifthe
 
@@ -100,11 +135,28 @@ static void testChord() {
            comp->outputs[Comp::PITCH_OUTPUT].getVoltage(4));
     // assertEQ(int(comp->outputs[Comp::PITCH_OUTPUT].channels), 3);
 
- //const float degree = 1.f / 8.f;s
-   const float semi = 1.f / 12.f;
-   assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(0), 0, .00001);
-   assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(1), 4 * semi, .00001);      // major third
-    assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(2), 7 * semi, .00001);     // firth
+    // const float degree = 1.f / 8.f;s
+    const float semi = 1.f / 12.f;
+    assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(0), 0, .00001);
+    assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(1), 4 * semi, .00001);  // major third
+    assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(2), 7 * semi, .00001);  // firth
+}
+#endif
+
+static void testChord2() {
+    const float semi = 1.f / 12.f;
+    testChord(
+        {0, 2, 4},  // root, 3rd, 5th
+        {2, 2, 2},  // no octave shift
+        {0, 4 * semi, 7 * semi});
+}
+
+static void testChord3() {
+   // const float semi = 1.f / 12.f;
+    testChord(
+        {0 },  // root
+        {2+1},  // one octave shift
+        {1});
 }
 
 static void testKeyCV() {
@@ -119,12 +171,14 @@ void testHarmony2() {
 
     SQINFO("add back testKeyCV() and make it work");
     // testKeyCV();
-     testChord();
+
+    testChord2();
+    testChord3();
 }
 
 #if 0
 void testFirst() {
     // testKeyCV(true);
-    testChord();
+    testChord3();
 }
 #endif
