@@ -56,14 +56,11 @@ static void testPolyOutput() {
     assertEQ(int(comp->outputs[Comp::PITCH_OUTPUT].channels), 3);
 }
 
-/**
- * @brief 
- * 
- * @param cvConnected 
+/** 
  */
 static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     auto comp = std::make_shared<Comp>();
-    comp->inputs[Comp::KEY_INPUT].setVoltage(cv);  // 'E flat'
+    comp->inputs[Comp::KEY_INPUT].setVoltage(cv);
     comp->inputs[Comp::KEY_INPUT].channels = cvConnected ? 1 : 0;
     processBlock(comp);
 
@@ -72,12 +69,35 @@ static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     assertEQ(comp->params[Comp::KEY_PARAM].value, expectedKey);
 }
 
+
 static void testKeyCV(bool connected) {
     testKeyCV(connected, 3.f/12.f, 3.f);
 }
 
 static void testKeyCVWrap() {
     testKeyCV(true, 1, 0);          // 1V should wrap back down to C
+    testKeyCV(true, 5 + 1.f / 12.f, 1); // 5+1 should wrap down to +1
+    testKeyCV(true, -8, 0);         // negative should wrap
+    testKeyCV(true, -4 + 5.f/12.f, 5);
+}
+
+/**
+ */
+static void testModeCV(float cv, int expectedParam) {
+     auto comp = std::make_shared<Comp>();
+    comp->inputs[Comp::MODE_INPUT].setVoltage(cv);
+    comp->inputs[Comp::MODE_INPUT].channels = 1;
+    processBlock(comp);
+
+    assertEQ(comp->params[Comp::MODE_PARAM].value, expectedParam);
+} 
+
+static void testModeCV() {
+    const float degree = 1.f / 8.f;
+ //   testModeCV(0, 0);
+    testModeCV(degree, 1);
+
+
 }
 
 static void testChord(
@@ -145,9 +165,8 @@ void testHarmony2() {
     testChord3();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testKeyCVWrap();
-    //testChord3();
+   testModeCV();
 }
 #endif
