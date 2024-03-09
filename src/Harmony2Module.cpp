@@ -87,12 +87,15 @@ private:
 
             const std::string sRoot = _keyRootWidget->getShortLabel(1);
             bool isSharps = sRoot.find('#') != std::string::npos;
-             SQINFO("num flats = %d sharpt = %d root = %s is# = %d", 
-             scoreInfo.numFlats, scoreInfo.numSharps, sRoot.c_str(), isSharps);
+          //   SQINFO("num flats = %d sharpt = %d root = %s is# = %d", 
+         //    scoreInfo.numFlats, scoreInfo.numSharps, sRoot.c_str(), isSharps);
             const bool shouldUseSharps = scoreInfo.numSharps > scoreInfo.numFlats;
             const bool dontCareAboutSharps = scoreInfo.numSharps == 0 && scoreInfo.numFlats == 0;
             if (!dontCareAboutSharps && (isSharps != shouldUseSharps)) {
-                SQINFO("need to change!!");
+             //   SQINFO("need to change!!");
+                _keyRootWidget->setLabels(Scale::getRootLabels(!shouldUseSharps));
+               // _keyRootWidget->setShortLabels(Scale::get(!shouldUseSharps));
+
             }
             // Now we need to:
             // change the labels in the keysig root widget to be correct
