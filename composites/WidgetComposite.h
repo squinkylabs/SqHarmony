@@ -42,7 +42,6 @@ public:
     virtual void onSampleRateChange() {
     }
 
-protected:
     // These are references that point to the parent (real ones).
     // They are connected in the ctor
     std::vector<Input>& inputs;

@@ -27,6 +27,10 @@ public:
         comp->process(args);
     }
 
+    const Comp& getComp() const {
+        return  *comp; 
+        }
+
 private:
     void addParams() {
         const int numModes = Comp::numModes();
@@ -63,6 +67,37 @@ public:
     }
 
 private:
+    PopupMenuParamWidget* _keyRootWidget = nullptr;
+    void step() override {
+        ModuleWidget::step();
+        if (module) {
+            const auto myModule = static_cast<Harmony2Module *>(module);
+            const Comp& comp = myModule->getComp();
+
+            const int basePitch = int(std::round(comp.params[Comp::KEY_PARAM].value));
+            const auto mode = Scale::Scales(int(std::round(comp.params[Comp::MODE_PARAM].value)));
+            auto _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
+            _quantizerOptions->scale = std::make_shared<Scale>();
+            _quantizerOptions->scale->set(basePitch, mode);
+
+            const auto scale = _quantizerOptions->scale;
+            const auto scoreInfo = scale->getScoreInfo(); 
+           
+            //    std::string getShortLabel(unsigned int index) const;
+
+            const std::string sRoot = _keyRootWidget->getShortLabel(1);
+            bool isSharps = sRoot.find('#') != std::string::npos;
+             SQINFO("num flats = %d sharpt = %d root = %s is# = %d", 
+             scoreInfo.numFlats, scoreInfo.numSharps, sRoot.c_str(), isSharps);
+            const bool shouldUseSharps = scoreInfo.numSharps > scoreInfo.numFlats;
+            const bool dontCareAboutSharps = scoreInfo.numSharps == 0 && scoreInfo.numFlats == 0;
+            if (!dontCareAboutSharps && (isSharps != shouldUseSharps)) {
+                SQINFO("need to change!!");
+            }
+            // Now we need to:
+            // change the labels in the keysig root widget to be correct
+        }
+    }
     void addMainCV() {
         const float y = 317;
         addInputL(Vec(19, y), Comp::PITCH_INPUT, "CVI");
@@ -92,7 +127,7 @@ private:
         p->text = "C";
         addParam(p);
         // don't know yet if we need this...
-        //   _keyRootWidget = p;  // remember this so we can poll it.
+        _keyRootWidget = p;  // remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
             Vec(74, yMode),

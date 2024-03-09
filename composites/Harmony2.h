@@ -153,6 +153,7 @@ inline void Harmony2<TBase>::_init() {
 
     _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     _quantizerOptions->scale = std::make_shared<Scale>();
+    SQINFO("init composite to c maj");
     _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
 }
