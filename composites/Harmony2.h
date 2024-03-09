@@ -177,8 +177,9 @@ inline void Harmony2<TBase>::_serviceKeysigCV() {
     }
 
 
+    
     const float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
-    const int newKeyScaledAndRounded = int(std::round(12 * newKeyF));
+    const int newKeyScaledAndRounded = int(std::round(12 * newKeyF)) % 12;
 
     const Scale* oldKey = _quantizerOptions->scale.get();
     const auto x = oldKey->get();

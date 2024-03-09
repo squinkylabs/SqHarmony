@@ -56,17 +56,28 @@ static void testPolyOutput() {
     assertEQ(int(comp->outputs[Comp::PITCH_OUTPUT].channels), 3);
 }
 
-static void testKeyCV(bool cvConnected) {
+/**
+ * @brief 
+ * 
+ * @param cvConnected 
+ */
+static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     auto comp = std::make_shared<Comp>();
-    SQINFO("just set v to 3/12");
-    comp->inputs[Comp::KEY_INPUT].setVoltage(3.f / 12.f);  // 'E flat'
+    comp->inputs[Comp::KEY_INPUT].setVoltage(cv);  // 'E flat'
     comp->inputs[Comp::KEY_INPUT].channels = cvConnected ? 1 : 0;
-    SQINFO("v = %f", comp->inputs[Comp::KEY_INPUT].getVoltage(0));
     processBlock(comp);
 
     // Expect that changing the CV will change the key param
-    const float expectedKey = cvConnected ? 3.f : 0.f;
+    const float expectedKey = cvConnected ? expectedParam : 0.f;
     assertEQ(comp->params[Comp::KEY_PARAM].value, expectedKey);
+}
+
+static void testKeyCV(bool connected) {
+    testKeyCV(connected, 3.f/12.f, 3.f);
+}
+
+static void testKeyCVWrap() {
+    testKeyCV(true, 1, 0);          // 1V should wrap back down to C
 }
 
 static void testChord(
@@ -127,6 +138,8 @@ void testHarmony2() {
     testPolyOutput();
 
     testKeyCV();
+    testKeyCVWrap();
+
 
     testChord2();
     testChord3();
@@ -134,7 +147,7 @@ void testHarmony2() {
 
 #if 0
 void testFirst() {
-    testKeyCV(true);
+    testKeyCVWrap();
     //testChord3();
 }
 #endif
