@@ -449,6 +449,11 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
 
         return preferSharps[basePitch];
     }
+    if (scale == Scales::MinorPentatonic) {
+        Scale otherScale;
+        otherScale.set(this->baseNote, Scales::Minor);
+        return otherScale.getSharpsFlatsPref();     
+    }
     assert(false);
     return SharpsFlatsPref::DontCare;
 }

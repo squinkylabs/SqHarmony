@@ -317,6 +317,21 @@ static void testSharpsFlatsOtherMinor() {
     scale.set(MidiNote::E, Scale::Scales::MinorPentatonic);
     auto info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::E -1, Scale::Scales::MinorPentatonic);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    scale.set(MidiNote::E - 1, Scale::Scales::MinorPentatonic);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    scale.set(MidiNote::G, Scale::Scales::MinorPentatonic);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+
+    
     assert(false);
 }
 
