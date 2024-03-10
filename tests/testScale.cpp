@@ -455,9 +455,11 @@ void testScale() {
     testScore3();
 
     testLabels();
+
+    testSharpsFlatsDiatonic();
 }
 
-#if 1
+#if 0
 void testFirst() {
    testSharpsFlatsDiatonic();
 }
