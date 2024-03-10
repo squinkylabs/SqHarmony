@@ -86,6 +86,13 @@ public:
      */
     ScoreInfo getScoreInfo() const;
 
+    enum class SharpsFlatsPref {
+        Sharps,
+        Flats,
+        DontCare
+    };
+    SharpsFlatsPref getSharpsFlatsPref() const;
+
     MidiNote getRelativeMajor() const;
 
 private:

@@ -256,6 +256,63 @@ static void testScore2() {
     validate(info);
 }
 
+static void testSharpsFlatsDiatonic() {
+    Scale scale;
+    
+    scale.set(MidiNote::C, Scale::Scales::Minor);
+    auto info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::C, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    scale.set(MidiNote::C + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::D, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::D + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::E, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::F, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::F + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    scale.set(MidiNote::G, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::G + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::A, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::A + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::B, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+ }
+
 static void testScore3() {
     Scale scale;
 
@@ -397,11 +454,11 @@ void testScale() {
     testScore2();
     testScore3();
 
-     testLabels();
+    testLabels();
 }
 
-#if 0
+#if 1
 void testFirst() {
-   testLabels();
+   testSharpsFlatsDiatonic();
 }
 #endif

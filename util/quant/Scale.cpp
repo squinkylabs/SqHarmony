@@ -81,25 +81,23 @@ ScaleNote Scale::makeScaleNote(int offset) const {
 std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
     if (justDiatonic) {
         return {
-                                "Major",
-                                "Dorian",
-                                "Phrygian",
-                                "Lydian",
-                                "Mixo.",
-                                "Minor",
-                                "Locrian" };
-    }
-    else {
-        return                   {
-                              "Major",
-                              "Dorian",
-                              "Phrygian",
-                              "Lydian",
-                              "Mixo.",
-                              "Minor",
-                              "Locrian",
-                              "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T"
-        };
+            "Major",
+            "Dorian",
+            "Phrygian",
+            "Lydian",
+            "Mixo.",
+            "Minor",
+            "Locrian"};
+    } else {
+        return {
+            "Major",
+            "Dorian",
+            "Phrygian",
+            "Lydian",
+            "Mixo.",
+            "Minor",
+            "Locrian",
+            "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T"};
     }
 }
 
@@ -358,7 +356,7 @@ const int numsharps[12] = {
 
 const int numflats[12] = {
     0,  // C Maj
-    5,  // D flat
+    5,  // C# / D flat
     0,  // D
     3,  // D# / E flat
     0,  // E
@@ -369,6 +367,21 @@ const int numflats[12] = {
     0,  // A
     2,  // B -
     7   // B
+};
+
+const Scale::SharpsFlatsPref preferSharps[12] = {
+    Scale::SharpsFlatsPref::DontCare,  // C Maj (
+    Scale::SharpsFlatsPref::Sharps,  // C# / D flat (notated as C sharp)
+    Scale::SharpsFlatsPref::Sharps,   // D
+    Scale::SharpsFlatsPref::Flats,  // D# / E flat
+    Scale::SharpsFlatsPref::Sharps,   // E
+    Scale::SharpsFlatsPref::Flats,  // F
+    Scale::SharpsFlatsPref::DontCare,  // F# G flat (this one is ambiguous, could be either)
+    Scale::SharpsFlatsPref::Sharps,   // G
+    Scale::SharpsFlatsPref::Flats,  // G# / A flat
+    Scale::SharpsFlatsPref::Sharps,   // A
+    Scale::SharpsFlatsPref::Flats,  // B -
+    Scale::SharpsFlatsPref::Sharps    // B
 };
 
 const MidiNote sharpsInTreble[12] = {
@@ -425,4 +438,33 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     ret.flatsInBassClef = flatsInBass;
 
     return ret;
+}
+
+Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
+    // bool baseIsAccidental = false;
+    // switch(baseNote.get()) {
+    //     case 0:
+    //         baseIsAccidental = false;
+    //         break;
+    //     case 3:
+    //         baseIsAccidental = true;
+    //         break;
+
+    //     default:
+    //         assert(false);
+    // }
+    if (int(scale) <= int(Scales::Locrian)) {
+        const int basePitch = getRelativeMajor().get();
+        assert(basePitch >= 0);
+        assert(basePitch < 12);
+
+        return preferSharps[basePitch];
+
+        // if (!baseIsAccidental || (numSharps == numFlats)) {
+        //     return SharpsFlatsPref::DontCare;
+        // }
+        // return (numSharps > numFlats) ? SharpsFlatsPref::Sharps : SharpsFlatsPref::Flats;
+    }
+    assert(false);
+    return SharpsFlatsPref::DontCare;
 }
