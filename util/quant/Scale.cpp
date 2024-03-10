@@ -371,17 +371,17 @@ const int numflats[12] = {
 
 const Scale::SharpsFlatsPref preferSharps[12] = {
     Scale::SharpsFlatsPref::DontCare,  // C Maj (
-    Scale::SharpsFlatsPref::Sharps,  // C# / D flat (notated as C sharp)
-    Scale::SharpsFlatsPref::Sharps,   // D
-    Scale::SharpsFlatsPref::Flats,  // D# / E flat
-    Scale::SharpsFlatsPref::Sharps,   // E
-    Scale::SharpsFlatsPref::Flats,  // F
+    Scale::SharpsFlatsPref::Sharps,    // C# / D flat (notated as C sharp)
+    Scale::SharpsFlatsPref::Sharps,    // D
+    Scale::SharpsFlatsPref::Flats,     // D# / E flat
+    Scale::SharpsFlatsPref::Sharps,    // E
+    Scale::SharpsFlatsPref::Flats,     // F
     Scale::SharpsFlatsPref::DontCare,  // F# G flat (this one is ambiguous, could be either)
-    Scale::SharpsFlatsPref::Sharps,   // G
-    Scale::SharpsFlatsPref::Flats,  // G# / A flat
-    Scale::SharpsFlatsPref::Sharps,   // A
-    Scale::SharpsFlatsPref::Flats,  // B -
-    Scale::SharpsFlatsPref::Sharps    // B
+    Scale::SharpsFlatsPref::Sharps,    // G
+    Scale::SharpsFlatsPref::Flats,     // G# / A flat
+    Scale::SharpsFlatsPref::Sharps,    // A
+    Scale::SharpsFlatsPref::Flats,     // B -
+    Scale::SharpsFlatsPref::Sharps     // B
 };
 
 const MidiNote sharpsInTreble[12] = {
@@ -441,7 +441,6 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
 }
 
 Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
-
     if (int(scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
         assert(basePitch >= 0);
@@ -450,11 +449,20 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
         return preferSharps[basePitch];
     }
 
-    // Not sure it's true, but let's say all the minors are the same...
-    if ((scale == Scales::MinorPentatonic) || scale == Scales::HarmonicMinor) {
-        Scale otherScale;
-        otherScale.set(this->baseNote, Scales::Minor);
-        return otherScale.getSharpsFlatsPref();     
+    switch (scale) {
+        case Scales::MinorPentatonic:
+        case Scales::HarmonicMinor: {
+            // Not sure it's true, but let's say all the minors are the same...
+            Scale otherScale;
+            otherScale.set(this->baseNote, Scales::Minor);
+            return otherScale.getSharpsFlatsPref();
+        }
+        case Scales::Chromatic:
+        case Scales::Diminished:
+        case Scales::DominantDiminished:
+            return SharpsFlatsPref::DontCare;
+        case Scales::WholeStep:
+            return SharpsFlatsPref::Sharps;
     }
     assert(false);
     return SharpsFlatsPref::DontCare;

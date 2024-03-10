@@ -322,7 +322,7 @@ static void testSharpsFlatsOtherMinor() {
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
-    scale.set(MidiNote::E -1, Scale::Scales::MinorPentatonic);
+    scale.set(MidiNote::E - 1, Scale::Scales::MinorPentatonic);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
@@ -337,6 +337,41 @@ static void testSharpsFlatsOtherMinor() {
     scale.set(MidiNote::G, Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
+}
+
+static void testSharpsFlatsWierdos() {
+    Scale scale;
+    int count = 0;
+    for (int i = MidiNote::C; i <= MidiNote::B; ++i) {
+        scale.set(i, Scale::Scales::Chromatic);
+        auto info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::DontCare);
+
+        scale.set(i, Scale::Scales::Diminished);
+        info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::DontCare);
+
+        scale.set(i, Scale::Scales::DominantDiminished);
+        info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::DontCare);
+
+        scale.set(i, Scale::Scales::WholeStep);
+        info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::Sharps);
+        ++count;
+    }
+    assertEQ(count, 12);
+}
+
+static void testSharpsFlatsNoAssert() {
+    Scale scale;
+    int count = 0;
+    for (int i = int(Scale::Scales::Major); i <= int(Scale::Scales::Chromatic); ++i) {
+        scale.set(0, Scale::Scales(i));
+        auto info = scale.getSharpsFlatsPref();
+        ++count;
+    }
+    assertGE(count, 12);
 }
 
 static void testScore3() {
@@ -483,10 +518,13 @@ void testScale() {
 
     testSharpsFlatsDiatonic();
     testSharpsFlatsOtherMinor();
+    testSharpsFlatsWierdos();
+    testSharpsFlatsNoAssert();
 }
 
 #if 0
 void testFirst() {
-    testSharpsFlatsOtherMinor();
+   // testSharpsFlatsWierdos();
+    testSharpsFlatsNoAssert();
 }
 #endif
