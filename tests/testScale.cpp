@@ -318,11 +318,15 @@ static void testSharpsFlatsOtherMinor() {
     auto info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
+    scale.set(MidiNote::E, Scale::Scales::HarmonicMinor);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
     scale.set(MidiNote::E -1, Scale::Scales::MinorPentatonic);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
-    scale.set(MidiNote::E - 1, Scale::Scales::MinorPentatonic);
+    scale.set(MidiNote::E - 1, Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
@@ -330,9 +334,9 @@ static void testSharpsFlatsOtherMinor() {
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
-
-    
-    assert(false);
+    scale.set(MidiNote::G, Scale::Scales::HarmonicMinor);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
 }
 
 static void testScore3() {
@@ -481,7 +485,7 @@ void testScale() {
     testSharpsFlatsOtherMinor();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testSharpsFlatsOtherMinor();
 }

@@ -449,7 +449,9 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
 
         return preferSharps[basePitch];
     }
-    if (scale == Scales::MinorPentatonic) {
+
+    // Not sure it's true, but let's say all the minors are the same...
+    if ((scale == Scales::MinorPentatonic) || scale == Scales::HarmonicMinor) {
         Scale otherScale;
         otherScale.set(this->baseNote, Scales::Minor);
         return otherScale.getSharpsFlatsPref();     
