@@ -258,7 +258,7 @@ static void testScore2() {
 
 static void testSharpsFlatsDiatonic() {
     Scale scale;
-    
+
     scale.set(MidiNote::C, Scale::Scales::Minor);
     auto info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
@@ -310,8 +310,15 @@ static void testSharpsFlatsDiatonic() {
     scale.set(MidiNote::B, Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
+}
 
- }
+static void testSharpsFlatsOtherMinor() {
+    Scale scale;
+    scale.set(MidiNote::E, Scale::Scales::MinorPentatonic);
+    auto info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(false);
+}
 
 static void testScore3() {
     Scale scale;
@@ -425,7 +432,6 @@ static void testLabels() {
     assertEQ(Scale::getShortScaleLabels(false).size(), Scale::getScaleLabels(false).size());
     assertEQ(Scale::getShortScaleLabels(true).size(), Scale::getScaleLabels(true).size());
     assertGT(Scale::getShortScaleLabels(false).size(), Scale::getShortScaleLabels(true).size());
-   
 
     testLabels(Scale::getShortScaleLabels(false));
     testLabels(Scale::getShortScaleLabels(true));
@@ -457,10 +463,11 @@ void testScale() {
     testLabels();
 
     testSharpsFlatsDiatonic();
+    testSharpsFlatsOtherMinor();
 }
 
-#if 0
+#if 1
 void testFirst() {
-   testSharpsFlatsDiatonic();
+    testSharpsFlatsOtherMinor();
 }
 #endif

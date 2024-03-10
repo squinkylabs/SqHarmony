@@ -441,29 +441,13 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
 }
 
 Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
-    // bool baseIsAccidental = false;
-    // switch(baseNote.get()) {
-    //     case 0:
-    //         baseIsAccidental = false;
-    //         break;
-    //     case 3:
-    //         baseIsAccidental = true;
-    //         break;
 
-    //     default:
-    //         assert(false);
-    // }
     if (int(scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
         assert(basePitch >= 0);
         assert(basePitch < 12);
 
         return preferSharps[basePitch];
-
-        // if (!baseIsAccidental || (numSharps == numFlats)) {
-        //     return SharpsFlatsPref::DontCare;
-        // }
-        // return (numSharps > numFlats) ? SharpsFlatsPref::Sharps : SharpsFlatsPref::Flats;
     }
     assert(false);
     return SharpsFlatsPref::DontCare;
