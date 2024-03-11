@@ -14,6 +14,41 @@
 
 #define _LAB
 
+template <typename TComp>
+class KsigSharpFlagMonitor {
+private:
+    const TComp* const _comp;
+    PopupMenuParamWidget* const _keyRootWidget;
+
+public:
+    KsigSharpFlagMonitor() = delete;
+    KsigSharpFlagMonitor(const KsigSharpFlagMonitor&) = delete;
+
+    KsigSharpFlagMonitor(const TComp* comp, PopupMenuParamWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {
+        
+    }
+    void poll() {
+        assert(_comp);
+        const int basePitch = int(std::round(_comp->params[TComp::KEY_PARAM].value));
+        const auto mode = Scale::Scales(int(std::round(_comp->params[TComp::MODE_PARAM].value)));
+        auto _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
+        _quantizerOptions->scale = std::make_shared<Scale>();
+        _quantizerOptions->scale->set(basePitch, mode);
+
+        const auto scale = _quantizerOptions->scale;
+        const auto scaleSharpFlatPref = scale->getSharpsFlatsPref();
+        const std::string sRoot = _keyRootWidget->getShortLabel(1);
+        bool isSharps = sRoot.find('#') != std::string::npos;
+
+        const bool shouldUseSharps = (scaleSharpFlatPref == Scale::SharpsFlatsPref::Sharps);
+        if ((scaleSharpFlatPref != Scale::SharpsFlatsPref::DontCare) &&
+            (shouldUseSharps != isSharps)) {
+            SQINFO("need to change should use sharps =%d!!", shouldUseSharps);
+            _keyRootWidget->setLabels(Scale::getRootLabels(!shouldUseSharps));
+        }
+    }
+};
+
 using Comp = Harmony2<WidgetComposite>;
 
 class Harmony2Module : public rack::engine::Module {
@@ -27,16 +62,16 @@ public:
         comp->process(args);
     }
 
-    const Comp& getComp() const {
-        return  *comp; 
-        }
+    std::shared_ptr<Comp> getComp() const {
+        return comp;
+    }
 
 private:
     void addParams() {
         const int numModes = Comp::numModes();
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
-          //  SQINFO("setting params bank %d", i);
-            this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numModes-1, 0, "Transpose Degrees");
+            //  SQINFO("setting params bank %d", i);
+            this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numModes - 1, 0, "Transpose Degrees");
             this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 5, 2, "Transpose Octaves", "", 0.f, 1.f, -2.f);
             this->configParam(Comp::XPOSE_ENABLE1_PARAM + i, 0, 10, 0, "hidden");
             this->configParam(Comp::XPOSE_TOTAL1_PARAM + i, 0, 10, 0, "hidden");
@@ -54,51 +89,24 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/harmony2-panel.svg")));
 #if 1  // def _LAB
         addLabel(Vec(43, 6), "Harmony II", 20);
-        // addLabel(Vec(28, 60), "Under Construction", 14);
         addLabel(Vec(44, 353), "Squinktronix", 17);
 #endif
-        //  addControls(module);
-        //  addIO(module);
-        //   addOutput(createOutput<PJ301MPort>(Vec(25, 200), module, Comp::OUT));
         addTranposeControls(module);
         addKeysig();
         addMainCV();
         addModCV();
+        const Comp* comp = module->getComp().get();
+        // KsigSharpFlagMonitor(const TComp* comp, PopupMenuParamWidget* rootWidget);
+        _ksigMonitor = std::make_shared<KsigSharpFlagMonitor<Comp>>(comp, _keyRootWidget);
     }
 
 private:
     PopupMenuParamWidget* _keyRootWidget = nullptr;
+    std::shared_ptr<KsigSharpFlagMonitor<Comp>> _ksigMonitor;
     void step() override {
         ModuleWidget::step();
-        if (module) {
-            const auto myModule = static_cast<Harmony2Module *>(module);
-            const Comp& comp = myModule->getComp();
-
-            const int basePitch = int(std::round(comp.params[Comp::KEY_PARAM].value));
-            const auto mode = Scale::Scales(int(std::round(comp.params[Comp::MODE_PARAM].value)));
-            auto _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
-            _quantizerOptions->scale = std::make_shared<Scale>();
-            _quantizerOptions->scale->set(basePitch, mode);
-
-            const auto scale = _quantizerOptions->scale;
-            const auto scoreInfo = scale->getScoreInfo(); 
-           
-            //    std::string getShortLabel(unsigned int index) const;
-
-            const std::string sRoot = _keyRootWidget->getShortLabel(1);
-            bool isSharps = sRoot.find('#') != std::string::npos;
-          //   SQINFO("num flats = %d sharpt = %d root = %s is# = %d", 
-         //    scoreInfo.numFlats, scoreInfo.numSharps, sRoot.c_str(), isSharps);
-            const bool shouldUseSharps = scoreInfo.numSharps > scoreInfo.numFlats;
-            const bool dontCareAboutSharps = scoreInfo.numSharps == 0 && scoreInfo.numFlats == 0;
-            if (!dontCareAboutSharps && (isSharps != shouldUseSharps)) {
-             //   SQINFO("need to change!!");
-                _keyRootWidget->setLabels(Scale::getRootLabels(!shouldUseSharps));
-               // _keyRootWidget->setShortLabels(Scale::get(!shouldUseSharps));
-
-            }
-            // Now we need to:
-            // change the labels in the keysig root widget to be correct
+        if (module && _ksigMonitor) {
+            _ksigMonitor->poll();
         }
     }
     void addMainCV() {
