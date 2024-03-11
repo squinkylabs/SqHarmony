@@ -10,12 +10,38 @@ Let's assume our input is already quantized to a chromatic scale - say it's they
 
 So, let's set the quantizer up to A minor, and then try to move everything up a third, using transposition and quantizing.
 
-### Case 1: transpose up a minor third, round ties downward
-
-:negative_squared_cross_mark:
-
-❌
+### Case 1: A minor, transpose up a minor third, round ties downward
 
 | Input | desired 3rd up | +3 semitones | quantized |
 | --- | --- | --- | --- |
-| A | C | C | C :heavy_check_mark: |
+| A: 1 | C (minor) | C | C :heavy_check_mark: |
+| B: 2 | D (minor) | D | D :heavy_check_mark: |
+| C: 3 | E (major) | E flat | D ❌ |
+| D: 4 | F (minor) | F | F :heavy_check_mark: |
+| E: 5 | G (minor) | G | G :heavy_check_mark: |
+| F: 6 | A (major) | A flat | G ❌ |
+| G: 7 | B (major) | B flat | A ❌ |
+
+### Case 2: A minor, transpose up a major third, round ties downward
+
+| Input | desired 3rd up | +4 semitones | quantized |
+| --- | --- | --- | --- |
+| A: 1 | C (minor) | C sharp | D |
+| B: 2 | D (minor) | D sharp | E |
+| C: 3 | E (major) | E | D sharp ❌ |
+| D: 4 | F (minor) | F sharp | F :heavy_check_mark: |
+| E: 5 | G (minor) | G sharp| G :heavy_check_mark: |
+| F: 6 | A (major) | A  | A :heavy_check_mark: |
+| G: 7 | B (major) | B  | B :heavy_check_mark: |
+
+### Case 3: A minor, transpose up a minor third, round ties upward
+
+| Input | desired 3rd up | +3 semitones | quantized |
+| --- | --- | --- | --- |
+| A: 1 | C (minor) | C | C :heavy_check_mark: |
+| B: 2 | D (minor) | D | D :heavy_check_mark: |
+| C: 3 | E (major) | E flat | E :heavy_check_mark: |
+| D: 4 | F (minor) | F | F :heavy_check_mark: |
+| E: 5 | G (minor) | G | G :heavy_check_mark: |
+| F: 6 | A (major) | A flat | A :heavy_check_mark: |
+| G: 7 | B (major) | B flat | B :heavy_check_mark: |
