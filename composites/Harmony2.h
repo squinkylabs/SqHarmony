@@ -69,6 +69,7 @@ public:
         XPOSE_ENABLEREQ6_PARAM,
         KEY_PARAM,
         MODE_PARAM,
+        SHARPS_FLATS_PARAM,
         NUM_PARAMS
     };
 
@@ -207,6 +208,7 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
         return;
     }
 
+    SQINFO("How do we want to scale ksig input?");
     const int degreesPerVolt = 8;
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
     int newModeScaledAndRounded = int(std::round(degreesPerVolt * newModeF)) % degreesPerVolt;

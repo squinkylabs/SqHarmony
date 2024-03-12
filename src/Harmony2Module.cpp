@@ -79,6 +79,7 @@ private:
         }
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
         this->configParam(Comp::MODE_PARAM, 0, numModes - 1, 0, "Key signature mode");
+        this->configParam(Comp::SHARPS_FLATS_PARAM, 0, 3, 0, "hidden (sf)");
     }
 };
 
@@ -96,7 +97,6 @@ public:
         addMainCV();
         addModCV();
         const Comp* comp = module->getComp().get();
-        // KsigSharpFlagMonitor(const TComp* comp, PopupMenuParamWidget* rootWidget);
         _ksigMonitor = std::make_shared<KsigSharpFlagMonitor<Comp>>(comp, _keyRootWidget);
     }
 
@@ -109,6 +109,56 @@ private:
             _ksigMonitor->poll();
         }
     }
+
+    void _setSharpFlat(int index) {
+        SQINFO("set sharps flats to %d", index);
+    }
+    void appendContextMenu(ui::Menu* menu) override {
+       // const auto x = CHECKMARK(true);
+        const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
+        const int index = int( std::round(p));
+        menu->addChild(createSubmenuItem("Sharps&Flats", "",
+            [=](Menu* menu) {
+                menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() {_setSharpFlat(0);}));
+                menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() {_setSharpFlat(1);}));
+                menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() {_setSharpFlat(2);}));
+                menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() {_setSharpFlat(3);}));
+
+            }
+        ));
+ //   void contextMenu(Menu* menu) override {
+
+        /** Creates a MenuItem that opens a submenu.
+Example:
+
+	menu->addChild(createSubmenuItem("Edit", "",
+		[=](Menu* menu) {
+			menu->addChild(createMenuItem("Copy", "", [=]() {copy();}));
+			menu->addChild(createMenuItem("Paste", "", [=]() {paste();}));
+		}
+	));
+*/
+/**
+template <class TMenuItem = ui::MenuItem>
+ui::MenuItem* createSubmenuItem(std::string text, std::string rightText, std::function<void(ui::Menu* menu)> createMenu, bool disabled = false) {
+	struct Item : TMenuItem {
+		std::function<void(ui::Menu* menu)> createMenu;
+
+		ui::Menu* createChildMenu() override {
+			ui::Menu* menu = new ui::Menu;
+			createMenu(menu);
+			return menu;
+		}
+	};
+
+	Item* item = createMenuItem<Item>(text, rightText + (rightText.empty() ? "" : "  ") + RIGHT_ARROW);
+	item->createMenu = createMenu;
+	item->disabled = disabled;
+	return item;
+}
+*/
+    }
+
     void addMainCV() {
         const float y = 317;
         addInputL(Vec(19, y), Comp::PITCH_INPUT, "CVI");
