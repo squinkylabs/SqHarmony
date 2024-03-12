@@ -70,6 +70,7 @@ public:
         KEY_PARAM,
         MODE_PARAM,
         SHARPS_FLATS_PARAM,
+        ONLY_USE_DIATONIC_PARAM,
         NUM_PARAMS
     };
 

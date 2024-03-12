@@ -10,6 +10,7 @@
 #include "Scale.h"
 #include "SqLabel.h"
 #include "SqLog.h"
+#include "SqMenuItem.h"
 #include "WidgetComposite.h"
 
 #define _LAB
@@ -80,6 +81,7 @@ private:
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
         this->configParam(Comp::MODE_PARAM, 0, numModes - 1, 0, "Key signature mode");
         this->configParam(Comp::SHARPS_FLATS_PARAM, 0, 3, 0, "hidden (sf)");
+        this->configParam(Comp::ONLY_USE_DIATONIC_PARAM, 0, 1, 0, "hidden (ud)");
     }
 };
 
@@ -112,9 +114,19 @@ private:
 
     void _setSharpFlat(int index) {
         SQINFO("set sharps flats to %d", index);
+        APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
     }
+
     void appendContextMenu(ui::Menu* menu) override {
-       // const auto x = CHECKMARK(true);
+        if (!module) {
+            return;
+        }
+   
+        SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_PARAM);
+        item->text = "Use only diatonic scales";
+        menu->addChild(item);
+     
+
         const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
         const int index = int( std::round(p));
         menu->addChild(createSubmenuItem("Sharps&Flats", "",
@@ -123,46 +135,13 @@ private:
                 menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() {_setSharpFlat(1);}));
                 menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() {_setSharpFlat(2);}));
                 menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() {_setSharpFlat(3);}));
-
             }
         ));
- //   void contextMenu(Menu* menu) override {
-
-        /** Creates a MenuItem that opens a submenu.
-Example:
-
-	menu->addChild(createSubmenuItem("Edit", "",
-		[=](Menu* menu) {
-			menu->addChild(createMenuItem("Copy", "", [=]() {copy();}));
-			menu->addChild(createMenuItem("Paste", "", [=]() {paste();}));
-		}
-	));
-*/
-/**
-template <class TMenuItem = ui::MenuItem>
-ui::MenuItem* createSubmenuItem(std::string text, std::string rightText, std::function<void(ui::Menu* menu)> createMenu, bool disabled = false) {
-	struct Item : TMenuItem {
-		std::function<void(ui::Menu* menu)> createMenu;
-
-		ui::Menu* createChildMenu() override {
-			ui::Menu* menu = new ui::Menu;
-			createMenu(menu);
-			return menu;
-		}
-	};
-
-	Item* item = createMenuItem<Item>(text, rightText + (rightText.empty() ? "" : "  ") + RIGHT_ARROW);
-	item->createMenu = createMenu;
-	item->disabled = disabled;
-	return item;
-}
-*/
     }
 
     void addMainCV() {
         const float y = 317;
         addInputL(Vec(19, y), Comp::PITCH_INPUT, "CVI");
-        //   addInputL(const Vec& vec, int outputNumber, const std::string& text) {
         addOutputL(Vec(60, y), Comp::PITCH_OUTPUT, "CVO");
     }
 
@@ -305,6 +284,7 @@ ui::MenuItem* createSubmenuItem(std::string text, std::string rightText, std::fu
 #endif
     }
 };
+
 
 Model* modelHarmony2 = createModel<Harmony2Module, Harmony2Widget>("sqh-harmony2");
 #endif
