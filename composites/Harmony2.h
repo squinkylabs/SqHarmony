@@ -101,10 +101,15 @@ public:
     };
 
     void process(const typename TBase::ProcessArgs& args) override;
+
+
     static int getSubSampleFactor() { return 32; }
 
+    // TODO: there all need to be dynamic
+    // these will change when we implement ONLY_USE_DIATONIC_PARAM
     static bool diatonicOnly() { return false; }
-    static int numModes() { return 12; }
+    static int numCurrentModes() { return 12; }
+    static int numNotesInCurrentScale() { return 8; }
 
 private:
     Divider _divn;
@@ -184,9 +189,9 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     }
 
     const float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
-    int newKeyScaledAndRounded = int(std::round(12 * newKeyF)) % 12;
+    int newKeyScaledAndRounded = int(std::round(numCurrentModes() * newKeyF)) % numCurrentModes();
     if (newKeyScaledAndRounded < 0) {
-        newKeyScaledAndRounded += 12;
+        newKeyScaledAndRounded += numCurrentModes();
     }
 
     const Scale* oldKey = _quantizerOptions->scale.get();
@@ -196,7 +201,7 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     FloatNote oldRootFloat;
     NoteConvert::m2f(oldRootFloat, oldRoot);
     const float oldKeyCV = oldRootFloat.get() + 6;  // I don't remember what this offset is...
-    const float oldKeyVSCaled = oldKeyCV * 12;
+    const float oldKeyVSCaled = oldKeyCV * numCurrentModes();
     const int oldKeyScaledAndRounded = int(std::round(oldKeyVSCaled));
     if (oldKeyScaledAndRounded != newKeyScaledAndRounded) {
         TBase::params[KEY_PARAM].value = newKeyScaledAndRounded;
@@ -210,7 +215,7 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     }
 
     SQINFO("How do we want to scale ksig input?");
-    const int degreesPerVolt = 8;
+    const int degreesPerVolt = numNotesInCurrentScale();
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
     int newModeScaledAndRounded = int(std::round(degreesPerVolt * newModeF)) % degreesPerVolt;
     if (newModeScaledAndRounded < 0) {
@@ -226,14 +231,6 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
         TBase::params[MODE_PARAM].value = newModeScaledAndRounded;
     }
 
-    // FloatNote oldRootFloat;
-    // NoteConvert::m2f(oldRootFloat, oldRoot);
-    // const float oldKeyCV = oldRootFloat.get() + 6;  // I don't remember what this offset is...
-    // const float oldKeyVSCaled = oldKeyCV * 12;
-    // const int oldKeyScaledAndRounded = int(std::round(oldKeyVSCaled));
-    // if (oldKeyScaledAndRounded != newKeyScaledAndRounded) {
-    //     TBase::params[MODE_PARAM].value = newKeyScaledAndRounded;
-    // }
 }
 
 template <class TBase>

@@ -12,43 +12,9 @@
 #include "SqLog.h"
 #include "SqMenuItem.h"
 #include "WidgetComposite.h"
+#include "KsigSharpFlatMonitor.h"
 
 #define _LAB
-
-template <typename TComp>
-class KsigSharpFlagMonitor {
-private:
-    const TComp* const _comp;
-    PopupMenuParamWidget* const _keyRootWidget;
-
-public:
-    KsigSharpFlagMonitor() = delete;
-    KsigSharpFlagMonitor(const KsigSharpFlagMonitor&) = delete;
-
-    KsigSharpFlagMonitor(const TComp* comp, PopupMenuParamWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {
-        
-    }
-    void poll() {
-        assert(_comp);
-        const int basePitch = int(std::round(_comp->params[TComp::KEY_PARAM].value));
-        const auto mode = Scale::Scales(int(std::round(_comp->params[TComp::MODE_PARAM].value)));
-        auto _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
-        _quantizerOptions->scale = std::make_shared<Scale>();
-        _quantizerOptions->scale->set(basePitch, mode);
-
-        const auto scale = _quantizerOptions->scale;
-        const auto scaleSharpFlatPref = scale->getSharpsFlatsPref();
-        const std::string sRoot = _keyRootWidget->getShortLabel(1);
-        bool isSharps = sRoot.find('#') != std::string::npos;
-
-        const bool shouldUseSharps = (scaleSharpFlatPref == Scale::SharpsFlatsPref::Sharps);
-        if ((scaleSharpFlatPref != Scale::SharpsFlatsPref::DontCare) &&
-            (shouldUseSharps != isSharps)) {
-            SQINFO("need to change should use sharps =%d!!", shouldUseSharps);
-            _keyRootWidget->setLabels(Scale::getRootLabels(!shouldUseSharps));
-        }
-    }
-};
 
 using Comp = Harmony2<WidgetComposite>;
 
@@ -69,7 +35,7 @@ public:
 
 private:
     void addParams() {
-        const int numModes = Comp::numModes();
+        const int numModes = Comp::numCurrentModes();
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
             //  SQINFO("setting params bank %d", i);
             this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numModes - 1, 0, "Transpose Degrees");
@@ -99,12 +65,12 @@ public:
         addMainCV();
         addModCV();
         const Comp* comp = module->getComp().get();
-        _ksigMonitor = std::make_shared<KsigSharpFlagMonitor<Comp>>(comp, _keyRootWidget);
+        _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp>>(comp, _keyRootWidget);
     }
 
 private:
     PopupMenuParamWidget* _keyRootWidget = nullptr;
-    std::shared_ptr<KsigSharpFlagMonitor<Comp>> _ksigMonitor;
+    std::shared_ptr<KsigSharpFlatMonitor<Comp>> _ksigMonitor;
     BufferingParent<SqLabel>* _xposeDisplays[6] = { nullptr };
 
 
