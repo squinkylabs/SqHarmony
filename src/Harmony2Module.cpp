@@ -105,6 +105,9 @@ public:
 private:
     PopupMenuParamWidget* _keyRootWidget = nullptr;
     std::shared_ptr<KsigSharpFlagMonitor<Comp>> _ksigMonitor;
+    BufferingParent<SqLabel>* _xposeDisplays[6] = { nullptr };
+
+
     void step() override {
         ModuleWidget::step();
         if (module && _ksigMonitor) {
@@ -194,6 +197,8 @@ private:
     static constexpr float xbutton = 5;
     static constexpr float xoctave = 28;
     static constexpr float xdegree = 75;
+    static constexpr float xx = 120;
+
 
     void addTransposeControls(int index, bool haveModule) {
         const float y = y0 + index * deltaY;
@@ -225,6 +230,9 @@ private:
             p->text = "0";
         }
         addParam(p);
+
+        const auto x =addLabel(Vec(xx, y), "-2 +6");
+        _xposeDisplays[index] = x;
     }
 
     /**
