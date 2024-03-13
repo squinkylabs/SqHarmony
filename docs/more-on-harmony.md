@@ -1,5 +1,22 @@
 # More on Harmony
 
+## Sharps or flats
+
+ C Major has no sharps or flats in it, but the other major keys do, and so their relative modes do, too. Any diatonic key may be notated with all sharps or all flats. By far the most common thing is to notate them with the minimal number of accidentals.
+
+https://www.britannica.com/art/key-signature
+
+So, the major keys are usually notated like so:
+
+* C major - no sharps or flats.
+* G major - one sharp (F#).
+* D major - two sharps (F#, C#).
+* A major - three sharps (F#, C#, G#).
+
+* F sharp major - six sharps (F#, C#, G#, D#, A#, E#).
+
+* D flat major - five flats (B-, E-, A-, D-, G-)
+
 ## Analysis of quantizers
 
 Say you wanted to get the "parallel third" effect common in many "classic rock" songs. For this effect we want to generate a new note that is "a third" above the note we provide. Now of course in normal Major and Minor scales some thirds are minor thirds, and some are major thirds. In A minor, the thirds above A is C, a minor third. But the third above C is E, a major thirds. If you try to harmonize your note by adding a note a fixed minor or major third up, you will not get the same effect.
