@@ -70,6 +70,7 @@ extern void testClockShifter6();
 extern void testClockShifter6d();
 extern void testBitDelay();
 extern void testHarmony2();
+extern void testSharpFlatMonitor();
 
 #include "SqLog.h"
 
@@ -114,6 +115,7 @@ int main(const char**, int) {
     testFreqMeasure();
     testFreqMeasure2();
     testShiftCalc();
+    testSharpFlatMonitor();
 
     testClockMult();
     testMultiplier();

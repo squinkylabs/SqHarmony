@@ -65,12 +65,12 @@ public:
         addMainCV();
         addModCV();
         const Comp* comp = module->getComp().get();
-        _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp>>(comp, _keyRootWidget);
+        _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
     }
 
 private:
     PopupMenuParamWidget* _keyRootWidget = nullptr;
-    std::shared_ptr<KsigSharpFlatMonitor<Comp>> _ksigMonitor;
+    std::shared_ptr<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>> _ksigMonitor;
     BufferingParent<SqLabel>* _xposeDisplays[6] = { nullptr };
 
 

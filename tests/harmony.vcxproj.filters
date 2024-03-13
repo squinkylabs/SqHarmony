@@ -291,6 +291,9 @@
     <ClCompile Include="testHarmony2.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="testSharpFlatMonitor.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">

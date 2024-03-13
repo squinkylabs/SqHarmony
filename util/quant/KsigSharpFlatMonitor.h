@@ -1,15 +1,20 @@
 #pragma once
-template <typename TComp>
+
+
+class PopupMenuParamWidget;
+
+// TComp is the composite type
+// TWidget is the type of wieget we are monitoring. TWidget is PopupMenuParamWidget in the real case.
+template <typename TComp, typename TWidget>
 class KsigSharpFlatMonitor {
 private:
     const TComp* const _comp;
-    PopupMenuParamWidget* const _keyRootWidget;
+    TWidget* const _keyRootWidget;
 
 public:
     KsigSharpFlatMonitor() = delete;
     KsigSharpFlatMonitor(const KsigSharpFlatMonitor&) = delete;
-
-    KsigSharpFlatMonitor(const TComp* comp, PopupMenuParamWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {
+    KsigSharpFlatMonitor(const TComp* comp, TWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {
         
     }
     void poll() {
