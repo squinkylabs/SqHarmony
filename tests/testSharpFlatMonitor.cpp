@@ -14,7 +14,7 @@ public:
         }
     }
     std::string getShortLabel(unsigned int index) const {
-        assert(index == 1);     // only case we have implemented
+        assert(index == 1);  // only case we have implemented
         if (lastUpdateSharps) {
             return {"#"};
         }
@@ -57,14 +57,19 @@ public:
     }
 
     static void testFlatDflat() {
-        SQINFO("testFlatDflat");
-
+        // set to sharps, , expect reset to flats. In D flat major
         const int root = MidiNote::D - 1;  // D-
         const int mode = int(Scale::Scales::Major);
         // expect flats for d flat
-        _testX(root, mode, false, true, false);
+        _testX(root, mode, 1, true, false);
+    }
 
-        SQINFO("exit testFlatDflat");
+    static void testDefaultDflat() {
+        // set to flats, , expect no change . In D flat major
+        const int root = MidiNote::D - 1;  // D-
+        const int mode = int(Scale::Scales::Major);
+        // expect flats for d flat
+        _testX(root, mode, 2, false, true);
     }
 
     static void testFixture() {
@@ -72,28 +77,26 @@ public:
         assertEQ(widget.lastUpdateFlats, false);
         assertEQ(widget.lastUpdateSharps, false);
 
-        widget.setLabels({ "xx#yy" });
+        widget.setLabels({"xx#yy"});
         assertEQ(widget.lastUpdateFlats, false);
         assertEQ(widget.lastUpdateSharps, true);
 
-        widget.setLabels({ "xxyy" });
+        widget.setLabels({"xxyy"});
         assertEQ(widget.lastUpdateFlats, false);
         assertEQ(widget.lastUpdateSharps, false);
 
-        widget.setLabels({ "xx-yy" });
+        widget.setLabels({"xx-yy"});
         assertEQ(widget.lastUpdateFlats, true);
         assertEQ(widget.lastUpdateSharps, false);
     }
 
 private:
-    static void _testX(int root, int mode, bool expectSharps, bool initToSharps, bool initToFlats) {
+    // expect: 0 = set sharps
+    //      1 = set flats
+    //      2 = no change
+    static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats) {
         assert(!(initToSharps && initToFlats));
         T composite;
-
-        //  using Comp = Harmony2<TestComposite>;
-        //  const int x = Comp::KEY_PARAM;
-        //   const int keyIndex = T::KEY_PARAM;
-        //  const int modeIndex = T::MODE_PARAM;
 
         composite.params[T::KEY_PARAM].value = root;
         composite.params[T::MODE_PARAM].value = mode;
@@ -108,12 +111,17 @@ private:
         KsigSharpFlatMonitor<T, MockPopupMenuParamWidget> mon(&composite, &widget);
         mon.poll();
 
-        if (expectSharps) {
-            assertEQ(widget.lastUpdateSharps, true);
-            assertEQ(widget.lastUpdateFlats, false);
-        } else {
-            assertEQ(widget.lastUpdateFlats, true);
-            assertEQ(widget.lastUpdateSharps, false);
+        switch (expect) {
+            case 0: {
+                assertEQ(widget.lastUpdateSharps, true);
+                assertEQ(widget.lastUpdateFlats, false);
+            } break;
+            case 1: {
+                assertEQ(widget.lastUpdateFlats, true);
+                assertEQ(widget.lastUpdateSharps, false);
+            } break;
+            default:
+                assert(false);
         }
     }
 };
