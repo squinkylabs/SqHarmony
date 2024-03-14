@@ -371,7 +371,7 @@ const int numflats[12] = {
 
 const Scale::SharpsFlatsPref preferSharps[12] = {
     Scale::SharpsFlatsPref::DontCare,  // C Maj (
-    Scale::SharpsFlatsPref::Sharps,    // C# / D flat (notated as C sharp)
+    Scale::SharpsFlatsPref::Flats,    // C# / D flat (notated as D flat)
     Scale::SharpsFlatsPref::Sharps,    // D
     Scale::SharpsFlatsPref::Flats,     // D# / E flat
     Scale::SharpsFlatsPref::Sharps,    // E
@@ -380,7 +380,7 @@ const Scale::SharpsFlatsPref preferSharps[12] = {
     Scale::SharpsFlatsPref::Sharps,    // G
     Scale::SharpsFlatsPref::Flats,     // G# / A flat
     Scale::SharpsFlatsPref::Sharps,    // A
-    Scale::SharpsFlatsPref::Flats,     // B -
+    Scale::SharpsFlatsPref::Flats,     // A# / B -
     Scale::SharpsFlatsPref::Sharps     // B
 };
 
