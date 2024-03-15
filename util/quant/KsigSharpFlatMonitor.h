@@ -2,6 +2,13 @@
 
 class PopupMenuParamWidget;
 
+enum class SharpFlatUserOptions {
+    DefaultPlusSharps,
+    DefaultPlusFlats,
+    SharpsAlways,
+    FlatsAlways
+};
+
 // TComp is the composite type
 // TWidget is the type of wieget we are monitoring. TWidget is PopupMenuParamWidget in the real case.
 template <typename TComp, typename TWidget>
@@ -11,13 +18,6 @@ private:
     TWidget* const _keyRootWidget;
 
 public:
-    enum class UserOptions {
-        DefaultPlusSharps,
-        DefaultPlusFlats,
-        SharpsAlways,
-        FlatsAlways
-    };
-    
     KsigSharpFlatMonitor() = delete;
     KsigSharpFlatMonitor(const KsigSharpFlatMonitor&) = delete;
     KsigSharpFlatMonitor(const TComp* comp, TWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {
@@ -60,7 +60,7 @@ public:
         if (defaultIsOkWithComposite && (scaleSharpFlatPref == Scale::SharpsFlatsPref::DontCare) &&
             (compositeTieBreakerIsSharps != isSharps)) {
             _keyRootWidget->setLabels(Scale::getRootLabels(!compositeTieBreakerIsSharps));
-               SQINFO("leaving case 2, 56");
+            SQINFO("leaving case 2, 56");
             return;
         }
         // if use has a hard pref for sharps or flats, and we are not on it, set it

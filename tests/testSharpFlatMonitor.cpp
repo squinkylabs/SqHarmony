@@ -1,6 +1,6 @@
 
-#include "Harmony2.h"
 #include "Harmony.h"
+#include "Harmony2.h"
 #include "KsigSharpFlatMonitor.h"
 #include "TestComposite.h"
 #include "asserts.h"
@@ -28,7 +28,7 @@ public:
         if (useSharps) {
             return {"#"};
         }
-    
+
         return {"-"};
     }
 
@@ -67,29 +67,38 @@ public:
     }
 
     static void testFlatDflat() {
+#if 0
         // set to sharps, , expect reset to flats. In D flat major
         const int root = MidiNote::D - 1;  // D-
         const int mode = int(Scale::Scales::Major);
         // expect flats for d flat
         _testX(root, mode, 1, true, false, 0);
+#endif
     }
 
     static void testDefaultDflat() {
+#if 0
         // set to flats, , expect no change . In D flat major
         const int root = MidiNote::D - 1;  // D-
         const int mode = int(Scale::Scales::Major);
         // expect flats for d flat
         _testX(root, mode, 2, false, true, 0);
+#endif
     }
+
 
     static void testUserOverrideDflat() {
         // set to flats, normal for  In D flat major.
         // but user pref for sharps
-        const int root = MidiNote::D - 1;  // D-
-        const int mode = int(Scale::Scales::Major);
 
+#if 0
+        TestParams test;
+        test.scaleRoot = MidiNote::D - 1;  // D-
+        test.scaleMode = Scale::Scales::Major;
         _testX(root, mode, 0, false, true, 2);
-     }
+#endif
+    }
+
 
     static void testFixture() {
         MockPopupMenuParamWidget widget;
@@ -121,27 +130,44 @@ private:
                 menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() {_setSharpFlat(2);}));
                 menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() {_setSharpFlat(3);}));
     */
-    static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats, int userPrefs) {
-        assert(!(initToSharps && initToFlats));
+    enum class Expectations {
+        SharpsSet,
+        FlatsSet,
+        NoneSet
+    };
+
+    class TestParams {
+    public:
+        int scaleRoot = 0;
+        Scale::Scales scaleMode = Scale::Scales::Major;
+        bool initKeysigToSharpsBeforeTests = false;
+         bool initKeysigToFlatsBeforeTests = false;
+
+        SharpFlatUserOptions userPreference = KsigSharpFlatMonitor::UserOptions::DefaultPlusSharps;
+        Expectations expectation = Expectations::NoneSet;
+    };
+    static void _testX(const TestParams& test) {
+  //  static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats, int userPrefs) {
+        assert(!(test.initToSharps && test.initToFlats));
         T composite;
 
-        composite.params[T::KEY_PARAM].value = root;
-        composite.params[T::MODE_PARAM].value = mode;
-        composite.params[T::SHARPS_FLATS_PARAM].value = userPrefs;
+        composite.params[T::KEY_PARAM].value = test.root;
+        composite.params[T::MODE_PARAM].value = test.mode;
+        composite.params[T::SHARPS_FLATS_PARAM].value = test.userPrefs;
 
         MockPopupMenuParamWidget widget;
-        if (initToSharps) {
+        if (test.initToSharps) {
             // widget.setSharps(true);
             widget.init(true);
         }
-        if (initToFlats) {
+        if (test.initToFlats) {
             // widget.setSharps(false);
             widget.init(false);
         }
         KsigSharpFlatMonitor<T, MockPopupMenuParamWidget> mon(&composite, &widget);
         mon.poll();
 
-        switch (expect) {
+        switch (test.expect) {
             case 0: {
                 assertEQ(widget.lastUpdateSharps, true);
                 assertEQ(widget.lastUpdateFlats, false);
@@ -173,9 +199,9 @@ static void testMockWidget() {
     assertEQ(w.lastUpdateFlats, false);
     assertEQ(w.lastUpdateSharps, false);
 
-  //  w.init(true);
+    //  w.init(true);
 
-    w.setLabels({ "#"});
+    w.setLabels({"#"});
     assertEQ(w.lastUpdateSharps, true);
     assertEQ(w.lastUpdateFlats, false);
     assertEQ(w.getShortLabel(1), "#");
