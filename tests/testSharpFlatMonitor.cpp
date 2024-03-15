@@ -66,14 +66,36 @@ public:
         mon.poll();
     }
 
+    /*
+        enum class Expectations {
+            SharpsSet,
+            FlatsSet,
+            NoneSet
+        };
+        class TestParams {
+        public:
+            int scaleRoot = 0;
+            Scale::Scales scaleMode = Scale::Scales::Major;
+            bool initKeysigToSharpsBeforeTests = false;
+             bool initKeysigToFlatsBeforeTests = false;
+
+            SharpFlatUserOptions userPreference = KsigSharpFlatMonitor::UserOptions::DefaultPlusSharps;
+            Expectations expectation = Expectations::NoneSet;
+        };
+          //  static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats, int userPrefs) {
+        */
     static void testFlatDflat() {
-#if 0
         // set to sharps, , expect reset to flats. In D flat major
-        const int root = MidiNote::D - 1;  // D-
-        const int mode = int(Scale::Scales::Major);
         // expect flats for d flat
-        _testX(root, mode, 1, true, false, 0);
-#endif
+        TestParams test;
+        test.scaleRoot = MidiNote::D - 1;  // D-
+        test.scaleMode = Scale::Scales::Major;
+        test.expectation = Expectations::FlatsSet;
+        test.initKeysigToFlatsBeforeTests = false;
+        test.initKeysigToSharpsBeforeTests = true;
+        test.userPreference = SharpFlatUserOptions::DefaultPlusFlats;
+        _testX(test);
+        //  _testX(root, mode, 1, true, false, 0);
     }
 
     static void testDefaultDflat() {
@@ -86,7 +108,6 @@ public:
 #endif
     }
 
-
     static void testUserOverrideDflat() {
         // set to flats, normal for  In D flat major.
         // but user pref for sharps
@@ -98,7 +119,6 @@ public:
         _testX(root, mode, 0, false, true, 2);
 #endif
     }
-
 
     static void testFixture() {
         MockPopupMenuParamWidget widget;
@@ -141,42 +161,40 @@ private:
         int scaleRoot = 0;
         Scale::Scales scaleMode = Scale::Scales::Major;
         bool initKeysigToSharpsBeforeTests = false;
-         bool initKeysigToFlatsBeforeTests = false;
+        bool initKeysigToFlatsBeforeTests = false;
 
-        SharpFlatUserOptions userPreference = KsigSharpFlatMonitor::UserOptions::DefaultPlusSharps;
+        SharpFlatUserOptions userPreference = SharpFlatUserOptions::DefaultPlusSharps;
         Expectations expectation = Expectations::NoneSet;
     };
     static void _testX(const TestParams& test) {
-  //  static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats, int userPrefs) {
-        assert(!(test.initToSharps && test.initToFlats));
+        //  static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats, int userPrefs) {
+        assert(!(test.initKeysigToSharpsBeforeTests && test.initKeysigToFlatsBeforeTests));
         T composite;
 
-        composite.params[T::KEY_PARAM].value = test.root;
-        composite.params[T::MODE_PARAM].value = test.mode;
-        composite.params[T::SHARPS_FLATS_PARAM].value = test.userPrefs;
+        composite.params[T::KEY_PARAM].value = test.scaleRoot;
+        composite.params[T::MODE_PARAM].value = int(test.scaleMode);
+        composite.params[T::SHARPS_FLATS_PARAM].value = int(test.userPreference);
 
         MockPopupMenuParamWidget widget;
-        if (test.initToSharps) {
-            // widget.setSharps(true);
+        if (test.initKeysigToSharpsBeforeTests) {
             widget.init(true);
         }
-        if (test.initToFlats) {
-            // widget.setSharps(false);
+        if (test.initKeysigToFlatsBeforeTests) {
             widget.init(false);
         }
         KsigSharpFlatMonitor<T, MockPopupMenuParamWidget> mon(&composite, &widget);
         mon.poll();
 
-        switch (test.expect) {
-            case 0: {
+        switch (test.expectation) {
+            case Expectations::SharpsSet: {
                 assertEQ(widget.lastUpdateSharps, true);
                 assertEQ(widget.lastUpdateFlats, false);
             } break;
-            case 1: {
+            case Expectations::FlatsSet: {
                 assertEQ(widget.lastUpdateFlats, true);
                 assertEQ(widget.lastUpdateSharps, false);
             } break;
-            case 2: {
+            case Expectations::NoneSet: {
                 assertEQ(widget.lastUpdateSharps, false);
                 assertEQ(widget.lastUpdateFlats, false);
             } break;
