@@ -17,13 +17,17 @@ So, the major keys are usually notated like so:
 
 * D flat major - five flats (B-, E-, A-, D-, G-)
 
+Of course there are many, many reasons a composer might choose different ways to notate something. Not only minimizing the number of accidentals in the key signature, but also issues of local harmony, what instrument is being written for, personal preference, etc.
+
+This is only a minor issue in Harmony II. The user preference for sharps or flats only affects how the key signature on the front panels looks.
+
 ## Analysis of quantizers
 
-Say you wanted to get the "parallel third" effect common in many "classic rock" songs. For this effect we want to generate a new note that is "a third" above the note we provide. Now of course in normal Major and Minor scales some thirds are minor thirds, and some are major thirds. In A minor, the thirds above A is C, a minor third. But the third above C is E, a major thirds. If you try to harmonize your note by adding a note a fixed minor or major third up, you will not get the same effect.
+Say you wanted to get the "parallel third" effect common in many "classic rock" songs. For this effect we want to generate a new note that is "a third" above the note we provide. Now of course in normal Major and Minor scales some thirds are minor thirds, and some are major thirds. In A minor, the thirds above A is C, a minor third. But the third above C is E, a major third. If you try to harmonize your note by adding a note a fixed minor or major third up, you will not get the same effect.
 
-You might think that most quantizers could be tricked into doing what is desired. Specifically, you might think that you could transpose up by a minor or major third, and then quantize the result to be in the original scale.
+You might think that most quantizers could be tricked into doing what is desired. Specifically, you might think that you could transpose up by a minor or major third, and then quantize the result to be in the original scale. But we will see that often doesn't work.
 
-Let's assume our input is already quantized to a chromatic scale - say it's they output of the MIDI CV module. So for notes already in the quantizer's scale it will output the note unaltered. For notes not in the scale, it will round them to the nearest not in the scale. If it's a tie the quantizer will probably always round up or always round down.
+Let's assume our input is already quantized to a chromatic scale. And lets say say it's the output of the MIDI CV module. So for notes already in the quantizer's scale it will output the note unaltered. For notes not in the scale, it will round them to the nearest note in the scale. If it's a tie the quantizer will probably always round up or always round down.
 
 So, let's set the quantizer up to A minor, and then try to move everything up a third, using transposition and quantizing.
 
@@ -62,3 +66,21 @@ So, let's set the quantizer up to A minor, and then try to move everything up a 
 | E: 5 | G (minor) | G | G :heavy_check_mark: |
 | F: 6 | A (major) | A flat | A :heavy_check_mark: |
 | G: 7 | B (major) | B flat | B :heavy_check_mark: |
+
+### Case 4: A minor, transpose up a major third, round ties upward
+
+(tbd)
+
+### Case 5: C major, transpose up a minor third, round ties downward
+
+(tbd)
+
+### Case 6: C major
+
+(tbd)
+
+### Case 7: C major
+
+(tbd)
+
+### Case 8: C major

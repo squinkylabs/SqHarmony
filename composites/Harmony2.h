@@ -79,9 +79,7 @@ public:
         XPOSE_INPUT,
         KEY_INPUT,
         MODE_INPUT,
-
         PITCH_INPUT,
-
         NUM_INPUTS
     };
 
