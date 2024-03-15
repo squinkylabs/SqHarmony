@@ -66,24 +66,6 @@ public:
         mon.poll();
     }
 
-    /*
-        enum class Expectations {
-            SharpsSet,
-            FlatsSet,
-            NoneSet
-        };
-        class TestParams {
-        public:
-            int scaleRoot = 0;
-            Scale::Scales scaleMode = Scale::Scales::Major;
-            bool initKeysigToSharpsBeforeTests = false;
-             bool initKeysigToFlatsBeforeTests = false;
-
-            SharpFlatUserOptions userPreference = KsigSharpFlatMonitor::UserOptions::DefaultPlusSharps;
-            Expectations expectation = Expectations::NoneSet;
-        };
-          //  static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats, int userPrefs) {
-        */
     static void testFlatDflat() {
         // set to sharps, , expect reset to flats. In D flat major
         // expect flats for d flat
@@ -99,13 +81,21 @@ public:
     }
 
     static void testDefaultDflat() {
-#if 0
+        // test that when already set to a flat key, no change is needed
         // set to flats, , expect no change . In D flat major
-        const int root = MidiNote::D - 1;  // D-
-        const int mode = int(Scale::Scales::Major);
+        TestParams test;
+        test.scaleRoot = MidiNote::D - 1;  // D-
+        test.scaleMode = Scale::Scales::Major;
+        test.expectation = Expectations::NoneSet;
+
+        test.initKeysigToFlatsBeforeTests = true;
+        test.initKeysigToSharpsBeforeTests = false;
+        test.userPreference = SharpFlatUserOptions::DefaultPlusSharps;
+
         // expect flats for d flat
-        _testX(root, mode, 2, false, true, 0);
-#endif
+        //    static void _testX(int root, int mode, int expect, bool initToSharps, bool initToFlats, int userPrefs) {
+       // _testX(root, mode, 2, false, true, 0);
+       _testX(test);
     }
 
     static void testUserOverrideDflat() {
@@ -139,17 +129,6 @@ public:
     }
 
 private:
-    // expect: 0 = set sharps
-    //      1 = set flats
-    //      2 = no change
-
-    // user pref:
-    /*
-      menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() {_setSharpFlat(0);}));
-                menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() {_setSharpFlat(1);}));
-                menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() {_setSharpFlat(2);}));
-                menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() {_setSharpFlat(3);}));
-    */
     enum class Expectations {
         SharpsSet,
         FlatsSet,
