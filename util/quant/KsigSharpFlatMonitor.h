@@ -11,6 +11,13 @@ private:
     TWidget* const _keyRootWidget;
 
 public:
+    enum class UserOptions {
+        DefaultPlusSharps,
+        DefaultPlusFlats,
+        SharpsAlways,
+        FlatsAlways
+    };
+    
     KsigSharpFlatMonitor() = delete;
     KsigSharpFlatMonitor(const KsigSharpFlatMonitor&) = delete;
     KsigSharpFlatMonitor(const TComp* comp, TWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {

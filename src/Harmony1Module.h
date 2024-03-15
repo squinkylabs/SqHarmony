@@ -32,7 +32,8 @@ public:
         class RootParam : public ParamQuantity {
         public:
             std::string getDisplayValueString() override {
-                const bool useFlats = module->params[Comp::USE_FLATS_PARAM].value > .5;
+                // TODO: replace with new poll
+                const bool useFlats = module->params[Comp::SHARPS_FLATS_PARAM].value > .5;
                 const auto labels = Scale::getRootLabels(useFlats);
                 const int value = int((std::round(getValue())));
                 return ((value >= 0) && value < int(labels.size())) ? labels[value] : "";
@@ -45,7 +46,7 @@ public:
         this->configParam(Comp::HISTORY_SIZE_PARAM, 0, 4, 0, "History Size");
         this->configParam(Comp::TRANSPOSE_STEPS_PARAM, -7, 7, 0, "Transpose degrees");
         this->configParam(Comp::TRIGGER_DELAY_PARAM, 0, 1, 1, "Trigger delay");
-        this->configParam(Comp::USE_FLATS_PARAM, 0, 1, 0, "Use Flats");
+        this->configParam(Comp::SHARPS_FLATS_PARAM, 0, 1, 0, "Use Flats");
 
         this->configSwitch(Comp::INVERSION_PREFERENCE_PARAM, 0, 2, 0, "Inversion preference", {"Don't care", "Discourage Consecutive", "Discourage Inversions"});
         this->configSwitch(Comp::CENTER_PREFERENCE_PARAM, 0, 2, 2, "Centered preference", {"None (wide)", "Encourage Center", "Narrow (vocal range)"});

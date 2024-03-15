@@ -1,8 +1,10 @@
 # More on Harmony
 
+Some ramblings on things that are useful when trying to use some Squinktronix module.
+
 ## Sharps or flats
 
- C Major has no sharps or flats in it, but the other major keys do, and so their relative modes do, too. Any diatonic key may be notated with all sharps or all flats. By far the most common thing is to notate them with the minimal number of accidentals.
+ C Major has no sharps or flats in it, but the other major keys do, and so their relative modes do, too. Any diatonic key may be notated with all sharps or all flats. The most common thing is to notate them with the minimal number of accidentals.
 
 https://www.britannica.com/art/key-signature
 
@@ -19,7 +21,22 @@ So, the major keys are usually notated like so:
 
 Of course there are many, many reasons a composer might choose different ways to notate something. Not only minimizing the number of accidentals in the key signature, but also issues of local harmony, what instrument is being written for, personal preference, etc.
 
-This is only a minor issue in Harmony II. The user preference for sharps or flats only affects how the key signature on the front panels looks.
+This is only a small issue in Harmony II. The user preference for sharps or flats only affects how the key signature on the front panels looks.
+
+## Modes
+
+As people have remarked, it's very difficult to get your music to sound like it is in a particular mode. After all, you can make all seven modes from the notes of C Major. So what happens if you play random white keys on a keyboard? If anything, it will sound like you are in C Major. Possibly A minor. Why? Well, hard to say exactly, but for one reason or another your ear tends to pull everything into a familiar key. So if you want to make music in a certain diatonic mode that isn't Ionian (major) or Aeolian (minor), it can be difficult. It can often sound like the music is really in the realtive major of the mode you are trying to usel
+
+Some common ways to "establish a key/mode" are:
+
+1. use a pedal tone at the root to establish the root.
+2. emphasize the characteristic tones in the mode.
+3. use a really prominent melody that implies the mode.
+4. accompany the mode with chords that don't imply any particular scale.
+
+1 - use a pedal tone is an obvious one. I the simplest implementation, just drone the root prominently in the bass register. If you want to establish the key as E Phrygian, drone a low E and use all the white keys.
+
+3 - In this song, [Samba Pa Ti](https://www.youtube.com/watch?v=timZoOs9ozo), by Carlos Santana, the melody is very distinctive, and if you try to play it, or play along with it, it's quite obvious it's in a Mixolydian mode. Mixolydian happens to be one of the more common modes in pop songs. Most ppl think of it as Major with a flat 7th.
 
 ## Analysis of quantizers
 

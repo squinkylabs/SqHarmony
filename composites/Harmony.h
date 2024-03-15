@@ -45,7 +45,8 @@ public:
         HISTORY_SIZE_PARAM,
         TRANSPOSE_STEPS_PARAM,
         TRIGGER_DELAY_PARAM,
-        USE_FLATS_PARAM,
+     //   USE_FLATS_PARAM,
+        SHARPS_FLATS_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

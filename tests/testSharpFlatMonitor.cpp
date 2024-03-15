@@ -1,5 +1,6 @@
 
 #include "Harmony2.h"
+#include "Harmony.h"
 #include "KsigSharpFlatMonitor.h"
 #include "TestComposite.h"
 #include "asserts.h"
@@ -190,6 +191,7 @@ void testSharpFlatMonitor() {
 
     testMockWidget();
     testSharpFlatMonitor<Harmony2<TestComposite>>();
+    testSharpFlatMonitor<Harmony<TestComposite>>();
 }
 
 #if 0

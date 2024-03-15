@@ -116,7 +116,8 @@ struct Harmony1Widget : ModuleWidget {
 
         // add the sharps/flats
         if (module) {
-            SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::USE_FLATS_PARAM);
+            // TODO: use new poll
+            SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SHARPS_FLATS_PARAM);
             item->text = "Flats/not sharps";
             theMenu->addChild(item);
         }
@@ -135,7 +136,8 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void _processUseSharpsParam() {
-        const bool useFlats = APP->engine->getParamValue(module, Comp::USE_FLATS_PARAM) > .5;
+        // TODO: use new poll.
+        const bool useFlats = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM) > .5;
         auto cSharp = _keyRootWidget->getShortLabel(1);
 
         auto iter = cSharp.find("#");

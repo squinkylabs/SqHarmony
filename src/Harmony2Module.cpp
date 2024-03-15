@@ -64,8 +64,10 @@ public:
         addKeysig();
         addMainCV();
         addModCV();
-        const Comp* comp = module->getComp().get();
-        _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
+        if (module) {
+            const Comp* comp = module->getComp().get();
+            _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
+        }
     }
 
 private:
