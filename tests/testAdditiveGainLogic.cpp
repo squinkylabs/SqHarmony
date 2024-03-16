@@ -16,13 +16,6 @@ static void testAdditiveGainLogic_outOfRange() {
     assertEQ(l.getLevel(N), 0);
     assertEQ(l.getLevel(N + 1), 0);
     assertNE(l.getLevel(N - 1), 0);
-
-    /*
-        l.setCV(1.3f);
-        assertEQ(l.getLevel(N), 0);
-        assertEQ(l.getLevel(N + 1), 0);
-        assertNE(l.getLevel(N - 1), 0);
-        */
 }
 
 static void testAdditiveGainLogic_harmonics() {

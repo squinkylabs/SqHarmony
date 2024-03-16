@@ -119,9 +119,9 @@ private:
     void _stepn();
     void _servicePolyphony();
     void _serviceEnableButtons();
-    void _serviceKeysigParam();
     void _serviceKeysigRootCV();
     void _serviceKeysigModeCV();
+     void _serviceKeysigParam();
     void _serviceTranspose();
     void _serviceTranspose(int channel, int& outputChannel);
 };
@@ -165,9 +165,10 @@ inline void Harmony2<TBase>::_init() {
 template <class TBase>
 inline void Harmony2<TBase>::_stepn() {
     _serviceEnableButtons();
-    _serviceKeysigParam();
+  
     _serviceKeysigRootCV();
     _serviceKeysigModeCV();
+    _serviceKeysigParam();
     _servicePolyphony();
 }
 
@@ -183,7 +184,6 @@ inline void Harmony2<TBase>::_serviceKeysigParam() {
 template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     if (TBase::inputs[KEY_INPUT].channels == 0) {
-        assert(false);      // just for now
         return;
     }
 

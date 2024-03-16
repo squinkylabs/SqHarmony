@@ -163,7 +163,7 @@ public:
 };
 
 static void testKeyCV2(const TestParams& tp) {
-    bool wouldPass = true;
+    bool wouldFail = false;
     assert(!tp.expectedScale.empty());
     auto composite = std::make_shared<Comp>();
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = tp.onlyDiatonic ? 1 : 0;
@@ -190,9 +190,13 @@ static void testKeyCV2(const TestParams& tp) {
         if (tp.shouldPass) {
             assertEQ(composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
         }
-        wouldPass = composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0) == cv;
+
+        // If any fail, they all fail
+        const bool pass = composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0) == cv;
+     //   wouldFail ||= !pass;
+        wouldFail = wouldFail || !pass;
     }
-    assertEQ(wouldPass, tp.shouldPass);
+    assertEQ(wouldFail, !tp.shouldPass);
 }
 
 static void testKeyCVCMajor() {
@@ -205,7 +209,8 @@ static void testKeyCVCMajor() {
 }
 
 static void testKeyCVNotCMajor() {
-  TestParams tp;
+    SQINFO("-------------- testKeyCVNotCMajor");
+    TestParams tp;
     tp.keyCVIn = 2.f / 12.f;        // D major 
     tp.modeCVIn = 0;
     tp.onlyDiatonic = false;
@@ -217,8 +222,6 @@ static void testKeyCVNotCMajor() {
 static void testKeyCV2() {
     testKeyCVCMajor();
     testKeyCVNotCMajor();
-
-    assert(false);
 }
 
 void testHarmony2() {
@@ -236,7 +239,7 @@ void testHarmony2() {
     testKeyCV2();
 }
 
-#if 1
+#if 0
 void testFirst() {
     //testKeyCV2();
     testKeyCVNotCMajor();
