@@ -97,7 +97,7 @@ std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
             "Mixo.",
             "Minor",
             "Locrian",
-            "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T"};
+            "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T", "Chrom"};
     }
 }
 
@@ -114,7 +114,7 @@ Scale::getScaleLabels(bool justDiatonic) {
             "Locrian"};
     else
         return {"Major", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Minor", "Locrian",
-                "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone"};
+                "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone", "Chromatic"};
 }
 
 std::vector<std::string> Scale::getRootLabels(bool useFlats) {
@@ -463,6 +463,17 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
             return SharpsFlatsPref::DontCare;
         case Scales::WholeStep:
             return SharpsFlatsPref::Sharps;
+
+        // These handled above. Just to make gcc not nag
+        case Scales::Locrian:
+        case Scales::Dorian:
+        case Scales::Lydian:
+        case Scales::Major:
+        case Scales::Minor:
+        case Scales::Mixolydian:
+        case Scales::Phrygian:
+            break;
+
     }
     assert(false);
     return SharpsFlatsPref::DontCare;

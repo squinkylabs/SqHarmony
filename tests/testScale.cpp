@@ -496,6 +496,9 @@ static void testLabels() {
     testLabels(Scale::getShortScaleLabels(true));
     testLabels(Scale::getScaleLabels(false));
     testLabels(Scale::getScaleLabels(true));
+
+    assertEQ(Scale::getShortScaleLabels(true).size(), 7);  // 7 diatonic
+    assertEQ(Scale::getShortScaleLabels(false).size(), 13);  // 13 total
 }
 
 void testScale() {
