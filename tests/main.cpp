@@ -15,7 +15,7 @@ extern void testScale();
 extern void testScaleNotes();
 extern void testHarmonyComposite();
 extern void testKeysig();
-// call the above are used.
+
 extern void specialDumpList();
 extern void testProgressions();
 extern void testNoteBuffer();
@@ -29,6 +29,7 @@ extern void testHarmonyChordsRandom();
 extern void testHarmonyChords2();
 extern void testRingBuffer();
 extern void testChord4Manager();
+// call the above are used.
 extern void testTempo();
 extern void testGrayCode();
 extern void testAdditivePitchLogic();
@@ -168,7 +169,9 @@ int main(const char**, int) {
     testAllChords(doLongRunning);
 #endif
     testHarmonyComposite();
-    printf("put back test progression?\n");
+    testProgressions();
+    testChord4Manager();
+   // printf("put back test progression?\n");
 
 #endif
 }

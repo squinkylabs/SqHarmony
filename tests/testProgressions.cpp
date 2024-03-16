@@ -84,10 +84,10 @@ static void testCtoD3() {
 }
 void testProgressions() {
     // testCtoD();
-    printf("\n*********** Here's what my program did\n");
+    //printf("\n*********** Here's what my program did\n");
     testCtoD2();
-    printf("\n*********** Here's AT\n");
+    //printf("\n*********** Here's AT\n");
     testCtoD3();
     fflush(stdout);
-    assert(false);
+    //assert(false);
 }
