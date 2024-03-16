@@ -23,6 +23,10 @@ Of course there are many, many reasons a composer might choose different ways to
 
 This is only a small issue in Harmony II. The user preference for sharps or flats only affects how the key signature on the front panels looks.
 
+### Are B flat and A sharp the same
+
+Usually yes, sometimes no?
+
 ## Modes
 
 As people have remarked, it's very difficult to get your music to sound like it is in a particular mode. After all, you can make all seven modes from the notes of C Major. So what happens if you play random white keys on a keyboard? If anything, it will sound like you are in C Major. Possibly A minor. Why? Well, hard to say exactly, but for one reason or another your ear tends to pull everything into a familiar key. So if you want to make music in a certain diatonic mode that isn't Ionian (major) or Aeolian (minor), it can be difficult. It can often sound like the music is really in the realtive major of the mode you are trying to usel

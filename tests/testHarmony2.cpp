@@ -153,6 +153,55 @@ static void testKeyCV() {
     testKeyCV(false);
 }
 
+
+class TestParams {
+public:
+    float keyCVIn = 0;
+    bool onlyDiatonic = false;
+    float modeCVIn = 0;
+    std::vector<int> expectedScale;
+    int transposeOctaves = 2;            
+};
+
+static void testKeyCV2(const TestParams& tp) {
+//static void testKeyCV2(float keyCVIn, bool onlyDiatonic, float modeCVIn, const std::vector<int>& expectedScale) {
+  //  Comp composite;
+    assert(!tp.expectedScale.empty());
+    auto composite = std::make_shared<Comp>();
+    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = tp.onlyDiatonic ? 1 : 0;
+    composite->inputs[Comp::KEY_INPUT].setVoltage(tp.keyCVIn);
+    composite->inputs[Comp::MODE_INPUT].setVoltage(tp.modeCVIn);
+    composite->params[Comp::XPOSE_ENABLE1_PARAM].value = 10;     // enable the first transposer.
+    composite->params[Comp::XPOSE_OCTAVE1_PARAM].value = tp.transposeOctaves;
+    processBlock(composite);
+
+    const auto args = TestComposite::ProcessArgs();
+    for (auto x : tp.expectedScale) {
+        const float cv = float(x) / 12.f;
+        composite->inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
+        composite->process(args);
+        SQINFO("exp = %f actual=%f", cv, composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0));
+        assertEQ(composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
+    }
+}
+
+static void testKeyCV2() {
+    // testKeyCV2(
+    //     0, false, 0,        // all scales allowed 0/0V
+    //     //C  D  E  F  G  A B
+    //     { 0,  2, 4, 5, 7, 9, 11 }
+    // );
+    TestParams tp;
+    tp.keyCVIn = 0;
+    tp.modeCVIn = 0;
+    tp.onlyDiatonic = false;
+    tp.expectedScale =  { 0,  2, 4, 5, 7, 9, 11 };
+    testKeyCV2(tp);
+
+    assert(false);
+}
+
+
 void testHarmony2() {
     testCanCall();
     testLabels();
@@ -164,10 +213,13 @@ void testHarmony2() {
 
     testChord2();
     testChord3();
+
+    testKeyCV2();
+
 }
 
-#if 0
+#if 1
 void testFirst() {
-   testModeCV();
+   testKeyCV2();
 }
 #endif
