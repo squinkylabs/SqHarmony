@@ -100,14 +100,15 @@ public:
 
     void process(const typename TBase::ProcessArgs& args) override;
 
-
     static int getSubSampleFactor() { return 32; }
 
     // TODO: there all need to be dynamic
     // these will change when we implement ONLY_USE_DIATONIC_PARAM
-    static bool diatonicOnly() { return false; }
-    static int numCurrentModes() { return 12; }
-    static int numNotesInCurrentScale() { return 8; }
+    bool diatonicOnly() { return TBase::params[ONLY_USE_DIATONIC_PARAM].value > .5; }
+
+    int numCurrentModes();
+    // Does not include the octave/
+    int numNotesInCurrentScale();
 
 private:
     Divider _divn;
@@ -121,10 +122,25 @@ private:
     void _serviceEnableButtons();
     void _serviceKeysigRootCV();
     void _serviceKeysigModeCV();
-     void _serviceKeysigParam();
+    void _serviceKeysigParam();
     void _serviceTranspose();
     void _serviceTranspose(int channel, int& outputChannel);
 };
+
+template <class TBase>
+int Harmony2<TBase>::numCurrentModes() {
+    return 12;
+}
+// Includes the octave
+template <class TBase>
+int Harmony2<TBase>::numNotesInCurrentScale() {
+    const bool onlyDiatonic = diatonicOnly();
+    if (onlyDiatonic) {
+        return 8;       // all the diatonics have 7 notes + octave
+    }
+
+    return 8;
+}
 
 template <class TBase>
 inline std::vector<std::string> Harmony2<TBase>::getTransposeDegreeLabels() {
@@ -165,7 +181,7 @@ inline void Harmony2<TBase>::_init() {
 template <class TBase>
 inline void Harmony2<TBase>::_stepn() {
     _serviceEnableButtons();
-  
+
     _serviceKeysigRootCV();
     _serviceKeysigModeCV();
     _serviceKeysigParam();
@@ -221,7 +237,7 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
         newModeScaledAndRounded += degreesPerVolt;
     }
 
-//  scale->get   std::pair<const MidiNote, Scales> get() const;
+    //  scale->get   std::pair<const MidiNote, Scales> get() const;
     const Scale* oldKey = _quantizerOptions->scale.get();
     const auto oldScale = oldKey->get();
 
@@ -229,7 +245,6 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     if (newModeScaledAndRounded != int(oldMode)) {
         TBase::params[MODE_PARAM].value = newModeScaledAndRounded;
     }
-
 }
 
 template <class TBase>

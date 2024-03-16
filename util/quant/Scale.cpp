@@ -371,7 +371,7 @@ const int numflats[12] = {
 
 const Scale::SharpsFlatsPref preferSharps[12] = {
     Scale::SharpsFlatsPref::DontCare,  // C Maj (
-    Scale::SharpsFlatsPref::Flats,    // C# / D flat (notated as D flat)
+    Scale::SharpsFlatsPref::Flats,     // C# / D flat (notated as D flat)
     Scale::SharpsFlatsPref::Sharps,    // D
     Scale::SharpsFlatsPref::Flats,     // D# / E flat
     Scale::SharpsFlatsPref::Sharps,    // E
@@ -473,8 +473,48 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
         case Scales::Mixolydian:
         case Scales::Phrygian:
             break;
-
     }
     assert(false);
     return SharpsFlatsPref::DontCare;
+}
+
+int Scale::numNotesInScale(Scales scale) {
+    int ret = 0;
+    switch (scale) {
+        case Scales::MinorPentatonic:
+            ret = 5;
+            break;
+
+        case Scales::HarmonicMinor: 
+            ret = 7;
+            break;
+        case Scales::Chromatic:
+            ret = 12;
+            break;
+        case Scales::Diminished:
+        case Scales::DominantDiminished:
+            ret = 8;
+            break;
+         
+        case Scales::WholeStep:
+            ret = 6;
+            break;
+
+        // These handled above. Just to make gcc not nag
+        case Scales::Locrian:
+        case Scales::Dorian:
+        case Scales::Lydian:
+        case Scales::Major:
+        case Scales::Minor:
+        case Scales::Mixolydian:
+        case Scales::Phrygian:
+            ret = 7;
+            break;
+        default:
+            assert(false);
+            ret = -1;
+    }
+    assert(ret >= 0);
+    assert(ret <= 12);
+    return ret;
 }

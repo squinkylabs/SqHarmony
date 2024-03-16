@@ -501,6 +501,24 @@ static void testLabels() {
     assertEQ(Scale::getShortScaleLabels(false).size(), 13);  // 13 total
 }
 
+static void testNumNotes() {
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Major), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Dorian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Phrygian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Lydian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Mixolydian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Minor), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Locrian), 7);
+
+    assertEQ(Scale::numNotesInScale(Scale::Scales::MinorPentatonic), 5);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::HarmonicMinor), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Chromatic), 12);
+
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Diminished), 8);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::DominantDiminished), 8);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::WholeStep), 6);
+}
+
 void testScale() {
     testCMaj();
     testAMin();
@@ -528,11 +546,13 @@ void testScale() {
     testSharpsFlatsOtherMinor();
     testSharpsFlatsWierdos();
     testSharpsFlatsNoAssert();
+     testNumNotes();
 }
 
 #if 0
 void testFirst() {
    // testSharpsFlatsWierdos();
-    testSharpsFlatsNoAssert();
+   // testSharpsFlatsNoAssert();
+   testNumNotes();
 }
 #endif

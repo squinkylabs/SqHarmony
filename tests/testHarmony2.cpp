@@ -190,10 +190,8 @@ static void testKeyCV2(const TestParams& tp) {
         if (tp.shouldPass) {
             assertEQ(composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
         }
-
         // If any fail, they all fail
         const bool pass = composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0) == cv;
-     //   wouldFail ||= !pass;
         wouldFail = wouldFail || !pass;
     }
     assertEQ(wouldFail, !tp.shouldPass);
@@ -224,6 +222,31 @@ static void testKeyCV2() {
     testKeyCVNotCMajor();
 }
 
+static void testModeDetails() {
+    /*
+        static bool diatonicOnly() { return false; }
+    static int numCurrentModes() { return 12; }
+    static int numNotesInCurrentScale() { return 8; }
+    */
+    auto composite = std::make_shared<Comp>();
+    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .3;
+    assertEQ(composite->diatonicOnly(), false);
+    assertEQ(composite->numCurrentModes(), 12);
+
+
+    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .7;
+    assertEQ(composite->diatonicOnly(), true);
+    assertEQ(composite->numCurrentModes(), 7);
+
+    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Major);
+    assertEQ(composite->numNotesInCurrentScale(), 8);
+
+
+
+    assert(false);
+}
+
 void testHarmony2() {
     testCanCall();
     testLabels();
@@ -237,11 +260,13 @@ void testHarmony2() {
     testChord3();
 
     testKeyCV2();
+    testModeDetails();
 }
 
 #if 0
 void testFirst() {
     //testKeyCV2();
-    testKeyCVNotCMajor();
+    //testKeyCVNotCMajor();
+    testModeDetails();
 }
 #endif

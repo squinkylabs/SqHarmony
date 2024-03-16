@@ -25,6 +25,8 @@ public:
         Chromatic
     };
 
+    static int numNotesInScale(Scales s);
+
     static std::vector<std::string> getScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getShortScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getRootLabels(bool useFlats);
