@@ -1,6 +1,17 @@
 # More on Harmony
 
-Some ramblings on things that are useful when trying to use some Squinktronix module.
+Some ramblings on things that are useful when trying to use some Squinktronix modules.
+
+## more info
+There is a ton of information on line and in books on this stuff. Even the wikipedia articles are much better and more detailed than what you are reading now.
+
+Here are some Wikipedia articles:
+
+* [Theoretical key](https://en.wikipedia.org/wiki/Theoretical_key)
+* [Diatonic and Chromatic](https://en.wikipedia.org/wiki/Diatonic_and_chromatic)
+* [Major and Minor](https://en.wikipedia.org/wiki/Major_and_minor)
+* [Mode](https://en.wikipedia.org/wiki/Mode_(music))
+* [Enharmonic equivalence](https://en.wikipedia.org/wiki/Enharmonic_equivalence)
 
 ## Sharps or flats
 
@@ -25,7 +36,23 @@ This is only a small issue in Harmony II. The user preference for sharps or flat
 
 ### Are B flat and A sharp the same
 
-Usually yes, sometimes no?
+Usually yes, sometimes no? This is a very complex topic, so the usual caveats apply.
+
+So, yes in a twelve tone equal tempered tuning, B flat and A sharp are _enharmonic equivalents_. They are the same. Also, on a piano keyboard there is only one black key in between A and B. On the other hand, many instruments can play notes in between the pitches. Violin is a classic example. Sometimes advanced players of these instruments will play these notes differently, to make them more in tune with the local context. But for most of us these notes are the same.
+
+How about for an entire key? Well, that is another story! Using conventional note spellings, these scales are:
+
+Notes of B flat major: B-, C, D, E-, F, G, A.
+Notes of A sharp major: A#, B#, C##, D#, E#, F##, G#
+
+There are a few reasons that most people would not call this key "A sharp" :
+
+* B# and E# are difficult notes for most people to think about, as they are the same as C and F.
+* There are two double sharps in that key. C## and F## are much more commonly called D an G.
+* Standard music notion rarely has key signatures with double sharps.
+* There are only two flats in B flat major, yet there are (at least) seven sharps in A sharp.
+
+Bottom line is that for the pitches themselves it will depend on context whether you call a note "n sharp" vs. "n+1 flat". For the keys themselves there will usually be a preference for one or the other. In the case of B-/A#, if you tell a band "this piece is in B flat", they will find it much easier than if you say "this piece is in A sharp". If fact, most musicians would most likely translate "A sharp" to B flat in their heads.
 
 ## Modes
 

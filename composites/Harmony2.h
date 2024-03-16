@@ -183,6 +183,7 @@ inline void Harmony2<TBase>::_serviceKeysigParam() {
 template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     if (TBase::inputs[KEY_INPUT].channels == 0) {
+        assert(false);      // just for now
         return;
     }
 

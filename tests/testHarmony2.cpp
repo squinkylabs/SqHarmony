@@ -56,7 +56,7 @@ static void testPolyOutput() {
     assertEQ(int(comp->outputs[Comp::PITCH_OUTPUT].channels), 3);
 }
 
-/** 
+/**
  */
 static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     auto comp = std::make_shared<Comp>();
@@ -69,28 +69,27 @@ static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     assertEQ(comp->params[Comp::KEY_PARAM].value, expectedKey);
 }
 
-
 static void testKeyCV(bool connected) {
-    testKeyCV(connected, 3.f/12.f, 3.f);
+    testKeyCV(connected, 3.f / 12.f, 3.f);
 }
 
 static void testKeyCVWrap() {
-    testKeyCV(true, 1, 0);          // 1V should wrap back down to C
-    testKeyCV(true, 5 + 1.f / 12.f, 1); // 5+1 should wrap down to +1
-    testKeyCV(true, -8, 0);         // negative should wrap
-    testKeyCV(true, -4 + 5.f/12.f, 5);
+    testKeyCV(true, 1, 0);               // 1V should wrap back down to C
+    testKeyCV(true, 5 + 1.f / 12.f, 1);  // 5+1 should wrap down to +1
+    testKeyCV(true, -8, 0);              // negative should wrap
+    testKeyCV(true, -4 + 5.f / 12.f, 5);
 }
 
 /**
  */
 static void testModeCV(float cv, int expectedParam) {
-     auto comp = std::make_shared<Comp>();
+    auto comp = std::make_shared<Comp>();
     comp->inputs[Comp::MODE_INPUT].setVoltage(cv);
     comp->inputs[Comp::MODE_INPUT].channels = 1;
     processBlock(comp);
 
     assertEQ(comp->params[Comp::MODE_PARAM].value, expectedParam);
-} 
+}
 
 static void testModeCV() {
     const float degree = 1.f / 8.f;
@@ -143,8 +142,8 @@ static void testChord2() {
 
 static void testChord3() {
     testChord(
-        {0 },  // root
-        {2+1},  // one octave shift
+        {0},      // root
+        {2 + 1},  // one octave shift
         {1});
 }
 
@@ -153,25 +152,32 @@ static void testKeyCV() {
     testKeyCV(false);
 }
 
-
 class TestParams {
 public:
     float keyCVIn = 0;
     bool onlyDiatonic = false;
     float modeCVIn = 0;
     std::vector<int> expectedScale;
-    int transposeOctaves = 2;            
+    int transposeOctaves = 2;
+    bool shouldPass = true;
 };
 
 static void testKeyCV2(const TestParams& tp) {
-//static void testKeyCV2(float keyCVIn, bool onlyDiatonic, float modeCVIn, const std::vector<int>& expectedScale) {
-  //  Comp composite;
+    bool wouldPass = true;
     assert(!tp.expectedScale.empty());
     auto composite = std::make_shared<Comp>();
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = tp.onlyDiatonic ? 1 : 0;
+
+    composite->inputs[Comp::PITCH_INPUT].channels = 1;
+
+    composite->inputs[Comp::KEY_INPUT].channels = 1;
+    assertEQ(composite->inputs[Comp::KEY_INPUT].getChannels(), 1);
     composite->inputs[Comp::KEY_INPUT].setVoltage(tp.keyCVIn);
+
+    composite->inputs[Comp::MODE_INPUT].channels = 1;
     composite->inputs[Comp::MODE_INPUT].setVoltage(tp.modeCVIn);
-    composite->params[Comp::XPOSE_ENABLE1_PARAM].value = 10;     // enable the first transposer.
+
+    composite->params[Comp::XPOSE_ENABLE1_PARAM].value = 10;  // enable the first transposer.
     composite->params[Comp::XPOSE_OCTAVE1_PARAM].value = tp.transposeOctaves;
     processBlock(composite);
 
@@ -181,26 +187,39 @@ static void testKeyCV2(const TestParams& tp) {
         composite->inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
         composite->process(args);
         SQINFO("exp = %f actual=%f", cv, composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0));
-        assertEQ(composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
+        if (tp.shouldPass) {
+            assertEQ(composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
+        }
+        wouldPass = composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0) == cv;
     }
+    assertEQ(wouldPass, tp.shouldPass);
 }
 
-static void testKeyCV2() {
-    // testKeyCV2(
-    //     0, false, 0,        // all scales allowed 0/0V
-    //     //C  D  E  F  G  A B
-    //     { 0,  2, 4, 5, 7, 9, 11 }
-    // );
-    TestParams tp;
+static void testKeyCVCMajor() {
+  TestParams tp;
     tp.keyCVIn = 0;
     tp.modeCVIn = 0;
     tp.onlyDiatonic = false;
-    tp.expectedScale =  { 0,  2, 4, 5, 7, 9, 11 };
+    tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};
     testKeyCV2(tp);
+}
+
+static void testKeyCVNotCMajor() {
+  TestParams tp;
+    tp.keyCVIn = 2.f / 12.f;        // D major 
+    tp.modeCVIn = 0;
+    tp.onlyDiatonic = false;
+    tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};  // all the white keys
+    tp.shouldPass = false;
+    testKeyCV2(tp);
+}
+
+static void testKeyCV2() {
+    testKeyCVCMajor();
+    testKeyCVNotCMajor();
 
     assert(false);
 }
-
 
 void testHarmony2() {
     testCanCall();
@@ -215,11 +234,11 @@ void testHarmony2() {
     testChord3();
 
     testKeyCV2();
-
 }
 
 #if 1
 void testFirst() {
-   testKeyCV2();
+    //testKeyCV2();
+    testKeyCVNotCMajor();
 }
 #endif
