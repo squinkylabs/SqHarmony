@@ -106,6 +106,7 @@ public:
     // these will change when we implement ONLY_USE_DIATONIC_PARAM
     bool diatonicOnly() { return TBase::params[ONLY_USE_DIATONIC_PARAM].value > .5; }
 
+    // given the curren state (ONLY_USE_DIATONIC_PARAM), how many modes are available.
     int numCurrentModes();
     // Does not include the octave/
     int numNotesInCurrentScale();
@@ -129,17 +130,14 @@ private:
 
 template <class TBase>
 int Harmony2<TBase>::numCurrentModes() {
-    return 12;
+    return diatonicOnly() ? 7 : 13;
+   
 }
 // Includes the octave
 template <class TBase>
 int Harmony2<TBase>::numNotesInCurrentScale() {
-    const bool onlyDiatonic = diatonicOnly();
-    if (onlyDiatonic) {
-        return 8;       // all the diatonics have 7 notes + octave
-    }
-
-    return 8;
+    const Scale::Scales curMode = Scale::Scales(int(TBase::params[MODE_PARAM].value));
+    return Scale::numNotesInScale(curMode);
 }
 
 template <class TBase>

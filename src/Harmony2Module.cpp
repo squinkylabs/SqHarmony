@@ -35,7 +35,7 @@ public:
 
 private:
     void addParams() {
-        const int numModes = Comp::numCurrentModes();
+        const int numModes = getComp()->numCurrentModes();
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
             //  SQINFO("setting params bank %d", i);
             this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numModes - 1, 0, "Transpose Degrees");
@@ -61,7 +61,7 @@ public:
         addLabel(Vec(44, 353), "Squinktronix", 17);
 #endif
         addTranposeControls(module);
-        addKeysig();
+        addKeysig(module);
         addMainCV();
         addModCV();
         if (module) {
@@ -124,7 +124,7 @@ private:
         addInputL(Vec(100, y), Comp::MODE_INPUT, "Mode");
     }
 
-    void addKeysig() {
+    void addKeysig(Harmony2Module* xmodule) {
         const float yScale = 220;
         const float yMode = yScale;
 
@@ -144,7 +144,7 @@ private:
             Vec(74, yMode),
             module,
             Comp::MODE_PARAM);
-        const bool diatonicOnly = Comp::diatonicOnly();
+        const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
         p->setShortLabels(Scale::getShortScaleLabels(diatonicOnly));
         p->setLabels(Scale::getScaleLabels(diatonicOnly));
 

@@ -198,7 +198,7 @@ static void testKeyCV2(const TestParams& tp) {
 }
 
 static void testKeyCVCMajor() {
-  TestParams tp;
+    TestParams tp;
     tp.keyCVIn = 0;
     tp.modeCVIn = 0;
     tp.onlyDiatonic = false;
@@ -209,7 +209,7 @@ static void testKeyCVCMajor() {
 static void testKeyCVNotCMajor() {
     SQINFO("-------------- testKeyCVNotCMajor");
     TestParams tp;
-    tp.keyCVIn = 2.f / 12.f;        // D major 
+    tp.keyCVIn = 2.f / 12.f;  // D major
     tp.modeCVIn = 0;
     tp.onlyDiatonic = false;
     tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};  // all the white keys
@@ -222,6 +222,33 @@ static void testKeyCV2() {
     testKeyCVNotCMajor();
 }
 
+static void testNotesInScale(Comp* composite) {
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Major);
+    assertEQ(composite->numNotesInCurrentScale(), 7);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Dorian);
+    assertEQ(composite->numNotesInCurrentScale(), 7);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Phrygian);
+    assertEQ(composite->numNotesInCurrentScale(), 7);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Lydian);
+    assertEQ(composite->numNotesInCurrentScale(), 7);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Mixolydian);
+    assertEQ(composite->numNotesInCurrentScale(), 7);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Minor);
+    assertEQ(composite->numNotesInCurrentScale(), 7);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Locrian);
+    assertEQ(composite->numNotesInCurrentScale(), 7);
+
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::MinorPentatonic);
+    assertEQ(composite->numNotesInCurrentScale(), 5);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Diminished);
+    assertEQ(composite->numNotesInCurrentScale(), 8);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::DominantDiminished);
+    assertEQ(composite->numNotesInCurrentScale(), 8);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::WholeStep);
+    assertEQ(composite->numNotesInCurrentScale(), 6);
+    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Chromatic);
+    assertEQ(composite->numNotesInCurrentScale(), 12);
+}
 static void testModeDetails() {
     /*
         static bool diatonicOnly() { return false; }
@@ -230,21 +257,21 @@ static void testModeDetails() {
     */
     auto composite = std::make_shared<Comp>();
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .3;
+
+    // All the assertsions for diatonic only
     assertEQ(composite->diatonicOnly(), false);
-    assertEQ(composite->numCurrentModes(), 12);
+    assertEQ(composite->numCurrentModes(), 13);
 
-
+    //  all the assertions for all scales, not just diatonic
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .7;
     assertEQ(composite->diatonicOnly(), true);
     assertEQ(composite->numCurrentModes(), 7);
 
+    // things that don't really care about setting for diatonic
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
-    composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Major);
-    assertEQ(composite->numNotesInCurrentScale(), 8);
-
-
-
-    assert(false);
+    testNotesInScale(composite.get());
+    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 1;
+    testNotesInScale(composite.get());
 }
 
 void testHarmony2() {
@@ -265,8 +292,8 @@ void testHarmony2() {
 
 #if 0
 void testFirst() {
-    //testKeyCV2();
-    //testKeyCVNotCMajor();
+    // testKeyCV2();
+    // testKeyCVNotCMajor();
     testModeDetails();
 }
 #endif
