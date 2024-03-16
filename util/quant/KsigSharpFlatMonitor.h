@@ -45,7 +45,6 @@ public:
         // we don't really need this case...
         if (defaultIsOkWithComposite && (scaleSharpFlatPref != Scale::SharpsFlatsPref::DontCare) &&
             (scalePrefersSharps == isSharps)) {
-            SQINFO("leaving case 1, 39");
             return;
         }
         // if we are cool with defaults, and ksig has a default, and we are NOT set to it, set to it
@@ -53,24 +52,20 @@ public:
             (scalePrefersSharps != isSharps)) {
             // then set to default, and return.
             _keyRootWidget->setLabels(Scale::getRootLabels(!scalePrefersSharps));
-            SQINFO("leaving case 2, 49");
             return;
         }
         // if it's a don't care scale, but we aren't set to pref then set to user pref
         if (defaultIsOkWithComposite && (scaleSharpFlatPref == Scale::SharpsFlatsPref::DontCare) &&
             (compositeTieBreakerIsSharps != isSharps)) {
             _keyRootWidget->setLabels(Scale::getRootLabels(!compositeTieBreakerIsSharps));
-            SQINFO("leaving case 2, 56");
             return;
         }
         // if use has a hard pref for sharps or flats, and we are not on it, set it
         if (!defaultIsOkWithComposite && (compositeTieBreakerIsSharps != isSharps)) {
             _keyRootWidget->setLabels(Scale::getRootLabels(!compositeTieBreakerIsSharps));
-            SQINFO("leaving case 3, 62");
             return;
         }
 
-        SQINFO("generic case, 66");
         return;
     }
 };

@@ -15,6 +15,7 @@ extern void testScale();
 extern void testScaleNotes();
 extern void testHarmonyComposite();
 extern void testKeysig();
+// call the above are used.
 extern void specialDumpList();
 extern void testProgressions();
 extern void testNoteBuffer();
@@ -127,9 +128,15 @@ int main(const char**, int) {
     testPhasePatterns();
     testPhasePatternsPoly();
 
+    testScale();
+    testScaleRelativeNote();
+    testScaleQuantizer();
     testHarmony2();
+    testHarmonyNote();
+#if 0
     printf("XX: leaving early for clock stuff");
     std::exit(0);
+#endif
 
     testAdditiveModLogic();
     testAdditivePitchLogic();
@@ -141,6 +148,7 @@ int main(const char**, int) {
     testGateDelay();
     testSeqClock();
     testNoteBuffer();
+    testKeysig();
 
     testArpegPlayer2();
     testArpegPlayer();
@@ -150,6 +158,7 @@ int main(const char**, int) {
     testRawChordGenerator();
     testPitchKnowledge();
     testChord4();
+    testChord();
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChords2023();

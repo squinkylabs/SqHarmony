@@ -267,14 +267,16 @@ static void testSharpsFlatsDiatonic() {
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
+    // C#/Dflat
     scale.set(MidiNote::C + 1, Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == Scale::SharpsFlatsPref::Flats);
 
     scale.set(MidiNote::D, Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
+    // D#/Eflat
     scale.set(MidiNote::D + 1, Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
@@ -287,6 +289,7 @@ static void testSharpsFlatsDiatonic() {
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
+    // F#/G-
     scale.set(MidiNote::F + 1, Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
@@ -295,6 +298,7 @@ static void testSharpsFlatsDiatonic() {
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
+    // G#/A-
     scale.set(MidiNote::G + 1, Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
@@ -303,6 +307,7 @@ static void testSharpsFlatsDiatonic() {
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
+    // A#/B-
     scale.set(MidiNote::A + 1, Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
