@@ -230,7 +230,9 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     SQINFO("How do we want to scale ksig input?");
     const int degreesPerVolt = numNotesInCurrentScale();
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
+  
     int newModeScaledAndRounded = int(std::round(degreesPerVolt * newModeF)) % degreesPerVolt;
+      SQINFO("raw mode cv = %f scaled and rounded = %d", newModeF, newModeScaledAndRounded);
     if (newModeScaledAndRounded < 0) {
         newModeScaledAndRounded += degreesPerVolt;
     }

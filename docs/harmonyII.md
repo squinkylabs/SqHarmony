@@ -36,10 +36,17 @@ At the simplest level, Harmony II will take a monophonic CV input, and output a 
 
 **Key signature mode**: What are the notes in the scale.
 
-
 ## CV inputs
 
-(text coming soon)
+**CVI** is the main CV input. It is monophonic and follows the VCV standard for pitch.
+
+**CVO** is the output. It is polyphonic and follows the VCV standard for pitch. 
+
+**Key** will set the Key signature root. It is monophonic, and also follows the VCV pitch standard.
+
+**Mode** will set the Key signature mode. It is monophonic, and puts a different scale every 1/12 volt. So it's similar to the VCV pitch standard, but not really.
+
+**XP** transpose amount. It is polyphonic, does not follow the VCV pitch standard. It is one volt per octave, but the octave is evenly divided by the number of notes in the scale. So a transpose of one degree is 1/8 in a diatonic scale, not the 1/12 for a semitone.
 
 ## CV output
 

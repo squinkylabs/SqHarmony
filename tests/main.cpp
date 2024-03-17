@@ -72,6 +72,7 @@ extern void testClockShifter6();
 extern void testClockShifter6d();
 extern void testBitDelay();
 extern void testHarmony2();
+extern void testHarmony2B();
 extern void testSharpFlatMonitor();
 
 #include "SqLog.h"
@@ -95,7 +96,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -133,8 +134,9 @@ int main(const char**, int) {
     testScaleRelativeNote();
     testScaleQuantizer();
     testHarmony2();
+    testHarmony2B();
     testHarmonyNote();
-#if 0
+#if 1
     printf("XX: leaving early for clock stuff");
     std::exit(0);
 #endif
