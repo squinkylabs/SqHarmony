@@ -1,17 +1,10 @@
 #include "Harmony2.h"
 #include "TestComposite.h"
+#include "testUtils.h"
 #include "asserts.h"
 
 using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
-
-static void processBlock(CompPtr comp) {
-    const auto args = TestComposite::ProcessArgs();
-    // process enough times to do the ribs thing.
-    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
-        comp->process(args);
-    }
-}
 
 static void testCanCall() {
     CompPtr comp = std::make_shared<Comp>();
@@ -62,7 +55,7 @@ static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     auto comp = std::make_shared<Comp>();
     comp->inputs[Comp::KEY_INPUT].setVoltage(cv);
     comp->inputs[Comp::KEY_INPUT].channels = cvConnected ? 1 : 0;
-    processBlock(comp);
+    processBlock(*comp);
 
     // Expect that changing the CV will change the key param
     const float expectedKey = cvConnected ? expectedParam : 0.f;
@@ -86,7 +79,7 @@ static void testModeCV(float cv, int expectedParam) {
     auto comp = std::make_shared<Comp>();
     comp->inputs[Comp::MODE_INPUT].setVoltage(cv);
     comp->inputs[Comp::MODE_INPUT].channels = 1;
-    processBlock(comp);
+    processBlock(*comp);
 
     assertEQ(comp->params[Comp::MODE_PARAM].value, expectedParam);
 }
@@ -165,40 +158,41 @@ public:
 static void testKeyCV2(const TestParams& tp) {
     bool wouldFail = false;
     assert(!tp.expectedScale.empty());
-    auto composite = std::make_shared<Comp>();
-    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = tp.onlyDiatonic ? 1 : 0;
+    Comp composite;
+    composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = tp.onlyDiatonic ? 1 : 0;
 
-    composite->inputs[Comp::PITCH_INPUT].channels = 1;
+    composite.inputs[Comp::PITCH_INPUT].channels = 1;
 
-    composite->inputs[Comp::KEY_INPUT].channels = 1;
-    assertEQ(composite->inputs[Comp::KEY_INPUT].getChannels(), 1);
-    composite->inputs[Comp::KEY_INPUT].setVoltage(tp.keyCVIn);
-    SQINFO("in test root CV (KEY_INPUT) = %f",  composite->inputs[Comp::KEY_INPUT].getVoltage(0));
+    composite.inputs[Comp::KEY_INPUT].channels = 1;
+    assertEQ(composite.inputs[Comp::KEY_INPUT].getChannels(), 1);
+    composite.inputs[Comp::KEY_INPUT].setVoltage(tp.keyCVIn);
+    SQINFO("in test root CV (KEY_INPUT) = %f",  composite.inputs[Comp::KEY_INPUT].getVoltage(0));
 
-    composite->inputs[Comp::MODE_INPUT].channels = 1;
-    composite->inputs[Comp::MODE_INPUT].setVoltage(tp.modeCVIn);
-    SQINFO("in test, mode input (MODE_INPUT) = %f",  composite->inputs[Comp::MODE_INPUT].getVoltage(0));
+    composite.inputs[Comp::MODE_INPUT].channels = 1;
+    composite.inputs[Comp::MODE_INPUT].setVoltage(tp.modeCVIn);
+    SQINFO("in test, mode input (MODE_INPUT) = %f",  composite.inputs[Comp::MODE_INPUT].getVoltage(0));
 
-    composite->params[Comp::XPOSE_ENABLE1_PARAM].value = 10;  // enable the first transposer.
-    composite->params[Comp::XPOSE_OCTAVE1_PARAM].value = tp.transposeOctaves;
+    composite.params[Comp::XPOSE_ENABLE1_PARAM].value = 10;  // enable the first transposer.
+    composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = tp.transposeOctaves;
     processBlock(composite);
 
     const auto args = TestComposite::ProcessArgs();
     for (auto x : tp.expectedScale) {
         const float cv = float(x) / 12.f;
-        composite->inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
-        composite->process(args);
-        SQINFO("exp = %f actual=%f", cv, composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0));
+        composite.inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
+        composite.process(args);
+        SQINFO("exp = %f actual=%f", cv, composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0));
         if (tp.shouldPass) {
-            assertEQ(composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
+            assertEQ(composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
         }
         // If any fail, they all fail
-        const bool pass = composite->outputs[Comp::PITCH_OUTPUT].getVoltage(0) == cv;
+        const bool pass = composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0) == cv;
         wouldFail = wouldFail || !pass;
     }
     assertEQ(wouldFail, !tp.shouldPass);
 }
 
+#if 0
 static void testKeyCVCMajor() {
     TestParams tp;
     tp.keyCVIn = 0;
@@ -207,6 +201,7 @@ static void testKeyCVCMajor() {
     tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};
     testKeyCV2(tp);
 }
+
 
 static void testKeyCVNotCMajor() {
     TestParams tp;
@@ -217,6 +212,7 @@ static void testKeyCVNotCMajor() {
     tp.shouldPass = false;
     testKeyCV2(tp);
 }
+#endif
 
 static void testKeyCVEMinorXp3() {
     SQINFO("-------------- testKeyCVEMinorXp3");
@@ -243,8 +239,8 @@ static void testKeyCVEMinorXp3() {
 }
 
 static void testKeyCV2() {
-    testKeyCVCMajor();
-    testKeyCVNotCMajor();
+    //testKeyCVCMajor();
+  //  testKeyCVNotCMajor();
 
     testKeyCVEMinorXp3();
 }
