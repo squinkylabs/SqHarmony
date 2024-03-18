@@ -42,7 +42,7 @@ static void enableOneTransposer(Comp& composite) {
     composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = 2;   // no octave offset
 }
 
-static void testKeyCVEMinorXp3() {
+static void testKeyCVEMinorXp3(int modeWrap) {
     Comp composite;
     // All scales allowed
     composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
@@ -51,6 +51,8 @@ static void testKeyCVEMinorXp3() {
     // Key of CE
     composite.inputs[Comp::KEY_INPUT].setVoltage(4.f / 12.f);
     //   Minor is +6
+    const int modeWrapAmount = modeWrap * Scale::numScales();
+    const float modeCV = float(Scale::Scales::Minor) / float(Scale::numScales());
     composite.inputs[Comp::MODE_INPUT].setVoltage(float(Scale::Scales::Minor) / float(Scale::numScales() + 1));  // there are 13 scales);
     SQINFO("for Minor, want mode %d, using CV %f den=%d",
            int(Scale::Scales::Minor),
@@ -67,6 +69,12 @@ static void testKeyCVEMinorXp3() {
            MidiNote::C,
            MidiNote::D});
 }
+
+ static void testKeyCVEMinorXp3() {
+    testKeyCVEMinorXp3(0);
+    testKeyCVEMinorXp3(1);
+    testKeyCVEMinorXp3(-1);
+ }
 
 static void testCCommon(bool atC) {
     SQINFO("---- testCCommon %d", atC);
@@ -97,7 +105,6 @@ void testHarmony2B() {
     testKeyCVCMajor();
     testKeyCVNotCMajor();
     testKeyCVEMinorXp3();
-    //  assert(false);
 }
 
 #if 1
