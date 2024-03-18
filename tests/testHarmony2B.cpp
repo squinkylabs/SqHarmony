@@ -9,6 +9,7 @@ using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
 static void test2(bool shouldPass, Comp& composite,  const std::vector<int>& expectedScale) {
+    SQINFO("-- test2 should pass = %d", shouldPass);
     bool wouldFail = false;
     assert(!expectedScale.empty());
    
@@ -42,17 +43,9 @@ static void enableOneTransposer(Comp& composite) {
     composite.params[Comp::XPOSE_ENABLE1_PARAM].value = 10;  // enable the first transposer.
     composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = 2;     // no octave offset
 }
-/*
-static void testKeyCVCMajor() {
-    TestParams tp;
-    tp.keyCVIn = 0;
-    tp.modeCVIn = 0;
-    tp.onlyDiatonic = false;
-    tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};
-    testKeyCV2(tp);
-}
-*/
+
 static void testCCommon(bool atC) {
+    SQINFO("---- testCCommon %d", atC);
    // auto composite = std::make_shared<Comp>();
     Comp composite;
     // All scales allowed
@@ -60,20 +53,16 @@ static void testCCommon(bool atC) {
 
     hookUpCVInputs(composite);
 
-    // Key of C
-    composite.inputs[Comp::KEY_INPUT].setVoltage(0);
+    // Key of C or c#, depending
+    composite.inputs[Comp::KEY_INPUT].setVoltage(atC ? 0 : 1.f / 12.f);
     // Mode major
     composite.inputs[Comp::MODE_INPUT].setVoltage(0);
-
-    // Set v/oct input
-    composite.inputs[Comp::PITCH_INPUT].setVoltage(atC ? 0 : 1.f / 12.f);
-
     enableOneTransposer(composite);
     test2(atC, composite, { 0, 2, 4, 5, 7, 9, 11 });
 }
 
 static void testKeyCVCMajor() {
-     testCCommon(false);
+     testCCommon(true);
 }
 
 static void testKeyCVNotCMajor() {
@@ -84,11 +73,12 @@ static void testKeyCVNotCMajor() {
 void testHarmony2B() {
     testKeyCVCMajor();
     testKeyCVNotCMajor();
-    assert(false);
+  //  assert(false);
 }
 
 #if 1
 void testFirst() {
+    SQINFO("Test First");
     testKeyCVCMajor();
     testKeyCVNotCMajor();
    
