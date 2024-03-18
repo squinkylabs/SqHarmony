@@ -1,18 +1,17 @@
 
-#include "asserts.h"
-
 #include "Harmony2.h"
 #include "TestComposite.h"
+#include "asserts.h"
 #include "testUtils.h"
 
 using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
-static void test2(bool shouldPass, Comp& composite,  const std::vector<int>& expectedScale) {
+static void test2(bool shouldPass, Comp& composite, const std::vector<int>& expectedScale) {
     SQINFO("-- test2 should pass = %d", shouldPass);
     bool wouldFail = false;
     assert(!expectedScale.empty());
-   
+
     processBlock(composite);
 
     const auto args = TestComposite::ProcessArgs();
@@ -31,7 +30,6 @@ static void test2(bool shouldPass, Comp& composite,  const std::vector<int>& exp
     assertEQ(wouldFail, !shouldPass);
 }
 
-
 static void hookUpCVInputs(Comp& composite) {
     // The CV inputs we all care about are patched for mono input
     composite.inputs[Comp::PITCH_INPUT].channels = 1;
@@ -41,12 +39,38 @@ static void hookUpCVInputs(Comp& composite) {
 
 static void enableOneTransposer(Comp& composite) {
     composite.params[Comp::XPOSE_ENABLE1_PARAM].value = 10;  // enable the first transposer.
-    composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = 2;     // no octave offset
+    composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = 2;   // no octave offset
+}
+
+static void testKeyCVEMinorXp3() {
+    Comp composite;
+    // All scales allowed
+    composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
+    hookUpCVInputs(composite);
+
+    // Key of CE
+    composite.inputs[Comp::KEY_INPUT].setVoltage(4.f / 12.f);
+    //   Minor is +6
+    composite.inputs[Comp::MODE_INPUT].setVoltage(float(Scale::Scales::Minor) / float(Scale::numScales() + 1));  // there are 13 scales);
+    SQINFO("for Minor, want mode %d, using CV %f den=%d",
+           int(Scale::Scales::Minor),
+           composite.inputs[Comp::MODE_INPUT].getVoltage(),
+           Scale::numScales() + 1);
+    enableOneTransposer(composite);
+
+    test2(true, composite,
+          {MidiNote::E,
+           MidiNote::F + 1,
+           MidiNote::G,
+           MidiNote::A,
+           MidiNote::B,
+           MidiNote::C,
+           MidiNote::D});
 }
 
 static void testCCommon(bool atC) {
     SQINFO("---- testCCommon %d", atC);
-   // auto composite = std::make_shared<Comp>();
+    // auto composite = std::make_shared<Comp>();
     Comp composite;
     // All scales allowed
     composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
@@ -58,29 +82,27 @@ static void testCCommon(bool atC) {
     // Mode major
     composite.inputs[Comp::MODE_INPUT].setVoltage(0);
     enableOneTransposer(composite);
-    test2(atC, composite, { 0, 2, 4, 5, 7, 9, 11 });
+    test2(atC, composite, {0, 2, 4, 5, 7, 9, 11});
 }
 
 static void testKeyCVCMajor() {
-     testCCommon(true);
+    testCCommon(true);
 }
 
 static void testKeyCVNotCMajor() {
     testCCommon(false);
 }
 
-
 void testHarmony2B() {
     testKeyCVCMajor();
     testKeyCVNotCMajor();
-  //  assert(false);
+    testKeyCVEMinorXp3();
+    //  assert(false);
 }
 
 #if 1
 void testFirst() {
     SQINFO("Test First");
-    testKeyCVCMajor();
-    testKeyCVNotCMajor();
-   
+    testKeyCVEMinorXp3();
 }
 #endif

@@ -48,6 +48,36 @@ At the simplest level, Harmony II will take a monophonic CV input, and output a 
 
 **XP** transpose amount. It is polyphonic, does not follow the VCV pitch standard. It is one volt per octave, but the octave is evenly divided by the number of notes in the scale. So a transpose of one degree is 1/8 in a diatonic scale, not the 1/12 for a semitone.
 
+There are a few things to remember with these CV inputs.
+
+The mode input can be confusing. There is a new scale every 1/12 volt. The number of scales depends on the setting in the context menu for xxx. It is it only diatonic scales, then there are 7 scales so:
+
+* 0 = Major
+* 1/12 = Dorian
+* 2/12 = Phrygian
+* 3/12 = Lydian
+* 4/12 = Mixolydian
+* 5/12 = Minor
+* 6/12 = Locrian
+* 7/12 = Major (again)
+* -7/12 = Major (again)
+
+But, when all scales are enabled:
+
+* 0 = Major
+* 1/12 = Dorian
+* 2/12 = Phrygian
+* 3/12 = Lydian
+* 4/12 = Mixolydian
+* 5/12 = Minor
+* 6/12 = Locrian 
+* 7/12 = MinorPentatonic
+* 8/12 = HarmonicMinor
+* 9/12 = Diminished
+* 10/12 = DominantDiminished
+* 11/12 = WholeStep,
+* 13/12 = Chromatic
+
 ## CV output
 
 (text coming soon)

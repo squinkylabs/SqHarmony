@@ -106,7 +106,7 @@ public:
     // these will change when we implement ONLY_USE_DIATONIC_PARAM
     bool diatonicOnly() { return TBase::params[ONLY_USE_DIATONIC_PARAM].value > .5; }
 
-    // given the curren state (ONLY_USE_DIATONIC_PARAM), how many modes are available.
+    // Given the current state (ONLY_USE_DIATONIC_PARAM), how many modes are available.
     int numCurrentModes();
     // Does not include the octave/
     int numNotesInCurrentScale();
@@ -131,7 +131,6 @@ private:
 template <class TBase>
 int Harmony2<TBase>::numCurrentModes() {
     return diatonicOnly() ? 7 : 13;
-   
 }
 // Includes the octave
 template <class TBase>
@@ -228,13 +227,20 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     }
 
     SQINFO("How do we want to scale ksig input?");
-    const int degreesPerVolt = numNotesInCurrentScale();
+ //   const int degreesPerVolt = numNotesInCurrentScale();
+    const int inumCurrentModes = numCurrentModes();
+  //  const int scalesPerVolt
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
-  
-    int newModeScaledAndRounded = int(std::round(degreesPerVolt * newModeF)) % degreesPerVolt;
-      SQINFO("raw mode cv = %f scaled and rounded = %d", newModeF, newModeScaledAndRounded);
+   // const int newModeI = numCurrentModes * newModeF;
+
+
+    int newModeScaledAndRounded = int(std::round(inumCurrentModes * newModeF)) % inumCurrentModes;
+    SQINFO("raw mode cv = %f scaled and rounded = %d, mod with %d",
+           newModeF,
+           newModeScaledAndRounded,
+        inumCurrentModes);
     if (newModeScaledAndRounded < 0) {
-        newModeScaledAndRounded += degreesPerVolt;
+        newModeScaledAndRounded += inumCurrentModes;
     }
 
     //  scale->get   std::pair<const MidiNote, Scales> get() const;
