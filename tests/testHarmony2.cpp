@@ -76,21 +76,38 @@ static void testKeyCVWrap() {
 /**
  */
 static void testModeCV(float cv, int expectedParam) {
+    SQINFO("-- testModeCV cv=%f, expected mode = %d", cv, expectedParam);
+    assert(expectedParam >= 0);
+    assert(expectedParam < 14);
     auto comp = std::make_shared<Comp>();
     comp->inputs[Comp::MODE_INPUT].setVoltage(cv);
     comp->inputs[Comp::MODE_INPUT].channels = 1;
+    comp->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 1;
     processBlock(*comp);
 
     assertEQ(comp->params[Comp::MODE_PARAM].value, expectedParam);
 }
 
 static void testModeCV() {
-    const float degree = 1.f / 8.f;
-    testModeCV(0, 0);
-    testModeCV(degree, 1);
-    testModeCV(degree * 7, 7);
-    testModeCV(-1, 0);
-    testModeCV(-5 + degree, 1);
+    const int numDia = Scale::numDiatonicScales();
+    const float degree = 1.f / 12.f;        // each mode is 1/12 volt from the prev
+    testModeCV(0, 0);                       // Major 
+    testModeCV(degree, 1);                  // Dorian
+
+    // All the diatonic modes
+    for (int i = 0; i <= numDia; ++i) {
+        testModeCV(degree * i, i);
+    }
+
+    // All the diatonic modes wrapped
+    for (int i = 0; i <= numDia; ++i) {
+        for (int j = -2; j <= 2; ++j) {
+            const float f = (degree * i) + j * numDia;
+            testModeCV(f, i);
+        }
+    }
+
+    assert(false); // need tests for non-diatonic, too
 }
 
 static void testChord(
@@ -213,8 +230,8 @@ void testHarmony2() {
     testModeDetails();
 }
 
-#if 0
+#if 1
 void testFirst() {
-
+    testModeCV();
 }
 #endif

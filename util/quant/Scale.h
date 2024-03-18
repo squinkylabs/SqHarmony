@@ -26,6 +26,7 @@ public:
     };
 
     static int numScales() { return 13; }
+    static int numDiatonicScales() { return 7; }
 
     static int numNotesInScale(Scales s);
 

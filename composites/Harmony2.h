@@ -227,21 +227,22 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     }
 
     SQINFO("How do we want to scale ksig input?");
- //   const int degreesPerVolt = numNotesInCurrentScale();
-    const int inumCurrentModes = numCurrentModes();
-  //  const int scalesPerVolt
+    //   const int degreesPerVolt = numNotesInCurrentScale();
+    const int _inumCurrentModes = numCurrentModes();
+    //  const int scalesPerVolt
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
-   // const int newModeI = numCurrentModes * newModeF;
+    const int newModeI = int(std::round(12 * newModeF));
 
-
-    int newModeScaledAndRounded = int(std::round(inumCurrentModes * newModeF)) % inumCurrentModes;
-    SQINFO("raw mode cv = %f scaled and rounded = %d, mod with %d",
+    int newModeScaledAndRounded = int(std::round(newModeI)) % _inumCurrentModes;
+    SQINFO("raw mode cv = %f scaled and rounded = %d, mod with %d (== num cur modes)",
            newModeF,
            newModeScaledAndRounded,
-        inumCurrentModes);
+           _inumCurrentModes);
     if (newModeScaledAndRounded < 0) {
-        newModeScaledAndRounded += inumCurrentModes;
+        newModeScaledAndRounded += _inumCurrentModes;
     }
+    assert(newModeScaledAndRounded >= 0);
+    assert(newModeScaledAndRounded <= _inumCurrentModes);
 
     //  scale->get   std::pair<const MidiNote, Scales> get() const;
     const Scale* oldKey = _quantizerOptions->scale.get();

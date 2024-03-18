@@ -42,22 +42,23 @@ static void enableOneTransposer(Comp& composite) {
     composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = 2;   // no octave offset
 }
 
-static void testKeyCVEMinorXp3(int modeWrap) {
+static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
     Comp composite;
     // All scales allowed
-    composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
+    composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = limitToDiatonic? 1 : 0;
     hookUpCVInputs(composite);
 
     // Key of CE
     composite.inputs[Comp::KEY_INPUT].setVoltage(4.f / 12.f);
     //   Minor is +6
-    const int modeWrapAmount = modeWrap * Scale::numScales();
-    const float modeCV = float(Scale::Scales::Minor) / float(Scale::numScales());
-    composite.inputs[Comp::MODE_INPUT].setVoltage(float(Scale::Scales::Minor) / float(Scale::numScales() + 1));  // there are 13 scales);
+    const int activeScaleCount = limitToDiatonic ? Scale::numDiatonicScales() : Scale::numScales();
+    const int modeWrapAmount = modeWrap * activeScaleCount;
+    const float modeCV = float(Scale::Scales::Minor) / float(activeScaleCount);
+    composite.inputs[Comp::MODE_INPUT].setVoltage(float(Scale::Scales::Minor) / float(activeScaleCount + 1));  // there are 13 scales);
     SQINFO("for Minor, want mode %d, using CV %f den=%d",
            int(Scale::Scales::Minor),
            composite.inputs[Comp::MODE_INPUT].getVoltage(),
-           Scale::numScales() + 1);
+           activeScaleCount + 1);
     enableOneTransposer(composite);
 
     test2(true, composite,
@@ -71,9 +72,10 @@ static void testKeyCVEMinorXp3(int modeWrap) {
 }
 
  static void testKeyCVEMinorXp3() {
-    testKeyCVEMinorXp3(0);
-    testKeyCVEMinorXp3(1);
-    testKeyCVEMinorXp3(-1);
+     for (int i = -1; i <= 1; ++i) {
+         testKeyCVEMinorXp3(i, false);
+         testKeyCVEMinorXp3(i, true);
+     }
  }
 
 static void testCCommon(bool atC) {
@@ -107,9 +109,10 @@ void testHarmony2B() {
     testKeyCVEMinorXp3();
 }
 
-#if 1
+#if 0
 void testFirst() {
     SQINFO("Test First");
-    testKeyCVEMinorXp3();
+   // testKeyCVEMinorXp3();
+    testKeyCVEMinorXp3(0, true);
 }
 #endif
