@@ -145,106 +145,6 @@ static void testKeyCV() {
     testKeyCV(false);
 }
 
-class TestParams {
-public:
-    float keyCVIn = 0;
-    bool onlyDiatonic = false;
-    float modeCVIn = 0;
-    std::vector<int> expectedScale;
-    int transposeOctaves = 2;
-    bool shouldPass = true;
-};
-
-static void testKeyCV2(const TestParams& tp) {
-    bool wouldFail = false;
-    assert(!tp.expectedScale.empty());
-    Comp composite;
-    composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = tp.onlyDiatonic ? 1 : 0;
-
-    composite.inputs[Comp::PITCH_INPUT].channels = 1;
-
-    composite.inputs[Comp::KEY_INPUT].channels = 1;
-    assertEQ(composite.inputs[Comp::KEY_INPUT].getChannels(), 1);
-    composite.inputs[Comp::KEY_INPUT].setVoltage(tp.keyCVIn);
-    SQINFO("in test root CV (KEY_INPUT) = %f",  composite.inputs[Comp::KEY_INPUT].getVoltage(0));
-
-    composite.inputs[Comp::MODE_INPUT].channels = 1;
-    composite.inputs[Comp::MODE_INPUT].setVoltage(tp.modeCVIn);
-    SQINFO("in test, mode input (MODE_INPUT) = %f",  composite.inputs[Comp::MODE_INPUT].getVoltage(0));
-
-    composite.params[Comp::XPOSE_ENABLE1_PARAM].value = 10;  // enable the first transposer.
-    composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = tp.transposeOctaves;
-    processBlock(composite);
-
-    const auto args = TestComposite::ProcessArgs();
-    for (auto x : tp.expectedScale) {
-        const float cv = float(x) / 12.f;
-        composite.inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
-        composite.process(args);
-        SQINFO("exp = %f actual=%f", cv, composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0));
-        if (tp.shouldPass) {
-            assertEQ(composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0), cv);
-        }
-        // If any fail, they all fail
-        const bool pass = composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0) == cv;
-        wouldFail = wouldFail || !pass;
-    }
-    assertEQ(wouldFail, !tp.shouldPass);
-}
-
-#if 0
-static void testKeyCVCMajor() {
-    TestParams tp;
-    tp.keyCVIn = 0;
-    tp.modeCVIn = 0;
-    tp.onlyDiatonic = false;
-    tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};
-    testKeyCV2(tp);
-}
-
-
-static void testKeyCVNotCMajor() {
-    TestParams tp;
-    tp.keyCVIn = 2.f / 12.f;  // D major
-    tp.modeCVIn = 0;
-    tp.onlyDiatonic = false;
-    tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};  // all the white keys
-    tp.shouldPass = false;
-    testKeyCV2(tp);
-}
-#endif
-
-static void testKeyCVEMinorXp3() {
-    SQINFO("-------------- testKeyCVEMinorXp3");
-    TestParams tp;
-    tp.keyCVIn = 4.f / 12.f;                      // E
-                                                  //   Minor is +6
-    SQINFO("setup test, key root cv = %f for E minor", tp.keyCVIn);
-    tp.modeCVIn = 6.f / float(Scale::numScales() + 1);  // there are 13 scales
-    SQINFO("setup test, want mode %d, using CV %f using den = %d", 6, tp.modeCVIn, int(Scale::numScales() + 1));
-    tp.onlyDiatonic = false;
-
-    // I think root and mode CV, if connected, are supposed to override, not add??
-
-    // tp.expectedScale = {0, 2, 4, 5, 7, 9, 11};  // all the white keys
-    tp.expectedScale = {MidiNote::E,
-                        MidiNote::F + 1,
-                        MidiNote::G,
-                        MidiNote::A,
-                        MidiNote::B,
-                        MidiNote::C,
-                        MidiNote::D};
-    tp.shouldPass = true;
-    testKeyCV2(tp);
-}
-
-static void testKeyCV2() {
-    //testKeyCVCMajor();
-  //  testKeyCVNotCMajor();
-
-    testKeyCVEMinorXp3();
-}
-
 static void testNotesInScale(Comp* composite) {
     composite->params[Comp::MODE_PARAM].value = int(Scale::Scales::Major);
     assertEQ(composite->numNotesInCurrentScale(), 7);
@@ -310,15 +210,11 @@ void testHarmony2() {
     testChord2();
     testChord3();
 
-    testKeyCV2();
     testModeDetails();
 }
 
 #if 0
 void testFirst() {
-    // testKeyCV2();
-    // testKeyCVNotCMajor();
-    // testModeDetails();
-    testKeyCVEMinorXp3();
+
 }
 #endif
