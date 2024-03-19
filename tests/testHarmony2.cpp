@@ -196,15 +196,10 @@ static void testNotesInScale(Comp* composite) {
 }
 
 static void testModeDetails() {
-    /*
-        static bool diatonicOnly() { return false; }
-    static int numCurrentModes() { return 12; }
-    static int numNotesInCurrentScale() { return 8; }
-    */
     auto composite = std::make_shared<Comp>();
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .3;
 
-    // All the assertsions for diatonic only
+    // All the assertions for diatonic only
     assertEQ(composite->diatonicOnly(), false);
     assertEQ(composite->numCurrentModes(), 13);
 

@@ -197,11 +197,15 @@ inline void Harmony2<TBase>::_serviceKeysigParam() {
 template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     if (TBase::inputs[KEY_INPUT].channels == 0) {
+        SQINFO("key root not connected.");
         return;
     }
 
+    const int semisPerOctave = 12;
     const float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
-    int newKeyScaledAndRounded = int(std::round(numCurrentModes() * newKeyF)) % numCurrentModes();
+    const float xx = std::floor(newKeyF);
+    int newKeyScaledAndRounded = int(std::round(semisPerOctave * newKeyF));
+     SQINFO("newkeyF = %f int=%d x=%f", newKeyF, newKeyScaledAndRounded, xx);
     if (newKeyScaledAndRounded < 0) {
         newKeyScaledAndRounded += numCurrentModes();
     }
@@ -217,6 +221,7 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     const int oldKeyScaledAndRounded = int(std::round(oldKeyVSCaled));
     if (oldKeyScaledAndRounded != newKeyScaledAndRounded) {
         TBase::params[KEY_PARAM].value = newKeyScaledAndRounded;
+        SQINFO("setting key root to %f", TBase::params[KEY_PARAM].value);
     }
 }
 
@@ -251,6 +256,7 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     const Scale::Scales oldMode = std::get<1>(oldScale);
     if (newModeScaledAndRounded != int(oldMode)) {
         TBase::params[MODE_PARAM].value = newModeScaledAndRounded;
+        SQINFO("setting new mode param to %f", TBase::params[MODE_PARAM].value);
     }
 }
 
@@ -281,7 +287,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
-    float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
+    const float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);
 
     ScaleNote scaleNote;
@@ -300,6 +306,7 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
             //    NoteConvert::m2f(f, quantizedInput);
             NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
             const float cv = f.get() + float(xposeOctaves);
+          //  SQINFO("input pitch = %f, quantized is %f", input, cv);
             TBase::outputs[PITCH_OUTPUT].setVoltage(cv, outputChannel);
             outputChannel++;
         }

@@ -18,6 +18,7 @@ static void test2(bool shouldPass, Comp& composite, const std::vector<int>& expe
     for (auto x : expectedScale) {
         const float cv = float(x) / 12.f;
         composite.inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
+        SQINFO("running process for the test");
         composite.process(args);
         SQINFO("exp = %f actual=%f", cv, composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0));
         if (shouldPass) {
@@ -43,23 +44,23 @@ static void enableOneTransposer(Comp& composite) {
 }
 
 static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
+    SQINFO("testKeyCVEMinorXp3(%d, %d)", modeWrap, limitToDiatonic);
     Comp composite;
     // All scales allowed
     composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = limitToDiatonic? 1 : 0;
     hookUpCVInputs(composite);
 
-    // Key of CE
-    composite.inputs[Comp::KEY_INPUT].setVoltage(4.f / 12.f);
-    //   Minor is +6
-  //  const int activeScaleCount = limitToDiatonic ? Scale::numDiatonicScales() : Scale::numScales();
-    const int activeScaleCount = Scale::numScales(limitToDiatonic);
-    const int modeWrapAmount = modeWrap * activeScaleCount;
-    const float modeCV = float(Scale::Scales::Minor) / float(activeScaleCount);
-    composite.inputs[Comp::MODE_INPUT].setVoltage(float(Scale::Scales::Minor) / float(activeScaleCount + 1));  // there are 13 scales);
+    const float semitone = 1.f / 12.f;
+    composite.inputs[Comp::KEY_INPUT].setVoltage(4.f * semitone);
+
+    const int numScales = Scale::numScales(limitToDiatonic);
+    const float modeCV = float(Scale::Scales::Minor) * semitone + (semitone * numScales * modeWrap);
+  //  modeCV += modeWrap * 
+    composite.inputs[Comp::MODE_INPUT].setVoltage(modeCV);  // there are 13 scales);
     SQINFO("for Minor, want mode %d, using CV %f den=%d",
            int(Scale::Scales::Minor),
            composite.inputs[Comp::MODE_INPUT].getVoltage(),
-           activeScaleCount + 1);
+           12);
     enableOneTransposer(composite);
 
     test2(true, composite,
@@ -74,6 +75,8 @@ static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
 
  static void testKeyCVEMinorXp3() {
      for (int i = -1; i <= 1; ++i) {
+        SQINFO("modeWrap = %d", i);
+    
          testKeyCVEMinorXp3(i, false);
          testKeyCVEMinorXp3(i, true);
      }
@@ -110,7 +113,7 @@ void testHarmony2B() {
     testKeyCVEMinorXp3();
 }
 
-#if 0
+#if 1
 void testFirst() {
     SQINFO("Test First");
    testKeyCVEMinorXp3();
