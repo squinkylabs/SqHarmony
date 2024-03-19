@@ -1,6 +1,16 @@
 # Squinktronix Harmony II manual
 
+## What it does
+
+At the simplest level, Harmony II will take a monophonic CV input, and output a polyphonic CV containing a chord. All of the controls, CVs, etc. will control exactly what chord comes out.
+
 Harmony II is a chord generator with a trick - it can generate the correct chords for they key that you set. For example, in the key of C Major, the triads in the key are C Major, D minor, E minor, F Major, G Major, A minor, and B diminished.
+
+Many of Harmony II's features are motivated by use of diatonic harmony. But Harmony II also had non-diatonic scales.
+
+Because use of diatonic scales and harmony is the "primary use case" of Harmony II, sometimes the terminology or parts of the manual may make is sound like Harmony is limited to diatonic harmony. This is emphatically not that case.
+
+## Why diatonic aware modules are interesting
 
 Much common music uses some form of diatonic harmony. For some typical examples, consider the chord progressions for some common songs. For example, Dylan's ["All Along The Watchtower"](https://www.youtube.com/watch?v=bT7Hj-ea0VE). The chords are A minor, G major, F major. Those are the diatonic triads on 8, 7, 6 in A Minor. Or [every teen-age car-crash song](https://www.youtube.com/watch?v=bh4se9YMV3A) is G major, E minor, C major and D major. Those are the diatonic triads on 8, 6, 4, 5 in G major.
 
@@ -14,11 +24,11 @@ Aside from generating "in key" triads, like the examples above, you can also use
 
 If you are interested, the links above take you to YouTube videos featuring the songs in question.
 
-## What it does
+## Historical note
 
-At the simplest level, Harmony II will take a monophonic CV input, and output a polyphonic CV containing a chord. All of the controls, CVs, etc. will control exactly what chord comes out.
+The diatonic scales, and the ability to transpose in a scale comes from a small part of the Harmony module. Dedicated Squinktronix users might note that Harmony only showed the diatonic scales. Where do the other scales in Harmony II come from? Simple answer - all of this came from Seq++, which has all those scales and can transpose in key. Very little was added to that - so most of the work for Harmony II is in details of polyphony and CV control.
 
-## Preset
+## Presets
 
 (text coming soon)
 

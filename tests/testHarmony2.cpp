@@ -75,39 +75,44 @@ static void testKeyCVWrap() {
 
 /**
  */
-static void testModeCV(float cv, int expectedParam) {
-    SQINFO("-- testModeCV cv=%f, expected mode = %d", cv, expectedParam);
+static void testModeCV(float cv, int expectedParam, bool allowAllScales) {
+    SQINFO("-- testModeCV cv=%f, expected mode = %d allow all = %d", cv, expectedParam, allowAllScales);
     assert(expectedParam >= 0);
     assert(expectedParam < 14);
     auto comp = std::make_shared<Comp>();
     comp->inputs[Comp::MODE_INPUT].setVoltage(cv);
     comp->inputs[Comp::MODE_INPUT].channels = 1;
-    comp->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 1;
+    comp->params[Comp::ONLY_USE_DIATONIC_PARAM].value = allowAllScales ? 0 : 1;
     processBlock(*comp);
 
     assertEQ(comp->params[Comp::MODE_PARAM].value, expectedParam);
 }
 
-static void testModeCV() {
-    const int numDia = Scale::numDiatonicScales();
+static void testModeCV(bool allowAllScales) {
+    //const int numDia = Scale::numDiatonicScales();
+    const int numScales = Scale::numScales(!allowAllScales);
     const float degree = 1.f / 12.f;        // each mode is 1/12 volt from the prev
-    testModeCV(0, 0);                       // Major 
-    testModeCV(degree, 1);                  // Dorian
+    testModeCV(0, 0, allowAllScales);                       // Major 
+    testModeCV(degree, 1, allowAllScales);                  // Dorian
 
-    // All the diatonic modes
-    for (int i = 0; i <= numDia; ++i) {
-        testModeCV(degree * i, i);
+    // All the  modes
+    for (int i = 0; i < numScales; ++i) {
+        testModeCV(degree * i, i, allowAllScales);
     }
 
-    // All the diatonic modes wrapped
-    for (int i = 0; i <= numDia; ++i) {
+    // All the  modes wrapped
+    for (int i = 0; i < numScales; ++i) {
         for (int j = -2; j <= 2; ++j) {
-            const float f = (degree * i) + j * numDia;
-            testModeCV(f, i);
+            SQINFO("i=%d, j=%d, numScales=%d", i, j, numScales);
+            const float f = (degree * i) + j * numScales;
+            testModeCV(f, i, allowAllScales);
         }
     }
+}
 
-    assert(false); // need tests for non-diatonic, too
+static void testModeCV() {
+    testModeCV(false);
+    testModeCV(true);
 }
 
 static void testChord(
@@ -230,8 +235,10 @@ void testHarmony2() {
     testModeDetails();
 }
 
-#if 1
+#if 0
 void testFirst() {
+    // i == 0, j== -2
+   // testModeCV(-14, 0, true);
     testModeCV();
 }
 #endif

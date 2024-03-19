@@ -51,7 +51,8 @@ static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
     // Key of CE
     composite.inputs[Comp::KEY_INPUT].setVoltage(4.f / 12.f);
     //   Minor is +6
-    const int activeScaleCount = limitToDiatonic ? Scale::numDiatonicScales() : Scale::numScales();
+  //  const int activeScaleCount = limitToDiatonic ? Scale::numDiatonicScales() : Scale::numScales();
+    const int activeScaleCount = Scale::numScales(limitToDiatonic);
     const int modeWrapAmount = modeWrap * activeScaleCount;
     const float modeCV = float(Scale::Scales::Minor) / float(activeScaleCount);
     composite.inputs[Comp::MODE_INPUT].setVoltage(float(Scale::Scales::Minor) / float(activeScaleCount + 1));  // there are 13 scales);
@@ -112,7 +113,7 @@ void testHarmony2B() {
 #if 0
 void testFirst() {
     SQINFO("Test First");
-   // testKeyCVEMinorXp3();
-    testKeyCVEMinorXp3(0, true);
+   testKeyCVEMinorXp3();
+  //  testKeyCVEMinorXp3(0, true);
 }
 #endif

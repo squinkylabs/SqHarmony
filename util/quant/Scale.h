@@ -25,8 +25,9 @@ public:
         Chromatic
     };
 
-    static int numScales() { return 13; }
+    static int numScalesTotal() { return 13; }
     static int numDiatonicScales() { return 7; }
+    static int numScales(bool onlyDiatonic) { return onlyDiatonic ? numDiatonicScales() : numScalesTotal(); }
 
     static int numNotesInScale(Scales s);
 
