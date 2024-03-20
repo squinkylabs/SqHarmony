@@ -190,6 +190,9 @@ inline void Harmony2<TBase>::_serviceKeysigParam() {
     const int basePitch = int(std::round(TBase::params[KEY_PARAM].value));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
     // really only need to do this on a change.
+
+  //  const float f = TBase::params[KEY_PARAM].value;
+    assert(basePitch < 12);
     _quantizerOptions->scale->set(basePitch, mode);
     // SQINFO("just set ks base=%d", basePitch);
 }
@@ -197,15 +200,16 @@ inline void Harmony2<TBase>::_serviceKeysigParam() {
 template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     if (TBase::inputs[KEY_INPUT].channels == 0) {
-        SQINFO("key root not connected.");
+        // SQINFO("key root not connected.");
         return;
     }
 
     const int semisPerOctave = 12;
-    const float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
-    const float xx = std::floor(newKeyF);
+    float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
+    //const float xx = std::floor(newKeyF);
+    newKeyF -= std::floor(newKeyF);
     int newKeyScaledAndRounded = int(std::round(semisPerOctave * newKeyF));
-     SQINFO("newkeyF = %f int=%d x=%f", newKeyF, newKeyScaledAndRounded, xx);
+   //  SQINFO("newkeyF = %f int=%d", newKeyF, newKeyScaledAndRounded);
     if (newKeyScaledAndRounded < 0) {
         newKeyScaledAndRounded += numCurrentModes();
     }
@@ -221,7 +225,8 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     const int oldKeyScaledAndRounded = int(std::round(oldKeyVSCaled));
     if (oldKeyScaledAndRounded != newKeyScaledAndRounded) {
         TBase::params[KEY_PARAM].value = newKeyScaledAndRounded;
-        SQINFO("setting key root to %f", TBase::params[KEY_PARAM].value);
+        assert(TBase::params[KEY_PARAM].value < 11.5 && TBase::params[KEY_PARAM].value >= 0);
+        //SQINFO("setting key root to %f", TBase::params[KEY_PARAM].value);
     }
 }
 
@@ -231,18 +236,15 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
         return;
     }
 
-    SQINFO("How do we want to scale ksig input?");
-    //   const int degreesPerVolt = numNotesInCurrentScale();
     const int _inumCurrentModes = numCurrentModes();
-    //  const int scalesPerVolt
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
     const int newModeI = int(std::round(12 * newModeF));
 
     int newModeScaledAndRounded = int(std::round(newModeI)) % _inumCurrentModes;
-    SQINFO("raw mode cv = %f scaled and rounded = %d, mod with %d (== num cur modes)",
-           newModeF,
-           newModeScaledAndRounded,
-           _inumCurrentModes);
+    // SQINFO("raw mode cv = %f scaled and rounded = %d, mod with %d (== num cur modes)",
+    //        newModeF,
+    //        newModeScaledAndRounded,
+    //        _inumCurrentModes);
     if (newModeScaledAndRounded < 0) {
         newModeScaledAndRounded += _inumCurrentModes;
     }
@@ -256,7 +258,7 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     const Scale::Scales oldMode = std::get<1>(oldScale);
     if (newModeScaledAndRounded != int(oldMode)) {
         TBase::params[MODE_PARAM].value = newModeScaledAndRounded;
-        SQINFO("setting new mode param to %f", TBase::params[MODE_PARAM].value);
+       // SQINFO("setting new mode param to %f", TBase::params[MODE_PARAM].value);
     }
 }
 
@@ -286,7 +288,9 @@ inline void Harmony2<TBase>::_servicePolyphony() {
 // static int count = 0;
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
+    assert(TBase::params[KEY_PARAM].value < 11.5);
     _divn.step();
+    assert(TBase::params[KEY_PARAM].value < 11.5);
     const float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);
 

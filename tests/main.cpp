@@ -96,7 +96,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 1
+#if 0
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -136,7 +136,7 @@ int main(const char**, int) {
     testHarmony2();
     testHarmony2B();
     testHarmonyNote();
-#if 1
+#if 0
     printf("XX: leaving early for clock stuff");
     std::exit(0);
 #endif

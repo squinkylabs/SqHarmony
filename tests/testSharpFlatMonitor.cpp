@@ -28,24 +28,23 @@ public:
         if (useSharps) {
             return {"#"};
         }
-
         return {"-"};
     }
 
     void setLabels(std::vector<std::string> l) {
-        SQINFO("mode set labels");
+      //  SQINFO("mode set labels");
         lastUpdateSharps = false;
         lastUpdateFlats = false;
         for (auto x : l) {
-            SQINFO(" %s", x.c_str());
+          //  SQINFO(" %s", x.c_str());
             if (x.find('#') != std::string::npos) {
                 lastUpdateSharps = true;
-                SQINFO("last update sharps");
+              //  SQINFO("last update sharps");
                 return;
             }
             if (x.find('-') != std::string::npos) {
                 lastUpdateFlats = true;
-                SQINFO("last update Flats");
+               // SQINFO("last update Flats");
                 return;
             }
         }
@@ -151,6 +150,7 @@ private:
         T composite;
 
         composite.params[T::KEY_PARAM].value = test.scaleRoot;
+        assert(test.scaleRoot < 12 && test.scaleRoot > 0);
         composite.params[T::MODE_PARAM].value = int(test.scaleMode);
         composite.params[T::SHARPS_FLATS_PARAM].value = int(test.userPreference);
 

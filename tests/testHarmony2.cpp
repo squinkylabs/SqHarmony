@@ -57,6 +57,7 @@ static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     comp->inputs[Comp::KEY_INPUT].channels = cvConnected ? 1 : 0;
     processBlock(*comp);
 
+    assert(comp->params[Comp::KEY_PARAM].value < 12);
     // Expect that changing the CV will change the key param
     const float expectedKey = cvConnected ? expectedParam : 0.f;
     assertEQ(comp->params[Comp::KEY_PARAM].value, expectedKey);
@@ -76,7 +77,7 @@ static void testKeyCVWrap() {
 /**
  */
 static void testModeCV(float cv, int expectedParam, bool allowAllScales) {
-    SQINFO("-- testModeCV cv=%f, expected mode = %d allow all = %d", cv, expectedParam, allowAllScales);
+  //  SQINFO("-- testModeCV cv=%f, expected mode = %d allow all = %d", cv, expectedParam, allowAllScales);
     assert(expectedParam >= 0);
     assert(expectedParam < 14);
     auto comp = std::make_shared<Comp>();
@@ -103,7 +104,7 @@ static void testModeCV(bool allowAllScales) {
     // All the  modes wrapped
     for (int i = 0; i < numScales; ++i) {
         for (int j = -2; j <= 2; ++j) {
-            SQINFO("i=%d, j=%d, numScales=%d", i, j, numScales);
+           // SQINFO("i=%d, j=%d, numScales=%d", i, j, numScales);
             const float f = (degree * i) + j * numScales;
             testModeCV(f, i, allowAllScales);
         }

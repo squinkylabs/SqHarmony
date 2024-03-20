@@ -25,6 +25,7 @@ public:
     void poll() {
         assert(_comp);
         const int basePitch = int(std::round(_comp->params[TComp::KEY_PARAM].value));
+        assert(basePitch < 12 && basePitch >= 0);
         const auto mode = Scale::Scales(int(std::round(_comp->params[TComp::MODE_PARAM].value)));
         auto _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
         _quantizerOptions->scale = std::make_shared<Scale>();
