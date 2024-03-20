@@ -7,15 +7,17 @@
 using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
-static void test2(bool shouldPass, Comp& composite, const std::vector<int>& expectedScale) {
+
+static void test3(bool shouldPass, Comp& composite, const std::vector<int>& input,  const std::vector<int>& expectedOutput) {
     //SQINFO("-- test2 should pass = %d", shouldPass);
     bool wouldFail = false;
-    assert(!expectedScale.empty());
+    assert(!input.empty());
+    assertEQ(input.size(), expectedOutput.size());
 
     processBlock(composite);
 
     const auto args = TestComposite::ProcessArgs();
-    for (auto x : expectedScale) {
+    for (auto x : input) {
         const float cv = float(x) / 12.f;
         composite.inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
       //  SQINFO("running process for the test");
@@ -31,6 +33,10 @@ static void test2(bool shouldPass, Comp& composite, const std::vector<int>& expe
     assertEQ(wouldFail, !shouldPass);
 }
 
+static void test2(bool shouldPass, Comp& composite, const std::vector<int>& expectedScale) {
+    test3(shouldPass, composite, expectedScale, expectedScale);
+}
+
 static void hookUpCVInputs(Comp& composite) {
     // The CV inputs we all care about are patched for mono input
     composite.inputs[Comp::PITCH_INPUT].channels = 1;
@@ -43,8 +49,28 @@ static void enableOneTransposer(Comp& composite) {
     composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = 2;   // no octave offset
 }
 
+ static void testKeyOfCUp6Steps() {
+    Comp composite;
+    hookUpCVInputs(composite);
+    enableOneTransposer(composite);
+
+    // up six semitones
+    composite.inputs[Comp::XPOSE_INPUT].setVoltage(6.f / 12.f);
+     test3(true, composite,
+          {MidiNote::E,
+           MidiNote::F + 1,
+           MidiNote::G,
+           MidiNote::A,
+           MidiNote::B,
+           MidiNote::C,
+           MidiNote::D},
+           {
+
+           }
+           );
+ }
+
 static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
-    //SQINFO("testKeyCVEMinorXp3(%d, %d)", modeWrap, limitToDiatonic);
     Comp composite;
     // All scales allowed
     composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = limitToDiatonic? 1 : 0;
@@ -55,12 +81,8 @@ static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
 
     const int numScales = Scale::numScales(limitToDiatonic);
     const float modeCV = float(Scale::Scales::Minor) * semitone + (semitone * numScales * modeWrap);
-  //  modeCV += modeWrap * 
+
     composite.inputs[Comp::MODE_INPUT].setVoltage(modeCV);  // there are 13 scales);
-    // SQINFO("for Minor, want mode %d, using CV %f den=%d",
-    //        int(Scale::Scales::Minor),
-    //        composite.inputs[Comp::MODE_INPUT].getVoltage(),
-    //        12);
     enableOneTransposer(composite);
 
     test2(true, composite,
@@ -111,12 +133,15 @@ void testHarmony2B() {
     testKeyCVCMajor();
     testKeyCVNotCMajor();
     testKeyCVEMinorXp3();
+     testKeyOfCUp6Steps();
 }
 
-#if 0
+#if 1
 void testFirst() {
     SQINFO("Test First");
-   testKeyCVEMinorXp3();
+      testHarmony2B();
+  // testKeyCVEMinorXp3();
   //  testKeyCVEMinorXp3(0, true);
+  //  testKeyOfCUp6Steps();
 }
 #endif

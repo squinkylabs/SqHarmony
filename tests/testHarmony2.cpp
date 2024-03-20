@@ -229,6 +229,7 @@ void testHarmony2() {
     testChord3();
 
     testModeDetails();
+ 
 }
 
 #if 0
@@ -236,5 +237,6 @@ void testFirst() {
     // i == 0, j== -2
    // testModeCV(-14, 0, true);
     testModeCV();
+   
 }
 #endif
