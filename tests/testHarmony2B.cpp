@@ -7,8 +7,15 @@
 using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
-static void test3(bool shouldPass, Comp& composite, const std::vector<int>& input, const std::vector<int>& expectedOutput) {
+static void test4(bool shouldPass,
+                  Comp& composite,
+                  const std::vector<int>& input,
+                  const std::vector<int>& expectedOutput,
+                  const std::vector<int>& expectedOutput2,
+                  int secondChannel) {
     // SQINFO("-- test2 should pass = %d", shouldPass);
+    assert(secondChannel < 0);  //nimp
+    assert(expectedOutput2.empty());    // nimp
     bool wouldFail = false;
     assert(!input.empty());
     assertEQ(input.size(), expectedOutput.size());
@@ -16,11 +23,11 @@ static void test3(bool shouldPass, Comp& composite, const std::vector<int>& inpu
     processBlock(composite);
 
     const auto args = TestComposite::ProcessArgs();
-    for (int i=0; i<input.size(); ++i) {
-  //  for (auto x : input) {
+    for (int i = 0; i < input.size(); ++i) {
+        //  for (auto x : input) {
         const int x = input[i];
         const float cv = float(x) / 12.f;
-      //  SQINFO("transpose cv = %f")
+        //  SQINFO("transpose cv = %f")
         composite.inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
         //  SQINFO("running process for the test");
         composite.process(args);
@@ -35,6 +42,10 @@ static void test3(bool shouldPass, Comp& composite, const std::vector<int>& inpu
         wouldFail = wouldFail || !pass;
     }
     assertEQ(wouldFail, !shouldPass);
+}
+
+static void test3(bool shouldPass, Comp& composite, const std::vector<int>& input, const std::vector<int>& expectedOutput) {
+    test4(shouldPass, composite, input, expectedOutput, {}, -1);
 }
 
 static void test2(bool shouldPass, Comp& composite, const std::vector<int>& expectedScale) {
@@ -64,22 +75,13 @@ static void testKeyOfCUp6Steps() {
     SQINFO("test transpose CV = %f", transposeCV);
     composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV);
     test3(true, composite,
-          {
-              MidiNote::C,
-              MidiNote::D
-              //    MidiNote::E,
-              //    MidiNote::F,
-              //    MidiNote::G,
-              //    MidiNote::A,
-              //    MidiNote::B
-          },
-          {
-              MidiNote::B,
-              MidiNote::C + 12,
-
-          });
+          {MidiNote::C, MidiNote::D, MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B},
+          {MidiNote::B, MidiNote::C + 12, MidiNote::D + 12, MidiNote::E + 12, MidiNote::F + 12, MidiNote::G + 12, MidiNote::A + 12});
 }
 
+static void testKeyOfCUpPoly() {
+    assert(false);
+}
 static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
     Comp composite;
     // All scales allowed
@@ -144,14 +146,16 @@ void testHarmony2B() {
     testKeyCVNotCMajor();
     testKeyCVEMinorXp3();
     testKeyOfCUp6Steps();
+    testKeyOfCUpPoly();
 }
 
-#if 1
+#if 0
 void testFirst() {
     SQINFO("Test First");
     //  testHarmony2B();
     // testKeyCVEMinorXp3();
     //  testKeyCVEMinorXp3(0, true);
     testKeyOfCUp6Steps();
+    // testKeyOfCUpPoly();
 }
 #endif
