@@ -93,21 +93,27 @@ static void testKeyOfCUp6Steps() {
 static void testKeyOfCUpPoly() {
     Comp composite;
     hookUpCVInputs(composite);
-    enableOneTransposer(composite);
+   // enableOneTransposer(composite);
+
+    composite.params[Comp::XPOSE_ENABLE1_PARAM].value = 10;  // enable the first transposer.
+    composite.params[Comp::XPOSE_OCTAVE1_PARAM].value = 2;   // no octave offset
+    composite.params[Comp::XPOSE_ENABLE5_PARAM].value = 10;  // enable the fifth transposer.
+    composite.params[Comp::XPOSE_OCTAVE5_PARAM].value = 2;   // no octave offset
 
     const float transposeCV1 = 2.f / 12.f;
     const float transposeCV2 = 4.f / 12.f;
-    const int secondChannel = 11;
+  //  const int secondChannel = 11;
     composite.inputs[Comp::XPOSE_INPUT].setChannels(2);
     const auto xx = composite.inputs[Comp::XPOSE_INPUT];
     assertEQ(int(composite.inputs[Comp::XPOSE_INPUT].channels), 2);
     composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV1, 0);
-    composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV1, secondChannel);
+    composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV2, 1);
+    SQINFO("set xpose to %f, %f", transposeCV1, transposeCV2);
     test4(true, composite,
           {MidiNote::C, MidiNote::D, MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B},
           {MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B, MidiNote::C + 12, MidiNote::D + 12},
           {MidiNote::G, MidiNote::A, MidiNote::B, MidiNote::C + 12, MidiNote::D + 12, MidiNote::E + 12, MidiNote::F + 12},
-          secondChannel);
+          1);
 }
 
 static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
@@ -181,10 +187,10 @@ void testHarmony2B() {
 void testFirst() {
     SQINFO("Test First");
     //  testHarmony2B();
-     testKeyCVCMajor();
+   //  testKeyCVCMajor();
     // testKeyCVEMinorXp3();
     //  testKeyCVEMinorXp3(0, true);
-    // testKeyOfCUp6Steps();
-   // testKeyOfCUpPoly();
+   //  testKeyOfCUp6Steps();
+    testKeyOfCUpPoly();
 }
 #endif

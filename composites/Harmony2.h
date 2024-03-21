@@ -47,7 +47,7 @@ public:
         XPOSE_OCTAVE2_PARAM,
         XPOSE_OCTAVE3_PARAM,
         XPOSE_OCTAVE4_PARAM,
-        XPOSEO_OCTAVE5_PARAM,
+        XPOSE_OCTAVE5_PARAM,
         XPOSE_OCTAVE6_PARAM,
         XPOSE_ENABLE1_PARAM,
         XPOSE_ENABLE2_PARAM,
@@ -297,14 +297,22 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     ScaleNote scaleNote;
     NoteConvert::m2s(scaleNote, *_quantizerOptions->scale, quantizedInput);
 
-    int outputChannel = 0;
+    int channel = 0;
+    const bool polyXposeCV = TBase::inputs[XPOSE_INPUT].channels > 1;
+    float xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(0);
     for (int bank = 0; bank < NUM_TRANPOSERS; ++bank) {
         const bool bankEnabled = TBase::params[XPOSE_ENABLE1_PARAM + bank].value > 5;
+        // SQINFO("bank %d enabled=%d", bank, bankEnabled);
         if (bankEnabled) {
-            const float xposeCV =  TBase::inputs[XPOSE_INPUT].getVoltage(0);    // for now assume mono xpose
+           // const float xposeCV =  TBase::inputs[XPOSE_INPUT].getVoltage(0);    // for now assume mono xpose
+           if (polyXposeCV) {
+             xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
+           }
+            SQINFO("bank = %d xposeCV = %f", bank, xposeCV);
             const int xposeCVSteps = int(std::round(xposeCV * 12));
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;
+            SQINFO("xpose steps = %d, cv steps = %d xpose base steps=%d", xposeSteps, xposeCVSteps, xposeBaseSteps);
             const int xposeOctaves = int(TBase::params[XPOSE_OCTAVE1_PARAM + bank].value) - 2;
             ScaleNote noteForBank = scaleNote;
             noteForBank.transposeDegree(xposeSteps);
@@ -314,8 +322,8 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
             NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
             const float cv = f.get() + float(xposeOctaves);
             //  SQINFO("input pitch = %f, quantized is %f", input, cv);
-            TBase::outputs[PITCH_OUTPUT].setVoltage(cv, outputChannel);
-            outputChannel++;
+            TBase::outputs[PITCH_OUTPUT].setVoltage(cv, channel);
+            channel++;
         }
     }
 }
