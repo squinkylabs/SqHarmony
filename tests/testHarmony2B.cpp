@@ -7,39 +7,51 @@
 using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
+static bool testCV(Comp& composite, bool shouldPass, float cv, int channel, int expectedOutput) {
+
+    const auto args = TestComposite::ProcessArgs();
+    composite.inputs[Comp::PITCH_INPUT].setVoltage(cv, channel);
+    //  SQINFO("running process for the test");
+    composite.process(args);
+    //   SQINFO("exp = %f actual=%f", cv, composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0));
+    const auto vout = composite.outputs[Comp::PITCH_OUTPUT].getVoltage(channel);
+    const float expected = float(expectedOutput/ 12.f);
+    if (shouldPass) {
+        assertEQ(vout, expected);
+    }
+    // If any fail, they all fail
+  //  const bool pass = vout == expected;
+  //  wouldFail = wouldFail || !pass;
+  return vout == expected;
+}
+
+
 static void test4(bool shouldPass,
                   Comp& composite,
                   const std::vector<int>& input,
                   const std::vector<int>& expectedOutput,
                   const std::vector<int>& expectedOutput2,
                   int secondChannel) {
-    // SQINFO("-- test2 should pass = %d", shouldPass);
-    assert(secondChannel < 0);  //nimp
-    assert(expectedOutput2.empty());    // nimp
     bool wouldFail = false;
     assert(!input.empty());
     assertEQ(input.size(), expectedOutput.size());
+    const int expectedSize2 = secondChannel < 0 ? 0 : input.size();
+    assertEQ(expectedOutput2.size(), expectedSize2);
 
     processBlock(composite);
 
-    const auto args = TestComposite::ProcessArgs();
     for (int i = 0; i < input.size(); ++i) {
         //  for (auto x : input) {
         const int x = input[i];
         const float cv = float(x) / 12.f;
-        //  SQINFO("transpose cv = %f")
-        composite.inputs[Comp::PITCH_INPUT].setVoltage(cv, 0);
-        //  SQINFO("running process for the test");
-        composite.process(args);
-        //   SQINFO("exp = %f actual=%f", cv, composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0));
-        const auto vout = composite.outputs[Comp::PITCH_OUTPUT].getVoltage(0);
-        const float expected = float(expectedOutput[i] / 12.f);
-        if (shouldPass) {
-            assertEQ(vout, expected);
-        }
-        // If any fail, they all fail
-        const bool pass = vout == expected;
+        bool pass = testCV(composite, shouldPass, cv, 0, expectedOutput[i]);
         wouldFail = wouldFail || !pass;
+        if (secondChannel >= 0) {
+            pass = testCV(composite, shouldPass, cv, secondChannel, expectedOutput2[i]);
+            wouldFail = wouldFail || !pass;
+        }
+
+     //   channel = secondChannel;
     }
     assertEQ(wouldFail, !shouldPass);
 }
@@ -57,6 +69,7 @@ static void hookUpCVInputs(Comp& composite) {
     composite.inputs[Comp::PITCH_INPUT].channels = 1;
     composite.inputs[Comp::KEY_INPUT].channels = 1;
     composite.inputs[Comp::MODE_INPUT].channels = 1;
+    composite.inputs[Comp::XPOSE_INPUT].channels = 1;
 }
 
 static void enableOneTransposer(Comp& composite) {
@@ -69,10 +82,8 @@ static void testKeyOfCUp6Steps() {
     hookUpCVInputs(composite);
     enableOneTransposer(composite);
 
-    SQINFO("testKeyOfCUp6Steps");
-    // up six semitones
+    // up six steps
     const float transposeCV = 6.f / 12.f;
-    SQINFO("test transpose CV = %f", transposeCV);
     composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV);
     test3(true, composite,
           {MidiNote::C, MidiNote::D, MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B},
@@ -80,8 +91,25 @@ static void testKeyOfCUp6Steps() {
 }
 
 static void testKeyOfCUpPoly() {
-    assert(false);
+    Comp composite;
+    hookUpCVInputs(composite);
+    enableOneTransposer(composite);
+
+    const float transposeCV1 = 2.f / 12.f;
+    const float transposeCV2 = 4.f / 12.f;
+    const int secondChannel = 11;
+    composite.inputs[Comp::XPOSE_INPUT].setChannels(2);
+    const auto xx = composite.inputs[Comp::XPOSE_INPUT];
+    assertEQ(int(composite.inputs[Comp::XPOSE_INPUT].channels), 2);
+    composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV1, 0);
+    composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV1, secondChannel);
+    test4(true, composite,
+          {MidiNote::C, MidiNote::D, MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B},
+          {MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B, MidiNote::C + 12, MidiNote::D + 12},
+          {MidiNote::G, MidiNote::A, MidiNote::B, MidiNote::C + 12, MidiNote::D + 12, MidiNote::E + 12, MidiNote::F + 12},
+          secondChannel);
 }
+
 static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
     Comp composite;
     // All scales allowed
@@ -149,13 +177,14 @@ void testHarmony2B() {
     testKeyOfCUpPoly();
 }
 
-#if 0
+#if 1
 void testFirst() {
     SQINFO("Test First");
     //  testHarmony2B();
+     testKeyCVCMajor();
     // testKeyCVEMinorXp3();
     //  testKeyCVEMinorXp3(0, true);
-    testKeyOfCUp6Steps();
-    // testKeyOfCUpPoly();
+    // testKeyOfCUp6Steps();
+   // testKeyOfCUpPoly();
 }
 #endif
