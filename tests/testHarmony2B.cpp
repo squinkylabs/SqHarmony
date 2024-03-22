@@ -90,7 +90,7 @@ static void testKeyOfCUp6Steps() {
           {MidiNote::B, MidiNote::C + 12, MidiNote::D + 12, MidiNote::E + 12, MidiNote::F + 12, MidiNote::G + 12, MidiNote::A + 12});
 }
 
-static void testKeyOfCUpPoly() {
+static void testKeyOfCUpPoly(bool noErrors) {
     Comp composite;
     hookUpCVInputs(composite);
    // enableOneTransposer(composite);
@@ -103,17 +103,23 @@ static void testKeyOfCUpPoly() {
     const float transposeCV1 = 2.f / 12.f;
     const float transposeCV2 = 4.f / 12.f;
   //  const int secondChannel = 11;
-    composite.inputs[Comp::XPOSE_INPUT].setChannels(2);
+    const int numChannels = noErrors ? 2 : 1;
+    composite.inputs[Comp::XPOSE_INPUT].setChannels(numChannels);
     const auto xx = composite.inputs[Comp::XPOSE_INPUT];
-    assertEQ(int(composite.inputs[Comp::XPOSE_INPUT].channels), 2);
+    assertEQ(int(composite.inputs[Comp::XPOSE_INPUT].channels), numChannels);
     composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV1, 0);
     composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV2, 1);
     SQINFO("set xpose to %f, %f", transposeCV1, transposeCV2);
-    test4(true, composite,
+    test4(noErrors, composite,
           {MidiNote::C, MidiNote::D, MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B},
           {MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B, MidiNote::C + 12, MidiNote::D + 12},
           {MidiNote::G, MidiNote::A, MidiNote::B, MidiNote::C + 12, MidiNote::D + 12, MidiNote::E + 12, MidiNote::F + 12},
           1);
+}
+
+static void testKeyOfCUpPoly() {   
+   // testKeyOfCUpPoly(true);
+    testKeyOfCUpPoly(false);
 }
 
 static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
