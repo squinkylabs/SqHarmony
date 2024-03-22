@@ -55,7 +55,7 @@ public:
         XPOSE_ENABLE4_PARAM,
         XPOSE_ENABLE5_PARAM,
         XPOSE_ENABLE6_PARAM,
-        XPOSE_TOTAL1_PARAM,
+        XPOSE_TOTAL1_PARAM,         // units 1/12 volt = 1 step, same as XPOSE CX
         XPOSE_TOTAL2_PARAM,
         XPOSE_TOTAL3_PARAM,
         XPOSE_TOTAL4_PARAM,
@@ -308,11 +308,13 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
            if (polyXposeCV) {
              xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
            }
-            SQINFO("bank = %d xposeCV = %f", bank, xposeCV);
+         //   SQINFO("bank = %d xposeCV = %f", bank, xposeCV);
             const int xposeCVSteps = int(std::round(xposeCV * 12));
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;
-            SQINFO("xpose steps = %d, cv steps = %d xpose base steps=%d", xposeSteps, xposeCVSteps, xposeBaseSteps);
+        //    SQINFO("xpose steps = %d, cv steps = %d xpose base steps=%d", xposeSteps, xposeCVSteps, xposeBaseSteps);
+
+            TBase::params[XPOSE_TOTAL1_PARAM + bank].value = float(xposeSteps) / 12.f;  // report back what we did.
             const int xposeOctaves = int(TBase::params[XPOSE_OCTAVE1_PARAM + bank].value) - 2;
             ScaleNote noteForBank = scaleNote;
             noteForBank.transposeDegree(xposeSteps);
