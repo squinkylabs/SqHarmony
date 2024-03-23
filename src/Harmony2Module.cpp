@@ -37,7 +37,6 @@ private:
     void addParams() {
         const int numModes = getComp()->numCurrentModes();
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
-            //  SQINFO("setting params bank %d", i);
             this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numModes - 1, 0, "Transpose Degrees");
             this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 5, 2, "Transpose Octaves", "", 0.f, 1.f, -2.f);
             this->configParam(Comp::XPOSE_ENABLE1_PARAM + i, 0, 10, 0, "hidden");
@@ -105,7 +104,6 @@ private:
                 std::stringstream str;
                 str << steps;
                 s = str.str().c_str();
-               //s = "ena";
             }
             _xposeDisplays[bank]->getChild()->updateText(s.c_str());
         }
@@ -160,12 +158,11 @@ private:
             Vec(8, yScale),
             module,
             Comp::KEY_PARAM);
-        p->setLabels(Scale::getRootLabels(false));  // just default to sharps, we will change. TODO: do it right.
+        p->setLabels(Scale::getRootLabels(false));
         p->box.size.x = 40;                         // width
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
-        // don't know yet if we need this...
         _keyRootWidget = p;  // remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
@@ -207,7 +204,7 @@ private:
             Vec(xoctave, y),
             module,
             Comp::XPOSE_OCTAVE1_PARAM + index);
-        p->setLabels(Comp::getTransposeOctaveLabels());  // just default to sharps, we will change. TODO: do it right.
+        p->setLabels(Comp::getTransposeOctaveLabels());
         p->box.size.x = 40;                              // width
         p->box.size.y = 22;
         addParam(p);
@@ -219,7 +216,7 @@ private:
             Vec(xdegree, y),
             module,
             Comp::XPOSE_DEGREE1_PARAM + index);
-        p->setLabels(Comp::getTransposeDegreeLabels());  // just default to sharps, we will change. TODO: do it right.
+        p->setLabels(Comp::getTransposeDegreeLabels());
         p->box.size.x = 40;                              // width
         p->box.size.y = 22;
         if (!haveModule) {

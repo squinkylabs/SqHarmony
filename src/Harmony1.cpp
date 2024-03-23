@@ -21,7 +21,6 @@ struct Harmony1Widget : ModuleWidget {
     SqLabel* voiceLabels[4] = {};
     int voicesLastTime[4] = {};
     Harmony1Module* const hmodule;
-    // PopupMenuParamWidget* = nullptr;
     void addScore(Harmony1Module* module);
     PopupMenuParamWidget* _keyRootWidget = nullptr;
 
@@ -84,8 +83,8 @@ struct Harmony1Widget : ModuleWidget {
             Vec(8, yScale),
             module,
             Comp::KEY_PARAM);
-        p->setLabels(Scale::getRootLabels(false));  // just default to sharps, we will change. TODO: do it right.
-        p->box.size.x = 40;                         // width
+        p->setLabels(Scale::getRootLabels(false));  
+        p->box.size.x = 40;
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
@@ -105,7 +104,6 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void _setSharpFlat(int index) {
-        // SQINFO("set sharps flats to %d", index);
         APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
     }
 
@@ -129,10 +127,6 @@ struct Harmony1Widget : ModuleWidget {
 
         // add the sharps/flats
         if (module) {
-            // TODO: use new poll
-            // SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SHARPS_FLATS_PARAM);
-            // item->text = "Flats/not sharps";
-            // theMenu->addChild(item);
             const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
             const int index = int(std::round(p));
             theMenu->addChild(createSubmenuItem("Sharps&Flats", "",
@@ -157,20 +151,6 @@ struct Harmony1Widget : ModuleWidget {
         theMenu->addChild(item);
     }
 
-    // void _processUseSharpsParam() {
-    //     // TODO: use new poll.
-    //     const bool useFlats = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM) > .5;
-    //     auto cSharp = _keyRootWidget->getShortLabel(1);
-
-    //     auto iter = cSharp.find("#");
-    //     const bool isUsingFlats = iter == std::string::npos;
-
-    //     if (useFlats != isUsingFlats) {
-    //         INFO("changing sharps/flats, now useFlats=%d isUsingFlats= %d cSharp=%s", useFlats, isUsingFlats, cSharp.c_str());
-    //         _keyRootWidget->setLabels(Scale::getRootLabels(useFlats));
-    //         // _score->setUseFlats(useFlats);
-    //     }
-    // }
     std::shared_ptr<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>> _ksigMonitor;
 
     void step() override {
@@ -183,13 +163,11 @@ struct Harmony1Widget : ModuleWidget {
             if (_ksigMonitor) {
                 _ksigMonitor->poll();
             }
-            // process flats/sharps
-            //  _processUseSharpsParam();
+
 
             // process the voice indicators
             for (int i = 0; i < 4; ++i) {
                 const int ch = hmodule->comp->getOutputChannels(i);
-                // INFO("chan[%d] = %d", i, ch);
                 if (ch != voicesLastTime[i]) {
                     voicesLastTime[i] = ch;
                     std::string newLabel;

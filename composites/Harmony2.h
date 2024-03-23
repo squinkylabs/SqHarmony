@@ -75,7 +75,6 @@ public:
     };
 
     enum InputIds {
-        //    DEBUG_IN,
         XPOSE_INPUT,
         KEY_INPUT,
         MODE_INPUT,
@@ -191,25 +190,20 @@ inline void Harmony2<TBase>::_serviceKeysigParam() {
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
     // really only need to do this on a change.
 
-    //  const float f = TBase::params[KEY_PARAM].value;
     assert(basePitch < 12);
     _quantizerOptions->scale->set(basePitch, mode);
-    // SQINFO("just set ks base=%d", basePitch);
 }
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     if (TBase::inputs[KEY_INPUT].channels == 0) {
-        // SQINFO("key root not connected.");
         return;
     }
 
     const int semisPerOctave = 12;
     float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
-    // const float xx = std::floor(newKeyF);
     newKeyF -= std::floor(newKeyF);
     int newKeyScaledAndRounded = int(std::round(semisPerOctave * newKeyF));
-    //  SQINFO("newkeyF = %f int=%d", newKeyF, newKeyScaledAndRounded);
     if (newKeyScaledAndRounded < 0) {
         newKeyScaledAndRounded += numCurrentModes();
     }
@@ -226,7 +220,6 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     if (oldKeyScaledAndRounded != newKeyScaledAndRounded) {
         TBase::params[KEY_PARAM].value = newKeyScaledAndRounded;
         assert(TBase::params[KEY_PARAM].value < 11.5 && TBase::params[KEY_PARAM].value >= 0);
-        // SQINFO("setting key root to %f", TBase::params[KEY_PARAM].value);
     }
 }
 
@@ -241,24 +234,18 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
     const int newModeI = int(std::round(12 * newModeF));
 
     int newModeScaledAndRounded = int(std::round(newModeI)) % _inumCurrentModes;
-    // SQINFO("raw mode cv = %f scaled and rounded = %d, mod with %d (== num cur modes)",
-    //        newModeF,
-    //        newModeScaledAndRounded,
-    //        _inumCurrentModes);
     if (newModeScaledAndRounded < 0) {
         newModeScaledAndRounded += _inumCurrentModes;
     }
     assert(newModeScaledAndRounded >= 0);
     assert(newModeScaledAndRounded <= _inumCurrentModes);
 
-    //  scale->get   std::pair<const MidiNote, Scales> get() const;
     const Scale* oldKey = _quantizerOptions->scale.get();
     const auto oldScale = oldKey->get();
 
     const Scale::Scales oldMode = std::get<1>(oldScale);
     if (newModeScaledAndRounded != int(oldMode)) {
         TBase::params[MODE_PARAM].value = newModeScaledAndRounded;
-        // SQINFO("setting new mode param to %f", TBase::params[MODE_PARAM].value);
     }
 }
 
@@ -285,7 +272,6 @@ inline void Harmony2<TBase>::_servicePolyphony() {
     TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
-// static int count = 0;
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     assert(TBase::params[KEY_PARAM].value < 11.5);
@@ -302,17 +288,13 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     float xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(0);
     for (int bank = 0; bank < NUM_TRANPOSERS; ++bank) {
         const bool bankEnabled = TBase::params[XPOSE_ENABLE1_PARAM + bank].value > 5;
-        // SQINFO("bank %d enabled=%d", bank, bankEnabled);
         if (bankEnabled) {
-           // const float xposeCV =  TBase::inputs[XPOSE_INPUT].getVoltage(0);    // for now assume mono xpose
            if (polyXposeCV) {
              xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
            }
-         //   SQINFO("bank = %d xposeCV = %f", bank, xposeCV);
             const int xposeCVSteps = int(std::round(xposeCV * 12));
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;
-        //    SQINFO("xpose steps = %d, cv steps = %d xpose base steps=%d", xposeSteps, xposeCVSteps, xposeBaseSteps);
 
             TBase::params[XPOSE_TOTAL1_PARAM + bank].value = float(xposeSteps) / 12.f;  // report back what we did.
             const int xposeOctaves = int(TBase::params[XPOSE_OCTAVE1_PARAM + bank].value) - 2;
@@ -320,10 +302,8 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
             noteForBank.transposeDegree(xposeSteps);
 
             FloatNote f;
-            //    NoteConvert::m2f(f, quantizedInput);
             NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
             const float cv = f.get() + float(xposeOctaves);
-            //  SQINFO("input pitch = %f, quantized is %f", input, cv);
             TBase::outputs[PITCH_OUTPUT].setVoltage(cv, channel);
             channel++;
         }
