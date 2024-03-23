@@ -91,14 +91,15 @@ private:
     void stepForXpose() {
         // no optimization yet.
         for (int bank = 0; bank < NUM_TRANPOSERS; ++bank) {
-            std::string s;
+            std::string s = "";
             auto mod = this->_getModule();
             if (!mod) {
                 continue;
             }
             auto comp = mod->getComp();
             const bool enabled = comp->params[Comp::XPOSE_ENABLE1_PARAM + bank].value > 5;
-            if (enabled) {
+            const bool cvConnected = comp->inputs[Comp::XPOSE_INPUT].isConnected();
+            if (enabled && cvConnected) {
                 const float f = comp->params[Comp::XPOSE_TOTAL1_PARAM + bank].value;
                 const int steps = std::round(f * 12.f);
                 std::stringstream str;
@@ -226,7 +227,7 @@ private:
         }
         addParam(p);
 
-        const auto x =addLabel(Vec(xx, y), "-2 +6");
+        const auto x =addLabel(Vec(xx, y), "");
         _xposeDisplays[index] = x;
     }
 

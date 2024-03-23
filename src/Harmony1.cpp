@@ -1,6 +1,6 @@
-#include "plugin.hpp"
 #include "Harmony.h"
 #include "Harmony1Module.h"
+#include "KsigSharpFlatMonitor.h"
 #include "ParamSelectorMenu.h"
 #include "PopupMenuParamWidget.h"
 #include "Score.h"
@@ -8,7 +8,7 @@
 #include "SqMenuItem.h"
 #include "SqStream.h"
 #include "WidgetComposite.h"
-#include "KsigSharpFlatMonitor.h"
+#include "plugin.hpp"
 
 template <>
 int BufferingParent<Score>::_refCount = 0;
@@ -21,13 +21,13 @@ struct Harmony1Widget : ModuleWidget {
     SqLabel* voiceLabels[4] = {};
     int voicesLastTime[4] = {};
     Harmony1Module* const hmodule;
-   // PopupMenuParamWidget* = nullptr;
+    // PopupMenuParamWidget* = nullptr;
     void addScore(Harmony1Module* module);
     PopupMenuParamWidget* _keyRootWidget = nullptr;
 
     Harmony1Widget(Harmony1Module* module) : hmodule(module) {
         setModule(module);
-       
+
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/harmony.svg")));
 
 #ifdef _LAB
@@ -52,9 +52,11 @@ struct Harmony1Widget : ModuleWidget {
 #ifdef _LAB
         addLabel(Vec(77, 212), "X-pose");
 #endif
-         const Comp* comp = module->comp.get();
-        assert(_keyRootWidget);
-        _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
+        if (module) {
+            const Comp* comp = module->comp.get();
+            assert(_keyRootWidget);
+            _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
+        }
     }
 
     void addOutputs() {
@@ -103,7 +105,7 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void _setSharpFlat(int index) {
-       // SQINFO("set sharps flats to %d", index);
+        // SQINFO("set sharps flats to %d", index);
         APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
     }
 
@@ -131,15 +133,15 @@ struct Harmony1Widget : ModuleWidget {
             // SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SHARPS_FLATS_PARAM);
             // item->text = "Flats/not sharps";
             // theMenu->addChild(item);
-             const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
-            const int index = int( std::round(p));
+            const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
+            const int index = int(std::round(p));
             theMenu->addChild(createSubmenuItem("Sharps&Flats", "",
-                                             [=](Menu* menu) {
-                                                 menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() { _setSharpFlat(0); }));
-                                                 menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() { _setSharpFlat(1); }));
-                                                 menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() { _setSharpFlat(2); }));
-                                                 menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() { _setSharpFlat(3); }));
-                                             }));
+                                                [=](Menu* menu) {
+                                                    menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() { _setSharpFlat(0); }));
+                                                    menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() { _setSharpFlat(1); }));
+                                                    menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() { _setSharpFlat(2); }));
+                                                    menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() { _setSharpFlat(3); }));
+                                                }));
         }
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::SCORE_COLOR_PARAM);
