@@ -189,7 +189,7 @@ void testHarmony2B() {
     testKeyOfCUpPoly();
 }
 
-#if 1
+#if 0
 void testFirst() {
     SQINFO("Test First");
     //  testHarmony2B();
