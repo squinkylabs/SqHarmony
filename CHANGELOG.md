@@ -4,8 +4,11 @@
 
 Phase Patterns: Brought back to life. New panel design. V2 UI. New implementation.
 
-All modules: fixed typos in the manuals.
+Harmony II: new module.
 
+Harmony: get the automatic setting of sharps and flats from Harmony II.
+
+All modules: fixed typos in the manuals.
 
 ## 2.2.3
 

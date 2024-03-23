@@ -1,8 +1,9 @@
 # More on Harmony
 
-Some ramblings on things that are useful when trying to use some Squinktronix modules.
+Some ramblings on things that are useful when trying to use some Squinktronix modules. Mostly about diatonic scales. This is a work in progress, expect some updates.
 
 ## more info
+
 There is a ton of information on line and in books on this stuff. Even the wikipedia articles are much better and more detailed than what you are reading now.
 
 Here are some Wikipedia articles:
@@ -25,14 +26,18 @@ So, the major keys are usually notated like so:
 * G major - one sharp (F#).
 * D major - two sharps (F#, C#).
 * A major - three sharps (F#, C#, G#).
-
-* F sharp major - six sharps (F#, C#, G#, D#, A#, E#).
-
+* E major - four sharps, (C#, D#, F#, G#)
+* B major - five sharps (A#, C#, D#, F#, G#)
+* F sharp major X - six sharps (F#, C#, G#, D#, A#, E#).
+* F major - one flat (B-)
+* B flat major = two flats (B-, E-)
+* E flat major - three flats
+* A flat major - four flats
 * D flat major - five flats (B-, E-, A-, D-, G-)
 
 Of course there are many, many reasons a composer might choose different ways to notate something. Not only minimizing the number of accidentals in the key signature, but also issues of local harmony, what instrument is being written for, personal preference, etc.
 
-This is only a small issue in Harmony II. The user preference for sharps or flats only affects how the key signature on the front panels looks.
+This is only a small issue in Harmony, and Harmony II. The user preference for sharps or flats only affects how the key signature on the front panels looks.
 
 ### Are B flat and A sharp the same
 
@@ -69,7 +74,25 @@ Some common ways to "establish a key/mode" are:
 
 3 - In this song, [Samba Pa Ti](https://www.youtube.com/watch?v=timZoOs9ozo), by Carlos Santana, the melody is very distinctive, and if you try to play it, or play along with it, it's quite obvious it's in a Mixolydian mode. Mixolydian happens to be one of the more common modes in pop songs. Most ppl think of it as Major with a flat 7th.
 
+4 - In jazz music, one well known technique to establish a mode is for the piano so smash out parallel fourths. This keeps the piano chords from suggesting a particular "key", and lets the modal notes played by other instruments establish their own scales. This kind of harmony is often called "modal harmony", "quartal harmony", or "non functional harmony". It is a deep topic!
+
+## Some of the scales in Harmony II
+
+The seven diatonic scales are discussed in many places. I don't have much to add to that.
+
+We know that the Ionian (major) and Aeolian (natural minor) are very common. Some other modes are used less commonly, but are still used a lot.
+
+Mixolydian mode is often thought of as "major, with a flat 7th". So it's pretty close to major, but that altered 7th can add a little interest without sounding too weird. The lowered 7th also, make the 7th less like a leading tone - it doesn't want to resolve up the the 8 (1) as much as the major 7th
+
+Dorian is Natural minor with a raised 6th, up to the major 6. So you can use it like a regular natural minor, but again with an altered note.
+
+Minor pentatonic. This is a natural minor, where the second and the sixth are not often played. this scale is very commonly used in blues music, and rock music. Many instrumental solos are constructed from the minor pentatonic. It's something to most pop musicians are very familiar with.
+
+Whole tone. This scale is pretty strange sounding to most people. It is made up entirely of whole steps, with no half steps at all. It is not used a lot in pop music, although King Crimson is (in) famous for using it a lot. Like their song [Red](https://www.youtube.com/watch?v=X_pDwv3tpug).
+
 ## Analysis of quantizers
+
+In particular looking at why you can't always get this to work with a "normal" quantizer.
 
 Say you wanted to get the "parallel third" effect common in many "classic rock" songs. For this effect we want to generate a new note that is "a third" above the note we provide. Now of course in normal Major and Minor scales some thirds are minor thirds, and some are major thirds. In A minor, the thirds above A is C, a minor third. But the third above C is E, a major third. If you try to harmonize your note by adding a note a fixed minor or major third up, you will not get the same effect.
 

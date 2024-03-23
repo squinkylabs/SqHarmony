@@ -1,22 +1,15 @@
 # Squinktronix Phase Patterns manual
 
-This module is under test at the moment. This means:
-
-* The panel is not finalized.
-* The feature set may change.
-* The patch format may change, such that patches saved with this module may not load correctly in future versions.
-* There are probably bugs.
-
 ## What it does
 
-Phase Patterns is very simple - it takes an input clocks and delays it. The delay is in metric units, not absolute time. So, when the input clock rate changes, so does the shift amount. Here is a simple example:
+Phase Patterns is very simple - it takes an input clock and delays it. The delay is in metric units, not absolute time. So, when the input clock rate changes, so does the shift amount. Here is a simple example:
 
-* Regular clocks running into the clock input.
+* Regular clock running into the clock input.
 * Shift set to .5.
 
 The output clock will be at the same rate (tempo) as the input clock, but it will be delayed by half a clock. If the clocks are perhaps quarter notes, the output will be shifted/delayed by an eighth note.
 
-There is also a built in shift generator that will over the course of 'n' clocks delay the output by 'm' clock. This is referred to as the "RIB generator", for "Reich In a Box", the original name of the modules.
+There is also a built in shift generator that will over the course of 'n' clocks delay the output by 'm' clock. This is referred to as the "RIB generator", for "Reich In a Box", the original name of the module.
 
 There are many, many uses for this clock shifter, and most can be "unlocked" by feeding clever signals into the shift CV input.
 
@@ -60,7 +53,7 @@ Clock input. This is the clock that Phase Patterns will lock onto and delay. It 
 
 Shift amount input is combined with the other shift inputs to give the final shift amount. Here 0v is "no shift", 10v is "shift of one", which as explained above is set by the range control. This input is fully polyphonic.
 
-RIB+ and RIB- trigger inputs. There are fully polyphonic trigger inputs. On a transition from 0v to 10v they will cause a new RIB ramp to be generated, just like pressing the buttons.
+RIB+ and RIB- trigger inputs. These are fully polyphonic trigger inputs. On a transition from 0v to 10v they will cause a new RIB ramp to be generated, just like pressing the buttons.
 
 ### The outputs
 
@@ -81,7 +74,7 @@ You can also see that there is a frequency measure in between the clock and the 
 
 ### More about polyphony
 
-Because any of the inputs can be monophonic or polyphonic, and because Phase Patters is kind of odd anyway, the polyphonic possibilities are be a little difficult to understand. Here are a couple of "simple" configurations for illustration.
+Because any of the inputs can be monophonic or polyphonic, and because Phase Patterns is kind of odd anyway, the polyphonic possibilities are be a little difficult to understand. Here are a couple of "simple" configurations for illustration.
 
 #### All inputs mono except clock in is n voice polyphonic
 
@@ -97,4 +90,4 @@ In this case a single mono clock will got to n clock shifters and end up as a po
 
 #### All inputs mono except rib trigger input is polyphonic
 
-In this case the common clock input get split, and the onset of the IRB ramps will be different for each. But the will share the same rib settings. So that shift amounts will all be "the same", but will start moving at different times.
+In this case the common clock input get split, and the onset of the RIB ramps will be different for each. But the will share the same rib settings. So that shift amounts will all be "the same", but will start moving at different times.
