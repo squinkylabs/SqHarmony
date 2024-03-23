@@ -256,6 +256,129 @@ static void testScore2() {
     validate(info);
 }
 
+static void testSharpsFlatsDiatonic() {
+    Scale scale;
+
+    scale.set(MidiNote::C, Scale::Scales::Minor);
+    auto info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::C, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    // C#/Dflat
+    scale.set(MidiNote::C + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::D, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    // D#/Eflat
+    scale.set(MidiNote::D + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::E, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::F, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    // F#/G-
+    scale.set(MidiNote::F + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    scale.set(MidiNote::G, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    // G#/A-
+    scale.set(MidiNote::G + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::A, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    // A#/B-
+    scale.set(MidiNote::A + 1, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::B, Scale::Scales::Major);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+}
+
+static void testSharpsFlatsOtherMinor() {
+    Scale scale;
+    scale.set(MidiNote::E, Scale::Scales::MinorPentatonic);
+    auto info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::E, Scale::Scales::HarmonicMinor);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Sharps);
+
+    scale.set(MidiNote::E - 1, Scale::Scales::MinorPentatonic);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    scale.set(MidiNote::E - 1, Scale::Scales::HarmonicMinor);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::DontCare);
+
+    scale.set(MidiNote::G, Scale::Scales::MinorPentatonic);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+
+    scale.set(MidiNote::G, Scale::Scales::HarmonicMinor);
+    info = scale.getSharpsFlatsPref();
+    assert(info == Scale::SharpsFlatsPref::Flats);
+}
+
+static void testSharpsFlatsWierdos() {
+    Scale scale;
+    int count = 0;
+    for (int i = MidiNote::C; i <= MidiNote::B; ++i) {
+        scale.set(i, Scale::Scales::Chromatic);
+        auto info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::DontCare);
+
+        scale.set(i, Scale::Scales::Diminished);
+        info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::DontCare);
+
+        scale.set(i, Scale::Scales::DominantDiminished);
+        info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::DontCare);
+
+        scale.set(i, Scale::Scales::WholeStep);
+        info = scale.getSharpsFlatsPref();
+        assert(info == Scale::SharpsFlatsPref::Sharps);
+        ++count;
+    }
+    assertEQ(count, 12);
+}
+
+static void testSharpsFlatsNoAssert() {
+    Scale scale;
+    int count = 0;
+    for (int i = int(Scale::Scales::Major); i <= int(Scale::Scales::Chromatic); ++i) {
+        scale.set(0, Scale::Scales(i));
+        auto info = scale.getSharpsFlatsPref();
+        ++count;
+    }
+    assertGE(count, 12);
+}
+
 static void testScore3() {
     Scale scale;
 
@@ -353,6 +476,49 @@ static void testScore3() {
     validate(scale.getScoreInfo(), 5, 7);
 }
 
+static void testLabels(const std::vector<std::string>& labels) {
+    std::set<std::string> x;
+    assert(!labels.empty());
+    for (auto s : labels) {
+        assert(!s.empty());
+        if (x.find(s) != x.end()) assert(false);
+        x.insert(s);
+    }
+    assert(!x.empty());
+}
+
+static void testLabels() {
+    assertEQ(Scale::getShortScaleLabels(false).size(), Scale::getScaleLabels(false).size());
+    assertEQ(Scale::getShortScaleLabels(true).size(), Scale::getScaleLabels(true).size());
+    assertGT(Scale::getShortScaleLabels(false).size(), Scale::getShortScaleLabels(true).size());
+
+    testLabels(Scale::getShortScaleLabels(false));
+    testLabels(Scale::getShortScaleLabels(true));
+    testLabels(Scale::getScaleLabels(false));
+    testLabels(Scale::getScaleLabels(true));
+
+    assertEQ(Scale::getShortScaleLabels(true).size(), 7);  // 7 diatonic
+    assertEQ(Scale::getShortScaleLabels(false).size(), 13);  // 13 total
+}
+
+static void testNumNotes() {
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Major), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Dorian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Phrygian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Lydian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Mixolydian), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Minor), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Locrian), 7);
+
+    assertEQ(Scale::numNotesInScale(Scale::Scales::MinorPentatonic), 5);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::HarmonicMinor), 7);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Chromatic), 12);
+
+    assertEQ(Scale::numNotesInScale(Scale::Scales::Diminished), 8);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::DominantDiminished), 8);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::WholeStep), 6);
+}
+
 void testScale() {
     testCMaj();
     testAMin();
@@ -373,4 +539,20 @@ void testScale() {
     testScore();
     testScore2();
     testScore3();
+
+    testLabels();
+
+    testSharpsFlatsDiatonic();
+    testSharpsFlatsOtherMinor();
+    testSharpsFlatsWierdos();
+    testSharpsFlatsNoAssert();
+     testNumNotes();
 }
+
+#if 0
+void testFirst() {
+   // testSharpsFlatsWierdos();
+   // testSharpsFlatsNoAssert();
+   testNumNotes();
+}
+#endif

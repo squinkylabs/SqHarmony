@@ -29,6 +29,12 @@
 			"name": "Phase Patterns",
 			"disabled": false,
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/phasepatterns.md"
+		},
+		{
+			"slug": "sqh-harmony2",
+			"name": "Harmony II",
+			"disabled": false,
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/harmonyII.md"
 		}
     ]
 }

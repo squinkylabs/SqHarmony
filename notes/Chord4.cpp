@@ -154,7 +154,8 @@ void Chord4::print() const {
 }
 
 Chord4Ptr Chord4::fromString(const Options& options, int degree, const char* target) {
-    assert(strlen(target) == 8);
+    assert(strlen(target) >= 8);
+    assert(strlen(target) <= 12);
     if (options.style->allowVoiceCrossing()) assert(false);  // Not supported ATM.
     const std::string sTarget = target;
     for (int voiceN = TENOR; voiceN <= SOP; voiceN++) {

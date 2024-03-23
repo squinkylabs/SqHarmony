@@ -79,7 +79,7 @@ inline ParamSelectorMenu::ParamSelectorMenu(
     initialValue = int(std::round(v));
 }
 
-::rack::ui::Menu* ParamSelectorMenu::createChildMenu() {
+inline ::rack::ui::Menu* ParamSelectorMenu::createChildMenu() {
     ::rack::ui::Menu* menu = new ::rack::ui::Menu();
     auto label = ::rack::construct<::rack::ui::MenuLabel>(
         &rack::ui::MenuLabel::text,

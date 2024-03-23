@@ -15,6 +15,7 @@ extern void testScale();
 extern void testScaleNotes();
 extern void testHarmonyComposite();
 extern void testKeysig();
+
 extern void specialDumpList();
 extern void testProgressions();
 extern void testNoteBuffer();
@@ -28,6 +29,7 @@ extern void testHarmonyChordsRandom();
 extern void testHarmonyChords2();
 extern void testRingBuffer();
 extern void testChord4Manager();
+// call the above are used.
 extern void testTempo();
 extern void testGrayCode();
 extern void testAdditivePitchLogic();
@@ -70,6 +72,8 @@ extern void testClockShifter6();
 extern void testClockShifter6d();
 extern void testBitDelay();
 extern void testHarmony2();
+extern void testHarmony2B();
+extern void testSharpFlatMonitor();
 
 #include "SqLog.h"
 
@@ -114,6 +118,7 @@ int main(const char**, int) {
     testFreqMeasure();
     testFreqMeasure2();
     testShiftCalc();
+    testSharpFlatMonitor();
 
     testClockMult();
     testMultiplier();
@@ -125,9 +130,16 @@ int main(const char**, int) {
     testPhasePatterns();
     testPhasePatternsPoly();
 
+    testScale();
+    testScaleRelativeNote();
+    testScaleQuantizer();
     testHarmony2();
+    testHarmony2B();
+    testHarmonyNote();
+#if 0
     printf("XX: leaving early for clock stuff");
     std::exit(0);
+#endif
 
     testAdditiveModLogic();
     testAdditivePitchLogic();
@@ -139,6 +151,7 @@ int main(const char**, int) {
     testGateDelay();
     testSeqClock();
     testNoteBuffer();
+    testKeysig();
 
     testArpegPlayer2();
     testArpegPlayer();
@@ -148,6 +161,7 @@ int main(const char**, int) {
     testRawChordGenerator();
     testPitchKnowledge();
     testChord4();
+    testChord();
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChords2023();
@@ -157,7 +171,9 @@ int main(const char**, int) {
     testAllChords(doLongRunning);
 #endif
     testHarmonyComposite();
-    printf("put back test progression?\n");
+    testProgressions();
+    testChord4Manager();
+   // printf("put back test progression?\n");
 
 #endif
 }

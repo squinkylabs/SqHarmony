@@ -25,8 +25,14 @@ public:
         Chromatic
     };
 
+    static int numScalesTotal() { return 13; }
+    static int numDiatonicScales() { return 7; }
+    static int numScales(bool onlyDiatonic) { return onlyDiatonic ? numDiatonicScales() : numScalesTotal(); }
+
+    static int numNotesInScale(Scales s);
+
     static std::vector<std::string> getScaleLabels(bool onlyDiatonic);
-    static std::vector<std::string> getShortScaleLabels(bool);
+    static std::vector<std::string> getShortScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getRootLabels(bool useFlats);
 
     void set(const MidiNote& base, Scales mode);
@@ -65,7 +71,7 @@ public:
     bool getWasSet() const { return wasSet; }
 
     /**
-     * @brief data for draing key signatures
+     * @brief data for drawing key signatures
      * 
      */
     class ScoreInfo {
@@ -85,6 +91,13 @@ public:
      * @return ScoreInfo 
      */
     ScoreInfo getScoreInfo() const;
+
+    enum class SharpsFlatsPref {
+        Sharps,
+        Flats,
+        DontCare
+    };
+    SharpsFlatsPref getSharpsFlatsPref() const;
 
     MidiNote getRelativeMajor() const;
 

@@ -79,15 +79,26 @@ ScaleNote Scale::makeScaleNote(int offset) const {
 }
 
 std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
-    assert(justDiatonic);
-    return {
-        "Major",
-        "Dorian",
-        "Phrygian",
-        "Lydian",
-        "Mixo.",
-        "Minor",
-        "Locrian"};
+    if (justDiatonic) {
+        return {
+            "Major",
+            "Dorian",
+            "Phrygian",
+            "Lydian",
+            "Mixo.",
+            "Minor",
+            "Locrian"};
+    } else {
+        return {
+            "Major",
+            "Dorian",
+            "Phrygian",
+            "Lydian",
+            "Mixo.",
+            "Minor",
+            "Locrian",
+            "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T", "Chrom"};
+    }
 }
 
 std::vector<std::string>
@@ -103,7 +114,7 @@ Scale::getScaleLabels(bool justDiatonic) {
             "Locrian"};
     else
         return {"Major", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Minor", "Locrian",
-                "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone"};
+                "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone", "Chromatic"};
 }
 
 std::vector<std::string> Scale::getRootLabels(bool useFlats) {
@@ -345,7 +356,7 @@ const int numsharps[12] = {
 
 const int numflats[12] = {
     0,  // C Maj
-    5,  // D flat
+    5,  // C# / D flat
     0,  // D
     3,  // D# / E flat
     0,  // E
@@ -356,6 +367,21 @@ const int numflats[12] = {
     0,  // A
     2,  // B -
     7   // B
+};
+
+const Scale::SharpsFlatsPref preferSharps[12] = {
+    Scale::SharpsFlatsPref::DontCare,  // C Maj (
+    Scale::SharpsFlatsPref::Flats,     // C# / D flat (notated as D flat)
+    Scale::SharpsFlatsPref::Sharps,    // D
+    Scale::SharpsFlatsPref::Flats,     // D# / E flat
+    Scale::SharpsFlatsPref::Sharps,    // E
+    Scale::SharpsFlatsPref::Flats,     // F
+    Scale::SharpsFlatsPref::DontCare,  // F# G flat (this one is ambiguous, could be either)
+    Scale::SharpsFlatsPref::Sharps,    // G
+    Scale::SharpsFlatsPref::Flats,     // G# / A flat
+    Scale::SharpsFlatsPref::Sharps,    // A
+    Scale::SharpsFlatsPref::Flats,     // A# / B -
+    Scale::SharpsFlatsPref::Sharps     // B
 };
 
 const MidiNote sharpsInTreble[12] = {
@@ -411,5 +437,84 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     ret.flatsInTrebleClef = flatsInTreble;
     ret.flatsInBassClef = flatsInBass;
 
+    return ret;
+}
+
+Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
+    if (int(scale) <= int(Scales::Locrian)) {
+        const int basePitch = getRelativeMajor().get();
+        assert(basePitch >= 0);
+        assert(basePitch < 12);
+
+        return preferSharps[basePitch];
+    }
+
+    switch (scale) {
+        case Scales::MinorPentatonic:
+        case Scales::HarmonicMinor: {
+            // Not sure it's true, but let's say all the minors are the same...
+            Scale otherScale;
+            otherScale.set(this->baseNote, Scales::Minor);
+            return otherScale.getSharpsFlatsPref();
+        }
+        case Scales::Chromatic:
+        case Scales::Diminished:
+        case Scales::DominantDiminished:
+            return SharpsFlatsPref::DontCare;
+        case Scales::WholeStep:
+            return SharpsFlatsPref::Sharps;
+
+        // These handled above. Just to make gcc not nag
+        case Scales::Locrian:
+        case Scales::Dorian:
+        case Scales::Lydian:
+        case Scales::Major:
+        case Scales::Minor:
+        case Scales::Mixolydian:
+        case Scales::Phrygian:
+            break;
+    }
+    assert(false);
+    return SharpsFlatsPref::DontCare;
+}
+
+int Scale::numNotesInScale(Scales scale) {
+    int ret = 0;
+    switch (scale) {
+        case Scales::MinorPentatonic:
+            ret = 5;
+            break;
+
+        case Scales::HarmonicMinor: 
+            ret = 7;
+            break;
+        case Scales::Chromatic:
+            ret = 12;
+            break;
+        case Scales::Diminished:
+        case Scales::DominantDiminished:
+            ret = 8;
+            break;
+         
+        case Scales::WholeStep:
+            ret = 6;
+            break;
+
+        // These handled above. Just to make gcc not nag
+        case Scales::Locrian:
+        case Scales::Dorian:
+        case Scales::Lydian:
+        case Scales::Major:
+        case Scales::Minor:
+        case Scales::Mixolydian:
+        case Scales::Phrygian:
+            ret = 7;
+            break;
+        default:
+            assert(false);
+            ret = -1;
+    }
+    assert(ret >= 0);
+    assert(ret <= 12);
     return ret;
 }

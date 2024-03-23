@@ -16,7 +16,9 @@ public:
     int getCapacity() const {
         return curCapacity;
     }
-    static const int maxCapacity{32};
+    // static const int maxCapacity{32};
+    enum NoteCapacity { maxCapacity = 32 };
+
     int size() const { return siz; }
     bool empty() const { return siz == 0; }
 
@@ -73,7 +75,7 @@ inline void NoteBuffer::setCapacity(int size) {
     if (size == 0) {
         size = maxCapacity;
     }
-    size = std::min(size, maxCapacity);
+    size = std::min(size, int(maxCapacity));
     if (size != curCapacity) {
         curCapacity = size;
 

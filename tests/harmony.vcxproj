@@ -192,6 +192,7 @@
     <ClCompile Include="testFreqMeasure2.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
     <ClCompile Include="testHarmony2.cpp" />
+    <ClCompile Include="testHarmony2B.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChords2023.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
@@ -226,6 +227,7 @@
     <ClCompile Include="testSchmidtTrigger.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
+    <ClCompile Include="testSharpFlatMonitor.cpp" />
     <ClCompile Include="testShiftCalc.cpp" />
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />

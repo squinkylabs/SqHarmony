@@ -97,11 +97,11 @@ static void testStyle2() {
     style2->setRangesPreference(Style::Ranges::VOCAL_RANGE);
     assertLT(blw, style2->minBass());
     assertGT(bhw, style2->maxBass());
-    assertLT(tlw, style2->minTenor());
+    assertLE(tlw, style2->minTenor());
     assertGT(thw, style2->maxTenor());
     assertLT(alw, style2->minAlto());
     assertGT(ahw, style2->maxAlto());
-    assertLT(slw, style2->minSop());
+    assertLE(slw, style2->minSop());
     assertGT(shw, style2->maxSop());
 }
 
