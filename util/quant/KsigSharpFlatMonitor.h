@@ -21,6 +21,7 @@ public:
     KsigSharpFlatMonitor() = delete;
     KsigSharpFlatMonitor(const KsigSharpFlatMonitor&) = delete;
     KsigSharpFlatMonitor(const TComp* comp, TWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {
+        assert(rootWidget);
     }
     void poll() {
         assert(_comp);
