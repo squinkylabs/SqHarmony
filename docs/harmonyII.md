@@ -103,3 +103,7 @@ But, when all scales are enabled:
 (text coming soon)
 
 ## Context menu things
+
+## Block diagram
+
+![harmony II block diagram](./Harmony-II-block-diagram.svg)
