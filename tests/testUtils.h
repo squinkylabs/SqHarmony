@@ -9,3 +9,9 @@ inline void processBlock(T& composite) {
     }
 }
 
+template <typename T>
+inline void processOnce(T& composite) {
+    const auto args = TestComposite::ProcessArgs();
+    composite.process(args);
+}
+
