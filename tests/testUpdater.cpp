@@ -94,8 +94,8 @@ static void testPollCVChannels() {
     b = cv2.poll(&composite);
     assertEQ(b, true);      // channels changed
     b = cv2.poll(&composite);
-    assertEQ(b, true);      // check underlying value
-      b = cv2.poll(&composite);
+    assertEQ(b, false);  
+    b = cv2.poll(&composite);
     assertEQ(b, false); 
 }
 
