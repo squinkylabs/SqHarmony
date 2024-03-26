@@ -22,10 +22,13 @@ public:
 using Comp = MyComposite<TestComposite>;
 
 static void testCanCall() {
-   
-    CompositeUpdater<Comp> c({}, {});
+    Comp composite;
+    CompositeUpdater<Comp> c(&composite);
     CVUpdater<Comp> cv(Comp::INPUT1);
     ParamUpdater<Comp> param(Comp::PARAM1);
+
+    c.add(Comp::PARAM1);
+    c.add(Comp::INPUT1);
 
     // std::vector<CVUpdater<Comp>> v;
     // v.push_back({ Comp::PARAM1 });

@@ -7,7 +7,7 @@ class ParamUpdater {
 public:
     ParamUpdater(enum T::ParamIds paramID) : _paramID(paramID) {}
     ParamUpdater() = delete;
-    bool poll(T* composite) const {
+    bool poll(const T* composite) const {
         const float f = composite->params[_paramID].value;
         const bool change = f != _lastTime;
         _lastTime = f;
@@ -25,7 +25,7 @@ public:
     CVUpdater(enum T::InputIds inputID) : _inputID(inputID) {}
     CVUpdater() = delete;
 
-    bool poll(T* composite) const {
+    bool poll(const T* composite) const {
         auto input = composite->inputs[_inputID];
         if (input.channels != _lastChannels) {
             _lastChannels = input.channels;
@@ -46,7 +46,7 @@ private:
     mutable float _lastValues[16] = {-1000};
     mutable int _lastChannels = -1;
 
-    void _snapshotValues(T* composite) const {
+    void _snapshotValues(const T* composite) const {
         auto input = composite->inputs[_inputID];
         for (int i = 0; i < input.channels; ++i) {
             _lastValues[i] = input.getVoltage(i);
@@ -57,20 +57,22 @@ private:
 template <typename T>
 class CompositeUpdater {
 public:
-    CompositeUpdater(std::vector<ParamUpdater<T>>&&, std::vector<CVUpdater<T>>&&);
+    CompositeUpdater(T* composite) : _composite(composite) {}
+    CompositeUpdater() = delete;
+    CompositeUpdater(const CompositeUpdater&) = delete;
     bool poll() const;
+    void add(enum T::ParamIds param) {
+        _paramUpdaters.push_back({ param });
+    }
+    void add(enum T::InputIds input) {
+        _cvUpdaters.push_back({input});
+    }
 
 private:
     std::vector<ParamUpdater<T>> _paramUpdaters;
     std::vector<CVUpdater<T>> _cvUpdaters;
-    T* _composite = nullptr;
+    const T* _composite = nullptr;
 };
-
-template <typename T>
-inline CompositeUpdater<T>::CompositeUpdater(
-    std::vector<ParamUpdater<T>>&& pu,
-    std::vector<CVUpdater<T>>&& cu) : _cvUpdaters(std::move(cu)) {
-}
 
 template <typename T>
 inline bool CompositeUpdater<T>::poll() const {
