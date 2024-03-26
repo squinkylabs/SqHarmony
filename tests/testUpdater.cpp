@@ -9,7 +9,8 @@ template <class TBase>
 class MyComposite : public TBase {
 public:
     enum ParamIds {
-        PARAM1
+        PARAM1,
+        PARAM2
     };
     enum InputIds {
         INPUT1
@@ -42,24 +43,37 @@ static void testCanCall() {
     const bool b = v3.check();
 }
 
-class foo {
-public:
-    std::vector<int> v;
-    foo(std::vector<int>&& x) : v(std::move(x)) {}
-};
 
-static void testExp() {
-    foo f = std::vector<int>{1, 2, 3};
+static void testPollParam() {
+    Comp composite;
+    ParamUpdater pu(&composite, Comp::PARAM1);
+    ParamUpdater pu2(&composite, Comp::PARAM2);
 
-    std::vector<int> g = std::vector<int>{1, 2, 3};
-    SQINFO("f=%d g=%d", f.v.size(), g.size());
-    foo h(std::move(g));
-    SQINFO("h=%d g=%d", h.v.size(), g.size());
+    bool b = pu.check();
+    assertEQ(b, true);
+    b = pu.check();
+    assertEQ(b, false);
+
+    b = pu2.check();
+    assertEQ(b, true);
+
+    composite.params[Comp::PARAM2].value = 66;
+
+    b = pu.check();
+    assertEQ(b, false);
+    b = pu2.check();
+    assertEQ(b, true);
+
+    b = pu.check();
+    assertEQ(b, false);
+    b = pu2.check();
+    assertEQ(b, false);
 }
 
 void testUpdater() {
     testCanCall();
-    testExp();
+    testPollParam();
+
 }
 
 #if 1
