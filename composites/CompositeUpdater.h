@@ -5,17 +5,17 @@
 template <typename T>
 class ParamUpdater {
 public:
-    ParamUpdater(T* composite, int paramID) : _composite(composite), _paramID(paramID) {}
+    ParamUpdater(enum T::ParamIds paramID) : _paramID(paramID) {}
     ParamUpdater() = delete;
-    bool check() const {
-        const float f= _composite->params[_paramID].value;
+    bool poll(T* composite) const {
+        const float f= composite->params[_paramID].value;
         const bool change = f != _lastTime;
         _lastTime = f;
         return change;
     }
 
 private:
-    T* const _composite;
+  //  T* const _composite;
     const int _paramID;
     mutable float _lastTime = -1000;
 };
@@ -23,11 +23,11 @@ private:
 template <typename T>
 class CVUpdater {
 public:
-    CVUpdater(T* composite, int inputID) : _composite(composite), _inputID(inputID) {}
+    CVUpdater(enum T::InputIds inputID) : _inputID(inputID) {}
     CVUpdater() = delete;
 
-    bool check() const {
-        auto input = _composite->inputs[_inputID];
+    bool poll(T* composite) const {
+        auto input = composite->inputs[_inputID];
         if (input.channels != _lastChannels) {
             _lastChannels = input.channels;
             return true;
@@ -42,7 +42,7 @@ public:
     }
 
 private:
-    T* const _composite;
+ //   T* const _composite;
     const int _inputID;
     mutable float _lastValues[16] = {-1000};
     mutable int _lastChannels = -1;
@@ -52,10 +52,11 @@ template <typename T>
 class CompositeUpdater {
 public:
     CompositeUpdater(std::vector<ParamUpdater<T>>&&, std::vector<CVUpdater<T>>&&);
-    bool check() const;
+    bool poll() const;
 private:
     std::vector<ParamUpdater<T>> _paramUpdaters;
     std::vector<CVUpdater<T>> _cvUpdaters;
+    T* _composite = nullptr;
 };
 
 template <typename T>
@@ -65,13 +66,14 @@ inline CompositeUpdater<T>::CompositeUpdater(
 }
 
 template <typename T>
-inline bool CompositeUpdater<T>::check() const {
+inline bool CompositeUpdater<T>::poll() const {
+    assert(_composite);
     bool changed = false;
     for (auto x : _paramUpdaters) {
-        changed |= x.check();
+        changed |= x.poll();
     }
     for (auto x : _cvUpdaters) {
-        changed |= x.check();
+        changed |= x.poll();
     }
     return changed;
 }
