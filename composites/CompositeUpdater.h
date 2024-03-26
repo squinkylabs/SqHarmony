@@ -27,8 +27,6 @@ public:
     CVUpdater() = delete;
 
     bool check() const {
-        bool different = false;
-
         auto input = _composite->inputs[_inputID];
         if (input.channels != _lastChannels) {
             _lastChannels = input.channels;
