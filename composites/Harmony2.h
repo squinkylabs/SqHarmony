@@ -5,17 +5,17 @@
 #include <tuple>
 #include <vector>
 
-#include "Divider.h"
-#include "FloatNote.h"
+#include "Divider.h" 
+#include "FloatNote.h" 
 #include "GateTrigger.h"
-#include "NoteConvert.h"
+#include "NoteConvert.h" 
 #include "ScaleNote.h"
 #include "ScaleQuantizer.h"
 #include "SqLog.h"
 
 #define NUM_TRANPOSERS 6
 
-namespace rack {
+namespace rack { 
 namespace engine {
 struct Module;
 }

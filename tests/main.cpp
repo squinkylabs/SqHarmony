@@ -74,6 +74,7 @@ extern void testBitDelay();
 extern void testHarmony2();
 extern void testHarmony2B();
 extern void testSharpFlatMonitor();
+extern void testUpdater();
 
 #include "SqLog.h"
 
@@ -101,7 +102,8 @@ int main(const char**, int) {
     assert(SqLog::errorCount == 0);
     testFirst();
     std::exit(0);
-#endif
+#endif 
+    testUpdater();
 
     testTwister();
     testPinkFilter();
