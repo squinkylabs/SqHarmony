@@ -112,7 +112,7 @@ public:
     int numNotesInCurrentScale();
 
 private:
-    Divider _divn;
+ //   Divider _divn;
     GateTrigger _ButtonProcs[NUM_TRANPOSERS];
     ScaleQuantizerPtr _quantizer;
     ScaleQuantizer::OptionsPtr _quantizerOptions;
@@ -121,6 +121,7 @@ private:
 
     void _init();
     void _stepn();
+    void _old_process();
     void _servicePolyphony();
     void _serviceEnableButtons();
     void _serviceKeysigRootCV();
@@ -167,9 +168,9 @@ inline std::vector<std::string> Harmony2<TBase>::getTransposeOctaveLabels() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_init() {
-    _divn.setup(Harmony2<TBase>::getSubSampleFactor(), [this]() {
-        this->_stepn();
-    });
+    // _divn.setup(Harmony2<TBase>::getSubSampleFactor(), [this]() {
+    //     this->_stepn();
+    // });
 
     _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     _quantizerOptions->scale = std::make_shared<Scale>();
@@ -291,10 +292,23 @@ inline void Harmony2<TBase>::_servicePolyphony() {
     TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
+//static int x = 0;
+
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
-    assert(TBase::params[KEY_PARAM].value < 11.5);
-    _divn.step();
+    const bool changed = _updater.poll();
+    if (changed) {
+      //  SQINFO("%d", x);
+      //  ++x;
+        _stepn();
+        _old_process();
+    }
+}
+
+template <class TBase>
+inline void Harmony2<TBase>::_old_process() {
+    // assert(TBase::params[KEY_PARAM].value < 11.5);
+    // _divn.step();
     assert(TBase::params[KEY_PARAM].value < 11.5);
     const float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);

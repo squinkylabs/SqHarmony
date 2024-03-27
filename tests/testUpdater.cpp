@@ -124,9 +124,42 @@ static void testPollCVValues() {
   //  assert(false);
 }
 
-static void testPollCompositeUpdater() {
-  //  assert(false);
-  SQINFO("!! implement testPollCompositeUpdater");
+static void testPollCompositeUpdater_oneParam() {
+    Comp composite;
+    CompositeUpdater<Comp> up;
+    up.set(&composite);
+    up.add(Comp::PARAM1);
+
+    bool b  = up.poll();
+    assertEQ(b, true);
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+}
+
+static void testPollCompositeUpdater_oneCVMono() {
+    //  assert(false);
+    SQINFO("----t testPollCompositeUpdater");
+    Comp composite;
+    CompositeUpdater<Comp> up;
+    up.set(&composite);
+    composite.inputs[Comp::INPUT1].channels = 1;
+    up.add(Comp::INPUT1, true);
+
+    bool b = up.poll();
+    assertEQ(b, true);
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+
+    composite.inputs[Comp::INPUT1].setVoltage(11, 0);
+    b = up.poll();
+    assertEQ(b, true);
+    b = up.poll();
+    assertEQ(b, false);
+
 }
 
 void testUpdater() {
@@ -134,10 +167,11 @@ void testUpdater() {
     testPollParam();
     testPollCVChannels();
     testPollCVValues();
-    testPollCompositeUpdater();
+    testPollCompositeUpdater_oneParam();
+    testPollCompositeUpdater_oneCVMono();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // i == 0, j== -2
     // testModeCV(-14, 0, true);

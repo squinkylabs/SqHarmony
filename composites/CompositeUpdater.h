@@ -1,7 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <assert.h>
+
+#include <vector>
+
+#include "SqLog.h"
 
 template <typename T>
 class ParamUpdater {
@@ -10,7 +13,7 @@ public:
     ParamUpdater() = delete;
     bool poll(const T* composite) const {
         const float f = composite->params[_paramID].value;
-        const bool change = f != _lastTime;
+        const bool change = (f != _lastTime);
         _lastTime = f;
         return change;
     }
@@ -23,9 +26,8 @@ private:
 template <typename T>
 class CVUpdater {
 public:
-    CVUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : 
-        _inputID(inputID), 
-        _inputIsMonophonic(inputIsMonophonic) {}
+    CVUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : _inputID(inputID),
+                                                                  _inputIsMonophonic(inputIsMonophonic) {}
     CVUpdater() = delete;
 
     bool poll(const T* composite) const {
@@ -33,6 +35,7 @@ public:
         if (input.channels != _lastChannels) {
             _lastChannels = input.channels;
             _snapshotValues(composite);
+            _lastChannels = input.channels;
             return true;
         }
         const unsigned maxChannels = _inputIsMonophonic ? 1 : 16;
@@ -70,12 +73,10 @@ public:
 
     void add(enum T::ParamIds param) {
         assert(_composite);
-     
-        _paramUpdaters.push_back({ param });
+        _paramUpdaters.push_back({param});
     }
     void add(enum T::InputIds input, bool isMonophonic) {
         assert(_composite);
-
         _cvUpdaters.push_back({input, isMonophonic});
     }
     void set(T* composite) {
@@ -93,14 +94,13 @@ private:
 template <typename T>
 inline bool CompositeUpdater<T>::poll() const {
     assert(_composite);
-    assert(!_paramUpdaters.empty());
-     assert(!_cvUpdaters.empty());
     bool changed = false;
-    for (auto x : _paramUpdaters) {
-        changed |= x.poll();
+    for (int i = 0; i < int(_paramUpdaters.size()); ++i) {
+        changed |= _paramUpdaters[i].poll(_composite);
     }
-    for (auto x : _cvUpdaters) {
-        changed |= x.poll();
+
+    for (int i = 0; i < int(_cvUpdaters.size()); ++i) {
+        changed |= _cvUpdaters[i].poll(_composite);
     }
     return changed;
 }
