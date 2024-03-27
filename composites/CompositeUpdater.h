@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <assert.h>
 
 template <typename T>
 class ParamUpdater {
@@ -22,7 +23,9 @@ private:
 template <typename T>
 class CVUpdater {
 public:
-    CVUpdater(enum T::InputIds inputID) : _inputID(inputID) {}
+    CVUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : 
+        _inputID(inputID), 
+        _inputIsMonophonic(inputIsMonophonic) {}
     CVUpdater() = delete;
 
     bool poll(const T* composite) const {
@@ -32,7 +35,9 @@ public:
             _snapshotValues(composite);
             return true;
         }
-        for (int i = 0; i < input.channels; ++i) {
+        const unsigned maxChannels = _inputIsMonophonic ? 1 : 16;
+        const unsigned channelToPoll = std::min(maxChannels, unsigned(input.channels));
+        for (unsigned i = 0; i < channelToPoll; ++i) {
             if (input.getVoltage(i) != _lastValues[i]) {
                 _lastValues[i] = input.getVoltage(i);
                 return true;
@@ -43,6 +48,7 @@ public:
 
 private:
     const int _inputID;
+    const bool _inputIsMonophonic;
     mutable float _lastValues[16] = {-1000};
     mutable int _lastChannels = -1;
 
@@ -58,14 +64,24 @@ template <typename T>
 class CompositeUpdater {
 public:
     CompositeUpdater(T* composite) : _composite(composite) {}
-    CompositeUpdater() = delete;
+    CompositeUpdater() {}
     CompositeUpdater(const CompositeUpdater&) = delete;
     bool poll() const;
+
     void add(enum T::ParamIds param) {
+        assert(_composite);
+     
         _paramUpdaters.push_back({ param });
     }
-    void add(enum T::InputIds input) {
-        _cvUpdaters.push_back({input});
+    void add(enum T::InputIds input, bool isMonophonic) {
+        assert(_composite);
+
+        _cvUpdaters.push_back({input, isMonophonic});
+    }
+    void set(T* composite) {
+        assert(!_composite);
+        assert(composite);
+        _composite = composite;
     }
 
 private:
@@ -77,6 +93,8 @@ private:
 template <typename T>
 inline bool CompositeUpdater<T>::poll() const {
     assert(_composite);
+    assert(!_paramUpdaters.empty());
+     assert(!_cvUpdaters.empty());
     bool changed = false;
     for (auto x : _paramUpdaters) {
         changed |= x.poll();

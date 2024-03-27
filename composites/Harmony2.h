@@ -5,17 +5,18 @@
 #include <tuple>
 #include <vector>
 
-#include "Divider.h" 
-#include "FloatNote.h" 
+#include "CompositeUpdater.h"
+#include "Divider.h"
+#include "FloatNote.h"
 #include "GateTrigger.h"
-#include "NoteConvert.h" 
+#include "NoteConvert.h"
 #include "ScaleNote.h"
 #include "ScaleQuantizer.h"
 #include "SqLog.h"
 
 #define NUM_TRANPOSERS 6
 
-namespace rack { 
+namespace rack {
 namespace engine {
 struct Module;
 }
@@ -55,7 +56,7 @@ public:
         XPOSE_ENABLE4_PARAM,
         XPOSE_ENABLE5_PARAM,
         XPOSE_ENABLE6_PARAM,
-        XPOSE_TOTAL1_PARAM,         // units 1/12 volt = 1 step, same as XPOSE CX
+        XPOSE_TOTAL1_PARAM,  // units 1/12 volt = 1 step, same as XPOSE CX
         XPOSE_TOTAL2_PARAM,
         XPOSE_TOTAL3_PARAM,
         XPOSE_TOTAL4_PARAM,
@@ -116,6 +117,8 @@ private:
     ScaleQuantizerPtr _quantizer;
     ScaleQuantizer::OptionsPtr _quantizerOptions;
 
+    CompositeUpdater<Harmony2<TBase>> _updater;
+
     void _init();
     void _stepn();
     void _servicePolyphony();
@@ -172,6 +175,22 @@ inline void Harmony2<TBase>::_init() {
     _quantizerOptions->scale = std::make_shared<Scale>();
     _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
+
+    _updater.set(this);
+    for (int i = 0; i < 6; ++i) {
+        _updater.add(ParamIds(XPOSE_DEGREE1_PARAM + i));
+        _updater.add(ParamIds(XPOSE_OCTAVE1_PARAM + i));
+        _updater.add(ParamIds(XPOSE_ENABLEREQ1_PARAM + i));
+    }
+    _updater.add(KEY_PARAM);
+    _updater.add(MODE_PARAM);
+    _updater.add(SHARPS_FLATS_PARAM);
+    _updater.add(ONLY_USE_DIATONIC_PARAM);
+
+    _updater.add(XPOSE_INPUT, false);
+    _updater.add(KEY_INPUT, true);
+    _updater.add(MODE_INPUT, true);
+    _updater.add(PITCH_INPUT, true);
 }
 
 template <class TBase>
@@ -289,9 +308,9 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     for (int bank = 0; bank < NUM_TRANPOSERS; ++bank) {
         const bool bankEnabled = TBase::params[XPOSE_ENABLE1_PARAM + bank].value > 5;
         if (bankEnabled) {
-           if (polyXposeCV) {
-             xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
-           }
+            if (polyXposeCV) {
+                xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
+            }
             const int xposeCVSteps = int(std::round(xposeCV * 12));
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;

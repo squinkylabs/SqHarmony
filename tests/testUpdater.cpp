@@ -24,11 +24,11 @@ using Comp = MyComposite<TestComposite>;
 static void testCanCall() {
     Comp composite;
     CompositeUpdater<Comp> c(&composite);
-    CVUpdater<Comp> cv(Comp::INPUT1);
+    CVUpdater<Comp> cv(Comp::INPUT1, true);
     ParamUpdater<Comp> param(Comp::PARAM1);
 
     c.add(Comp::PARAM1);
-    c.add(Comp::INPUT1);
+    c.add(Comp::INPUT1, false);
 
     // std::vector<CVUpdater<Comp>> v;
     // v.push_back({ Comp::PARAM1 });
@@ -36,7 +36,7 @@ static void testCanCall() {
     // std::vector<ParamUpdater<Comp>> vpu;
     // vpu.push_back(4);
 
-  //  std::vector<CVUpdater<Comp>> v2(std::move(v));
+    //  std::vector<CVUpdater<Comp>> v2(std::move(v));
     // CompositeUpdater<Comp> c2(std::move(vpu), std::move(v));
     // CompositeUpdater<Comp> v3(
     //     {{2}},
@@ -71,12 +71,10 @@ static void testPollParam() {
     assertEQ(b, false);
 }
 
-
-
 static void testPollCVChannels() {
     Comp composite;
-    CVUpdater<Comp> cv(Comp::INPUT1);
-    CVUpdater<Comp> cv2(Comp::INPUT2);
+    CVUpdater<Comp> cv(Comp::INPUT1, true);
+    CVUpdater<Comp> cv2(Comp::INPUT2, false);
 
     bool b = cv.poll(&composite);
     assertEQ(b, true);
@@ -95,20 +93,51 @@ static void testPollCVChannels() {
     b = cv.poll(&composite);
     assertEQ(b, false);
     b = cv2.poll(&composite);
-    assertEQ(b, true);      // channels changed
+    assertEQ(b, true);  // channels changed
     b = cv2.poll(&composite);
-    assertEQ(b, false);  
+    assertEQ(b, false);
     b = cv2.poll(&composite);
-    assertEQ(b, false); 
+    assertEQ(b, false);
+}
+
+static void testPollCVValues() {
+    Comp composite;
+    CVUpdater<Comp> cv(Comp::INPUT1, false);
+
+    auto& in1 = composite.inputs[Comp::INPUT1];
+    in1.channels = 3;      // make it polyphonic
+
+    // initial start up poll
+    bool b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+    in1.setVoltage(3);
+    b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+    SQINFO("!! MORE TESTS FOR MONO/POLY");
+  //  assert(false);
+}
+
+static void testPollCompositeUpdater() {
+  //  assert(false);
+  SQINFO("!! implement testPollCompositeUpdater");
 }
 
 void testUpdater() {
     testCanCall();
     testPollParam();
     testPollCVChannels();
+    testPollCVValues();
+    testPollCompositeUpdater();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // i == 0, j== -2
     // testModeCV(-14, 0, true);
