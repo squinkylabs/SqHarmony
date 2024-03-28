@@ -519,16 +519,55 @@ int Scale::numNotesInScale(Scales scale) {
     return ret;
 }
 
-std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* noteRole) {
-    
-    if (_doesModeMatch(noteRole, Scales::Major)) {
-        assert(false);
+std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteRoles) {
+    const auto error = std::make_tuple(false, MidiNote::C, Scale::Scales::Chromatic);
+
+    int roleCount = 0;
+    const Role* rp = noteRoles;
+    while (*rp++ != Role::End) {
+        ++roleCount;
     }
-    return std::make_tuple(false, MidiNote::C, Scale::Scales::Chromatic);
+
+    if (roleCount != 12) {
+        return error;
+    }
+
+    for (int mode = Scale::firstScale; mode < Scale::lastScale; ++mode) {
+        if (_doesModeMatch(noteRoles, Scale::Scales(mode))) {
+            assert(false);
+        }
+    }
+    return error;
 }
 
-bool Scale::_doesModeMatch(const Role*, Scales) {
-    assert(false);
-    return false;
+bool Scale::_doesModeMatch(const Role* const roles, Scales scale) {
+    bool match = true;  // assume match
+
+    Scale s;
+    s.set(MidiNote::C, scale);
+
+    const int* const scaleRef = s._getNormalizedScalePitches();
+    int roleIndex = 0;
+    int pitchIndex = 0;
+    while (true) {
+        const auto role = roles[roleIndex];
+        const auto pitch = scaleRef[pitchIndex];
+        if (role == Role::End) {
+            return (pitch < 0) ? true : false;  // if they both end, it's a match
+        }
+        if (pitch < 0) {  // if we ran out of pitches, done
+            return false;
+        }
+
+        const auto roleIn = (role == Role::InScale || role == Role::Root);
+        // if the chromatic degee we are examining is in the scale
+        if (roleIn) {
+            if (roleIndex != pitch) {  // and we are looking not that degree
+                return false;          // then no match
+            }
+            ++pitchIndex;  // if a match, look at the nextPitch.
+        }
+        ++roleIndex;  // and always look at the next role.
+    }
 }
 // const int* getNormalizedScalePitches() const;

@@ -24,6 +24,8 @@ public:
         WholeStep,
         Chromatic
     };
+    const static int firstScale = int(Scales::Major);
+    const static int lastScale = int(Scales::Chromatic);
 
     static int numScalesTotal() { return 13; }
     static int numDiatonicScales() { return 7; }
