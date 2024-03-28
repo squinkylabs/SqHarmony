@@ -7,19 +7,19 @@
 #include "SqLog.h"
 
 void Scale::set(const MidiNote& bs, Scales md) {
-    baseNote = bs;
-    scale = md;
-    wasSet = true;
+    _baseNote = bs;
+    _scale = md;
+    _wasSet = true;
 
-    assert(baseNote.get() < 12 && baseNote.get() >= 0);
+    assert(_baseNote.get() < 12 && _baseNote.get() >= 0);
 }
 
 std::pair<const MidiNote, Scale::Scales> Scale::get() const {
-    return std::make_pair(baseNote, scale);
+    return std::make_pair(_baseNote, _scale);
 }
 
 ScaleNote Scale::m2s(const MidiNote& mn) const {
-    int scaleBasePitch = baseNote.get() % 12;  // now C == 4;
+    int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
 
@@ -31,7 +31,7 @@ ScaleNote Scale::m2s(const MidiNote& mn) const {
         octave -= 1;
     }
 
-    auto sn = makeScaleNote(offset);
+    auto sn = _makeScaleNote(offset);
     ScaleNote final(sn.getDegree(), octave, sn.getAccidental());
     // need octave into
     return final;
@@ -60,17 +60,17 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     return MidiNote(midiPitch);
 }
 
-ScaleNote Scale::makeScaleNote(int offset) const {
+ScaleNote Scale::_makeScaleNote(int offset) const {
     assert(offset >= 0 && offset < 12);
-    int degree = quantizeInScale(offset);
+    int degree = _quantizeInScale(offset);
     if (degree >= 0) {
         return ScaleNote(degree, 0);
     }
-    degree = quantizeInScale(offset - 1);
+    degree = _quantizeInScale(offset - 1);
     if (degree >= 0) {
         return ScaleNote(degree, 0, ScaleNote::Accidental::sharp);
     }
-    degree = quantizeInScale(offset + 1);
+    degree = _quantizeInScale(offset + 1);
     if (degree >= 0) {
         return ScaleNote(degree, 0, ScaleNote::Accidental::flat);
     }
@@ -129,17 +129,17 @@ std::vector<std::string> Scale::getRootLabels(bool useFlats) {
 }
 
 int Scale::quantize(int offset) const {
-    assert(wasSet);
+    assert(_wasSet);
     assert(offset >= 0 && offset <= 11);
-    int x = quantizeInScale(offset);
+    int x = _quantizeInScale(offset);
     if (x >= 0) {
         return x;
     }
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    const int qUpOne = quantizeInScale(offset + 1);
-    const int qDnOne = quantizeInScale(offset - 1);
+    const int qUpOne = _quantizeInScale(offset + 1);
+    const int qDnOne = _quantizeInScale(offset - 1);
 
     switch (offset) {
         case 1:
@@ -201,8 +201,8 @@ int Scale::quantize(int offset) const {
     return 0;
 }
 
-int Scale::quantizeInScale(int offset) const {
-    const int* pitches = getNormalizedScalePitches();
+int Scale::_quantizeInScale(int offset) const {
+    const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
@@ -219,7 +219,7 @@ int Scale::quantizeInScale(int offset) const {
 }
 
 int Scale::degreeToSemitone(int degree) const {
-    const int* pitches = getNormalizedScalePitches();
+    const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (*pitches < 0) {
@@ -236,9 +236,9 @@ int Scale::degreeToSemitone(int degree) const {
     return pitches[degreeIndex];
 }
 
-const int* Scale::getNormalizedScalePitches() const {
-    assert(wasSet);
-    switch (scale) {
+const int* Scale::_getNormalizedScalePitches() const {
+    assert(_wasSet);
+    switch (_scale) {
         case Scales::Major: {
             static const int ret[] = {0, 2, 4, 5, 7, 9, 11, -1};
             return ret;
@@ -303,8 +303,8 @@ const int* Scale::getNormalizedScalePitches() const {
 }
 
 MidiNote Scale::getRelativeMajor() const {
-    int pitch = baseNote.get();
-    switch (scale) {
+    int pitch = _baseNote.get();
+    switch (_scale) {
         case Scales::Major:
             break;
 
@@ -424,7 +424,7 @@ const MidiNote flatsInBass[12] = {
 
 Scale::ScoreInfo Scale::getScoreInfo() const {
     Scale::ScoreInfo ret;
-    assert(int(scale) <= int(Scales::Locrian));
+    assert(int(_scale) <= int(Scales::Locrian));
 
     const int basePitch = getRelativeMajor().get();
     assert(basePitch >= 0);
@@ -441,7 +441,7 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
 }
 
 Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
-    if (int(scale) <= int(Scales::Locrian)) {
+    if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
         assert(basePitch >= 0);
         assert(basePitch < 12);
@@ -449,12 +449,12 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
         return preferSharps[basePitch];
     }
 
-    switch (scale) {
+    switch (_scale) {
         case Scales::MinorPentatonic:
         case Scales::HarmonicMinor: {
             // Not sure it's true, but let's say all the minors are the same...
             Scale otherScale;
-            otherScale.set(this->baseNote, Scales::Minor);
+            otherScale.set(this->_baseNote, Scales::Minor);
             return otherScale.getSharpsFlatsPref();
         }
         case Scales::Chromatic:
@@ -519,6 +519,16 @@ int Scale::numNotesInScale(Scales scale) {
     return ret;
 }
 
-std::tuple<bool, const MidiNote, Scale::Scales> Scale::convert(const Role* noteRole) {
+std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* noteRole) {
+    
+    if (_doesModeMatch(noteRole, Scales::Major)) {
+        assert(false);
+    }
     return std::make_tuple(false, MidiNote::C, Scale::Scales::Chromatic);
 }
+
+bool Scale::_doesModeMatch(const Role*, Scales) {
+    assert(false);
+    return false;
+}
+// const int* getNormalizedScalePitches() const;

@@ -40,12 +40,12 @@ public:
 
     enum class Role {
         Root,
-        inScale,
-        notInScale,
-        end
+        InScale,
+        NotInScale,
+        End
     };
 
-    static std::tuple<bool, const MidiNote, Scales> convert(const Role * noteRole);
+    static std::tuple<bool, MidiNote, Scales> convert(const Role * noteRole);
 
     /**
      * @brief convert a scale relative degree to an absolute pitch
@@ -65,7 +65,7 @@ public:
     int quantize(int offset) const;
 
     const MidiNote& base() const {
-        return baseNote;
+        return _baseNote;
     }
 
     /**
@@ -77,7 +77,7 @@ public:
 
     MidiNote s2m(const ScaleNote&) const;
 
-    bool getWasSet() const { return wasSet; }
+    bool getWasSet() const { return _wasSet; }
 
     /**
      * @brief data for drawing key signatures
@@ -113,18 +113,20 @@ public:
 
 
 private:
-    ScaleNote makeScaleNote(int offset) const;
+    ScaleNote _makeScaleNote(int offset) const;
 
-    MidiNote baseNote;
-    Scales scale;
-    bool wasSet = false;
+    MidiNote _baseNote;
+    Scales _scale;
+    bool _wasSet = false;
 
     /** get the intervals of the current scale
      * example: major is 0, 2, 4, 5....
      * list of pitches is terminated with a negative number
      */
-    const int* getNormalizedScalePitches() const;
+    const int* _getNormalizedScalePitches() const;
 
     // returns < - if note isn't in scale.
-    int quantizeInScale(int offset) const;
+    int _quantizeInScale(int offset) const;
+
+    static bool _doesModeMatch(const Role*, Scales);
 };

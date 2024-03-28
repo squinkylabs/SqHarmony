@@ -521,13 +521,36 @@ static void testNumNotes() {
 
 static void testConvertEmpty() {
     // bogus case
-    Scale::Role roles[] = {Scale::Role::end};
+    Scale::Role roles[] = {Scale::Role::End};
     const auto x = Scale::convert(roles);
     assertEQ(std::get<0>(x), false);
 }
 
+static void testConvertCMajor() {
+    Scale::Role roles[] = {
+        Scale::Role::Root,  // C
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // D
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // E
+        Scale::Role::InScale,  // F
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // G
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // A
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // B
+        Scale::Role::End
+    };
+    const auto x = Scale::convert(roles);
+    assertEQ(std::get<0>(x), true);
+    assert(std::get<1>(x) == MidiNote::C);
+    assert(std::get<2>(x) == Scale::Scales::Major);
+}
+
 static void testConvert() {
     testConvertEmpty();
+    testConvertCMajor();
 }
 
 void testScale() {
