@@ -497,7 +497,7 @@ static void testLabels() {
     testLabels(Scale::getScaleLabels(false));
     testLabels(Scale::getScaleLabels(true));
 
-    assertEQ(Scale::getShortScaleLabels(true).size(), 7);  // 7 diatonic
+    assertEQ(Scale::getShortScaleLabels(true).size(), 7);    // 7 diatonic
     assertEQ(Scale::getShortScaleLabels(false).size(), 13);  // 13 total
 }
 
@@ -517,6 +517,17 @@ static void testNumNotes() {
     assertEQ(Scale::numNotesInScale(Scale::Scales::Diminished), 8);
     assertEQ(Scale::numNotesInScale(Scale::Scales::DominantDiminished), 8);
     assertEQ(Scale::numNotesInScale(Scale::Scales::WholeStep), 6);
+}
+
+static void testConvertEmpty() {
+    // bogus case
+    Scale::Role roles[] = {Scale::Role::end};
+    const auto x = Scale::convert(roles);
+    assertEQ(std::get<0>(x), false);
+}
+
+static void testConvert() {
+    testConvertEmpty();
 }
 
 void testScale() {
@@ -546,13 +557,15 @@ void testScale() {
     testSharpsFlatsOtherMinor();
     testSharpsFlatsWierdos();
     testSharpsFlatsNoAssert();
-     testNumNotes();
+    testNumNotes();
+    testConvert();
 }
 
-#if 0
+#if 1
 void testFirst() {
-   // testSharpsFlatsWierdos();
-   // testSharpsFlatsNoAssert();
-   testNumNotes();
+    // testSharpsFlatsWierdos();
+    // testSharpsFlatsNoAssert();
+    // testNumNotes();
+    testConvert();
 }
 #endif

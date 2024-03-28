@@ -29,7 +29,7 @@ extern void testHarmonyChordsRandom();
 extern void testHarmonyChords2();
 extern void testRingBuffer();
 extern void testChord4Manager();
-// call the above are used.
+// All the above are used.
 extern void testTempo();
 extern void testGrayCode();
 extern void testAdditivePitchLogic();

@@ -38,6 +38,15 @@ public:
     void set(const MidiNote& base, Scales mode);
     std::pair<const MidiNote, Scales> get() const;
 
+    enum class Role {
+        Root,
+        inScale,
+        notInScale,
+        end
+    };
+
+    static std::tuple<bool, const MidiNote, Scales> convert(const Role * noteRole);
+
     /**
      * @brief convert a scale relative degree to an absolute pitch
      *
@@ -100,6 +109,8 @@ public:
     SharpsFlatsPref getSharpsFlatsPref() const;
 
     MidiNote getRelativeMajor() const;
+
+
 
 private:
     ScaleNote makeScaleNote(int offset) const;

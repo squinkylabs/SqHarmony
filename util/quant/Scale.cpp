@@ -485,7 +485,7 @@ int Scale::numNotesInScale(Scales scale) {
             ret = 5;
             break;
 
-        case Scales::HarmonicMinor: 
+        case Scales::HarmonicMinor:
             ret = 7;
             break;
         case Scales::Chromatic:
@@ -495,7 +495,7 @@ int Scale::numNotesInScale(Scales scale) {
         case Scales::DominantDiminished:
             ret = 8;
             break;
-         
+
         case Scales::WholeStep:
             ret = 6;
             break;
@@ -517,4 +517,8 @@ int Scale::numNotesInScale(Scales scale) {
     assert(ret >= 0);
     assert(ret <= 12);
     return ret;
+}
+
+std::tuple<bool, const MidiNote, Scale::Scales> Scale::convert(const Role* noteRole) {
+    return std::make_tuple(false, MidiNote::C, Scale::Scales::Chromatic);
 }

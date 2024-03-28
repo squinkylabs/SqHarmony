@@ -2,6 +2,10 @@
 
 ## 2.2.4
 
+Updated build to c++17.
+
+Reduced download size of module.
+
 Phase Patterns: Brought back to life. New panel design. V2 UI. New implementation.
 
 Harmony II: new module.

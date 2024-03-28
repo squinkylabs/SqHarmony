@@ -86,13 +86,34 @@ Mixolydian mode is often thought of as "major, with a flat 7th". So it's pretty 
 
 Dorian is Natural minor with a raised 6th, up to the major 6. So you can use it like a regular natural minor, but again with an altered note.
 
-Minor pentatonic. This is a natural minor, where the second and the sixth are not often played. this scale is very commonly used in blues music, and rock music. Many instrumental solos are constructed from the minor pentatonic. It's something to most pop musicians are very familiar with.
+Minor pentatonic. This is a natural minor, where the second and the sixth are not often played. this scale is very commonly used in blues music, and rock music. Many instrumental solos are constructed from the minor pentatonic. It's something that most pop musicians are very familiar with.
 
 Whole tone. This scale is pretty strange sounding to most people. It is made up entirely of whole steps, with no half steps at all. It is not used a lot in pop music, although King Crimson is (in) famous for using it a lot. Like their song [Red](https://www.youtube.com/watch?v=X_pDwv3tpug).
 
+## What does real music do
+
+There are some aspects of harmony in the real world that are quite complex - certainly more complex that the things Squinktronix modules can do. So, let's take a very superficial look at some things that are more complex.
+
+## Notes outside the scale
+
+Often a pieces of music may be mainly in a diatonic mode (typically Major or some Minor), but will have some notes that are not actually in that scale. There are all kind of reasons one might do this, including, but not limited to:
+
+* The altered note adds something interesting there.
+
+* It just sounded good that way to the composer.
+
+* The altered note is part of some harmony going on perhaps in one bar, where the whole key doesn't change, but perhaps in the area of the altered note or notes there is at least a suggestion of a key change.
+
+* Bashing out chords on a guitar one might play a major or minor chord in a place where the scale would suggest the chord "should" be the opposite. Often done "because it sounded better", "it added  some interested", "it was an accident", "that's how I always play".
+
+
+## Key changes
+
+
+
 ## Analysis of quantizers
 
-In particular looking at why you can't always get this to work with a "normal" quantizer.
+In particular looking at why you can't always get parallel diatonic intervals to work with a "normal" quantizer.
 
 Say you wanted to get the "parallel third" effect common in many "classic rock" songs. For this effect we want to generate a new note that is "a third" above the note we provide. Now of course in normal Major and Minor scales some thirds are minor thirds, and some are major thirds. In A minor, the thirds above A is C, a minor third. But the third above C is E, a major third. If you try to harmonize your note by adding a note a fixed minor or major third up, you will not get the same effect.
 

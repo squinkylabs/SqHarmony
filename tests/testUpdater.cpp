@@ -171,7 +171,7 @@ void testUpdater() {
     testPollCompositeUpdater_oneCVMono();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // i == 0, j== -2
     // testModeCV(-14, 0, true);
