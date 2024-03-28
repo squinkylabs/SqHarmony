@@ -533,8 +533,10 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
     }
 
     for (int mode = Scale::firstScale; mode < Scale::lastScale; ++mode) {
-        if (_doesModeMatch(noteRoles, Scale::Scales(mode))) {
-            assert(false);
+        const auto smode = Scale::Scales(mode);
+        if (_doesModeMatch(noteRoles, smode)) {
+            //assert(false);
+            return std::make_tuple(true, MidiNote::C, smode);        // does not take into account key - just mode
         }
     }
     return error;
