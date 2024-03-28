@@ -558,7 +558,22 @@ bool Scale::_doesModeMatch(const Role* const roles, Scales scale) {
             return (pitch < 0) ? true : false;  // if they both end, it's a match
         }
         if (pitch < 0) {  // if we ran out of pitches, done
-            return false;
+            // Note: when scale has a minor 7th, we will get here here
+            while (true) {
+                ++roleIndex;
+                const auto role = roles[roleIndex];
+                switch(role) {
+                case Role::End:
+                    return true;    // no more active roles, so we ran out of notes and roles, ok.
+                case Role::NotInScale:
+                    return true;
+                case Role::InScale:
+                    return false;   // still roles left over
+                default:
+                    assert(false);
+                    return false;
+                }
+            }
         }
 
         const auto roleIn = (role == Role::InScale || role == Role::Root);

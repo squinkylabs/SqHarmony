@@ -526,8 +526,9 @@ static void testConvertEmpty() {
     assertEQ(std::get<0>(x), false);
 }
 
-static void testConvertCMajor() {
-    Scale::Role roles[] = {
+
+ Scale::Role* getRolesCMajor() {
+    static Scale::Role roles[] = {
         Scale::Role::Root,  // C
         Scale::Role::NotInScale,
         Scale::Role::InScale,  // D
@@ -542,15 +543,51 @@ static void testConvertCMajor() {
         Scale::Role::InScale,  // B
         Scale::Role::End
     };
+    return roles;
+ }
+
+static void testConvertCMajor() {
+    const auto roles = getRolesCMajor();
     const auto x = Scale::convert(roles);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
     assert(std::get<2>(x) == Scale::Scales::Major);
 }
 
+
+//  case Scales::Minor: {
+ //     static const int ret[] = {0, 2, 3, 5, 7, 8, 10, -1};
+ Scale::Role* getRolesCMinor() {
+    static Scale::Role roles[] = {
+        Scale::Role::Root,  // C
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // D
+        Scale::Role::InScale,   // E-
+        Scale::Role::NotInScale,  // E
+        Scale::Role::InScale,  // F
+        Scale::Role::NotInScale, // G-
+        Scale::Role::InScale,  // G
+        Scale::Role::InScale,   // A-
+        Scale::Role::NotInScale,  // A
+        Scale::Role::InScale,       // B-
+        Scale::Role::NotInScale,  // B
+        Scale::Role::End
+    };
+    return roles;
+ }
+
+static void testConvertCMinor() {
+    const auto roles = getRolesCMinor();
+    const auto x = Scale::convert(roles);
+    assertEQ(std::get<0>(x), true);
+    assert(std::get<1>(x) == MidiNote::C);
+    assert(std::get<2>(x) == Scale::Scales::Minor);
+}
+
 static void testConvert() {
     testConvertEmpty();
     testConvertCMajor();
+    testConvertCMinor();
 }
 
 void testScale() {
