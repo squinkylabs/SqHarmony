@@ -571,9 +571,7 @@ bool Scale::_getScalePitches(int * destination, unsigned destinationSize) {
 #endif
 
 bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote root) {
-    bool match = true;     // assume match
-                           //  int rotatedPitches[13];     // enough room for any 12 tone scale.
-    Role rotateRoles[13];  // enough room for any 12 tone scale.
+    Role rotateRoles[13];  // Enough room for any 12 tone scale.
     Scale s;
     s.set(root, scale);
 
@@ -604,26 +602,23 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         // a little sanity check.
         int roleCount = 0;
         const Role* rp = rotateRoles;
-        int roleRoot = 0;
+       // int roleRoot = 0;
         while (*rp++ != Role::End) {
             ++roleCount;
-            if (*rp == Role::Root) {
-                roleRoot = roleCount;
-            }
         }
 
         assert(roleCount==  12);
     }
 
     SQINFO("\n--------------------");
-    SQINFO("enter does scale match root=%d scale=%d", root.get(), scale);
+    SQINFO("enter does scale match root=%d scale=%d", root.get(), int(scale));
 
     int roleIndex = 0;
     int pitchIndex = 0;
     while (true) {
         const auto role = rotateRoles[roleIndex];
         const auto pitch = relativePitchesInScale[pitchIndex];
-        SQINFO("in loop, roleIndex=%d pi=%d role=%d pitch=%d", roleIndex, pitchIndex, role, pitch);
+        SQINFO("in loop, roleIndex=%d pi=%d role=%d pitch=%d", roleIndex, pitchIndex, int(role), pitch);
         if (role == Role::End) {
             SQINFO("role is end, pitch=%d", pitch);
             return (pitch < 0) ? true : false;  // if they both end, it's a match
