@@ -544,13 +544,28 @@ Scale::Role* getRolesCMajor() {
     return roles;
 }
 
-
-
+Scale::Role* getRolesDMajor() {
+    static Scale::Role roles[] = {
+        Scale::Role::InScale,  // C
+        Scale::Role::NotInScale,
+        Scale::Role::Root,  // D
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,     // E
+        Scale::Role::NotInScale,  // F
+        Scale::Role::InScale,     // F#
+        Scale::Role::InScale,     // G
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // A
+        Scale::Role::NotInScale,
+        Scale::Role::InScale,  // B
+        Scale::Role::End};
+    return roles;
+}
 
 static void validate(const Scale::RoleArray& roles) {
     assert(roles.data[12] == Scale::Role::End);
     int numRoots = 0;
-    for (int i=0; i<12; ++i) {
+    for (int i = 0; i < 12; ++i) {
         if (roles.data[i] == Scale::Role::Root) {
             ++numRoots;
         }
@@ -573,25 +588,14 @@ static void testConvertFrom(const Scale::Role* expectedRoles, MidiNote testRoot,
     assertEQ(len, 12);
 }
 
-static void testConvertFromCMajor2() {
+static void testConvertFromCMajor() {
     const auto roles = getRolesCMajor();
     testConvertFrom(roles, MidiNote::C, Scale::Scales::Major);
 }
 
-static void testConvertFromCMajor() {
+static void testConvertFromDMajor() {
     const auto roles = getRolesCMajor();
-    auto result = Scale::convert(MidiNote::C, Scale::Scales::Major);
-    validate(result);
-    int len = 0;
-    for (bool done = false; !done;) {
-        assert(roles[len] == result.data[len]);
-        if (roles[len] == Scale::Role::End) {
-            done = true; 
-            len--;
-        }
-        ++len;
-    }
-    assertEQ(len, 12);
+    testConvertFrom(roles, MidiNote::D, Scale::Scales::Major);
 }
 
 static void testConvertCMajor() {
@@ -599,6 +603,14 @@ static void testConvertCMajor() {
     const auto x = Scale::convert(roles);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
+    assert(std::get<2>(x) == Scale::Scales::Major);
+}
+
+static void testConvertDMajor() {
+    const auto roles = getRolesDMajor();
+    const auto x = Scale::convert(roles);
+    assertEQ(std::get<0>(x), true);
+    assert(std::get<1>(x) == MidiNote::D);
     assert(std::get<2>(x) == Scale::Scales::Major);
 }
 
@@ -631,9 +643,10 @@ static void testConvertCMinor() {
 static void testConvert() {
     testConvertEmpty();
     testConvertCMajor();
+    testConvertDMajor();
     testConvertCMinor();
     testConvertFromCMajor();
-    testConvertFromCMajor2();
+    testConvertFromDMajor();
 }
 
 void testScale() {

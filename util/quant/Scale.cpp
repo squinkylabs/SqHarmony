@@ -524,8 +524,12 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
 
     int roleCount = 0;
     const Role* rp = noteRoles;
+    int roleRoot = 0;
     while (*rp++ != Role::End) {
         ++roleCount;
+        if (*rp == Role::Root) {
+            roleRoot = roleCount;
+        }
     }
 
     if (roleCount != 12) {
@@ -534,20 +538,18 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
 
     for (int mode = Scale::firstScale; mode < Scale::lastScale; ++mode) {
         const auto smode = Scale::Scales(mode);
-        if (_doesModeMatch(noteRoles, smode)) {
-            // assert(false);
-            //      return std::make_tuple(true, MidiNote::C, smode);
-            return {true, MidiNote::C, smode};  // does not take into account key - just mode
+        if (_doesScaleMatch(noteRoles, smode, roleRoot)) {
+            return {true, roleRoot, smode};
         }
     }
     return error;
 }
 
-bool Scale::_doesModeMatch(const Role* const roles, Scales scale) {
+bool Scale::_doesScaleMatch(const Role* const roles, Scales scale, MidiNote root) {
     bool match = true;  // assume match
 
     Scale s;
-    s.set(MidiNote::C, scale);
+    s.set(root, scale);
 
     const int* const scaleRef = s._getNormalizedScalePitches();
     int roleIndex = 0;
@@ -590,15 +592,15 @@ bool Scale::_doesModeMatch(const Role* const roles, Scales scale) {
 }
 
 const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
-  //  Role roles[13] = {Role::NotInScale};
+    //  Role roles[13] = {Role::NotInScale};
     RoleArray roles;
     Scale scale;
     scale.set(root, mode);
     const auto norm = scale._getNormalizedScalePitches();
-    for (int index = 0; norm[index] >=0; ++index) {
+    for (int index = 0; norm[index] >= 0; ++index) {
         const int pitch = norm[index];
         roles.data[pitch] = Role::InScale;
     }
-    roles.data[0] = Role::Root;     // hard code to root here
+    roles.data[0] = Role::Root;  // hard code to root here
     return roles;
 }

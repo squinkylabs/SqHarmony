@@ -139,5 +139,5 @@ private:
     // returns < - if note isn't in scale.
     int _quantizeInScale(int offset) const;
 
-    static bool _doesModeMatch(const Role*, Scales);
+    static bool _doesScaleMatch(const Role*, Scales, MidiNote);
 };
