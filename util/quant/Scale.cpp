@@ -545,26 +545,95 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
     return error;
 }
 
-bool Scale::_doesScaleMatch(const Role* const roles, Scales scale, MidiNote root) {
-    bool match = true;  // assume match
+// ACTUALLY: I think we need to rotate the roles to make this work, not the scales.
+#if 0
+bool Scale::_getScalePitches(int * destination, unsigned destinationSize) {
+    if (destinationSize < 12) {
+        return false;
+    }
+    const int* const normPitches = _getNormalizedScalePitches();
 
+    // find the root?
+    // Rotate the scale pitches so the are absolute(ish).
+    int index;
+    for (index = 0; normPitches[index] >= 0; ++index) {
+        int rotated = normPitches[index] + _baseNote.get();
+        // if (rotated < 0) {
+        //     rotated += 12;
+        // }
+        destination[index] = rotated;
+    }
+      destination[index] = -1;
+
+
+    return true;
+}
+#endif
+
+bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote root) {
+    bool match = true;     // assume match
+                           //  int rotatedPitches[13];     // enough room for any 12 tone scale.
+    Role rotateRoles[13];  // enough room for any 12 tone scale.
     Scale s;
     s.set(root, scale);
 
-    const int* const scaleRef = s._getNormalizedScalePitches();
+    // get the relative pitches for the scale (does not take into account root)
+    const int* relativePitchesInScale = s._getNormalizedScalePitches();
+
+    if (rawRoles[root.get()] != Role::Root) {
+        // If the role root is not in the right place, then a) it's not a match,
+        // and b) the logic farther down won't work.
+        assert(false);
+        return false;
+    }
+
+    // Now, rotate the roles so that the root is at the start
+    for (int index = 0; index <= 12; ++index) {
+        int destIndex = index - root.get();
+        if (destIndex < 0) {
+            destIndex += 12;
+        }
+        const Role r = rawRoles[index];
+        if (r == Role::End) {
+            destIndex = index;      // put the end in the same place - don't rotate it
+        }
+        rotateRoles[destIndex] = r;
+    }
+
+    {
+        // a little sanity check.
+        int roleCount = 0;
+        const Role* rp = rotateRoles;
+        int roleRoot = 0;
+        while (*rp++ != Role::End) {
+            ++roleCount;
+            if (*rp == Role::Root) {
+                roleRoot = roleCount;
+            }
+        }
+
+        assert(roleCount==  12);
+    }
+
+    SQINFO("\n--------------------");
+    SQINFO("enter does scale match root=%d scale=%d", root.get(), scale);
+
     int roleIndex = 0;
     int pitchIndex = 0;
     while (true) {
-        const auto role = roles[roleIndex];
-        const auto pitch = scaleRef[pitchIndex];
+        const auto role = rotateRoles[roleIndex];
+        const auto pitch = relativePitchesInScale[pitchIndex];
+        SQINFO("in loop, roleIndex=%d pi=%d role=%d pitch=%d", roleIndex, pitchIndex, role, pitch);
         if (role == Role::End) {
+            SQINFO("role is end, pitch=%d", pitch);
             return (pitch < 0) ? true : false;  // if they both end, it's a match
         }
         if (pitch < 0) {  // if we ran out of pitches, done
             // Note: when scale has a minor 7th, we will get here here
+            SQINFO("pitch < 0");
             while (true) {
                 ++roleIndex;
-                const auto role = roles[roleIndex];
+                const auto role = rotateRoles[roleIndex];
                 switch (role) {
                     case Role::End:
                         return true;  // no more active roles, so we ran out of notes and roles, ok.
@@ -583,7 +652,8 @@ bool Scale::_doesScaleMatch(const Role* const roles, Scales scale, MidiNote root
         // if the chromatic degee we are examining is in the scale
         if (roleIn) {
             if (roleIndex != pitch) {  // and we are looking not that degree
-                return false;          // then no match
+                SQINFO("no patch, role index != pitch");
+                return false;  // then no match
             }
             ++pitchIndex;  // if a match, look at the nextPitch.
         }
@@ -592,11 +662,12 @@ bool Scale::_doesScaleMatch(const Role* const roles, Scales scale, MidiNote root
 }
 
 const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
-    //  Role roles[13] = {Role::NotInScale};
     RoleArray roles;
     Scale scale;
+
     scale.set(root, mode);
     const auto norm = scale._getNormalizedScalePitches();
+
     for (int index = 0; norm[index] >= 0; ++index) {
         const int pitch = norm[index];
         roles.data[pitch] = Role::InScale;

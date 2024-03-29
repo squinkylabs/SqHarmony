@@ -136,6 +136,8 @@ private:
      */
     const int* _getNormalizedScalePitches() const;
 
+  //  bool _getScalePitches(int * destination, unsigned destinationSize);
+
     // returns < - if note isn't in scale.
     int _quantizeInScale(int offset) const;
 

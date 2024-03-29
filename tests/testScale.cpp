@@ -641,12 +641,12 @@ static void testConvertCMinor() {
 }
 
 static void testConvert() {
+    testConvertFromCMajor();
+    testConvertFromDMajor();
     testConvertEmpty();
     testConvertCMajor();
     testConvertDMajor();
     testConvertCMinor();
-    testConvertFromCMajor();
-    testConvertFromDMajor();
 }
 
 void testScale() {
@@ -685,6 +685,8 @@ void testFirst() {
     // testSharpsFlatsWierdos();
     // testSharpsFlatsNoAssert();
     // testNumNotes();
-    testConvert();
+   // testConvert();
+    testConvertCMajor();
+   //  testConvertDMajor();
 }
 #endif
