@@ -526,8 +526,7 @@ static void testConvertEmpty() {
     assertEQ(std::get<0>(x), false);
 }
 
-
- Scale::Role* getRolesCMajor() {
+Scale::Role* getRolesCMajor() {
     static Scale::Role roles[] = {
         Scale::Role::Root,  // C
         Scale::Role::NotInScale,
@@ -541,10 +540,59 @@ static void testConvertEmpty() {
         Scale::Role::InScale,  // A
         Scale::Role::NotInScale,
         Scale::Role::InScale,  // B
-        Scale::Role::End
-    };
+        Scale::Role::End};
     return roles;
- }
+}
+
+
+
+
+static void validate(const Scale::RoleArray& roles) {
+    assert(roles.data[12] == Scale::Role::End);
+    int numRoots = 0;
+    for (int i=0; i<12; ++i) {
+        if (roles.data[i] == Scale::Role::Root) {
+            ++numRoots;
+        }
+    }
+    assertEQ(numRoots, 1);
+}
+
+static void testConvertFrom(const Scale::Role* expectedRoles, MidiNote testRoot, Scale::Scales testMode) {
+    auto result = Scale::convert(testRoot, testMode);
+    validate(result);
+    int len = 0;
+    for (bool done = false; !done;) {
+        assert(expectedRoles[len] == result.data[len]);
+        if (expectedRoles[len] == Scale::Role::End) {
+            done = true;
+            len--;
+        }
+        ++len;
+    }
+    assertEQ(len, 12);
+}
+
+static void testConvertFromCMajor2() {
+    const auto roles = getRolesCMajor();
+    testConvertFrom(roles, MidiNote::C, Scale::Scales::Major);
+}
+
+static void testConvertFromCMajor() {
+    const auto roles = getRolesCMajor();
+    auto result = Scale::convert(MidiNote::C, Scale::Scales::Major);
+    validate(result);
+    int len = 0;
+    for (bool done = false; !done;) {
+        assert(roles[len] == result.data[len]);
+        if (roles[len] == Scale::Role::End) {
+            done = true; 
+            len--;
+        }
+        ++len;
+    }
+    assertEQ(len, 12);
+}
 
 static void testConvertCMajor() {
     const auto roles = getRolesCMajor();
@@ -554,27 +602,23 @@ static void testConvertCMajor() {
     assert(std::get<2>(x) == Scale::Scales::Major);
 }
 
-
-//  case Scales::Minor: {
- //     static const int ret[] = {0, 2, 3, 5, 7, 8, 10, -1};
- Scale::Role* getRolesCMinor() {
+Scale::Role* getRolesCMinor() {
     static Scale::Role roles[] = {
         Scale::Role::Root,  // C
         Scale::Role::NotInScale,
-        Scale::Role::InScale,  // D
-        Scale::Role::InScale,   // E-
+        Scale::Role::InScale,     // D
+        Scale::Role::InScale,     // E-
         Scale::Role::NotInScale,  // E
-        Scale::Role::InScale,  // F
-        Scale::Role::NotInScale, // G-
-        Scale::Role::InScale,  // G
-        Scale::Role::InScale,   // A-
+        Scale::Role::InScale,     // F
+        Scale::Role::NotInScale,  // G-
+        Scale::Role::InScale,     // G
+        Scale::Role::InScale,     // A-
         Scale::Role::NotInScale,  // A
-        Scale::Role::InScale,       // B-
+        Scale::Role::InScale,     // B-
         Scale::Role::NotInScale,  // B
-        Scale::Role::End
-    };
+        Scale::Role::End};
     return roles;
- }
+}
 
 static void testConvertCMinor() {
     const auto roles = getRolesCMinor();
@@ -588,6 +632,8 @@ static void testConvert() {
     testConvertEmpty();
     testConvertCMajor();
     testConvertCMinor();
+    testConvertFromCMajor();
+    testConvertFromCMajor2();
 }
 
 void testScale() {

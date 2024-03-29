@@ -535,8 +535,9 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
     for (int mode = Scale::firstScale; mode < Scale::lastScale; ++mode) {
         const auto smode = Scale::Scales(mode);
         if (_doesModeMatch(noteRoles, smode)) {
-            //assert(false);
-            return std::make_tuple(true, MidiNote::C, smode);        // does not take into account key - just mode
+            // assert(false);
+            //      return std::make_tuple(true, MidiNote::C, smode);
+            return {true, MidiNote::C, smode};  // does not take into account key - just mode
         }
     }
     return error;
@@ -562,16 +563,16 @@ bool Scale::_doesModeMatch(const Role* const roles, Scales scale) {
             while (true) {
                 ++roleIndex;
                 const auto role = roles[roleIndex];
-                switch(role) {
-                case Role::End:
-                    return true;    // no more active roles, so we ran out of notes and roles, ok.
-                case Role::NotInScale:
-                    return true;
-                case Role::InScale:
-                    return false;   // still roles left over
-                default:
-                    assert(false);
-                    return false;
+                switch (role) {
+                    case Role::End:
+                        return true;  // no more active roles, so we ran out of notes and roles, ok.
+                    case Role::NotInScale:
+                        return true;
+                    case Role::InScale:
+                        return false;  // still roles left over
+                    default:
+                        assert(false);
+                        return false;
                 }
             }
         }
@@ -587,4 +588,17 @@ bool Scale::_doesModeMatch(const Role* const roles, Scales scale) {
         ++roleIndex;  // and always look at the next role.
     }
 }
-// const int* getNormalizedScalePitches() const;
+
+const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
+  //  Role roles[13] = {Role::NotInScale};
+    RoleArray roles;
+    Scale scale;
+    scale.set(root, mode);
+    const auto norm = scale._getNormalizedScalePitches();
+    for (int index = 0; norm[index] >=0; ++index) {
+        const int pitch = norm[index];
+        roles.data[pitch] = Role::InScale;
+    }
+    roles.data[0] = Role::Root;     // hard code to root here
+    return roles;
+}

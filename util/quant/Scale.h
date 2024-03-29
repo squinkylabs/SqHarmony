@@ -47,7 +47,18 @@ public:
         End
     };
 
-    static std::tuple<bool, MidiNote, Scales> convert(const Role * noteRole);
+    class RoleArray {
+    public:
+        RoleArray() {
+            for (int i=0; i< 12; ++i) {
+                data[i] = Role::NotInScale;
+            }
+            data[12] = Role::End;
+        }
+        Role data[13];
+    };
+    static std::tuple<bool, MidiNote, Scales> convert(const Role* noteRole);
+    static const RoleArray convert(MidiNote, Scales);
 
     /**
      * @brief convert a scale relative degree to an absolute pitch
@@ -83,7 +94,7 @@ public:
 
     /**
      * @brief data for drawing key signatures
-     * 
+     *
      */
     class ScoreInfo {
     public:
@@ -98,8 +109,8 @@ public:
     /**
      * @brief Get the Score Info object for current scale
      * Only works for the diatonic modes.
-     * 
-     * @return ScoreInfo 
+     *
+     * @return ScoreInfo
      */
     ScoreInfo getScoreInfo() const;
 
@@ -111,8 +122,6 @@ public:
     SharpsFlatsPref getSharpsFlatsPref() const;
 
     MidiNote getRelativeMajor() const;
-
-
 
 private:
     ScaleNote _makeScaleNote(int offset) const;
