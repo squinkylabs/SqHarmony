@@ -600,6 +600,7 @@ static void testConvertFromDMajor() {
 
 static void testConvertCMajor() {
     const auto roles = getRolesCMajor();
+    Scale::_dumpRoles("cmajor", roles);
     const auto x = Scale::convert(roles);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
@@ -638,6 +639,56 @@ static void testConvertCMinor() {
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
     assert(std::get<2>(x) == Scale::Scales::Minor);
+}
+
+static void testRoundTrip(Scale scale) {
+    SQINFO("will get roles");
+    const auto scaleParts = scale.get();
+    const Scale::RoleArray roleArray = scale.convert(std::get<0>(scaleParts), std::get<1>(scaleParts));
+
+    SQINFO("will convert back from roles");
+    const auto x = Scale::convert(roleArray.data);
+    const Scale::Scales foundMode = std::get<2>(x);
+
+    // must be found
+    assertEQ(std::get<0>(x), true);
+    // must find the right mode
+    assert(foundMode == std::get<1>(scaleParts));
+
+    // If root matches, we are ok always
+    if (std::get<1>(x) == std::get<0>(scaleParts)) {
+    } else if (foundMode == Scale::Scales::Chromatic) {
+        // choromatic, all keys the same.
+    } else {
+        assert(false);
+    }
+}
+
+static void testRoundTrip() {
+    Scale scale;
+    // scale.set(MidiNote::C, Scale::Scales::Major);
+    // testRoundTrip(scale);
+
+    // scale.set(MidiNote::C, Scale::Scales::Chromatic);
+    // testRoundTrip(scale);
+
+    // SQINFO("about to test c sharp chromatic");
+    // scale.set(MidiNote::C + 1, Scale::Scales::Chromatic);
+    // testRoundTrip(scale);
+    // SQINFO("tested c sharp");
+
+    SQINFO("about to test c sharp major");
+    scale.set(MidiNote::C + 1, Scale::Scales::Major);
+    testRoundTrip(scale);
+    SQINFO("tested c sharp major");
+
+    // for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
+    //     const auto smode = Scale::Scales(mode);
+    //     for (int pitch = MidiNote::C; pitch <= MidiNote::B + 1; ++pitch) {
+    //         scale.set(pitch, smode);
+    //         testRoundTrip(scale);
+    //     }
+    // }
 }
 
 static void testConvert() {
@@ -685,8 +736,19 @@ void testFirst() {
     // testSharpsFlatsWierdos();
     // testSharpsFlatsNoAssert();
     // testNumNotes();
-   // testConvert();
-    testConvertCMajor();
-   //  testConvertDMajor();
+    // testConvert();
+      testConvertCMajor();
+    //  testConvertDMajor();
+    // testRoundTrip();
+    
+
+
+    // SQINFO("test start");
+    // Scale::RoleArray ra = Scale::convert(MidiNote::C, Scale::Scales::Major);
+    // Scale::_dumpRoles("cma:", ra.data);
+
+
+    // ra = Scale::convert(MidiNote::C + 1, Scale::Scales::Major);
+    // Scale::_dumpRoles("c# maj:", ra.data);
 }
 #endif

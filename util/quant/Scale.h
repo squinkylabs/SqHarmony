@@ -123,6 +123,7 @@ public:
 
     MidiNote getRelativeMajor() const;
 
+    static void _dumpRoles(const char* message, const Role* roles);
 private:
     ScaleNote _makeScaleNote(int offset) const;
 
