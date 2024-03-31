@@ -589,7 +589,8 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
 
     // used to be: if (rawRoles[root.get()] != Role::Root) {
     // But I think that was wrong.
-    if (rawRoles[0] != Role::Root) {
+    // No I think it was right;  if (rawRoles[0] != Role::Root)
+    if (rawRoles[root.get()] != Role::Root) {
         // If the role root is not in the right place, then a) it's not a match,
         // and b) the logic farther down won't work.
         assert(false);
@@ -675,10 +676,20 @@ const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
     const auto norm = scale._getNormalizedScalePitches();
 
     for (int index = 0; norm[index] >= 0; ++index) {
-        const int pitch = norm[index];
+        // This should be tranposed to real pitch
+        int pitch = norm[index] + root.get();
+        if (pitch >= 12) {
+            pitch -= 12;
+        }
         roles.data[pitch] = Role::InScale;
     }
-    roles.data[0] = Role::Root;  // hard code to root here
+    
+    
+    // This was a bad choice
+    //roles.data[0] = Role::Root;  // hard code to root here
+
+    // put in the root where it should be
+     roles.data[root.get()] = Role::Root;
 
     // for (int i = 0; roles.data[i] != Role::End; ++i) {
     //     SQINFO("convert to role [%d] = %d", i, roles.data[i]);
