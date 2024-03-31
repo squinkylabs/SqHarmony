@@ -347,5 +347,8 @@
     <ClInclude Include="..\util\ClockShifter5.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\composites\Harmony2.h">
+      <Filter>Header Files\composites</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -306,10 +306,10 @@ inline void Harmony2<TBase>::_servicePolyphony() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleInput() {
-    SQINFO("scale in changed");
-
-    //static std::tuple<bool, MidiNote, Scales> convert(const Role* noteRole);
     auto &input = TBase::inputs[XSCALE_INPUT];
+    if (input.channels < 12) {
+        return;
+    }
     Scale::Role roles[13];
     for (int i=0; i<12; ++i) {
         float v = input.getVoltage(i);
@@ -328,13 +328,12 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
     const auto scaleConverted = Scale::convert(roles);
     Scale::_dumpRoles("derived roles", roles);
     if (std::get<0>(scaleConverted) == false) {
-        SQINFO("bad scale");
+         SQINFO("bad scale");
         TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
     } else {
         TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
-        SQINFO("good scale, %d, %d", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+        // SQINFO("good scale, %d, %d", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
     }
-
 }
 
 template <class TBase>

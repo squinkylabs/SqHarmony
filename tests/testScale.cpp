@@ -727,7 +727,7 @@ static void testMultiRoot() {
             test[i] = Scale::Role::Root;
         }
     }
-    Scale::_dumpRoles("after patch", test);
+    //Scale::_dumpRoles("after patch", test);
     const auto converted = Scale::convert(test);
     assertEQ(std::get<0>(converted), false);
 }

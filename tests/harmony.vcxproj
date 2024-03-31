@@ -240,6 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\composites\Harmony.h" />
+    <ClInclude Include="..\composites\Harmony2.h" />
     <ClInclude Include="..\composites\WidgetComposite.h" />
     <ClInclude Include="..\notes\HarmonyNote.h" />
     <ClInclude Include="..\notes\PitchKnowledge.h" />
