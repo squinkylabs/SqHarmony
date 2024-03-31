@@ -568,8 +568,8 @@ static void testRolesCMajor() {
     const Scale::RoleArray ar = Scale::convert(MidiNote::C, Scale::Scales::Major);
     Scale::Role* expected = getRolesCMajor();
 
-    Scale::_dumpRoles("expected", expected);
-    Scale::_dumpRoles("under test", ar.data);
+  //  Scale::_dumpRoles("expected", expected);
+ //   Scale::_dumpRoles("under test", ar.data);
 
     for (int i=0; ar.data[i] != Scale::Role::End; ++i) {
         assert(ar.data[i] == expected[i]);
@@ -581,8 +581,8 @@ static void testRolesDMajor() {
     const Scale::RoleArray ar = Scale::convert(MidiNote::D, Scale::Scales::Major);
     Scale::Role* expected = getRolesDMajor();
 
-    Scale::_dumpRoles("expected", expected);
-    Scale::_dumpRoles("under test", ar.data);
+  //  Scale::_dumpRoles("expected", expected);
+ //   Scale::_dumpRoles("under test", ar.data);
 
     for (int i=0; ar.data[i] != Scale::Role::End; ++i) {
         assert(ar.data[i] == expected[i]);
@@ -603,8 +603,8 @@ static void validate(const Scale::RoleArray& roles) {
 static void testConvertFrom(const Scale::Role* expectedRoles, MidiNote testRoot, Scale::Scales testMode) {
     auto result = Scale::convert(testRoot, testMode);
     validate(result);
-    Scale::_dumpRoles("expected:", expectedRoles);
-    Scale::_dumpRoles("actual:", result.data);
+  //  Scale::_dumpRoles("expected:", expectedRoles);
+  //  Scale::_dumpRoles("actual:", result.data);
     int len = 0;
     for (bool done = false; !done;) {
         assert(expectedRoles[len] == result.data[len]);
@@ -629,7 +629,7 @@ static void testConvertFromDMajor() {
 
 static void testConvertCMajor() {
     const auto roles = getRolesCMajor();
-    Scale::_dumpRoles("cmajor", roles);
+ //   Scale::_dumpRoles("cmajor", roles);
     const auto x = Scale::convert(roles);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
@@ -671,11 +671,11 @@ static void testConvertCMinor() {
 }
 
 static void testRoundTrip(Scale scale) {
-    SQINFO("will get roles");
+    //SQINFO("will get roles");
     const auto scaleParts = scale.get();
     const Scale::RoleArray roleArray = scale.convert(std::get<0>(scaleParts), std::get<1>(scaleParts));
 
-    SQINFO("will convert back from roles");
+    //SQINFO("will convert back from roles");
     const auto x = Scale::convert(roleArray.data);
     const Scale::Scales foundMode = std::get<2>(x);
 
@@ -683,43 +683,28 @@ static void testRoundTrip(Scale scale) {
     assertEQ(std::get<0>(x), true);
     // must find the right mode
     assert(foundMode == std::get<1>(scaleParts));
-
     assertEQ(std::get<1>(x).get(), std::get<0>(scaleParts).get());
-    // If root matches, we are ok always
-    // Not sure we need tat
-    // if (std::get<1>(x) == std::get<0>(scaleParts)) {
-    // } else if (foundMode == Scale::Scales::Chromatic) {
-    //     // choromatic, all keys the same.
-    // } else {
-    //     assert(false);
-    // }
 }
 
 static void testRoundTrip() {
     Scale scale;
-    // scale.set(MidiNote::C, Scale::Scales::Major);
-    // testRoundTrip(scale);
+    scale.set(MidiNote::C, Scale::Scales::Major);
+    testRoundTrip(scale);
 
-    // scale.set(MidiNote::C, Scale::Scales::Chromatic);
-    // testRoundTrip(scale);
-
-    // SQINFO("about to test c sharp chromatic");
-    // scale.set(MidiNote::C + 1, Scale::Scales::Chromatic);
-    // testRoundTrip(scale);
-    // SQINFO("tested c sharp");
-
-    SQINFO("about to test c sharp major");
+    scale.set(MidiNote::C, Scale::Scales::Chromatic);
+    testRoundTrip(scale);
+    scale.set(MidiNote::C + 1, Scale::Scales::Chromatic);
+    testRoundTrip(scale);
     scale.set(MidiNote::C + 1, Scale::Scales::Major);
     testRoundTrip(scale);
-    SQINFO("tested c sharp major");
 
-    // for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
-    //     const auto smode = Scale::Scales(mode);
-    //     for (int pitch = MidiNote::C; pitch <= MidiNote::B + 1; ++pitch) {
-    //         scale.set(pitch, smode);
-    //         testRoundTrip(scale);
-    //     }
-    // }
+    for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
+        const auto smode = Scale::Scales(mode);
+        for (int pitch = MidiNote::C; pitch <= MidiNote::B; ++pitch) {
+            scale.set(pitch, smode);
+            testRoundTrip(scale);
+        }
+    }
 }
 
 static void testConvert() {
@@ -731,6 +716,7 @@ static void testConvert() {
     testConvertCMajor();
     testConvertDMajor();
     testConvertCMinor();
+    testRoundTrip();
 }
 
 void testScale() {
@@ -774,18 +760,8 @@ void testFirst() {
   //  testRolesCMajor();
   //    testConvertCMajor();
    //testConvertCMinor();
-    testRolesDMajor();
+  //  testRolesDMajor();
    //   testConvertDMajor();
-    // testRoundTrip();
-    
-
-
-    // SQINFO("test start");
-    // Scale::RoleArray ra = Scale::convert(MidiNote::C, Scale::Scales::Major);
-    // Scale::_dumpRoles("cma:", ra.data);
-
-
-    // ra = Scale::convert(MidiNote::C + 1, Scale::Scales::Major);
-    // Scale::_dumpRoles("c# maj:", ra.data);
+     testRoundTrip();
 }
 #endif
