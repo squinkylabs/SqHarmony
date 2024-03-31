@@ -719,6 +719,19 @@ static void testConvert() {
     testRoundTrip();
 }
 
+static void testMultiRoot() {
+    // get C major, but make every note a root
+    Scale::Role* test = getRolesCMajor();
+    for (int i=0; test[i] != Scale::Role::End; ++i) {
+        if (test[i] == Scale::Role::InScale) {
+            test[i] = Scale::Role::Root;
+        }
+    }
+    Scale::_dumpRoles("after patch", test);
+    const auto converted = Scale::convert(test);
+    assertEQ(std::get<0>(converted), false);
+}
+
 void testScale() {
     testCMaj();
     testAMin();
@@ -748,6 +761,8 @@ void testScale() {
     testSharpsFlatsNoAssert();
     testNumNotes();
     testConvert();
+   // SQINFO("Make multi root work");
+    testMultiRoot();
 }
 
 #if 0
@@ -758,10 +773,11 @@ void testFirst() {
     // testNumNotes();
     // testConvert();
   //  testRolesCMajor();
-  //    testConvertCMajor();
+      testConvertCMajor();
    //testConvertCMinor();
   //  testRolesDMajor();
    //   testConvertDMajor();
-     testRoundTrip();
+   //  testRoundTrip();
+ //  testMultiRoot();
 }
 #endif
