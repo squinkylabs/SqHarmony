@@ -562,7 +562,7 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
 }
 
 void Scale::_dumpRoles(const char* message, const Role* roles) {
-    SQINFO(message);
+    SQINFO("%s", message);
     for (int i = 0; roles[i] != Role::End; ++i) {
         SQINFO("role[%d] = %d r=%d in =%d out=%d end=%d", i, int(roles[i]), int(Role::Root), int(Role::InScale), int(Role::NotInScale), int(Role::End));
     }
