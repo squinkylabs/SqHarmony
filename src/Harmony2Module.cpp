@@ -82,6 +82,7 @@ public:
         addKeysig(module);
         addMainCV();
         addModCV();
+        addLeds();
         if (module) {
             const Comp* comp = module->getComp().get();
             _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
@@ -170,6 +171,14 @@ private:
         addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
 
         addInputL(Vec(x0 + 3 * dx, y), Comp::XSCALE_INPUT, "KSI");
+    }
+
+    void addLeds() {
+        const float y = 264;
+        addChild(createLight<MediumLight<RedLight>>(
+            Vec(18 + x0 + 3 * dx, y),
+            module,
+            Comp::XSCALE_INVALID_LIGHT));
     }
 
     void addKeysig(Harmony2Module* xmodule) {

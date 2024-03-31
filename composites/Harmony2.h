@@ -97,6 +97,7 @@ public:
         XPOSE_ENABLE4_LIGHT,
         XPOSE_ENABLE5_LIGHT,
         XPOSE_ENABLE6_LIGHT,
+        XSCALE_INVALID_LIGHT,
         NUM_LIGHTS
     };
 
@@ -114,12 +115,13 @@ public:
     int numNotesInCurrentScale();
 
 private:
- //   Divider _divn;
     GateTrigger _ButtonProcs[NUM_TRANPOSERS];
     ScaleQuantizerPtr _quantizer;
     ScaleQuantizer::OptionsPtr _quantizerOptions;
 
     CompositeUpdater<Harmony2<TBase>> _updater;
+    CompositeUpdater<Harmony2<TBase>> _keyOutUpdater;
+    CompositeUpdater<Harmony2<TBase>> _keyInUpdater;
 
     void _init();
     void _stepn();
@@ -131,6 +133,8 @@ private:
     void _serviceKeysigParam();
     void _serviceTranspose();
     void _serviceTranspose(int channel, int& outputChannel);
+    void _serviceScaleInput();
+    void _serviceScaleOutput();
 };
 
 template <class TBase>
@@ -170,21 +174,21 @@ inline std::vector<std::string> Harmony2<TBase>::getTransposeOctaveLabels() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_init() {
-    // _divn.setup(Harmony2<TBase>::getSubSampleFactor(), [this]() {
-    //     this->_stepn();
-    // });
-
     _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     _quantizerOptions->scale = std::make_shared<Scale>();
     _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
 
     _updater.set(this);
+    _keyInUpdater.set(this);
+    _keyOutUpdater.set(this);
+
     for (int i = 0; i < 6; ++i) {
         _updater.add(ParamIds(XPOSE_DEGREE1_PARAM + i));
         _updater.add(ParamIds(XPOSE_OCTAVE1_PARAM + i));
         _updater.add(ParamIds(XPOSE_ENABLEREQ1_PARAM + i));
     }
+
     _updater.add(KEY_PARAM);
     _updater.add(MODE_PARAM);
     _updater.add(SHARPS_FLATS_PARAM);
@@ -194,12 +198,18 @@ inline void Harmony2<TBase>::_init() {
     _updater.add(KEY_INPUT, true);
     _updater.add(MODE_INPUT, true);
     _updater.add(PITCH_INPUT, true);
+
+    // Need to update scale out when either of these params change.
+    _keyOutUpdater.add(KEY_PARAM);
+    _keyOutUpdater.add(MODE_PARAM);
+
+    // Need to respond to scale input changes.
+    _keyInUpdater.add(XSCALE_INPUT, false);
 }
 
 template <class TBase>
 inline void Harmony2<TBase>::_stepn() {
     _serviceEnableButtons();
-
     _serviceKeysigRootCV();
     _serviceKeysigModeCV();
     _serviceKeysigParam();
@@ -294,16 +304,82 @@ inline void Harmony2<TBase>::_servicePolyphony() {
     TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
-//static int x = 0;
+template <class TBase>
+inline void Harmony2<TBase>::_serviceScaleInput() {
+    SQINFO("scale in changed");
+
+    //static std::tuple<bool, MidiNote, Scales> convert(const Role* noteRole);
+    auto &input = TBase::inputs[XSCALE_INPUT];
+    Scale::Role roles[13];
+    for (int i=0; i<12; ++i) {
+        float v = input.getVoltage(i);
+        Scale::Role role;
+        if (v < 4) {
+            role = Scale::Role::NotInScale;
+        } else if (v < 9) {
+            role = Scale::Role::InScale;
+        } else {
+            role = Scale::Role::Root;
+        }
+        roles[i] = role;
+    }
+    roles[12] = Scale::Role::End;
+
+    const auto scaleConverted = Scale::convert(roles);
+    Scale::_dumpRoles("derived roles", roles);
+    if (std::get<0>(scaleConverted) == false) {
+        SQINFO("bad scale");
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
+    } else {
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
+        SQINFO("good scale, %d, %d", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+    }
+
+}
+
+template <class TBase>
+inline void Harmony2<TBase>::_serviceScaleOutput() {
+    auto &output = TBase::outputs[XSCALE_OUTPUT];
+    if (output.isConnected()) {
+        output.channels = 12;
+    }
+    auto scale = _quantizerOptions->scale;
+    std::pair<const MidiNote, Scale::Scales> settings = scale->get();;
+    const Scale::RoleArray roleArray = Scale::convert(settings.first, settings.second);
+    for (int i=0; i<12; ++i) {
+        float v = 0;
+        switch(roleArray.data[i]) {
+            case Scale::Role::InScale:
+                v = 8;
+                break;
+            case Scale::Role::Root:
+                v = 10;
+                break;
+            case Scale::Role::NotInScale:
+            case Scale::Role::End:
+                break;
+            default:
+                assert(false);
+        }
+        output.setVoltage(v, i);
+    }
+}
 
 template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
-    const bool changed = _updater.poll();
+    bool changed = _updater.poll();
     if (changed) {
-      //  SQINFO("%d", x);
-      //  ++x;
         _stepn();
         _old_process();
+    }
+    changed = _keyInUpdater.poll();
+    if (changed) {
+        _serviceScaleInput();
+    }
+
+    changed = _keyOutUpdater.poll();
+    if (changed) {
+        _serviceScaleOutput();
     }
 }
 
