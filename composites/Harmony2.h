@@ -80,11 +80,13 @@ public:
         KEY_INPUT,
         MODE_INPUT,
         PITCH_INPUT,
+        XSCALE_INPUT,
         NUM_INPUTS
     };
 
     enum OutputIds {
         PITCH_OUTPUT,
+        XSCALE_OUTPUT,
         NUM_OUTPUTS
     };
 

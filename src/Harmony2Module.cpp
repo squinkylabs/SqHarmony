@@ -4,6 +4,7 @@
 
 #include "BufferingParent.h"
 #include "Harmony2.h"
+#include "KsigSharpFlatMonitor.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
@@ -12,7 +13,6 @@
 #include "SqLog.h"
 #include "SqMenuItem.h"
 #include "WidgetComposite.h"
-#include "KsigSharpFlatMonitor.h"
 
 #define _LAB
 
@@ -24,6 +24,7 @@ public:
     Harmony2Module() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         addParams();
+        addIO();
     }
     void process(const ProcessArgs& args) override {
         comp->process(args);
@@ -47,6 +48,24 @@ private:
         this->configParam(Comp::MODE_PARAM, 0, numModes - 1, 0, "Key signature mode");
         this->configParam(Comp::SHARPS_FLATS_PARAM, 0, 3, 0, "hidden (sf)");
         this->configParam(Comp::ONLY_USE_DIATONIC_PARAM, 0, 1, 0, "hidden (ud)");
+    }
+
+    void addIO() {
+        //  PITCH_OUTPUT,
+        //   XSCALE_OUTPUT,
+        this->configOutput(Comp::PITCH_OUTPUT, "Main chord CV");
+        this->configOutput(Comp::XSCALE_OUTPUT, "Scale (PES)");
+
+        //    XPOSE_INPUT,
+        // KEY_INPUT,
+        // MODE_INPUT,
+        // PITCH_INPUT,
+        // XSCALE_INPUT,
+        this->configInput(Comp::KEY_INPUT, "Scale root");
+        this->configInput(Comp::XPOSE_INPUT, "Transpose steps");
+        this->configInput(Comp::MODE_INPUT, "Scale mode/type");
+        this->configInput(Comp::PITCH_INPUT, "Main CV");
+        this->configInput(Comp::XSCALE_INPUT, "Scale(PES)");
     }
 };
 
@@ -72,8 +91,7 @@ public:
 private:
     PopupMenuParamWidget* _keyRootWidget = nullptr;
     std::shared_ptr<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>> _ksigMonitor;
-    BufferingParent<SqLabel>* _xposeDisplays[6] = { nullptr };
-
+    BufferingParent<SqLabel>* _xposeDisplays[6] = {nullptr};
 
     void step() override {
         ModuleWidget::step();
@@ -110,7 +128,7 @@ private:
     }
 
     void _setSharpFlat(int index) {
-       // SQINFO("set sharps flats to %d", index);
+        // SQINFO("set sharps flats to %d", index);
         APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
     }
 
@@ -118,36 +136,40 @@ private:
         if (!module) {
             return;
         }
-   
+
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_PARAM);
         item->text = "Use only diatonic scales";
         menu->addChild(item);
-     
 
         const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
-        const int index = int( std::round(p));
+        const int index = int(std::round(p));
         menu->addChild(createSubmenuItem("Sharps&Flats", "",
-            [=](Menu* menu) {
-                menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() {_setSharpFlat(0);}));
-                menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() {_setSharpFlat(1);}));
-                menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() {_setSharpFlat(2);}));
-                menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() {_setSharpFlat(3);}));
-            }
-        ));
+                                         [=](Menu* menu) {
+                                             menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() { _setSharpFlat(0); }));
+                                             menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() { _setSharpFlat(1); }));
+                                             menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() { _setSharpFlat(2); }));
+                                             menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() { _setSharpFlat(3); }));
+                                         }));
     }
 
+    const float x0 = 11;
+    const float dx = 34;
     void addMainCV() {
         const float y = 317;
-        addInputL(Vec(19, y), Comp::PITCH_INPUT, "CVI");
-        addOutputL(Vec(60, y), Comp::PITCH_OUTPUT, "CVO");
+        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI");
+        addOutputL(Vec(x0 + dx, y), Comp::PITCH_OUTPUT, "CVO");
+
+        addOutputL(Vec(x0 + dx * 3, y), Comp::XSCALE_OUTPUT, "KSO");
     }
 
     void addModCV() {
         const float y = 270;
-        addInputL(Vec(19, y), Comp::XPOSE_INPUT, "XP");
+        addInputL(Vec(x0, y), Comp::XPOSE_INPUT, "XP");
 
-        addInputL(Vec(60, y), Comp::KEY_INPUT, "Key");
-        addInputL(Vec(100, y), Comp::MODE_INPUT, "Mode");
+        addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key");
+        addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
+
+        addInputL(Vec(x0 + 3 * dx, y), Comp::XSCALE_INPUT, "KSI");
     }
 
     void addKeysig(Harmony2Module* xmodule) {
@@ -159,7 +181,7 @@ private:
             module,
             Comp::KEY_PARAM);
         p->setLabels(Scale::getRootLabels(false));
-        p->box.size.x = 40;                         // width
+        p->box.size.x = 40;  // width
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
@@ -192,7 +214,6 @@ private:
     static constexpr float xdegree = 75;
     static constexpr float xx = 120;
 
-
     void addTransposeControls(int index, bool haveModule) {
         const float y = y0 + index * deltaY;
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
@@ -205,7 +226,7 @@ private:
             module,
             Comp::XPOSE_OCTAVE1_PARAM + index);
         p->setLabels(Comp::getTransposeOctaveLabels());
-        p->box.size.x = 40;                              // width
+        p->box.size.x = 40;  // width
         p->box.size.y = 22;
         addParam(p);
         if (!haveModule) {
@@ -217,14 +238,14 @@ private:
             module,
             Comp::XPOSE_DEGREE1_PARAM + index);
         p->setLabels(Comp::getTransposeDegreeLabels());
-        p->box.size.x = 40;                              // width
+        p->box.size.x = 40;  // width
         p->box.size.y = 22;
         if (!haveModule) {
             p->text = "0";
         }
         addParam(p);
 
-        const auto x =addLabel(Vec(xx, y), "");
+        const auto x = addLabel(Vec(xx, y), "");
         _xposeDisplays[index] = x;
     }
 
@@ -285,7 +306,6 @@ private:
 #endif
     }
 };
-
 
 Model* modelHarmony2 = createModel<Harmony2Module, Harmony2Widget>("sqh-harmony2");
 #endif
