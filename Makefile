@@ -61,3 +61,14 @@ include $(RACK_DIR)/plugin.mk
 # LDFLAGS += $(ASAN_FLAGS)
 # CFLAGS +=  $(ASAN_FLAGS)
 # LDFLAGS += -static-libasan
+
+
+## FLAGS += -std=c++17
+
+#CXXFLAGS := $(filter-out -std=c++11,$(CXXFLAGS))
+#CXXFLAGS += -std=c++17
+
+## change c++ version here, after others have been included
+CXXFLAGS := $(filter-out -std=c++11,$(CXXFLAGS))
+CXXFLAGS += -std=c++17
+

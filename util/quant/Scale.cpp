@@ -7,19 +7,19 @@
 #include "SqLog.h"
 
 void Scale::set(const MidiNote& bs, Scales md) {
-    baseNote = bs;
-    scale = md;
-    wasSet = true;
+    _baseNote = bs;
+    _scale = md;
+    _wasSet = true;
 
-    assert(baseNote.get() < 12 && baseNote.get() >= 0);
+    assert(_baseNote.get() < 12 && _baseNote.get() >= 0);
 }
 
 std::pair<const MidiNote, Scale::Scales> Scale::get() const {
-    return std::make_pair(baseNote, scale);
+    return std::make_pair(_baseNote, _scale);
 }
 
 ScaleNote Scale::m2s(const MidiNote& mn) const {
-    int scaleBasePitch = baseNote.get() % 12;  // now C == 4;
+    int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
 
@@ -31,7 +31,7 @@ ScaleNote Scale::m2s(const MidiNote& mn) const {
         octave -= 1;
     }
 
-    auto sn = makeScaleNote(offset);
+    auto sn = _makeScaleNote(offset);
     ScaleNote final(sn.getDegree(), octave, sn.getAccidental());
     // need octave into
     return final;
@@ -60,17 +60,17 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     return MidiNote(midiPitch);
 }
 
-ScaleNote Scale::makeScaleNote(int offset) const {
+ScaleNote Scale::_makeScaleNote(int offset) const {
     assert(offset >= 0 && offset < 12);
-    int degree = quantizeInScale(offset);
+    int degree = _quantizeInScale(offset);
     if (degree >= 0) {
         return ScaleNote(degree, 0);
     }
-    degree = quantizeInScale(offset - 1);
+    degree = _quantizeInScale(offset - 1);
     if (degree >= 0) {
         return ScaleNote(degree, 0, ScaleNote::Accidental::sharp);
     }
-    degree = quantizeInScale(offset + 1);
+    degree = _quantizeInScale(offset + 1);
     if (degree >= 0) {
         return ScaleNote(degree, 0, ScaleNote::Accidental::flat);
     }
@@ -129,17 +129,17 @@ std::vector<std::string> Scale::getRootLabels(bool useFlats) {
 }
 
 int Scale::quantize(int offset) const {
-    assert(wasSet);
+    assert(_wasSet);
     assert(offset >= 0 && offset <= 11);
-    int x = quantizeInScale(offset);
+    int x = _quantizeInScale(offset);
     if (x >= 0) {
         return x;
     }
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    const int qUpOne = quantizeInScale(offset + 1);
-    const int qDnOne = quantizeInScale(offset - 1);
+    const int qUpOne = _quantizeInScale(offset + 1);
+    const int qDnOne = _quantizeInScale(offset - 1);
 
     switch (offset) {
         case 1:
@@ -201,8 +201,8 @@ int Scale::quantize(int offset) const {
     return 0;
 }
 
-int Scale::quantizeInScale(int offset) const {
-    const int* pitches = getNormalizedScalePitches();
+int Scale::_quantizeInScale(int offset) const {
+    const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
@@ -219,7 +219,7 @@ int Scale::quantizeInScale(int offset) const {
 }
 
 int Scale::degreeToSemitone(int degree) const {
-    const int* pitches = getNormalizedScalePitches();
+    const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (*pitches < 0) {
@@ -236,9 +236,9 @@ int Scale::degreeToSemitone(int degree) const {
     return pitches[degreeIndex];
 }
 
-const int* Scale::getNormalizedScalePitches() const {
-    assert(wasSet);
-    switch (scale) {
+const int* Scale::_getNormalizedScalePitches() const {
+    assert(_wasSet);
+    switch (_scale) {
         case Scales::Major: {
             static const int ret[] = {0, 2, 4, 5, 7, 9, 11, -1};
             return ret;
@@ -303,8 +303,8 @@ const int* Scale::getNormalizedScalePitches() const {
 }
 
 MidiNote Scale::getRelativeMajor() const {
-    int pitch = baseNote.get();
-    switch (scale) {
+    int pitch = _baseNote.get();
+    switch (_scale) {
         case Scales::Major:
             break;
 
@@ -424,7 +424,7 @@ const MidiNote flatsInBass[12] = {
 
 Scale::ScoreInfo Scale::getScoreInfo() const {
     Scale::ScoreInfo ret;
-    assert(int(scale) <= int(Scales::Locrian));
+    assert(int(_scale) <= int(Scales::Locrian));
 
     const int basePitch = getRelativeMajor().get();
     assert(basePitch >= 0);
@@ -441,7 +441,7 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
 }
 
 Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
-    if (int(scale) <= int(Scales::Locrian)) {
+    if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
         assert(basePitch >= 0);
         assert(basePitch < 12);
@@ -449,12 +449,12 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
         return preferSharps[basePitch];
     }
 
-    switch (scale) {
+    switch (_scale) {
         case Scales::MinorPentatonic:
         case Scales::HarmonicMinor: {
             // Not sure it's true, but let's say all the minors are the same...
             Scale otherScale;
-            otherScale.set(this->baseNote, Scales::Minor);
+            otherScale.set(this->_baseNote, Scales::Minor);
             return otherScale.getSharpsFlatsPref();
         }
         case Scales::Chromatic:
@@ -485,7 +485,7 @@ int Scale::numNotesInScale(Scales scale) {
             ret = 5;
             break;
 
-        case Scales::HarmonicMinor: 
+        case Scales::HarmonicMinor:
             ret = 7;
             break;
         case Scales::Chromatic:
@@ -495,7 +495,7 @@ int Scale::numNotesInScale(Scales scale) {
         case Scales::DominantDiminished:
             ret = 8;
             break;
-         
+
         case Scales::WholeStep:
             ret = 6;
             break;
@@ -517,4 +517,155 @@ int Scale::numNotesInScale(Scales scale) {
     assert(ret >= 0);
     assert(ret <= 12);
     return ret;
+}
+
+std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteRoles) {
+    const auto error = std::make_tuple(false, MidiNote::C, Scale::Scales::Chromatic);
+
+
+    int roleRoot = 0;
+    // First check the role array for validity and find the root.
+    {
+        int roleCount = 0;
+        int rootCount = 0;
+        const Role* rp = noteRoles;
+        
+        bool foundRoot = false;
+        while (*rp != Role::End) {
+            if (*rp == Role::Root) {
+                roleRoot = roleCount;
+                foundRoot = true;
+                rootCount++;
+            }
+            ++rp;
+            ++roleCount;
+        }
+
+        if (!foundRoot) {
+            return error;
+        }
+        if (roleCount != 12) {
+            assert(false);
+            return error;
+        }
+        if (rootCount != 1) {
+            // Scale::_dumpRoles("more than one root", noteRoles);
+            return error;
+        }
+    }
+
+    for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
+        const auto smode = Scale::Scales(mode);
+        if (_doesScaleMatch(noteRoles, smode, roleRoot)) {
+            return {true, roleRoot, smode};
+        }
+    }
+    return error;
+}
+
+void Scale::_dumpRoles(const char* message, const Role* roles) {
+    SQINFO("%s", message);
+    for (int i = 0; roles[i] != Role::End; ++i) {
+        SQINFO("role[%d] = %d r=%d in =%d out=%d end=%d", i, int(roles[i]), int(Role::Root), int(Role::InScale), int(Role::NotInScale), int(Role::End));
+    }
+}
+
+bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote root) {
+    Role rotatedRoles[13];  // Enough room for any 12 tone scale.
+    Scale s;
+    s.set(root, scale);
+
+    // get the relative pitches for the scale (does not take into account root)
+    const int* relativePitchesInScale = s._getNormalizedScalePitches();
+
+    if (rawRoles[root.get()] != Role::Root) {
+        // If the role root is not in the right place, then a) it's not a match,
+        // and b) the logic farther down won't work.
+        assert(false);
+        return false;
+    }
+
+    // Now, rotate the roles so that the root is at the start
+    for (int index = 0; index <= 12; ++index) {
+        int destIndex = index - root.get();
+        if (destIndex < 0) {
+            destIndex += 12;
+        }
+        const Role r = rawRoles[index];
+        if (r == Role::End) {
+            destIndex = index;  // put the end in the same place - don't rotate it
+        }
+        rotatedRoles[destIndex] = r;
+    }
+   
+    {
+        // a little sanity check.
+        int roleCount = 0;
+        const Role* rp = rotatedRoles;
+        // int roleRoot = 0;
+        while (*rp++ != Role::End) {
+            ++roleCount;
+        }
+        assert(roleCount == 12);
+    }
+
+    int roleIndex = 0;
+    int pitchIndex = 0;
+    while (true) {
+        const auto role = rotatedRoles[roleIndex];
+        const auto pitch = relativePitchesInScale[pitchIndex];
+        if (role == Role::End) {
+            return (pitch < 0) ? true : false;  // if they both end, it's a match
+        }
+        if (pitch < 0) {  // if we ran out of pitches, done
+            // Note: when scale has a minor 7th, we will get here here
+            while (true) {
+                ++roleIndex;
+                const auto role = rotatedRoles[roleIndex];
+                switch (role) {
+                    case Role::End:
+                        return true;  // No more active roles, so we ran out of notes and roles, ok.
+                    case Role::NotInScale:
+                        return true;
+                    case Role::InScale:
+                        return false;  // Still roles left over.
+                    default:
+                        assert(false);
+                        return false;
+                }
+            }
+        }
+
+        const auto roleIn = (role == Role::InScale || role == Role::Root);
+        // if the chromatic degree we are examining is in the scale
+        if (roleIn) {
+            if (roleIndex != pitch) {  // and we are looking note that degree
+                return false;  // then no match
+            }
+            ++pitchIndex;  // if a match, look at the nextPitch.
+        }
+        ++roleIndex;  // and always look at the next role.
+    }
+}
+
+const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
+    RoleArray roles;
+    Scale scale;
+
+    scale.set(root, mode);
+    const auto norm = scale._getNormalizedScalePitches();
+
+    for (int index = 0; norm[index] >= 0; ++index) {
+        // This should be transposed to real pitch
+        int pitch = norm[index] + root.get();
+        if (pitch >= 12) {
+            pitch -= 12;
+        }
+        roles.data[pitch] = Role::InScale;
+    }
+    
+
+    // put in the root where it should be
+     roles.data[root.get()] = Role::Root;
+    return roles;
 }

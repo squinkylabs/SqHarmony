@@ -4,6 +4,7 @@
 #include "plugin.hpp"
 #include "rack.hpp"
 
+#ifdef _ADD
 using Comp = Additive<WidgetComposite>;
 #define _LAB
 
@@ -215,3 +216,4 @@ void AdditiveWidget::addControls() {
 }
 
 rack::Model* modelAdditive = createModel<AdditiveModule, AdditiveWidget>("sqh-additive");
+#endif

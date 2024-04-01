@@ -5,6 +5,7 @@
 #include <tuple>
 #include <vector>
 
+#include "CompositeUpdater.h"
 #include "Divider.h"
 #include "FloatNote.h"
 #include "GateTrigger.h"
@@ -55,7 +56,7 @@ public:
         XPOSE_ENABLE4_PARAM,
         XPOSE_ENABLE5_PARAM,
         XPOSE_ENABLE6_PARAM,
-        XPOSE_TOTAL1_PARAM,         // units 1/12 volt = 1 step, same as XPOSE CX
+        XPOSE_TOTAL1_PARAM,  // units 1/12 volt = 1 step, same as XPOSE CX
         XPOSE_TOTAL2_PARAM,
         XPOSE_TOTAL3_PARAM,
         XPOSE_TOTAL4_PARAM,
@@ -79,11 +80,13 @@ public:
         KEY_INPUT,
         MODE_INPUT,
         PITCH_INPUT,
+        XSCALE_INPUT,
         NUM_INPUTS
     };
 
     enum OutputIds {
         PITCH_OUTPUT,
+        XSCALE_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -94,6 +97,7 @@ public:
         XPOSE_ENABLE4_LIGHT,
         XPOSE_ENABLE5_LIGHT,
         XPOSE_ENABLE6_LIGHT,
+        XSCALE_INVALID_LIGHT,
         NUM_LIGHTS
     };
 
@@ -111,13 +115,17 @@ public:
     int numNotesInCurrentScale();
 
 private:
-    Divider _divn;
     GateTrigger _ButtonProcs[NUM_TRANPOSERS];
     ScaleQuantizerPtr _quantizer;
     ScaleQuantizer::OptionsPtr _quantizerOptions;
 
+    CompositeUpdater<Harmony2<TBase>> _updater;
+    CompositeUpdater<Harmony2<TBase>> _keyOutUpdater;
+    CompositeUpdater<Harmony2<TBase>> _keyInUpdater;
+
     void _init();
     void _stepn();
+    void _old_process();
     void _servicePolyphony();
     void _serviceEnableButtons();
     void _serviceKeysigRootCV();
@@ -125,6 +133,8 @@ private:
     void _serviceKeysigParam();
     void _serviceTranspose();
     void _serviceTranspose(int channel, int& outputChannel);
+    void _serviceScaleInput();
+    void _serviceScaleOutput();
 };
 
 template <class TBase>
@@ -164,20 +174,44 @@ inline std::vector<std::string> Harmony2<TBase>::getTransposeOctaveLabels() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_init() {
-    _divn.setup(Harmony2<TBase>::getSubSampleFactor(), [this]() {
-        this->_stepn();
-    });
-
     _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     _quantizerOptions->scale = std::make_shared<Scale>();
     _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
+
+    _updater.set(this);
+    _keyInUpdater.set(this);
+    _keyOutUpdater.set(this);
+
+    for (int i = 0; i < 6; ++i) {
+        _updater.add(ParamIds(XPOSE_DEGREE1_PARAM + i));
+        _updater.add(ParamIds(XPOSE_OCTAVE1_PARAM + i));
+        _updater.add(ParamIds(XPOSE_ENABLEREQ1_PARAM + i));
+    }
+
+    _updater.add(KEY_PARAM);
+    _updater.add(MODE_PARAM);
+    _updater.add(SHARPS_FLATS_PARAM);
+    _updater.add(ONLY_USE_DIATONIC_PARAM);
+
+    _updater.add(XPOSE_INPUT, false);
+    _updater.add(KEY_INPUT, true);
+    _updater.add(MODE_INPUT, true);
+    _updater.add(PITCH_INPUT, true);
+
+    // Need to update scale out when either of these params change.
+    _keyOutUpdater.add(KEY_PARAM);
+    _keyOutUpdater.add(MODE_PARAM);
+    _keyOutUpdater.add(XSCALE_OUTPUT);       // monitor the output in case we are patched
+
+
+    // Need to respond to scale input changes.
+    _keyInUpdater.add(XSCALE_INPUT, false);
 }
 
 template <class TBase>
 inline void Harmony2<TBase>::_stepn() {
     _serviceEnableButtons();
-
     _serviceKeysigRootCV();
     _serviceKeysigModeCV();
     _serviceKeysigParam();
@@ -273,9 +307,93 @@ inline void Harmony2<TBase>::_servicePolyphony() {
 }
 
 template <class TBase>
+inline void Harmony2<TBase>::_serviceScaleInput() {
+    auto &input = TBase::inputs[XSCALE_INPUT];
+    if (input.channels < 12) {
+        return;
+    }
+    Scale::Role roles[13];
+    bool haveAddedRoot = false;
+    for (int i=0; i<12; ++i) {
+        float v = input.getVoltage(i);
+        Scale::Role role;
+        if (v < 4) {
+            role = Scale::Role::NotInScale;
+        } else if (v < 9) {
+            role = Scale::Role::InScale;
+        } else {
+            // only add the first root. Some modules send all note as 10V.
+            role = haveAddedRoot ? Scale::Role::InScale : Scale::Role::Root;
+            haveAddedRoot = true;
+        }
+        roles[i] = role;
+    }
+    roles[12] = Scale::Role::End;
+
+    const auto scaleConverted = Scale::convert(roles);
+    if (std::get<0>(scaleConverted) == false) {
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
+    } else {
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
+        //SQINFO("good scale, %d, %d", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+
+        TBase::params[KEY_PARAM].value = std::get<1>(scaleConverted).get();
+        TBase::params[MODE_PARAM].value = int(std::get<2>(scaleConverted));
+    }
+}
+
+template <class TBase>
+inline void Harmony2<TBase>::_serviceScaleOutput() {
+
+    auto &output = TBase::outputs[XSCALE_OUTPUT];
+    SQINFO("service output, channels = %d", output.channels);
+    if (output.isConnected()) {
+        output.channels = 12;
+    }
+    auto scale = _quantizerOptions->scale;
+    std::pair<const MidiNote, Scale::Scales> settings = scale->get();;
+    const Scale::RoleArray roleArray = Scale::convert(settings.first, settings.second);
+    for (int i=0; i<12; ++i) {
+        float v = 0;
+        switch(roleArray.data[i]) {
+            case Scale::Role::InScale:
+                v = 8;
+                break;
+            case Scale::Role::Root:
+                v = 10;
+                break;
+            case Scale::Role::NotInScale:
+            case Scale::Role::End:
+                break;
+            default:
+                assert(false);
+        }
+        output.setVoltage(v, i);
+    }
+}
+
+template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
-    assert(TBase::params[KEY_PARAM].value < 11.5);
-    _divn.step();
+    bool changed = _updater.poll();
+    if (changed) {
+        _stepn();
+        _old_process();
+    }
+    changed = _keyInUpdater.poll();
+    if (changed) {
+        _serviceScaleInput();
+    }
+
+    changed = _keyOutUpdater.poll();
+    if (changed) {
+        _serviceScaleOutput();
+    }
+}
+
+template <class TBase>
+inline void Harmony2<TBase>::_old_process() {
+    // assert(TBase::params[KEY_PARAM].value < 11.5);
+    // _divn.step();
     assert(TBase::params[KEY_PARAM].value < 11.5);
     const float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);
@@ -289,9 +407,9 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     for (int bank = 0; bank < NUM_TRANPOSERS; ++bank) {
         const bool bankEnabled = TBase::params[XPOSE_ENABLE1_PARAM + bank].value > 5;
         if (bankEnabled) {
-           if (polyXposeCV) {
-             xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
-           }
+            if (polyXposeCV) {
+                xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
+            }
             const int xposeCVSteps = int(std::round(xposeCV * 12));
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;

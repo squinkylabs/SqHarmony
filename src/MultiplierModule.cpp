@@ -7,6 +7,8 @@
 #include "WidgetComposite.h"
 #include "plugin.hpp"
 
+#ifdef _MULT
+
 using Comp = Multiplier<WidgetComposite>;
 
 class MultiplierModule : public rack::engine::Module {
@@ -92,3 +94,4 @@ private:
 };
 
 Model* modelMult = createModel<MultiplierModule, MultiplierWidget>("sqh-mult");
+#endif

@@ -42,10 +42,12 @@ static void testPolyOutput() {
     comp->params[Comp::XPOSE_ENABLE5_PARAM].value = 10;
 
     //   static int getSubSampleFactor() { return 32; }
-    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
-        const auto args = TestComposite::ProcessArgs();
-        comp->process(args);
-    }
+    // for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
+    //     const auto args = TestComposite::ProcessArgs();
+    //     comp->process(args);
+    // }
+   processOnce(*comp.get());
+
     assertEQ(int(comp->outputs[Comp::PITCH_OUTPUT].channels), 3);
 }
 
@@ -53,9 +55,11 @@ static void testPolyOutput() {
  */
 static void testKeyCV(bool cvConnected, float cv, int expectedParam) {
     auto comp = std::make_shared<Comp>();
+    processOnce(*comp.get());
     comp->inputs[Comp::KEY_INPUT].setVoltage(cv);
     comp->inputs[Comp::KEY_INPUT].channels = cvConnected ? 1 : 0;
-    processBlock(*comp);
+  //  processBlock(*comp);
+    processOnce(*comp.get());
 
     assert(comp->params[Comp::KEY_PARAM].value < 12);
     // Expect that changing the CV will change the key param
@@ -81,10 +85,12 @@ static void testModeCV(float cv, int expectedParam, bool allowAllScales) {
     assert(expectedParam >= 0);
     assert(expectedParam < 14);
     auto comp = std::make_shared<Comp>();
+    processOnce(*comp.get());
     comp->inputs[Comp::MODE_INPUT].setVoltage(cv);
     comp->inputs[Comp::MODE_INPUT].channels = 1;
     comp->params[Comp::ONLY_USE_DIATONIC_PARAM].value = allowAllScales ? 0 : 1;
-    processBlock(*comp);
+   // processBlock(*comp);
+    processOnce(*comp.get());
 
     assertEQ(comp->params[Comp::MODE_PARAM].value, expectedParam);
 }
@@ -125,6 +131,7 @@ static void testChord(
     assertEQ(expectedCV.size(), octaveParamValues.size());
 
     auto comp = std::make_shared<Comp>();
+    processOnce(*comp.get());
 
     comp->inputs[Comp::PITCH_INPUT].channels = 1;    // connect the input
     comp->outputs[Comp::PITCH_OUTPUT].channels = 1;  // and output
@@ -138,11 +145,12 @@ static void testChord(
         comp->params[Comp::XPOSE_OCTAVE1_PARAM + i].value = octaveParamValues[i];  // root
     }
     // run a block
-    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
-        const auto args = TestComposite::ProcessArgs();
-        comp->process(args);
-    }
-    for (int i = 0; i < 16; ++i) {
+    // for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
+    //     const auto args = TestComposite::ProcessArgs();
+    //     comp->process(args);
+    // }
+    processOnce(*comp.get());
+        for (int i = 0; i < 16; ++i) {
         const float expectedOut = (i < degreeParamValues.size()) ? expectedCV[i] : 0;
         assertClose(comp->outputs[Comp::PITCH_OUTPUT].getVoltage(i), expectedOut, .00001);
     }
@@ -236,7 +244,7 @@ void testHarmony2() {
 void testFirst() {
     // i == 0, j== -2
    // testModeCV(-14, 0, true);
-    testModeCV();
+    testHarmony2();
    
 }
 #endif

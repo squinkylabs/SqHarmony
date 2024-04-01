@@ -24,6 +24,8 @@ public:
         WholeStep,
         Chromatic
     };
+    const static int firstScale = int(Scales::Major);
+    const static int lastScale = int(Scales::Chromatic);
 
     static int numScalesTotal() { return 13; }
     static int numDiatonicScales() { return 7; }
@@ -37,6 +39,26 @@ public:
 
     void set(const MidiNote& base, Scales mode);
     std::pair<const MidiNote, Scales> get() const;
+
+    enum class Role {
+        Root,
+        InScale,
+        NotInScale,
+        End
+    };
+
+    class RoleArray {
+    public:
+        RoleArray() {
+            for (int i=0; i< 12; ++i) {
+                data[i] = Role::NotInScale;
+            }
+            data[12] = Role::End;
+        }
+        Role data[13];
+    };
+    static std::tuple<bool, MidiNote, Scales> convert(const Role* noteRole);
+    static const RoleArray convert(MidiNote, Scales);
 
     /**
      * @brief convert a scale relative degree to an absolute pitch
@@ -56,7 +78,7 @@ public:
     int quantize(int offset) const;
 
     const MidiNote& base() const {
-        return baseNote;
+        return _baseNote;
     }
 
     /**
@@ -68,11 +90,11 @@ public:
 
     MidiNote s2m(const ScaleNote&) const;
 
-    bool getWasSet() const { return wasSet; }
+    bool getWasSet() const { return _wasSet; }
 
     /**
      * @brief data for drawing key signatures
-     * 
+     *
      */
     class ScoreInfo {
     public:
@@ -87,8 +109,8 @@ public:
     /**
      * @brief Get the Score Info object for current scale
      * Only works for the diatonic modes.
-     * 
-     * @return ScoreInfo 
+     *
+     * @return ScoreInfo
      */
     ScoreInfo getScoreInfo() const;
 
@@ -101,19 +123,24 @@ public:
 
     MidiNote getRelativeMajor() const;
 
+    static void _dumpRoles(const char* message, const Role* roles);
 private:
-    ScaleNote makeScaleNote(int offset) const;
+    ScaleNote _makeScaleNote(int offset) const;
 
-    MidiNote baseNote;
-    Scales scale;
-    bool wasSet = false;
+    MidiNote _baseNote;
+    Scales _scale;
+    bool _wasSet = false;
 
     /** get the intervals of the current scale
      * example: major is 0, 2, 4, 5....
      * list of pitches is terminated with a negative number
      */
-    const int* getNormalizedScalePitches() const;
+    const int* _getNormalizedScalePitches() const;
+
+  //  bool _getScalePitches(int * destination, unsigned destinationSize);
 
     // returns < - if note isn't in scale.
-    int quantizeInScale(int offset) const;
+    int _quantizeInScale(int offset) const;
+
+    static bool _doesScaleMatch(const Role*, Scales, MidiNote);
 };
