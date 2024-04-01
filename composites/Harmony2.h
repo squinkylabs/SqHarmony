@@ -202,6 +202,8 @@ inline void Harmony2<TBase>::_init() {
     // Need to update scale out when either of these params change.
     _keyOutUpdater.add(KEY_PARAM);
     _keyOutUpdater.add(MODE_PARAM);
+    _keyOutUpdater.add(XSCALE_OUTPUT);       // monitor the output in case we are patched
+
 
     // Need to respond to scale input changes.
     _keyInUpdater.add(XSCALE_INPUT, false);
@@ -311,6 +313,7 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
         return;
     }
     Scale::Role roles[13];
+    bool haveAddedRoot = false;
     for (int i=0; i<12; ++i) {
         float v = input.getVoltage(i);
         Scale::Role role;
@@ -319,26 +322,31 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
         } else if (v < 9) {
             role = Scale::Role::InScale;
         } else {
-            role = Scale::Role::Root;
+            // only add the first root. Some modules send all note as 10V.
+            role = haveAddedRoot ? Scale::Role::InScale : Scale::Role::Root;
+            haveAddedRoot = true;
         }
         roles[i] = role;
     }
     roles[12] = Scale::Role::End;
 
     const auto scaleConverted = Scale::convert(roles);
-    Scale::_dumpRoles("derived roles", roles);
     if (std::get<0>(scaleConverted) == false) {
-         SQINFO("bad scale");
         TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
     } else {
         TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
-        // SQINFO("good scale, %d, %d", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+        //SQINFO("good scale, %d, %d", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+
+        TBase::params[KEY_PARAM].value = std::get<1>(scaleConverted).get();
+        TBase::params[MODE_PARAM].value = int(std::get<2>(scaleConverted));
     }
 }
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleOutput() {
+
     auto &output = TBase::outputs[XSCALE_OUTPUT];
+    SQINFO("service output, channels = %d", output.channels);
     if (output.isConnected()) {
         output.channels = 12;
     }

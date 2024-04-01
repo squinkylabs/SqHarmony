@@ -63,6 +63,26 @@ private:
     }
 };
 
+// Monitors output port. Only to know is it got hooked up.
+template <typename T>
+class CVOutUpdater {
+public:
+    CVOutUpdater(enum T::OutputIds outputID) : _outputID(outputID) {}
+    CVOutUpdater() = delete;
+    bool poll(const T* composite) const {
+        auto output = composite->outputs[_outputID];
+        if (output.channels != _lastChannels) {
+            _lastChannels = output.channels;
+            return true;
+        }
+        return false;
+    }
+
+private:
+    const int _outputID;
+    mutable int _lastChannels = -1;
+};
+
 template <typename T>
 class CompositeUpdater {
 public:
@@ -75,10 +95,17 @@ public:
         assert(_composite);
         _paramUpdaters.push_back({param});
     }
+
     void add(enum T::InputIds input, bool isMonophonic) {
         assert(_composite);
-        _cvUpdaters.push_back({input, isMonophonic});
+        _cvInUpdaters.push_back({input, isMonophonic});
     }
+
+    void add(enum T::OutputIds output) {
+        assert(_composite);
+        _cvOutUpdaters.push_back({output});
+    }
+
     void set(T* composite) {
         assert(!_composite);
         assert(composite);
@@ -87,7 +114,8 @@ public:
 
 private:
     std::vector<ParamUpdater<T>> _paramUpdaters;
-    std::vector<CVUpdater<T>> _cvUpdaters;
+    std::vector<CVUpdater<T>> _cvInUpdaters;
+    std::vector<CVOutUpdater<T>> _cvOutUpdaters;
     const T* _composite = nullptr;
 };
 
@@ -99,8 +127,12 @@ inline bool CompositeUpdater<T>::poll() const {
         changed |= _paramUpdaters[i].poll(_composite);
     }
 
-    for (int i = 0; i < int(_cvUpdaters.size()); ++i) {
-        changed |= _cvUpdaters[i].poll(_composite);
+    for (int i = 0; i < int(_cvInUpdaters.size()); ++i) {
+        changed |= _cvInUpdaters[i].poll(_composite);
+    }
+
+    for (int i = 0; i < int(_cvOutUpdaters.size()); ++i) {
+        changed |= _cvOutUpdaters[i].poll(_composite);
     }
     return changed;
 }

@@ -17,6 +17,10 @@ public:
         INPUT2,
         INPUT3
     };
+    enum OutputIds {
+        OUTPUT1,
+        OUTPUT2
+    };
 };
 
 using Comp = MyComposite<TestComposite>;
