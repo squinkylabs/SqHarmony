@@ -68,6 +68,8 @@ In many cases, the presets use the key of C minor - which is said to be the most
 
 **XP** transpose amount. It is polyphonic, does not follow the VCV pitch standard. It also one "step" per 1/12 volt, but a scale step is not the same as a semitone.
 
+**KSI** key signature input. It is polyphonic and follows the "Poly External Scale" protocol developed by Aria Salvatrice. It allows the key and mode of Harmony II to follow the key and mode of an module that can output this protocol.
+
 There are a few things to remember with these CV inputs.
 
 The mode input can be confusing. There is a new scale every 1/12 volt. The number of scales depends on the setting in the context menu for "use only diatonic scales". It is it only diatonic scales, then there are 7 scales so:
@@ -103,6 +105,18 @@ But, when all scales are enabled:
 (text coming soon)
 
 ## Context menu things
+
+## PES format
+
+As mentioned above, Harmony II supports the PES protocol. This allows fully key signature information to be passed between modules supporting this protocol.
+
+As an output, Harmony II will output whatever it is set to.
+
+As in input, KSI is a little more complex. Harmony II will examine what is on the KSI input. It it maps to a scale that Harmony II knows about, Harmony will follow this input. If the input is for a scale that Harmony II does not support, the a small red LED will illuminate next to the KSI input to show an error.
+
+Some modules may output PES with only the notes of the scale, but no indication of what the root note is. For example, most quantizers to not know or care about root notes, so they cannot output anything meaningful for that. When Harmony II sees no root note, it will pick the first scale that matches. This means that of a quantizer is set for the notes C, D, E, F, G, A, B they Harmony will see that as a CMajor. Of course A minor is one of many other valid interpretations.
+
+Often this is what you want. Some time it is not.
 
 ## Block diagram
 
