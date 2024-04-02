@@ -32,9 +32,8 @@ inline bool isMask(rack::simd::float_4 m) {
  * Will print information on failure, then generate a "real" assertion
  */
 
-// make all our assserts do nothing with debug is off
+// make all our asserts do nothing with debug is off
 #ifdef NDEBUG
-// #define assert(_Expression) ((void)0)
 
 #define assertEQ(_Experssion1, _Expression2) ((void)0)
 #define assertEQnp(_Experssion1, _Expression2) ((void)0)

@@ -138,8 +138,14 @@ int Scale::quantize(int offset) const {
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    const int qUpOne = _quantizeInScale(offset + 1);
+    int qUpOne = _quantizeInScale(offset + 1);
     const int qDnOne = _quantizeInScale(offset - 1);
+
+    if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
+      //  SQINFO("In bad case. offset == 11");
+        qUpOne = 12;            // special case - we know we can go to octave here.
+                                // seems to only happen with Major Pentatonic
+    }
 
     switch (offset) {
         case 1:
@@ -164,8 +170,10 @@ int Scale::quantize(int offset) const {
             break;
         case 5:
             // if it's a perfect fourth, but we don't have one in this scale
-            // raise to tritone
+            // raise to tritone if we have it
             if (qUpOne >= 0) return qUpOne;
+            // if no fourth and no tritone, low er it
+            if (qDnOne >= 0) return qDnOne;
             break;
         case 6:
             // if triton, try P 5th
@@ -188,10 +196,14 @@ int Scale::quantize(int offset) const {
         case 10:
             // dim 7th -> 7th
             if (qUpOne >= 0) return qUpOne;
+            // If no 7th at all, try the major 6
+            if (qDnOne >= 0) return qDnOne;
             break;
         case 11:
             // M7 -> m7
             if (qDnOne >= 0) return qDnOne;
+            // If no 7th at all, go to octave
+            if (qUpOne >= 0) return qUpOne;
             break;
         default:
             SQWARN("got a strange number in Scale::quantize: %d", offset);
@@ -270,6 +282,10 @@ const int* Scale::_getNormalizedScalePitches() const {
         } break;
         case Scales::MinorPentatonic: {
             static const int ret[] = {0, 3, 5, 7, 10, -1};
+            return ret;
+        } break;
+        case Scales::MajorPentatonic: {
+            static const int ret[] = { 0, 2, 4, 7, 9, -1 };
             return ret;
         } break;
         case Scales::HarmonicMinor: {
@@ -455,6 +471,11 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
             // Not sure it's true, but let's say all the minors are the same...
             Scale otherScale;
             otherScale.set(this->_baseNote, Scales::Minor);
+            return otherScale.getSharpsFlatsPref();
+        }
+        case Scales::MajorPentatonic: {
+            Scale otherScale;
+            otherScale.set(this->_baseNote, Scales::Major);
             return otherScale.getSharpsFlatsPref();
         }
         case Scales::Chromatic:

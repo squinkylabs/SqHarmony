@@ -32,8 +32,6 @@ ifdef _ASSERT
 endif
 
 # This turns asserts off for make (plugin), not for test or perf
-# except it's not working now, so will do regular
-## $(TARGET) :  FLAGS += $(ASSERTOFF)
 FLAGS += $(ASSERTOFF)
 
 ## $(TARGET) : FLAGS += -D __PLUGIN
@@ -46,7 +44,7 @@ endif
 
 # Add files to the ZIP package when running `make dist`
 # The compiled plugin is automatically added.
-DISTRIBUTABLES += $(wildcard LICENSE*) res
+DISTRIBUTABLES += $(wildcard LICENSE*) res presets
 
 # Include the VCV Rack plugin Makefile framework
 # This makefile from VCV has many compiler flags and command 

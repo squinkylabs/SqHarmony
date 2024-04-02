@@ -26,7 +26,7 @@ static void testNoCrash(const Scale& scale) {
 
 static void testGeneral() {
     for (int root = 0; root < 12; ++root) {
-        for (int mode = 0; mode <= int(Scale::Scales::Chromatic); ++mode) {
+        for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
             Scale scale;
             Scale::Scales emode = Scale::Scales(mode);
             scale.set(root, emode);
@@ -476,6 +476,10 @@ static void testScore3() {
     validate(scale.getScoreInfo(), 5, 7);
 }
 
+static void testScaleNumbers() {
+    assert(Scale::numScalesTotal() == (1 + int(Scale::lastScale)));
+}
+
 static void testLabels(const std::vector<std::string>& labels) {
     std::set<std::string> x;
     assert(!labels.empty());
@@ -753,6 +757,7 @@ void testScale() {
     testScore2();
     testScore3();
 
+    testScaleNumbers();
     testLabels();
 
     testSharpsFlatsDiatonic();
@@ -773,11 +778,18 @@ void testFirst() {
     // testNumNotes();
     // testConvert();
   //  testRolesCMajor();
-      testConvertCMajor();
+   //   testConvertCMajor();
    //testConvertCMinor();
   //  testRolesDMajor();
    //   testConvertDMajor();
    //  testRoundTrip();
  //  testMultiRoot();
+ //   Scale scale;
+
+    //SQINFO("will get roles");
+   // const auto scaleParts = scale.get();
+    testScaleNumbers();
+
+
 }
 #endif

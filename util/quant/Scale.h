@@ -17,6 +17,7 @@ public:
         Mixolydian,
         Minor,
         Locrian,
+        MajorPentatonic,
         MinorPentatonic,
         HarmonicMinor,
         Diminished,
@@ -24,10 +25,13 @@ public:
         WholeStep,
         Chromatic
     };
+
     const static int firstScale = int(Scales::Major);
+    // KEEP THIS UP TO DATE
     const static int lastScale = int(Scales::Chromatic);
 
-    static int numScalesTotal() { return 13; }
+    // deprecated?
+    static int numScalesTotal() { return 14; }
     static int numDiatonicScales() { return 7; }
     static int numScales(bool onlyDiatonic) { return onlyDiatonic ? numDiatonicScales() : numScalesTotal(); }
 
