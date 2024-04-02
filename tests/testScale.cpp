@@ -501,8 +501,11 @@ static void testLabels() {
     testLabels(Scale::getScaleLabels(false));
     testLabels(Scale::getScaleLabels(true));
 
+    assertEQ(Scale::getShortScaleLabels(false).size(), Scale::lastScale + 1);
+
+    // TODO: these hard coded number are bad!
     assertEQ(Scale::getShortScaleLabels(true).size(), 7);    // 7 diatonic
-    assertEQ(Scale::getShortScaleLabels(false).size(), 13);  // 13 total
+    assertEQ(Scale::getShortScaleLabels(false).size(), Scale::lastScale + 1); 
 }
 
 static void testNumNotes() {
@@ -515,12 +518,29 @@ static void testNumNotes() {
     assertEQ(Scale::numNotesInScale(Scale::Scales::Locrian), 7);
 
     assertEQ(Scale::numNotesInScale(Scale::Scales::MinorPentatonic), 5);
+    assertEQ(Scale::numNotesInScale(Scale::Scales::MajorPentatonic), 5);
     assertEQ(Scale::numNotesInScale(Scale::Scales::HarmonicMinor), 7);
     assertEQ(Scale::numNotesInScale(Scale::Scales::Chromatic), 12);
 
     assertEQ(Scale::numNotesInScale(Scale::Scales::Diminished), 8);
     assertEQ(Scale::numNotesInScale(Scale::Scales::DominantDiminished), 8);
     assertEQ(Scale::numNotesInScale(Scale::Scales::WholeStep), 6);
+
+    assertEQ(Scale::lastScale + 1, 14);
+}
+
+static void testGetNotesInScale() {
+    for (int i = 0; i <= Scale::lastScale; ++i) {
+        Scale scale;
+        scale.set(MidiNote::C, Scale::Scales(i));
+        const int* pitches = scale._getNormalizedScalePitches();
+        int len = 0;
+        while (*pitches >= 0) {
+            ++pitches;
+            ++len;
+        }
+        assertGE(len, 5);
+    } 
 }
 
 static void testConvertEmpty() {
@@ -551,8 +571,8 @@ Scale::Role* getRolesCMajor() {
 Scale::Role* getRolesDMajor() {
     static Scale::Role roles[] = {
         Scale::Role::NotInScale,  // C
-        Scale::Role::InScale, // C#
-        Scale::Role::Root,  // D
+        Scale::Role::InScale,     // C#
+        Scale::Role::Root,        // D
         Scale::Role::NotInScale,
         Scale::Role::InScale,     // E
         Scale::Role::NotInScale,  // F
@@ -566,16 +586,15 @@ Scale::Role* getRolesDMajor() {
     return roles;
 }
 
-
 static void testRolesCMajor() {
     Scale sc;
     const Scale::RoleArray ar = Scale::convert(MidiNote::C, Scale::Scales::Major);
     Scale::Role* expected = getRolesCMajor();
 
-  //  Scale::_dumpRoles("expected", expected);
- //   Scale::_dumpRoles("under test", ar.data);
+    //  Scale::_dumpRoles("expected", expected);
+    //   Scale::_dumpRoles("under test", ar.data);
 
-    for (int i=0; ar.data[i] != Scale::Role::End; ++i) {
+    for (int i = 0; ar.data[i] != Scale::Role::End; ++i) {
         assert(ar.data[i] == expected[i]);
     }
 }
@@ -585,10 +604,10 @@ static void testRolesDMajor() {
     const Scale::RoleArray ar = Scale::convert(MidiNote::D, Scale::Scales::Major);
     Scale::Role* expected = getRolesDMajor();
 
-  //  Scale::_dumpRoles("expected", expected);
- //   Scale::_dumpRoles("under test", ar.data);
+    //  Scale::_dumpRoles("expected", expected);
+    //   Scale::_dumpRoles("under test", ar.data);
 
-    for (int i=0; ar.data[i] != Scale::Role::End; ++i) {
+    for (int i = 0; ar.data[i] != Scale::Role::End; ++i) {
         assert(ar.data[i] == expected[i]);
     }
 }
@@ -607,8 +626,8 @@ static void validate(const Scale::RoleArray& roles) {
 static void testConvertFrom(const Scale::Role* expectedRoles, MidiNote testRoot, Scale::Scales testMode) {
     auto result = Scale::convert(testRoot, testMode);
     validate(result);
-  //  Scale::_dumpRoles("expected:", expectedRoles);
-  //  Scale::_dumpRoles("actual:", result.data);
+    //  Scale::_dumpRoles("expected:", expectedRoles);
+    //  Scale::_dumpRoles("actual:", result.data);
     int len = 0;
     for (bool done = false; !done;) {
         assert(expectedRoles[len] == result.data[len]);
@@ -633,7 +652,7 @@ static void testConvertFromDMajor() {
 
 static void testConvertCMajor() {
     const auto roles = getRolesCMajor();
- //   Scale::_dumpRoles("cmajor", roles);
+    //   Scale::_dumpRoles("cmajor", roles);
     const auto x = Scale::convert(roles);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
@@ -675,11 +694,11 @@ static void testConvertCMinor() {
 }
 
 static void testRoundTrip(Scale scale) {
-    //SQINFO("will get roles");
+    // SQINFO("will get roles");
     const auto scaleParts = scale.get();
     const Scale::RoleArray roleArray = scale.convert(std::get<0>(scaleParts), std::get<1>(scaleParts));
 
-    //SQINFO("will convert back from roles");
+    // SQINFO("will convert back from roles");
     const auto x = Scale::convert(roleArray.data);
     const Scale::Scales foundMode = std::get<2>(x);
 
@@ -726,17 +745,21 @@ static void testConvert() {
 static void testMultiRoot() {
     // get C major, but make every note a root
     Scale::Role* test = getRolesCMajor();
-    for (int i=0; test[i] != Scale::Role::End; ++i) {
+    for (int i = 0; test[i] != Scale::Role::End; ++i) {
         if (test[i] == Scale::Role::InScale) {
             test[i] = Scale::Role::Root;
         }
     }
-    //Scale::_dumpRoles("after patch", test);
+    // Scale::_dumpRoles("after patch", test);
     const auto converted = Scale::convert(test);
     assertEQ(std::get<0>(converted), false);
 }
 
 void testScale() {
+    testScaleNumbers();
+    testLabels();
+    testNumNotes();
+    testGetNotesInScale();
     testCMaj();
     testAMin();
     testGeneral();
@@ -757,16 +780,13 @@ void testScale() {
     testScore2();
     testScore3();
 
-    testScaleNumbers();
-    testLabels();
-
     testSharpsFlatsDiatonic();
     testSharpsFlatsOtherMinor();
     testSharpsFlatsWierdos();
     testSharpsFlatsNoAssert();
-    testNumNotes();
+
     testConvert();
-   // SQINFO("Make multi root work");
+    // SQINFO("Make multi root work");
     testMultiRoot();
 }
 

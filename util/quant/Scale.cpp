@@ -97,7 +97,7 @@ std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
             "Mixo.",
             "Minor",
             "Locrian",
-            "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T", "Chrom"};
+            "M Penta", "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T", "Chrom"};
     }
 }
 
@@ -114,7 +114,7 @@ Scale::getScaleLabels(bool justDiatonic) {
             "Locrian"};
     else
         return {"Major", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Minor", "Locrian",
-                "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone", "Chromatic"};
+                "Major Pentatonic", "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone", "Chromatic"};
 }
 
 std::vector<std::string> Scale::getRootLabels(bool useFlats) {
@@ -292,7 +292,6 @@ const int* Scale::_getNormalizedScalePitches() const {
             static const int ret[] = {0, 2, 3, 5, 7, 8, 11, -1};
             return ret;
         }
-
         break;
         case Scales::Diminished: {
             static const int ret[] = {0, 2, 3, 5, 6, 8, 9, 11, -1};
@@ -503,6 +502,7 @@ int Scale::numNotesInScale(Scales scale) {
     int ret = 0;
     switch (scale) {
         case Scales::MinorPentatonic:
+        case Scales::MajorPentatonic:
             ret = 5;
             break;
 

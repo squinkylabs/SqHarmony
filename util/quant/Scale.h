@@ -54,7 +54,7 @@ public:
     class RoleArray {
     public:
         RoleArray() {
-            for (int i=0; i< 12; ++i) {
+            for (int i = 0; i < 12; ++i) {
                 data[i] = Role::NotInScale;
             }
             data[12] = Role::End;
@@ -128,12 +128,6 @@ public:
     MidiNote getRelativeMajor() const;
 
     static void _dumpRoles(const char* message, const Role* roles);
-private:
-    ScaleNote _makeScaleNote(int offset) const;
-
-    MidiNote _baseNote;
-    Scales _scale;
-    bool _wasSet = false;
 
     /** get the intervals of the current scale
      * example: major is 0, 2, 4, 5....
@@ -141,7 +135,14 @@ private:
      */
     const int* _getNormalizedScalePitches() const;
 
-  //  bool _getScalePitches(int * destination, unsigned destinationSize);
+private:
+    ScaleNote _makeScaleNote(int offset) const;
+
+    MidiNote _baseNote;
+    Scales _scale;
+    bool _wasSet = false;
+
+    //  bool _getScalePitches(int * destination, unsigned destinationSize);
 
     // returns < - if note isn't in scale.
     int _quantizeInScale(int offset) const;
