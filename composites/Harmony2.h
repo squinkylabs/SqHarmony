@@ -159,7 +159,12 @@ inline std::vector<std::string> Harmony2<TBase>::getTransposeDegreeLabels() {
         "+4",
         "+5",
         "+6",
-        "+7"};
+        "+7",
+        "+8",
+        "+9",
+        "+10",
+        "+11",
+        };
 }
 
 template <class TBase>
