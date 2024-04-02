@@ -27,7 +27,8 @@ public:
         addIO();
     }
     void process(const ProcessArgs& args) override {
-        comp->process(args);
+         comp->process(args);
+
     }
 
     std::shared_ptr<Comp> getComp() const {
@@ -129,7 +130,6 @@ private:
     }
 
     void _setSharpFlat(int index) {
-        // SQINFO("set sharps flats to %d", index);
         APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
     }
 
@@ -203,7 +203,6 @@ private:
         const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
         p->setShortLabels(Scale::getShortScaleLabels(diatonicOnly));
         p->setLabels(Scale::getScaleLabels(diatonicOnly));
-
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
         p->text = "Maj";

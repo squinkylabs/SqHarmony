@@ -113,7 +113,7 @@ Scale::getScaleLabels(bool justDiatonic) {
             "Aeolean (Minor)",
             "Locrian"};
     else
-        return {"Major", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Minor", "Locrian",
+        return {"Ionian (Major)", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolean (Minor)", "Locrian",
                 "Major Pentatonic", "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone", "Chromatic"};
 }
 

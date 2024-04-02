@@ -31,7 +31,7 @@ public:
     const static int lastScale = int(Scales::Chromatic);
 
     // deprecated?
-    static int numScalesTotal() { return 14; }
+    static int numScalesTotal() { return lastScale + 1; }
     static int numDiatonicScales() { return 7; }
     static int numScales(bool onlyDiatonic) { return onlyDiatonic ? numDiatonicScales() : numScalesTotal(); }
 

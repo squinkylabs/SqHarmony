@@ -139,7 +139,8 @@ private:
 
 template <class TBase>
 int Harmony2<TBase>::numCurrentModes() {
-    return diatonicOnly() ? 7 : 13;
+    return Scale::numScales(diatonicOnly());
+   // return diatonicOnly() ? 7 : 13;
 }
 // Includes the octave
 template <class TBase>
@@ -347,16 +348,13 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleOutput() {
-   // SQINFO("service ks output");
     auto &output = TBase::outputs[XSCALE_OUTPUT];
     if (output.isConnected()) {
         output.channels = 12;
-        //SQINFO("set to 12 channels");
     }
     auto scale = _quantizerOptions->scale;
     std::pair<const MidiNote, Scale::Scales> settings = scale->get();;
     const Scale::RoleArray roleArray = Scale::convert(settings.first, settings.second);
-  // Scale::_dumpRoles("will use roles", roleArray.data);
     for (int i=0; i<12; ++i) {
         float v = 0;
         switch(roleArray.data[i]) {

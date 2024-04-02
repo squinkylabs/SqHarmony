@@ -478,6 +478,8 @@ static void testScore3() {
 
 static void testScaleNumbers() {
     assert(Scale::numScalesTotal() == (1 + int(Scale::lastScale)));
+    assertEQ(Scale::numScales(true), Scale::numDiatonicScales());
+     assertEQ(Scale::numScales(false), Scale::numScalesTotal());
 }
 
 static void testLabels(const std::vector<std::string>& labels) {
