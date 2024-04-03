@@ -10,6 +10,12 @@ Many of Harmony II's features are motivated by use of diatonic harmony. But Harm
 
 Because use of diatonic scales and harmony is the "primary use case" of Harmony II, sometimes the terminology or parts of the manual may make is sound like Harmony is limited to diatonic harmony. This is emphatically not that case.
 
+## TL;DR
+
+To quickly get Harmony II working, connect a monophonic pitch source to the CVI input. The chord output will come out the CVO output. Pick a key signature, load up a preset, and you are off.
+
+Or, instead of loading a preset, select one or more generator units with the push-buttons on the left. For those generators, pick a number of steps to transpose.
+
 ## Why diatonic aware modules are interesting
 
 Much common music uses some form of diatonic harmony. For some typical examples, consider the chord progressions for some common songs. Bob Dylan's ["All Along The Watchtower"](https://www.youtube.com/watch?v=bT7Hj-ea0VE). The chords are A minor, G major, F major. Those are the diatonic triads on 8, 7, 6 in A Minor. Or [every teen-age car-crash song](https://www.youtube.com/watch?v=bh4se9YMV3A) is G major, E minor, C major and D major. Those are the diatonic triads on 8, 6, 4, 5 in G major.
@@ -46,7 +52,7 @@ In many cases, the presets use the key of C minor - which is said to be the most
 
 **Enable**: there are six transposers in Harmony II. They are only active if enabled. If you want to output a three note chord, for example, enable three of them.
 
-**Transpose Degrees**: This is the main control for each transposer. This sets by how many scale degrees each transposer will transpose. So, to transpose by a thirds, set this to +2 (since a third is up two scale degrees from the root).
+**Transpose Degrees**: This is the main control for each transposer. This sets by how many scale degrees each transposer will transpose. So, to transpose by a third, set this to +2 (since a third is up two scale degrees from the root).
 
 **Transpose Octave**: Each transposer will transpose by the number of octaves entered, plus the number of degrees. So, in a diatonic scale, one octave and four degrees will transpose up an  octave and a fifth.
 
@@ -105,6 +111,21 @@ But, when all scales are enabled:
 (text coming soon)
 
 ## Context menu things
+
+**Use only diatonic scales**. Controls whether the Mode CV can select any scale, or just select a diatonic scale.
+
+**Sharps and flats**. Some pitches may be displayed either as a short or a flat. For example A sharp and B flat are the same note. So this setting controls how Harmony II makes a decision. In many cases Harmony II can pick one of these as the default. It almost always does this by picking the choice that will give the least number of accidentals in the key signature and always avoiding "crazy" key signatures. So, for example, it will pick flats for C minor, which contains C, D, E flat, F, G, A flat, and B flat. Spelled with sharps it would be C, D, D#, F, G, G#, A#, C. The problem with the sharp interpretation is that is has both the natural and the sharp for D and G, which would make it very difficult to notate using standard music notion.
+
+For non-diatonic scales, Harmony II may have no default.
+
+* Default+sharp. In this setting harmony II will pick a display mode. If it can't determine a default, it will use sharps.
+
+* Default+flat. In this setting harmony II will pick a display mode. If it can't determine a default, it will use flats.
+
+* Sharps. Harmony II will always use sharps.
+
+* Flats. Harmony II will always use sharps.
+
 
 ## PES format
 

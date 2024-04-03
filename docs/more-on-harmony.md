@@ -4,7 +4,7 @@ Some ramblings on things that are useful when trying to use some Squinktronix mo
 
 ## more info
 
-There is a ton of information on line and in books on this stuff. Even the wikipedia articles are much better and more detailed than what you are reading now.
+There is a ton of information on line and in books on this stuff. Even the Wikipedia articles are much better and more detailed than what you are reading now.
 
 Here are some Wikipedia articles:
 
@@ -61,7 +61,7 @@ Bottom line is that for the pitches themselves it will depend on context whether
 
 ## Modes
 
-As people have remarked, it's very difficult to get your music to sound like it is in a particular mode. After all, you can make all seven modes from the notes of C Major. So what happens if you play random white keys on a keyboard? If anything, it will sound like you are in C Major. Possibly A minor. Why? Well, hard to say exactly, but for one reason or another your ear tends to pull everything into a familiar key. So if you want to make music in a certain diatonic mode that isn't Ionian (major) or Aeolian (minor), it can be difficult. It can often sound like the music is really in the realtive major of the mode you are trying to usel
+As people have remarked, it's very difficult to get your music to sound like it is in a particular mode. After all, you can make all seven modes from the notes of C Major. So what happens if you play random white keys on a keyboard? If anything, it will sound like you are in C Major. Possibly A minor. Why? Well, hard to say exactly, but for one reason or another your ear tends to pull everything into a familiar key. So if you want to make music in a certain diatonic mode that isn't Ionian (major) or Aeolian (minor), it can be difficult. It can often sound like the music is really in the relative major of the mode you are trying to use.
 
 Some common ways to "establish a key/mode" are:
 
@@ -72,7 +72,7 @@ Some common ways to "establish a key/mode" are:
 
 1 - use a pedal tone is an obvious one. I the simplest implementation, just drone the root prominently in the bass register. If you want to establish the key as E Phrygian, drone a low E and use all the white keys.
 
-3 - In this song, [Samba Pa Ti](https://www.youtube.com/watch?v=timZoOs9ozo), by Carlos Santana, the melody is very distinctive, and if you try to play it, or play along with it, it's quite obvious it's in a Mixolydian mode. Mixolydian happens to be one of the more common modes in pop songs. Most ppl think of it as Major with a flat 7th.
+3 - In this song, [Samba Pa Ti](https://www.youtube.com/watch?v=timZoOs9ozo), by Carlos Santana, the melody is very distinctive, and if you try to play it, or play along with it, it's quite obvious it's in a Mixolydian mode. Mixolydian happens to be one of the more common modes in pop songs. Most ppl think of it as Major with a flat 7th. [ note: check if this is true ]
 
 4 - In jazz music, one well known technique to establish a mode is for the piano so smash out parallel fourths. This keeps the piano chords from suggesting a particular "key", and lets the modal notes played by other instruments establish their own scales. This kind of harmony is often called "modal harmony", "quartal harmony", or "non functional harmony". It is a deep topic!
 
@@ -94,7 +94,7 @@ Whole tone. This scale is pretty strange sounding to most people. It is made up 
 
 There are some aspects of harmony in the real world that are quite complex - certainly more complex that the things Squinktronix modules can do. So, let's take a very superficial look at some things that are more complex.
 
-## Notes outside the scale
+### Notes outside the scale
 
 Often a pieces of music may be mainly in a diatonic mode (typically Major or some Minor), but will have some notes that are not actually in that scale. There are all kind of reasons one might do this, including, but not limited to:
 
@@ -106,10 +106,9 @@ Often a pieces of music may be mainly in a diatonic mode (typically Major or som
 
 * Bashing out chords on a guitar one might play a major or minor chord in a place where the scale would suggest the chord "should" be the opposite. Often done "because it sounded better", "it added  some interested", "it was an accident", "that's how I always play".
 
+### Key changes
 
-## Key changes
-
-
+(tbd)
 
 ## Analysis of quantizers
 
@@ -121,7 +120,10 @@ You might think that most quantizers could be tricked into doing what is desired
 
 Let's assume our input is already quantized to a chromatic scale. And lets say say it's the output of the MIDI CV module. So for notes already in the quantizer's scale it will output the note unaltered. For notes not in the scale, it will round them to the nearest note in the scale. If it's a tie the quantizer will probably always round up or always round down.
 
-So, let's set the quantizer up to A minor, and then try to move everything up a third, using transposition and quantizing.
+So, let's set the quantizer up to A minor, and then try to move everything up a third, using transposition and quantizing. Tables below
+
+Results. For a particular scale, say major or minor, you can see it's possible to get the desired effect if the quantizer allows to choose "round up" vs "round down" (like the Grande quantizer). But while Case 3: A minor, transpose up a minor third, round ties upward works
+and (unfinished)
 
 ### Case 1: A minor, transpose up a minor third, round ties downward
 
@@ -159,20 +161,36 @@ So, let's set the quantizer up to A minor, and then try to move everything up a 
 | F: 6 | A (major) | A flat | A :heavy_check_mark: |
 | G: 7 | B (major) | B flat | B :heavy_check_mark: |
 
-### Case 4: A minor, transpose up a major third, round ties upward
+### Case 4: A minor, transpose up a major third, round ties downward
 
-(tbd)
+| Input | desired 3rd up | +3 semitones | quantized |
+| --- | --- | --- | --- |
+| A: 1 | C (minor) | C | C :heavy_check_mark: |
+| B: 2 | D (minor) | D | D :heavy_check_mark: |
+| C: 3 | E (major) | E flat | D ❌  |
+| D: 4 | F (minor) | F | F :heavy_check_mark: |
+| E: 5 | G (minor) | G | G :heavy_check_mark: |
+| F: 6 | A (major) | A flat | G ❌ |
+| G: 7 | B (major) | B flat | A ❌ |
 
 ### Case 5: C major, transpose up a minor third, round ties downward
 
+| Input | desired 3rd up | +3 semitones | quantized |
+| --- | --- | --- | --- |
+| C: 1 | E (major) | E flat | D ❌ |
+| D: 2 | F (minor) | F | F :heavy_check_mark: |
+| E: 3 | G (minor) | G | G :heavy_check_mark: |
+| F: 4 | A (major) | A flat | G ❌ |
+| G: 5 | B (major) | B flat | A ❌ |
+| A: 6 | C (minor) | C | C :heavy_check_mark: |
+| B: 7 | D (minor) | D | D :heavy_check_mark: |
+
+### Case 6: C major, transpose up a minor third, round ties upward
+
 (tbd)
 
-### Case 6: C major
+### Case 6: C major, transpose up a major third, round ties downward
 
 (tbd)
 
-### Case 7: C major
-
-(tbd)
-
-### Case 8: C major
+### Case 6: C major, transpose up a major third, round ties upward
