@@ -24,10 +24,6 @@ public:
      */
     void transposeDegree(int amt, int stepsInScale) {
         scaleDegree += amt;
-        // only seven degrees in a diatonic scale
-        // Actually, this whole algorithm is assuming a seven note scale.
-        // Would need to pass in the scale to make it work with others.
-        assert(stepsInScale == 7);  // we now support more than diatonic!
         const int lastStepInScale = stepsInScale - 1; 
         while (scaleDegree > lastStepInScale) {
             octave++;
