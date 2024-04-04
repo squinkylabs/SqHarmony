@@ -123,7 +123,7 @@ Let's assume our input is already quantized to a chromatic scale. And lets say s
 So, let's set the quantizer up to A minor, and then try to move everything up a third, using transposition and quantizing. Tables below
 
 Results. For a particular scale, say major or minor, you can see it's possible to get the desired effect if the quantizer allows to choose "round up" vs "round down" (like the Grande quantizer). But while Case 3: A minor, transpose up a minor third, round ties upward works
-and (unfinished)
+and Case 6: C major, transpose up a minor third, round ties upward
 
 ### Case 1: A minor, transpose up a minor third, round ties downward
 
@@ -187,7 +187,15 @@ and (unfinished)
 
 ### Case 6: C major, transpose up a minor third, round ties upward
 
-(tbd)
+| Input | desired 3rd up | +3 semitones | quantized |
+| --- | --- | --- | --- |
+| C: 1 | E (major) | E flat | E :heavy_check_mark: |
+| D: 2 | F (minor) | F | F :heavy_check_mark: |
+| E: 3 | G (minor) | G | G :heavy_check_mark: |
+| F: 4 | A (major) | A flat | A :heavy_check_mark: |
+| G: 5 | B (major) | B flat | B :heavy_check_mark: |
+| A: 6 | C (minor) | C | C :heavy_check_mark: |
+| B: 7 | D (minor) | D | D :heavy_check_mark: |
 
 ### Case 6: C major, transpose up a major third, round ties downward
 

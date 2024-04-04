@@ -225,6 +225,7 @@ template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigParams() {
     const int basePitch = int(std::round(TBase::params[KEY_PARAM].value));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
+   // SQINFO("in service keysig params. base=%d mode=%d", basePitch, int(mode));
 
     assert(basePitch < 12);
     _quantizerOptions->scale->set(basePitch, mode);
@@ -313,7 +314,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleInput() {
-    //SQINFO("service ks input");
+  //  SQINFO("service ks input");
     auto &input = TBase::inputs[XSCALE_INPUT];
     if (input.channels < 12) {
         return;
@@ -341,7 +342,10 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
         TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
     } else {
         TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
-        //SQINFO("good scale, %d, %d", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+        // SQINFO("good scale, %d, %d (mode)", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+        // SQINFO("servicing input caused us to update the KEY_PARAM %d and MODE_PARAM %d",
+        //     std::get<1>(scaleConverted).get(),
+        //     int(std::get<2>(scaleConverted)));
         TBase::params[KEY_PARAM].value = std::get<1>(scaleConverted).get();
         TBase::params[MODE_PARAM].value = int(std::get<2>(scaleConverted));
     }
@@ -349,13 +353,19 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleOutput() {
+  //  SQINFO("_serviceScaleOutput");
     auto &output = TBase::outputs[XSCALE_OUTPUT];
     if (output.isConnected()) {
         output.channels = 12;
     }
-    auto scale = _quantizerOptions->scale;
-    std::pair<const MidiNote, Scale::Scales> settings = scale->get();;
-    const Scale::RoleArray roleArray = Scale::convert(settings.first, settings.second);
+  //  auto scale = _quantizerOptions->scale;
+ //   std::pair<const MidiNote, Scale::Scales> settings = scale->get();
+ //   SQINFO("service output getting from options %d %d", settings.first.get(), int(settings.second));
+  //  SQINFO("meanwhile, scale param = %f and mode param = %f", TBase::params[KEY_PARAM].value, TBase::params[MODE_PARAM].value);
+    
+    const auto note = MidiNote::C + int(std::round(TBase::params[KEY_PARAM].value));
+    const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
+    const Scale::RoleArray roleArray = Scale::convert(note, mode);
     for (int i=0; i<12; ++i) {
         float v = 0;
         switch(roleArray.data[i]) {
@@ -395,7 +405,6 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
 
 template <class TBase>
 inline void Harmony2<TBase>::_old_process() {
-
     ScalePtr scale = this->_quantizerOptions->scale;
     const Scale::Scales mode = std::get<1>(scale.get()->get());
     assert(TBase::params[KEY_PARAM].value < 11.5);
@@ -432,7 +441,7 @@ inline void Harmony2<TBase>::_old_process() {
          //   SQINFO("f=%f oct=%d", f.get(), xposeOctaves);
             const float cv = f.get() + float(xposeOctaves);
             TBase::outputs[PITCH_OUTPUT].setVoltage(cv, channel);
-            SQINFO("out(%d) = %f in old_process", channel, cv);
+          //  SQINFO("out(%d) = %f in old_process", channel, cv);
             channel++;
         }
     }
