@@ -669,7 +669,7 @@ static void testConvertDMajor() {
     assert(std::get<2>(x) == Scale::Scales::Major);
 }
 
-Scale::Role* getRolesCMinor() {
+static Scale::Role* getRolesCMinor() {
     static Scale::Role roles[] = {
         Scale::Role::Root,  // C
         Scale::Role::NotInScale,
