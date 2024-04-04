@@ -34,6 +34,7 @@ public:
     static int numScalesTotal() { return lastScale + 1; }
     static int numDiatonicScales() { return 7; }
     static int numScales(bool onlyDiatonic) { return onlyDiatonic ? numDiatonicScales() : numScalesTotal(); }
+    const static int numStepsInDiatonicScale = 7;
 
     static int numNotesInScale(Scales s);
 

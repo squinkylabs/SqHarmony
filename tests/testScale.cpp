@@ -479,7 +479,7 @@ static void testScore3() {
 static void testScaleNumbers() {
     assert(Scale::numScalesTotal() == (1 + int(Scale::lastScale)));
     assertEQ(Scale::numScales(true), Scale::numDiatonicScales());
-     assertEQ(Scale::numScales(false), Scale::numScalesTotal());
+    assertEQ(Scale::numScales(false), Scale::numScalesTotal());
 }
 
 static void testLabels(const std::vector<std::string>& labels) {
@@ -506,8 +506,8 @@ static void testLabels() {
     assertEQ(Scale::getShortScaleLabels(false).size(), Scale::lastScale + 1);
 
     // TODO: these hard coded number are bad!
-    assertEQ(Scale::getShortScaleLabels(true).size(), 7);    // 7 diatonic
-    assertEQ(Scale::getShortScaleLabels(false).size(), Scale::lastScale + 1); 
+    assertEQ(Scale::getShortScaleLabels(true).size(), 7);  // 7 diatonic
+    assertEQ(Scale::getShortScaleLabels(false).size(), Scale::lastScale + 1);
 }
 
 static void testNumNotes() {
@@ -542,7 +542,7 @@ static void testGetNotesInScale() {
             ++len;
         }
         assertGE(len, 5);
-    } 
+    }
 }
 
 static void testConvertEmpty() {
@@ -757,6 +757,21 @@ static void testMultiRoot() {
     assertEQ(std::get<0>(converted), false);
 }
 
+static void testChromatic2() {
+    Scale sc;
+    sc.set(MidiNote::C, Scale::Scales::Chromatic);
+    const int * p = sc._getNormalizedScalePitches();
+    int last = -1;
+    int len = 0;
+    for (int i=0; p[i] >= 0; ++i) {
+        // SQINFO("p[%d] = %d", i, p[i]);
+        assertEQ(p[i], ( last + 1));
+        last = p[i];
+        ++len;
+    }
+    assertEQ(len, 12);
+}
+
 void testScale() {
     testScaleNumbers();
     testLabels();
@@ -766,6 +781,7 @@ void testScale() {
     testAMin();
     testGeneral();
     testChromatic();
+    testChromatic2();
 
     testQuantCMaj();
     testQuantCMin();
@@ -794,24 +810,24 @@ void testScale() {
 
 #if 0
 void testFirst() {
-    testConvertFromDMajor();
+   // testConvertFromDMajor();
     // testSharpsFlatsWierdos();
     // testSharpsFlatsNoAssert();
     // testNumNotes();
     // testConvert();
-  //  testRolesCMajor();
-   //   testConvertCMajor();
-   //testConvertCMinor();
-  //  testRolesDMajor();
-   //   testConvertDMajor();
-   //  testRoundTrip();
- //  testMultiRoot();
- //   Scale scale;
+    //  testRolesCMajor();
+    //   testConvertCMajor();
+    // testConvertCMinor();
+    //  testRolesDMajor();
+    //   testConvertDMajor();
+    //  testRoundTrip();
+    //  testMultiRoot();
+    //   Scale scale;
 
-    //SQINFO("will get roles");
-   // const auto scaleParts = scale.get();
-    testScaleNumbers();
+    // SQINFO("will get roles");
+    // const auto scaleParts = scale.get();
+    //testScaleNumbers();
 
-
+    testChromatic2();
 }
 #endif

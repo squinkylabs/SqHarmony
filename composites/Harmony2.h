@@ -401,6 +401,9 @@ template <class TBase>
 inline void Harmony2<TBase>::_old_process() {
     // assert(TBase::params[KEY_PARAM].value < 11.5);
     // _divn.step();
+
+    ScalePtr scale = this->_quantizerOptions->scale;
+    const Scale::Scales mode = std::get<1>(scale.get()->get());
     assert(TBase::params[KEY_PARAM].value < 11.5);
     const float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);
@@ -421,15 +424,21 @@ inline void Harmony2<TBase>::_old_process() {
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;
 
+            SQINFO("xpose steps = %d", xposeSteps);
+
             TBase::params[XPOSE_TOTAL1_PARAM + bank].value = float(xposeSteps) / 12.f;  // report back what we did.
             const int xposeOctaves = int(TBase::params[XPOSE_OCTAVE1_PARAM + bank].value) - 2;
             ScaleNote noteForBank = scaleNote;
-            noteForBank.transposeDegree(xposeSteps);
+            SQINFO("note for bank deg = %d", noteForBank.getDegree());
+            noteForBank.transposeDegree(xposeSteps, Scale::numNotesInScale(mode));
+            SQINFO("after note=%d",  noteForBank.getDegree());
 
             FloatNote f;
             NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
+            SQINFO("f=%f oct=%d", f.get(), xposeOctaves);
             const float cv = f.get() + float(xposeOctaves);
             TBase::outputs[PITCH_OUTPUT].setVoltage(cv, channel);
+            SQINFO("out(%d) = %f", channel, cv);
             channel++;
         }
     }
@@ -443,6 +452,7 @@ void Harmony2<TBase>::_serviceTranspose() {
     }
 }
 
+// TODO: are we doing this twice??
 template <class TBase>
 void Harmony2<TBase>::_serviceTranspose(int channel, int& outputChannel) {
     const bool enabled = TBase::params[XPOSE_ENABLE1_PARAM + channel].value > 5;
@@ -450,13 +460,15 @@ void Harmony2<TBase>::_serviceTranspose(int channel, int& outputChannel) {
         return;
     }
 
+    ScalePtr scale = this->_quantizerOptions->scale;
+    const Scale::Scales mode = std::get<1>(scale.get()->get());
     float input = TBase::inputs[PITCH_INPUT].getVoltage(0);
     MidiNote quantizedInput = _quantizer->run(input);
 
     const int xposeSteps = int(TBase::params[XPOSE_DEGREE1_PARAM].value);
     ScaleNote scaleNote;
     NoteConvert::m2s(scaleNote, *_quantizerOptions->scale, quantizedInput);
-    scaleNote.transposeDegree(xposeSteps);
+    scaleNote.transposeDegree(xposeSteps,  Scale::numNotesInScale(mode));
     NoteConvert::s2m(quantizedInput, *_quantizerOptions->scale, scaleNote);
 
     FloatNote f;

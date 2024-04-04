@@ -333,7 +333,7 @@ inline void Harmony<TBase>::process(const typename TBase::ProcessArgs& args) {
     if (xposeSteps) {
         ScaleNote scaleNote;
         NoteConvert::m2s(scaleNote, *quantizerOptions->scale, quantizedInput);
-        scaleNote.transposeDegree(xposeSteps);
+        scaleNote.transposeDegree(xposeSteps, 7);
         NoteConvert::s2m(quantizedInput, *quantizerOptions->scale, scaleNote);
     }
 
