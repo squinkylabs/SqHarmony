@@ -68,6 +68,7 @@ extern void testClockShifter6d();
 extern void testBitDelay();
 extern void testHarmony2();
 extern void testHarmony2B();
+extern void testHarmony2C();
 extern void testSharpFlatMonitor();
 extern void testUpdater();
 extern void testShiftMath();
@@ -93,7 +94,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -135,6 +136,8 @@ int main(const char**, int) {
     testScaleQuantizer();
     testHarmony2();
     testHarmony2B();
+    testHarmony2C();
+    
     testHarmonyNote();
 #if 0
     printf("XX: leaving early for clock stuff");

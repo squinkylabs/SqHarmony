@@ -195,6 +195,7 @@
     <ClCompile Include="testGrayCode.cpp" />
     <ClCompile Include="testHarmony2.cpp" />
     <ClCompile Include="testHarmony2B.cpp" />
+    <ClCompile Include="testHarmony2C.cpp" />
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChords2023.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
