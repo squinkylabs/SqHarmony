@@ -210,12 +210,12 @@ static void testModeDetails() {
 
     // All the assertions for diatonic only
     assertEQ(composite->diatonicOnly(), false);
-    assertEQ(composite->numCurrentModes(), 13);
+    assertEQ(composite->numCurrentModes(), Scale::numScalesTotal());
 
     //  all the assertions for all scales, not just diatonic
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .7;
     assertEQ(composite->diatonicOnly(), true);
-    assertEQ(composite->numCurrentModes(), 7);
+    assertEQ(composite->numCurrentModes(), Scale::numDiatonicScales());
 
     // things that don't really care about setting for diatonic
     composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;

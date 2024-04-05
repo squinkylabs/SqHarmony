@@ -15,18 +15,23 @@ public:
     int getOctave() const { return octave; }
     bool isAccidental() const { return accidental != Accidental::none; }
     Accidental getAccidental() const { return accidental; }
-    void transposeDegree(int amt) {
+
+    /**
+     * @brief 
+     * 
+     * @param amt - number of steps to transpose.
+     * @param stepsInScale - number of steps in the scale. diatonic it's 7. 
+     */
+    void transposeDegree(int amt, int stepsInScale) {
         scaleDegree += amt;
-        // only seven degrees in a diatonic scale
-        // Actually, this whole algorithm is assuming a seven note scale.
-        // Would need to pass in the scale to make it work with others.
-        while (scaleDegree > 6) {
+        const int lastStepInScale = stepsInScale - 1; 
+        while (scaleDegree > lastStepInScale) {
             octave++;
-            scaleDegree -= 7;
+            scaleDegree -= stepsInScale;
         }
         while (scaleDegree < 0) {
             octave--;
-            scaleDegree += 7;
+            scaleDegree += stepsInScale;
         }
     }
 

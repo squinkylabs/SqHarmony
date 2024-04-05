@@ -33,20 +33,6 @@ static void testCanCall() {
 
     c.add(Comp::PARAM1);
     c.add(Comp::INPUT1, false);
-
-    // std::vector<CVUpdater<Comp>> v;
-    // v.push_back({ Comp::PARAM1 });
-    // v.push_back({ Comp::PARAM1 });
-    // std::vector<ParamUpdater<Comp>> vpu;
-    // vpu.push_back(4);
-
-    //  std::vector<CVUpdater<Comp>> v2(std::move(v));
-    // CompositeUpdater<Comp> c2(std::move(vpu), std::move(v));
-    // CompositeUpdater<Comp> v3(
-    //     {{2}},
-    //     {{5}});
-    // const bool b = v3.poll();
-    SQINFO("Make better testCanCall");
 }
 
 static void testPollParam() {

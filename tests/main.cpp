@@ -44,10 +44,7 @@ extern void testOneShot();
 extern void testPhasePatterns();
 extern void testPhasePatternsPoly();
 extern void testOneShotSampleTimer();
-extern void testClockShifter5c();
-extern void testClockShifter5d();
-extern void testClockShifter5e();
-extern void testShiftMath();
+
 extern void testSchmidtTrigger();
 extern void testShiftCalc();
 extern void testClockMult();
@@ -60,8 +57,6 @@ extern void testRawChordGenerator();
 extern void testChord4();
 extern void testNumberFormatter();
 extern void testTwister();
-extern void testClockShifter5();
-extern void testClockShifter5b();
 extern void testFirst();
 extern void testNoiseGen();
 extern void testLFNDsp();
@@ -73,8 +68,10 @@ extern void testClockShifter6d();
 extern void testBitDelay();
 extern void testHarmony2();
 extern void testHarmony2B();
+extern void testHarmony2C();
 extern void testSharpFlatMonitor();
 extern void testUpdater();
+extern void testShiftMath();
 
 #include "SqLog.h"
 
@@ -132,11 +129,15 @@ int main(const char**, int) {
     testPhasePatterns();
     testPhasePatternsPoly();
 
+    testNotes();
+    testScaleNotes();
     testScale();
     testScaleRelativeNote();
     testScaleQuantizer();
     testHarmony2();
     testHarmony2B();
+    testHarmony2C();
+    
     testHarmonyNote();
 #if 0
     printf("XX: leaving early for clock stuff");
@@ -164,6 +165,7 @@ int main(const char**, int) {
     testPitchKnowledge();
     testChord4();
     testChord();
+    testChordRelativeNote();
     testHarmonyChords();
     testHarmonyChords2();
     testHarmonyChords2023();

@@ -97,7 +97,7 @@ std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
             "Mixo.",
             "Minor",
             "Locrian",
-            "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T", "Chrom"};
+            "M Penta", "m Penta", "H Minor", "Dimin", "Dm Dim", "Whole T", "Chrom"};
     }
 }
 
@@ -113,8 +113,8 @@ Scale::getScaleLabels(bool justDiatonic) {
             "Aeolean (Minor)",
             "Locrian"};
     else
-        return {"Major", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Minor", "Locrian",
-                "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone", "Chromatic"};
+        return {"Ionian (Major)", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolean (Minor)", "Locrian",
+                "Major Pentatonic", "Minor Pentatonic", "Harmonic Minor", "Diminished", "Dom. Diminished", "Whole Tone", "Chromatic"};
 }
 
 std::vector<std::string> Scale::getRootLabels(bool useFlats) {
@@ -138,8 +138,14 @@ int Scale::quantize(int offset) const {
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    const int qUpOne = _quantizeInScale(offset + 1);
+    int qUpOne = _quantizeInScale(offset + 1);
     const int qDnOne = _quantizeInScale(offset - 1);
+
+    if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
+      //  SQINFO("In bad case. offset == 11");
+        qUpOne = 12;            // special case - we know we can go to octave here.
+                                // seems to only happen with Major Pentatonic
+    }
 
     switch (offset) {
         case 1:
@@ -164,8 +170,10 @@ int Scale::quantize(int offset) const {
             break;
         case 5:
             // if it's a perfect fourth, but we don't have one in this scale
-            // raise to tritone
+            // raise to tritone if we have it
             if (qUpOne >= 0) return qUpOne;
+            // if no fourth and no tritone, low er it
+            if (qDnOne >= 0) return qDnOne;
             break;
         case 6:
             // if triton, try P 5th
@@ -188,10 +196,14 @@ int Scale::quantize(int offset) const {
         case 10:
             // dim 7th -> 7th
             if (qUpOne >= 0) return qUpOne;
+            // If no 7th at all, try the major 6
+            if (qDnOne >= 0) return qDnOne;
             break;
         case 11:
             // M7 -> m7
             if (qDnOne >= 0) return qDnOne;
+            // If no 7th at all, go to octave
+            if (qUpOne >= 0) return qUpOne;
             break;
         default:
             SQWARN("got a strange number in Scale::quantize: %d", offset);
@@ -272,11 +284,14 @@ const int* Scale::_getNormalizedScalePitches() const {
             static const int ret[] = {0, 3, 5, 7, 10, -1};
             return ret;
         } break;
+        case Scales::MajorPentatonic: {
+            static const int ret[] = { 0, 2, 4, 7, 9, -1 };
+            return ret;
+        } break;
         case Scales::HarmonicMinor: {
             static const int ret[] = {0, 2, 3, 5, 7, 8, 11, -1};
             return ret;
         }
-
         break;
         case Scales::Diminished: {
             static const int ret[] = {0, 2, 3, 5, 6, 8, 9, 11, -1};
@@ -457,6 +472,11 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
             otherScale.set(this->_baseNote, Scales::Minor);
             return otherScale.getSharpsFlatsPref();
         }
+        case Scales::MajorPentatonic: {
+            Scale otherScale;
+            otherScale.set(this->_baseNote, Scales::Major);
+            return otherScale.getSharpsFlatsPref();
+        }
         case Scales::Chromatic:
         case Scales::Diminished:
         case Scales::DominantDiminished:
@@ -482,6 +502,7 @@ int Scale::numNotesInScale(Scales scale) {
     int ret = 0;
     switch (scale) {
         case Scales::MinorPentatonic:
+        case Scales::MajorPentatonic:
             ret = 5;
             break;
 

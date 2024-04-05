@@ -27,7 +27,8 @@ public:
         addIO();
     }
     void process(const ProcessArgs& args) override {
-        comp->process(args);
+         comp->process(args);
+
     }
 
     std::shared_ptr<Comp> getComp() const {
@@ -37,8 +38,9 @@ public:
 private:
     void addParams() {
         const int numModes = getComp()->numCurrentModes();
+        const int numDegrees = 12;
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
-            this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numModes - 1, 0, "Transpose Degrees");
+            this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numDegrees - 1, 0, "Transpose Degrees");
             this->configParam(Comp::XPOSE_OCTAVE1_PARAM + i, 0, 5, 2, "Transpose Octaves", "", 0.f, 1.f, -2.f);
             this->configParam(Comp::XPOSE_ENABLE1_PARAM + i, 0, 10, 0, "hidden");
             this->configParam(Comp::XPOSE_TOTAL1_PARAM + i, 0, 10, 0, "hidden");
@@ -129,7 +131,6 @@ private:
     }
 
     void _setSharpFlat(int index) {
-        // SQINFO("set sharps flats to %d", index);
         APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
     }
 
@@ -174,9 +175,9 @@ private:
     }
 
     void addLeds() {
-        const float y = 264;
+        const float y = 258;
         addChild(createLight<MediumLight<RedLight>>(
-            Vec(18 + x0 + 3 * dx, y),
+            Vec(23 + x0 + 3 * dx, y),
             module,
             Comp::XSCALE_INVALID_LIGHT));
     }
@@ -203,7 +204,6 @@ private:
         const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
         p->setShortLabels(Scale::getShortScaleLabels(diatonicOnly));
         p->setLabels(Scale::getScaleLabels(diatonicOnly));
-
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
         p->text = "Maj";
@@ -235,7 +235,7 @@ private:
             module,
             Comp::XPOSE_OCTAVE1_PARAM + index);
         p->setLabels(Comp::getTransposeOctaveLabels());
-        p->box.size.x = 40;  // width
+        p->box.size.x = 38;  // width
         p->box.size.y = 22;
         addParam(p);
         if (!haveModule) {
@@ -247,7 +247,7 @@ private:
             module,
             Comp::XPOSE_DEGREE1_PARAM + index);
         p->setLabels(Comp::getTransposeDegreeLabels());
-        p->box.size.x = 40;  // width
+        p->box.size.x = 44;  // width
         p->box.size.y = 22;
         if (!haveModule) {
             p->text = "0";

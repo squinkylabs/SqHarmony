@@ -43,20 +43,20 @@ public:
 
         const bool compositeTieBreakerIsSharps = compositePref == 0 || compositePref == 2;
 
-        // if we are cool with defaults, and ksig has a default, and we are set to it, leave
+        // If we are cool with defaults, and ksig has a default, and we are set to it, leave
         // we don't really need this case...
         if (defaultIsOkWithComposite && (scaleSharpFlatPref != Scale::SharpsFlatsPref::DontCare) &&
             (scalePrefersSharps == isSharps)) {
             return;
         }
-        // if we are cool with defaults, and ksig has a default, and we are NOT set to it, set to it
+        // If we are cool with defaults, and ksig has a default, and we are NOT set to it, set to it.
         if (defaultIsOkWithComposite && (scaleSharpFlatPref != Scale::SharpsFlatsPref::DontCare) &&
             (scalePrefersSharps != isSharps)) {
             // then set to default, and return.
             _keyRootWidget->setLabels(Scale::getRootLabels(!scalePrefersSharps));
             return;
         }
-        // if it's a don't care scale, but we aren't set to pref then set to user pref
+        // If it's a don't care scale, but we aren't set to pref then set to user pref.
         if (defaultIsOkWithComposite && (scaleSharpFlatPref == Scale::SharpsFlatsPref::DontCare) &&
             (compositeTieBreakerIsSharps != isSharps)) {
             _keyRootWidget->setLabels(Scale::getRootLabels(!compositeTieBreakerIsSharps));
