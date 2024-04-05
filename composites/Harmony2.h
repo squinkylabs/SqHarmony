@@ -316,7 +316,12 @@ template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleInput() {
   //  SQINFO("service ks input");
     auto &input = TBase::inputs[XSCALE_INPUT];
+    if (input.channels < 1) {
+        return;     // unconnected
+    }
     if (input.channels < 12) {
+        // wrong number of channels - error
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
         return;
     }
     Scale::Role roles[13];
