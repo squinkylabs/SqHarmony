@@ -93,15 +93,39 @@ static void testPESInput() {
     assertEQ(int(std::round(comp->params[Comp::MODE_PARAM].value)), int(Scale::Scales::Minor));
 }
 
+static void testRoundTrip() {
+    Scale scale;
+    scale.set(MidiNote::C, Scale::Scales::Minor);
+    auto compSetter = makeComp(scale);
+    auto& setterOutput = compSetter->outputs[Comp::XSCALE_OUTPUT];
+
+    scale.set(MidiNote::D, Scale::Scales::Dorian);
+    auto compGetter = makeComp(scale);
+    auto& getterInput = compGetter->inputs[Comp::XSCALE_INPUT];
+    getterInput.channels = 12;
+
+    processOnce(*compSetter);
+    for (int i = 0; i < 12; ++i) {
+        float f = setterOutput.getVoltage(i);
+        getterInput.setVoltage(f, i);
+    }
+    processOnce(*compGetter);
+
+    assertLT(compGetter->lights[Comp::XSCALE_INVALID_LIGHT].value, 5);  // No error.
+    assertEQ(int(compGetter->params[Comp::KEY_PARAM].value), MidiNote::C);
+    assertEQ(int(std::round(compGetter->params[Comp::MODE_PARAM].value)), int(Scale::Scales::Minor));
+}
+
 void testHarmony2C() {
     testPESOutput();
     testPESInput();
+    testRoundTrip();
 }
 
-#if 1
+#if 0
 void testFirst() {
     SQINFO("Test First");
     // testPESOutput();
-    testPESInput();
+    testRoundTrip();
 }
 #endif
