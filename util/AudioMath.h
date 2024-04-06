@@ -1,50 +1,44 @@
 #pragma once
 
 #include <assert.h>
+
+#include <algorithm>
 #include <cmath>
 #include <functional>
-#include <algorithm>
 
-class AudioMath
-{
+class AudioMath {
 public:
-    AudioMath() = delete;       // we are only static
+    AudioMath() = delete;  // we are only static
     static const double Pi;
-    static const double Pi_2;       // Pi / 2
+    static const double Pi_2;  // Pi / 2
     static const double _2Pi;
     static const double Ln2;
     static const double Ln10;
     static const double E;
 
-    static bool closeTo(double x, double y, double tolerance)
-    {
+    static bool closeTo(double x, double y, double tolerance) {
         // const double dd = std::abs(x - y);
         const bool ret = std::abs(x - y) < tolerance;
         return ret;
     }
 
-    static double db(double g)
-    {
+    static double db(double g) {
         return 20 * log(g) / Ln10;
     }
 
-    static double cents(double f1, double f2)
-    {
+    static double cents(double f1, double f2) {
         return 1200 * std::log2(f1 / f2);
     }
 
-    static double acents(double f1, double f2)
-    {
+    static double acents(double f1, double f2) {
         return std::abs(cents(f1, f2));
     }
 
-    static double gainFromDb(double db)
-    {
+    static double gainFromDb(double db) {
         return std::exp(Ln10 * db / 20.0);
     }
 
-    static float quadraticBipolar(float x)
-    {
+    static float quadraticBipolar(float x) {
         float x2 = x * x;
         return (x >= 0.f) ? x2 : -x2;
     }
@@ -102,12 +96,11 @@ public:
      * and CV range is -5..5.
      *
      *
-     * Can easily be used to add, clip and scale just a knob an a CV by 
+     * Can easily be used to add, clip and scale just a knob an a CV by
      * passing 1 for the trim param.
      */
     template <typename T>
-    static ScaleFun<T> makeLinearScaler(T y0, T y1)
-    {
+    static ScaleFun<T> makeLinearScaler(T y0, T y1) {
         const T x0 = -5;
         const T x1 = 5;
         const T a = (y1 - y0) / (x1 - x0);
@@ -126,8 +119,7 @@ public:
      * trim -1..1
      */
     template <typename T>
-    static ScaleFun<T> makeLinearScaler2(T knobx0, T knobx1, T y0, T y1)
-    {
+    static ScaleFun<T> makeLinearScaler2(T knobx0, T knobx1, T y0, T y1) {
         assert(knobx1 > knobx0);
         assert(y1 > y0);
 
@@ -143,7 +135,7 @@ public:
         const T av = T(avd);
 
         return [ak, av, b, y1, y0](T cv, T knob, T trim) {
-            T ret =  ak * knob + av * cv * trim + b;
+            T ret = ak * knob + av * cv * trim + b;
             ret = std::max<T>(ret, y0);
             ret = std::min<T>(ret, y1);
             return ret;
@@ -165,12 +157,12 @@ public:
     static ScaleFun<float> makeScalerWithBipolarAudioTrim(float y0, float y1);
 
     /**
-    * SimpleScaleFun is a function the combines CV, and knob, into a voltage.
-    * Usually in a synth module that has knob and cv, but no trim.
-    *
-    * cv and knob are -5 to +5. They are summed, and the sum is limited to 5, -5.
-    * Then the sum gets an audio taper
-    */
+     * SimpleScaleFun is a function the combines CV, and knob, into a voltage.
+     * Usually in a synth module that has knob and cv, but no trim.
+     *
+     * cv and knob are -5 to +5. They are summed, and the sum is limited to 5, -5.
+     * Then the sum gets an audio taper
+     */
     template <typename T>
     using SimpleScaleFun = std::function<T(T cv, T knob)>;
 
@@ -181,8 +173,7 @@ public:
     static SimpleScaleFun<float> makeSimpleScalerAudioTaper(float y0, float y1);
 
     template <typename T>
-    static std::pair<T, T> getMinMax(const T* data, int numSamples)
-    {
+    static std::pair<T, T> getMinMax(const T* data, int numSamples) {
         T min = 1, max = -1;
         for (int i = 0; i < numSamples; ++i) {
             const T x = data[i];
@@ -203,8 +194,7 @@ public:
     /**
      * Folds numbers between +1 and -1
      */
-    static inline float fold(float x)
-    {
+    static inline float fold(float x) {
         float fold;
         const float bias = (x < 0) ? -1.f : 1.f;
         int phase = int((x + bias) / 2.f);
@@ -222,8 +212,7 @@ public:
      * Output all elements are scaled by the same amount, product of all elements is 1
      */
     template <typename T>
-    static inline void normalizeProduct(T* data, int n)
-    {
+    static inline void normalizeProduct(T* data, int n) {
         // get the product of all the input
         T prod = 1;
         for (int i = 0; i < n; ++i) {
@@ -241,17 +230,50 @@ public:
      * fills data with a list of numbers that are:
      *      exponentially spaced
      *      product is 1
-     *      ratio = data[n] / data[n-1]   
+     *      ratio = data[n] / data[n-1]
      */
     template <typename T>
-    static inline void distributeEvenly(T* data, int n, T ratio)
-    {
+    static inline void distributeEvenly(T* data, int n, T ratio) {
         T x = 1;
-        for (int i = 0; i < n; ++i)
-        {
+        for (int i = 0; i < n; ++i) {
             data[i] = x;
             x *= ratio;
         }
         normalizeProduct(data, n);
+    }
+
+    /**
+     * returns function at converts a float to an int in the range
+     * 0..quantizeRangeTop-1
+     * will scale the float by multiplying by multipler/
+     *
+     */
+    template <typename T>
+    static std::function<int(T)> makeFunc_QuantizeAndWrap(int quantizeRangeTop, int multiplier = 0) {
+        if (multiplier <= 0) {
+            return [quantizeRangeTop](float x) {
+                const int a = int(std::round(x * quantizeRangeTop));
+                return modBipolarAndLimit(a, quantizeRangeTop);
+                };
+        } else {
+            assert(false);
+            return [](float x) {
+                return 0;
+                };
+        }
+    }
+
+    static int modBipolarAndLimit(int x, int y) {
+        assert(y >= 0);
+        if (x >= 0) {
+            return x % y;
+        } else {
+            int a =  -((-x) % y);
+            if (a < 0) {
+                a += y;
+            }
+            assert(a >= 0);
+            return a;
+        }
     }
 };

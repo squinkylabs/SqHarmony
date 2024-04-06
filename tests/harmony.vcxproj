@@ -124,6 +124,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/dsp;../util/quant;../notes;.;../../../dep/include;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +143,7 @@
       <AdditionalIncludeDirectories>../util/container;../composites;../util;../util/gray_code;../util/dsp;../util/quant;../notes;.;../../../dep/include;../../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -178,6 +180,7 @@
     <ClCompile Include="testArpegComposite.cpp" />
     <ClCompile Include="testArpegPlayer.cpp" />
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
+    <ClCompile Include="testAudioMath.cpp" />
     <ClCompile Include="testBitDelay.cpp" />
     <ClCompile Include="testButter.cpp" />
     <ClCompile Include="testChord4.cpp" />
