@@ -23,12 +23,19 @@ private:
     mutable float _lastTime = -1000;
 };
 
+enum class PolyMono {
+    Poly,
+    Mono
+};
+
 template <typename T>
 class CVInUpdater {
 public:
-    CVInUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : _inputID(inputID),
-                                                                    _inputIsMonophonic(inputIsMonophonic) {}
+  
+    CVInUpdater(enum T::InputIds inputID, PolyMono polyMono) : _inputID(inputID),
+                                                                    _inputIsMonophonic(polyMono == PolyMono::Mono) {}
     CVInUpdater() = delete;
+   
 
     bool poll(const T* composite) const {
         auto input = composite->inputs[_inputID];
@@ -91,24 +98,22 @@ public:
     CompositeUpdater(const CompositeUpdater&) = delete;
     bool poll() const;
 
-    void add(enum T::ParamIds param) {
+    void add(enum T::ParamIds param, bool everyPoll = true) {
         assert(_composite);
-        _paramUpdaters.push_back({param});
+        auto &list = everyPoll ? _paramUpdaters : _paramUpdatersInfrequent;
+        list.push_back({param});
     }
 
-    void addInfrequentParam(enum T::ParamIds param) {
+    void add(enum T::InputIds input, PolyMono monoPoly, bool everyPoll) {
         assert(_composite);
-        _paramUpdatersInfrequent.push_back({param});
+        auto& list = everyPoll ? _cvInUpdaters : _cvInUpdatersInfrequent;
+        list.push_back({input, monoPoly});
     }
 
-    void add(enum T::InputIds input, bool isMonophonic) {
+    void add(enum T::OutputIds output, bool everyPoll) {
         assert(_composite);
-        _cvInUpdaters.push_back({input, isMonophonic});
-    }
-
-    void add(enum T::OutputIds output) {
-        assert(_composite);
-        _cvOutUpdaters.push_back({output});
+        auto& list = everyPoll ? _cvOutUpdaters : _cvOutUpdatersInfrequent;
+        list.push_back({output});
     }
 
     void set(T* composite, int infrequentMult) {
@@ -122,7 +127,9 @@ private:
     std::vector<ParamUpdater<T>> _paramUpdaters;
     std::vector<ParamUpdater<T>> _paramUpdatersInfrequent;
     std::vector<CVInUpdater<T>> _cvInUpdaters;
+    std::vector<CVInUpdater<T>> _cvInUpdatersInfrequent;
     std::vector<CVOutUpdater<T>> _cvOutUpdaters;
+    std::vector<CVOutUpdater<T>> _cvOutUpdatersInfrequent;
     const T* _composite = nullptr;
     int _subdivision = 1;
     bool _firstTime = true;
@@ -149,6 +156,13 @@ inline bool CompositeUpdater<T>::pollInFrequent() const {
     bool changed = false;
     for (int i = 0; i < int(_paramUpdatersInfrequent.size()); ++i) {
         changed |= _paramUpdatersInfrequent[i].poll(_composite);
+    }
+    for (int i = 0; i < int(_cvInUpdatersInfrequent.size()); ++i) {
+        changed |= _cvInUpdatersInfrequent[i].poll(_composite);
+    }
+
+    for (int i = 0; i < int(_cvOutUpdatersInfrequent.size()); ++i) {
+        changed |= _cvOutUpdatersInfrequent[i].poll(_composite);
     }
 
     return changed;

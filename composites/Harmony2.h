@@ -29,6 +29,10 @@ using Module = ::rack::engine::Module;
 // don't poll the 6 guys:  2.4%
 // and poly xpose 2.0
 // no PES, 2.0
+// back together, infrequent on 6: 2.4
+// made other things infrequent, not something jumped. but is't now 2.7
+// LFO 2hz -> Key CV 14%
+// same at .2/ at .02 -> 4%
 template <class TBase>
 class Harmony2 : public TBase {
 public:
@@ -194,9 +198,9 @@ inline void Harmony2<TBase>::_init() {
     _keyOutUpdater.set(this, getSubSampleFactor());
 
     for (int i = 0; i < 6; ++i) {
-        _updater.add(ParamIds(XPOSE_DEGREE1_PARAM + i));
-        _updater.add(ParamIds(XPOSE_OCTAVE1_PARAM + i));
-        _updater.add(ParamIds(XPOSE_ENABLEREQ1_PARAM + i));
+        _updater.add(ParamIds(XPOSE_DEGREE1_PARAM + i), false);
+        _updater.add(ParamIds(XPOSE_OCTAVE1_PARAM + i), false);
+        _updater.add(ParamIds(XPOSE_ENABLEREQ1_PARAM + i), false);
     }
 
     _updater.add(KEY_PARAM);
@@ -204,18 +208,18 @@ inline void Harmony2<TBase>::_init() {
     _updater.add(SHARPS_FLATS_PARAM);
     _updater.add(ONLY_USE_DIATONIC_PARAM);
 
-    _updater.add(XPOSE_INPUT, false);
-    _updater.add(KEY_INPUT, true);
-    _updater.add(MODE_INPUT, true);
-    _updater.add(PITCH_INPUT, true);
+    _updater.add(XPOSE_INPUT, PolyMono::Poly, true);
+    _updater.add(KEY_INPUT, PolyMono::Mono, true);
+    _updater.add(MODE_INPUT, PolyMono::Mono, true);
+    _updater.add(PITCH_INPUT, PolyMono::Mono, true);
 
     // Need to update scale out when either of these params change.
-    _keyOutUpdater.add(KEY_PARAM);
-    _keyOutUpdater.add(MODE_PARAM);
-    _keyOutUpdater.add(XSCALE_OUTPUT);       // monitor the output in case we are patched
+    _keyOutUpdater.add(KEY_PARAM, false);
+    _keyOutUpdater.add(MODE_PARAM, false);
+    _keyOutUpdater.add(XSCALE_OUTPUT, false);       // monitor the output in case we are patched
 
     // Need to respond to scale input changes.
-    _keyInUpdater.add(XSCALE_INPUT, false);
+    _keyInUpdater.add(XSCALE_INPUT, PolyMono::Mono, false);
 }
 
 template <class TBase>

@@ -28,11 +28,11 @@ using Comp = MyComposite<TestComposite>;
 static void testCanCall() {
     Comp composite;
     CompositeUpdater<Comp> c(&composite);
-    CVInUpdater<Comp> cv(Comp::INPUT1, true);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono);
     ParamUpdater<Comp> param(Comp::PARAM1);
 
     c.add(Comp::PARAM1);
-    c.add(Comp::INPUT1, false);
+    c.add(Comp::INPUT1, PolyMono::Poly, true);
 }
 
 static void testPollParam() {
@@ -63,8 +63,8 @@ static void testPollParam() {
 
 static void testPollCVInChannels() {
     Comp composite;
-    CVInUpdater<Comp> cv(Comp::INPUT1, true);
-    CVInUpdater<Comp> cv2(Comp::INPUT2, false);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono);
+    CVInUpdater<Comp> cv2(Comp::INPUT2, PolyMono::Poly);
 
     bool b = cv.poll(&composite);
     assertEQ(b, true);
@@ -121,7 +121,7 @@ static void testPollCVOutChannels() {
 
 static void testPollCVInValues() {
     Comp composite;
-    CVInUpdater<Comp> cv(Comp::INPUT1, false);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Poly);
 
     auto& in1 = composite.inputs[Comp::INPUT1];
     in1.channels = 3;      // make it polyphonic
@@ -180,13 +180,11 @@ static void testPollCompositeUpdater_oneParam() {
 }
 
 static void testPollCompositeUpdater_oneCVMono() {
-    //  assert(false);
-    SQINFO("----t testPollCompositeUpdater");
     Comp composite;
     CompositeUpdater<Comp> up;
     up.set(&composite, 100);
     composite.inputs[Comp::INPUT1].channels = 1;
-    up.add(Comp::INPUT1, true);
+    up.add(Comp::INPUT1, PolyMono::Mono, true);
 
     bool b = up.poll();
     assertEQ(b, true);
@@ -207,7 +205,7 @@ static void testPollCompositeUpdater_InfrequentParam1() {
     CompositeUpdater<Comp> up;
     up.set(&composite,4);
    
-   up.addInfrequentParam(Comp::PARAM1);
+   up.add(Comp::PARAM1, false);
 
 
     bool b  = up.poll();
@@ -223,7 +221,7 @@ static void testPollCompositeUpdater_InfrequentParam2() {
     CompositeUpdater<Comp> up;
     up.set(&composite,4);
    
-    up.addInfrequentParam(Comp::PARAM1);
+    up.add(Comp::PARAM1, false);
     auto &param = composite.params[Comp::PARAM1];
 
 
