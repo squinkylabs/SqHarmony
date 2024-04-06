@@ -27,7 +27,7 @@ template <typename T>
 class CVInUpdater {
 public:
     CVInUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : _inputID(inputID),
-                                                                  _inputIsMonophonic(inputIsMonophonic) {}
+                                                                    _inputIsMonophonic(inputIsMonophonic) {}
     CVInUpdater() = delete;
 
     bool poll(const T* composite) const {
@@ -96,6 +96,11 @@ public:
         _paramUpdaters.push_back({param});
     }
 
+    void addInfrequentParam(enum T::ParamIds param) {
+        assert(_composite);
+        _paramUpdatersInfrequent.push_back({param});
+    }
+
     void add(enum T::InputIds input, bool isMonophonic) {
         assert(_composite);
         _cvInUpdaters.push_back({input, isMonophonic});
@@ -106,21 +111,51 @@ public:
         _cvOutUpdaters.push_back({output});
     }
 
-    void set(T* composite) {
+    void set(T* composite, int infrequentMult) {
         assert(!_composite);
         assert(composite);
         _composite = composite;
+        _subdivision = infrequentMult;
     }
 
 private:
     std::vector<ParamUpdater<T>> _paramUpdaters;
+    std::vector<ParamUpdater<T>> _paramUpdatersInfrequent;
     std::vector<CVInUpdater<T>> _cvInUpdaters;
     std::vector<CVOutUpdater<T>> _cvOutUpdaters;
     const T* _composite = nullptr;
+    int _subdivision = 1;
+    bool _firstTime = true;
+    mutable int _counter = 0;
+
+    bool pollFrequent() const;
+    bool pollInFrequent() const;
 };
 
 template <typename T>
 inline bool CompositeUpdater<T>::poll() const {
+    bool changed = pollFrequent();
+    if (_counter <= 0) {
+        changed |= pollInFrequent();
+        _counter = _subdivision;
+    }
+    --_counter;
+    return changed;
+}
+
+template <typename T>
+inline bool CompositeUpdater<T>::pollInFrequent() const {
+    assert(_composite);
+    bool changed = false;
+    for (int i = 0; i < int(_paramUpdatersInfrequent.size()); ++i) {
+        changed |= _paramUpdatersInfrequent[i].poll(_composite);
+    }
+
+    return changed;
+}
+
+template <typename T>
+inline bool CompositeUpdater<T>::pollFrequent() const {
     assert(_composite);
     bool changed = false;
     for (int i = 0; i < int(_paramUpdaters.size()); ++i) {

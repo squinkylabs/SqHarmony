@@ -23,6 +23,12 @@ struct Module;
 }  // namespace rack
 using Module = ::rack::engine::Module;
 
+
+// test perf sr =796
+// H2: 3.4%, VCO1, 5.2
+// don't poll the 6 guys:  2.4%
+// and poly xpose 2.0
+// no PES, 2.0
 template <class TBase>
 class Harmony2 : public TBase {
 public:
@@ -183,9 +189,9 @@ inline void Harmony2<TBase>::_init() {
     _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
 
-    _updater.set(this);
-    _keyInUpdater.set(this);
-    _keyOutUpdater.set(this);
+    _updater.set(this, getSubSampleFactor());
+    _keyInUpdater.set(this, getSubSampleFactor());
+    _keyOutUpdater.set(this, getSubSampleFactor());
 
     for (int i = 0; i < 6; ++i) {
         _updater.add(ParamIds(XPOSE_DEGREE1_PARAM + i));

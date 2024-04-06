@@ -168,7 +168,7 @@ static void testPollCVOutValues() {
 static void testPollCompositeUpdater_oneParam() {
     Comp composite;
     CompositeUpdater<Comp> up;
-    up.set(&composite);
+    up.set(&composite,100);
     up.add(Comp::PARAM1);
 
     bool b  = up.poll();
@@ -184,7 +184,7 @@ static void testPollCompositeUpdater_oneCVMono() {
     SQINFO("----t testPollCompositeUpdater");
     Comp composite;
     CompositeUpdater<Comp> up;
-    up.set(&composite);
+    up.set(&composite, 100);
     composite.inputs[Comp::INPUT1].channels = 1;
     up.add(Comp::INPUT1, true);
 
@@ -200,6 +200,48 @@ static void testPollCompositeUpdater_oneCVMono() {
     assertEQ(b, true);
     b = up.poll();
     assertEQ(b, false);
+}
+
+static void testPollCompositeUpdater_InfrequentParam1() {
+    Comp composite;
+    CompositeUpdater<Comp> up;
+    up.set(&composite,4);
+   
+   up.addInfrequentParam(Comp::PARAM1);
+
+
+    bool b  = up.poll();
+    assertEQ(b, true);
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+}
+
+static void testPollCompositeUpdater_InfrequentParam2() {
+    Comp composite;
+    CompositeUpdater<Comp> up;
+    up.set(&composite,4);
+   
+    up.addInfrequentParam(Comp::PARAM1);
+    auto &param = composite.params[Comp::PARAM1];
+
+
+    // always see a change the first time
+    bool b  = up.poll();
+    assertEQ(b, true);
+
+    // even with a change don't see change frequently
+    param.value = 123;
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+
+     b = up.poll();
+    assertEQ(b, true);
 
 }
 
@@ -212,13 +254,12 @@ void testUpdater() {
     testPollCVOutValues();
     testPollCompositeUpdater_oneParam();
     testPollCompositeUpdater_oneCVMono();
+    testPollCompositeUpdater_InfrequentParam1();
+    testPollCompositeUpdater_InfrequentParam2();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    // i == 0, j== -2
-    // testModeCV(-14, 0, true);
-   // testUpdater();
-     testPollCVOutValues();
+    testPollCompositeUpdater_InfrequentParam2();
 }
 #endif
