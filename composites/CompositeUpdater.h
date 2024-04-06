@@ -24,11 +24,11 @@ private:
 };
 
 template <typename T>
-class CVUpdater {
+class CVInUpdater {
 public:
-    CVUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : _inputID(inputID),
+    CVInUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : _inputID(inputID),
                                                                   _inputIsMonophonic(inputIsMonophonic) {}
-    CVUpdater() = delete;
+    CVInUpdater() = delete;
 
     bool poll(const T* composite) const {
         auto input = composite->inputs[_inputID];
@@ -114,7 +114,7 @@ public:
 
 private:
     std::vector<ParamUpdater<T>> _paramUpdaters;
-    std::vector<CVUpdater<T>> _cvInUpdaters;
+    std::vector<CVInUpdater<T>> _cvInUpdaters;
     std::vector<CVOutUpdater<T>> _cvOutUpdaters;
     const T* _composite = nullptr;
 };

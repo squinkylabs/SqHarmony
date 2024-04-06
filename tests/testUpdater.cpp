@@ -28,7 +28,7 @@ using Comp = MyComposite<TestComposite>;
 static void testCanCall() {
     Comp composite;
     CompositeUpdater<Comp> c(&composite);
-    CVUpdater<Comp> cv(Comp::INPUT1, true);
+    CVInUpdater<Comp> cv(Comp::INPUT1, true);
     ParamUpdater<Comp> param(Comp::PARAM1);
 
     c.add(Comp::PARAM1);
@@ -61,10 +61,10 @@ static void testPollParam() {
     assertEQ(b, false);
 }
 
-static void testPollCVChannels() {
+static void testPollCVInChannels() {
     Comp composite;
-    CVUpdater<Comp> cv(Comp::INPUT1, true);
-    CVUpdater<Comp> cv2(Comp::INPUT2, false);
+    CVInUpdater<Comp> cv(Comp::INPUT1, true);
+    CVInUpdater<Comp> cv2(Comp::INPUT2, false);
 
     bool b = cv.poll(&composite);
     assertEQ(b, true);
@@ -90,9 +90,38 @@ static void testPollCVChannels() {
     assertEQ(b, false);
 }
 
-static void testPollCVValues() {
+static void testPollCVOutChannels() {
     Comp composite;
-    CVUpdater<Comp> cv(Comp::INPUT1, false);
+    CVOutUpdater<Comp> cv(Comp::OUTPUT1);
+    CVOutUpdater<Comp> cv2(Comp::OUTPUT2);
+
+    bool b = cv.poll(&composite);
+    assertEQ(b, true);
+    b = cv2.poll(&composite);
+    assertEQ(b, true);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+    b = cv2.poll(&composite);
+    assertEQ(b, false);
+
+    auto& out1 = composite.outputs[Comp::OUTPUT1];
+    auto& out2 = composite.outputs[Comp::OUTPUT2];
+
+    out2.channels = 5;
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+    b = cv2.poll(&composite);
+    assertEQ(b, true);  // channels changed
+    b = cv2.poll(&composite);
+    assertEQ(b, false);
+    b = cv2.poll(&composite);
+    assertEQ(b, false);
+}
+
+static void testPollCVInValues() {
+    Comp composite;
+    CVInUpdater<Comp> cv(Comp::INPUT1, false);
 
     auto& in1 = composite.inputs[Comp::INPUT1];
     in1.channels = 3;      // make it polyphonic
@@ -111,9 +140,31 @@ static void testPollCVValues() {
     assertEQ(b, false);
 
     SQINFO("!! MORE TESTS FOR MONO/POLY");
-  //  assert(false);
+
 }
 
+static void testPollCVOutValues() {
+    Comp composite;
+    CVOutUpdater<Comp> cv(Comp::OUTPUT1);
+
+    auto& out1 = composite.outputs[Comp::OUTPUT1];
+    out1.channels = 3;      // make it polyphonic
+
+    // initial start up poll
+    bool b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+    out1.setVoltage(3);
+    b = cv.poll(&composite);            // output poll doesn't look at values
+    assertEQ(b, false);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+
+}
 static void testPollCompositeUpdater_oneParam() {
     Comp composite;
     CompositeUpdater<Comp> up;
@@ -155,16 +206,19 @@ static void testPollCompositeUpdater_oneCVMono() {
 void testUpdater() {
     testCanCall();
     testPollParam();
-    testPollCVChannels();
-    testPollCVValues();
+    testPollCVInChannels();
+    testPollCVInValues();
+    testPollCVOutChannels();
+    testPollCVOutValues();
     testPollCompositeUpdater_oneParam();
     testPollCompositeUpdater_oneCVMono();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // i == 0, j== -2
     // testModeCV(-14, 0, true);
-    testUpdater();
+   // testUpdater();
+     testPollCVOutValues();
 }
 #endif
