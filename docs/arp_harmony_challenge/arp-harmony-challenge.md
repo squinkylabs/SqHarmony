@@ -23,6 +23,6 @@ Link to a [soundcloud recording](https://soundcloud.com/cyberpunken/squinktronix
 
 [Patchstorage link](https://patchstorage.com/arpharmony-march-2024/)
 
-![YouTube link](https://www.youtube.com/watch?v=u2y3KtcCMfU)
+[![YouTube link](https://img.youtube.com/vi/u2y3KtcCMfU/0.jpg)](https://www.youtube.com/watch?v=u2y3KtcCMfU)
 
 [VCV patch file](./Finnish%20Ruisleipä.vcv)
