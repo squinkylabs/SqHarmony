@@ -4,3 +4,13 @@ On 3/3/2024 VCV user Alphagem-O launched a challenge for users to create patches
 
 The submissions were all quite interesting, so I and copying links here. I will attempt to present all the submissions in the order they were submitted.
 
+Note that I have reduced the resolution of some images. The full res versions can be found in the original post.
+
+# k-chaffin
+
+Submitted screen shot:
+![screen shot](./k-chaffin.jpeg)
+
+Link to a [soundcloud recording](https://soundcloud.com/cyberpunken/squinktronix-arpharmony-challenge-blues)
+
+[VCV pach file](./Squinktronix%20ArpHarmony%20Challenge%20Blues.vcv)
