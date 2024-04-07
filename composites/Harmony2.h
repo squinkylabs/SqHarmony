@@ -208,6 +208,7 @@ inline void Harmony2<TBase>::_init() {
     _updater.add(SHARPS_FLATS_PARAM);
     _updater.add(ONLY_USE_DIATONIC_PARAM);
 
+    // for debugging, turn these 4 off
     _updater.add(XPOSE_INPUT, PolyMono::Poly, true);
     _updater.add(KEY_INPUT, PolyMono::Mono, true);
     _updater.add(MODE_INPUT, PolyMono::Mono, true);
@@ -219,7 +220,8 @@ inline void Harmony2<TBase>::_init() {
     _keyOutUpdater.add(XSCALE_OUTPUT, false);       // monitor the output in case we are patched
 
     // Need to respond to scale input changes.
-    _keyInUpdater.add(XSCALE_INPUT, PolyMono::Mono, false);
+    // SQINFO("in h2, trying to add scale as infrequent");
+    _keyInUpdater.add(XSCALE_INPUT, PolyMono::Poly, false);
 }
 
 template <class TBase>
@@ -324,7 +326,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleInput() {
-  //  SQINFO("service ks input");
+    //SQINFO("service ks input");
     auto &input = TBase::inputs[XSCALE_INPUT];
     if (input.channels < 1) {
         return;     // unconnected
@@ -368,7 +370,7 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleOutput() {
-  //  SQINFO("_serviceScaleOutput");
+    // SQINFO("_serviceScaleOutput");
     auto &output = TBase::outputs[XSCALE_OUTPUT];
     if (output.isConnected()) {
         output.channels = 12;

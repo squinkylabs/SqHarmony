@@ -86,7 +86,8 @@ The next group are the parallel intervals. There are just two notes - the note y
 
 **XP** transpose amount. It is polyphonic, does not follow the VCV pitch standard. It also one "step" per 1/12 volt, but a scale step is not the same as a semitone.
 
-**KSI** key signature input. It is polyphonic and follows the "Poly External Scale" protocol developed by Aria Salvatrice. It allows the key and mode of Harmony II to follow the key and mode of an module that can output this protocol.
+**KSI** key signature input. It is polyphonic and follows the "Poly External Scale" (PES)
+ protocol developed by Aria Salvatrice. It allows the key and mode of Harmony II to follow the key and mode of an module that can output this protocol.
 
 There are a few things to remember with these CV inputs.
 
@@ -149,6 +150,8 @@ As an input, KSI is a little more complex. Harmony II will examine what is on th
 Some modules may output PES with only the notes of the scale, but no indication of what the root note is. For example, most quantizers to not know or care about root notes, so they cannot output anything meaningful for that. When Harmony II sees no root note, it will pick the first scale that matches. This means that if a quantizer is set for the notes C, D, E, F, G, A, B they Harmony will see that as a CMajor. Of course A minor is one of many other valid interpretations.
 
 Often this is what you want. Some time it is not.
+
+Go here for a document about [PES](./pes.md)
 
 ## Block diagram
 

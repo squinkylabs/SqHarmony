@@ -31,12 +31,9 @@ enum class PolyMono {
 template <typename T>
 class CVInUpdater {
 public:
-  
     CVInUpdater(enum T::InputIds inputID, PolyMono polyMono) : _inputID(inputID),
-                                                                    _inputIsMonophonic(polyMono == PolyMono::Mono) {}
+                                                               _inputIsMonophonic(polyMono == PolyMono::Mono) {}
     CVInUpdater() = delete;
-   
-
     bool poll(const T* composite) const {
         auto input = composite->inputs[_inputID];
         if (input.channels != _lastChannels) {
@@ -47,12 +44,20 @@ public:
         }
         const unsigned maxChannels = _inputIsMonophonic ? 1 : 16;
         const unsigned channelToPoll = std::min(maxChannels, unsigned(input.channels));
+        // if (_inputID == T::XSCALE_INPUT) {
+        //     if (channelToPoll != 0) {
+        //         SQINFO("    will poll 0 to %u from max=%u iput %d myinputid=%d", channelToPoll, maxChannels, int(input.channels), int(_inputID));
+        //     } else {
+        //         SQINFO("  scale input not connected??");
+        //     }
+        // }
         for (unsigned i = 0; i < channelToPoll; ++i) {
             if (input.getVoltage(i) != _lastValues[i]) {
                 _lastValues[i] = input.getVoltage(i);
                 return true;
             }
         }
+
         return false;
     }
 
@@ -100,7 +105,7 @@ public:
 
     void add(enum T::ParamIds param, bool everyPoll = true) {
         assert(_composite);
-        auto &list = everyPoll ? _paramUpdaters : _paramUpdatersInfrequent;
+        auto& list = everyPoll ? _paramUpdaters : _paramUpdatersInfrequent;
         list.push_back({param});
     }
 
@@ -177,11 +182,14 @@ inline bool CompositeUpdater<T>::pollFrequent() const {
     }
 
     for (int i = 0; i < int(_cvInUpdaters.size()); ++i) {
+        //      SQINFO("polling freq cvin");
         changed |= _cvInUpdaters[i].poll(_composite);
+        //    SQINFO("done polling freq cvin");
     }
 
     for (int i = 0; i < int(_cvOutUpdaters.size()); ++i) {
         changed |= _cvOutUpdaters[i].poll(_composite);
     }
+    //   assert(false);
     return changed;
 }
