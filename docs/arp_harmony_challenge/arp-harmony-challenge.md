@@ -38,3 +38,37 @@ YouTube link :
 
 [VCV patch file](./Finnish%20Ruisleipä.vcv)
 
+## kinseydulcet entry
+
+"This is an ambient composition using VCV Rack created for the March 2024 ArpHarmony Challenge on the VCV Rack forums. Tides come in and go out. I’m new to VCV Rack but have been enjoying my time with it a great deal given the endless possibilities. Enjoy!"
+
+![screen shot](./kinseydulcet.jpeg)
+
+[Patchstorage link](https://patchstorage.com/oceanic-refrains/)
+
+[![video link](https://i.ytimg.com/vi/WWj7zNIiZBQ/0.jpg)](https://www.youtube.com/watch?v=WWj7zNIiZBQ) 
+
+## Alphagem-O entry
+
+"Tried to do something slightly different here: The notes of one of the arps are translated into gates for a tabla (Tala, Seaside Modular) and routed to different sounds depending on their pitch. This was accomplished using a simple comparison script for BASICally (Stochastic Telegraph). The rhythm periodically changes randomly (NoteSeq16, JW) and also is different every time the patch is run, so it becomes a syncopated, polyrhythmic-ish, electroautomatic improvisation dispersed in the luminiferous aether of the unknown, LOL.
+
+Other rhythmic elements emerge from the Euclidian sequencers Eugene and Polygene (both Rare Breeds). A lead, pad, kick and washy snare fill empty spaces.
+
+RGATE (Bogaudio) is guided by 8Face (stoermelder) to change clock divisions, selectively speeding up or slowing down the tempo. Arranged using ShapeMaster (MindMeld)."
+
+[![video link](https://i.ytimg.com/vi/nO5dlyOi7lU/0.jpg)](https://www.youtube.com/watch?v=nO5dlyOi7lU)
+
+## stewart entry
+
+"Great challenge for me as I have had a lot of fun trying these two out. Thanks for the work you’ve put in. This piece for the Squinktronix ArpHarmony challenge uses four voices each linked via an Arpeggiator or Harmony module. Each occupies a separate row in the patch.
+
+1. Arpeggiator working with 8 random pitches from 8vert with the arpeggio direction/order determined randomly from six.
+2. Harmony generates a four part chord per note of the arpeggio.
+3. Harmony do the same but less frequently
+4. Arpeggiator working with the chord from the Harmony row 3.
+
+I was very interested to explore the harmony of Harmony contrasted again the un quantized input. The STRIP module from stoermelder is such a handy module for the randomizing. I also use it a couple of times to turn off the 8vert. Harmony does a return to smooth harmony beautifully when that happens. I’d never come across either module so thanks for the challenge poking me in the right place! I hope you enjoy the results."
+
+[![video link](https://i.ytimg.com/vi/ggJ2qzZruIc/0.jpg)](https://www.youtube.com/watch?v=ggJ2qzZruIc)
+
+[Patchstorage link](https://patchstorage.com/un-tuned-arpharmony-challenge-march-2024/)

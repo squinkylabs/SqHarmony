@@ -505,6 +505,19 @@ static void testFloat2int() {
     assertEQ(AudioMath::float2int(-10.51), -11)
 }
 
+static void testFloat2intScale() {
+    assertEQ(AudioMath::float2intScale(0, 0), 0);
+    assertEQ(AudioMath::float2intScale(0, 10), 0);
+    assertEQ(AudioMath::float2intScale(10, 0), 0);
+
+    assertEQ(AudioMath::float2intScale(1, 1), 1);
+    assertEQ(AudioMath::float2intScale(1, 12), 12);
+
+    assertEQ(AudioMath::float2intScale(1.5, 12), 18);
+    assertEQ(AudioMath::float2intScale(1.51, 12), 18);
+
+}
+
 
 void testAudioMath() {
     test0();
@@ -535,13 +548,14 @@ void testAudioMath() {
     testRandom2();
     testRandom3();
     testFloat2int();
+    testFloat2intScale();
     testModBipolar();
     testMakeFunc_QuantizeAndWrap();
 }
 
 #if 1
 void testFirst() {
-    testFloat2int();
+    testFloat2intScale();
     // makeFunc_QuantizeAndWrap
   //  testModBipolar();
   //  testMakeFunc_QuantizeAndWrap();
