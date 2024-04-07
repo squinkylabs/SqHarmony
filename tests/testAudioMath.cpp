@@ -468,7 +468,9 @@ static void testModBipolar() {
     assertEQ(AudioMath::modBipolarAndLimit(-1, 57), 56);
 }
 
+
 static void testMakeFunc_QuantizeAndWrap() {
+    #if 0
     const auto func = AudioMath::makeFunc_QuantizeAndWrap<float>(10);
     assertEQ(func(0), 0);
     assertEQ(func(.9), 9);
@@ -485,7 +487,24 @@ static void testMakeFunc_QuantizeAndWrap() {
 
     assertEQ(func(-.5), 5);
     assertEQ(func(-.4), 6);
+#endif
 }
+
+static void testFloat2int() {
+    assertEQ(AudioMath::float2int(0), 0);
+    assertEQ(AudioMath::float2int(1), 1);
+    assertEQ(AudioMath::float2int(-44), -44);
+
+    assertEQ(AudioMath::float2int(0.49), 0);
+    assertEQ(AudioMath::float2int(0.51), 1)
+
+    assertEQ(AudioMath::float2int(10.49), 10);
+    assertEQ(AudioMath::float2int(10.51), 11)
+
+    assertEQ(AudioMath::float2int(-10.49), -10);
+    assertEQ(AudioMath::float2int(-10.51), -11)
+}
+
 
 void testAudioMath() {
     test0();
@@ -515,14 +534,16 @@ void testAudioMath() {
     testRandom1();
     testRandom2();
     testRandom3();
+    testFloat2int();
     testModBipolar();
     testMakeFunc_QuantizeAndWrap();
 }
 
-#if 0
+#if 1
 void testFirst() {
+    testFloat2int();
     // makeFunc_QuantizeAndWrap
-    testModBipolar();
-    testMakeFunc_QuantizeAndWrap();
+  //  testModBipolar();
+  //  testMakeFunc_QuantizeAndWrap();
 }
 #endif

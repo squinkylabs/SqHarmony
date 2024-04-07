@@ -248,19 +248,43 @@ public:
      * will scale the float by multiplying by multipler/
      *
      */
-    template <typename T>
-    static std::function<int(T)> makeFunc_QuantizeAndWrap(int quantizeRangeTop, int multiplier = 0) {
-        if (multiplier <= 0) {
-            return [quantizeRangeTop](float x) {
-                const int a = int(std::round(x * quantizeRangeTop));
-                return modBipolarAndLimit(a, quantizeRangeTop);
-                };
-        } else {
-            assert(false);
-            return [](float x) {
-                return 0;
-                };
-        }
+    // template <typename T>
+    // static std::function<int(T)> makeFunc_QuantizeAndWrap(int quantizeRangeTop, int multiplier = 0) {
+    //     if (multiplier <= 0) {
+    //         return [quantizeRangeTop](float x) {
+    //             const int a = int(std::round(x * quantizeRangeTop));
+    //             return modBipolarAndLimit(a, quantizeRangeTop);
+    //             };
+    //     } else {
+    //         assert(false);
+    //         return [](float x) {
+    //             return 0;
+    //             };
+    //     }
+    // }
+
+
+    /**
+     * @brief quantize input to integer. input domain is 0..1
+     * output range is 0..qunatizeRangeTop-1
+     * 
+     */
+    static int quantizeAndWrap(float input, int quantizeRangeTop) {
+        const int a = float2intScale(input, quantizeRangeTop);
+        return modBipolarAndLimit(a, quantizeRangeTop);
+    }
+
+    // static int quantizeAndWrap(float input, int scaleAmount, int quantizeRangeTop) {
+    //     const int a = float2intScale(input, quantizeRangeTop);
+    //     return modBipolarAndLimit(a, quantizeRangeTop);
+    // }
+
+    static int float2int(float input) {
+        return int(std::round(input));
+    }
+
+    static int float2intScale(float input, int scale) {
+        return float2int(input * scale);
     }
 
     static int modBipolarAndLimit(int x, int y) {
@@ -268,12 +292,18 @@ public:
         if (x >= 0) {
             return x % y;
         } else {
-            int a =  -((-x) % y);
+            int a = -((-x) % y);
             if (a < 0) {
                 a += y;
             }
             assert(a >= 0);
             return a;
         }
+    }
+
+    static std::function<int(float)> makeFunc_float2intScale(int scaleAmount) {
+        return [scaleAmount](float input) {
+            return float2intScale(input, scaleAmount);
+        };
     }
 };
