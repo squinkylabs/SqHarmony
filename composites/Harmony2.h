@@ -134,8 +134,8 @@ private:
     CompositeUpdater<Harmony2<TBase>> _keyInUpdater;
 
     void _init();
-    void _stepn();
-    void _old_process();
+    void _serviceAllMiscInputs();
+    void _serviceAllTranposers();
     void _servicePolyphony();
     void _serviceEnableButtons();
     void _serviceKeysigRootCV();
@@ -225,7 +225,7 @@ inline void Harmony2<TBase>::_init() {
 }
 
 template <class TBase>
-inline void Harmony2<TBase>::_stepn() {
+inline void Harmony2<TBase>::_serviceAllMiscInputs() {
     _serviceEnableButtons();
     _serviceKeysigRootCV();
     _serviceKeysigModeCV();
@@ -235,6 +235,7 @@ inline void Harmony2<TBase>::_stepn() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceKeysigParams() {
+    // one version of a scale function - just rounds to nearest int.
     const int basePitch = int(std::round(TBase::params[KEY_PARAM].value));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
    // SQINFO("in service keysig params. base=%d mode=%d", basePitch, int(mode));
@@ -249,6 +250,7 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
         return;
     }
 
+    // Here is a scale function scales and wraps 0..semisPerOctave-1
     const int semisPerOctave = 12;
     float newKeyF = TBase::inputs[KEY_INPUT].getVoltage(0);
     newKeyF -= std::floor(newKeyF);
@@ -262,7 +264,6 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
 
     const Scale* oldKey = _quantizerOptions->scale.get();
     const auto x = oldKey->get();
-
     const MidiNote oldRoot = std::get<0>(x);
     FloatNote oldRootFloat;
     NoteConvert::m2f(oldRootFloat, oldRoot);
@@ -281,6 +282,8 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
         return;
     }
 
+    // Here is a scale function that multiplies by 12, but wraps in the number of current modes
+    // number of modes is just a function of ONLY_USE_DIATONIC_PARAM
     const int _inumCurrentModes = numCurrentModes();
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
     const int newModeI = int(std::round(12 * newModeF));
@@ -375,10 +378,6 @@ inline void Harmony2<TBase>::_serviceScaleOutput() {
     if (output.isConnected()) {
         output.channels = 12;
     }
-  //  auto scale = _quantizerOptions->scale;
- //   std::pair<const MidiNote, Scale::Scales> settings = scale->get();
- //   SQINFO("service output getting from options %d %d", settings.first.get(), int(settings.second));
-  //  SQINFO("meanwhile, scale param = %f and mode param = %f", TBase::params[KEY_PARAM].value, TBase::params[MODE_PARAM].value);
     
     const auto note = MidiNote::C + int(std::round(TBase::params[KEY_PARAM].value));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
@@ -406,8 +405,8 @@ template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     bool changed = _updater.poll();
     if (changed) {
-        _stepn();
-        _old_process();
+        _serviceAllMiscInputs();
+        _serviceAllTranposers();
     }
     changed = _keyInUpdater.poll();
     if (changed) {
@@ -421,7 +420,7 @@ inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
 }
 
 template <class TBase>
-inline void Harmony2<TBase>::_old_process() {
+inline void Harmony2<TBase>::_serviceAllTranposers() {
     ScalePtr scale = this->_quantizerOptions->scale;
     const Scale::Scales mode = std::get<1>(scale.get()->get());
     assert(TBase::params[KEY_PARAM].value < 11.5);
@@ -440,6 +439,7 @@ inline void Harmony2<TBase>::_old_process() {
             if (polyXposeCV) {
                 xposeCV = TBase::inputs[XPOSE_INPUT].getVoltage(channel);
             }
+            // here is a scale function that's just f * 12;
             const int xposeCVSteps = int(std::round(xposeCV * 12));
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;

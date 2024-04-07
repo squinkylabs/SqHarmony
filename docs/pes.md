@@ -1,6 +1,6 @@
 # Polyphonic External Protocol
 
-Polyphonic External Protocol, or PES, is a protocol developed Aria Salvatri that allows scale information to be carried on a single cable between different VCV modules that support this protocol.
+Polyphonic External Protocol, or PES, is a protocol developed Aria Salvatrice that allows scale information to be carried on a single cable between different VCV modules that support this protocol.
 
 Here is a simple example where the Squiktronix Harmony II is setting the scale for Grande Quant:
 
