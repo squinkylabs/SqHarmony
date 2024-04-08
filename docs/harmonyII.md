@@ -91,7 +91,7 @@ The next group are the parallel intervals. There are just two notes - the note y
 
 There are a few things to remember with these CV inputs.
 
-The mode input can be confusing. There is a new scale every 1/12 volt. The number of scales depends on the setting in the context menu for "use only diatonic scales". It is it only diatonic scales, then there are 7 scales so:
+The mode input can be confusing. There is a new scale every 1/12 volt. The number of scales depends on the setting in the context menu for "Mode CV only diatonic". If it is only diatonic scales, then there are 7 scales so:
 
 * 0 = Major
 * 1/12 = Dorian

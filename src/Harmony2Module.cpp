@@ -37,7 +37,7 @@ public:
 
 private:
     void addParams() {
-        const int numModes = getComp()->numCurrentModes();
+        const int numModes = getComp()->numCurrentModesMax();
         const int numDegrees = 12;
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
             this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numDegrees - 1, 0, "Transpose Degrees");
@@ -140,7 +140,7 @@ private:
         }
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_PARAM);
-        item->text = "Use only diatonic scales";
+        item->text = "Mode CV only diatonic";
         menu->addChild(item);
 
         const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
