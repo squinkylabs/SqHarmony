@@ -123,7 +123,7 @@ YouTube link:
 
 YouTube link:
 
-[![video link](https://i.ytimg.com/vi/-sN533beR/0.jpg)](https://www.youtube.com/watch?v=-sN533beR)
+[![video link](https://i.ytimg.com/vi/-sN533beRiw/0.jpg)](https://www.youtube.com/watch?v=-sN533beRiw)
 
 [Patchstorage link](https://patchstorage.com/arpharmony-march2024//)
 
