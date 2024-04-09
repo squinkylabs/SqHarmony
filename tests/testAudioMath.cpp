@@ -515,7 +515,6 @@ static void testFloat2intScale() {
 
     assertEQ(AudioMath::float2intScale(1.5, 12), 18);
     assertEQ(AudioMath::float2intScale(1.51, 12), 18);
-
 }
 
 
@@ -553,7 +552,7 @@ void testAudioMath() {
     testMakeFunc_QuantizeAndWrap();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testFloat2intScale();
     // makeFunc_QuantizeAndWrap

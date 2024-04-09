@@ -28,11 +28,11 @@ using Comp = MyComposite<TestComposite>;
 static void testCanCall() {
     Comp composite;
     CompositeUpdater<Comp> c(&composite);
-    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono, nullptr);
     ParamUpdater<Comp> param(Comp::PARAM1);
 
     c.add(Comp::PARAM1);
-    c.add(Comp::INPUT1, PolyMono::Poly, true);
+    c.add(Comp::INPUT1, PolyMono::Poly, true, nullptr);
 }
 
 static void testPollParam() {
@@ -63,8 +63,8 @@ static void testPollParam() {
 
 static void testPollCVInChannels() {
     Comp composite;
-    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono);
-    CVInUpdater<Comp> cv2(Comp::INPUT2, PolyMono::Poly);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono, nullptr);
+    CVInUpdater<Comp> cv2(Comp::INPUT2, PolyMono::Poly, nullptr);
 
     bool b = cv.poll(&composite);
     assertEQ(b, true);
@@ -121,10 +121,10 @@ static void testPollCVOutChannels() {
 
 static void testPollCVInValues() {
     Comp composite;
-    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Poly);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Poly, nullptr);
 
     auto& in1 = composite.inputs[Comp::INPUT1];
-    in1.channels = 3;      // make it polyphonic
+    in1.channels = 3;  // make it polyphonic
 
     // initial start up poll
     bool b = cv.poll(&composite);
@@ -140,6 +140,40 @@ static void testPollCVInValues() {
     assertEQ(b, false);
 
     SQINFO("!! MORE TESTS FOR MONO/POLY");
+}
+
+static void testPollCVInValuesMapped() {
+    Comp composite;
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Poly, AudioMath::float2int);
+    auto& in1 = composite.inputs[Comp::INPUT1];
+    in1.channels = 1;
+
+    // initial start up poll
+    bool b = cv.poll(&composite);
+    assertEQ(b, true);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+    // second poll says change, if mapped
+    in1.setVoltage(.1);
+    b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    in1.setVoltage(.2);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+    in1.setVoltage(.49);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+    in1.setVoltage(.51);
+    b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    in1.setVoltage(.9);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
 
 }
 
@@ -148,7 +182,7 @@ static void testPollCVOutValues() {
     CVOutUpdater<Comp> cv(Comp::OUTPUT1);
 
     auto& out1 = composite.outputs[Comp::OUTPUT1];
-    out1.channels = 3;      // make it polyphonic
+    out1.channels = 3;  // make it polyphonic
 
     // initial start up poll
     bool b = cv.poll(&composite);
@@ -157,21 +191,19 @@ static void testPollCVOutValues() {
     b = cv.poll(&composite);
     assertEQ(b, false);
     out1.setVoltage(3);
-    b = cv.poll(&composite);            // output poll doesn't look at values
+    b = cv.poll(&composite);  // output poll doesn't look at values
     assertEQ(b, false);
 
     b = cv.poll(&composite);
     assertEQ(b, false);
-
-
 }
 static void testPollCompositeUpdater_oneParam() {
     Comp composite;
     CompositeUpdater<Comp> up;
-    up.set(&composite,100);
+    up.set(&composite, 100);
     up.add(Comp::PARAM1);
 
-    bool b  = up.poll();
+    bool b = up.poll();
     assertEQ(b, true);
     b = up.poll();
     assertEQ(b, false);
@@ -184,7 +216,7 @@ static void testPollCompositeUpdater_oneCVMono() {
     CompositeUpdater<Comp> up;
     up.set(&composite, 100);
     composite.inputs[Comp::INPUT1].channels = 1;
-    up.add(Comp::INPUT1, PolyMono::Mono, true);
+    up.add(Comp::INPUT1, PolyMono::Mono, true, nullptr);
 
     bool b = up.poll();
     assertEQ(b, true);
@@ -203,12 +235,11 @@ static void testPollCompositeUpdater_oneCVMono() {
 static void testPollCompositeUpdater_InfrequentParam1() {
     Comp composite;
     CompositeUpdater<Comp> up;
-    up.set(&composite,4);
-   
-   up.add(Comp::PARAM1, false);
+    up.set(&composite, 4);
 
+    up.add(Comp::PARAM1, false);
 
-    bool b  = up.poll();
+    bool b = up.poll();
     assertEQ(b, true);
     b = up.poll();
     assertEQ(b, false);
@@ -219,14 +250,13 @@ static void testPollCompositeUpdater_InfrequentParam1() {
 static void testPollCompositeUpdater_InfrequentParam2() {
     Comp composite;
     CompositeUpdater<Comp> up;
-    up.set(&composite,4);
-   
-    up.add(Comp::PARAM1, false);
-    auto &param = composite.params[Comp::PARAM1];
+    up.set(&composite, 4);
 
+    up.add(Comp::PARAM1, false);
+    auto& param = composite.params[Comp::PARAM1];
 
     // always see a change the first time
-    bool b  = up.poll();
+    bool b = up.poll();
     assertEQ(b, true);
 
     // even with a change don't see change frequently
@@ -238,9 +268,8 @@ static void testPollCompositeUpdater_InfrequentParam2() {
     b = up.poll();
     assertEQ(b, false);
 
-     b = up.poll();
+    b = up.poll();
     assertEQ(b, true);
-
 }
 
 void testUpdater() {
@@ -248,6 +277,7 @@ void testUpdater() {
     testPollParam();
     testPollCVInChannels();
     testPollCVInValues();
+    testPollCVInValuesMapped();
     testPollCVOutChannels();
     testPollCVOutValues();
     testPollCompositeUpdater_oneParam();
@@ -258,6 +288,7 @@ void testUpdater() {
 
 #if 0
 void testFirst() {
-    testPollCompositeUpdater_InfrequentParam2();
+    testPollCVInValuesMapped();
+    //  testPollCompositeUpdater_InfrequentParam2();
 }
 #endif

@@ -5,6 +5,7 @@
 #include <tuple>
 #include <vector>
 
+#include "AudioMath.h"
 #include "CompositeUpdater.h"
 #include "Divider.h"
 #include "FloatNote.h"
@@ -213,10 +214,10 @@ inline void Harmony2<TBase>::_init() {
     _updater.add(ONLY_USE_DIATONIC_PARAM);
 
     // for debugging, turn these 4 off
-    _updater.add(XPOSE_INPUT, PolyMono::Poly, true);
-    _updater.add(KEY_INPUT, PolyMono::Mono, true);
-    _updater.add(MODE_INPUT, PolyMono::Mono, true);
-    _updater.add(PITCH_INPUT, PolyMono::Mono, true);
+    _updater.add(XPOSE_INPUT, PolyMono::Poly, true, AudioMath::float2int12);
+    _updater.add(KEY_INPUT, PolyMono::Mono, true, AudioMath::float2int12);
+    _updater.add(MODE_INPUT, PolyMono::Mono, true, AudioMath::float2int12);
+    _updater.add(PITCH_INPUT, PolyMono::Mono, true, AudioMath::float2int12);
 
     // Need to update scale out when either of these params change.
     _keyOutUpdater.add(KEY_PARAM, false);
@@ -225,7 +226,7 @@ inline void Harmony2<TBase>::_init() {
 
     // Need to respond to scale input changes.
     // SQINFO("in h2, trying to add scale as infrequent");
-    _keyInUpdater.add(XSCALE_INPUT, PolyMono::Poly, false);
+    _keyInUpdater.add(XSCALE_INPUT, PolyMono::Poly, false, nullptr);
 }
 
 template <class TBase>

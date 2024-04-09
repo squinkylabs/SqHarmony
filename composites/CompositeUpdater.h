@@ -2,9 +2,12 @@
 
 #include <assert.h>
 
+#include <functional>
 #include <vector>
 
 #include "SqLog.h"
+
+using CVMapFunction = std::function<int(float)>;
 
 template <typename T>
 class ParamUpdater {
@@ -31,8 +34,13 @@ enum class PolyMono {
 template <typename T>
 class CVInUpdater {
 public:
-    CVInUpdater(enum T::InputIds inputID, PolyMono polyMono) : _inputID(inputID),
-                                                               _inputIsMonophonic(polyMono == PolyMono::Mono) {}
+    CVInUpdater(
+        enum T::InputIds inputID,
+        PolyMono polyMono,
+        CVMapFunction mapFunction) : _inputID(inputID),
+                                     _inputIsMonophonic(polyMono == PolyMono::Mono),
+                                     _cvMapFunction(mapFunction) {
+    }
     CVInUpdater() = delete;
     bool poll(const T* composite) const {
         auto input = composite->inputs[_inputID];
@@ -44,27 +52,32 @@ public:
         }
         const unsigned maxChannels = _inputIsMonophonic ? 1 : 16;
         const unsigned channelToPoll = std::min(maxChannels, unsigned(input.channels));
-        // if (_inputID == T::XSCALE_INPUT) {
-        //     if (channelToPoll != 0) {
-        //         SQINFO("    will poll 0 to %u from max=%u iput %d myinputid=%d", channelToPoll, maxChannels, int(input.channels), int(_inputID));
-        //     } else {
-        //         SQINFO("  scale input not connected??");
-        //     }
-        // }
         for (unsigned i = 0; i < channelToPoll; ++i) {
-            if (input.getVoltage(i) != _lastValues[i]) {
-                _lastValues[i] = input.getVoltage(i);
-                return true;
+            const float in = input.getVoltage(i); 
+            if (in != _lastValues[i]) {
+                //assert(_cvMapFunction == nullptr);
+                _lastValues[i] = in;
+                if (_cvMapFunction) {
+                    const int a = _cvMapFunction(in);
+                    const int b = _lastMappedValues[i];
+                    if (_cvMapFunction(in) != _lastMappedValues[i]) {
+                     _lastMappedValues[i] = _cvMapFunction(in);
+                     return true;
+                    }
+                } else {
+                    return true;
+                } 
             }
         }
-
         return false;
     }
 
 private:
     const int _inputID;
     const bool _inputIsMonophonic;
+    const CVMapFunction _cvMapFunction;
     mutable float _lastValues[16] = {-1000};
+    mutable int _lastMappedValues[16] = {-1000};
     mutable int _lastChannels = -1;
 
     void _snapshotValues(const T* composite) const {
@@ -109,10 +122,10 @@ public:
         list.push_back({param});
     }
 
-    void add(enum T::InputIds input, PolyMono monoPoly, bool everyPoll) {
+    void add(enum T::InputIds input, PolyMono monoPoly, bool everyPoll, CVMapFunction mapFunction) {
         assert(_composite);
         auto& list = everyPoll ? _cvInUpdaters : _cvInUpdatersInfrequent;
-        list.push_back({input, monoPoly});
+        list.push_back({input, monoPoly, mapFunction});
     }
 
     void add(enum T::OutputIds output, bool everyPoll) {

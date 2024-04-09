@@ -283,6 +283,10 @@ public:
         return int(std::round(input));
     }
 
+    static int float2int12(float input) {
+        return float2intScale(input, 12);
+    }
+
     static int float2intScale(float input, int scale) {
         return float2int(input * scale);
     }
