@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "plugin.hpp"  // MUST BE FIRST
+
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -10,6 +11,7 @@
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
+
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
@@ -109,6 +111,7 @@ public:
         addLabel(Vec(24, 356), "Squinktronix", 16);
 #endif
         addControls(module);
+        _addRibsControls(module);
         addIO(module);
     }
 
@@ -119,11 +122,11 @@ private:
         ModuleWidget::step();
         if (module) {
             if (_shiftDisplay) {
-                const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);   
+                const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
                 SqLabel* label = _shiftDisplay->getChild();
                 if (shift > 99) {
                     std::stringstream str;
-                    str <<  std::setprecision(4) << shift;
+                    str << std::setprecision(4) << shift;
                     label->updateText(str.str());
                     // SQINFO("a shift=%f lab=%s", shift, str.str().c_str());
                 } else {
@@ -136,6 +139,56 @@ private:
             }
         }
     }
+
+    ParamWidget* _ribDurationControl = nullptr;
+    ParamWidget* _ribSpanControl = nullptr;
+
+    void _addRibsControls(PhasePatternsModule* module) {
+        // First, get rid of what's there, if anything
+        if (_ribDurationControl) {
+            this->removeChild(_ribDurationControl);
+        }
+        if (_ribSpanControl) {
+            this->removeChild(_ribSpanControl);
+        }
+
+    //    ParamWidget* ribsDurControl = nullptr;
+    //     ParamWidget* ribsDurControl = nullptr;
+        if (_useAdvancedUI()) {
+             auto p = createParam<RoundBlackKnob>(Vec(6, 134), module, Comp::RIB_DURATION_PARAM);
+             _ribDurationControl = p;
+
+            auto param = createParam<RoundBlackKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+            _ribSpanControl = param;
+        } else {
+            // Make the combo box
+            auto p = createParam<PopupMenuParamWidget>(
+                Vec(6, 138),
+                module,
+                Comp::RIB_DURATION_PARAM);
+            p->setLabels(Comp::getRibDurationLabels());
+            p->setIndexToValueFunction(Comp::indexToValueRibDuration);
+            p->setValueToIndexFunction(Comp::valueToIndexRibDuration);
+            p->box.size.x = 40;  // width
+            p->box.size.y = 22;
+            p->text = "1";
+            _ribDurationControl = p;
+
+             auto param = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+             _ribSpanControl = param;
+        }
+        addParam(_ribDurationControl);
+        addLabel(Vec(11, 112), "Total");
+
+        addParam(_ribSpanControl);
+        addLabel(Vec(68, 112), "Dur");
+    }
+
+    bool _useAdvancedUI() const {
+        SQINFO("Make Real!!");
+        return false;
+    }
+
     void addControls(PhasePatternsModule* module) {
         addParam(createParam<RoundBlackKnob>(Vec(9, 51), module, Comp::SHIFT_PARAM));
         //  addParam(createParam<RoundBlackSnapKnob>(Vec(68, 51), module, Comp::SHIFT_RANGE_PARAM));
@@ -147,22 +200,6 @@ private:
         _shiftDisplay = addLabel(Vec(6, 83), "");
 
         // now all the RIB controls
-        auto p = createParam<PopupMenuParamWidget>(
-            Vec(6, 138),
-            module,
-            Comp::RIB_DURATION_PARAM);
-        p->setLabels(Comp::getRibDurationLabels());
-        p->setIndexToValueFunction(Comp::indexToValueRibDuration);
-        p->setValueToIndexFunction(Comp::valueToIndexRibDuration);
-        p->box.size.x = 40;  // width
-        p->box.size.y = 22;
-        p->text = "1";
-        addParam(p);
-        addLabel(Vec(11, 112), "Total");
-
-        auto param = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
-        addParam(param);
-        addLabel(Vec(68, 112), "Dur");
 
         // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
