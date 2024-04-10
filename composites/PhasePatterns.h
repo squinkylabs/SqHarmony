@@ -52,6 +52,10 @@ public:
         NUM_LIGHTS
     };
 
+    //  using IndexToValueFunction = std::function<float(int index)>;
+    //   using ValueToIndexFunction = std::function<int(float value)>;
+    static float indexToValueRibDuration(int index);
+    static int valueToIndexRibDuration(float value);
     static const std::vector<std::string> getRibDurationLabels() {
         return {"1/3", "1/2", "1", "2", "3"};
     }
@@ -95,6 +99,7 @@ public:
         assert(channel < 16);
         return _curShift[channel];
     }
+
 private:
     void _init();
     void _stepn();
@@ -118,6 +123,42 @@ private:
     int _numOutputClocks = 0;
     int _numShiftInputs = 0;
 };
+
+template <class TBase>
+inline float PhasePatterns<TBase>::indexToValueRibDuration(int index) {
+    float ret = 0;
+    switch (index) {
+        case 0:
+            ret = 1.f / 3.f;
+            break;
+        case 1:
+            ret = 1.f / 2.f;
+            break;
+        case 2:
+            ret = 1.f;
+            break;
+        case 3:
+            ret = 2;
+            break;
+        case 4:
+            ret = 3;
+            break;
+        default:
+            assert(false);
+    }
+    return ret;
+}
+
+template <class TBase>
+inline int PhasePatterns<TBase>::valueToIndexRibDuration(float value) {
+    if (value > 1.5f) {
+        return (value > 2.5) ? 4 : 3;
+    }
+    if (value < 1.f / 2.5f ) {
+        return 0;
+    }
+    return (value < .7) ? 1 : 2;
+}
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_init() {
@@ -202,8 +243,8 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
         float shift = globalShift +
-                            _ribGenerator[ribIndex].get() +
-                            .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
+                      _ribGenerator[ribIndex].get() +
+                      .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
         _curShift[i] = std::max(shift, 0.f);
     }
