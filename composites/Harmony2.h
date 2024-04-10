@@ -90,7 +90,7 @@ public:
         KEY_INPUT,
         MODE_INPUT,
         PITCH_INPUT,
-        XSCALE_INPUT,
+        PES_INPUT,
         NUM_INPUTS
     };
 
@@ -226,7 +226,7 @@ inline void Harmony2<TBase>::_init() {
 
     // Need to respond to scale input changes.
     // SQINFO("in h2, trying to add scale as infrequent");
-    _keyInUpdater.add(XSCALE_INPUT, PolyMono::Poly, false, nullptr);
+    _keyInUpdater.add(PES_INPUT, PolyMono::Poly, false, nullptr);
 }
 
 template <class TBase>
@@ -335,7 +335,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleInput() {
     // SQINFO("service ks input");
-    auto& input = TBase::inputs[XSCALE_INPUT];
+    auto& input = TBase::inputs[PES_INPUT];
     if (input.channels < 1) {
         return;  // unconnected
     }

@@ -32,11 +32,10 @@ struct Harmony1Widget : ModuleWidget {
 #ifdef _LAB
         addLabel(Vec(28, 5), "Harmony");
 #endif
-        addInputL(Vec(34, 257.76), Comp::CV_INPUT, "Root");
+      
         addScore(module);
-        addInputL(Vec(93, 257.79), Comp::TRIGGER_INPUT, "Trig");
-
         addKeysig();
+        addInputs();
         addOutputs();
 
         float ySwitch = 187;
@@ -56,6 +55,19 @@ struct Harmony1Widget : ModuleWidget {
             assert(_keyRootWidget);
             _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
         }
+    }
+
+    void addInputs() {
+    #if 1
+        addInputL(Vec(34, 257.76), Comp::CV_INPUT, "Root");
+        addInputL(Vec(64, 257.79), Comp::TRIGGER_INPUT, "Trig");
+        addInputL(Vec(93, 257.79), Comp::PES_INPUT, "PES");
+
+    #else
+     // original way
+        addInputL(Vec(34, 257.76), Comp::CV_INPUT, "Root");
+        addInputL(Vec(93, 257.79), Comp::TRIGGER_INPUT, "Trig");
+    #endif
     }
 
     void addOutputs() {

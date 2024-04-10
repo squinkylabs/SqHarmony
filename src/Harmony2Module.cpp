@@ -67,7 +67,7 @@ private:
         this->configInput(Comp::XPOSE_INPUT, "Transpose steps");
         this->configInput(Comp::MODE_INPUT, "Scale mode/type");
         this->configInput(Comp::PITCH_INPUT, "Main CV");
-        this->configInput(Comp::XSCALE_INPUT, "Scale(PES)");
+        this->configInput(Comp::PES_INPUT, "Scale(PES)");
     }
 };
 
@@ -171,7 +171,7 @@ private:
         addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key");
         addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
 
-        addInputL(Vec(x0 + 3 * dx, y), Comp::XSCALE_INPUT, "KSI");
+        addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "KSI");
     }
 
     void addLeds() {

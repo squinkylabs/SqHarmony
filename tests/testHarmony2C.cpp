@@ -71,7 +71,7 @@ static void testPESInput() {
     Scale scale;
     scale.set(MidiNote::D, Scale::Scales::Dorian);
     auto comp = makeComp(scale);
-    auto& input = comp->inputs[Comp::XSCALE_INPUT];
+    auto& input = comp->inputs[Comp::PES_INPUT];
     input.channels = 12;
     input.setVoltage(10, 0);  // C
     input.setVoltage(0, 1);
@@ -101,7 +101,7 @@ static void testRoundTrip() {
 
     scale.set(MidiNote::D, Scale::Scales::Dorian);
     auto compGetter = makeComp(scale);
-    auto& getterInput = compGetter->inputs[Comp::XSCALE_INPUT];
+    auto& getterInput = compGetter->inputs[Comp::PES_INPUT];
     getterInput.channels = 12;
 
     processOnce(*compSetter);

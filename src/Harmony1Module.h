@@ -58,7 +58,8 @@ public:
         this->configOutput(Comp::SOPRANO_OUTPUT, "Soprano voice pitch");
 
         this->configInput(Comp::CV_INPUT, "Chord root scale degree");
-        this->configInput(Comp::TRIGGER_INPUT, "Trigger (affected my menu settings)");
+        this->configInput(Comp::TRIGGER_INPUT, "Trigger (affected by menu settings)");
+        this->configInput(Comp::PES_INPUT, "External Polyphonic Scale");
     }
 
     using Chord = Comp::Chord;
