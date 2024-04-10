@@ -245,8 +245,6 @@ static void testNegativeCV() {
 }
 
 static void testIndex2Value() {
-    //      static float indexToValueRibDuration(int index);
-    //   static int valueToIndexRibDuration(float value);
     assertEQ(Comp::indexToValueRibDuration(0), 1.f / 3.f);
     assertEQ(Comp::indexToValueRibDuration(1), 1.f / 2.f);
     assertEQ(Comp::indexToValueRibDuration(2), 1.f);

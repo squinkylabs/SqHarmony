@@ -52,8 +52,6 @@ public:
         NUM_LIGHTS
     };
 
-    //  using IndexToValueFunction = std::function<float(int index)>;
-    //   using ValueToIndexFunction = std::function<int(float value)>;
     static float indexToValueRibDuration(int index);
     static int valueToIndexRibDuration(float value);
     static const std::vector<std::string> getRibDurationLabels() {
@@ -204,8 +202,9 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             }
 
             const int period = _clockShifter[i].getPeriod();
-            const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
-            float duration = this->getRibDurationFromIndex(durationIndex);
+        //    const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
+       //     float duration = this->getRibDurationFromIndex(durationIndex);
+            float duration = TBase::params[RIB_DURATION_PARAM].value;
             const float span = TBase::params[RIB_SPAN_PARAM].value;
             assert(span != 0);
             if (trigNegative) {

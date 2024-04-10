@@ -81,19 +81,20 @@ void inline PhasePatternsModule::addParams() {
     this->configInput(Comp::RIB_NEGATIVE_INPUT, "Rib negative trigger");
     this->configOutput(Comp::CK_OUTPUT, "Shifted output");
 
-    class TotalParam : public ParamQuantity {
-    public:
-        std::string getDisplayValueString() override {
-            auto const labels = Comp::getRibDurationLabels();
-            const int index = int(std::round(module->params[Comp::RIB_DURATION_PARAM].value));
-            std::string ret = "";
-            if (index < int(labels.size()) && index >= 0) {
-                ret = labels[index];
-            }
-            return ret;
-        }
-    };
-    this->configParam<TotalParam>(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Total clocks per RIB");
+    // class TotalParam : public ParamQuantity {
+    // public:
+    //     std::string getDisplayValueString() override {
+    //         auto const labels = Comp::getRibDurationLabels();
+    //         const int index = int(std::round(module->params[Comp::RIB_DURATION_PARAM].value));
+    //         std::string ret = "";
+    //         if (index < int(labels.size()) && index >= 0) {
+    //             ret = labels[index];
+    //         }
+    //         return ret;
+    //     }
+    // };
+    // this->configParam<TotalParam>(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Total clocks per RIB");
+    this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 1, "Total clocks per RIB");
 }
 
 #define _LAB
@@ -150,8 +151,9 @@ private:
             Vec(6, 138),
             module,
             Comp::RIB_DURATION_PARAM);
-        //   p->setShortLabels(Comp::getShortScaleLabels(true));
         p->setLabels(Comp::getRibDurationLabels());
+        p->setIndexToValueFunction(Comp::indexToValueRibDuration);
+        p->setValueToIndexFunction(Comp::valueToIndexRibDuration);
         p->box.size.x = 40;  // width
         p->box.size.y = 22;
         p->text = "1";

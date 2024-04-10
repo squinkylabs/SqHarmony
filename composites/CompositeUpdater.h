@@ -55,11 +55,8 @@ public:
         for (unsigned i = 0; i < channelToPoll; ++i) {
             const float in = input.getVoltage(i); 
             if (in != _lastValues[i]) {
-                //assert(_cvMapFunction == nullptr);
                 _lastValues[i] = in;
                 if (_cvMapFunction) {
-                    const int a = _cvMapFunction(in);
-                    const int b = _lastMappedValues[i];
                     if (_cvMapFunction(in) != _lastMappedValues[i]) {
                      _lastMappedValues[i] = _cvMapFunction(in);
                      return true;
