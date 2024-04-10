@@ -31,6 +31,7 @@ public:
         RIB_SPAN_PARAM,      // This is the denominator, controlled by that widget called "Dur"
         RIB_NEGATIVE_BUTTON_PARAM,
         SHIFT_RANGE_PARAM,
+        USE_ADVANCED_UI_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
