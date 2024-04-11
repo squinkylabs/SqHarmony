@@ -96,7 +96,7 @@ public:
 
     enum OutputIds {
         PITCH_OUTPUT,
-        XSCALE_OUTPUT,
+        PES_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -222,7 +222,7 @@ inline void Harmony2<TBase>::_init() {
     // Need to update scale out when either of these params change.
     _keyOutUpdater.add(KEY_PARAM, false);
     _keyOutUpdater.add(MODE_PARAM, false);
-    _keyOutUpdater.add(XSCALE_OUTPUT, false);  // monitor the output in case we are patched
+    _keyOutUpdater.add(PES_OUTPUT, false);  // monitor the output in case we are patched
 
     // Need to respond to scale input changes.
     // SQINFO("in h2, trying to add scale as infrequent");
@@ -379,7 +379,7 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleOutput() {
     // SQINFO("_serviceScaleOutput");
-    auto& output = TBase::outputs[XSCALE_OUTPUT];
+    auto& output = TBase::outputs[PES_OUTPUT];
     if (output.isConnected()) {
         output.channels = 12;
     }

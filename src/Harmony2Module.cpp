@@ -56,7 +56,7 @@ private:
         //  PITCH_OUTPUT,
         //   XSCALE_OUTPUT,
         this->configOutput(Comp::PITCH_OUTPUT, "Main chord CV");
-        this->configOutput(Comp::XSCALE_OUTPUT, "Scale (PES)");
+        this->configOutput(Comp::PES_OUTPUT, "Scale (PES)");
 
         //    XPOSE_INPUT,
         // KEY_INPUT,
@@ -161,7 +161,7 @@ private:
         addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI");
         addOutputL(Vec(x0 + dx, y), Comp::PITCH_OUTPUT, "CVO");
 
-        addOutputL(Vec(x0 + dx * 3, y), Comp::XSCALE_OUTPUT, "KSO");
+        addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES");
     }
 
     void addModCV() {
@@ -171,7 +171,7 @@ private:
         addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key");
         addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
 
-        addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "KSI");
+        addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "PES");
     }
 
     void addLeds() {

@@ -1,6 +1,8 @@
-# Polyphonic External Protocol
+# Polyphonic External Scale
 
-Polyphonic External Protocol, or PES, is a protocol developed Aria Salvatrice that allows scale information to be carried on a single cable between different VCV modules that support this protocol.
+Polyphonic External Scale protocol, or PES, is a protocol developed Aria Salvatrice that allows scale information to be carried on a single cable between different VCV modules that support this protocol.
+
+Here is [Aria's original post](https://aria.dog/modules/poly-external-scale/)
 
 Here is a simple example where the Squiktronix Harmony II is setting the scale for Grande Quant:
 
@@ -20,8 +22,10 @@ As of this writing, the VCV 2.x Modules that I know of are:
 
 * **Squinktronix Harmony II**. KSO Output is fully compliant. KSI input is compliant, but if the signal on the input does not correspond to a scale that Harmony II knows about, it will show an error, and ignore the input.
 
+* **Squinktronix Harmony**. Now has a PES input.
+
 * **Grande Quant**. The Scale input accepts a PES signal, and will display it. Since a quantizer doesn't know or care what the "root" is, the root (10 volts) is treated like any other note in the scale.
 
-* **Grande Scale.** The output is a PES signal. Again, since Scale doesn't know or care about root, it is not sent.
+* **Grande Scale.** The output is a PES signal. Again, since Scale doesn't know or care about root, it is not sent. In this case everything is sent at 10V.
 
-* **PurrSoftware Meander**. Provides PES output.
+* **PurrSoftware Meander, ModeScaleProgression, and ModeScaleQuant**. All provide PES output.

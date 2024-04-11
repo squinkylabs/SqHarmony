@@ -9,7 +9,7 @@ using Comp = Harmony2<TestComposite>;
 using CompPtr = std::shared_ptr<Comp>;
 
 static void hookUpCV(Comp& comp) {
-    comp.outputs[Comp::XSCALE_OUTPUT].channels = 1;
+    comp.outputs[Comp::PES_OUTPUT].channels = 1;
 }
 
 // Will set the key sig and stuff, but won't call process,
@@ -48,9 +48,9 @@ static void testPESOutput() {
     auto comp = makeComp(scale);
     processOnce(*comp);
 
-    assertEQ(int(comp->outputs[Comp::XSCALE_OUTPUT].channels), 12);
+    assertEQ(int(comp->outputs[Comp::PES_OUTPUT].channels), 12);
     for (int i = 0; i < 12; ++i) {
-        const int x = int(std::round(comp->outputs[Comp::XSCALE_OUTPUT].getVoltage(i)));
+        const int x = int(std::round(comp->outputs[Comp::PES_OUTPUT].getVoltage(i)));
         switch (x) {
             case 0:  // not in scale
                 assert(getRolesCMinor()[i] == Scale::Role::NotInScale);
@@ -97,7 +97,7 @@ static void testRoundTrip() {
     Scale scale;
     scale.set(MidiNote::C, Scale::Scales::Minor);
     auto compSetter = makeComp(scale);
-    auto& setterOutput = compSetter->outputs[Comp::XSCALE_OUTPUT];
+    auto& setterOutput = compSetter->outputs[Comp::PES_OUTPUT];
 
     scale.set(MidiNote::D, Scale::Scales::Dorian);
     auto compGetter = makeComp(scale);

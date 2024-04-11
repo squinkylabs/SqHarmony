@@ -206,11 +206,18 @@ private:
         addLabel(Vec(68, 112), "Dur");
     }
 
+    /** 
+     */
     bool _useAdvancedUI() const {
+        if (!module) {
+            return false;
+        }
         const float p = APP->engine->getParamValue(module, Comp::USE_ADVANCED_UI_PARAM);
         return p > .5;
     }
 
+    /**
+     */
     void addControls(PhasePatternsModule* module) {
         addParam(createParam<RoundBlackKnob>(Vec(9, 51), module, Comp::SHIFT_PARAM));
         //  addParam(createParam<RoundBlackSnapKnob>(Vec(68, 51), module, Comp::SHIFT_RANGE_PARAM));

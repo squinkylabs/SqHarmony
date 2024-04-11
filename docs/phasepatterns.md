@@ -11,7 +11,7 @@ The output clock will be at the same rate (tempo) as the input clock, but it wil
 
 There is also a built in shift generator that will over the course of 'n' clocks delay the output by 'm' clock. This is referred to as the "RIB generator", for "Reich In a Box", the original name of the module.
 
-There are many, many uses for this clock shifter, and most can be "unlocked" by feeding clever signals into the shift CV input.
+There are many, many uses for this clock shifter, and most may be "unlocked" by feeding clever signals into the shift CV input.
 
 Also, the module is fully polyphonic, so there is great potential for control mangling.
 
@@ -21,7 +21,7 @@ Used as a simple metric delay, it will add an offset clock that can be adjusted 
 
 If the delay is slowly changed during playback, "phasing" effects can be easily introduced (and controlled!) as in the music of Steve Reich. Some of that is explained [here](https://en.wikipedia.org/wiki/Piano_Phase). Note that the name of this module is in fact borrowed from the name of a Reich composition. A review of that recording can be found [here](https://pitchfork.com/reviews/albums/21584-four-organs-phase-patterns/).
 
-Please remember that there are many potential uses of this module - recreating the compositions of Steve Reich is just one of them.
+Remember that there are many potential uses of this module - recreating the compositions of Steve Reich is just one of them.
 
 Use it with a polyphonic set of controls coming into the shift CV input. Will give many copies of the clock, each shifted by a different amount.
 
@@ -41,7 +41,9 @@ The shift range switch lets the delay get much larger than 1.
 
 ### The controls
 
-Shift amount is a fixed shift that is added to the other shift sources. It currently has a range of 0..4.
+Shift amount is a fixed shift that is added to the other shift sources. It currently has a range of 0..1, although the "Range" button can greatly extend this.
+
+Range multiple the the range of the Shift amount knob, all the way up to 0.100.
 
 The RIB buttons (labeled "+" and "-") trigger a new varying shift cycle when they are pressed. This causes an LED to go on and the shift will start to change. Once the RIB generator gets to the end (Dur or Total), it stops and the led goes off.
 

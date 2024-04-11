@@ -246,11 +246,19 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
                       _ribGenerator[ribIndex].get() +
                       .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
+       //  SQINFO("shifter[%d] set to %f", i, shift);
         _curShift[i] = std::max(shift, 0.f);
     }
 
+   
     // put channel 0 in the UI.
-    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get()) + _curShift[0];
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = _curShift[0];
+    //TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get()) + _curShift[0];
+    //  SQINFO("shift internal set to %f from mult=%f glb=%f rib=%f", 
+    //     TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value,
+    //     shiftMult,
+    //     globalShift,
+    //      _ribGenerator[0].get());
 }
 
 template <class TBase>
