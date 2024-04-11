@@ -31,6 +31,7 @@ public:
         RIB_SPAN_PARAM,      // This is the denominator, controlled by that widget called "Dur"
         RIB_NEGATIVE_BUTTON_PARAM,
         SHIFT_RANGE_PARAM,
+        USE_ADVANCED_UI_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -52,6 +53,8 @@ public:
         NUM_LIGHTS
     };
 
+    static float indexToValueRibDuration(int index);
+    static int valueToIndexRibDuration(float value);
     static const std::vector<std::string> getRibDurationLabels() {
         return {"1/3", "1/2", "1", "2", "3"};
     }
@@ -95,6 +98,7 @@ public:
         assert(channel < 16);
         return _curShift[channel];
     }
+
 private:
     void _init();
     void _stepn();
@@ -118,6 +122,42 @@ private:
     int _numOutputClocks = 0;
     int _numShiftInputs = 0;
 };
+
+template <class TBase>
+inline float PhasePatterns<TBase>::indexToValueRibDuration(int index) {
+    float ret = 0;
+    switch (index) {
+        case 0:
+            ret = 1.f / 3.f;
+            break;
+        case 1:
+            ret = 1.f / 2.f;
+            break;
+        case 2:
+            ret = 1.f;
+            break;
+        case 3:
+            ret = 2;
+            break;
+        case 4:
+            ret = 3;
+            break;
+        default:
+            assert(false);
+    }
+    return ret;
+}
+
+template <class TBase>
+inline int PhasePatterns<TBase>::valueToIndexRibDuration(float value) {
+    if (value > 1.5f) {
+        return (value > 2.5) ? 4 : 3;
+    }
+    if (value < 1.f / 2.5f ) {
+        return 0;
+    }
+    return (value < .7) ? 1 : 2;
+}
 
 template <class TBase>
 inline void PhasePatterns<TBase>::_init() {
@@ -163,8 +203,9 @@ inline void PhasePatterns<TBase>::_updateButtons() {
             }
 
             const int period = _clockShifter[i].getPeriod();
-            const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
-            float duration = this->getRibDurationFromIndex(durationIndex);
+        //    const int durationIndex = int(std::round(TBase::params[RIB_DURATION_PARAM].value));
+       //     float duration = this->getRibDurationFromIndex(durationIndex);
+            float duration = TBase::params[RIB_DURATION_PARAM].value;
             const float span = TBase::params[RIB_SPAN_PARAM].value;
             assert(span != 0);
             if (trigNegative) {
@@ -202,14 +243,22 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
         const int ribIndex = ribsPoly ? i : 0;
         const int shiftCVIndex = shiftCVPoly ? i : 0;
         float shift = globalShift +
-                            _ribGenerator[ribIndex].get() +
-                            .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
+                      _ribGenerator[ribIndex].get() +
+                      .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
+       //  SQINFO("shifter[%d] set to %f", i, shift);
         _curShift[i] = std::max(shift, 0.f);
     }
 
+   
     // put channel 0 in the UI.
-    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get()) + _curShift[0];
+    TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = _curShift[0];
+    //TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get()) + _curShift[0];
+    //  SQINFO("shift internal set to %f from mult=%f glb=%f rib=%f", 
+    //     TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value,
+    //     shiftMult,
+    //     globalShift,
+    //      _ribGenerator[0].get());
 }
 
 template <class TBase>

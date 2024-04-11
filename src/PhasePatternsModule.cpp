@@ -3,13 +3,16 @@
 #include <sstream>
 
 #include "plugin.hpp"  // MUST BE FIRST
+
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
 #include "SqLabel.h"
+#include "SqMenuItem.h"
 #include "SqLog.h"
 #include "WidgetComposite.h"
+
 
 using Comp = PhasePatterns<WidgetComposite>;
 using Lab = SqLabel;
@@ -81,19 +84,21 @@ void inline PhasePatternsModule::addParams() {
     this->configInput(Comp::RIB_NEGATIVE_INPUT, "Rib negative trigger");
     this->configOutput(Comp::CK_OUTPUT, "Shifted output");
 
-    class TotalParam : public ParamQuantity {
-    public:
-        std::string getDisplayValueString() override {
-            auto const labels = Comp::getRibDurationLabels();
-            const int index = int(std::round(module->params[Comp::RIB_DURATION_PARAM].value));
-            std::string ret = "";
-            if (index < int(labels.size()) && index >= 0) {
-                ret = labels[index];
-            }
-            return ret;
-        }
-    };
-    this->configParam<TotalParam>(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Total clocks per RIB");
+    // class TotalParam : public ParamQuantity {
+    // public:
+    //     std::string getDisplayValueString() override {
+    //         auto const labels = Comp::getRibDurationLabels();
+    //         const int index = int(std::round(module->params[Comp::RIB_DURATION_PARAM].value));
+    //         std::string ret = "";
+    //         if (index < int(labels.size()) && index >= 0) {
+    //             ret = labels[index];
+    //         }
+    //         return ret;
+    //     }
+    // };
+    // this->configParam<TotalParam>(Comp::RIB_DURATION_PARAM, 0, 4, 2, "Total clocks per RIB");
+    this->configParam(Comp::RIB_DURATION_PARAM, 0, 4, 1, "Total clocks per RIB");
+    this->configParam(Comp::USE_ADVANCED_UI_PARAM, 0, 1, 0, "Expert UI");
 }
 
 #define _LAB
@@ -108,6 +113,7 @@ public:
         addLabel(Vec(24, 356), "Squinktronix", 16);
 #endif
         addControls(module);
+        _addRibsControls();
         addIO(module);
     }
 
@@ -116,25 +122,102 @@ private:
 
     void step() override {
         ModuleWidget::step();
-        if (module) {
-            if (_shiftDisplay) {
-                const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);   
-                SqLabel* label = _shiftDisplay->getChild();
-                if (shift > 99) {
-                    std::stringstream str;
-                    str <<  std::setprecision(4) << shift;
-                    label->updateText(str.str());
-                    // SQINFO("a shift=%f lab=%s", shift, str.str().c_str());
-                } else {
-                    std::stringstream str;
-                    str << std::setprecision(4) << shift;
-                    const auto s = str.str();
-                    label->updateText(NumberFormatter::formatFloat(2, s));
-                    // SQINFO("b shift=%f lab=%s final=%s", shift, s.c_str(), NumberFormatter::formatFloat(2, s).c_str());
-                }
+        if (!module) {
+            return;
+        }
+
+        if (_shiftDisplay) {
+            const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
+            SqLabel* label = _shiftDisplay->getChild();
+            if (shift > 99) {
+                std::stringstream str;
+                str << std::setprecision(4) << shift;
+                label->updateText(str.str());
+                // SQINFO("a shift=%f lab=%s", shift, str.str().c_str());
+            } else {
+                std::stringstream str;
+                str << std::setprecision(4) << shift;
+                const auto s = str.str();
+                label->updateText(NumberFormatter::formatFloat(2, s));
+                // SQINFO("b shift=%f lab=%s final=%s", shift, s.c_str(), NumberFormatter::formatFloat(2, s).c_str());
             }
         }
+
+        const int expert = APP->engine->getParamValue(module, Comp::USE_ADVANCED_UI_PARAM) > .5;
+        if (expert != _lastExpert) {
+            _lastExpert = expert;
+            _addRibsControls();
+        }
+
+
     }
+
+    int _lastExpert = -1;
+
+    void appendContextMenu(ui::Menu* menu) override {
+        if (!module) {
+            return;
+        }
+
+        SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::USE_ADVANCED_UI_PARAM);
+        item->text = "Use Expert UI";
+        menu->addChild(item);
+    }
+
+    ParamWidget* _ribDurationControl = nullptr;
+    ParamWidget* _ribSpanControl = nullptr;
+
+    void _addRibsControls() {
+        // First, get rid of what's there, if anything
+        if (_ribDurationControl) {
+            this->removeChild(_ribDurationControl);
+        }
+        if (_ribSpanControl) {
+            this->removeChild(_ribSpanControl);
+        }
+
+        if (_useAdvancedUI()) {
+             auto p = createParam<RoundBlackKnob>(Vec(6, 134), module, Comp::RIB_DURATION_PARAM);
+             _ribDurationControl = p;
+
+            auto param = createParam<RoundBlackKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+            _ribSpanControl = param;
+        } else {
+            // Make the combo box
+            auto p = createParam<PopupMenuParamWidget>(
+                Vec(6, 138),
+                module,
+                Comp::RIB_DURATION_PARAM);
+            p->setLabels(Comp::getRibDurationLabels());
+            p->setIndexToValueFunction(Comp::indexToValueRibDuration);
+            p->setValueToIndexFunction(Comp::valueToIndexRibDuration);
+            p->box.size.x = 40;  // width
+            p->box.size.y = 22;
+            p->text = "1";
+            _ribDurationControl = p;
+
+             auto param = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+             _ribSpanControl = param;
+        }
+        addParam(_ribDurationControl);
+        addLabel(Vec(11, 112), "Total");
+
+        addParam(_ribSpanControl);
+        addLabel(Vec(68, 112), "Dur");
+    }
+
+    /** 
+     */
+    bool _useAdvancedUI() const {
+        if (!module) {
+            return false;
+        }
+        const float p = APP->engine->getParamValue(module, Comp::USE_ADVANCED_UI_PARAM);
+        return p > .5;
+    }
+
+    /**
+     */
     void addControls(PhasePatternsModule* module) {
         addParam(createParam<RoundBlackKnob>(Vec(9, 51), module, Comp::SHIFT_PARAM));
         //  addParam(createParam<RoundBlackSnapKnob>(Vec(68, 51), module, Comp::SHIFT_RANGE_PARAM));
@@ -146,21 +229,6 @@ private:
         _shiftDisplay = addLabel(Vec(6, 83), "");
 
         // now all the RIB controls
-        auto p = createParam<PopupMenuParamWidget>(
-            Vec(6, 138),
-            module,
-            Comp::RIB_DURATION_PARAM);
-        //   p->setShortLabels(Comp::getShortScaleLabels(true));
-        p->setLabels(Comp::getRibDurationLabels());
-        p->box.size.x = 40;  // width
-        p->box.size.y = 22;
-        p->text = "1";
-        addParam(p);
-        addLabel(Vec(11, 112), "Total");
-
-        auto param = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
-        addParam(param);
-        addLabel(Vec(68, 112), "Dur");
 
         // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
@@ -223,6 +291,7 @@ private:
         addChild(parent);
         return parent;
     }
+
 };
 
 Model* modelPhasePatterns = createModel<PhasePatternsModule, PhasePatternsWidget>("sqh-phasepatterns");

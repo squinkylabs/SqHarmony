@@ -2,9 +2,12 @@
 
 #include <assert.h>
 
+#include <functional>
 #include <vector>
 
 #include "SqLog.h"
+
+using CVMapFunction = std::function<int(float)>;
 
 template <typename T>
 class ParamUpdater {
@@ -23,13 +26,22 @@ private:
     mutable float _lastTime = -1000;
 };
 
-template <typename T>
-class CVUpdater {
-public:
-    CVUpdater(enum T::InputIds inputID, bool inputIsMonophonic) : _inputID(inputID),
-                                                                  _inputIsMonophonic(inputIsMonophonic) {}
-    CVUpdater() = delete;
+enum class PolyMono {
+    Poly,
+    Mono
+};
 
+template <typename T>
+class CVInUpdater {
+public:
+    CVInUpdater(
+        enum T::InputIds inputID,
+        PolyMono polyMono,
+        CVMapFunction mapFunction) : _inputID(inputID),
+                                     _inputIsMonophonic(polyMono == PolyMono::Mono),
+                                     _cvMapFunction(mapFunction) {
+    }
+    CVInUpdater() = delete;
     bool poll(const T* composite) const {
         auto input = composite->inputs[_inputID];
         if (input.channels != _lastChannels) {
@@ -41,9 +53,17 @@ public:
         const unsigned maxChannels = _inputIsMonophonic ? 1 : 16;
         const unsigned channelToPoll = std::min(maxChannels, unsigned(input.channels));
         for (unsigned i = 0; i < channelToPoll; ++i) {
-            if (input.getVoltage(i) != _lastValues[i]) {
-                _lastValues[i] = input.getVoltage(i);
-                return true;
+            const float in = input.getVoltage(i); 
+            if (in != _lastValues[i]) {
+                _lastValues[i] = in;
+                if (_cvMapFunction) {
+                    if (_cvMapFunction(in) != _lastMappedValues[i]) {
+                     _lastMappedValues[i] = _cvMapFunction(in);
+                     return true;
+                    }
+                } else {
+                    return true;
+                } 
             }
         }
         return false;
@@ -52,7 +72,9 @@ public:
 private:
     const int _inputID;
     const bool _inputIsMonophonic;
+    const CVMapFunction _cvMapFunction;
     mutable float _lastValues[16] = {-1000};
+    mutable int _lastMappedValues[16] = {-1000};
     mutable int _lastChannels = -1;
 
     void _snapshotValues(const T* composite) const {
@@ -91,36 +113,78 @@ public:
     CompositeUpdater(const CompositeUpdater&) = delete;
     bool poll() const;
 
-    void add(enum T::ParamIds param) {
+    void add(enum T::ParamIds param, bool everyPoll = true) {
         assert(_composite);
-        _paramUpdaters.push_back({param});
+        auto& list = everyPoll ? _paramUpdaters : _paramUpdatersInfrequent;
+        list.push_back({param});
     }
 
-    void add(enum T::InputIds input, bool isMonophonic) {
+    void add(enum T::InputIds input, PolyMono monoPoly, bool everyPoll, CVMapFunction mapFunction) {
         assert(_composite);
-        _cvInUpdaters.push_back({input, isMonophonic});
+        auto& list = everyPoll ? _cvInUpdaters : _cvInUpdatersInfrequent;
+        list.push_back({input, monoPoly, mapFunction});
     }
 
-    void add(enum T::OutputIds output) {
+    void add(enum T::OutputIds output, bool everyPoll) {
         assert(_composite);
-        _cvOutUpdaters.push_back({output});
+        auto& list = everyPoll ? _cvOutUpdaters : _cvOutUpdatersInfrequent;
+        list.push_back({output});
     }
 
-    void set(T* composite) {
+    void set(T* composite, int infrequentMult) {
         assert(!_composite);
         assert(composite);
         _composite = composite;
+        _subdivision = infrequentMult;
     }
 
 private:
     std::vector<ParamUpdater<T>> _paramUpdaters;
-    std::vector<CVUpdater<T>> _cvInUpdaters;
+    std::vector<ParamUpdater<T>> _paramUpdatersInfrequent;
+    std::vector<CVInUpdater<T>> _cvInUpdaters;
+    std::vector<CVInUpdater<T>> _cvInUpdatersInfrequent;
     std::vector<CVOutUpdater<T>> _cvOutUpdaters;
+    std::vector<CVOutUpdater<T>> _cvOutUpdatersInfrequent;
     const T* _composite = nullptr;
+    int _subdivision = 1;
+    bool _firstTime = true;
+    mutable int _counter = 0;
+
+    bool pollFrequent() const;
+    bool pollInFrequent() const;
 };
 
 template <typename T>
 inline bool CompositeUpdater<T>::poll() const {
+    bool changed = pollFrequent();
+    if (_counter <= 0) {
+        changed |= pollInFrequent();
+        _counter = _subdivision;
+    }
+    --_counter;
+    return changed;
+}
+
+template <typename T>
+inline bool CompositeUpdater<T>::pollInFrequent() const {
+    assert(_composite);
+    bool changed = false;
+    for (int i = 0; i < int(_paramUpdatersInfrequent.size()); ++i) {
+        changed |= _paramUpdatersInfrequent[i].poll(_composite);
+    }
+    for (int i = 0; i < int(_cvInUpdatersInfrequent.size()); ++i) {
+        changed |= _cvInUpdatersInfrequent[i].poll(_composite);
+    }
+
+    for (int i = 0; i < int(_cvOutUpdatersInfrequent.size()); ++i) {
+        changed |= _cvOutUpdatersInfrequent[i].poll(_composite);
+    }
+
+    return changed;
+}
+
+template <typename T>
+inline bool CompositeUpdater<T>::pollFrequent() const {
     assert(_composite);
     bool changed = false;
     for (int i = 0; i < int(_paramUpdaters.size()); ++i) {
@@ -128,11 +192,14 @@ inline bool CompositeUpdater<T>::poll() const {
     }
 
     for (int i = 0; i < int(_cvInUpdaters.size()); ++i) {
+        //      SQINFO("polling freq cvin");
         changed |= _cvInUpdaters[i].poll(_composite);
+        //    SQINFO("done polling freq cvin");
     }
 
     for (int i = 0; i < int(_cvOutUpdaters.size()); ++i) {
         changed |= _cvOutUpdaters[i].poll(_composite);
     }
+    //   assert(false);
     return changed;
 }

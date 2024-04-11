@@ -24,7 +24,7 @@ Many chord generators tend to generate all the chord at different pitches, like 
 
 Harmony II also has a bunch of non-diatonic scales in it. So it isn't limited to diatonic harmony at all.
 
-For more on scales and modes and such, look at a [more on harmony](./more-on-harmony.md)
+For more on scales and modes and such, look at [more on harmony](./more-on-harmony.md)
 
 Aside from generating "in key" triads, like the examples above, you can also use harmony to generate a single parallel interval. This is usually done with a third, or inverted third. Some common rock examples are [The Beatles And Your Bird Can Sing](https://www.youtube.com/watch?v=sOUlbredoUM), the intro to [Bon Jovi's Wanted Dead or Alive](https://www.youtube.com/watch?v=SRvCvsRp5ho), [The Beatles Blackbird](https://www.youtube.com/watch?v=Man4Xw8Xypo), [Van Morrison's Brown Eyed Girl](https://www.youtube.com/watch?v=kqXSBe-qMGo)
 
@@ -57,7 +57,7 @@ The presets are grouped by type. The first group are the triads. A triad is a ve
 The next group are the parallel intervals. There are just two notes - the note you input, and a second note the the specific interval.
 
 * **parallel third**. A very common interval often used for "harmony guitar" in old rock songs. A note transposed up a third is added.
-* **parallel sixth**. A note a sixth about the input is added.
+* **parallel sixth**. A note a sixth above the input is added.
 * **parallel third inverted**. The a note a third lower than the input is added.
 
 ## Panel controls, per transposer
@@ -76,9 +76,9 @@ The next group are the parallel intervals. There are just two notes - the note y
 
 ## CV inputs
 
-**CVI** is the main CV input. It is monophonic and follows the VCV standard for pitch.
+**CVI** is the main CV input. It is monophonic and follows the VCV standard for pitch. All of the output notes will track this pitch
 
-**CVO** is the output. It is polyphonic and follows the VCV standard for pitch.
+**CVO** is the output. It is polyphonic and follows the VCV standard for pitch. This is the where the quantized and generated pitches come out.
 
 **Key** will set the Key signature root. It is monophonic, and also follows the VCV pitch standard in that each setting is 1/12 of a volt from the other adjacent setting.
 
@@ -86,11 +86,12 @@ The next group are the parallel intervals. There are just two notes - the note y
 
 **XP** transpose amount. It is polyphonic, does not follow the VCV pitch standard. It also one "step" per 1/12 volt, but a scale step is not the same as a semitone.
 
-**KSI** key signature input. It is polyphonic and follows the "Poly External Scale" protocol developed by Aria Salvatrice. It allows the key and mode of Harmony II to follow the key and mode of an module that can output this protocol.
+**PES** key signature input. It is polyphonic and follows the "Poly External Scale" (PES)
+ protocol developed by Aria Salvatrice. It allows the key and mode of Harmony II to follow the key and mode of any module that can output this protocol.
 
 There are a few things to remember with these CV inputs.
 
-The mode input can be confusing. There is a new scale every 1/12 volt. The number of scales depends on the setting in the context menu for "use only diatonic scales". It is it only diatonic scales, then there are 7 scales so:
+The mode input can be confusing. There is a new scale every 1/12 volt. The number of scales depends on the setting in the context menu for "Mode CV only diatonic". If it is only diatonic scales, then there are 7 scales so:
 
 * 0 = Major
 * 1/12 = Dorian
@@ -120,13 +121,13 @@ But, when all scales are enabled:
 
 ## CV output
 
-(text coming soon)
+This is the polyphonic output where the quantized and generator pitches are output. It follows all VCV standards for pitch CV.
 
-## Context menu things
+## Context menu items
 
-**Use only diatonic scales**. Controls whether the Mode CV can select any scale, or just select a diatonic scale. All other parts of Harmony II will ignore this setting, so you are free to pack any scale from the the dropdown on the panel.
+**Mode CV only diatonic**. Controls whether the Mode CV can select any scale, or just select a diatonic scale. All other parts of Harmony II will ignore this setting, so you are free to pick any scale from the the dropdown on the panel.
 
-**Sharps and flats**. Some pitches may be displayed either as a short or a flat. For example A sharp and B flat are the same note. So this setting controls how Harmony II makes a decision. In many cases Harmony II can pick one of these as the default. It almost always does this by picking the choice that will give the least number of accidentals in the key signature and always avoiding "crazy" key signatures. So, for example, it will pick flats for C minor, which contains C, D, E flat, F, G, A flat, and B flat. Spelled with sharps it would be C, D, D#, F, G, G#, A#, C. The problem with the sharp interpretation is that is has both the natural and the sharp for D and G, which would make it very difficult to notate using standard music notion.
+**Sharps and flats**. Some pitches may be displayed either as a sharp or a flat. For example A sharp and B flat are the same note. So this setting controls how Harmony II makes a decision. In many cases Harmony II can pick one of these as the default. It almost always does this by picking the choice that will give the least number of accidentals in the key signature and always avoiding "crazy" key signatures. So, for example, it will pick flats for C minor, which contains C, D, E flat, F, G, A flat, and B flat. Spelled with sharps it would be C, D, D#, F, G, G#, A#, C. The problem with the sharp interpretation is that is has both the natural and the sharp for D and G, which would make it very difficult to notate using standard music notion.
 
 For non-diatonic scales, Harmony II may have no default.
 
@@ -144,11 +145,9 @@ As mentioned above, Harmony II supports the PES protocol. This allows fully key 
 
 As an output, Harmony II will output whatever it is set to.
 
-As an input, KSI is a little more complex. Harmony II will examine what is on the KSI input. It it maps to a scale that Harmony II knows about, Harmony will follow this input. If the input is for a scale that Harmony II does not support, the a small red LED will illuminate next to the KSI input to show an error.
+As an input, PES is a little more complex. Harmony II will examine what is on the PES input. It it maps to a scale that Harmony II knows about, Harmony will follow this input. If the input is for a scale that Harmony II does not support, the a small red LED will illuminate next to the KSI input to show an error.
 
-Some modules may output PES with only the notes of the scale, but no indication of what the root note is. For example, most quantizers to not know or care about root notes, so they cannot output anything meaningful for that. When Harmony II sees no root note, it will pick the first scale that matches. This means that if a quantizer is set for the notes C, D, E, F, G, A, B they Harmony will see that as a CMajor. Of course A minor is one of many other valid interpretations.
-
-Often this is what you want. Some time it is not.
+More information on PES may be found [here](./pes.md)
 
 ## Block diagram
 

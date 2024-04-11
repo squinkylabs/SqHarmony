@@ -28,11 +28,11 @@ using Comp = MyComposite<TestComposite>;
 static void testCanCall() {
     Comp composite;
     CompositeUpdater<Comp> c(&composite);
-    CVUpdater<Comp> cv(Comp::INPUT1, true);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono, nullptr);
     ParamUpdater<Comp> param(Comp::PARAM1);
 
     c.add(Comp::PARAM1);
-    c.add(Comp::INPUT1, false);
+    c.add(Comp::INPUT1, PolyMono::Poly, true, nullptr);
 }
 
 static void testPollParam() {
@@ -61,10 +61,10 @@ static void testPollParam() {
     assertEQ(b, false);
 }
 
-static void testPollCVChannels() {
+static void testPollCVInChannels() {
     Comp composite;
-    CVUpdater<Comp> cv(Comp::INPUT1, true);
-    CVUpdater<Comp> cv2(Comp::INPUT2, false);
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Mono, nullptr);
+    CVInUpdater<Comp> cv2(Comp::INPUT2, PolyMono::Poly, nullptr);
 
     bool b = cv.poll(&composite);
     assertEQ(b, true);
@@ -90,12 +90,41 @@ static void testPollCVChannels() {
     assertEQ(b, false);
 }
 
-static void testPollCVValues() {
+static void testPollCVOutChannels() {
     Comp composite;
-    CVUpdater<Comp> cv(Comp::INPUT1, false);
+    CVOutUpdater<Comp> cv(Comp::OUTPUT1);
+    CVOutUpdater<Comp> cv2(Comp::OUTPUT2);
+
+    bool b = cv.poll(&composite);
+    assertEQ(b, true);
+    b = cv2.poll(&composite);
+    assertEQ(b, true);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+    b = cv2.poll(&composite);
+    assertEQ(b, false);
+
+    auto& out1 = composite.outputs[Comp::OUTPUT1];
+    auto& out2 = composite.outputs[Comp::OUTPUT2];
+
+    out2.channels = 5;
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+    b = cv2.poll(&composite);
+    assertEQ(b, true);  // channels changed
+    b = cv2.poll(&composite);
+    assertEQ(b, false);
+    b = cv2.poll(&composite);
+    assertEQ(b, false);
+}
+
+static void testPollCVInValues() {
+    Comp composite;
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Poly, nullptr);
 
     auto& in1 = composite.inputs[Comp::INPUT1];
-    in1.channels = 3;      // make it polyphonic
+    in1.channels = 3;  // make it polyphonic
 
     // initial start up poll
     bool b = cv.poll(&composite);
@@ -111,16 +140,70 @@ static void testPollCVValues() {
     assertEQ(b, false);
 
     SQINFO("!! MORE TESTS FOR MONO/POLY");
-  //  assert(false);
 }
 
+static void testPollCVInValuesMapped() {
+    Comp composite;
+    CVInUpdater<Comp> cv(Comp::INPUT1, PolyMono::Poly, AudioMath::float2int);
+    auto& in1 = composite.inputs[Comp::INPUT1];
+    in1.channels = 1;
+
+    // initial start up poll
+    bool b = cv.poll(&composite);
+    assertEQ(b, true);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+    // second poll says change, if mapped
+    in1.setVoltage(.1);
+    b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    in1.setVoltage(.2);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+    in1.setVoltage(.49);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+    in1.setVoltage(.51);
+    b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    in1.setVoltage(.9);
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+
+}
+
+static void testPollCVOutValues() {
+    Comp composite;
+    CVOutUpdater<Comp> cv(Comp::OUTPUT1);
+
+    auto& out1 = composite.outputs[Comp::OUTPUT1];
+    out1.channels = 3;  // make it polyphonic
+
+    // initial start up poll
+    bool b = cv.poll(&composite);
+    assertEQ(b, true);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+    out1.setVoltage(3);
+    b = cv.poll(&composite);  // output poll doesn't look at values
+    assertEQ(b, false);
+
+    b = cv.poll(&composite);
+    assertEQ(b, false);
+}
 static void testPollCompositeUpdater_oneParam() {
     Comp composite;
     CompositeUpdater<Comp> up;
-    up.set(&composite);
+    up.set(&composite, 100);
     up.add(Comp::PARAM1);
 
-    bool b  = up.poll();
+    bool b = up.poll();
     assertEQ(b, true);
     b = up.poll();
     assertEQ(b, false);
@@ -129,13 +212,11 @@ static void testPollCompositeUpdater_oneParam() {
 }
 
 static void testPollCompositeUpdater_oneCVMono() {
-    //  assert(false);
-    SQINFO("----t testPollCompositeUpdater");
     Comp composite;
     CompositeUpdater<Comp> up;
-    up.set(&composite);
+    up.set(&composite, 100);
     composite.inputs[Comp::INPUT1].channels = 1;
-    up.add(Comp::INPUT1, true);
+    up.add(Comp::INPUT1, PolyMono::Mono, true, nullptr);
 
     bool b = up.poll();
     assertEQ(b, true);
@@ -149,22 +230,65 @@ static void testPollCompositeUpdater_oneCVMono() {
     assertEQ(b, true);
     b = up.poll();
     assertEQ(b, false);
+}
 
+static void testPollCompositeUpdater_InfrequentParam1() {
+    Comp composite;
+    CompositeUpdater<Comp> up;
+    up.set(&composite, 4);
+
+    up.add(Comp::PARAM1, false);
+
+    bool b = up.poll();
+    assertEQ(b, true);
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+}
+
+static void testPollCompositeUpdater_InfrequentParam2() {
+    Comp composite;
+    CompositeUpdater<Comp> up;
+    up.set(&composite, 4);
+
+    up.add(Comp::PARAM1, false);
+    auto& param = composite.params[Comp::PARAM1];
+
+    // always see a change the first time
+    bool b = up.poll();
+    assertEQ(b, true);
+
+    // even with a change don't see change frequently
+    param.value = 123;
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+    b = up.poll();
+    assertEQ(b, false);
+
+    b = up.poll();
+    assertEQ(b, true);
 }
 
 void testUpdater() {
     testCanCall();
     testPollParam();
-    testPollCVChannels();
-    testPollCVValues();
+    testPollCVInChannels();
+    testPollCVInValues();
+    testPollCVInValuesMapped();
+    testPollCVOutChannels();
+    testPollCVOutValues();
     testPollCompositeUpdater_oneParam();
     testPollCompositeUpdater_oneCVMono();
+    testPollCompositeUpdater_InfrequentParam1();
+    testPollCompositeUpdater_InfrequentParam2();
 }
 
 #if 0
 void testFirst() {
-    // i == 0, j== -2
-    // testModeCV(-14, 0, true);
-    testUpdater();
+    testPollCVInValuesMapped();
+    //  testPollCompositeUpdater_InfrequentParam2();
 }
 #endif

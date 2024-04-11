@@ -72,6 +72,7 @@ extern void testHarmony2C();
 extern void testSharpFlatMonitor();
 extern void testUpdater();
 extern void testShiftMath();
+extern void testAudioMath();
 
 #include "SqLog.h"
 
@@ -100,7 +101,9 @@ int main(const char**, int) {
     testFirst();
     std::exit(0);
 #endif 
+    testAudioMath();
     testUpdater();
+    
 
     testTwister();
     testPinkFilter();

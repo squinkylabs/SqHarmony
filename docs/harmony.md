@@ -8,6 +8,8 @@ If the output is used to play a four voice polyphonic synth patch, it will sound
 
 You may select keys, and there is some control of the chords that will be generated, but always withing the rules of good harmony and voice leading.
 
+In 3/2024 there was a challenge on the VCV Community board to use Harmony and Arpeggiator in a patch. The submissions were excellent. More information is [here](./arp_harmony_challenge/arp-harmony-challenge.md)
+
 ## Panel
 
 ### The score at the top
@@ -29,6 +31,8 @@ There is a single CV input. It's monophonic, and follows the VCV voltage standar
 The input is used to determine which chord to generate, 1, 2, 3, 4, 5, 6, or 7. The octave information is ignored. Also ignored are any non-scale notes in the input, they are quantized to the nearest scale note.
 
 There is an optional trigger input. Either the trigger input, or a CV change, or both can trigger the generation of a new chord.
+
+There is also a PES input that let's you set the key signature from a different module, so that all modules can be in the same key. Information on PES can be found [here](./pes.md)
 
 ### The outputs
 

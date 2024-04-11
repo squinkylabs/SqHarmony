@@ -37,7 +37,7 @@ public:
 
 private:
     void addParams() {
-        const int numModes = getComp()->numCurrentModes();
+        const int numModes = getComp()->numCurrentModesMax();
         const int numDegrees = 12;
         for (int i = 0; i < NUM_TRANPOSERS; ++i) {
             this->configParam(Comp::XPOSE_DEGREE1_PARAM + i, 0, numDegrees - 1, 0, "Transpose Degrees");
@@ -56,7 +56,7 @@ private:
         //  PITCH_OUTPUT,
         //   XSCALE_OUTPUT,
         this->configOutput(Comp::PITCH_OUTPUT, "Main chord CV");
-        this->configOutput(Comp::XSCALE_OUTPUT, "Scale (PES)");
+        this->configOutput(Comp::PES_OUTPUT, "Scale (PES)");
 
         //    XPOSE_INPUT,
         // KEY_INPUT,
@@ -67,7 +67,7 @@ private:
         this->configInput(Comp::XPOSE_INPUT, "Transpose steps");
         this->configInput(Comp::MODE_INPUT, "Scale mode/type");
         this->configInput(Comp::PITCH_INPUT, "Main CV");
-        this->configInput(Comp::XSCALE_INPUT, "Scale(PES)");
+        this->configInput(Comp::PES_INPUT, "Scale(PES)");
     }
 };
 
@@ -140,7 +140,7 @@ private:
         }
 
         SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_PARAM);
-        item->text = "Use only diatonic scales";
+        item->text = "Mode CV only diatonic";
         menu->addChild(item);
 
         const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
@@ -161,7 +161,7 @@ private:
         addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI");
         addOutputL(Vec(x0 + dx, y), Comp::PITCH_OUTPUT, "CVO");
 
-        addOutputL(Vec(x0 + dx * 3, y), Comp::XSCALE_OUTPUT, "KSO");
+        addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES");
     }
 
     void addModCV() {
@@ -171,7 +171,7 @@ private:
         addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key");
         addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
 
-        addInputL(Vec(x0 + 3 * dx, y), Comp::XSCALE_INPUT, "KSI");
+        addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "PES");
     }
 
     void addLeds() {

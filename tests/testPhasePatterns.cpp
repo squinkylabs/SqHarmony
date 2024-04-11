@@ -244,6 +244,20 @@ static void testNegativeCV() {
     assertGE(v, 0);
 }
 
+static void testIndex2Value() {
+    assertEQ(Comp::indexToValueRibDuration(0), 1.f / 3.f);
+    assertEQ(Comp::indexToValueRibDuration(1), 1.f / 2.f);
+    assertEQ(Comp::indexToValueRibDuration(2), 1.f);
+    assertEQ(Comp::indexToValueRibDuration(3), 2.f);
+    assertEQ(Comp::indexToValueRibDuration(4), 3.f);
+
+    assertEQ(Comp::valueToIndexRibDuration(1.f / 3.f), 0);
+    assertEQ(Comp::valueToIndexRibDuration(1.f / 2.f), 1);
+    assertEQ(Comp::valueToIndexRibDuration(1.f), 2);
+    assertEQ(Comp::valueToIndexRibDuration(2.f), 3);
+    assertEQ(Comp::valueToIndexRibDuration(3.f), 4);
+}
+
 void testPhasePatterns() {
     testOver1();
     testSimpleInputNoShift();
@@ -252,10 +266,12 @@ void testPhasePatterns() {
     testRIBButtons();
     testShiftCV();
     testNegativeCV();
+    testIndex2Value();
 }
 
 #if 0
 void testFirst() {
+    testIndex2Value();
     testNegativeCV();
 }
 #endif

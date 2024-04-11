@@ -52,6 +52,7 @@ public:
     enum InputIds {
         CV_INPUT,
         TRIGGER_INPUT,
+        PES_INPUT,
         NUM_INPUTS
     };
 
@@ -124,6 +125,7 @@ private:
     void stepn();
     void updateEverything();
     void lookForKeysigChange();
+    void _pollPESInput();
 
     /**
      * input quantization
@@ -237,6 +239,7 @@ inline void Harmony<TBase>::stepn() {
         mustUpdate = true;
     }
 
+#if 0   // old stuff?
     static bool didIt = false;
     if (!didIt) {
         // SQINFO("sop = %d to %d", style->minSop(), style->maxSop());
@@ -245,6 +248,7 @@ inline void Harmony<TBase>::stepn() {
         // SQINFO("bass = %d to %d", style->minBass(), style->maxBass());
         didIt = true;
     }
+    #endif
 
     const Style::InversionPreference ip = Style::InversionPreference(int(std::round(Harmony<TBase>::params[INVERSION_PREFERENCE_PARAM].value)));
     style->setInversionPreference(ip);
@@ -252,8 +256,62 @@ inline void Harmony<TBase>::stepn() {
     lookForKeysigChange();
 }
 
+
+template <class TBase>
+inline void Harmony<TBase>::_pollPESInput() {
+    // This code taken from Harmony II
+        // SQINFO("service ks input");
+    auto& input = TBase::inputs[PES_INPUT];
+    if (input.channels < 1) {
+        return;  // unconnected
+    }
+    if (input.channels < 12) {
+        // wrong number of channels - error
+#ifdef _PES_ERROR_LED
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
+#endif
+        return;
+    }
+    Scale::Role roles[13];
+    bool haveAddedRoot = false;
+    for (int i = 0; i < 12; ++i) {
+        float v = input.getVoltage(i);
+        Scale::Role role;
+        if (v < 4) {
+            role = Scale::Role::NotInScale;
+        } else if (v < 9) {
+            role = Scale::Role::InScale;
+        } else {
+            // only add the first root. Some modules send all note as 10V.
+            role = haveAddedRoot ? Scale::Role::InScale : Scale::Role::Root;
+            haveAddedRoot = true;
+        }
+        roles[i] = role;
+    }
+    roles[12] = Scale::Role::End;
+
+    const auto scaleConverted = Scale::convert(roles);
+    if (std::get<0>(scaleConverted) == false) {
+#ifdef _PES_ERROR_LED
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
+#endif
+    } else {
+#ifdef _PES_ERROR_LED
+        TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
+#endif
+        // SQINFO("good scale, %d, %d (mode)", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
+        // SQINFO("servicing input caused us to update the KEY_PARAM %d and MODE_PARAM %d",
+        //     std::get<1>(scaleConverted).get(),
+        //     int(std::get<2>(scaleConverted)));
+        TBase::params[KEY_PARAM].value = std::get<1>(scaleConverted).get();
+        TBase::params[MODE_PARAM].value = int(std::get<2>(scaleConverted));
+    }
+
+}
+
 template <class TBase>
 inline void Harmony<TBase>::lookForKeysigChange() {
+    _pollPESInput();
     const int basePitch = int(std::round((Harmony<TBase>::params[KEY_PARAM].value)));
     const auto mode = Scale::Scales(int(std::round(Harmony<TBase>::params[MODE_PARAM].value)));
     // const auto newSetting = std::make_pair(basePitch, mode);
