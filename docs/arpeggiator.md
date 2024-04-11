@@ -2,6 +2,8 @@
 
 We tried to put all the most needed info at the top of this short document, but if you are so inclined you can find some more esoteric, but useful and non-obvious information at the bottom.
 
+In 3/2024 there was a challenge on the VCV Community board to use Harmony and Arpeggiator in a patch. The submissions were excellent. More information is [here](./arp_harmony_challenge/arp-harmony-challenge.md)
+
 ## What it does
 
 It acts like most arpeggiators. All the voltages that come in through the polyphonic CV inputs are put into a buffer where they are played over and over, every time a clock occurs. The mode control, and other controls, determine in what order the notes/voltages are played back.
