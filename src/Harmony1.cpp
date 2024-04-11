@@ -59,9 +59,9 @@ struct Harmony1Widget : ModuleWidget {
 
     void addInputs() {
     #if 1
-        addInputL(Vec(34, 257.76), Comp::CV_INPUT, "Root");
-        addInputL(Vec(64, 257.79), Comp::TRIGGER_INPUT, "Trig");
-        addInputL(Vec(93, 257.79), Comp::PES_INPUT, "PES");
+        addInputL(Vec(19, 257.76), Comp::CV_INPUT, "Root");
+        addInputL(Vec(63, 257.79), Comp::TRIGGER_INPUT, "Trig");
+        addInputL(Vec(109, 257.79), Comp::PES_INPUT, "PES");
 
     #else
      // original way
