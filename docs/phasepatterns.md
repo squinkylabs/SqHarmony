@@ -43,7 +43,11 @@ The shift range switch lets the delay get much larger than 1.
 
 Shift amount is a fixed shift that is added to the other shift sources. It currently has a range of 0..1, although the "Range" button can greatly extend this.
 
-Range multiple the the range of the Shift amount knob, all the way up to 0.100.
+Range multiplies the the range of the Shift amount knob, and the other shift sources, all the way up to 0..100.
+
+Total is a drop-down with some commonly used settings for total RIB shift duration. When the "expert" UI is enabled, this drop-down turns into a knob that is continuously variable.
+
+Dur is a knob that controls the amount of time the entire RIB cycles uses. It is normally a stepped knob that only allows integer settings. If the expert UI is enabled, it is not-stepped.
 
 The RIB buttons (labeled "+" and "-") trigger a new varying shift cycle when they are pressed. This causes an LED to go on and the shift will start to change. Once the RIB generator gets to the end (Dur or Total), it stops and the led goes off.
 
@@ -61,7 +65,11 @@ RIB+ and RIB- trigger inputs. These are fully polyphonic trigger inputs. On a tr
 
 Clock output is the only output of the module. If follows the VCV recommendations where output low is 0, output high is 10. It is of course polyphonic.
 
-### More about what is going on inside
+### The context menu
+
+Use Expert UI will switch the RIBS controls from the easy to set default controls, to continuous knobs that allow more settings, with somewhat more effort.
+
+## More about what is going on inside
 
 As you can see in the block diagram, there is not a ton going on inside this module.
 ![Phase Patterns block diagram](./phase-block.svg)
@@ -70,15 +78,15 @@ A key thing to observe, however, is that there are only three or four CVs going 
 
 When Phase Patterns had a polyphony of "n", there are always "n" clock shifters. When the input clock is polyphonic, then there are "n" clock processing units. When the RIBs trigger inputs(s) are polyphonic there will be "n" RIBs generators.
 
-And, of course, each shifter outputs on a different channel of the polyphonic clock output. So the polyphony of the output will be the same as the number if shifters.
+And, of course, each shifter outputs on a different channel of the polyphonic clock output. So the polyphony of the output will be the same as the number of shifters.
 
-You can also see that there is a frequency measure in between the clock and the shifter. The shifter needs to know the input frequency so that it can interpret [0..1] as [0..full] period.
+You can also see in the block diagram that there is a frequency measure in between the clock and the shifter. The shifter needs to know the input frequency so that it can interpret [0..1] as [0..full] period.
 
-### More about polyphony
+## More about polyphony
 
 Because any of the inputs can be monophonic or polyphonic, and because Phase Patterns is kind of odd anyway, the polyphonic possibilities are be a little difficult to understand. Here are a couple of "simple" configurations for illustration.
 
-#### All inputs mono except clock in is n voice polyphonic
+### All inputs mono except clock in is n voice polyphonic
 
 The clock output will have n voices. There will be n clock shifters, but only one RIB generator.
 
@@ -86,10 +94,10 @@ In this configuration, each clock in to clock out will be independent, but they 
 
 If the RIB generator is triggered, it will affect all the clock shifters the same. Sort of.
 
-#### All inputs mono except shift input is polyphonic
+### All inputs mono except shift input is polyphonic
 
 In this case a single mono clock will got to n clock shifters and end up as a poly clock output. Each channel will have its own shift, so each output will be at the same rate as the input clock, but each will be shifted by a different amount.
 
-#### All inputs mono except rib trigger input is polyphonic
+### All inputs mono except rib trigger input is polyphonic
 
 In this case the common clock input get split, and the onset of the RIB ramps will be different for each. But the will share the same rib settings. So that shift amounts will all be "the same", but will start moving at different times.

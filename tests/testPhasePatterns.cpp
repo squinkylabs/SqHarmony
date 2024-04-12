@@ -200,15 +200,15 @@ static void testRIBButtons(bool outputConnected) {
     auto c = factory();
     c->outputs[Comp::CK_OUTPUT].channels = outputConnected ? 1 : 0;
 
-    // SQINFO("--- test back from factory, will process block");
-    //  c->params[Comp::SHIFT_RANGE_PARAM].value = rangeParam;
+    c->params[Comp::RIB_DURATION_PARAM].value = .1;
+
     processBlock(c);          // so it can see the ins and outs
     clockItHighLow(*c, 100);  // prime
     clockItHighLow(*c, 100);
 
     assertLT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
     c->params[Comp::RIB_POSITIVE_BUTTON_PARAM].value = 10;
-    // SQINFO("Just set the button down, will proc a couple of times");
+    processBlock(c);
     processBlock(c);
     processBlock(c);
     assertGT(c->lights[Comp::RIB_POSITIVE_LIGHT].value, 5);
@@ -271,7 +271,8 @@ void testPhasePatterns() {
 
 #if 0
 void testFirst() {
-    testIndex2Value();
-    testNegativeCV();
+   // testIndex2Value();
+   // testNegativeCV();
+   testRIBButtons();
 }
 #endif

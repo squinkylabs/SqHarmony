@@ -9,8 +9,8 @@
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
 #include "SqLabel.h"
-#include "SqMenuItem.h"
 #include "SqLog.h"
+#include "SqMenuItem.h"
 #include "WidgetComposite.h"
 
 
@@ -70,7 +70,7 @@ void inline PhasePatternsModule::addParams() {
             }
         }
     };
-    this->configParam<ShiftRangeParam>(Comp::SHIFT_RANGE_PARAM, 0, 2, 0, "Shift control range");
+    this->configParam<ShiftRangeParam>(Comp::SHIFT_RANGE_PARAM, 0, 2, 0, "Shift range");
 
     this->configParam(Comp::SCHEMA_PARAM, 0, 10, 0, "Schema");
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
@@ -148,8 +148,6 @@ private:
             _lastExpert = expert;
             _addRibsControls();
         }
-
-
     }
 
     int _lastExpert = -1;
@@ -170,19 +168,24 @@ private:
     void _addRibsControls() {
         // First, get rid of what's there, if anything
         if (_ribDurationControl) {
+            SQINFO("remove dur");
             this->removeChild(_ribDurationControl);
+            delete (_ribDurationControl);
+            _ribDurationControl = nullptr;
         }
         if (_ribSpanControl) {
+            SQINFO("remove span");
             this->removeChild(_ribSpanControl);
+            delete (_ribSpanControl);
+            _ribSpanControl = nullptr;
         }
 
         if (_useAdvancedUI()) {
-             auto p = createParam<RoundBlackKnob>(Vec(6, 134), module, Comp::RIB_DURATION_PARAM);
-             _ribDurationControl = p;
-
-            auto param = createParam<RoundBlackKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
-            _ribSpanControl = param;
+            SQINFO("Make round black knob, should not snap");
+            _ribDurationControl = createParam<RoundBlackKnob>(Vec(9, 134), module, Comp::RIB_DURATION_PARAM);
+            _ribSpanControl = createParam<RoundBlackKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
         } else {
+               SQINFO("Make round black knob, shouldsnap");
             // Make the combo box
             auto p = createParam<PopupMenuParamWidget>(
                 Vec(6, 138),
@@ -195,9 +198,7 @@ private:
             p->box.size.y = 22;
             p->text = "1";
             _ribDurationControl = p;
-
-             auto param = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
-             _ribSpanControl = param;
+            _ribSpanControl = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
         }
         addParam(_ribDurationControl);
         addLabel(Vec(11, 112), "Total");
@@ -206,7 +207,7 @@ private:
         addLabel(Vec(68, 112), "Dur");
     }
 
-    /** 
+    /**
      */
     bool _useAdvancedUI() const {
         if (!module) {
@@ -220,7 +221,6 @@ private:
      */
     void addControls(PhasePatternsModule* module) {
         addParam(createParam<RoundBlackKnob>(Vec(9, 51), module, Comp::SHIFT_PARAM));
-        //  addParam(createParam<RoundBlackSnapKnob>(Vec(68, 51), module, Comp::SHIFT_RANGE_PARAM));
         addParam(createParam<CKSSThree>(Vec(78, 51), module, Comp::SHIFT_RANGE_PARAM));
 #ifdef _LAB
         addLabel(Vec(10 + 1, 29), "Shift");
@@ -291,7 +291,6 @@ private:
         addChild(parent);
         return parent;
     }
-
 };
 
 Model* modelPhasePatterns = createModel<PhasePatternsModule, PhasePatternsWidget>("sqh-phasepatterns");

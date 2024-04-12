@@ -14,7 +14,7 @@ PES is a VCV connection carrying 12 channels. The twelve channels correspond to 
 
 For each channel the voltage will be 0 volts for a note that is not in the scale, 8 volts for a note that is in the scale, and 10 volts for the root of the scale.
 
-Here is a screen capture of a C Major scale, Where Grande Scale is setting the scale, Harmony II is following, and Grande Quant is following Harmony II:
+Here is a screen capture of a C# Locrian scale, Where Grande Scale is setting the scale, Harmony II is following, and Grande Quant is following Harmony II:
 
 ![round trip](./pes2.png)
 

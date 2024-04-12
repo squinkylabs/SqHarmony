@@ -265,6 +265,7 @@ public:
         assert(ribToTest < numRibs);
         CompPtr comp = factory();
         comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibs;
+        comp->params[Comp::RIB_DURATION_PARAM].value = .3;  // a little dur so ribs will run
 
         const auto args = TestComposite::ProcessArgs();
         prime(*comp, 0);
@@ -347,6 +348,7 @@ public:
     static void testPolyRibButton() {
         CompPtr comp = factory();
         assertEQ(comp->inputs[Comp::CK_INPUT].channels, 1);
+        comp->params[Comp::RIB_DURATION_PARAM].value = .3;  // a little dur so ribs will run
         comp->outputs[Comp::CK_OUTPUT].channels = 1;          // connect the output
         comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = 7;  // make the ribs poly
 
@@ -372,6 +374,7 @@ public:
         assert(channelToTest < numRibChannels);
 
         CompPtr comp = factory();
+        comp->params[Comp::RIB_DURATION_PARAM].value = .3;// a little dur so rib will come on.
         assertEQ(comp->inputs[Comp::CK_INPUT].channels, 1);
         comp->outputs[Comp::CK_OUTPUT].channels = 1;                       // connect the output
         comp->inputs[Comp::RIB_POSITIVE_INPUT].channels = numRibChannels;  // connect the poly rib
@@ -446,13 +449,14 @@ void testPhasePatternsPoly() {
     testChannels();
     testCanClock();
     testCanClockMono();
-    testMonoClockPolyTriggerRibs();
+
     testShiftKnobPolyClock();
     testPolyphonicShift();
     testPolyClockMonoShiftCV();
     testPolyRibMonoClock();
     TestX::testPolyRibButton();
     testPolyShiftCV();
+    testMonoClockPolyTriggerRibs();
 }
 
 #if 0
@@ -462,5 +466,6 @@ void testFirst() {
    // testPolyShiftCV(4);
     // TestX::testPolyphonicShiftSub(1, 0);
     TestX::testPolyClockMonoShiftCV(1);
+    testMonoClockPolyTriggerRibs();
 }
 #endif
