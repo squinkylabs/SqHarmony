@@ -179,7 +179,7 @@ private:
         addChild(createLight<MediumLight<RedLight>>(
             Vec(23 + x0 + 3 * dx, y),
             module,
-            Comp::XSCALE_INVALID_LIGHT));
+            Comp::PES_INVALID_LIGHT));
     }
 
     void addKeysig(Harmony2Module* xmodule) {

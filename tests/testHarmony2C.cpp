@@ -88,7 +88,7 @@ static void testPESInput() {
 
     processOnce(*comp);
 
-    assertLT(comp->lights[Comp::XSCALE_INVALID_LIGHT].value, 5);  // No error.
+    assertLT(comp->lights[Comp::PES_INVALID_LIGHT].value, 5);  // No error.
     assertEQ(int(comp->params[Comp::KEY_PARAM].value), MidiNote::C);
     assertEQ(int(std::round(comp->params[Comp::MODE_PARAM].value)), int(Scale::Scales::Minor));
 }
@@ -111,7 +111,7 @@ static void testRoundTrip() {
     }
     processOnce(*compGetter);
 
-    assertLT(compGetter->lights[Comp::XSCALE_INVALID_LIGHT].value, 5);  // No error.
+    assertLT(compGetter->lights[Comp::PES_INVALID_LIGHT].value, 5);  // No error.
     assertEQ(int(compGetter->params[Comp::KEY_PARAM].value), MidiNote::C);
     assertEQ(int(std::round(compGetter->params[Comp::MODE_PARAM].value)), int(Scale::Scales::Minor));
 }

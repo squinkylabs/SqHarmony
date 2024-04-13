@@ -66,6 +66,7 @@ public:
     };
 
     enum LightIds {
+        PES_INVALID_LIGHT,
         NUM_LIGHTS
     };
 
@@ -267,9 +268,9 @@ inline void Harmony<TBase>::_pollPESInput() {
     }
     if (input.channels < 12) {
         // wrong number of channels - error
-#ifdef _PES_ERROR_LED
-        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
-#endif
+
+        TBase::lights[PES_INVALID_LIGHT].value = 8;
+
         return;
     }
     Scale::Role roles[13];
@@ -292,13 +293,9 @@ inline void Harmony<TBase>::_pollPESInput() {
 
     const auto scaleConverted = Scale::convert(roles, true);
     if (std::get<0>(scaleConverted) == false) {
-#ifdef _PES_ERROR_LED
-        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
-#endif
+        TBase::lights[PES_INVALID_LIGHT].value = 8;
     } else {
-#ifdef _PES_ERROR_LED
-        TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
-#endif
+        TBase::lights[PES_INVALID_LIGHT].value = 0;
         // SQINFO("good scale, %d, %d (mode)", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
         // SQINFO("servicing input caused us to update the KEY_PARAM %d and MODE_PARAM %d",
         //     std::get<1>(scaleConverted).get(),

@@ -107,7 +107,7 @@ public:
         XPOSE_ENABLE4_LIGHT,
         XPOSE_ENABLE5_LIGHT,
         XPOSE_ENABLE6_LIGHT,
-        XSCALE_INVALID_LIGHT,
+        PES_INVALID_LIGHT,
         NUM_LIGHTS
     };
 
@@ -341,7 +341,7 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
     }
     if (input.channels < 12) {
         // wrong number of channels - error
-        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
+        TBase::lights[PES_INVALID_LIGHT].value = 8;
         return;
     }
     Scale::Role roles[13];
@@ -364,9 +364,9 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
 
     const auto scaleConverted = Scale::convert(roles, false);
     if (std::get<0>(scaleConverted) == false) {
-        TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
+        TBase::lights[PES_INVALID_LIGHT].value = 8;
     } else {
-        TBase::lights[XSCALE_INVALID_LIGHT].value = 0;
+        TBase::lights[PES_INVALID_LIGHT].value = 0;
         // SQINFO("good scale, %d, %d (mode)", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
         // SQINFO("servicing input caused us to update the KEY_PARAM %d and MODE_PARAM %d",
         //     std::get<1>(scaleConverted).get(),

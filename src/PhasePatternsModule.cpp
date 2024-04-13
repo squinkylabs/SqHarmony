@@ -246,16 +246,16 @@ private:
     }
 
     void addIO(PhasePatternsModule* module) {
-        addInput(createInput<PJ301MPort>(Vec(12, 273), module, Comp::CK_INPUT));
+        addInput(createInput<PJ301MPort>(Vec(16, 273), module, Comp::CK_INPUT));
         addLabel(Vec(9, 253), "CkIn");
-        addInput(createInput<PJ301MPort>(Vec(68, 273), module, Comp::SHIFT_INPUT));
+        addInput(createInput<PJ301MPort>(Vec(65, 273), module, Comp::SHIFT_INPUT));
         addLabel(Vec(68, 253), "Shft");
 
         addOutput(createOutput<PJ301MPort>(Vec(40, 322), module, Comp::CK_OUTPUT));
-        addLabel(Vec(36, 300), "CkOut");
-        addInput(createInput<PJ301MPort>(Vec(12, 226), module, Comp::RIB_POSITIVE_INPUT));
+        addLabel(Vec(34.5, 300), "CkOut");
+        addInput(createInput<PJ301MPort>(Vec(16, 226), module, Comp::RIB_POSITIVE_INPUT));
         addLabel(Vec(12, 206), "RIB+");
-        addInput(createInput<PJ301MPort>(Vec(67, 226), module, Comp::RIB_NEGATIVE_INPUT));
+        addInput(createInput<PJ301MPort>(Vec(65, 226), module, Comp::RIB_NEGATIVE_INPUT));
         addLabel(Vec(68, 206), "RIB-");
     }
 
