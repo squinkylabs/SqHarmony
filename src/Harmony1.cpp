@@ -61,9 +61,8 @@ struct Harmony1Widget : ModuleWidget {
     }
 
     void addLeds() {
-        SQINFO("--add LEDS");
-        addChild(createLight<MediumLight<RedLight>>(
-            Vec(131, 241),
+        addChild(createLight<SmallLight<RedLight>>(
+            Vec(132, 242),
             module,
             Comp::PES_INVALID_LIGHT));
     }

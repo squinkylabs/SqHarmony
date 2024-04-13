@@ -53,16 +53,9 @@ private:
     }
 
     void addIO() {
-        //  PITCH_OUTPUT,
-        //   XSCALE_OUTPUT,
         this->configOutput(Comp::PITCH_OUTPUT, "Main chord CV");
         this->configOutput(Comp::PES_OUTPUT, "Scale (PES)");
 
-        //    XPOSE_INPUT,
-        // KEY_INPUT,
-        // MODE_INPUT,
-        // PITCH_INPUT,
-        // XSCALE_INPUT,
         this->configInput(Comp::KEY_INPUT, "Scale root");
         this->configInput(Comp::XPOSE_INPUT, "Transpose steps");
         this->configInput(Comp::MODE_INPUT, "Scale mode/type");
@@ -158,8 +151,8 @@ private:
     const float dx = 34;
     void addMainCV() {
         const float y = 317;
-        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI");
-        addOutputL(Vec(x0 + dx, y), Comp::PITCH_OUTPUT, "CVO");
+        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI", -1.5);
+        addOutputL(Vec(x0 + dx, y), Comp::PITCH_OUTPUT, "CVO", -2.f);
 
         addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES");
     }
@@ -168,7 +161,7 @@ private:
         const float y = 270;
         addInputL(Vec(x0, y), Comp::XPOSE_INPUT, "XP");
 
-        addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key");
+        addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key", 1.f);
         addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
 
         addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "PES");
@@ -176,14 +169,14 @@ private:
 
     void addLeds() {
         const float y = 258;
-        addChild(createLight<MediumLight<RedLight>>(
-            Vec(23 + x0 + 3 * dx, y),
+        addChild(createLight<SmallLight<RedLight>>(
+            Vec(26 + x0 + 3 * dx, y),
             module,
             Comp::PES_INVALID_LIGHT));
     }
 
     void addKeysig(Harmony2Module* xmodule) {
-        const float yScale = 220;
+        const float yScale = 216;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -218,7 +211,7 @@ private:
     }
 
     static constexpr float y0 = 40;
-    static constexpr float deltaY = 28;
+    static constexpr float deltaY = 27;     // was 28
     static constexpr float xbutton = 5;
     static constexpr float xoctave = 28;
     static constexpr float xdegree = 75;
@@ -292,24 +285,26 @@ private:
         return parent;
     }
 
-    void addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
+    void addOutputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
 #ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         vlabel.x += 4;
+         vlabel.x += label_dx;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
 #endif
     }
 
-    void addInputL(const Vec& vec, int outputNumber, const std::string& text) {
+    void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
         addInput(createInput<PJ301MPort>(vec, module, outputNumber));
 #ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         vlabel.x += 4;
+        vlabel.x += label_dx;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
