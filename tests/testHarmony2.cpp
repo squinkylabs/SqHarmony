@@ -88,7 +88,7 @@ static void testModeCV(float cv, int expectedParam, bool allowAllScales) {
     processOnce(*comp.get());
     comp->inputs[Comp::MODE_INPUT].setVoltage(cv);
     comp->inputs[Comp::MODE_INPUT].channels = 1;
-    comp->params[Comp::ONLY_USE_DIATONIC_PARAM].value = allowAllScales ? 0 : 1;
+    comp->params[Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM].value = allowAllScales ? 0 : 1;
    // processBlock(*comp);
     processOnce(*comp.get());
 
@@ -206,21 +206,21 @@ static void testNotesInScale(Comp* composite) {
 
 static void testModeDetails() {
     auto composite = std::make_shared<Comp>();
-    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .3;
+    composite->params[Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM].value = .3;
 
     // All the assertions for diatonic only
-    assertEQ(composite->diatonicOnly(), false);
+    assertEQ(composite->diatonicOnlyForCV(), false);
     //assertEQ(composite->numCurrentModes(), Scale::numScalesTotal());
 
     //  all the assertions for all scales, not just diatonic
-    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = .7;
-    assertEQ(composite->diatonicOnly(), true);
+    composite->params[Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM].value = .7;
+    assertEQ(composite->diatonicOnlyForCV(), true);
     //assertEQ(composite->numCurrentModes(), Scale::numDiatonicScales());
 
     // things that don't really care about setting for diatonic
-    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
+    composite->params[Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM].value = 0;
     testNotesInScale(composite.get());
-    composite->params[Comp::ONLY_USE_DIATONIC_PARAM].value = 1;
+    composite->params[Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM].value = 1;
     testNotesInScale(composite.get());
 }
 

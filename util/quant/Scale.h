@@ -62,7 +62,11 @@ public:
         }
         Role data[13];
     };
-    static std::tuple<bool, MidiNote, Scales> convert(const Role* noteRole);
+
+    /**
+     * the tuple returned is success, root, mode
+     */
+    static std::tuple<bool, MidiNote, Scales> convert(const Role* noteRole, bool diatonicOnly);
     static const RoleArray convert(MidiNote, Scales);
 
     /**

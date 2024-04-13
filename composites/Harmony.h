@@ -290,7 +290,7 @@ inline void Harmony<TBase>::_pollPESInput() {
     }
     roles[12] = Scale::Role::End;
 
-    const auto scaleConverted = Scale::convert(roles);
+    const auto scaleConverted = Scale::convert(roles, true);
     if (std::get<0>(scaleConverted) == false) {
 #ifdef _PES_ERROR_LED
         TBase::lights[XSCALE_INVALID_LIGHT].value = 8;

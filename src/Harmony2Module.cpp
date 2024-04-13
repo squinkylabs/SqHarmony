@@ -49,7 +49,7 @@ private:
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
         this->configParam(Comp::MODE_PARAM, 0, numModes - 1, 0, "Key signature mode");
         this->configParam(Comp::SHARPS_FLATS_PARAM, 0, 3, 0, "hidden (sf)");
-        this->configParam(Comp::ONLY_USE_DIATONIC_PARAM, 0, 1, 0, "hidden (ud)");
+        this->configParam(Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM, 0, 1, 0, "hidden (ud)");
     }
 
     void addIO() {
@@ -139,7 +139,7 @@ private:
             return;
         }
 
-        SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_PARAM);
+        SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM);
         item->text = "Mode CV only diatonic";
         menu->addChild(item);
 
@@ -201,9 +201,10 @@ private:
             Vec(74, yMode),
             module,
             Comp::MODE_PARAM);
-        const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
-        p->setShortLabels(Scale::getShortScaleLabels(diatonicOnly));
-        p->setLabels(Scale::getScaleLabels(diatonicOnly));
+     //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
+     // Let user select whatever whey want
+        p->setShortLabels(Scale::getShortScaleLabels(false));
+        p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
         p->text = "Maj";

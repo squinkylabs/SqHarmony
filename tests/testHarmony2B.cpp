@@ -122,16 +122,16 @@ static void testKeyOfCUpPoly() {
     testKeyOfCUpPoly(false);
 }
 
-static void testKeyCVEMinorXp3(int modeWrap, bool limitToDiatonic) {
+static void testKeyCVEMinorXp3(int modeWrap, bool limitCVToDiatonic) {
     Comp composite;
     // All scales allowed
-    composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = limitToDiatonic ? 1 : 0;
+    composite.params[Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM].value = limitCVToDiatonic ? 1 : 0;
     hookUpCVInputs(composite);
 
     const float semitone = 1.f / 12.f;
     composite.inputs[Comp::KEY_INPUT].setVoltage(4.f * semitone);
 
-    const int numScales = Scale::numScales(limitToDiatonic);
+    const int numScales = Scale::numScales(limitCVToDiatonic);
     const float modeCV = float(Scale::Scales::Minor) * semitone + (semitone * numScales * modeWrap);
 
     composite.inputs[Comp::MODE_INPUT].setVoltage(modeCV);  // there are 13 scales);
@@ -161,7 +161,7 @@ static void testCCommon(bool atC) {
     // auto composite = std::make_shared<Comp>();
     Comp composite;
     // All scales allowed
-    composite.params[Comp::ONLY_USE_DIATONIC_PARAM].value = 0;
+    composite.params[Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM].value = 0;
 
     hookUpCVInputs(composite);
 

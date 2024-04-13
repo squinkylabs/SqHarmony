@@ -28,7 +28,7 @@ So, the major keys are usually notated like so:
 * A major - three sharps (F#, C#, G#).
 * E major - four sharps, (C#, D#, F#, G#)
 * B major - five sharps (A#, C#, D#, F#, G#)
-* F sharp major X - six sharps (F#, C#, G#, D#, A#, E#).
+* F sharp major - six sharps (F#, C#, G#, D#, A#, E#).
 * F major - one flat (B-)
 * B flat major = two flats (B-, E-)
 * E flat major - three flats
@@ -53,7 +53,7 @@ Notes of A sharp major: A#, B#, C##, D#, E#, F##, G#
 There are a few reasons that most people would not call this key "A sharp" :
 
 * B# and E# are difficult notes for most people to think about, as they are the same as C and F.
-* There are two double sharps in that key. C## and F## are much more commonly called D an G.
+* There are two double sharps in that key. C## and F## are much more commonly called D and G.
 * Standard music notion rarely has key signatures with double sharps.
 * There are only two flats in B flat major, yet there are (at least) seven sharps in A sharp.
 
@@ -70,9 +70,9 @@ Some common ways to "establish a key/mode" are:
 3. use a really prominent melody that implies the mode.
 4. accompany the mode with chords that don't imply any particular scale.
 
-1 - use a pedal tone is an obvious one. I the simplest implementation, just drone the root prominently in the bass register. If you want to establish the key as E Phrygian, drone a low E and use all the white keys.
+1 - Use a pedal tone is an obvious one. In the simplest implementation, just drone the root prominently in the bass register. If you want to establish the key as E Phrygian, drone a low E and use all the white keys.
 
-3 - In this song, [Samba Pa Ti](https://www.youtube.com/watch?v=timZoOs9ozo), by Carlos Santana, the melody is very distinctive, and if you try to play it, or play along with it, it's quite obvious it's in a Mixolydian mode. Mixolydian happens to be one of the more common modes in pop songs. Most ppl think of it as Major with a flat 7th. [ note: check if this is true ]
+2 - Consider the Phyrgian mode. It's similar to natural minor, but with a flatted second. If you emphasize that flat second by playing it a lot, or using the major triad you can play on the second, then the Phrygian character asserts itself more.
 
 4 - In jazz music, one well known technique to establish a mode is for the piano so smash out parallel fourths. This keeps the piano chords from suggesting a particular "key", and lets the modal notes played by other instruments establish their own scales. This kind of harmony is often called "modal harmony", "quartal harmony", or "non functional harmony". It is a deep topic!
 
@@ -82,11 +82,11 @@ The seven diatonic scales are discussed in many places. I don't have much to add
 
 We know that the Ionian (major) and Aeolian (natural minor) are very common. Some other modes are used less commonly, but are still used a lot.
 
-Mixolydian mode is often thought of as "major, with a flat 7th". So it's pretty close to major, but that altered 7th can add a little interest without sounding too weird. The lowered 7th also, make the 7th less like a leading tone - it doesn't want to resolve up the the 8 (1) as much as the major 7th
+Mixolydian mode is often thought of as "major, with a flat 7th". So it's pretty close to major, but that altered 7th can add a little interest without sounding too weird. The lowered 7th also, make the 7th less like a leading tone - it doesn't want to resolve up the the 8 (1) as much as the major 7th.
 
 Dorian is Natural minor with a raised 6th, up to the major 6. So you can use it like a regular natural minor, but again with an altered note.
 
-Minor pentatonic. This is a natural minor, where the second and the sixth are not often played. this scale is very commonly used in blues music, and rock music. Many instrumental solos are constructed from the minor pentatonic. It's something that most pop musicians are very familiar with.
+Minor pentatonic. This is a natural minor, where the second and the sixth are not often played. This scale is very commonly used in blues music, and rock music. Many instrumental solos are constructed from the minor pentatonic. It's something that most pop musicians are very familiar with.
 
 Whole tone. This scale is pretty strange sounding to most people. It is made up entirely of whole steps, with no half steps at all. It is not used a lot in pop music, although King Crimson is (in) famous for using it a lot. Like their song [Red](https://www.youtube.com/watch?v=X_pDwv3tpug).
 
@@ -102,11 +102,16 @@ Often a pieces of music may be mainly in a diatonic mode (typically Major or som
 
 * It just sounded good that way to the composer.
 
-* The altered note is part of some harmony going on perhaps in one bar, where the whole key doesn't change, but perhaps in the area of the altered note or notes there is at least a suggestion of a key change.
+* The altered note is part of some harmony going on perhaps in one bar, where the whole key doesn't change, but perhaps in the area of the altered note or notes there is at least a suggestion of a different key.
 
 * Bashing out chords on a guitar one might play a major or minor chord in a place where the scale would suggest the chord "should" be the opposite. Often done "because it sounded better", "it added  some interested", "it was an accident", "that's how I always play".
 
 ### Key changes
 
-(tbd)
+Much music will changed key during the piece. It's fair so say this is very common in classical music, pretty common in pop music, not so common in western "folk" music. A key change it also called a modulation.
 
+In classical music it's very common to change to a different key in the middle of a piece, then return to the original key.
+
+In pop music sometimes a song will modulate by a whole tone. This is always dramatic, and often it will take the singers voice into a slightly different range, for a different sound. [Here are a bunch of examples](https://www.classicfm.com/discover-music/music-theory/best-key-changes-in-pop-music/), mainly from the 80's.
+
+Is is also done where a chorus will be in a different key from the verse. A familiar example is Rihanna's [only girl in the world](https://www.youtube.com/watch?v=pa14VNsdSYM). This helps give a dramatic difference between sections.

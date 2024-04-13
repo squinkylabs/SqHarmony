@@ -548,7 +548,7 @@ static void testGetNotesInScale() {
 static void testConvertEmpty() {
     // bogus case
     Scale::Role roles[] = {Scale::Role::End};
-    const auto x = Scale::convert(roles);
+    const auto x = Scale::convert(roles, false);
     assertEQ(std::get<0>(x), false);
 }
 
@@ -655,7 +655,7 @@ static void testConvertFromDMajor() {
 static void testConvertCMajor() {
     const auto roles = getRolesCMajor();
     //   Scale::_dumpRoles("cmajor", roles);
-    const auto x = Scale::convert(roles);
+    const auto x = Scale::convert(roles, false);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
     assert(std::get<2>(x) == Scale::Scales::Major);
@@ -663,7 +663,7 @@ static void testConvertCMajor() {
 
 static void testConvertDMajor() {
     const auto roles = getRolesDMajor();
-    const auto x = Scale::convert(roles);
+    const auto x = Scale::convert(roles, false);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::D);
     assert(std::get<2>(x) == Scale::Scales::Major);
@@ -689,47 +689,59 @@ static Scale::Role* getRolesCMinor() {
 
 static void testConvertCMinor() {
     const auto roles = getRolesCMinor();
-    const auto x = Scale::convert(roles);
+    const auto x = Scale::convert(roles, false);
     assertEQ(std::get<0>(x), true);
     assert(std::get<1>(x) == MidiNote::C);
     assert(std::get<2>(x) == Scale::Scales::Minor);
 }
 
-static void testRoundTrip(Scale scale) {
+static void testRoundTrip(Scale scale, bool diatonicOnly) {
+    //  assert(!diatonicOnly);
     // SQINFO("will get roles");
     const auto scaleParts = scale.get();
+
+    const bool scaleIsDiatonic = int(std::get<1>(scaleParts)) < Scale::numDiatonicScales();
+
     const Scale::RoleArray roleArray = scale.convert(std::get<0>(scaleParts), std::get<1>(scaleParts));
 
     // SQINFO("will convert back from roles");
-    const auto x = Scale::convert(roleArray.data);
+    const auto x = Scale::convert(roleArray.data, diatonicOnly);
     const Scale::Scales foundMode = std::get<2>(x);
 
     // must be found
-    assertEQ(std::get<0>(x), true);
+    const bool expectFound = !diatonicOnly || scaleIsDiatonic;
+    assertEQ(std::get<0>(x), expectFound);
     // must find the right mode
-    assert(foundMode == std::get<1>(scaleParts));
-    assertEQ(std::get<1>(x).get(), std::get<0>(scaleParts).get());
+    if (expectFound) {
+        assert(foundMode == std::get<1>(scaleParts));
+        assertEQ(std::get<1>(x).get(), std::get<0>(scaleParts).get());
+    }
 }
 
-static void testRoundTrip() {
+static void testRoundTrip(bool diatonicOnly) {
     Scale scale;
     scale.set(MidiNote::C, Scale::Scales::Major);
-    testRoundTrip(scale);
+    testRoundTrip(scale, diatonicOnly);
 
     scale.set(MidiNote::C, Scale::Scales::Chromatic);
-    testRoundTrip(scale);
+    testRoundTrip(scale, diatonicOnly);
     scale.set(MidiNote::C + 1, Scale::Scales::Chromatic);
-    testRoundTrip(scale);
+    testRoundTrip(scale, diatonicOnly);
     scale.set(MidiNote::C + 1, Scale::Scales::Major);
-    testRoundTrip(scale);
+    testRoundTrip(scale, diatonicOnly);
 
     for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
         const auto smode = Scale::Scales(mode);
         for (int pitch = MidiNote::C; pitch <= MidiNote::B; ++pitch) {
             scale.set(pitch, smode);
-            testRoundTrip(scale);
+            testRoundTrip(scale, diatonicOnly);
         }
     }
+}
+
+static void testRoundTrip() {
+    testRoundTrip(false);
+     testRoundTrip(true);
 }
 
 static void testConvert() {
@@ -753,7 +765,7 @@ static void testMultiRoot() {
         }
     }
     // Scale::_dumpRoles("after patch", test);
-    const auto converted = Scale::convert(test);
+    const auto converted = Scale::convert(test, false);
     assertEQ(std::get<0>(converted), false);
 }
 
@@ -828,6 +840,7 @@ void testFirst() {
     // const auto scaleParts = scale.get();
     //testScaleNumbers();
 
-    testChromatic2();
+    //testChromatic2();
+    testRoundTrip();
 }
 #endif

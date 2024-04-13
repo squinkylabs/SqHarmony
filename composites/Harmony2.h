@@ -81,7 +81,7 @@ public:
         KEY_PARAM,
         MODE_PARAM,
         SHARPS_FLATS_PARAM,
-        ONLY_USE_DIATONIC_PARAM,
+        ONLY_USE_DIATONIC_FOR_CV_PARAM,
         NUM_PARAMS
     };
 
@@ -117,7 +117,7 @@ public:
 
     // TODO: there all need to be dynamic
     // these will change when we implement ONLY_USE_DIATONIC_PARAM
-    bool diatonicOnly() const { return TBase::params[ONLY_USE_DIATONIC_PARAM].value > .5; }
+    bool diatonicOnlyForCV() const { return TBase::params[ONLY_USE_DIATONIC_FOR_CV_PARAM].value > .5; }
 
     // Does not include the octave/
     int numNotesInCurrentScale();
@@ -136,7 +136,7 @@ private:
     CompositeUpdater<Harmony2<TBase>> _keyInUpdater;
 
     // Given the current state (ONLY_USE_DIATONIC_PARAM), how many modes are available for CV
-    int _numCurrentModes() const;
+    int _numCurrentModesForCV() const;
 
     void _init();
     void _serviceAllMiscInputs();
@@ -151,8 +151,8 @@ private:
 };
 
 template <class TBase>
-int Harmony2<TBase>::_numCurrentModes() const {
-    return Scale::numScales(diatonicOnly());
+int Harmony2<TBase>::_numCurrentModesForCV() const {
+    return Scale::numScales(diatonicOnlyForCV());
 }
 
 // Includes the octave
@@ -211,7 +211,7 @@ inline void Harmony2<TBase>::_init() {
     _updater.add(KEY_PARAM);
     _updater.add(MODE_PARAM);
     _updater.add(SHARPS_FLATS_PARAM);
-    _updater.add(ONLY_USE_DIATONIC_PARAM);
+    _updater.add(ONLY_USE_DIATONIC_FOR_CV_PARAM);
 
     // for debugging, turn these 4 off
     _updater.add(XPOSE_INPUT, PolyMono::Poly, true, AudioMath::float2int12);
@@ -273,7 +273,7 @@ inline void Harmony2<TBase>::_serviceKeysigRootCV() {
     FloatNote oldRootFloat;
     NoteConvert::m2f(oldRootFloat, oldRoot);
     const float oldKeyCV = oldRootFloat.get() + 6;  // I don't remember what this offset is...
-    const float oldKeyVSCaled = oldKeyCV * _numCurrentModes();
+    const float oldKeyVSCaled = oldKeyCV * _numCurrentModesForCV();
     const int oldKeyScaledAndRounded = int(std::round(oldKeyVSCaled));
     if (oldKeyScaledAndRounded != newKeyScaledAndRounded) {
         TBase::params[KEY_PARAM].value = newKeyScaledAndRounded;
@@ -289,7 +289,7 @@ inline void Harmony2<TBase>::_serviceKeysigModeCV() {
 
     // Here is a scale function that multiplies by 12, but wraps in the number of current modes
     // number of modes is just a function of ONLY_USE_DIATONIC_PARAM
-    const int _inumCurrentModes = _numCurrentModes();
+    const int _inumCurrentModes = _numCurrentModesForCV();
     const float newModeF = TBase::inputs[MODE_INPUT].getVoltage(0);
     const int newModeI = int(std::round(12 * newModeF));
 
@@ -362,7 +362,7 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
     }
     roles[12] = Scale::Role::End;
 
-    const auto scaleConverted = Scale::convert(roles);
+    const auto scaleConverted = Scale::convert(roles, false);
     if (std::get<0>(scaleConverted) == false) {
         TBase::lights[XSCALE_INVALID_LIGHT].value = 8;
     } else {
