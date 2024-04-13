@@ -110,7 +110,7 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(17, 6), "Phase Patterns", 17);  // was 20
+        addLabel(Vec(17, 3), "Phase Patterns", 17);  // was 20
         addLabel(Vec(24, 356), "Squinktronix", 16);
 #endif
         addControls(module);
@@ -255,7 +255,7 @@ private:
         addInput(createInput<PJ301MPort>(Vec(65, 226), module, Comp::RIB_NEGATIVE_INPUT));
         addLabel(Vec(66, 206), "RIB-");
 
-        RoundedRect *r = new RoundedRect(Vec(33, 302), Vec(38, 50));
+        RoundedRect *r = new RoundedRect(Vec(32, 302), Vec(40, 50));
         addChild(r);
         addOutput(createOutput<PJ301MPort>(Vec(39, 322), module, Comp::CK_OUTPUT));
         addLabel(Vec(34.5, 300), "CkOut");

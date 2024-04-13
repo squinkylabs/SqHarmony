@@ -3,6 +3,7 @@
 #ifdef _H2
 
 #include "BufferingParent.h"
+#include "GfxUtils.h"
 #include "Harmony2.h"
 #include "KsigSharpFlatMonitor.h"
 #include "NumberFormatter.h"
@@ -27,8 +28,7 @@ public:
         addIO();
     }
     void process(const ProcessArgs& args) override {
-         comp->process(args);
-
+        comp->process(args);
     }
 
     std::shared_ptr<Comp> getComp() const {
@@ -70,8 +70,8 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/harmony2-panel.svg")));
 #if 1  // def _LAB
-        addLabel(Vec(43, 6), "Harmony II", 20);
-        addLabel(Vec(44, 353), "Squinktronix", 17);
+        addLabel(Vec(43, 3), "Harmony II", 20);
+        addLabel(Vec(44, 355), "Squinktronix", 17);
 #endif
         addTranposeControls(module);
         addKeysig(module);
@@ -151,8 +151,12 @@ private:
     const float dx = 34;
     void addMainCV() {
         const float y = 317;
+
+        RoundedRect* r = new RoundedRect(Vec(x0 + dx * 1.85, y - 18), Vec(68, 54));
+        addChild(r);
+
         addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI", -1.5);
-        addOutputL(Vec(x0 + dx, y), Comp::PITCH_OUTPUT, "CVO", -2.f);
+        addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "CVO", -2.f);
 
         addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES");
     }
@@ -194,8 +198,8 @@ private:
             Vec(74, yMode),
             module,
             Comp::MODE_PARAM);
-     //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
-     // Let user select whatever whey want
+        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
+        // Let user select whatever whey want
         p->setShortLabels(Scale::getShortScaleLabels(false));
         p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
@@ -211,7 +215,7 @@ private:
     }
 
     static constexpr float y0 = 40;
-    static constexpr float deltaY = 27;     // was 28
+    static constexpr float deltaY = 27;  // was 28
     static constexpr float xbutton = 5;
     static constexpr float xoctave = 28;
     static constexpr float xdegree = 75;
@@ -291,7 +295,7 @@ private:
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         vlabel.x += 4;
-         vlabel.x += label_dx;
+        vlabel.x += label_dx;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);

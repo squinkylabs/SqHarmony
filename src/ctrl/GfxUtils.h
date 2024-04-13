@@ -39,7 +39,7 @@ public:
             0,
             box.size.x,
             box.size.y,
-            5.f);
+            7.f);
     }
 
 private:
