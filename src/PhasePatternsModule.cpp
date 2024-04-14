@@ -42,6 +42,8 @@ private:
     void addParams();
 };
 
+#define RIB_SPAN_PARAM_MAX 32
+
 void inline PhasePatternsModule::addParams() {
     class ShiftAmountParam : public ParamQuantity {
     public:
@@ -77,7 +79,7 @@ void inline PhasePatternsModule::addParams() {
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
     this->configSwitch(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
     this->configSwitch(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
-    this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "RIB total duration clocks");
+    this->configParam(Comp::RIB_SPAN_PARAM, 1, RIB_SPAN_PARAM_MAX, 8, "RIB total duration clocks");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::SHIFT_INPUT, "Shift amount");
@@ -180,9 +182,11 @@ private:
         }
 
         if (_useAdvancedUI()) {
+           module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = 128;
             _ribDurationControl = createParam<RoundBlackKnob>(Vec(13, 134), module, Comp::RIB_DURATION_PARAM);
             _ribSpanControl = createParam<RoundBlackKnob>(Vec(64, 134), module, Comp::RIB_SPAN_PARAM);
         } else {
+             module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = RIB_SPAN_PARAM_MAX;
             // Make the combo box
             auto p = createParam<PopupMenuParamWidget>(
                 Vec(8, 138),
@@ -195,7 +199,7 @@ private:
             p->box.size.y = 22;
             p->text = "1";
             _ribDurationControl = p;
-            _ribSpanControl = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+            _ribSpanControl = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);;
         }
         addParam(_ribDurationControl);
         addLabel(Vec(14, 112), "Total");

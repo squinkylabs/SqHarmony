@@ -62,7 +62,7 @@ struct Harmony1Widget : ModuleWidget {
 
     void addLeds() {
         addChild(createLight<SmallLight<RedLight>>(
-            Vec(132, 242),
+            Vec(133, 242),
             module,
             Comp::PES_INVALID_LIGHT));
     }

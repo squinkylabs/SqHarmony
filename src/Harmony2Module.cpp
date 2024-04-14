@@ -152,11 +152,11 @@ private:
     void addMainCV() {
         const float y = 317;
 
-        RoundedRect* r = new RoundedRect(Vec(x0 + dx * 1.85, y - 18), Vec(68, 54));
+        RoundedRect* r = new RoundedRect(Vec(73, y - 18), Vec(70, 54));
         addChild(r);
 
-        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI", -1.5);
-        addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "CVO", -2.f);
+        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "V/Oct", 4);
+        addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "V/Oct", 4);
 
         addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES");
     }
