@@ -2,17 +2,13 @@
 
 ## 2.2.4
 
+Two new modules, [Phase Patterns](./docs/phasepatterns.md) and [Harmony II](./docs/harmonyII.md).
+
 Updated build to c++17.
 
-Reduced download size of module.
+Reduced download size of plugin.
 
-Phase Patterns: Brought back to life. New panel design. V2 UI. New implementation.
-
-Harmony II: new module.
-
-Harmony: get the automatic setting of sharps and flats from Harmony II.
-
-All modules: fixed typos in the manuals.
+Harmony: got the automatic setting of sharps and flats from Harmony II. Got new PES input.
 
 All modules: fixed typos in the manuals.
 

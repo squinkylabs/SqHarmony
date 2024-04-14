@@ -10,6 +10,8 @@ You may select keys, and there is some control of the chords that will be genera
 
 In 3/2024 there was a challenge on the VCV Community board to use Harmony and Arpeggiator in a patch. The submissions were excellent. More information is [here](./arp_harmony_challenge/arp-harmony-challenge.md)
 
+For more information on musical harmony and such, there is some information [here](./more-on-harmony.md).
+
 ## Panel
 
 ### The score at the top

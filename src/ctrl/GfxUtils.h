@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "SqLog.h"
@@ -12,10 +11,7 @@ public:
         nvgFill(vg);
     }
 
-    // void nvgRoundedRect(NVGcontext* ctx, float x, float y, float w, float h, float r);
     static void filledRoundedRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float r) {
-      //  SQINFO("fill x=%f y=%f w=%f h=%f", x, y, w, h);
-       // filledRect(vg, color, x, y, w, h);
         nvgFillColor(vg, color);
         nvgBeginPath(vg);
         nvgRoundedRect(vg, x, y, w, h, r);
