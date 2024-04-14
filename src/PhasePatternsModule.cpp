@@ -182,11 +182,15 @@ private:
         }
 
         if (_useAdvancedUI()) {
-           module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = 128;
+            if (module) {
+                module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = 128;
+            }
             _ribDurationControl = createParam<RoundBlackKnob>(Vec(13, 134), module, Comp::RIB_DURATION_PARAM);
             _ribSpanControl = createParam<RoundBlackKnob>(Vec(64, 134), module, Comp::RIB_SPAN_PARAM);
         } else {
-             module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = RIB_SPAN_PARAM_MAX;
+            if (module) {
+                module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = RIB_SPAN_PARAM_MAX;
+            }
             // Make the combo box
             auto p = createParam<PopupMenuParamWidget>(
                 Vec(8, 138),
