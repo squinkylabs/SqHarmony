@@ -540,10 +540,8 @@ int Scale::numNotesInScale(Scales scale) {
     return ret;
 }
 
-std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteRoles) {
+std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteRoles, bool diatonicOnly) {
     const auto error = std::make_tuple(false, MidiNote::C, Scale::Scales::Chromatic);
-
-
     int roleRoot = 0;
     // First check the role array for validity and find the root.
     {
@@ -575,7 +573,9 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
         }
     }
 
-    for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
+  //  const int lastValidScale = diatonicOnly ? Scale:: : 
+    const int numScales = Scale::numScales(diatonicOnly);
+    for (int mode = Scale::firstScale; mode < numScales; ++mode) {
         const auto smode = Scale::Scales(mode);
         if (_doesScaleMatch(noteRoles, smode, roleRoot)) {
             return {true, roleRoot, smode};

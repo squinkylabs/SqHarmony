@@ -5,6 +5,7 @@
 #include "plugin.hpp"  // MUST BE FIRST
 
 #include "BufferingParent.h"
+#include "GfxUtils.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
@@ -41,6 +42,8 @@ private:
     void addParams();
 };
 
+#define RIB_SPAN_PARAM_MAX 32
+
 void inline PhasePatternsModule::addParams() {
     class ShiftAmountParam : public ParamQuantity {
     public:
@@ -76,7 +79,7 @@ void inline PhasePatternsModule::addParams() {
     this->configParam(Comp::COMBINED_SHIFT_INTERNAL_PARAM, 0, 10, 0, "[internal]");
     this->configSwitch(Comp::RIB_POSITIVE_BUTTON_PARAM, 0, 10, 0, "RIB+ trigger");
     this->configSwitch(Comp::RIB_NEGATIVE_BUTTON_PARAM, 0, 10, 0, "RIB- trigger");
-    this->configParam(Comp::RIB_SPAN_PARAM, 1, 32, 8, "RIB total duration clocks");
+    this->configParam(Comp::RIB_SPAN_PARAM, 1, RIB_SPAN_PARAM_MAX, 8, "RIB total duration clocks");
 
     this->configInput(Comp::CK_INPUT, "Master clock");
     this->configInput(Comp::SHIFT_INPUT, "Shift amount");
@@ -109,7 +112,7 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #ifdef _LAB
-        addLabel(Vec(16, 6), "Phase Patterns", 17);  // was 20
+        addLabel(Vec(17, 3), "Phase Patterns", 17);  // was 20
         addLabel(Vec(24, 356), "Squinktronix", 16);
 #endif
         addControls(module);
@@ -168,27 +171,25 @@ private:
     void _addRibsControls() {
         // First, get rid of what's there, if anything
         if (_ribDurationControl) {
-            SQINFO("remove dur");
             this->removeChild(_ribDurationControl);
             delete (_ribDurationControl);
             _ribDurationControl = nullptr;
         }
         if (_ribSpanControl) {
-            SQINFO("remove span");
             this->removeChild(_ribSpanControl);
             delete (_ribSpanControl);
             _ribSpanControl = nullptr;
         }
 
         if (_useAdvancedUI()) {
-            SQINFO("Make round black knob, should not snap");
-            _ribDurationControl = createParam<RoundBlackKnob>(Vec(9, 134), module, Comp::RIB_DURATION_PARAM);
-            _ribSpanControl = createParam<RoundBlackKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+           module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = 128;
+            _ribDurationControl = createParam<RoundBlackKnob>(Vec(13, 134), module, Comp::RIB_DURATION_PARAM);
+            _ribSpanControl = createParam<RoundBlackKnob>(Vec(64, 134), module, Comp::RIB_SPAN_PARAM);
         } else {
-               SQINFO("Make round black knob, shouldsnap");
+             module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = RIB_SPAN_PARAM_MAX;
             // Make the combo box
             auto p = createParam<PopupMenuParamWidget>(
-                Vec(6, 138),
+                Vec(8, 138),
                 module,
                 Comp::RIB_DURATION_PARAM);
             p->setLabels(Comp::getRibDurationLabels());
@@ -198,13 +199,13 @@ private:
             p->box.size.y = 22;
             p->text = "1";
             _ribDurationControl = p;
-            _ribSpanControl = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+            _ribSpanControl = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);;
         }
         addParam(_ribDurationControl);
-        addLabel(Vec(11, 112), "Total");
+        addLabel(Vec(14, 112), "Total");
 
         addParam(_ribSpanControl);
-        addLabel(Vec(68, 112), "Dur");
+        addLabel(Vec(65, 112), "Dur");
     }
 
     /**
@@ -220,43 +221,48 @@ private:
     /**
      */
     void addControls(PhasePatternsModule* module) {
-        addParam(createParam<RoundBlackKnob>(Vec(9, 51), module, Comp::SHIFT_PARAM));
-        addParam(createParam<CKSSThree>(Vec(78, 51), module, Comp::SHIFT_RANGE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(13, 52), module, Comp::SHIFT_PARAM));
+        addParam(createParam<CKSSThree>(Vec(72, 52), module, Comp::SHIFT_RANGE_PARAM));
 #ifdef _LAB
-        addLabel(Vec(10 + 1, 29), "Shift");
-        addLabel(Vec(67, 29), "Range");
+        addLabel(Vec(14, 29), "Shift");
+        addLabel(Vec(62, 29), "Range");
 #endif
-        _shiftDisplay = addLabel(Vec(6, 83), "");
+        _shiftDisplay = addLabel(Vec(8, 83), "");
 
         // now all the RIB controls
 
         // RIB trigger button
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(17 - 2, 178),
+            Vec(18.5, 179),
             module,
             Comp::RIB_POSITIVE_BUTTON_PARAM,
             Comp::RIB_POSITIVE_LIGHT));
-        addLabel(Vec(15, 159), "+");
+        addLabel(Vec(17, 160), "+");
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(70, 178),
+            Vec(68, 179),
             module,
             Comp::RIB_NEGATIVE_BUTTON_PARAM,
             Comp::RIB_NEGATIVE_LIGHT));
-        addLabel(Vec(71, 159), "-", 16);
+        addLabel(Vec(68, 160), "-", 16);
     }
 
     void addIO(PhasePatternsModule* module) {
-        addInput(createInput<PJ301MPort>(Vec(12, 273), module, Comp::CK_INPUT));
-        addLabel(Vec(9, 253), "CkIn");
-        addInput(createInput<PJ301MPort>(Vec(68, 273), module, Comp::SHIFT_INPUT));
-        addLabel(Vec(68, 253), "Shft");
+       
+        addInput(createInput<PJ301MPort>(Vec(16, 273), module, Comp::CK_INPUT));
+        addLabel(Vec(14, 253), "CkIn");
+        addInput(createInput<PJ301MPort>(Vec(65, 273), module, Comp::SHIFT_INPUT));
+        addLabel(Vec(64, 253), "Shft");
 
-        addOutput(createOutput<PJ301MPort>(Vec(40, 322), module, Comp::CK_OUTPUT));
-        addLabel(Vec(36, 300), "CkOut");
-        addInput(createInput<PJ301MPort>(Vec(12, 226), module, Comp::RIB_POSITIVE_INPUT));
-        addLabel(Vec(12, 206), "RIB+");
-        addInput(createInput<PJ301MPort>(Vec(67, 226), module, Comp::RIB_NEGATIVE_INPUT));
-        addLabel(Vec(68, 206), "RIB-");
+     
+        addInput(createInput<PJ301MPort>(Vec(16, 226), module, Comp::RIB_POSITIVE_INPUT));
+        addLabel(Vec(16, 206), "RIB+");
+        addInput(createInput<PJ301MPort>(Vec(65, 226), module, Comp::RIB_NEGATIVE_INPUT));
+        addLabel(Vec(66, 206), "RIB-");
+
+        RoundedRect *r = new RoundedRect(Vec(32, 302), Vec(40, 50));
+        addChild(r);
+        addOutput(createOutput<PJ301MPort>(Vec(39, 322), module, Comp::CK_OUTPUT));
+        addLabel(Vec(34.5, 300), "CkOut");
     }
 
     /**

@@ -32,7 +32,7 @@ struct Harmony1Widget : ModuleWidget {
 #ifdef _LAB
         addLabel(Vec(28, 5), "Harmony");
 #endif
-      
+
         addScore(module);
         addKeysig();
         addInputs();
@@ -50,24 +50,34 @@ struct Harmony1Widget : ModuleWidget {
 #ifdef _LAB
         addLabel(Vec(77, 212), "X-pose");
 #endif
+        addLeds();
         if (module) {
             const Comp* comp = module->comp.get();
             assert(_keyRootWidget);
             _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
         }
+
+       
+    }
+
+    void addLeds() {
+        addChild(createLight<SmallLight<RedLight>>(
+            Vec(133, 242),
+            module,
+            Comp::PES_INVALID_LIGHT));
     }
 
     void addInputs() {
-    #if 1
+#if 1
         addInputL(Vec(19, 257.76), Comp::CV_INPUT, "Root");
         addInputL(Vec(63, 257.79), Comp::TRIGGER_INPUT, "Trig");
         addInputL(Vec(109, 257.79), Comp::PES_INPUT, "PES");
 
-    #else
-     // original way
+#else
+        // original way
         addInputL(Vec(34, 257.76), Comp::CV_INPUT, "Root");
         addInputL(Vec(93, 257.79), Comp::TRIGGER_INPUT, "Trig");
-    #endif
+#endif
     }
 
     void addOutputs() {
@@ -95,7 +105,7 @@ struct Harmony1Widget : ModuleWidget {
             Vec(8, yScale),
             module,
             Comp::KEY_PARAM);
-        p->setLabels(Scale::getRootLabels(false));  
+        p->setLabels(Scale::getRootLabels(false));
         p->box.size.x = 40;
         p->box.size.y = 22;
         p->text = "C";
@@ -175,7 +185,6 @@ struct Harmony1Widget : ModuleWidget {
             if (_ksigMonitor) {
                 _ksigMonitor->poll();
             }
-
 
             // process the voice indicators
             for (int i = 0; i < 4; ++i) {

@@ -3,6 +3,7 @@
 #ifdef _H2
 
 #include "BufferingParent.h"
+#include "GfxUtils.h"
 #include "Harmony2.h"
 #include "KsigSharpFlatMonitor.h"
 #include "NumberFormatter.h"
@@ -27,8 +28,7 @@ public:
         addIO();
     }
     void process(const ProcessArgs& args) override {
-         comp->process(args);
-
+        comp->process(args);
     }
 
     std::shared_ptr<Comp> getComp() const {
@@ -49,20 +49,13 @@ private:
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
         this->configParam(Comp::MODE_PARAM, 0, numModes - 1, 0, "Key signature mode");
         this->configParam(Comp::SHARPS_FLATS_PARAM, 0, 3, 0, "hidden (sf)");
-        this->configParam(Comp::ONLY_USE_DIATONIC_PARAM, 0, 1, 0, "hidden (ud)");
+        this->configParam(Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM, 0, 1, 0, "hidden (ud)");
     }
 
     void addIO() {
-        //  PITCH_OUTPUT,
-        //   XSCALE_OUTPUT,
         this->configOutput(Comp::PITCH_OUTPUT, "Main chord CV");
         this->configOutput(Comp::PES_OUTPUT, "Scale (PES)");
 
-        //    XPOSE_INPUT,
-        // KEY_INPUT,
-        // MODE_INPUT,
-        // PITCH_INPUT,
-        // XSCALE_INPUT,
         this->configInput(Comp::KEY_INPUT, "Scale root");
         this->configInput(Comp::XPOSE_INPUT, "Transpose steps");
         this->configInput(Comp::MODE_INPUT, "Scale mode/type");
@@ -77,8 +70,8 @@ public:
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/harmony2-panel.svg")));
 #if 1  // def _LAB
-        addLabel(Vec(43, 6), "Harmony II", 20);
-        addLabel(Vec(44, 353), "Squinktronix", 17);
+        addLabel(Vec(43, 3), "Harmony II", 20);
+        addLabel(Vec(44, 355), "Squinktronix", 17);
 #endif
         addTranposeControls(module);
         addKeysig(module);
@@ -139,7 +132,7 @@ private:
             return;
         }
 
-        SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_PARAM);
+        SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM);
         item->text = "Mode CV only diatonic";
         menu->addChild(item);
 
@@ -158,8 +151,12 @@ private:
     const float dx = 34;
     void addMainCV() {
         const float y = 317;
-        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "CVI");
-        addOutputL(Vec(x0 + dx, y), Comp::PITCH_OUTPUT, "CVO");
+
+        RoundedRect* r = new RoundedRect(Vec(73, y - 18), Vec(70, 54));
+        addChild(r);
+
+        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "V/Oct", 4);
+        addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "V/Oct", 4);
 
         addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES");
     }
@@ -168,7 +165,7 @@ private:
         const float y = 270;
         addInputL(Vec(x0, y), Comp::XPOSE_INPUT, "XP");
 
-        addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key");
+        addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key", 1.f);
         addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
 
         addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "PES");
@@ -176,14 +173,14 @@ private:
 
     void addLeds() {
         const float y = 258;
-        addChild(createLight<MediumLight<RedLight>>(
-            Vec(23 + x0 + 3 * dx, y),
+        addChild(createLight<SmallLight<RedLight>>(
+            Vec(26 + x0 + 3 * dx, y),
             module,
-            Comp::XSCALE_INVALID_LIGHT));
+            Comp::PES_INVALID_LIGHT));
     }
 
     void addKeysig(Harmony2Module* xmodule) {
-        const float yScale = 220;
+        const float yScale = 216;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -201,9 +198,10 @@ private:
             Vec(74, yMode),
             module,
             Comp::MODE_PARAM);
-        const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
-        p->setShortLabels(Scale::getShortScaleLabels(diatonicOnly));
-        p->setLabels(Scale::getScaleLabels(diatonicOnly));
+        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
+        // Let user select whatever whey want
+        p->setShortLabels(Scale::getShortScaleLabels(false));
+        p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
         p->text = "Maj";
@@ -217,7 +215,7 @@ private:
     }
 
     static constexpr float y0 = 40;
-    static constexpr float deltaY = 28;
+    static constexpr float deltaY = 27;  // was 28
     static constexpr float xbutton = 5;
     static constexpr float xoctave = 28;
     static constexpr float xdegree = 75;
@@ -291,24 +289,26 @@ private:
         return parent;
     }
 
-    void addOutputL(const Vec& vec, int outputNumber, const std::string& text) {
+    void addOutputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
 #ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         vlabel.x += 4;
+        vlabel.x += label_dx;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
 #endif
     }
 
-    void addInputL(const Vec& vec, int outputNumber, const std::string& text) {
+    void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
         addInput(createInput<PJ301MPort>(vec, module, outputNumber));
 #ifdef _LAB
         Vec vlabel(vec.x, vec.y);
         vlabel.y -= 20;
         vlabel.x += 4;
+        vlabel.x += label_dx;
         const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
         vlabel.x -= xOffset;
         addLabel(vlabel, text);

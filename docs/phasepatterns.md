@@ -69,6 +69,16 @@ Clock output is the only output of the module. If follows the VCV recommendation
 
 Use Expert UI will switch the RIBS controls from the easy to set default controls, to continuous knobs that allow more settings, with somewhat more effort.
 
+## Expert UI
+
+This is something of a misnomer - the "Expert UI" isn't particularly difficult to use. In the normal default UI the "Total" control is a drop down with some convenient values to pick. The other UI uses a continuous knob to let you pick and total clocks setting from zero to four.
+
+The normal "Dur" UI is a stepped knob going from one to 32 clocks, whereas the Expert UI has a knob that is not stepped, and goes from 1 to 128 clocks.
+
+The only thing that is "expert" about that UI is that it can be tricky to get the exact number you want in there. Often using the standard context menu and then typing in a value will get you what you want.
+
+Note, too, that there is a bug where after you change UI modes the knobs don't always behave exactly correct. If you have issues with this, quit VCV Rack and launch again.
+
 ## More about what is going on inside
 
 As you can see in the block diagram, there is not a ton going on inside this module.
