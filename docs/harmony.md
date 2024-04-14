@@ -34,7 +34,7 @@ The input is used to determine which chord to generate, 1, 2, 3, 4, 5, 6, or 7. 
 
 There is an optional trigger input. Either the trigger input, or a CV change, or both can trigger the generation of a new chord.
 
-There is also a PES input that let's you set the key signature from a different module, so that all modules can be in the same key. Information on PES can be found [here](./pes.md)
+There is also a PES input that let's you set the key signature from a different module, so that all modules can be in the same key. Information on PES can be found [here](./pes.md).
 
 ### The outputs
 
@@ -55,7 +55,7 @@ See below for more on using non-major modes with Harmony.
 
 There are four controls in the middle that let you control the chords that are generated:
 
-* **Inv Pref** (Inversion Preference) Give some control on whether generated chords will be in root position, or one of the inversions. The default is to discourage two chords in a row to be inverted. Settings are:
+* **Inv Pref** (Inversion Preference) Gives some control on whether generated chords will be in root position, or one of the inversions. Settings are:
   * Discourage consecutive. tries to ensure that for any two chords in sequence, at least one is in root position.
   * Discourage. Harmony will avoid inverted chords, when possible.
   * Don't care (default). Harmony will pick the chord inversion that follows the most rules.
@@ -63,7 +63,7 @@ There are four controls in the middle that let you control the chords that are g
   * None. Allows the full, extended pitch range of all voices in the generated chords.
   * Narrow Range. Limits the pitch range of the four generated voices to something like the normal ranges for singing. Top notes can not go as high, bottom notes can not go as low as they can in the extended range.
   * Encourage Center. This will try to minimize the distance between the top and bottom of the chord. Will prefer close chords to open chords.
-* **NNIC Rule** (No Notes In Common Rule) Enables and disables to voice leading rule that kicks in when two chords have no common notes between them. This is a fairly strict rule, so turning it off can allow more freedom in the generated chords. The rules that Harmony uses in this case are listed below, with the other rules.
+* **NNIC Rule** (No Notes In Common Rule) Enables and disables the voice leading rule that kicks in when two chords have no common notes between them. This is a fairly strict rule, so turning it off can allow more freedom in the generated chords. The rules that Harmony uses in this case are listed below, with the other rules.
 * **Xpose** This transposes the input by a fixed number of scale degrees.
 
 Note: there are a few quantizers that can transpose by scale degrees, but it is far more common for them transpose first by a number of semitones, then quantize the result to a diatonic scale. While this generates notes that are all in the scale, the number of scale degrees will very. So, for example, a lot of "70's rock" bands like to play to dual lead guitar with the two guitarists playing a third apart. This effect is not possible with many quantizers, but is easily accomplished with the Xpose knob.
@@ -75,7 +75,15 @@ The Xpose feature was added partly to address the fact that Harmony will not gen
 * **Repetition avoidance**. When enabled will prevent Harmony from re-using a chord. Most useful in conjunction with the Trig input.
 * **Black notes on white paper**. Will reverse the colors used to draw the score.
 * **Retrig. on notes and CV**. Only has an effect when the Trig input is used. When off, only trig input will generate a new chord, not CV change. Normally on.
-* **Sharps / not flats**. This will control how accidental are displayed in the scale selection dialog. For example, the key of "A sharp minor" may be displayed as "B flat minor" with this option. Of course that key tends to be "spelled" as B flat by most people.
+* **Sharps&flats**. Some pitches may be displayed either as a sharp or a flat. For example A sharp and B flat are the same note. So this setting controls how Harmony II makes a decision. In many cases Harmony II can pick one of these as the default. It almost always does this by picking the choice that will give the least number of accidentals in the key signature and always avoiding "crazy" key signatures. So, for example, it will pick flats for C minor, which contains C, D, E flat, F, G, A flat, and B flat. Spelled with sharps it would be C, D, D#, F, G, G#, A#, C. The problem with the sharp interpretation is that is has both the natural and the sharp for D and G, which would make it very difficult to notate using standard music notion.
+
+* Default+sharp. In this setting harmony II will pick a display mode. If it can't determine a default, it will use sharps.
+
+* Default+flat. In this setting harmony II will pick a display mode. If it can't determine a default, it will use flats.
+
+* Sharps. Harmony II will always use sharps.
+
+* Flats. Harmony II will always use sharps.
 
 ## Getting good results
 
@@ -91,7 +99,7 @@ Play around with the various front panel controls. Even if you don't understand 
 
 ## Using in "other" modes
 
-All the voice leading rules that Harmony knows are from Major keys. Although Harmony will happily apply these rules to other modes, some are not legit "rule" in other keys. Here are some simple examples:
+All the voice leading rules that Harmony knows are from Major keys. Although Harmony will happily apply these rules to other modes, some are not legit "rules" in other keys. Here are some simple examples:
 
 In a major key, the leading tone (major 7) really wants to "resolve" to the tonic. Harmony knows this. But in a minor key Harmony will try just as hard to resolve a minor 7th up to the tonic. Which is fine, but not as necessary. That is why musicians invented the melodic minor scale. Harmony does not understand the melodic minor.
 
