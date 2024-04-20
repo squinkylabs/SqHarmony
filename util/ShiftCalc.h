@@ -5,6 +5,7 @@
 
 class ShiftCalc {
 public:
+    friend class TestX;
     /**
      * @brief clocks generator once, returns current output.
      * 
@@ -30,12 +31,21 @@ public:
      */
     void trigger(int periodOfClock, float totalShiftAmount, float totalShiftDurationInClocks);
 
+    void reset();
 private:
     double _acc = 0;  // Accumulates over one "shift session".
     double _delta = 0;
     double _masterAccumulator = 0;  // Accumulates all the sessions before the current one.
     double _shiftAmountLimit = 0;
 };
+
+inline void ShiftCalc::reset() {
+    _acc = 0;
+    _delta = 0;
+    _masterAccumulator = 0;
+    _shiftAmountLimit = 0;
+}
+
 
 inline float ShiftCalc::go() {
     if (_delta) {

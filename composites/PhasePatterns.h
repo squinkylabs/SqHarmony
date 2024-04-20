@@ -99,6 +99,8 @@ public:
         return _curShift[channel];
     }
 
+    void onReset() override;
+
 private:
     void _init();
     void _stepn();
@@ -122,6 +124,15 @@ private:
     int _numOutputClocks = 0;
     int _numShiftInputs = 0;
 };
+
+template <class TBase>
+inline void PhasePatterns<TBase>::onReset() {
+    SQINFO("ON RESET");
+    for (int i=0; i<16; ++i) {
+        _ribGenerator[i].reset();
+        _curShift[i] = 0;
+    }
+}
 
 template <class TBase>
 inline float PhasePatterns<TBase>::indexToValueRibDuration(int index) {

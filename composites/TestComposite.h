@@ -238,6 +238,10 @@ public:
     virtual void step() {
     }
 
+    virtual void onReset() {
+        
+    }
+
     virtual void process(const ProcessArgs& args) {
     }
     virtual void onSampleRateChange() {

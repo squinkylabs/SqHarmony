@@ -258,6 +258,21 @@ static void testIndex2Value() {
     assertEQ(Comp::valueToIndexRibDuration(3.f), 4);
 }
 
+class TestX {
+public:
+    static void testReset() {
+        auto c = factory();
+        assertEQ(c->_ribGenerator[15]._acc, 0);
+
+        c->_ribGenerator[15]._acc = 1;
+        assertEQ(c->_ribGenerator[15]._acc, 1);
+        c->onReset();
+        assertEQ(c->_ribGenerator[15]._acc, 0);
+
+    }
+};
+
+
 void testPhasePatterns() {
     testOver1();
     testSimpleInputNoShift();
@@ -267,12 +282,14 @@ void testPhasePatterns() {
     testShiftCV();
     testNegativeCV();
     testIndex2Value();
+    TestX::testReset();
 }
 
-#if 0
+#if 1
 void testFirst() {
    // testIndex2Value();
    // testNegativeCV();
-   testRIBButtons();
+   //testRIBButtons();
+   TestX::testReset();
 }
 #endif
