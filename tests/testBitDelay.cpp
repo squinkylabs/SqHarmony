@@ -11,77 +11,80 @@ static void testCanCall() {
     delay.process(false, 0);
 }
 
+template <typename T>
 static void testDelaySize() {
-    BitDelay delay;
+    T delay;
     delay.setMaxDelaySamples(100);
     const auto x = delay.getMaxDelaySize();
     assertGE(x, 100);
 }
 
+template <typename T>
 static void testDelay0() {
-    BitDelay delay;
-    BitDelay::Errors err;
+    T delay;
+    typename T::Errors err;
     delay.setMaxDelaySamples(100);
     bool b = delay.process(true, 0, &err);
     assertEQ(b, true);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(false, 0, &err);
     assertEQ(b, false);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(true, 0, &err);
     assertEQ(b, true);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(true, 0, &err);
     assertEQ(b, true);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 }
 
+template <typename T>
 static void testDelay20() {
-    BitDelay delay;
-    BitDelay::Errors err;
+    T delay;
+    typename T::Errors err;
     delay.setMaxDelaySamples(100);
     bool b = delay.process(true, 20, &err);
     assertEQ(b, false);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(false, 20, &err);
     assertEQ(b, false);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(true, 20, &err);
     assertEQ(b, false);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(true, 20, &err);
     assertEQ(b, false);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     // ok, have done four cycles. So doing 15
     // more should get use to 20, the test.
     for (int i = 0; i < 16; ++i) {
         b = delay.process(true, 20, &err);
         assertEQ(b, false);
-        assert(err == BitDelay::Errors::NoError);
+        assert(err == T::Errors::NoError);
     }
 
     b = delay.process(false, 20, &err);
     assertEQ(b, true);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(false, 20, &err);
     assertEQ(b, false);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(false, 20, &err);
     assertEQ(b, true);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 
     b = delay.process(false, 20, &err);
     assertEQ(b, true);
-    assert(err == BitDelay::Errors::NoError);
+    assert(err == T::Errors::NoError);
 }
 
 class TestX {
@@ -206,9 +209,9 @@ class BitDelayTest {
 public:
     static void test() {
         testCanCall<T>();
-        testDelaySize();
-        testDelay0();
-        testDelay20();
+        testDelaySize<T>();
+        testDelay0<T>();
+        testDelay20<T>();
     }
 };
 
