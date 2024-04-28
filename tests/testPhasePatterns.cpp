@@ -285,7 +285,7 @@ void testPhasePatterns() {
     TestX::testReset();
 }
 
-#if 1
+#if 0
 void testFirst() {
    // testIndex2Value();
    // testNegativeCV();

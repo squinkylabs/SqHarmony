@@ -1,9 +1,11 @@
 
 #include "BitDelay.h"
+#include "BitDelay2.h"
 #include "asserts.h"
 
+template <typename T>
 static void testCanCall() {
-    BitDelay delay;
+    T delay;
     delay.setMaxDelaySamples(100);
     delay.getMaxDelaySize();
     delay.process(false, 0);
@@ -199,7 +201,18 @@ public:
     }
 };
 
-void testBitDelay() {
+template <typename T>
+class BitDelayTest {
+public:
+    static void test() {
+        testCanCall<T>();
+        testDelaySize();
+        testDelay0();
+        testDelay20();
+    }
+};
+
+static void testBitDelayOnly() {
     TestX::canExtractBit();
     TestX::getIndexAndBit();
     TestX::canPackBit();
@@ -208,11 +221,12 @@ void testBitDelay() {
     TestX::canAccessDelayAtZero();
     TestX::canAccessDelay2();
     TestX::canAccessDelay3();
+}
 
-    testCanCall();
-    testDelaySize();
-    testDelay0();
-    testDelay20();
+void testBitDelay() {
+    testBitDelayOnly();
+    BitDelayTest<BitDelay>::test();
+    BitDelayTest<BitDelay2>::test();
 }
 
 #if 0
@@ -229,10 +243,11 @@ static void showDelay4() {
         SQINFO("t=%d, input=true delay = %d out=%d", i + 8, time, b);
     }
 }
+#endif
 
-
+#if 1
 void testFirst() {
-    showDelay4();
-    //TestX::canAccessDelay3();
+    testBitDelay();
+    // TestX::canAccessDelay3();
 }
 #endif
