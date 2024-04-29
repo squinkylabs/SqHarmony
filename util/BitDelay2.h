@@ -10,7 +10,6 @@ class BitDelay2 {
 public:
     friend class TestX;
 
-    BitDelay2();
     enum class Errors {
         NoError,
         ExceededDelaySize,
@@ -25,23 +24,60 @@ public:
 private:
     bool _currentValue = false;
     unsigned _currentCount = 0;
-    SqRingBuffer<unsigned, 200> _ringBuffer;
+ //   SqRingBuffer<unsigned, 200> _ringBuffer;
 
-    bool _getDelay(unsigned samples) const;
-    void _writeToRingBuffer();
+    static const int _delaySize = 200;
+    unsigned _delayMemory[_delaySize];
+    unsigned* _delayWritePointer = _delayMemory;
+    unsigned* _delayReadPointer = _delayMemory;
+    unsigned _validDelayEntries = 0;
+    void _writeToRingBuffer(unsigned data);
+    void _advance(unsigned** p);
+    void _decrement(unsigned** p);
+
+
+    bool _getDelay(unsigned samples);
+  
 
     unsigned _sizeSamplesForTest = 0;
 };
 
-inline BitDelay2::BitDelay2() : _ringBuffer(true) {
+inline void BitDelay2::_advance(unsigned** p) {
+    SQINFO("_advance");
+
+    (*p)++;
+    if (*p >= (_delayMemory + _delaySize)) {
+        *p = _delayMemory;
+        SQINFO("advance wrap");
+    }
 }
 
-inline void BitDelay2::_writeToRingBuffer() {
+inline void BitDelay2::_decrement(unsigned** p) {
+    SQINFO("_decrement");
+
+    *p--;
+    if (*p < _delayMemory) {
+        *p = _delayMemory + (_delaySize - 1);
+        SQINFO("decrement wrap");
+    }
+}
+
+inline void BitDelay2::_writeToRingBuffer(unsigned data) {
     if (_currentCount == 0) {
         SQINFO("nothing to write");
         return;
     }
-    _ringBuffer.push(_currentCount);
+
+    // if memory if full, dump the old stuff
+    if (_validDelayEntries >= (_delaySize - 1)) {
+        SQINFO("write now writing something");
+        _advance(&_delayReadPointer);
+    }
+
+    // Write the new data and advance.
+    *_delayWritePointer = data;
+    _advance(&_delayWritePointer);
+
 }
 
 inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
@@ -52,7 +88,8 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
         ++_currentCount;
     } else {
       //  assert(false);  // need to write to buffer.
-        _writeToRingBuffer();
+        SQINFO("write to buffer because input=%d, cur=%d", inputClock, _currentValue);
+        _writeToRingBuffer(_currentValue);
         _currentValue = inputClock;
         _currentCount = 1;
     }
@@ -60,11 +97,38 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
     return output;
 }
 
- inline bool BitDelay2::_getDelay(unsigned samples) const {
-    if (samples <= _currentCount) {
+ inline bool BitDelay2::_getDelay(unsigned samples) {
+    if (samples < _currentCount) {
         return _currentValue;
     }
-    SQINFO("getDelay2 fake");
+
+    unsigned totalDelay = _currentCount - 1;
+
+    unsigned blocksToParse = _validDelayEntries;
+   //
+   // assert(blocksToParse > 0);
+    
+   //  unsigned* block = _decrement(_delayWritePointer);
+    unsigned* block = _delayWritePointer;
+    if (blocksToParse) {
+        _decrement(&block);
+    }
+    bool value = !_currentValue;     // because we know it's in a different block..
+    while (blocksToParse) {
+        // Get data in current block
+        totalDelay += *block;
+        if (totalDelay >= samples) {
+            // this is the clock for us.
+            return value;
+        }
+        blocksToParse--;
+        _decrement(&block);
+        value = !value;
+    }
+
+    
+    SQINFO("!! getDelay2 past end");
+  //  assert(false);
     return false;
  }
 

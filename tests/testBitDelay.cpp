@@ -20,6 +20,58 @@ static void testDelaySize() {
 }
 
 template <typename T>
+static void testDelayA() {
+    T delay;
+    typename T::Errors err;
+    delay.setMaxDelaySamples(100);
+    bool b = delay.process(false, 0, &err);
+    assertEQ(b, false);
+}
+
+template <typename T>
+static void testDelayB() {
+    T delay;
+    typename T::Errors err;
+    delay.setMaxDelaySamples(100);
+    bool b = delay.process(true, 0, &err);
+    assertEQ(b, true);
+}
+
+template <typename T>
+static void testDelayC() {
+    T delay;
+    typename T::Errors err;
+    delay.setMaxDelaySamples(100);
+
+    delay.process(true, 1, &err);
+    bool b = delay.process(true, 1, &err);
+    assertEQ(b, true);
+}
+
+template <typename T>
+static void testDelayD() {
+    T delay;
+    typename T::Errors err;
+    delay.setMaxDelaySamples(100);
+
+    delay.process(true, 1, &err);
+    // since there is nothing in the buffer, we should get zero past end
+    bool b = delay.process(false, 1, &err);
+    assertEQ(b, true);
+}
+
+template <typename T>
+static void testDelayE() {
+    T delay;
+    typename T::Errors err;
+    delay.setMaxDelaySamples(100);
+
+    // since there is nothing in the buffer, we should get zero past end
+    bool b = delay.process(true, 1, &err);
+    assertEQ(b, false);
+}
+
+template <typename T>
 static void testDelay0() {
     T delay;
     typename T::Errors err;
@@ -202,6 +254,25 @@ public:
         verifyIndexAndBit(39, 1, 7);
         verifyIndexAndBit(64, 2, 0);
     }
+
+    static void testAdvance2A() {
+        BitDelay2 delay;
+        assertEQ(delay._delayReadPointer, delay._delayWritePointer);
+        delay._advance(&delay._delayWritePointer);
+        assertLT(delay._delayReadPointer, delay._delayWritePointer);
+    }
+
+    static void testAdvance2B() {
+        BitDelay2 delay;
+
+        delay._delayReadPointer = delay._delayWritePointer = delay._delayMemory + (BitDelay2::_delaySize - 1);
+
+        // write, so make sure bounds checker is happy
+        *delay._delayWritePointer = 123456;
+  
+        delay._advance(&delay._delayWritePointer);
+        assertEQ(delay._delayWritePointer, delay._delayMemory);
+    }
 };
 
 template <typename T>
@@ -210,6 +281,12 @@ public:
     static void test() {
         testCanCall<T>();
         testDelaySize<T>();
+
+        testDelayA<T>();
+        testDelayB<T>();
+        testDelayC<T>();
+        testDelayD<T>();
+
         testDelay0<T>();
         testDelay20<T>();
     }
@@ -226,11 +303,20 @@ static void testBitDelayOnly() {
     TestX::canAccessDelay3();
 }
 
+void testBitDelay2Only() {
+    TestX::testAdvance2A();
+    TestX::testAdvance2B();
+    assert(false);
+}
+
 void testBitDelay() {
     testBitDelayOnly();
+    testBitDelay2Only();
     BitDelayTest<BitDelay>::test();
     BitDelayTest<BitDelay2>::test();
 }
+
+
 
 #if 0
 static void showDelay4() {
@@ -250,7 +336,13 @@ static void showDelay4() {
 
 #if 1
 void testFirst() {
-    testBitDelay();
+  //  testBitDelay();
+ //   testDelay0<BitDelay2>();
     // TestX::canAccessDelay3();
+  //   BitDelayTest<BitDelay2>::test();
+  // BitDelayTest<BitDelay>::test();
+
+ //   testDelayD<BitDelay2>();
+    testBitDelay2Only();
 }
 #endif
