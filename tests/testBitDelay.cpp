@@ -264,14 +264,29 @@ public:
 
     static void testAdvance2B() {
         BitDelay2 delay;
-
         delay._delayReadPointer = delay._delayWritePointer = delay._delayMemory + (BitDelay2::_delaySize - 1);
-
         // write, so make sure bounds checker is happy
         *delay._delayWritePointer = 123456;
-  
         delay._advance(&delay._delayWritePointer);
         assertEQ(delay._delayWritePointer, delay._delayMemory);
+    }
+
+    static void testDecrement2A() {
+        BitDelay2 delay;
+        delay._advance(&delay._delayWritePointer);
+        delay._advance(&delay._delayReadPointer);
+        assertEQ(delay._delayReadPointer, delay._delayWritePointer);
+
+        delay._decrement(&delay._delayWritePointer);
+        assertEQ(delay._delayWritePointer, delay._delayMemory);
+        assertNE(delay._delayReadPointer, delay._delayWritePointer);
+    }
+
+    static void testDecrement2B() {
+        BitDelay2 delay;
+
+        delay._decrement(&delay._delayWritePointer);
+        assertEQ(delay._delayWritePointer, delay._delayMemory + (BitDelay2::_delaySize - 1));
     }
 };
 
@@ -306,7 +321,8 @@ static void testBitDelayOnly() {
 void testBitDelay2Only() {
     TestX::testAdvance2A();
     TestX::testAdvance2B();
-    assert(false);
+    TestX::testDecrement2A();
+    TestX::testDecrement2B();
 }
 
 void testBitDelay() {
@@ -315,8 +331,6 @@ void testBitDelay() {
     BitDelayTest<BitDelay>::test();
     BitDelayTest<BitDelay2>::test();
 }
-
-
 
 #if 0
 static void showDelay4() {
@@ -334,15 +348,15 @@ static void showDelay4() {
 }
 #endif
 
-#if 1
+#if 0
 void testFirst() {
-  //  testBitDelay();
- //   testDelay0<BitDelay2>();
+    //  testBitDelay();
+    //   testDelay0<BitDelay2>();
     // TestX::canAccessDelay3();
-  //   BitDelayTest<BitDelay2>::test();
-  // BitDelayTest<BitDelay>::test();
+    //   BitDelayTest<BitDelay2>::test();
+    // BitDelayTest<BitDelay>::test();
 
- //   testDelayD<BitDelay2>();
+    //   testDelayD<BitDelay2>();
     testBitDelay2Only();
 }
 #endif

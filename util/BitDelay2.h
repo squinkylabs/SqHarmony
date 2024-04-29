@@ -55,7 +55,7 @@ inline void BitDelay2::_advance(unsigned** p) {
 inline void BitDelay2::_decrement(unsigned** p) {
     SQINFO("_decrement");
 
-    *p--;
+    (*p)--;
     if (*p < _delayMemory) {
         *p = _delayMemory + (_delaySize - 1);
         SQINFO("decrement wrap");
