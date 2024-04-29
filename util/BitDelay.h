@@ -22,7 +22,7 @@ public:
     uint32_t getMaxDelaySize() const;
 
 private:
-    // delay memory as 32 bit unsigned, but accesses as a bit.
+    // Delay memory as 32 bit unsigned, but accesses as a bit.
     std::vector<uint32_t> _delayMemory;
 
     // This is the virtual buffer pointer. Units are bits.
