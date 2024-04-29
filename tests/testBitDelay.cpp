@@ -284,9 +284,17 @@ public:
 
     static void testDecrement2B() {
         BitDelay2 delay;
-
         delay._decrement(&delay._delayWritePointer);
         assertEQ(delay._delayWritePointer, delay._delayMemory + (BitDelay2::_delaySize - 1));
+    }
+
+    static void testWriteRingBuffer() {
+        BitDelay2 delay;
+        delay._currentCount = 5;
+        delay._currentValue = true;
+        delay._writeToRingBuffer();
+        assertEQ(delay._delayWritePointer, delay._delayMemory + 1);
+        assertEQ(delay._validDelayEntries, 1);
     }
 };
 
@@ -323,6 +331,7 @@ void testBitDelay2Only() {
     TestX::testAdvance2B();
     TestX::testDecrement2A();
     TestX::testDecrement2B();
+    TestX::testWriteRingBuffer();
 }
 
 void testBitDelay() {
@@ -348,7 +357,7 @@ static void showDelay4() {
 }
 #endif
 
-#if 0
+#if 1
 void testFirst() {
     //  testBitDelay();
     //   testDelay0<BitDelay2>();

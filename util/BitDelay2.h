@@ -31,7 +31,7 @@ private:
     unsigned* _delayWritePointer = _delayMemory;
     unsigned* _delayReadPointer = _delayMemory;
     unsigned _validDelayEntries = 0;
-    void _writeToRingBuffer(unsigned data);
+    void _writeToRingBuffer();
     void _advance(unsigned** p);
     void _decrement(unsigned** p);
 
@@ -62,7 +62,7 @@ inline void BitDelay2::_decrement(unsigned** p) {
     }
 }
 
-inline void BitDelay2::_writeToRingBuffer(unsigned data) {
+inline void BitDelay2::_writeToRingBuffer() {
     if (_currentCount == 0) {
         SQINFO("nothing to write");
         return;
@@ -72,11 +72,13 @@ inline void BitDelay2::_writeToRingBuffer(unsigned data) {
     if (_validDelayEntries >= (_delaySize - 1)) {
         SQINFO("write now writing something");
         _advance(&_delayReadPointer);
+        _validDelayEntries--;
     }
 
     // Write the new data and advance.
-    *_delayWritePointer = data;
+    *_delayWritePointer = _currentCount;
     _advance(&_delayWritePointer);
+    _validDelayEntries++;
 
 }
 
@@ -89,7 +91,7 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
     } else {
       //  assert(false);  // need to write to buffer.
         SQINFO("write to buffer because input=%d, cur=%d", inputClock, _currentValue);
-        _writeToRingBuffer(_currentValue);
+        _writeToRingBuffer();
         _currentValue = inputClock;
         _currentCount = 1;
     }
