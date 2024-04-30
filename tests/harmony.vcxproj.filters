@@ -306,6 +306,9 @@
     <ClCompile Include="testAudioMath.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="testBitDelayPartTwo.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">

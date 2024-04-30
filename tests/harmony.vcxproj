@@ -182,6 +182,7 @@
     <ClCompile Include="testArpegRhythmPlayer.cpp" />
     <ClCompile Include="testAudioMath.cpp" />
     <ClCompile Include="testBitDelay.cpp" />
+    <ClCompile Include="testBitDelayPartTwo.cpp" />
     <ClCompile Include="testButter.cpp" />
     <ClCompile Include="testChord4.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />

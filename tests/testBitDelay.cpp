@@ -357,7 +357,7 @@ static void showDelay4() {
 }
 #endif
 
-#if 1
+#if 0
 void testFirst() {
     //  testBitDelay();
     //   testDelay0<BitDelay2>();
@@ -365,7 +365,7 @@ void testFirst() {
     //   BitDelayTest<BitDelay2>::test();
     // BitDelayTest<BitDelay>::test();
 
-    //   testDelayD<BitDelay2>();
-    testBitDelay2Only();
+       testDelayD<BitDelay2>();
+   // testBitDelay2Only();
 }
 #endif

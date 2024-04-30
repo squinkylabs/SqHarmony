@@ -66,6 +66,7 @@ extern void testTestLFO();
 extern void testClockShifter6();
 extern void testClockShifter6d();
 extern void testBitDelay();
+extern void testBitDelayPartTwo();
 extern void testHarmony2();
 extern void testHarmony2B();
 extern void testHarmony2C();
@@ -126,6 +127,7 @@ int main(const char**, int) {
     testMultiplier();
     testRatchet();
     testBitDelay();
+    testBitDelayPartTwo();
     testClockShifter6();
     testClockShifter6d();
 
