@@ -129,15 +129,21 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
 #endif
 
 
-inline bool BitDelay2::_getDelay(unsigned samples, bool input) {
+inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
 
     // zero delay is a special case.
-    if (samples == 0) {
+    if (delaySamples == 0) {
         return input;
     }
 
     unsigned totalDelay = 0;
     unsigned blocksToParse = _validDelayEntries;
+
+    if (delaySamples <= this->_currentCount) {
+        return _currentValue;
+    }
+
+    delaySamples -= this->_currentCount;
 
     BitPacket* block = _delayPointer;
     if (blocksToParse) {
@@ -147,7 +153,7 @@ inline bool BitDelay2::_getDelay(unsigned samples, bool input) {
     while (blocksToParse) {
         // Get data in current block
         totalDelay += block->count;
-        if (totalDelay >= samples) {
+        if (totalDelay >= delaySamples) {
             // this is the clock for us.
             return block->value;
         }
@@ -155,11 +161,14 @@ inline bool BitDelay2::_getDelay(unsigned samples, bool input) {
         _decrement2(&block);
     }
 
-    int debt = int(samples) - int(totalDelay);
-    assert(debt < int(this->_currentCount));
-    assert(debt >= 0);
+    SQINFO("fall off end of delay");
+    return false;
+
+  //  int debt = int(samples) - int(totalDelay);
+ //   assert(debt < int(this->_currentCount));
+ //   assert(debt >= 0);
   //  SQINFO("_getDelay totally fake"); 
-    return this->_currentValue;
+  //  return this->_currentValue;
 }
 
 
