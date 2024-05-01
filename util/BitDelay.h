@@ -139,7 +139,11 @@ inline bool BitDelay::_getDelayOutput(unsigned delayOffset, Errors* err) {
         return false;
     }
 
-    int combinedLoc = _currentLocation - delayOffset;
+    // Off by one. current loc was already incremented.
+   // int combinedLoc = _currentLocation - (delayOffset + 1);
+    int combinedLoc = _currentLocation + delayOffset;
+    combinedLoc -= 1;
+
     // SQINFO("combined loc = %d", combinedLoc);
     if (combinedLoc < 0) {
         //  SQINFO("output delay mem size = %d, in bits %d", _delayMemory.size(), _delayMemory.size() * 32 );

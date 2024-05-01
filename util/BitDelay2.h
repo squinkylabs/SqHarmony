@@ -22,37 +22,41 @@ public:
     uint32_t getMaxDelaySize() const;
 
 private:
+
+    class BitPacket  {
+        public:
+        int count=0;
+        bool value=0;
+    };
+
     bool _currentValue = false;
     unsigned _currentCount = 0;
- //   SqRingBuffer<unsigned, 200> _ringBuffer;
 
     static const int _delaySize = 200;
-    unsigned _delayMemory[_delaySize];
-    unsigned* _delayWritePointer = _delayMemory;
-    unsigned* _delayReadPointer = _delayMemory;
+    BitPacket _delayMemory[_delaySize];
+    BitPacket* _delayPointer = _delayMemory;
     unsigned _validDelayEntries = 0;
     void _writeToRingBuffer();
-    void _advance(unsigned** p);
-    void _decrement(unsigned** p);
-
-
-    bool _getDelay(unsigned samples);
-  
-
+    void _advance();
+    void _decrement();
+    void _decrement2(BitPacket**);
+    bool _getDelay(unsigned samples, bool currentInput);
     unsigned _sizeSamplesForTest = 0;
 };
 
-inline void BitDelay2::_advance(unsigned** p) {
+inline void BitDelay2::_advance() {
     SQINFO("_advance");
 
-    (*p)++;
-    if (*p >= (_delayMemory + _delaySize)) {
-        *p = _delayMemory;
+    _delayPointer++;
+    if (_delayPointer >= (_delayMemory + _delaySize)) {
+        _delayPointer = _delayMemory;
         SQINFO("advance wrap");
     }
 }
-
-inline void BitDelay2::_decrement(unsigned** p) {
+inline void BitDelay2::_decrement() {
+    _decrement2(&_delayPointer);
+}
+inline void BitDelay2::_decrement2(BitPacket** p) {
     SQINFO("_decrement");
 
     (*p)--;
@@ -71,17 +75,41 @@ inline void BitDelay2::_writeToRingBuffer() {
     // if memory if full, dump the old stuff
     if (_validDelayEntries >= (_delaySize - 1)) {
         SQINFO("write now writing something");
-        _advance(&_delayReadPointer);
+        _advance();
         _validDelayEntries--;
     }
 
     // Write the new data and advance.
-    *_delayWritePointer = _currentCount;
-    _advance(&_delayWritePointer);
+    BitPacket& packet = *_delayPointer;
+    packet.value = _currentValue;
+    packet.count = _currentCount;
+  //  *_delayPointer = _currentCount;
+    _advance();
     _validDelayEntries++;
 
 }
 
+inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
+    if (error != nullptr) {
+        *error = Errors::NoError;
+    }
+
+    // first fetch the output
+    const bool output = _getDelay(delay, inputClock);
+    if (inputClock == _currentValue) {
+        ++_currentCount;
+    } else {
+      //  assert(false);  // need to write to buffer.
+        SQINFO("write to buffer because input=%d, cur=%d", inputClock, _currentValue);
+        _writeToRingBuffer();
+        _currentValue = inputClock;
+        _currentCount = 1;
+    }
+  
+    return output;
+}
+
+#if 0 // old version
 inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
     if (error != nullptr) {
         *error = Errors::NoError;
@@ -98,7 +126,44 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
     const bool output = _getDelay(delay);
     return output;
 }
+#endif
 
+
+inline bool BitDelay2::_getDelay(unsigned samples, bool input) {
+
+    // zero delay is a special case.
+    if (samples == 0) {
+        return input;
+    }
+
+    unsigned totalDelay = 0;
+    unsigned blocksToParse = _validDelayEntries;
+
+    BitPacket* block = _delayPointer;
+    if (blocksToParse) {
+        _decrement2(&block);
+    }
+
+    while (blocksToParse) {
+        // Get data in current block
+        totalDelay += block->count;
+        if (totalDelay >= samples) {
+            // this is the clock for us.
+            return block->value;
+        }
+        blocksToParse--;
+        _decrement2(&block);
+    }
+
+    int debt = int(samples) - int(totalDelay);
+    assert(debt < int(this->_currentCount));
+    assert(debt >= 0);
+  //  SQINFO("_getDelay totally fake"); 
+    return this->_currentValue;
+}
+
+
+#if 0 // old way
  inline bool BitDelay2::_getDelay(unsigned samples) {
     if (samples < _currentCount) {
         return _currentValue;
@@ -133,6 +198,7 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
   //  assert(false);
     return false;
  }
+ #endif
 
 inline void BitDelay2::setMaxDelaySamples(unsigned samples) {
     _sizeSamplesForTest = samples;

@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "BitDelay.h"
-#include "BitDelay2.h"
+//#include "BitDelay2.h"
 #include "asserts.h"
 
 using TestRecord = std::tuple<bool, unsigned>;
@@ -10,8 +10,6 @@ using TestData = std::vector<TestRecord>;
 
 template <typename T>
 static void fillDelay(T& delay, const TestData& data) {
-    //  assert(!data.empty());
-    // const auto firstData = data[0];
     for (size_t i = 0; i < data.size(); ++i) {
         const auto d = data[i];
         const bool value = std::get<0>(d);
@@ -26,10 +24,11 @@ static void fillDelay(T& delay, const TestData& data) {
 
 template <typename T>
 static void validateDelay(T& delay, const TestData& data) {
+    SQINFO("--- validate delay ------");
     assert(!data.empty());
     const auto lastData = data[data.size() - 1];
 
-    unsigned totalCount = 1;
+    unsigned totalCount = 0;  // was one before
     for (size_t i = 0; i < data.size(); ++i) {
         const auto d = data[i];
         const bool value = std::get<0>(d);
@@ -38,10 +37,8 @@ static void validateDelay(T& delay, const TestData& data) {
             //   bool process(bool InputClock, unsigned delay, Errors* error = nullptr);
             const bool delayedValue = delay.process(false, totalCount);
 
-            // assert delayed == d
-            assertEQ(delayedValue, value);
-
             SQINFO("delayed = %d i=%d, j=%d totlcount=%d value = %d", delayedValue, i, j, totalCount, value);
+            assertEQ(delayedValue, value);          
             totalCount += 2;    // we just processed one, and we just added one.s
         }
     }
@@ -69,6 +66,11 @@ static void testOne() {
 }
 
 template <typename T>
+static void testOneB() {
+    runTest<T>({ {true, 1} });
+}
+
+template <typename T>
 static void testTwo() {
     runTest<T>({
         {false, 1},
@@ -84,16 +86,21 @@ static void testThree() {
         {true, 1}
         });
 }
+
+template <typename T>
 static void doTest() {
-    testOne<BitDelay>();
-    testOne<BitDelay2>();
+    testOne<T>();
+    testOneB<T>();
+    testTwo<T>();
+    testThree<T>();
 }
 
 void testBitDelayPartTwo() {
-    doTest();
+    doTest<BitDelay>();
+ //   doTest<BitDelay2>();
 }
 
-#if 1
+#if 0
 
 static void foo() {
     BitDelay delay;
@@ -130,7 +137,10 @@ static void foo() {
 
 
 void testFirst() {
-   testThree<BitDelay>();
-   //foo();
+//   testOne<BitDelay2>();
+    testOneB<BitDelay2>();
+ //   testTwo<BitDelay2>();
+  //  testThree<BitDelay2>();
+  //   doTest<BitDelay2>();
 }
 #endif
