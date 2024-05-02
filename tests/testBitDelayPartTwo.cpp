@@ -1,8 +1,8 @@
 
 #include <vector>
 
-#include "BitDelay.h"
-//#include "BitDelay2.h"
+//#include "BitDelay.h"
+#include "BitDelay2.h"
 #include "asserts.h"
 
 using TestRecord = std::tuple<bool, unsigned>;
@@ -28,7 +28,7 @@ static void validateDelay(T& delay, const TestData& data) {
     assert(!data.empty());
     const auto lastData = data[data.size() - 1];
 
-    unsigned totalCount = 0;  // was one before
+    unsigned totalCount = 1;  
     for (size_t i = 0; i < data.size(); ++i) {
         const auto d = data[i];
         const bool value = std::get<0>(d);
@@ -96,46 +96,11 @@ static void doTest() {
 }
 
 void testBitDelayPartTwo() {
-    doTest<BitDelay>();
- //   doTest<BitDelay2>();
+   // doTest<BitDelay>();
+    doTest<BitDelay2>();
 }
 
 #if 0
-
-static void foo() {
-    BitDelay delay;
-    delay.setMaxDelaySamples(100);
-
-    delay.process(true, 0);
-    delay.process(true, 0);
-    delay.process(true, 0);
-
-    // param2:
-
-    // 0 -> false
-    // 1 -> true
-    // 2 -> true
-    // 3 -> true
-    // 4 -> false
-    // first output on first poll at 1
-    bool a = delay.process(false, 1);
-    SQINFO("a = %d", a);
-
-    // 0 -> false
-    // 1 -> false
-    // 2 -> true
-    // 3 -> true
-    // 4 -> true
-    // 5 -> false
-    // second output on second poll at 3
-    
-    a = delay.process(false, 5);
-    SQINFO("a = %d", a);
-
-}
-
-
-
 void testFirst() {
 //   testOne<BitDelay2>();
     testOneB<BitDelay2>();

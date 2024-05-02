@@ -1,8 +1,8 @@
 
+#include <limits>
+
 #include "BitDelay2.h"
 #include "asserts.h"
-
-#include <limits>
 
 template <typename T>
 static void testCanCall() {
@@ -140,7 +140,6 @@ static void testDelay20() {
     assert(err == T::Errors::NoError);
 }
 
-
 class TestX {
 public:
     static void testAdvance2A() {
@@ -151,16 +150,15 @@ public:
     }
 
     static void testAdvance2B() {
-
         BitDelay2 delay;
-        delay._delayPointer =  delay._delayMemory + (BitDelay2::_delaySize - 1);
+        delay._delayPointer = delay._delayMemory + (BitDelay2::_delaySize - 1);
         // write, so make sure bounds checker is happy
         delay._delayPointer->count = 123456;
         delay._advance();
         assertEQ(delay._delayPointer, delay._delayMemory);
     }
 
-    static void testDecrement2A() { 
+    static void testDecrement2A() {
         BitDelay2 delay;
         delay._advance();
         delay._advance();
@@ -222,16 +220,15 @@ static void testZeroDelay() {
     assertEQ(b, true);
 }
 
-
 static void testMovingOne() {
     BitDelay2 delay;
     bool b = delay.process(true, 0);
     assertEQ(b, true);
-     b = delay.process(false, 1);
+    b = delay.process(false, 1);
     assertEQ(b, true);
-     b = delay.process(false, 2);
+    b = delay.process(false, 2);
     assertEQ(b, true);
-     b = delay.process(false, 3);
+    b = delay.process(false, 3);
     assertEQ(b, true);
 }
 
@@ -263,23 +260,47 @@ static void testPool() {
     assertEQ(b, true);
     b = delay.process(true, 3);
     assertEQ(b, true);
-     b = delay.process(true, 4);
+    b = delay.process(true, 4);
     assertEQ(b, true);
+}
+
+static void testAlt() {
+    BitDelay2 delay;
+    bool b;
+
+    unsigned base = 0;
+    for (int i = 0; i < 10; ++i) {
+        b = delay.process(false, 0);  //
+        assertEQ(b, false);
+        b = delay.process(true, 1);
+        assertEQ(b, false);
+
+        
+        b = delay.process(false, 1);
+        assertEQ(b, true);
+
+        b = delay.process(false, 2);
+         assertEQ(b, true);
+    }
+      //  true, 3 > f
+     //   */
+   // }
 }
 
 void testBitDelay() {
     testBitDelay2Only();
     BitDelayTest<BitDelay2>::test();
     testZeroDelay();
-     testMovingOne();
-     testWayPastEnd();
-     testPool();
+    testMovingOne();
+    testWayPastEnd();
+    testPool();
+    testAlt();
 }
 
-#if  1
+#if 0
 void testFirst() {
     SQINFO("----test");
-    testPool();
+    testAlt();
     SQINFO("----end");
 }
 #endif
