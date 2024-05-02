@@ -54,10 +54,11 @@ inline void BitDelay2::_advance() {
     }
 }
 inline void BitDelay2::_decrement() {
+    SQINFO("_decrement");
     _decrement2(&_delayPointer);
 }
 inline void BitDelay2::_decrement2(BitPacket** p) {
-    SQINFO("_decrement");
+    SQINFO("_decrement2");
 
     (*p)--;
     if (*p < _delayMemory) {
@@ -109,25 +110,6 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
     return output;
 }
 
-#if 0 // old version
-inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
-    if (error != nullptr) {
-        *error = Errors::NoError;
-    }
-    if (inputClock == _currentValue) {
-        ++_currentCount;
-    } else {
-      //  assert(false);  // need to write to buffer.
-        SQINFO("write to buffer because input=%d, cur=%d", inputClock, _currentValue);
-        _writeToRingBuffer();
-        _currentValue = inputClock;
-        _currentCount = 1;
-    }
-    const bool output = _getDelay(delay);
-    return output;
-}
-#endif
-
 
 inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
 
@@ -163,12 +145,6 @@ inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
 
     SQINFO("fall off end of delay");
     return false;
-
-  //  int debt = int(samples) - int(totalDelay);
- //   assert(debt < int(this->_currentCount));
- //   assert(debt >= 0);
-  //  SQINFO("_getDelay totally fake"); 
-  //  return this->_currentValue;
 }
 
 

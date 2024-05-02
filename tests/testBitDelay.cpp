@@ -249,14 +249,23 @@ static void testWayPastEnd() {
     assertEQ(b, false);
 }
 
+static void testPool() {
+    BitDelay2 delay;
+    delay.process(true, 0);
+    delay.process(true, 0);
+    delay.process(true, 0);
+    // now delay has true2, true1, true0.
 
-// static void testSimple2() {
-//     BitDelay2 delay;
-//     bool b = delay.process(true, 0);
-//     assertEQ(b, true);
-//     b = delay.process(true, 1);
-//     assertEQ(b, true);
-// }
+    // after this delay has true3, true2, true1, true0.
+    bool b = delay.process(true, 1);
+    assertEQ(b, true);
+    b = delay.process(true, 2);
+    assertEQ(b, true);
+    b = delay.process(true, 3);
+    assertEQ(b, true);
+     b = delay.process(true, 4);
+    assertEQ(b, true);
+}
 
 void testBitDelay() {
     testBitDelay2Only();
@@ -264,14 +273,13 @@ void testBitDelay() {
     testZeroDelay();
      testMovingOne();
      testWayPastEnd();
-
-  //  testSimple2();
+     testPool();
 }
 
 #if  1
 void testFirst() {
     SQINFO("----test");
-    testWayPastEnd();
+    testPool();
     SQINFO("----end");
 }
 #endif
