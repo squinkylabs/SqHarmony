@@ -8,15 +8,14 @@
 using TestRecord = std::tuple<bool, unsigned>;
 using TestData = std::vector<TestRecord>;
 
-template <typename T>
-static void fillDelay(T& delay, const TestData& data) {
+static void fillDelay(BitDelay2& delay, const TestData& data) {
     for (size_t i = 0; i < data.size(); ++i) {
         const auto d = data[i];
         const bool value = std::get<0>(d);
         const unsigned count = std::get<1>(d);
         for (unsigned j=0; j<count; ++j) {
             //   bool process(bool InputClock, unsigned delay, Errors* error = nullptr);
-            SQINFO("fill with %d", value);
+           // SQINFO("fill with %d", value);
             delay.process(value, 0);
         }
     }
@@ -59,9 +58,7 @@ static void validateDelayOrig(T& delay, const TestData& data) {
 static unsigned countTotal(const TestData& data) {
     unsigned sum = 0;
     for (auto element : data) {
-
         const unsigned elementCount = std::get<1>(element);
-        SQINFO("looking at element %d", elementCount);
         sum += elementCount;
     }
     return sum;
@@ -80,7 +77,6 @@ static void testCount() {
 template <typename T>
 static void validateDelay(T& delay, const TestData& data) {
     SQINFO("--- validate delay ------");
-  
 
    // unsigned totalCount = 1;
     unsigned testLength = countTotal(data);
@@ -96,7 +92,7 @@ static void validateDelay(T& delay, const TestData& data) {
             //   bool process(bool InputClock, unsigned delay, Errors* error = nullptr);
             const bool delayedValue = delay.process(false, testLength);
 
-            SQINFO("delayed = %d i=%d, j=%d testLength=%d value = %d", delayedValue, i, j, testLength, value);
+            //SQINFO("delayed = %d i=%d, j=%d testLength=%d value = %d", delayedValue, i, j, testLength, value);
             assertEQ(delayedValue, value);
         }
     }
@@ -114,53 +110,104 @@ static void validateDelay(T& delay, const TestData& data) {
 }
 
 
-template <typename T>
+
 static void runTest(const TestData& td) {
-    T del;
+    BitDelay2 del;
     del.setMaxDelaySamples(1000);       // 1000 totally arbitrary
-    fillDelay<T>(del, td);
+    fillDelay(del, td);
     validateDelay(del, td);
 }
 
-template <typename T>
 static void testOne() {
-    runTest<T>({{false, 1}});
+    runTest({{false, 1}});
 }
 
-template <typename T>
+
 static void testOneB() {
-    runTest<T>({ {true, 1} });
+    runTest({ {true, 1} });
 }
 
-template <typename T>
 static void testTwo() {
-    runTest<T>({
+    runTest({
         {false, 1},
         {true, 1}
         });
 }
 
-template <typename T>
 static void testThree() {
-    runTest<T>({
+    runTest({
         {true, 1},
         {true, 1},
         {true, 1}
         });
 }
 
-template <typename T>
+static void testThreeX2() {
+    runTest({
+        {true, 3},
+        {false, 3},
+        {true, 3}
+        });
+}
+
+
+static void testThreeX2b() {
+    runTest({
+        {false, 3},
+        {true, 3},
+        {false, 3}
+        });
+}
+
+static void testGrow() {
+    runTest({
+        {true, 1},
+        {false, 2},
+        {true, 3},
+        {false, 4},
+        {true, 5},
+        {false, 6},
+        {true, 7}
+        });
+}
+
+static void testGrowb() {
+    runTest({
+        {false, 1},
+        {true, 1},
+        {false, 2},
+        {true, 3},
+        {false, 4},
+        {true, 5},
+        {false, 6},
+        {true, 7}
+        });
+}
+
+static void testBig() {
+    runTest({
+        {true, 100000},
+        {false, 100000},
+        {true, 100000}
+    });
+}
+
 static void doTest() {
-    testOne<T>();
-    testOneB<T>();
-    testTwo<T>();
-    testThree<T>();
+    testOne();
+    testOneB();
+    testTwo();
+    testThree();
+    testThreeX2();
+    testThreeX2b();
+    testGrow();
+    testGrowb();
+    testBig();
 }
 
 void testBitDelayPartTwo() {
     testCount();
    // doTest<BitDelay>();
-    doTest<BitDelay2>();
+    doTest();
 }
 
 #if 0
