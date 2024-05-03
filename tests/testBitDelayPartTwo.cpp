@@ -103,8 +103,8 @@ void testBitDelayPartTwo() {
 #if 0
 void testFirst() {
 //   testOne<BitDelay2>();
-    testOneB<BitDelay2>();
- //   testTwo<BitDelay2>();
+ //   testOneB<BitDelay2>();
+   testTwo<BitDelay2>();
   //  testThree<BitDelay2>();
   //   doTest<BitDelay2>();
 }

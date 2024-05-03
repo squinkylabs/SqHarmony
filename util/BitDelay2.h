@@ -6,6 +6,39 @@
 #include "SqLog.h"
 #include "SqRingBuffer.h"
 
+/* OLD
+ * Some notes on how it should work. First of all, imagine that it's not a bit delay, but a regular
+ * multi-bit delay (it will make it easier to understand).
+ * put into it a sequence of "stuff": a, c, c, q.....
+ * now, if it is set for a delay of 'n' we should get out: a(t=n), b(t=n+1), c(t=n+2), q(t> n+2)
+ * translating to our API:
+ *  delay(a, 0);
+ *  delay(b, 0);
+ *  delay(c, 0);
+ *  delay(q, 1) == a
+ *  delay(q, 2 +1) == b
+ *  delay(q, 3 + 1 + 1) == c
+ *  delay(q, 4 + 1 + 1 + 1) == q
+ */
+
+/*
+ * Some notes on how it should work. First of all, imagine that it's not a bit delay, but a regular
+ * multi-bit delay (it will make it easier to understand).
+ * put into it a sequence of "stuff": a, b, c, q.....
+ * now, if it is set for a delay of 'n' we should get out: a(t=n), b(t=n+1), c(t=n+2), q(t> n+2)
+ * translating to our API:
+ *  delay(a, 0);
+ *  delay(b, 0);
+ *  delay(c, 0);
+ * then next:
+ *  delay(q, 1) === c
+ *  delay(q, 2) === b
+ *  delay(3, 3) === a;
+ * then next:
+ *  delay(q, 2) === c;
+ *  delay(q, 3) === b;
+ *  delay(q, 4) === a;
+ */
 class BitDelay2 {
 public:
     friend class TestX;
@@ -22,11 +55,10 @@ public:
     uint32_t getMaxDelaySize() const;
 
 private:
-
-    class BitPacket  {
-        public:
-        int count=0;
-        bool value=0;
+    class BitPacket {
+    public:
+        int count = 0;
+        bool value = 0;
     };
 
     bool _currentValue = false;
@@ -34,6 +66,9 @@ private:
 
     static const int _delaySize = 200;
     BitPacket _delayMemory[_delaySize];
+
+    // The pointer is advanced as new data is written.
+    // That is to say new input goes at a higher address, until it wraps.
     BitPacket* _delayPointer = _delayMemory;
     unsigned _validDelayEntries = 0;
     void _writeToRingBuffer();
@@ -84,10 +119,9 @@ inline void BitDelay2::_writeToRingBuffer() {
     BitPacket& packet = *_delayPointer;
     packet.value = _currentValue;
     packet.count = _currentCount;
-  //  *_delayPointer = _currentCount;
+    //  *_delayPointer = _currentCount;
     _advance();
     _validDelayEntries++;
-
 }
 
 inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
@@ -95,37 +129,44 @@ inline bool BitDelay2::process(bool inputClock, unsigned delay, Errors* error) {
         *error = Errors::NoError;
     }
 
-    // first fetch the output
+    // First fetch the output.
     const bool output = _getDelay(delay, inputClock);
+
+    // Then save away the input.
     if (inputClock == _currentValue) {
         ++_currentCount;
     } else {
-      //  assert(false);  // need to write to buffer.
+        //  assert(false);  // need to write to buffer.
         SQINFO("write to buffer because input=%d, cur=%d", inputClock, _currentValue);
         _writeToRingBuffer();
         _currentValue = inputClock;
         _currentCount = 1;
     }
-  
+
     return output;
 }
 
-
 inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
-
     // zero delay is a special case.
     if (delaySamples == 0) {
         return input;
     }
 
+    // we don't need this....
+//    unsigned totalDelay = _currentCount;
     unsigned totalDelay = 0;
     unsigned blocksToParse = _validDelayEntries;
 
-    if (delaySamples <= this->_currentCount) {
-        return _currentValue;
-    }
+    // we used to pick off the current stuff first - that's wrong
 
-    delaySamples -= this->_currentCount;
+    // as <=, trying something new
+    // < makes one test pass, but I think that's a bad test???
+    if (delaySamples <= this->_currentCount) {
+         return _currentValue;
+     }
+
+    // and this..... only one of them. and maybe and off by one error
+     delaySamples -= _currentCount;
 
     BitPacket* block = _delayPointer;
     if (blocksToParse) {
@@ -143,12 +184,19 @@ inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
         _decrement2(&block);
     }
 
+    // Now look in current values
+    delaySamples -= totalDelay;
+
+    // was <= but By2 was failing at the start.
+    if (delaySamples < this->_currentCount) {
+        return _currentValue;
+    }
+
     SQINFO("fall off end of delay");
     return false;
 }
 
-
-#if 0 // old way
+#if 0  // old way
  inline bool BitDelay2::_getDelay(unsigned samples) {
     if (samples < _currentCount) {
         return _currentValue;
@@ -183,7 +231,7 @@ inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
   //  assert(false);
     return false;
  }
- #endif
+#endif
 
 inline void BitDelay2::setMaxDelaySamples(unsigned samples) {
     _sizeSamplesForTest = samples;
