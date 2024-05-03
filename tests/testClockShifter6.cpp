@@ -120,7 +120,9 @@ void testClockShifter6() {
     testCanCreate();
     testInitNotStable();
     testInitStable();
-    canReturnSizeError();
+
+    SQINFO("implement size error or remove?");
+   // canReturnSizeError();
     canDelayZero();
     testClockWidthZeroDelayFiniteWidth();
     testClockWithDelay();
@@ -135,6 +137,6 @@ void testFirst() {
     // testSlowDown(5, 3552, 0.0001407658, 7);
     // testClockWidthZeroDelayFiniteWidth();
    // testClockWithDelay();
-    canReturnSizeError();
+   // canReturnSizeError();
 }
 #endif

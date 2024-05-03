@@ -4,20 +4,22 @@
 
 #include <cstdint>
 
-#include "BitDelay.h"
+#include "BitDelay2.h"
 #include "FreqMeasure3.h"
 #include "OneShotSampleTimer.h"
 #include "SqLog.h"
 
 extern int logLevel;
 
+using BD = BitDelay2;
+
 class ClockShifter6 {
 public:
     friend class TestX;
     enum class Errors {
-        NoError = static_cast<int>(BitDelay::Errors::NoError),
-        ExceededDelaySize = static_cast<int>(BitDelay::Errors::ExceededDelaySize),
-        LostClocks = static_cast<int>(BitDelay::Errors::LostClocks)
+        NoError = static_cast<int>(BD::Errors::NoError),
+        ExceededDelaySize = static_cast<int>(BD::Errors::ExceededDelaySize),
+        LostClocks = static_cast<int>(BD::Errors::LostClocks)
     };
     ClockShifter6();
     /**
@@ -35,7 +37,7 @@ public:
     unsigned getPeriod() const;
 
 private:
-    BitDelay _bitDelay;
+    BD _bitDelay;
 
     // was FreqMeasure2, when we had trigger input
     // I think we need FreqMesaure3.
@@ -80,7 +82,7 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
                float(_freqMeasure.getPeriod()) * delay);
     }
     ++_debug_counter;
-    BitDelay::Errors bderr;
+    BD::Errors bderr;
     float ret = _bitDelay.process(clock, delayAbsolute, &bderr);
     if (error) {
         *error = Errors(bderr);
