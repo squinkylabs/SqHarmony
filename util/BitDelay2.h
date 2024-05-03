@@ -161,6 +161,8 @@ inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
 
     // as <=, trying something new
     // < makes one test pass, but I think that's a bad test???
+    // ok, all the stuff in test passes with <=, but trying to get PartTwo to work,
+    // so try < . well, part 2 worked more, but part 1 stopped. let's go back.
     if (delaySamples <= this->_currentCount) {
          return _currentValue;
      }

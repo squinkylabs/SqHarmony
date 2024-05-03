@@ -375,7 +375,7 @@ void testBitDelay() {
     testDelayByTwo();
 }
 
-#if 1
+#if 0
 void testFirst() {
     SQINFO("----test");
     // testAlt();
