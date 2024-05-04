@@ -6,13 +6,13 @@
 
 static void testCanCreate() {
     ClockShifter6 c;
-    c.setMaxDelaySamples(1);
+   // c.setMaxDelaySamples(1);
     c.process(false, .2f, nullptr);
 }
 
 static void testInitNotStable() {
     ClockShifter6 c;
-    c.setMaxDelaySamples(1);
+   // c.setMaxDelaySamples(1);
     assertEQ(c.freqValid(), false);
 }
 
@@ -21,21 +21,21 @@ static void testInitStable() {
     assertEQ(ret.shifter->freqValid(), true);
 }
 
-static void canReturnSizeError() {
-    auto c = makeAndPrime(4, 0);
-    c->setMaxDelaySamples(1);
+// static void canReturnSizeError() {
+//     auto c = makeAndPrime(4, 0);
+//     c->setMaxDelaySamples(1);
 
 
-    ClockShifter6::Errors err;
+//     ClockShifter6::Errors err;
 
-    // Need a huge delay here to get the error, since bit delay
-    // has a lot of padding in it.
-    c->process(false, 10, &err);
-    assert(err == ClockShifter6::Errors::ExceededDelaySize);
+//     // Need a huge delay here to get the error, since bit delay
+//     // has a lot of padding in it.
+//     c->process(false, 10, &err);
+//     assert(err == ClockShifter6::Errors::ExceededDelaySize);
 
-    c->process(false, .01f, &err);
-    assert(err == ClockShifter6::Errors::NoError);
-}
+//     c->process(false, .01f, &err);
+//     assert(err == ClockShifter6::Errors::NoError);
+// }
 
 static void canDelayZero() {
     // ClockShifter6 c;

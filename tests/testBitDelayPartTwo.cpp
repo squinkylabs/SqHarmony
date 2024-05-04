@@ -113,7 +113,7 @@ static void validateDelay(T& delay, const TestData& data) {
 
 static void runTest(const TestData& td) {
     BitDelay2 del;
-    del.setMaxDelaySamples(1000);       // 1000 totally arbitrary
+   // del.setMaxDelaySamples(1000);       // 1000 totally arbitrary
     fillDelay(del, td);
     validateDelay(del, td);
 }

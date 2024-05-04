@@ -21,7 +21,7 @@ public:
         ExceededDelaySize = static_cast<int>(BD::Errors::ExceededDelaySize),
         LostClocks = static_cast<int>(BD::Errors::LostClocks)
     };
-    ClockShifter6();
+
     /**
      * @brief
      *
@@ -31,7 +31,7 @@ public:
      * @return the delayed clock.
      */
     bool process(bool clock, float delay, Errors* error = nullptr);
-    void setMaxDelaySamples(unsigned samples);
+   // void setMaxDelaySamples(unsigned samples);
 
     bool freqValid() const;
     unsigned getPeriod() const;
@@ -46,9 +46,9 @@ private:
     int _debug_counter = 0;
 };
 
-inline ClockShifter6::ClockShifter6() {
-    _bitDelay.setMaxDelaySamples(100000);
-}
+//inline ClockShifter6::ClockShifter6() {
+//    _bitDelay.setMaxDelaySamples(100000);
+//}
 
 inline bool ClockShifter6::freqValid() const {
     return _freqMeasure.freqValid();
@@ -103,6 +103,6 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     return ret;
 }
 
-inline void ClockShifter6::setMaxDelaySamples(unsigned samples) {
-    _bitDelay.setMaxDelaySamples(samples);
-}
+//inline void ClockShifter6::setMaxDelaySamples(unsigned samples) {
+//    _bitDelay.setMaxDelaySamples(samples);
+//}

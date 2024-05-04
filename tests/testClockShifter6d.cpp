@@ -280,6 +280,7 @@ static void testRunRamp() {
 
     // ramp up from xx to 1
     for (float x=0; x < 1; x += .00958) {
+        SQINFO("x=%f", x);
         testRunRamp(1400, x, 1, 112, 4);        // jitter 4/112 is ok with me.
     }
 
@@ -307,11 +308,13 @@ void testFirst() {
   //  testRunSlowDown(400, .2, .4, 10);
 
    // testRunSlowDown(15, 0, 1, 5);
-    testRunRamp(15, 1, 0, 5);
-    testRunRamp(150, 1, 0, 50);
+  //  testRunRamp(15, 1, 0, 5);
+ //   testRunRamp(150, 1, 0, 50);
   //  testRunSlowDown(4000, .2, .4, 5);
   //  testRunSlowDown(4000, .2, .4, 100);
 
+    testRunRamp();
+   // testClockShifter6d();
  
 }
 #endif

@@ -49,11 +49,6 @@ public:
         LostClocks
     };
     bool process(bool InputClock, unsigned delay, Errors* error = nullptr);
-
-    // These are legacy functions. Don't use them.
-    void setMaxDelaySamples(unsigned samples);
-    uint32_t getMaxDelaySize() const;
-
 private:
     class BitPacket {
     public:
@@ -76,7 +71,6 @@ private:
     void _decrement();
     void _decrement2(BitPacket**);
     bool _getDelay(unsigned samples, bool currentInput);
-    unsigned _sizeSamplesForTest = 0;
 };
 
 inline void BitDelay2::_advance() {
@@ -184,12 +178,4 @@ inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
     }
 
     return false;
-}
-
-inline void BitDelay2::setMaxDelaySamples(unsigned samples) {
-    _sizeSamplesForTest = samples;
-}
-
-inline uint32_t BitDelay2::getMaxDelaySize() const {
-    return _sizeSamplesForTest;
 }
