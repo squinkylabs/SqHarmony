@@ -49,6 +49,12 @@ public:
         LostClocks
     };
     bool process(bool InputClock, unsigned delay, Errors* error = nullptr);
+
+    // for debugging
+    void setRLESize(unsigned size) {
+        _effectiveDelaySize = size;
+        assert(size <= _defaultDelaySize);
+    }
 private:
     class BitPacket {
     public:
@@ -59,8 +65,10 @@ private:
     bool _currentValue = false;
     unsigned _currentCount = 0;
 
-    static const int _delaySize = 200;
-    BitPacket _delayMemory[_delaySize];
+    static const int _defaultDelaySize = 200;
+    BitPacket _delayMemory[_defaultDelaySize];
+
+    unsigned _effectiveDelaySize = _defaultDelaySize;
 
     // The pointer is advanced as new data is written.
     // That is to say new input goes at a higher address, until it wraps.
@@ -75,7 +83,7 @@ private:
 
 inline void BitDelay2::_advance() {
     _delayPointer++;
-    if (_delayPointer >= (_delayMemory + _delaySize)) {
+    if (_delayPointer >= (_delayMemory + _effectiveDelaySize)) {
         _delayPointer = _delayMemory;
     }
 }
@@ -85,7 +93,7 @@ inline void BitDelay2::_decrement() {
 inline void BitDelay2::_decrement2(BitPacket** p) {
     (*p)--;
     if (*p < _delayMemory) {
-        *p = _delayMemory + (_delaySize - 1);
+        *p = _delayMemory + (_effectiveDelaySize - 1);
     }
 }
 
@@ -95,7 +103,7 @@ inline void BitDelay2::_writeToRingBuffer() {
     }
 
     // if memory if full, dump the old stuff
-    if (_validDelayEntries >= (_delaySize - 1)) {
+    if (_validDelayEntries >= (_effectiveDelaySize - 1)) {
         _advance();
         _validDelayEntries--;
     }

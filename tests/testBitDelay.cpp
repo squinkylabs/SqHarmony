@@ -151,7 +151,7 @@ public:
 
     static void testAdvance2B() {
         BitDelay2 delay;
-        delay._delayPointer = delay._delayMemory + (BitDelay2::_delaySize - 1);
+        delay._delayPointer = delay._delayMemory + (BitDelay2::_defaultDelaySize - 1);
         // write, so make sure bounds checker is happy
         delay._delayPointer->count = 123456;
         delay._advance();
@@ -169,7 +169,7 @@ public:
     static void testDecrement2B() {
         BitDelay2 delay;
         delay._decrement();
-        assertEQ(delay._delayPointer, delay._delayMemory + (BitDelay2::_delaySize - 1));
+        assertEQ(delay._delayPointer, delay._delayMemory + (BitDelay2::_defaultDelaySize - 1));
     }
 
     static void testWriteRingBuffer() {
