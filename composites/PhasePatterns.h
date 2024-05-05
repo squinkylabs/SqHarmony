@@ -127,7 +127,7 @@ private:
 
 template <class TBase>
 inline void PhasePatterns<TBase>::onReset() {
-    SQINFO("ON RESET");
+    // SQINFO("ON RESET");
     for (int i=0; i<16; ++i) {
         _ribGenerator[i].reset();
         _curShift[i] = 0;

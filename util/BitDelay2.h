@@ -219,7 +219,7 @@ inline bool BitDelay2::_getDelay(unsigned delaySamples, bool input) {
     // was <= but By2 was failing at the start.
     // if (delaySamples < this->_currentCount) {
     //     SQINFO("off end, but returning cv %d", _currentValue);
-    //     assert(false);
+    //     //assert(false);
     //     return _currentValue;
     // }
 

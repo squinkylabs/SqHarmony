@@ -42,7 +42,7 @@ static void validateDelayOrig(T& delay, const TestData& data) {
         }
     }
 
-    SQINFO("validate ignoring after part...");
+    SQINFO("validate orig ignoring after part...");
 #if 0
     for (int i = 0; i < 10; ++i) {
         bool b = delay.process(false, totalCount);
@@ -76,7 +76,7 @@ static void testCount() {
 
 template <typename T>
 static void validateDelay(T& delay, const TestData& data) {
-    SQINFO("--- validate delay ------");
+    // SQINFO("--- validate delay ------");
 
    // unsigned totalCount = 1;
     unsigned testLength = countTotal(data);
@@ -97,13 +97,11 @@ static void validateDelay(T& delay, const TestData& data) {
         }
     }
 
-    SQINFO("validate ignoring after part...");
-#if 0
+#if 1
     for (int i = 0; i < 10; ++i) {
-        bool b = delay.process(false, totalCount);
-        SQINFO("after: b=%d tc=%d", b, totalCount);
+        bool b = delay.process(false, testLength);
+        //SQINFO("after: b=%d tl=%d", b, testLength);
         assertEQ(b, false);
-        totalCount += 2;
     }
 #endif
 
@@ -192,7 +190,8 @@ static void testBig() {
     });
 }
 
-static void doTest() {
+void testBitDelayPartTwo() {
+    testCount();
     testOne();
     testOneB();
     testTwo();
@@ -204,19 +203,8 @@ static void doTest() {
     testBig();
 }
 
-void testBitDelayPartTwo() {
-    testCount();
-   // doTest<BitDelay>();
-    doTest();
-}
-
 #if 0
 void testFirst() {
- //   testCount();
- //  testOne<BitDelay2>();
- //  testOneB<BitDelay2>();
-  // testTwo<BitDelay2>();
-  //  testThree<BitDelay2>();
-    doTest<BitDelay2>();
+    testBitDelayPartTwo();
 }
 #endif

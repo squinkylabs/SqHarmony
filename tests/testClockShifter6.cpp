@@ -121,8 +121,6 @@ void testClockShifter6() {
     testInitNotStable();
     testInitStable();
 
-    SQINFO("implement size error or remove?");
-   // canReturnSizeError();
     canDelayZero();
     testClockWidthZeroDelayFiniteWidth();
     testClockWithDelay();

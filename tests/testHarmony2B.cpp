@@ -109,7 +109,7 @@ static void testKeyOfCUpPoly(bool noErrors) {
     assertEQ(int(composite.inputs[Comp::XPOSE_INPUT].channels), numChannels);
     composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV1, 0);
     composite.inputs[Comp::XPOSE_INPUT].setVoltage(transposeCV2, 1);
-    SQINFO("set xpose to %f, %f", transposeCV1, transposeCV2);
+    //SQINFO("set xpose to %f, %f", transposeCV1, transposeCV2);
     test4(noErrors, composite,
           {MidiNote::C, MidiNote::D, MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B},
           {MidiNote::E, MidiNote::F, MidiNote::G, MidiNote::A, MidiNote::B, MidiNote::C + 12, MidiNote::D + 12},

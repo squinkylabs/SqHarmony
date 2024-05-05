@@ -385,6 +385,53 @@ static void testLongTerm() {
     assertEQ(b, true);
 }
 
+static void testPastEnd() {
+    BitDelay2 delay;
+    bool b;
+
+    delay.process(false, 0);
+    delay.process(false, 0);
+    delay.process(false, 0);
+    delay.process(false, 0);
+
+    delay.process(true, 0);
+    delay.process(true, 0);
+    delay.process(true, 0);
+    delay.process(true, 0);
+
+    // get the first one past end
+    b = delay.process(true, 9);
+    assertEQ(b, false);
+}
+
+static void testPastEnd2() {
+    BitDelay2 delay;
+    bool b;
+
+    delay.process(true, 0);
+    delay.process(true, 0);
+    delay.process(false, 0);
+    delay.process(false, 0);
+
+    // get the first one past end
+    b = delay.process(true, 5);
+    assertEQ(b, false);
+}
+
+static void testAtEnd() {
+    BitDelay2 delay;
+    bool b;
+
+    delay.process(true, 0);
+    delay.process(true, 0);
+    delay.process(false, 0);
+    delay.process(false, 0);
+
+    // get the last one at
+    b = delay.process(true, 4);
+    assertEQ(b, true);
+}
+
 void testBitDelay() {
     testBitDelay2Only();
     BitDelayTest<BitDelay2>::test();
@@ -397,6 +444,9 @@ void testBitDelay() {
     testTFFFF();
     testDelayByTwo();
     testLongTerm();
+    testPastEnd();
+    testPastEnd2();
+    testAtEnd();
 }
 
 #if 0
@@ -408,7 +458,8 @@ void testFirst() {
     // testTFFFF();
     //   testBitDelay();
     //  testDelayByTwo();
-    testLongTerm();
+    //testLongTerm();
+    testAtEnd();
     SQINFO("----end");
 }
 #endif

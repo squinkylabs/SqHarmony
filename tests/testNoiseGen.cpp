@@ -58,7 +58,7 @@ static void testRMS(bool pink) {
     }
 
     float f = x.get();
-    SQINFO("rms = %f", f);
+    //SQINFO("rms = %f", f);
     assertLT(f, 1.2);
     assertGT(f, .7);
 }
@@ -113,7 +113,7 @@ static void testDC(bool pink) {
         }
     }
     const double offset = acc / (ct * 4);
-    SQINFO("avg = %f ct=%d offset=%f", acc, ct, offset);
+    //SQINFO("avg = %f ct=%d offset=%f", acc, ct, offset);
 
     // This offset is more than I would like - may be to much bass in the pink noise?
     assertLT(offset, .1);
