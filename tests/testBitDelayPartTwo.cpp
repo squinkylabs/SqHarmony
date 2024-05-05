@@ -81,7 +81,7 @@ static void validateDelay(T& delay, const TestData& data) {
    // unsigned totalCount = 1;
     unsigned testLength = countTotal(data);
 
-    // loopo over the input records.
+    // loop over the input records.
     for (size_t i = 0; i < data.size(); ++i) {
         const auto d = data[i];
         const bool value = std::get<0>(d);

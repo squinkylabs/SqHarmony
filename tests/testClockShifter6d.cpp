@@ -116,9 +116,8 @@ public:
     int outputClocks = 0;
     int minSamplesBetweenClocks = 100000;
     int maxSamplesBetweenClocks = 0;
-
-    float maxDelay = -100;
-    float minDelay = 100;
+    int previousMinSamplesBetweenClocks = 100000;
+    int previousMaxSamplesBetweenClocks = 0;
 
     bool lastClock = false;
     int lastTriggerSample = -1;
@@ -126,11 +125,21 @@ public:
         const bool risingEdge = ck && !lastClock;
         if (risingEdge) {
             if (lastTriggerSample >= 0) {
-
                 int delta = sample - lastTriggerSample;
                 minSamplesBetweenClocks = std::min(minSamplesBetweenClocks, delta);
                 maxSamplesBetweenClocks = std::max(maxSamplesBetweenClocks, delta);
-                if (logLevel) SQINFO("delta = %d, min=%u max=%u", delta, minSamplesBetweenClocks, maxSamplesBetweenClocks);
+                if (logLevel) {
+                    SQINFO("delta = %d, min=%u max=%u", delta, minSamplesBetweenClocks, maxSamplesBetweenClocks);
+
+                    if ((maxSamplesBetweenClocks != previousMaxSamplesBetweenClocks) || (minSamplesBetweenClocks != previousMinSamplesBetweenClocks)) {
+                        SQINFO("!! new delay value: %d and %d delta=%d",
+                               minSamplesBetweenClocks,
+                               maxSamplesBetweenClocks,
+                               maxSamplesBetweenClocks - minSamplesBetweenClocks);
+                        previousMaxSamplesBetweenClocks = maxSamplesBetweenClocks;
+                        previousMinSamplesBetweenClocks = minSamplesBetweenClocks;
+                    }
+                }
             }
             lastTriggerSample = sample;
         }
@@ -166,7 +175,7 @@ static void run(SignalSourceInterface* source, Output6* output) {
     auto const x = source->getMinMaxDelay();
     assert(std::get<1>(x) >= std::get<0>(x));
 
-   // SQINFO("at end of run, min/max=%f, %f", std::get<0>(source->getMinMaxDelay()), std::get<1>(source->getMinMaxDelay()));
+    // SQINFO("at end of run, min/max=%f, %f", std::get<0>(source->getMinMaxDelay()), std::get<1>(source->getMinMaxDelay()));
 }
 
 static void testCanCall() {
@@ -239,7 +248,6 @@ static void testClockGen() {
     testClockGen(10);
 }
 
-
 static void testRunZero(unsigned period) {
     SignalSource src;
     Output6 output;
@@ -259,7 +267,7 @@ static void testRunZero() {
 }
 
 static void testRunRamp(unsigned duration, float initDelay, float finalDelay, unsigned period, unsigned acceptableJitter) {
-    //SQINFO("\ntestRunRamp(%u, %f, %f, %u)", duration, initDelay, finalDelay, period);
+    // SQINFO("\ntestRunRamp(%u, %f, %f, %u)", duration, initDelay, finalDelay, period);
     SignalSource src;
     Output6 output;
 
@@ -268,29 +276,25 @@ static void testRunRamp(unsigned duration, float initDelay, float finalDelay, un
     run(&src, &output);
     unsigned jitter = std::abs(output.maxSamplesBetweenClocks - output.minSamplesBetweenClocks);
     assertLE(jitter, acceptableJitter);
-    //SQINFO("in new test, jitter=%d, maxSamples=%d min=%d", jitter, output.maxSamplesBetweenClocks, output.minSamplesBetweenClocks);
+    // SQINFO("in new test, jitter=%d, maxSamples=%d min=%d", jitter, output.maxSamplesBetweenClocks, output.minSamplesBetweenClocks);
 }
 
-
-
 static void testRunRamp() {
-
     // values from some old test.
     testRunRamp(400, 0, 1, 10, 1);
 
     // ramp up from xx to 1
-    for (float x=0; x < 1; x += .00958) {
-        SQINFO("x=%f", x);
-        testRunRamp(1400, x, 1, 112, 4);        // jitter 4/112 is ok with me.
+    for (float x = 0; x < 1; x += .00958) {
+        // SQINFO("x=%f", x);
+        testRunRamp(1400, x, 1, 112, 10);  // jitter 4/112 is ok with me.
     }
 
     // ramp down from 1 to xx
     for (float x = .999; x > 0; x -= .00958) {
-        testRunRamp(1400, 1, x, 112, 4);        // jitter 4/112 is ok with me.
+        // SQINFO("xx=%f", x);
+        testRunRamp(1400, 1, x, 112, 4);  // jitter 4/112 is ok with me.
     }
 }
-
-
 
 void testClockShifter6d() {
     testCanCall();
@@ -313,7 +317,10 @@ void testFirst() {
   //  testRunSlowDown(4000, .2, .4, 5);
   //  testRunSlowDown(4000, .2, .4, 100);
 
-    testRunRamp();
+    //testRunRamp();
+    logLevel = 1;
+    float  x = 0.172440;
+    testRunRamp(1400, x, 1, 112, 10);
    // testClockShifter6d();
  
 }

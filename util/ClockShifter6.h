@@ -31,7 +31,6 @@ public:
      * @return the delayed clock.
      */
     bool process(bool clock, float delay, Errors* error = nullptr);
-   // void setMaxDelaySamples(unsigned samples);
 
     bool freqValid() const;
     unsigned getPeriod() const;
@@ -44,11 +43,9 @@ private:
     FreqMeasure3 _freqMeasure;
     //    OneShotSampleTimer _clockWidthGenerator;
     int _debug_counter = 0;
-};
 
-//inline ClockShifter6::ClockShifter6() {
-//    _bitDelay.setMaxDelaySamples(100000);
-//}
+    bool _lastClock = false;
+};
 
 inline bool ClockShifter6::freqValid() const {
     return _freqMeasure.freqValid();
@@ -60,9 +57,14 @@ inline unsigned ClockShifter6::getPeriod() const {
 
 inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     if (logLevel > 0) {
-        SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
+        SQINFO("cs6::process(%d, %f)", clock, delay);
         SQINFO("counter = %d", _debug_counter);
+        if (clock && !_lastClock) {
+            SQINFO("++++ cs6 seeing new clock");
+        }
+        _lastClock = clock;
     }
+
     if (error) {
         *error = Errors::NoError;
     }
@@ -75,7 +77,7 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     
     const unsigned delayAbsolute = unsigned(float(_freqMeasure.getPeriod()) * delay);
     if (logLevel) {
-        SQINFO("sc6 derived delay samp =%d from period= %d, delay=%f prod=%f",
+        SQINFO("cs6 derived delay samp =%d from period= %d, delay=%f prod=%f",
                delayAbsolute,
                _freqMeasure.getPeriod(),
                delay,
@@ -88,17 +90,10 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
         *error = Errors(bderr);
     }
 
-    //  if (ret) {
-    //     _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
-    // } else {
-    //     _clockWidthGenerator.run();
-    //     ret = _clockWidthGenerator.isRunning();
-    // }
-
     if (ret) {
-        if (logLevel > 0) SQINFO("process output clock\n");
+        if (logLevel > 0) SQINFO("cs6: process output clock");
     } else {
-        if (logLevel > 0) SQINFO("process no clock");
+        if (logLevel > 0) SQINFO("cs6: process no clock");
     }
     return ret;
 }
