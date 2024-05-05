@@ -76,7 +76,6 @@ template <typename T>
 static void testDelay0() {
     T delay;
     typename T::Errors err;
-    //  delay.setMaxDelaySamples(100);
     bool b = delay.process(true, 0, &err);
     assertEQ(b, true);
     assert(err == T::Errors::NoError);
@@ -98,7 +97,6 @@ template <typename T>
 static void testDelay20() {
     T delay;
     typename T::Errors err;
-    delay.setMaxDelaySamples(100);
     bool b = delay.process(true, 20, &err);
     assertEQ(b, false);
     assert(err == T::Errors::NoError);
@@ -195,8 +193,7 @@ public:
         testDelayD<T>();
 
         testDelay0<T>();
-        SQINFO("is test 20 legit?");
-        //   testDelay20<T>();
+        testDelay20<T>();
     }
 };
 
