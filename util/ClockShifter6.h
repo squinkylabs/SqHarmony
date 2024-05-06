@@ -44,6 +44,8 @@ private:
     //    OneShotSampleTimer _clockWidthGenerator;
     int _debug_counter = 0;
 
+    float _lastDelay = -1;
+
     bool _lastClock = false;
 };
 
@@ -63,6 +65,10 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
             SQINFO("++++ cs6 seeing new clock");
         }
         _lastClock = clock;
+    }
+    if (delay != _lastDelay) {
+        //SQINFO("delay = %f", delay);
+        _lastDelay = delay;
     }
 
     if (error) {

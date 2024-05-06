@@ -58,6 +58,7 @@ inline float ShiftCalc::go() {
             _delta = 0;
         }
     }
+    // SQINFO("shift acc = %f", _acc);
     return float(_acc);
 }
 
@@ -78,7 +79,7 @@ inline bool ShiftCalc::busyNegative() const {
 }
 
 inline void ShiftCalc::trigger(int periodOfClock, float totalShiftAmount, float totalShiftDurationInClocks) {
-   // SQINFO("ShiftCalc::trigger(%d, %f, %f)", periodOfClock, totalShiftAmount, totalShiftDurationInClocks);
+   SQINFO("ShiftCalc::trigger(%d, %f, %f)", periodOfClock, totalShiftAmount, totalShiftDurationInClocks);
     if (busyEither()) {
         return;  // ignore triggers while running
     }

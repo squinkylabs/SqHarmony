@@ -74,6 +74,7 @@ extern void testSharpFlatMonitor();
 extern void testUpdater();
 extern void testShiftMath();
 extern void testAudioMath();
+extern void testDifferenticalClockCounter();
 
 #include "SqLog.h"
 
@@ -122,6 +123,7 @@ int main(const char**, int) {
     testFreqMeasure2();
     testShiftCalc();
     testSharpFlatMonitor();
+    testDifferenticalClockCounter();
 
     testClockMult();
     testMultiplier();
