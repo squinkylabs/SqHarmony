@@ -1,5 +1,5 @@
 
-#prama once
+#pragma once
 
 class DifferentialClockCounter {
 public:
@@ -8,3 +8,11 @@ public:
     int getDiff() const;
 private:
 };
+
+inline void DifferentialClockCounter::process(float, float) {
+
+}
+
+inline int DifferentialClockCounter::getDiff() const {
+    return 0;
+}
