@@ -7,18 +7,36 @@ static void testCanCall() {
     const int x = d.getDiff();
 }
 
-static void test2() {
-    assert(false);
+static void testInitial() {
+    DifferentialClockCounter d;
+    assertEQ(0, d.getDiff());
+}
+
+static void testRefLead() {
+    DifferentialClockCounter d;
+    assertEQ(0, d.getDiff());
+    d.process(0, 0);
+    d.process(10, 0);
+    assertEQ(-1, d.getDiff());
+}
+
+static void testOtherLead() {
+    DifferentialClockCounter d;
+    assertEQ(0, d.getDiff());
+    d.process(0, 0);
+    d.process(0, 10);
+    assertEQ(1, d.getDiff());
 }
 
 void testDifferenticalClockCounter() {
     testCanCall();
-    test2();
+    testInitial();
+    testRefLead();
+    testOtherLead();
 }
-
 
 #if 1
 void testFirst() {
-    test2();
+    testDifferenticalClockCounter();
 }
 #endif
