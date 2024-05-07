@@ -36,7 +36,7 @@ inline void DifferentialClockCounter::process(float refInput, float otherInput) 
         _difference  = 0;
         trigger = true;
     }   
-    const int diff = _count = _lastMeasurement;
+    const int diff = _count - _lastMeasurement;
     if (trigger) {
         SQINFO("diff: %d, delta=%d", _difference, diff);
         _lastMeasurement = _count;

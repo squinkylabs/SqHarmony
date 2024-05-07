@@ -1,17 +1,17 @@
 
 #pragma once
 
-#include <string>
+#include <assert.h>
+
 #include <iomanip>
 #include <sstream>
-#include <assert.h>
+#include <string>
 
 class NumberFormatter {
 public:
     // helper function.
     static std::string formatFloat(int decimalPlaces, const std::string s) {
         assert(decimalPlaces == 2);  // only case implemented
-      
 
         // if tinny - negative exponential, then round to zero.
         auto pos = s.find("e-");
@@ -46,14 +46,20 @@ public:
 
     // full float to string function
     static std::string formatFloat2(int decimalPlaces, float x) {
-        if (x > 99) {
-            std::stringstream str;
-            str << std::setprecision(4) << x;
+        std::stringstream str;
+        str << std::fixed;
+        if (x >= 100) {
+            str << std::setprecision(2) << x;
             const auto s = str.str();
             auto pos = s.find('e');
             return (pos == std::string::npos) ? s : "xxx";
+        } else if (x > 99) {
+            str << std::setprecision(4) << x;
+            const auto s = str.str();
+            // auto pos = s.find('e');
+            // return (pos == std::string::npos) ? s : "xxx";
+            return s;
         } else {
-            std::stringstream str;
             str << std::setprecision(4) << x;
             const auto s = str.str();
             return formatFloat(2, s);
