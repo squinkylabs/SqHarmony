@@ -12,6 +12,10 @@ extern int logLevel;
 class BitDelay {
 public:
     friend class TestX;
+
+    BitDelay() {
+        setMaxDelaySamples(200000);
+    }
     enum class Errors {
         NoError,
         ExceededDelaySize,
@@ -154,6 +158,8 @@ inline bool BitDelay::_getDelayOutput(unsigned delayOffset, Errors* err) {
     const auto indexAndBit = _getIndexAndBit(combinedLoc);
     const unsigned index = std::get<0>(indexAndBit);
     const unsigned bit = std::get<1>(indexAndBit);
+
+    SQINFO("about to get delay memory at index=%d size=%d", index, _delayMemory.size());
     unsigned x = _delayMemory.at(index);
     // SQINFO("got delay mem = %x", x);
     return _extractBit(x, bit);

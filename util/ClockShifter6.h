@@ -3,7 +3,7 @@
 #include <assert.h>
 
 #include <cstdint>
-
+//#include "BitDelay.h"
 #include "BitDelay2.h"
 #include "FreqMeasure3.h"
 #include "OneShotSampleTimer.h"
@@ -11,6 +11,7 @@
 
 extern int logLevel;
 
+// usually bit delay 2
 using BD = BitDelay2;
 
 class ClockShifter6 {

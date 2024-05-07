@@ -140,18 +140,7 @@ private:
         if (_shiftDisplay) {
             const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
             SqLabel* label = _shiftDisplay->getChild();
-            if (shift > 99) {
-                std::stringstream str;
-                str << std::setprecision(4) << shift;
-                label->updateText(str.str());
-                // SQINFO("a shift=%f lab=%s", shift, str.str().c_str());
-            } else {
-                std::stringstream str;
-                str << std::setprecision(4) << shift;
-                const auto s = str.str();
-                label->updateText(NumberFormatter::formatFloat(2, s));
-                // SQINFO("b shift=%f lab=%s final=%s", shift, s.c_str(), NumberFormatter::formatFloat(2, s).c_str());
-            }
+            label->updateText(NumberFormatter::formatFloat2(2, shift));
         }
 
         const int expert = APP->engine->getParamValue(module, Comp::USE_ADVANCED_UI_PARAM) > .5;
