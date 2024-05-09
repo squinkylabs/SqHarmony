@@ -86,9 +86,11 @@ public:
 
     PhasePatterns(Module* module) : TBase(module) {
         _init();
+        _dcc._mode = DifferentialClockCounter::Mode::MeasureRefInput;
     }
     PhasePatterns() : TBase() {
         _init();
+         _dcc._mode = DifferentialClockCounter::Mode::MeasureRefInput;
     }
 
     void process(const typename TBase::ProcessArgs& args) override;

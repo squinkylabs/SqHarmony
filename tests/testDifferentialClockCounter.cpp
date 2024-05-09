@@ -28,15 +28,41 @@ static void testOtherLead() {
     assertEQ(1, d.getDiff());
 }
 
-void testDifferenticalClockCounter() {
-    testCanCall();
+
+static void testActulDCC() {
+ testCanCall();
     testInitial();
     testRefLead();
     testOtherLead();
 }
 
-#if 0
+////////////////////
+
+static void testClockMonitor1() {
+    ClockMonitor cm;
+    bool b = cm.go(false);
+    assertEQ(b, false);
+    b = cm.go(true);
+    assertEQ(b, false);
+    b = cm.go(false);
+    assertEQ(b, false);
+    b = cm.go(true);  
+    assertEQ(b, true);  
+}
+
+static void testActualClockMonitor() {
+    testClockMonitor1();
+}
+
+void testDifferenticalClockCounter() {
+   testActulDCC();
+   testActualClockMonitor();
+}
+
+
+
+#if 1
 void testFirst() {
-    testDifferenticalClockCounter();
+    testClockMonitor1();
 }
 #endif
