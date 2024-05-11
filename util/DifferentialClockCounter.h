@@ -90,6 +90,7 @@ inline int DifferentialClockCounter::getDiff() const {
 
 ///////////////////////////////////////////////////////////
 
+// detects min and max spacing of low to high transitions.
 class ClockMonitor {
 public:
     bool go(bool input);
