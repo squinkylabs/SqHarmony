@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "plugin.hpp"  // MUST BE FIRST
+#ifdef _PM
 
 #include "BufferingParent.h"
 #include "GfxUtils.h"
@@ -23,8 +24,7 @@ using Lab = SqLabel;
 // int ClockShifter6::llv = 0;
 int logLevel = 0;
 
-template <>
-int BufferingParent<SqLabel>::_refCount = 0;
+
 
 class PhasePatternsModule : public rack::engine::Module {
 public:
@@ -300,3 +300,5 @@ private:
 };
 
 Model* modelPhasePatterns = createModel<PhasePatternsModule, PhasePatternsWidget>("sqh-phasepatterns");
+
+#endif
