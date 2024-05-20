@@ -12,7 +12,7 @@ Because use of diatonic scales and harmony is the "primary use case" of Harmony 
 
 ## TL;DR
 
-To quickly get Harmony II working, connect a monophonic pitch source to the CVI input. The chord output will come out the CVO output. Pick a key signature, load up a preset, and you are off.
+To quickly get Harmony II working, connect a monophonic pitch source to the V/Oct input. The chord output will come out the V/Oct output. Pick a key signature, load up a preset, and you are off.
 
 Or, instead of loading a preset, select one or more generator units with the push-buttons on the left. For those generators, pick a number of steps to transpose.
 
@@ -20,7 +20,7 @@ Or, instead of loading a preset, select one or more generator units with the pus
 
 Much common music uses some form of diatonic harmony. For some typical examples, consider the chord progressions for some common songs. Bob Dylan's ["All Along The Watchtower"](https://www.youtube.com/watch?v=bT7Hj-ea0VE). The chords are A minor, G major, F major. Those are the diatonic triads on 8, 7, 6 in A Minor. Or [every teen-age car-crash song](https://www.youtube.com/watch?v=bh4se9YMV3A) is G major, E minor, C major and D major. Those are the diatonic triads on 8, 6, 4, 5 in G major.
 
-Many chord generators tend to generate all the chords at different pitches, like C Major, D Major, etc... Many chord generators are unable to generate the diatonic chords at different pitches, or at best you need two of them, be able to control their rounding, and know how to do the scale arithmetic yourself
+Many chord generators tend to generate all the chords at different pitches, like C Major, D Major, etc... Many chord generators are unable to generate the diatonic chords at different pitches, or at best you need two of them, be able to control their rounding, and know how to do the scale arithmetic yourself.
 
 Harmony II also has a bunch of non-diatonic scales in it. So it isn't limited to diatonic harmony at all.
 
@@ -76,7 +76,7 @@ The next group are the parallel intervals. There are just two notes - the note y
 
 ## CV inputs
 
-**CVI** is the main CV input. It is monophonic and follows the VCV standard for pitch. All of the output notes will track this pitch.
+**V/Oct** is the main CV input. It is monophonic and follows the VCV standard for pitch. All of the output notes will track this pitch.
 
 **CVO** is the output. It is polyphonic and follows the VCV standard for pitch. This is where the quantized and generated pitches come out.
 
@@ -119,7 +119,7 @@ But, when all scales are enabled:
 * 11/12 = WholeStep,
 * 13/12 = Chromatic
 
-## CV output
+## V/Oct output
 
 This is the polyphonic output where the quantized and generator pitches are output. It follows all VCV standards for pitch CV.
 

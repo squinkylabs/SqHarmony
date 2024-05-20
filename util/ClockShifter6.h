@@ -3,23 +3,26 @@
 #include <assert.h>
 
 #include <cstdint>
-
-#include "BitDelay.h"
+//#include "BitDelay.h"
+#include "BitDelay2.h"
 #include "FreqMeasure3.h"
 #include "OneShotSampleTimer.h"
 #include "SqLog.h"
 
 extern int logLevel;
 
+// usually bit delay 2
+using BD = BitDelay2;
+
 class ClockShifter6 {
 public:
     friend class TestX;
     enum class Errors {
-        NoError = static_cast<int>(BitDelay::Errors::NoError),
-        ExceededDelaySize = static_cast<int>(BitDelay::Errors::ExceededDelaySize),
-        LostClocks = static_cast<int>(BitDelay::Errors::LostClocks)
+        NoError = static_cast<int>(BD::Errors::NoError),
+        ExceededDelaySize = static_cast<int>(BD::Errors::ExceededDelaySize),
+        LostClocks = static_cast<int>(BD::Errors::LostClocks)
     };
-    ClockShifter6();
+
     /**
      * @brief
      *
@@ -29,24 +32,23 @@ public:
      * @return the delayed clock.
      */
     bool process(bool clock, float delay, Errors* error = nullptr);
-    void setMaxDelaySamples(unsigned samples);
 
     bool freqValid() const;
     unsigned getPeriod() const;
 
 private:
-    BitDelay _bitDelay;
+    BD _bitDelay;
 
     // was FreqMeasure2, when we had trigger input
     // I think we need FreqMesaure3.
     FreqMeasure3 _freqMeasure;
     //    OneShotSampleTimer _clockWidthGenerator;
     int _debug_counter = 0;
-};
 
-inline ClockShifter6::ClockShifter6() {
-    _bitDelay.setMaxDelaySamples(100000);
-}
+    float _lastDelay = -1;
+
+    bool _lastClock = false;
+};
 
 inline bool ClockShifter6::freqValid() const {
     return _freqMeasure.freqValid();
@@ -58,9 +60,18 @@ inline unsigned ClockShifter6::getPeriod() const {
 
 inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     if (logLevel > 0) {
-        SQINFO("ClockShifter6::process(%d, %f, %p)", clock, delay, error);
+        SQINFO("cs6::process(%d, %f)", clock, delay);
         SQINFO("counter = %d", _debug_counter);
+        if (clock && !_lastClock) {
+            SQINFO("++++ cs6 seeing new clock");
+        }
+        _lastClock = clock;
     }
+    if (delay != _lastDelay) {
+        //SQINFO("delay = %f", delay);
+        _lastDelay = delay;
+    }
+
     if (error) {
         *error = Errors::NoError;
     }
@@ -73,34 +84,27 @@ inline bool ClockShifter6::process(bool clock, float delay, Errors* error) {
     
     const unsigned delayAbsolute = unsigned(float(_freqMeasure.getPeriod()) * delay);
     if (logLevel) {
-        SQINFO("sc6 derived delay samp =%d from period= %d, delay=%f prod=%f",
+        SQINFO("cs6 derived delay samp =%d from period= %d, delay=%f prod=%f",
                delayAbsolute,
                _freqMeasure.getPeriod(),
                delay,
                float(_freqMeasure.getPeriod()) * delay);
     }
     ++_debug_counter;
-    BitDelay::Errors bderr;
+    BD::Errors bderr;
     float ret = _bitDelay.process(clock, delayAbsolute, &bderr);
     if (error) {
         *error = Errors(bderr);
     }
 
-    //  if (ret) {
-    //     _clockWidthGenerator.arm(_freqMeasure.getHighDuration());
-    // } else {
-    //     _clockWidthGenerator.run();
-    //     ret = _clockWidthGenerator.isRunning();
-    // }
-
     if (ret) {
-        if (logLevel > 0) SQINFO("process output clock\n");
+        if (logLevel > 0) SQINFO("cs6: process output clock");
     } else {
-        if (logLevel > 0) SQINFO("process no clock");
+        if (logLevel > 0) SQINFO("cs6: process no clock");
     }
     return ret;
 }
 
-inline void ClockShifter6::setMaxDelaySamples(unsigned samples) {
-    _bitDelay.setMaxDelaySamples(samples);
-}
+//inline void ClockShifter6::setMaxDelaySamples(unsigned samples) {
+//    _bitDelay.setMaxDelaySamples(samples);
+//}

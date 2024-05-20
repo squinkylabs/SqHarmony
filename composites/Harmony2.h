@@ -218,14 +218,14 @@ inline void Harmony2<TBase>::_init() {
     _updater.add(KEY_INPUT, PolyMono::Mono, true, AudioMath::float2int12);
     _updater.add(MODE_INPUT, PolyMono::Mono, true, AudioMath::float2int12);
     _updater.add(PITCH_INPUT, PolyMono::Mono, true, AudioMath::float2int12);
+    _updater.add(PITCH_OUTPUT, false);      // Monitor the output in case we are patched.
 
     // Need to update scale out when either of these params change.
     _keyOutUpdater.add(KEY_PARAM, false);
     _keyOutUpdater.add(MODE_PARAM, false);
-    _keyOutUpdater.add(PES_OUTPUT, false);  // monitor the output in case we are patched
+    _keyOutUpdater.add(PES_OUTPUT, false);  // Monitor the output in case we are patched.
 
     // Need to respond to scale input changes.
-    // SQINFO("in h2, trying to add scale as infrequent");
     _keyInUpdater.add(PES_INPUT, PolyMono::Poly, false, nullptr);
 }
 
@@ -329,12 +329,14 @@ inline void Harmony2<TBase>::_servicePolyphony() {
             ++numEnabled;
         }
     }
-    TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
+
+    if (TBase::outputs[PITCH_OUTPUT].isConnected()) {
+        TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
+    }    
 }
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleInput() {
-    // SQINFO("service ks input");
     auto& input = TBase::inputs[PES_INPUT];
     if (input.channels < 1) {
         return;  // unconnected
@@ -367,10 +369,6 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
         TBase::lights[PES_INVALID_LIGHT].value = 8;
     } else {
         TBase::lights[PES_INVALID_LIGHT].value = 0;
-        // SQINFO("good scale, %d, %d (mode)", std::get<1>(scaleConverted).get(), int(std::get<2>(scaleConverted)));
-        // SQINFO("servicing input caused us to update the KEY_PARAM %d and MODE_PARAM %d",
-        //     std::get<1>(scaleConverted).get(),
-        //     int(std::get<2>(scaleConverted)));
         TBase::params[KEY_PARAM].value = std::get<1>(scaleConverted).get();
         TBase::params[MODE_PARAM].value = int(std::get<2>(scaleConverted));
     }
@@ -378,7 +376,6 @@ inline void Harmony2<TBase>::_serviceScaleInput() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_serviceScaleOutput() {
-    // SQINFO("_serviceScaleOutput");
     auto& output = TBase::outputs[PES_OUTPUT];
     if (output.isConnected()) {
         output.channels = 12;
@@ -449,21 +446,16 @@ inline void Harmony2<TBase>::_serviceAllTranposers() {
             const int xposeBaseSteps = int(TBase::params[XPOSE_DEGREE1_PARAM + bank].value);
             const int xposeSteps = xposeBaseSteps + xposeCVSteps;
 
-            //  SQINFO("xpose steps = %d", xposeSteps);
 
             TBase::params[XPOSE_TOTAL1_PARAM + bank].value = float(xposeSteps) / 12.f;  // report back what we did.
             const int xposeOctaves = int(TBase::params[XPOSE_OCTAVE1_PARAM + bank].value) - 2;
             ScaleNote noteForBank = scaleNote;
-            // SQINFO("note for bank deg = %d", noteForBank.getDegree());
             noteForBank.transposeDegree(xposeSteps, Scale::numNotesInScale(mode));
-            //  SQINFO("after note=%d",  noteForBank.getDegree());
 
             FloatNote f;
             NoteConvert::s2f(f, *_quantizerOptions->scale, noteForBank);
-            //   SQINFO("f=%f oct=%d", f.get(), xposeOctaves);
             const float cv = f.get() + float(xposeOctaves);
             TBase::outputs[PITCH_OUTPUT].setVoltage(cv, channel);
-            //  SQINFO("out(%d) = %f in old_process", channel, cv);
             channel++;
         }
     }

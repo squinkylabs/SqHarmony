@@ -29,6 +29,9 @@ public:
     virtual void step(){};
     virtual void process(const ProcessArgs& args) {
     }
+    virtual void onReset() {
+        
+    }
     float engineGetSampleRate()
 
     {

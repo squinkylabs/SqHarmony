@@ -12,6 +12,10 @@ extern int logLevel;
 class BitDelay {
 public:
     friend class TestX;
+
+    BitDelay() {
+        setMaxDelaySamples(200000);
+    }
     enum class Errors {
         NoError,
         ExceededDelaySize,
@@ -22,7 +26,7 @@ public:
     uint32_t getMaxDelaySize() const;
 
 private:
-    // delay memory as 32 bit unsigned, but accesses as a bit.
+    // Delay memory as 32 bit unsigned, but accesses as a bit.
     std::vector<uint32_t> _delayMemory;
 
     // This is the virtual buffer pointer. Units are bits.
@@ -139,7 +143,11 @@ inline bool BitDelay::_getDelayOutput(unsigned delayOffset, Errors* err) {
         return false;
     }
 
-    int combinedLoc = _currentLocation - delayOffset;
+    // Off by one. current loc was already incremented.
+   // int combinedLoc = _currentLocation - (delayOffset + 1);
+    int combinedLoc = _currentLocation + delayOffset;
+    combinedLoc -= 1;
+
     // SQINFO("combined loc = %d", combinedLoc);
     if (combinedLoc < 0) {
         //  SQINFO("output delay mem size = %d, in bits %d", _delayMemory.size(), _delayMemory.size() * 32 );
@@ -150,6 +158,8 @@ inline bool BitDelay::_getDelayOutput(unsigned delayOffset, Errors* err) {
     const auto indexAndBit = _getIndexAndBit(combinedLoc);
     const unsigned index = std::get<0>(indexAndBit);
     const unsigned bit = std::get<1>(indexAndBit);
+
+    SQINFO("about to get delay memory at index=%d size=%d", index, _delayMemory.size());
     unsigned x = _delayMemory.at(index);
     // SQINFO("got delay mem = %x", x);
     return _extractBit(x, bit);

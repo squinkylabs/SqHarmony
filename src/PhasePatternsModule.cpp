@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "plugin.hpp"  // MUST BE FIRST
+#ifdef _PM
 
 #include "BufferingParent.h"
 #include "GfxUtils.h"
@@ -23,8 +24,7 @@ using Lab = SqLabel;
 // int ClockShifter6::llv = 0;
 int logLevel = 0;
 
-template <>
-int BufferingParent<SqLabel>::_refCount = 0;
+
 
 class PhasePatternsModule : public rack::engine::Module {
 public:
@@ -38,6 +38,11 @@ public:
         comp->process(args);
     }
 
+    void onReset() override {
+        comp->onReset();
+        Module::onReset();
+    }
+
 private:
     void addParams();
 };
@@ -45,6 +50,9 @@ private:
 #define RIB_SPAN_PARAM_MAX 32
 
 void inline PhasePatternsModule::addParams() {
+    INFO("BGF: in add params, this p=%llx comp p=%llx",
+        (size_t)(void *) &(this->params),
+        (size_t)(void *) &(comp->params));
     class ShiftAmountParam : public ParamQuantity {
     public:
         std::string getDisplayValueString() override {
@@ -132,18 +140,7 @@ private:
         if (_shiftDisplay) {
             const float shift = APP->engine->getParamValue(module, Comp::COMBINED_SHIFT_INTERNAL_PARAM);
             SqLabel* label = _shiftDisplay->getChild();
-            if (shift > 99) {
-                std::stringstream str;
-                str << std::setprecision(4) << shift;
-                label->updateText(str.str());
-                // SQINFO("a shift=%f lab=%s", shift, str.str().c_str());
-            } else {
-                std::stringstream str;
-                str << std::setprecision(4) << shift;
-                const auto s = str.str();
-                label->updateText(NumberFormatter::formatFloat(2, s));
-                // SQINFO("b shift=%f lab=%s final=%s", shift, s.c_str(), NumberFormatter::formatFloat(2, s).c_str());
-            }
+            label->updateText(NumberFormatter::formatFloat2(2, shift));
         }
 
         const int expert = APP->engine->getParamValue(module, Comp::USE_ADVANCED_UI_PARAM) > .5;
@@ -183,13 +180,13 @@ private:
 
         if (_useAdvancedUI()) {
             if (module) {
-                module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = 128;
+                module->getParamQuantity(Comp::RIB_SPAN_PARAM)->maxValue = 128;
             }
             _ribDurationControl = createParam<RoundBlackKnob>(Vec(13, 134), module, Comp::RIB_DURATION_PARAM);
             _ribSpanControl = createParam<RoundBlackKnob>(Vec(64, 134), module, Comp::RIB_SPAN_PARAM);
         } else {
             if (module) {
-                module->getParamQuantity( Comp::RIB_SPAN_PARAM)->maxValue = RIB_SPAN_PARAM_MAX;
+                module->getParamQuantity(Comp::RIB_SPAN_PARAM)->maxValue = RIB_SPAN_PARAM_MAX;
             }
             // Make the combo box
             auto p = createParam<PopupMenuParamWidget>(
@@ -203,7 +200,8 @@ private:
             p->box.size.y = 22;
             p->text = "1";
             _ribDurationControl = p;
-            _ribSpanControl = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);;
+            _ribSpanControl = createParam<RoundBlackSnapKnob>(Vec(66, 134), module, Comp::RIB_SPAN_PARAM);
+            ;
         }
         addParam(_ribDurationControl);
         addLabel(Vec(14, 112), "Total");
@@ -251,19 +249,17 @@ private:
     }
 
     void addIO(PhasePatternsModule* module) {
-       
         addInput(createInput<PJ301MPort>(Vec(16, 273), module, Comp::CK_INPUT));
         addLabel(Vec(14, 253), "CkIn");
         addInput(createInput<PJ301MPort>(Vec(65, 273), module, Comp::SHIFT_INPUT));
         addLabel(Vec(64, 253), "Shft");
 
-     
         addInput(createInput<PJ301MPort>(Vec(16, 226), module, Comp::RIB_POSITIVE_INPUT));
         addLabel(Vec(16, 206), "RIB+");
         addInput(createInput<PJ301MPort>(Vec(65, 226), module, Comp::RIB_NEGATIVE_INPUT));
         addLabel(Vec(66, 206), "RIB-");
 
-        RoundedRect *r = new RoundedRect(Vec(32, 302), Vec(40, 50));
+        RoundedRect* r = new RoundedRect(Vec(32, 302), Vec(40, 50));
         addChild(r);
         addOutput(createOutput<PJ301MPort>(Vec(39, 322), module, Comp::CK_OUTPUT));
         addLabel(Vec(34.5, 300), "CkOut");
@@ -304,3 +300,5 @@ private:
 };
 
 Model* modelPhasePatterns = createModel<PhasePatternsModule, PhasePatternsWidget>("sqh-phasepatterns");
+
+#endif

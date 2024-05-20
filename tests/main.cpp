@@ -46,6 +46,7 @@ extern void testPhasePatternsPoly();
 extern void testOneShotSampleTimer();
 
 extern void testSchmidtTrigger();
+
 extern void testShiftCalc();
 extern void testClockMult();
 extern void testMultiplier();
@@ -66,6 +67,7 @@ extern void testTestLFO();
 extern void testClockShifter6();
 extern void testClockShifter6d();
 extern void testBitDelay();
+extern void testBitDelayPartTwo();
 extern void testHarmony2();
 extern void testHarmony2B();
 extern void testHarmony2C();
@@ -73,6 +75,9 @@ extern void testSharpFlatMonitor();
 extern void testUpdater();
 extern void testShiftMath();
 extern void testAudioMath();
+extern void testDifferenticalClockCounter();
+extern void testDeGlitch();
+extern void testDeGlitch();
 
 #include "SqLog.h"
 
@@ -95,7 +100,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -121,11 +126,14 @@ int main(const char**, int) {
     testFreqMeasure2();
     testShiftCalc();
     testSharpFlatMonitor();
+    testDifferenticalClockCounter();
 
     testClockMult();
     testMultiplier();
     testRatchet();
     testBitDelay();
+    testBitDelayPartTwo();
+    testDeGlitch();
     testClockShifter6();
     testClockShifter6d();
 

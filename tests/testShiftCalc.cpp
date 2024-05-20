@@ -105,7 +105,7 @@ static void testTriggerDurring() {
 static void testLimitSub(float limit) {
     ShiftCalc s;
     const int period = 14;
-  //  const float limit = .47;
+    //  const float limit = .47;
     s.trigger(period, limit, 11);
     int ct = 0;
     for (bool done = false; !done;) {
@@ -158,6 +158,16 @@ static void testRate() {
     testRateSub(11, -1.7f, 23);
 }
 
+class TestX {
+public:
+    static void testReset() {
+        ShiftCalc s;
+        s._acc = 1;
+        s.reset();
+        assertEQ(s._acc, 0);
+    }
+};
+
 void testShiftCalc() {
     testCanCall();
     testGeneratesNothing();
@@ -172,4 +182,5 @@ void testShiftCalc() {
     testTriggerDurring();
     testLimit();
     testRate();
+    TestX::testReset();
 }

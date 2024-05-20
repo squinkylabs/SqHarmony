@@ -10,6 +10,7 @@
 #include "FreqMeasure.h"
 #include "GateTrigger.h"
 #include "ShiftCalc.h"
+#include "DifferentialClockCounter.h"
 
 namespace rack {
 namespace engine {
@@ -85,9 +86,11 @@ public:
 
     PhasePatterns(Module* module) : TBase(module) {
         _init();
+        _dcc._mode = DifferentialClockCounter::Mode::MeasureRefInput;
     }
     PhasePatterns() : TBase() {
         _init();
+         _dcc._mode = DifferentialClockCounter::Mode::MeasureRefInput;
     }
 
     void process(const typename TBase::ProcessArgs& args) override;
@@ -98,6 +101,8 @@ public:
         assert(channel < 16);
         return _curShift[channel];
     }
+
+    void onReset() override;
 
 private:
     void _init();
@@ -121,7 +126,19 @@ private:
     int _numRibsGenerators = 0;
     int _numOutputClocks = 0;
     int _numShiftInputs = 0;
+
+    DifferentialClockCounter _dcc;  // for debugging
+    float _lastShift = 0;
 };
+
+template <class TBase>
+inline void PhasePatterns<TBase>::onReset() {
+    // SQINFO("ON RESET");
+    for (int i=0; i<16; ++i) {
+        _ribGenerator[i].reset();
+        _curShift[i] = 0;
+    }
+}
 
 template <class TBase>
 inline float PhasePatterns<TBase>::indexToValueRibDuration(int index) {
@@ -244,6 +261,17 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
                       _ribGenerator[ribIndex].get() +
                       .1 * TBase::inputs[SHIFT_INPUT].getVoltage(shiftCVIndex);  // .2 so 5 volts -> 1
         shift *= shiftMult;
+        // if ((shift != _lastShift) && (i == 0)) {
+        //     SQINFO("shift=%f, mult=%f glob=%f rib=%f cv = %f",
+        //         shift, 
+        //         shiftMult, 
+        //         globalShift, 
+        //         _ribGenerator[0].get(), 
+        //         TBase::inputs[SHIFT_INPUT].getVoltage(0 ));
+        //     SQINFO("delta = %e", (_lastShift - shift));
+        //     _lastShift = shift;
+
+        // }
        //  SQINFO("shifter[%d] set to %f", i, shift);
         _curShift[i] = std::max(shift, 0.f);
     }
@@ -251,6 +279,7 @@ inline void PhasePatterns<TBase>::_updateShiftAmount() {
    
     // put channel 0 in the UI.
     TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = _curShift[0];
+    
     //TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value = shiftMult * (globalShift + _ribGenerator[0].get()) + _curShift[0];
     //  SQINFO("shift internal set to %f from mult=%f glb=%f rib=%f", 
     //     TBase::params[COMBINED_SHIFT_INTERNAL_PARAM].value,
@@ -289,6 +318,7 @@ inline void PhasePatterns<TBase>::_stepn() {
 
 template <class TBase>
 inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& args) {
+    
     divn.step();
 
     // First process all the input clock channels. They retain output, and don't have any
@@ -311,4 +341,7 @@ inline void PhasePatterns<TBase>::process(const typename TBase::ProcessArgs& arg
         const float clockOut = rawClockOut ? cGateOutHi : cGateOutLow;
         TBase::outputs[CK_OUTPUT].setVoltage(clockOut, i);
     }
+
+    _dcc.process(TBase::inputs[CK_INPUT].getVoltage(0), TBase::outputs[CK_OUTPUT].getVoltage(0));
+    //_dcc.dump();
 }

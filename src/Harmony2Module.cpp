@@ -15,6 +15,9 @@
 #include "SqMenuItem.h"
 #include "WidgetComposite.h"
 
+template <>
+int BufferingParent<SqLabel>::_refCount = 0;
+
 #define _LAB
 
 using Comp = Harmony2<WidgetComposite>;
@@ -155,20 +158,20 @@ private:
         RoundedRect* r = new RoundedRect(Vec(73, y - 18), Vec(70, 54));
         addChild(r);
 
-        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "V/Oct", 4);
-        addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "V/Oct", 4);
+        addInputL(Vec(x0, y), Comp::PITCH_INPUT, "V/Oct", 3);
+        addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "V/Oct", 3);
 
-        addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES");
+        addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES", -1);
     }
 
     void addModCV() {
         const float y = 270;
         addInputL(Vec(x0, y), Comp::XPOSE_INPUT, "XP");
 
-        addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key", 1.f);
-        addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode");
+        addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key", 0.f);
+        addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode", -1);
 
-        addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "PES");
+        addInputL(Vec(x0 + 3 * dx, y), Comp::PES_INPUT, "PES", -1);
     }
 
     void addLeds() {
@@ -224,7 +227,7 @@ private:
     void addTransposeControls(int index, bool haveModule) {
         const float y = y0 + index * deltaY;
         addParam(createLightParam<VCVLightButton<MediumSimpleLight<WhiteLight>>>(
-            Vec(xbutton, y),
+            Vec(xbutton, y+1),
             module,
             Comp::XPOSE_ENABLEREQ1_PARAM + index,
             Comp::XPOSE_ENABLE1_LIGHT + index));
