@@ -152,4 +152,4 @@ If the progression is an "easy" one, a chord might be quickly found that passes 
 
 ## Block diagram
 
-![ArpeHarmony block diagram](./harmony.svg)
+![Harmony block diagram](./harmony.svg)

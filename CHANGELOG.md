@@ -2,6 +2,12 @@
 
 ## 2.2.4
 
+Fixed small bug in Harmony II where module would not update immediately after Insert.
+
+Bumped up module version so testers will get new version.
+
+## 2.2.3b
+
 Two new modules, [Phase Patterns](./docs/phasepatterns.md) and [Harmony II](./docs/harmonyII.md).
 
 Updated build to c++17.
