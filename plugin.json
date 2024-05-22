@@ -14,7 +14,7 @@
 			"name": "Harmony",
 			"description": "Harmony Generator",
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/harmony.md",
-			"tags": []
+			"tags": ["Utility"]
 		},
 		{
 			"slug": "sqh-arpeggiator1",
@@ -28,7 +28,8 @@
 			"slug": "sqh-harmony2",
 			"name": "Harmony II",
 			"disabled": false,
-			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/harmonyII.md"
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/harmonyII.md",
+			"tags": ["Utility"]
 		}
     ]
 }
