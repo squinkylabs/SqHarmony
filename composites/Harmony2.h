@@ -323,6 +323,7 @@ inline void Harmony2<TBase>::_serviceEnableButtons() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_servicePolyphony() {
+  
     int numEnabled = 0;
     for (int i = 0; i < NUM_TRANPOSERS; ++i) {
         if (TBase::params[XPOSE_ENABLE1_PARAM + i].value > 5) {
@@ -330,9 +331,11 @@ inline void Harmony2<TBase>::_servicePolyphony() {
         }
     }
 
-    if (TBase::outputs[PITCH_OUTPUT].isConnected()) {
+  SQINFO("service polyphony nume=%d out connected = %d", numEnabled, TBase::outputs[PITCH_OUTPUT].isConnected());
+  //  if (TBase::outputs[PITCH_OUTPUT].isConnected()) {
         TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
-    }    
+        SQINFO("set output poly to %d", numEnabled);
+  //  }    
 }
 
 template <class TBase>
@@ -407,6 +410,7 @@ template <class TBase>
 inline void Harmony2<TBase>::process(const typename TBase::ProcessArgs& args) {
     bool changed = _updater.poll();
     if (changed) {
+        SQINFO("changed! will poll");
         _serviceAllMiscInputs();
         _serviceAllTranposers();
     }

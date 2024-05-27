@@ -61,7 +61,7 @@ void testDifferenticalClockCounter() {
 
 
 
-#if 1
+#if 0
 void testFirst() {
     testClockMonitor1();
 }

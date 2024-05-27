@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 class DeGlitch {
 public:
     /**
@@ -24,6 +26,7 @@ inline bool DeGlitch::process(bool input, unsigned lockoutCount) {
     if (_lastOutput == 0) {
         return input;
     }
+    assert(false);
     
     return false;
 }
