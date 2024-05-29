@@ -243,7 +243,6 @@ inline void Harmony2<TBase>::_serviceKeysigParams() {
     // one version of a scale function - just rounds to nearest int.
     const int basePitch = int(std::round(TBase::params[KEY_PARAM].value));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
-    // SQINFO("in service keysig params. base=%d mode=%d", basePitch, int(mode));
 
     assert(basePitch < 12);
     _quantizerOptions->scale->set(basePitch, mode);
@@ -323,6 +322,7 @@ inline void Harmony2<TBase>::_serviceEnableButtons() {
 
 template <class TBase>
 inline void Harmony2<TBase>::_servicePolyphony() {
+  
     int numEnabled = 0;
     for (int i = 0; i < NUM_TRANPOSERS; ++i) {
         if (TBase::params[XPOSE_ENABLE1_PARAM + i].value > 5) {
@@ -330,9 +330,7 @@ inline void Harmony2<TBase>::_servicePolyphony() {
         }
     }
 
-    if (TBase::outputs[PITCH_OUTPUT].isConnected()) {
-        TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
-    }    
+    TBase::outputs[PITCH_OUTPUT].channels = numEnabled;
 }
 
 template <class TBase>
