@@ -1,7 +1,8 @@
 #pragma once
 
-//#include <algorithm>
+// #include <algorithm>
 #include <tuple>
+
 #include "MidiNote.h"
 
 class ChordRecognizer {
@@ -14,5 +15,8 @@ public:
 
     /**
      */
-    std::tuple<Type, int> recognize(const int * chord);
+    static std::tuple<Type, int> recognize(const int* chord);
+
+private:
+    static Type recognizeType(const int* chord);
 };

@@ -4,9 +4,9 @@
 #include "asserts.h"
 
 static void testCanCreate() {
-    ChordRecognizer ch;
+  //  ChordRecognizer ch;
     const int chord[] = { 1,2,3,-1 };
-    ch.recognize(chord);
+    ChordRecognizer::recognize(chord);
 }
 
 static void testJunkNotRecognized() {
@@ -26,12 +26,22 @@ static void testCMajorRecognized() {
     assert(std::get<1>(result) == MidiNote::C);
 }
 
+static void testDMajorRecognized() {
+    ChordRecognizer ch;
+    const int chord[] = { MidiNote::D, MidiNote::F+1, MidiNote::A, -1 };
+    auto const result = ch.recognize(chord);
+    ChordRecognizer::Type t = std::get<0>(result);
+    assert(t == ChordRecognizer::Type::MajorTriad);
+    assert(std::get<1>(result) == MidiNote::D);
+}
+
 void testChordRecognizer() {
     testCanCreate();
     testJunkNotRecognized();
     testCMajorRecognized();
+    testDMajorRecognized();
 }
 
 void testFirst() {
-    testCMajorRecognized();
+    testDMajorRecognized();
 }
