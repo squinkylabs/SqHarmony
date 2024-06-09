@@ -78,6 +78,7 @@ extern void testAudioMath();
 extern void testDifferenticalClockCounter();
 extern void testDeGlitch();
 extern void testDeGlitch();
+extern void testChordRecognizer();
 
 #include "SqLog.h"
 
@@ -127,6 +128,7 @@ int main(const char**, int) {
     testShiftCalc();
     testSharpFlatMonitor();
     testDifferenticalClockCounter();
+    testChordRecognizer();
 
     testClockMult();
     testMultiplier();
