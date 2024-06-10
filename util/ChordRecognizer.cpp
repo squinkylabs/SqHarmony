@@ -25,9 +25,18 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognize(const int* cho
     std::sort(normalizedChord, normalizedChord + i);
 
     // remove dupes
+    int chord2[16];
+    int j;
+    for (i = j = 0; normalizedChord[i] >= 0; ++i) {
+        if (normalizedChord[i] != (normalizedChord[i + 1])) {
+            chord2[j++] = normalizedChord[i];
+        }
+    }
+    chord2[j] = -1;
 
 
-    const auto t = recognizeType(normalizedChord);
+
+    const auto t = recognizeType(chord2);
     return std::make_tuple(t, base % 12);
 
 }
