@@ -22,4 +22,7 @@ void init(rack::Plugin* p) {
 #ifdef _H2
     p->addModel(modelHarmony2);
 #endif
+#ifdef _VISUALIZER
+    p->addModel(modelVisualizer);
+#endif
 }
