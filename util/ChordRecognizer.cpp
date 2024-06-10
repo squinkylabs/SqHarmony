@@ -7,6 +7,10 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognize(const int* cho
     if (base < 0) {
         return std::make_tuple(Type::Unrecognized, MidiNote::C);
     }
+
+
+
+    // normalize pitches to C
     int normalizedChord[16];
     int i;
     for (i=0; chord[i] >=0; ++i) {
@@ -15,6 +19,14 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognize(const int* cho
         normalizedChord[i] = note;
     }
     normalizedChord[i] = -1;
+
+    // sort
+    //
+    std::sort(normalizedChord, normalizedChord + i);
+
+    // remove dupes
+
+
     const auto t = recognizeType(normalizedChord);
     return std::make_tuple(t, base % 12);
 
