@@ -80,6 +80,16 @@ static void testCMajorOneNoteCrazyOctave() {
     assert(std::get<1>(result) == MidiNote::C);
 }
 
+static void testCMajorFirstInversion() {
+    ChordRecognizer ch;
+    const int chord[] = { MidiNote::C + 12, MidiNote::E, MidiNote::G + 12, -1 };
+    auto const result = ch.recognize(chord);
+    ChordRecognizer::Type t = std::get<0>(result);
+
+
+    assert(t == ChordRecognizer::Type::MajorTriad);
+    assert(std::get<1>(result) == MidiNote::C);
+}
 void testChordRecognizer() {
     testCanCreate();
     testJunkNotRecognized();
@@ -90,6 +100,8 @@ void testChordRecognizer() {
     testCMajor4Voice();
     testGMajorRecognized();
     testCMajorOneNoteCrazyOctave();
+    testCMajorFirstInversion();
+
 
     // To add:
     
@@ -103,6 +115,8 @@ void testChordRecognizer() {
 
 #if 1
 void testFirst() {
-    testCMajorOneNoteCrazyOctave();
+   // testCMajorRecognized();
+     testCMajor4Voice();
+   // testCMajorFirstInversion();
 }
 #endif

@@ -19,4 +19,6 @@ public:
 
 private:
     static Type recognizeType(const int* chord);
+    static unsigned getLength(const int* chord);
+    static void copy(int* dest, const int* src);
 };
