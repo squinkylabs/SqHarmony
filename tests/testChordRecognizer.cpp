@@ -82,7 +82,7 @@ static void testCMajorOneNoteCrazyOctave() {
 
 static void testCMajorFirstInversion() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::C + 12, MidiNote::E, MidiNote::G + 12, -1 };
+    const int chord[] = { MidiNote::C + 12, MidiNote::E, MidiNote::G, -1 };
     auto const result = ch.recognize(chord);
     ChordRecognizer::Type t = std::get<0>(result);
 
@@ -113,10 +113,10 @@ void testChordRecognizer() {
 
 }
 
-#if 1
+#if 0
 void testFirst() {
    // testCMajorRecognized();
-     testCMajor4Voice();
-   // testCMajorFirstInversion();
+   //  testCMajor4Voice();
+    testCMajorFirstInversion();
 }
 #endif

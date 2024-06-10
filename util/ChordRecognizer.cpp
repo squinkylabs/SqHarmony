@@ -84,15 +84,15 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognize(const int* inp
     show("chord2", chord2, getLength(chord2));
 
     const auto t = recognizeType(chord2);
-    return std::make_tuple(t, base % 12);
+    return std::make_tuple(std::get<0>(t), (base + std::get<1>(t)) % 12);
 }
 
-ChordRecognizer::Type ChordRecognizer::recognizeType(const int* chord) {
+std::tuple<ChordRecognizer::Type, int>  ChordRecognizer::recognizeType(const int* chord) {
     if ((chord[0] == MidiNote::C) &&
         (chord[1] == MidiNote::E) &&
         (chord[2] == MidiNote::G) &&
         (chord[3] < 0)) {
-        return Type::MajorTriad;
+        return std::make_tuple(Type::MajorTriad, 0);
     }
-    return Type::Unrecognized;
+    return std::make_tuple(Type::Unrecognized, 0);
 }
