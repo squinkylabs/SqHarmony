@@ -94,5 +94,12 @@ std::tuple<ChordRecognizer::Type, int>  ChordRecognizer::recognizeType(const int
         (chord[3] < 0)) {
         return std::make_tuple(Type::MajorTriad, 0);
     }
+     if ((chord[0] == MidiNote::C) &&
+        (chord[1] == MidiNote::E-1) &&
+        (chord[2] == MidiNote::G+1) &&
+        (chord[3] < 0)) {
+        return std::make_tuple(Type::MajorTriadFirstInversion, -4);
+    }
+
     return std::make_tuple(Type::Unrecognized, 0);
 }

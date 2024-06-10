@@ -10,6 +10,7 @@ public:
     enum class Type {
         Unrecognized,
         MajorTriad,
+        MajorTriadFirstInversion,
         MinorTriad,
     };
 

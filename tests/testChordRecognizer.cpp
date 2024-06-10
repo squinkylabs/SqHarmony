@@ -87,7 +87,7 @@ static void testCMajorFirstInversion() {
     ChordRecognizer::Type t = std::get<0>(result);
 
 
-    assert(t == ChordRecognizer::Type::MajorTriad);
+    assert(t == ChordRecognizer::Type::MajorTriadFirstInversion);
     assert(std::get<1>(result) == MidiNote::C);
 }
 void testChordRecognizer() {
@@ -113,7 +113,7 @@ void testChordRecognizer() {
 
 }
 
-#if 0
+#if 1
 void testFirst() {
    // testCMajorRecognized();
    //  testCMajor4Voice();
