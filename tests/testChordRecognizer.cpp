@@ -62,6 +62,24 @@ static void testCMajor4Voice() {
     assert(std::get<1>(result) == MidiNote::C);
 }
 
+static void testGMajorRecognized() {
+    ChordRecognizer ch;
+    const int chord[] = { MidiNote::G, MidiNote::B, MidiNote::D+12, -1 };
+    auto const result = ch.recognize(chord);
+    ChordRecognizer::Type t = std::get<0>(result);
+    assert(t == ChordRecognizer::Type::MajorTriad);
+    assert(std::get<1>(result) == MidiNote::G);
+}
+
+static void testCMajorOneNoteCrazyOctave() {
+    ChordRecognizer ch;
+    const int chord[] = { MidiNote::C, MidiNote::E, MidiNote::G + 4 * 12, -1 };
+    auto const result = ch.recognize(chord);
+    ChordRecognizer::Type t = std::get<0>(result);
+    assert(t == ChordRecognizer::Type::MajorTriad);
+    assert(std::get<1>(result) == MidiNote::C);
+}
+
 void testChordRecognizer() {
     testCanCreate();
     testJunkNotRecognized();
@@ -70,20 +88,21 @@ void testChordRecognizer() {
     testCMajorOctaveRecognized();
     testCMajorOrder();
     testCMajor4Voice();
+    testGMajorRecognized();
+    testCMajorOneNoteCrazyOctave();
 
     // To add:
-    // doubling (c/e/g/c2)
-    // Chord crosses octaves (G maj)
-    // Chord not ascending (sort)
+    
     // chord inverted
     // non-major triads
     // other chord types
+    // chords larger than an octave (9th)
 
 
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testCMajorOctaveRecognized();
+    testCMajorOneNoteCrazyOctave();
 }
 #endif

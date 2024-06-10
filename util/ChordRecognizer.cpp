@@ -1,5 +1,6 @@
 
 #include "ChordRecognizer.h"
+#include "SqLog.h"
 
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognize(const int* chord) {
@@ -8,6 +9,9 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognize(const int* cho
         return std::make_tuple(Type::Unrecognized, MidiNote::C);
     }
 
+#ifdef _DEBUG
+    SQINFO("chord = %d, %d, %d, %d", chord[0], chord[1], chord[2], chord[3]);
+#endif
 
 
     // normalize pitches to C
