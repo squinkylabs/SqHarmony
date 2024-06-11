@@ -159,6 +159,10 @@ There are three different ways to set the key signature:
 
 If any of there are used, and disagree, then Harmony II will resolve the conflict. For example, what happens if both PES and Key CV are used at the same time? Well, the short answer is that you shouldn't do this. The more complete answer is that whichever changed most recently will "win".
 
+## Demo patch
+
+A very basic demo may be found [here](./harmonyII-demo.md)
+
 ## Block diagram
 
 ![harmony II block diagram](./Harmony-II-block-diagram.svg)
