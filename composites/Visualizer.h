@@ -1,5 +1,11 @@
 #pragma once
 
+
+namespace rack {
+namespace engine {
+struct Module;
+}
+}  // namespace rack
 using Module = ::rack::engine::Module;
 
 template <class TBase>

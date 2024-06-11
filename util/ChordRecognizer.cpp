@@ -1,6 +1,6 @@
 
 #include "ChordRecognizer.h"
-
+#include "PitchKnowledge.h"
 #include "SqLog.h"
 
 void show(const char* msg, const int* p, int num) {
@@ -105,6 +105,34 @@ std::tuple<ChordRecognizer::Type, int>  ChordRecognizer::recognizeType(const int
 }
 
 
-const char* ChordRecognizer::toString(const ChordInfo&) {
-    return "";
+std::string ChordRecognizer::toString(const ChordInfo& info) {
+
+    std::string s = PitchKnowledge::nameOfAbs(std::get<1>(info));
+    std::string sType;
+    switch( std::get<0>(info)) {
+        case ChordRecognizer::Type::Unrecognized:
+            return "";
+        case ChordRecognizer::Type::MajorTriad:
+            sType = "Major Triad";
+            break;
+        case ChordRecognizer::Type::MinorTriad:
+            sType = "Minor Triad";
+            break;
+        case ChordRecognizer::Type::MajorTriadFirstInversion:
+            sType = "Major Triad, first inversion";
+            break;
+
+    }
+    return s + " " + sType;
+
+    
+    // p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MajorTriad, 0));
+    // assertGT(strlen(p), 0);
+
+    //  p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MajorTriadFirstInversion, 0));
+    // assertGT(strlen(p), 0);
+
+    //  p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MinorTriad, 0));
+    // assertGT(strlen(p), 0);
+   // return "";
 }

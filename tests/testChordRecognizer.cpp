@@ -92,8 +92,18 @@ static void testCMajorFirstInversion() {
 }
 
 static void testToString() {
-    const char * p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::Unrecognized, 0));
-    assertEQ(strlen(p), 0);
+    std::string s = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::Unrecognized, 0));
+    assertEQ(s.length(), 0);
+
+    s = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MajorTriad, 0));
+    assertGT(s.length(), 0);
+
+     s = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MajorTriadFirstInversion, 0));
+     assertGT(s.length(), 0);
+
+     s = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MinorTriad, 0));
+     assertGT(s.length(), 0);
+
 }
 
 void testChordRecognizer() {
@@ -120,7 +130,7 @@ void testChordRecognizer() {
 
 }
 
-#if 1
+#if 0
 void testFirst() {
    // testCMajorRecognized();
    //  testCMajor4Voice();

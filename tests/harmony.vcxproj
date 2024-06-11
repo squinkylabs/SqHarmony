@@ -246,6 +246,7 @@
     <ClCompile Include="testTestLFO.cpp" />
     <ClCompile Include="testTwister.cpp" />
     <ClCompile Include="testUpdater.cpp" />
+    <ClCompile Include="testVisualizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\composites\Harmony.h" />

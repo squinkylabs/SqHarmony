@@ -2,6 +2,7 @@
 
 // #include <algorithm>
 #include <tuple>
+#include <string>
 
 #include "MidiNote.h"
 
@@ -22,7 +23,8 @@ public:
      */
     static ChordInfo recognize(const int* chord);
 
-    static const char* toString(const ChordInfo&);
+    // don't call from audio tread!
+    static std::string toString(const ChordInfo&);
 
 private:
     /**
