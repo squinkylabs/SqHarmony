@@ -10,6 +10,7 @@ public:
         NUM_PARAMS
     };
     enum InputIds {
+        CV_INPUT,
         NUM_INPUTS
     };
 
@@ -36,5 +37,5 @@ private:
 
 template <class TBase>
 inline void Visualizer<TBase>::_init() {
-    
+
 }
