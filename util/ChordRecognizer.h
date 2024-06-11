@@ -14,11 +14,15 @@ public:
         MinorTriad,
     };
 
+    using ChordInfo = std::tuple<Type, int>;
+
     /**
      * @param chord - chord to analyze.
      * @return 0 is type of chord, 1 is the root.
      */
-    static std::tuple<Type, int> recognize(const int* chord);
+    static ChordInfo recognize(const int* chord);
+
+    static const char* toString(const ChordInfo&);
 
 private:
     /**

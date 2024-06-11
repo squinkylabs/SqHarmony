@@ -32,7 +32,7 @@ void ChordRecognizer::copy(int* dest, const int* src) {
     }
 }
 
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognize(const int* inputChord) {
+ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord) {
     int normalizedChord[16];
     int chord2[16];
     int sortedChord[16];
@@ -102,4 +102,9 @@ std::tuple<ChordRecognizer::Type, int>  ChordRecognizer::recognizeType(const int
     }
 
     return std::make_tuple(Type::Unrecognized, 0);
+}
+
+
+const char* ChordRecognizer::toString(const ChordInfo&) {
+    return "";
 }
