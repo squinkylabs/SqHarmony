@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Divider.h"
 
 namespace rack {
 namespace engine {
@@ -36,12 +37,30 @@ public:
         _init();
     }
 
+    void process(const typename TBase::ProcessArgs& args) override;
+     static int getSubSampleFactor() { return 32; }
+
 private:
     void _init();
+    void _stepn();
+     Divider _divn;
 
 };
 
 template <class TBase>
 inline void Visualizer<TBase>::_init() {
+    _divn.setup(getSubSampleFactor(), [this]() {
+        this->_stepn();
+    });
+}
 
+
+template <class TBase>
+inline void Visualizer<TBase>::_stepn() {
+
+}
+
+template <class TBase>
+inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) {
+    _divn.step();
 }
