@@ -3,6 +3,7 @@
 #include "ChordRecognizer.h"
 #include "Divider.h"
 #include "ScaleQuantizer.h"
+#include "SqLog.h"
 
 namespace rack {
 namespace engine {
@@ -16,6 +17,9 @@ class Visualizer : public TBase {
 public:
     friend class TestX;
     enum ParamIds {
+        TYPE_PARAM,
+        ROOT_PARAM,
+        CHANGE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -79,7 +83,7 @@ inline void Visualizer<TBase>::_processInput() {
     bool wasChange = false;
     auto& inputPort = TBase::inputs[CV_INPUT];
     const int channels = inputPort.getChannels();
-    for (int i=0; i<channels; ++i) {
+    for (int i = 0; i < channels; ++i) {
         const float f = inputPort.getVoltage(i);
         const MidiNote mn = _quantizer->run(f);
         const int iNote = mn.get();
@@ -103,11 +107,20 @@ inline void Visualizer<TBase>::_processInput() {
     }
     SQINFO("was change");
 
-   // int temp[17];
+    // int temp[17];
     const auto chord = ChordRecognizer::recognize(_inputPitches, _inputChannels);
-    const auto type =  std::get<0>(chord);
-    SQINFO("type = %d", (int) type);
-    
+    const auto type = std::get<0>(chord);
+    const auto root = std::get<1>(chord);
+
+    TBase::params[CHANGE_PARAM].value += 1;
+    if (TBase::params[CHANGE_PARAM].value >= 100) {
+        TBase::params[CHANGE_PARAM].value = 0;
+    }
+    TBase::params[TYPE_PARAM].value = int(type);
+    TBase::params[ROOT_PARAM].value = root;
+
+
+    SQINFO("type = %d", (int) type);  
     if (type == ChordRecognizer::Type::Unrecognized) {
         SQINFO("new chord is unrecognized");
     } else {

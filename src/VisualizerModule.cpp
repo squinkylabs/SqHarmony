@@ -37,7 +37,18 @@ public:
 #endif
         addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
     }
+
+    void step() override {
+        const float changeParam = APP->engine->getParamValue(module, Comp::CHANGE_PARAM);
+        if (changeParam != _changeParam) {
+            _changeParam = changeParam;
+            SQINFO("ui saw change");
+        }
+        //APP->engine->setParamValue(module, foo);
+    }
 private:
+
+    float _changeParam = -1;
 
    /**
      * @brief
