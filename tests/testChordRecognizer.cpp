@@ -26,6 +26,15 @@ static void testCMajorRecognized() {
     assert(std::get<1>(result) == MidiNote::C);
 }
 
+static void testCMinorRecognized() {
+    ChordRecognizer ch;
+    const int chord[] = { MidiNote::C, MidiNote::E -1, MidiNote::G };
+    auto const result = ch.recognize(chord, 3);
+    ChordRecognizer::Type t = std::get<0>(result);
+    assert(t == ChordRecognizer::Type::MinorTriad);
+    assert(std::get<1>(result) == MidiNote::C);
+}
+
 static void testDMajorRecognized() {
     ChordRecognizer ch;
     const int chord[] = { MidiNote::D, MidiNote::F+1, MidiNote::A};
@@ -118,7 +127,7 @@ void testChordRecognizer() {
     testCMajorOneNoteCrazyOctave();
     testCMajorFirstInversion();
     testToString();
-
+    testCMinorRecognized();
 
     // To add:
     

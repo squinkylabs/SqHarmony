@@ -93,16 +93,11 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int* chord, unsigned length) {
     assert(chord[0] == 0);
-    // if ((length == 3) &&
-    //     (chord[0] == MidiNote::C) &&
-    //     (chord[1] == MidiNote::E) &&
-    //     (chord[2] == MidiNote::G)) {
-    //     return std::make_tuple(Type::MajorTriad, 0);
-    // }
     if ((length == 3) && (chord[2] == MidiNote::G)) {
         return recognizeType3WithFifth(chord);
     }
 
+    // This is what an triad in first inversion looks like. strang, but probably correct
     if ((length == 3) &&
         (chord[0] == MidiNote::C) &&
         (chord[1] == MidiNote::E - 1) &&
@@ -120,6 +115,10 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(
     if (chord[1] == MidiNote::E) {
         return std::make_tuple(Type::MajorTriad, 0);
     }
+    if (chord[1] == MidiNote::E -1) {
+        return std::make_tuple(Type::MinorTriad, 0);
+    }
+
      return std::make_tuple(Type::Unrecognized, 0);
 }
 
@@ -140,14 +139,4 @@ std::string ChordRecognizer::toString(const ChordInfo& info) {
             break;
     }
     return s + " " + sType;
-
-    // p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MajorTriad, 0));
-    // assertGT(strlen(p), 0);
-
-    //  p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MajorTriadFirstInversion, 0));
-    // assertGT(strlen(p), 0);
-
-    //  p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MinorTriad, 0));
-    // assertGT(strlen(p), 0);
-    // return "";
 }
