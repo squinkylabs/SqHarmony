@@ -7,43 +7,44 @@ void show(const char* msg, const int* p, int num) {
 #ifdef _DEBUG
     if (num == 3) {
         // show the terminator
-        SQINFO("%s = %d, %d, %d, %d", msg, p[0], p[1], p[2], p[3]);
+        SQINFO("%s = %d, %d, %d", msg, p[0], p[1], p[2]);
     } else if (num == 4) {
-        SQINFO("%s = %d, %d, %d, %d %d", msg, p[0], p[1], p[2], p[3], p[4]);
+        SQINFO("%s = %d, %d, %d, %d", msg, p[0], p[1], p[2], p[3]);
     } else {
         SQINFO("??? num=%d", num);
     }
 #endif
 }
 
-unsigned ChordRecognizer::getLength(const int* chord) {
-    int len = 0;
-    while (*chord++ >= 0) {
-        ++len;
+// unsigned ChordRecognizer::getLength(const int* chord) {
+//     int len = 0;
+//     while (*chord++ >= 0) {
+//         ++len;
+//     }
+//     // if (len) {
+//     //     ++len;
+//     // }
+//     return len;
+// }
+
+void ChordRecognizer::copy(int* dest, const int* src, unsigned length) {
+    while(length--) {
+        *dest++ = *src++;
     }
-    // if (len) {
-    //     ++len;
-    // }
-    return len;
 }
 
-void ChordRecognizer::copy(int* dest, const int* src) {
-    while ((*dest++ = *src++) >= 0) {
-    }
-}
-
-ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord) {
+ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, unsigned length) {
     int normalizedChord[16];
     int chord2[16];
     int sortedChord[16];
 
-    const int length = getLength(inputChord);
+   // const int length = getLength(inputChord);
     show("input chord", inputChord, length);
     if (length < 1) {
          return std::make_tuple(Type::Unrecognized, MidiNote::C);
     }
 
-    copy(sortedChord, inputChord);
+    copy(sortedChord, inputChord, length);
     std::sort(sortedChord, sortedChord + (length-1));
 
     show("sorted chord", sortedChord, length);
@@ -57,13 +58,13 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord) {
 
     // normalize pitches to C
 
-    int i;
-    for (i = 0; sortedChord[i] >= 0; ++i) {
+    unsigned i;
+    for (i = 0; i < length; ++i) {
         int note = sortedChord[i] - base;  // normalize to base
         note = note % 12;                  // normalize to octave
         normalizedChord[i] = note;
     }
-    normalizedChord[i] = -1;
+   // normalizedChord[i] = -1;
 
 
     show("normalizedChord", normalizedChord, length);
@@ -73,31 +74,32 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord) {
     show("sorted normalizedChord", normalizedChord, length);
     // remove dupes
 
-    int j;
-    for (i = j = 0; normalizedChord[i] >= 0; ++i) {
+    unsigned j;
+    for (i = j = 0; i < length; ++i) {
         if (normalizedChord[i] != (normalizedChord[i + 1])) {
             chord2[j++] = normalizedChord[i];
         }
     }
-    chord2[j] = -1;
+  //  chord2[j] = -1;
+    length = j;
+    show("chord2", chord2, length);
+   
 
-    show("chord2", chord2, getLength(chord2));
-
-    const auto t = recognizeType(chord2);
+    const auto t = recognizeType(chord2, length);
     return std::make_tuple(std::get<0>(t), (base + std::get<1>(t)) % 12);
 }
 
-std::tuple<ChordRecognizer::Type, int>  ChordRecognizer::recognizeType(const int* chord) {
-    if ((chord[0] == MidiNote::C) &&
+std::tuple<ChordRecognizer::Type, int>  ChordRecognizer::recognizeType(const int* chord, unsigned length) {
+    if ((length == 3) &&
+        (chord[0] == MidiNote::C) &&
         (chord[1] == MidiNote::E) &&
-        (chord[2] == MidiNote::G) &&
-        (chord[3] < 0)) {
+        (chord[2] == MidiNote::G)) {
         return std::make_tuple(Type::MajorTriad, 0);
     }
-     if ((chord[0] == MidiNote::C) &&
+     if ((length == 3) &&
+         (chord[0] == MidiNote::C) &&
         (chord[1] == MidiNote::E-1) &&
-        (chord[2] == MidiNote::G+1) &&
-        (chord[3] < 0)) {
+        (chord[2] == MidiNote::G+1)) {
         return std::make_tuple(Type::MajorTriadFirstInversion, -4);
     }
 

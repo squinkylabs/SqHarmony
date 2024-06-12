@@ -5,22 +5,22 @@
 
 static void testCanCreate() {
   //  ChordRecognizer ch;
-    const int chord[] = { 1,2,3,-1 };
-    ChordRecognizer::recognize(chord);
+    const int chord[] = { 1,2,3 };
+    ChordRecognizer::recognize(chord, 3);
 }
 
 static void testJunkNotRecognized() {
     ChordRecognizer ch;
-    const int chord[] = { 1,2,3,-1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { 1,2,3 };
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::Unrecognized);
 }
 
 static void testCMajorRecognized() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::C, MidiNote::E, MidiNote::G, -1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { MidiNote::C, MidiNote::E, MidiNote::G };
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::MajorTriad);
     assert(std::get<1>(result) == MidiNote::C);
@@ -28,8 +28,8 @@ static void testCMajorRecognized() {
 
 static void testDMajorRecognized() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::D, MidiNote::F+1, MidiNote::A, -1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { MidiNote::D, MidiNote::F+1, MidiNote::A};
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::MajorTriad);
     assert(std::get<1>(result) == MidiNote::D);
@@ -37,8 +37,8 @@ static void testDMajorRecognized() {
 
 static void testCMajorOctaveRecognized() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::C+12, MidiNote::E+12, MidiNote::G+12, -1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { MidiNote::C+12, MidiNote::E+12, MidiNote::G+12 };
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::MajorTriad);
     assert(std::get<1>(result) == MidiNote::C);
@@ -46,8 +46,8 @@ static void testCMajorOctaveRecognized() {
 
 static void testCMajorOrder() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::C, MidiNote::G, MidiNote::E, -1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { MidiNote::C, MidiNote::G, MidiNote::E };
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::MajorTriad);
     assert(std::get<1>(result) == MidiNote::C);
@@ -55,8 +55,8 @@ static void testCMajorOrder() {
 
 static void testCMajor4Voice() {
  //   ChordRecognizer ch;
-    const int chord[] = { MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::C + 12, -1 };
-    auto const result = ChordRecognizer::recognize(chord);
+    const int chord[] = { MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::C + 12 };
+    auto const result = ChordRecognizer::recognize(chord, 4);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::MajorTriad);
     assert(std::get<1>(result) == MidiNote::C);
@@ -64,8 +64,8 @@ static void testCMajor4Voice() {
 
 static void testGMajorRecognized() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::G, MidiNote::B, MidiNote::D+12, -1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { MidiNote::G, MidiNote::B, MidiNote::D+12 };
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::MajorTriad);
     assert(std::get<1>(result) == MidiNote::G);
@@ -73,8 +73,8 @@ static void testGMajorRecognized() {
 
 static void testCMajorOneNoteCrazyOctave() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::C, MidiNote::E, MidiNote::G + 4 * 12, -1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { MidiNote::C, MidiNote::E, MidiNote::G + 4 * 12};
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
     assert(t == ChordRecognizer::Type::MajorTriad);
     assert(std::get<1>(result) == MidiNote::C);
@@ -82,8 +82,8 @@ static void testCMajorOneNoteCrazyOctave() {
 
 static void testCMajorFirstInversion() {
     ChordRecognizer ch;
-    const int chord[] = { MidiNote::C + 12, MidiNote::E, MidiNote::G, -1 };
-    auto const result = ch.recognize(chord);
+    const int chord[] = { MidiNote::C + 12, MidiNote::E, MidiNote::G };
+    auto const result = ch.recognize(chord, 3);
     ChordRecognizer::Type t = std::get<0>(result);
 
 
@@ -132,9 +132,9 @@ void testChordRecognizer() {
 
 #if 0
 void testFirst() {
-   // testCMajorRecognized();
+   testCMajorRecognized();
    //  testCMajor4Voice();
    // testCMajorFirstInversion();
-   testToString();
+ //  testToString();
 }
 #endif
