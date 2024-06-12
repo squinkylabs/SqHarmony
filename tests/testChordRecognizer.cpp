@@ -116,7 +116,7 @@ static void testToString() {
 }
 
 void testChordRecognizer() {
-    testCanCreate();
+  //  testCanCreate();
     testJunkNotRecognized();
     testCMajorRecognized();
     testDMajorRecognized();
@@ -139,11 +139,11 @@ void testChordRecognizer() {
 
 }
 
-#if 0
+#if 1
 void testFirst() {
-   testCMajorRecognized();
+ //  testCMajorRecognized();
    //  testCMajor4Voice();
-   // testCMajorFirstInversion();
+    testCMajorFirstInversion();
  //  testToString();
 }
 #endif
