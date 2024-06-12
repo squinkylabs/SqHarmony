@@ -23,7 +23,7 @@ public:
      */
     static ChordInfo recognize(const int* chord, unsigned size);
 
-    // don't call from audio tread!
+    // Don't call from audio thread!
     static std::string toString(const ChordInfo&);
 
 private:
@@ -35,6 +35,13 @@ private:
     static std::tuple<Type, int> recognizeType(const int* chord, unsigned length);
     static std::tuple<Type, int> recognizeType3WithFifth(const int* chord);
 
-//    static unsigned getLength(const int* chord);
     static void copy(int* dest, const int* src, unsigned length);
+    /**
+     * 
+     * @param outputChord 
+     * @param inputChord 
+     * @param length 
+     * @return 0: unsigned the length of the output, 1:int the chord nomralization base
+     */
+    static std::tuple<unsigned, int> normalize(int* outputChord, const int* inputChord, unsigned length);
 };

@@ -17,16 +17,6 @@ void show(const char* msg, const int* p, int num) {
     // #endif
 }
 
-// unsigned ChordRecognizer::getLength(const int* chord) {
-//     int len = 0;
-//     while (*chord++ >= 0) {
-//         ++len;
-//     }
-//     // if (len) {
-//     //     ++len;
-//     // }
-//     return len;
-// }
 
 void ChordRecognizer::copy(int* dest, const int* src, unsigned length) {
     while (length--) {
@@ -34,7 +24,58 @@ void ChordRecognizer::copy(int* dest, const int* src, unsigned length) {
     }
 }
 
+std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int* inputChord, unsigned length) {
+   // assert(false);
+  //  return std::make_tuple(0, 0);
+
+    const auto error = std::make_tuple(0, 0);
+
+    SQINFO("In normalize %d", length);
+
+    show("input chord", inputChord, length);
+    if (length < 1) {
+        SQINFO("In recognize exit early");
+        return error;
+    }
+
+    int sortedChord[16];
+    copy(sortedChord, inputChord, length);
+    std::sort(sortedChord, sortedChord + (length - 1));
+
+    show("sorted chord", sortedChord, length);
+
+    const int base = sortedChord[0];
+    if (base < 0) {
+        return error;
+    }
+
+    unsigned i;
+    int normalizedChord[16];
+    for (i = 0; i < length; ++i) {
+        int note = sortedChord[i] - base;  // normalize to base
+        note = note % 12;                  // normalize to octave
+        normalizedChord[i] = note;
+    }
+
+    show("normalizedChord", normalizedChord, length);
+    std::sort(normalizedChord, normalizedChord + (length));
+    show("sorted normalizedChord", normalizedChord, length);
+    
+    // remove dupes
+    unsigned j;
+    for (i = j = 0; i < length; ++i) {
+        if (normalizedChord[i] != (normalizedChord[i + 1])) {
+            outputChord[j++] = normalizedChord[i];
+        }
+    }
+    //  chord2[j] = -1;
+    length = j;
+    show("final", outputChord, length);
+    return std::make_tuple(length, base);
+}
+
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, unsigned length) {
+#if 0
     int normalizedChord[16];
     int chord2[16];
     int sortedChord[16];
@@ -86,8 +127,18 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
     //  chord2[j] = -1;
     length = j;
     show("chord2", chord2, length);
+#endif
 
-    const auto t = recognizeType(chord2, length);
+    int outputChord[16];
+    const auto normalized = normalize(outputChord, inputChord, length);
+    const unsigned finalLength = std::get<0>(normalized);
+    const int base = std::get<1>(normalized);
+    if (finalLength == 0) {
+        SQINFO("normalize failed");
+        return std::make_tuple(Type::Unrecognized, MidiNote::C);
+    }
+
+    const auto t = recognizeType(outputChord, finalLength);
     return std::make_tuple(std::get<0>(t), (base + std::get<1>(t)) % 12);
 }
 
