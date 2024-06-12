@@ -46,6 +46,10 @@ public:
         }
     }
 
+    void setDirty() {
+        _frameBufferWidget->dirty = true;
+    }
+
 private:
     static int _refCount;
     bool _ownsChild = true;

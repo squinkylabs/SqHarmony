@@ -1,5 +1,5 @@
 
-#include "plugin.hpp" // must be first include (for now).
+#include "plugin.hpp"  // must be first include (for now).
 #ifdef _VISUALIZER
 
 #include "BufferingParent.h"
@@ -8,9 +8,11 @@
 #include "PopupMenuParamWidget.h"
 #include "SqLabel.h"
 #include "SqLog.h"
+#include "Visualizer.h"
 #include "WidgetComposite.h"
 
-#include "Visualizer.h"
+#include <string>
+
 using Comp = Visualizer<WidgetComposite>;
 
 class VisualizerModule : public rack::engine::Module {
@@ -36,21 +38,31 @@ public:
         addLabel(Vec(25, 356), "Squinktronix", 16);
 #endif
         addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
+
+        _displayString = addLabel(Vec(10, 100), "chord");
     }
 
     void step() override {
+        _displayString->step();
         const float changeParam = APP->engine->getParamValue(module, Comp::CHANGE_PARAM);
-        if (changeParam != _changeParam) {
-            _changeParam = changeParam;
-            SQINFO("ui saw change");
+        if (changeParam == _changeParam) {
+            return;
         }
-        //APP->engine->setParamValue(module, foo);
-    }
-private:
 
+        _changeParam = changeParam;
+        const ChordRecognizer::Type type =  ChordRecognizer::Type(APP->engine->getParamValue(module, Comp::TYPE_PARAM));
+        const int root =  APP->engine->getParamValue(module, Comp::ROOT_PARAM);
+        ChordRecognizer::ChordInfo info = std::make_tuple(type, root);
+        std::string s = ChordRecognizer::toString(info);
+        _displayString->getChild()->text = s;
+        _displayString->setDirty();
+    }
+
+private:
     float _changeParam = -1;
 
-   /**
+    BufferingParent<SqLabel>*  _displayString;
+    /**
      * @brief
      *
      * @param v is the position, panel relative
@@ -82,7 +94,6 @@ private:
         addChild(parent);
         return parent;
     }
-
 };
 
 Model* modelVisualizer = createModel<VisualizerModule, VisualizerWidget>("sqh-visualizer");

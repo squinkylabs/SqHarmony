@@ -1,10 +1,11 @@
 
 #include "ChordRecognizer.h"
+
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
 void show(const char* msg, const int* p, int num) {
-//#ifdef _DEBUG
+    // #ifdef _DEBUG
     if (num == 3) {
         // show the terminator
         SQINFO("%s = %d, %d, %d", msg, p[0], p[1], p[2]);
@@ -13,7 +14,7 @@ void show(const char* msg, const int* p, int num) {
     } else {
         SQINFO("??? num=%d", num);
     }
-//#endif
+    // #endif
 }
 
 // unsigned ChordRecognizer::getLength(const int* chord) {
@@ -28,7 +29,7 @@ void show(const char* msg, const int* p, int num) {
 // }
 
 void ChordRecognizer::copy(int* dest, const int* src, unsigned length) {
-    while(length--) {
+    while (length--) {
         *dest++ = *src++;
     }
 }
@@ -40,15 +41,15 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
 
     SQINFO("In recognize %d", length);
 
-   // const int length = getLength(inputChord);
+    // const int length = getLength(inputChord);
     show("input chord", inputChord, length);
     if (length < 1) {
-         SQINFO("In recognize exit early");
-         return std::make_tuple(Type::Unrecognized, MidiNote::C);
+        SQINFO("In recognize exit early");
+        return std::make_tuple(Type::Unrecognized, MidiNote::C);
     }
 
     copy(sortedChord, inputChord, length);
-    std::sort(sortedChord, sortedChord + (length-1));
+    std::sort(sortedChord, sortedChord + (length - 1));
 
     show("sorted chord", sortedChord, length);
 
@@ -57,7 +58,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         return std::make_tuple(Type::Unrecognized, MidiNote::C);
     }
 
-   // show("chord", chord, 4);
+    // show("chord", chord, 4);
 
     // normalize pitches to C
 
@@ -67,8 +68,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         note = note % 12;                  // normalize to octave
         normalizedChord[i] = note;
     }
-   // normalizedChord[i] = -1;
-
+    // normalizedChord[i] = -1;
 
     show("normalizedChord", normalizedChord, length);
 
@@ -83,38 +83,50 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
             chord2[j++] = normalizedChord[i];
         }
     }
-  //  chord2[j] = -1;
+    //  chord2[j] = -1;
     length = j;
     show("chord2", chord2, length);
-   
 
     const auto t = recognizeType(chord2, length);
     return std::make_tuple(std::get<0>(t), (base + std::get<1>(t)) % 12);
 }
 
-std::tuple<ChordRecognizer::Type, int>  ChordRecognizer::recognizeType(const int* chord, unsigned length) {
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int* chord, unsigned length) {
+    assert(chord[0] == 0);
+    // if ((length == 3) &&
+    //     (chord[0] == MidiNote::C) &&
+    //     (chord[1] == MidiNote::E) &&
+    //     (chord[2] == MidiNote::G)) {
+    //     return std::make_tuple(Type::MajorTriad, 0);
+    // }
+    if ((length == 3) && (chord[2] == MidiNote::G)) {
+        return recognizeType3WithFifth(chord);
+    }
+
     if ((length == 3) &&
         (chord[0] == MidiNote::C) &&
-        (chord[1] == MidiNote::E) &&
-        (chord[2] == MidiNote::G)) {
-        return std::make_tuple(Type::MajorTriad, 0);
-    }
-     if ((length == 3) &&
-         (chord[0] == MidiNote::C) &&
-        (chord[1] == MidiNote::E-1) &&
-        (chord[2] == MidiNote::G+1)) {
+        (chord[1] == MidiNote::E - 1) &&
+        (chord[2] == MidiNote::G + 1)) {
         return std::make_tuple(Type::MajorTriadFirstInversion, -4);
     }
 
     return std::make_tuple(Type::Unrecognized, 0);
 }
 
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(const int* chord) {
+    assert(chord[0] == 0);
+    assert(chord[2] == MidiNote::G);
+
+    if (chord[1] == MidiNote::E) {
+        return std::make_tuple(Type::MajorTriad, 0);
+    }
+     return std::make_tuple(Type::Unrecognized, 0);
+}
 
 std::string ChordRecognizer::toString(const ChordInfo& info) {
-
     std::string s = PitchKnowledge::nameOfAbs(std::get<1>(info));
     std::string sType;
-    switch( std::get<0>(info)) {
+    switch (std::get<0>(info)) {
         case ChordRecognizer::Type::Unrecognized:
             return "";
         case ChordRecognizer::Type::MajorTriad:
@@ -126,11 +138,9 @@ std::string ChordRecognizer::toString(const ChordInfo& info) {
         case ChordRecognizer::Type::MajorTriadFirstInversion:
             sType = "Major Triad, first inversion";
             break;
-
     }
     return s + " " + sType;
 
-    
     // p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MajorTriad, 0));
     // assertGT(strlen(p), 0);
 
@@ -139,5 +149,5 @@ std::string ChordRecognizer::toString(const ChordInfo& info) {
 
     //  p = ChordRecognizer::toString( std::make_tuple(ChordRecognizer::Type::MinorTriad, 0));
     // assertGT(strlen(p), 0);
-   // return "";
+    // return "";
 }

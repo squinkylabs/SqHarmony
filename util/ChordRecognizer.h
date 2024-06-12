@@ -33,6 +33,8 @@ private:
      * @return 0 is type of chord, 1 is amount it needs to be transposed.
      */
     static std::tuple<Type, int> recognizeType(const int* chord, unsigned length);
+    static std::tuple<Type, int> recognizeType3WithFifth(const int* chord);
+
 //    static unsigned getLength(const int* chord);
     static void copy(int* dest, const int* src, unsigned length);
 };
