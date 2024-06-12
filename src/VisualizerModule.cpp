@@ -20,6 +20,9 @@ public:
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         // addParams();
     }
+    void process(const ProcessArgs& args) override {
+        comp->process(args);
+    }
 };
 
 class VisualizerWidget : public ModuleWidget {

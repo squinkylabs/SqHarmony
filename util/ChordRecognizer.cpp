@@ -4,7 +4,7 @@
 #include "SqLog.h"
 
 void show(const char* msg, const int* p, int num) {
-#ifdef _DEBUG
+//#ifdef _DEBUG
     if (num == 3) {
         // show the terminator
         SQINFO("%s = %d, %d, %d", msg, p[0], p[1], p[2]);
@@ -13,7 +13,7 @@ void show(const char* msg, const int* p, int num) {
     } else {
         SQINFO("??? num=%d", num);
     }
-#endif
+//#endif
 }
 
 // unsigned ChordRecognizer::getLength(const int* chord) {
@@ -38,9 +38,12 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
     int chord2[16];
     int sortedChord[16];
 
+    SQINFO("In recognize %d", length);
+
    // const int length = getLength(inputChord);
     show("input chord", inputChord, length);
     if (length < 1) {
+         SQINFO("In recognize exit early");
          return std::make_tuple(Type::Unrecognized, MidiNote::C);
     }
 

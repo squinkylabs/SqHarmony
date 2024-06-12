@@ -86,10 +86,13 @@ inline void Visualizer<TBase>::_processInput() {
         if (_inputPitches[i] != iNote) {
             _inputPitches[i] = iNote;
             wasChange = true;
+            SQINFO("set was change 89");
         }
     }
     if (channels != _inputChannels) {
         wasChange = true;
+        SQINFO("set change 94 ");
+        _inputChannels = channels;
     }
     for (int i = channels; i < 16; ++i) {
         _inputPitches[i] = 0;
@@ -98,9 +101,18 @@ inline void Visualizer<TBase>::_processInput() {
     if (!wasChange) {
         return;
     }
+    SQINFO("was change");
 
    // int temp[17];
     const auto chord = ChordRecognizer::recognize(_inputPitches, _inputChannels);
+    const auto type =  std::get<0>(chord);
+    SQINFO("type = %d", (int) type);
+    
+    if (type == ChordRecognizer::Type::Unrecognized) {
+        SQINFO("new chord is unrecognized");
+    } else {
+        SQINFO("New chord recognized! %s", ChordRecognizer::toString(chord).c_str());
+    }
 }
 
 template <class TBase>
