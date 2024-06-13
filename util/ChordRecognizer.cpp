@@ -66,7 +66,7 @@ std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int
     //  chord2[j] = -1;
     length = j;
     show("final", outputChord, length);
-    for (unsigned  i = 0; i < length; ++i) {
+    for (unsigned i = 0; i < length; ++i) {
         assert(outputChord[i] >= 0);
     }
     return std::make_tuple(length, base);
@@ -95,7 +95,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         // try knocking a note up an octave to look for inversions
 
         const int delta = -12;
-     //   outputChord[i] += delta;
+        //   outputChord[i] += delta;
         int possibleInversion[16];
         copy(possibleInversion, outputChord, finalLength);
         possibleInversion[i] += delta;
@@ -113,7 +113,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
             const auto inversion = (i == 2) ? ChordRecognizer::Inversion::First : ChordRecognizer::Inversion::Second;
             const int offset = (inversion == ChordRecognizer::Inversion::First) ? -4 : -7;
             return std::make_tuple(recognizedType, inversion, (base + std::get<1>(t) + offset) % 12);
-          //  assert(false);
+            //  assert(false);
         }
         outputChord[i] -= delta;
     }
@@ -126,20 +126,41 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int*
     if (length == 3) {
         if (chord[2] == MidiNote::G) {
             return recognizeType3WithFifth(chord);
-        } else if (chord[2] == MidiNote::G -1) {
+        } else if (chord[2] == MidiNote::G - 1) {
             return recognizeType3WithTritone(chord);
-        }  else if (chord[2] == MidiNote::G + 1) {
+        } else if (chord[2] == MidiNote::G + 1) {
             return recognizeType3WithAugFifth(chord);
         }
     }
 
-    // This is what an triad in first inversion looks like. strange, but probably correct
-    // if ((length == 3) &&
-    //     (chord[0] == MidiNote::C) &&
-    //     (chord[1] == MidiNote::E - 1) &&
-    //     (chord[2] == MidiNote::G + 1)) {
-    //     return std::make_tuple(Type::MajorTriadFirstInversion, -4);
-    // }
+    if (length == 4) {
+        return recognizeType7th(chord);
+    }
+
+    return std::make_tuple(Type::Unrecognized, 0);
+}
+
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType7th(const int* chord) {
+    assert(chord[0] == MidiNote::C);
+    assert(chord[2] == MidiNote::G);
+
+    if ((chord[1] == MidiNote::E) &&
+        (chord[3] == MidiNote::B - 1)) {
+        return std::make_tuple(Type::MajMinSeventh, 0);
+    }
+    if ((chord[1] == MidiNote::E) &&
+        (chord[3] == MidiNote::B)) {
+        return std::make_tuple(Type::MajMajSeventh, 0);
+    }
+     if ((chord[1] == MidiNote::E -1) &&
+        (chord[3] == MidiNote::B -1)) {
+        return std::make_tuple(Type::MinMinSeventh, 0);
+    }
+      if ((chord[1] == MidiNote::E -1) &&
+        (chord[3] == MidiNote::B)) {
+        return std::make_tuple(Type::MinMajSeventh, 0);
+    }
+
 
     return std::make_tuple(Type::Unrecognized, 0);
 }
@@ -148,7 +169,7 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithAugFif
     assert(chord[0] == 0);
     assert(chord[2] == MidiNote::G + 1);
 
-    switch(chord[1]) {
+    switch (chord[1]) {
         case MidiNote::E:
             return std::make_tuple(Type::AugmentedTriad, 0);
     }
@@ -158,9 +179,9 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithAugFif
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithTritone(const int* chord) {
     assert(chord[0] == 0);
-    assert(chord[2] == MidiNote::G -1);
+    assert(chord[2] == MidiNote::G - 1);
 
-    switch(chord[1]) {
+    switch (chord[1]) {
         case MidiNote::E - 1:
             return std::make_tuple(Type::DiminishedTriad, 0);
     }
@@ -172,15 +193,15 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(
     assert(chord[0] == 0);
     assert(chord[2] == MidiNote::G);
 
-    switch(chord[1]) {
+    switch (chord[1]) {
         case MidiNote::E:
             return std::make_tuple(Type::MajorTriad, 0);
-        case  MidiNote::E - 1:
+        case MidiNote::E - 1:
             return std::make_tuple(Type::MinorTriad, 0);
-        case  MidiNote::F:
+        case MidiNote::F:
             return std::make_tuple(Type::Sus4Triad, 0);
-        case  MidiNote::D:
-            return std::make_tuple(Type::Sus2Triad, 0);   
+        case MidiNote::D:
+            return std::make_tuple(Type::Sus2Triad, 0);
     }
 
     return std::make_tuple(Type::Unrecognized, 0);
@@ -191,7 +212,7 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
     std::string sType;
     switch (typeFromInfo(info)) {
         case Type::Unrecognized:
-            return { "", "" };
+            return {"", ""};
         case ChordRecognizer::Type::MajorTriad:
             sType = "Major Triad";
             break;
@@ -207,10 +228,22 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
         case ChordRecognizer::Type::AugmentedTriad:
             sType = "Aug Triad";
             break;
-         case ChordRecognizer::Type::DiminishedTriad:
+        case ChordRecognizer::Type::DiminishedTriad:
             sType = "Dim Triad";
             break;
-        default: 
+        case Type::MajMinSeventh:
+            sType = "Seventh";
+            break;
+         case Type::MajMajSeventh:
+            sType = "MM Seventh";
+            break;
+         case Type::MinMinSeventh:
+            sType = "mm Seventh";
+            break;
+         case Type::MinMajSeventh:
+            sType = "mM Seventh";
+            break;
+        default:
             assert(false);
     }
 
@@ -225,9 +258,9 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
         case Inversion::Second:
             sInversion = "Second Inversions";
             break;
-        default: 
+        default:
             assert(false);
     }
 
-    return { s + " " + sType, sInversion };
+    return {s + " " + sType, sInversion};
 }

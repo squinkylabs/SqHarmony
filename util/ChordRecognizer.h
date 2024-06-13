@@ -16,7 +16,13 @@ public:
         Sus2Triad,
         Sus4Triad,
         DiminishedTriad,
-        AugmentedTriad
+        AugmentedTriad,
+
+        MajMinSeventh,
+        MajMajSeventh,
+        MinMinSeventh,
+        MinMajSeventh,
+
     };
 
     enum class Inversion {
@@ -45,6 +51,7 @@ public:
     // Don't call from audio thread!
     static std::vector<std::string> toString(const ChordInfo&);
 
+
 private:
     /**
      *
@@ -55,6 +62,7 @@ private:
     static std::tuple<Type, int> recognizeType3WithFifth(const int* chord);
     static std::tuple<Type, int> recognizeType3WithAugFifth(const int* chord);
     static std::tuple<Type, int> recognizeType3WithTritone(const int* chord);
+    static std::tuple<Type, int> recognizeType7th(const int* chord);
 
     static void copy(int* dest, const int* src, unsigned length);
     /**

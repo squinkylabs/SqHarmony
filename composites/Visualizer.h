@@ -91,14 +91,14 @@ inline void Visualizer<TBase>::_processInput() {
         if (_inputPitches[i] != iNote) {
             _inputPitches[i] = iNote;
             wasChange = true;
-            SQINFO("set was change 89");
         }
     }
     if (channels != _inputChannels) {
         wasChange = true;
-        SQINFO("set change 94 ");
         _inputChannels = channels;
     }
+
+    // Zero out all the pitches above our range.
     for (int i = channels; i < 16; ++i) {
         _inputPitches[i] = 0;
     }
@@ -106,15 +106,18 @@ inline void Visualizer<TBase>::_processInput() {
     if (!wasChange) {
         return;
     }
-    const auto chord = ChordRecognizer::recognize(_inputPitches, _inputChannels);
 
-    TBase::params[CHANGE_PARAM].value += 1;
+    // Now put the new chord into the params.
+    const auto chord = ChordRecognizer::recognize(_inputPitches, _inputChannels);
+    TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
+    TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
+
+    // And signal a change.
+    TBase::params[INVERSION_PARAM].value =  int(ChordRecognizer::inversionFromInfo(chord));
+        TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
         TBase::params[CHANGE_PARAM].value = 0;
     }
-    TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
-    TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
-    TBase::params[INVERSION_PARAM].value =  int(ChordRecognizer::inversionFromInfo(chord));
 }
 
 template <class TBase>
