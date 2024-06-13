@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "MidiNote.h"
+#include "PitchKnowledge.h"
 
 class ChordRecognizer {
 public:

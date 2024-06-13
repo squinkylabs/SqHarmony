@@ -193,10 +193,21 @@ static void testCMajorSecondInversion() {
 }
 
 static void testToStringSub(const ChordRecognizer::ChordInfo& info) {
+
+    const bool expectInversion = ChordRecognizer::inversionFromInfo(info) != ChordRecognizer::Inversion::Root;
     std::vector<std::string> v = ChordRecognizer::toString(info);
     assertEQ(v.size(), 2);
     assertGT(v[0].size(), 0);
-    assertEQ(v[1].size(), 0);
+    if (expectInversion) {
+        assertGT(v[1].size(), 0);
+    } else {
+        assertEQ(v[1].size(), 0);
+    }
+
+    const int pitch = ChordRecognizer::pitchFromInfo(info);
+    const std::string name = PitchKnowledge::nameOfShort(pitch);
+    const auto x = v[0].find(name);
+    assertNE(x, std::string::npos);
 }
 
 static void testToString() {
@@ -205,20 +216,12 @@ static void testToString() {
     assertEQ(v[0].size(), 0);
     assertEQ(v[1].size(), 0);
 
-    v = ChordRecognizer::toString(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Root, 0));
-    assertEQ(v.size(), 2);
-    assertGT(v[0].size(), 0);
-    assertEQ(v[1].size(), 0);
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Root, MidiNote::D));
 
-    v = ChordRecognizer::toString(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::First, 0));
-    assertEQ(v.size(), 2);
-    assertGT(v[0].size(), 0);
-    assertGT(v[1].size(), 0);
-
-    v = ChordRecognizer::toString(std::make_tuple(ChordRecognizer::Type::MinorTriad, ChordRecognizer::Inversion::Root, 0));
-    assertEQ(v.size(), 2);
-    assertGT(v[0].size(), 0);
-    assertEQ(v[1].size(), 0);
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::First, 0));
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Second, 0));
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinorTriad, ChordRecognizer::Inversion::Root, 0));
 
     testToStringSub(std::make_tuple(ChordRecognizer::Type::Sus2Triad, ChordRecognizer::Inversion::Root, 0));
     testToStringSub(std::make_tuple(ChordRecognizer::Type::Sus4Triad, ChordRecognizer::Inversion::Root, 0));
