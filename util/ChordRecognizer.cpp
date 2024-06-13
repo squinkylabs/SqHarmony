@@ -142,32 +142,56 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(
     assert(chord[0] == 0);
     assert(chord[2] == MidiNote::G);
 
-    if (chord[1] == MidiNote::E) {
-        return std::make_tuple(Type::MajorTriad, 0);
-    }
-    if (chord[1] == MidiNote::E - 1) {
-        return std::make_tuple(Type::MinorTriad, 0);
+    switch(chord[1]) {
+        case MidiNote::E:
+            return std::make_tuple(Type::MajorTriad, 0);
+        case  MidiNote::E - 1:
+            return std::make_tuple(Type::MinorTriad, 0);
+        case  MidiNote::F:
+            return std::make_tuple(Type::Sus4Triad, 0);
+        case  MidiNote::D:
+            return std::make_tuple(Type::Sus2Triad, 0);   
     }
 
     return std::make_tuple(Type::Unrecognized, 0);
 }
 
-std::string ChordRecognizer::toString(const ChordInfo& info) {
-    // std::string s = PitchKnowledge::nameOfAbs(pitchFromInfo(info));
-    // std::string sType;
-    // switch (std::get<0>(info)) {
-    //     case ChordRecognizer::Type::Unrecognized:
-    //         return "";
-    //     case ChordRecognizer::Type::MajorTriad:
-    //         sType = "Major Triad";
-    //         break;
-    //     case ChordRecognizer::Type::MinorTriad:
-    //         sType = "Minor Triad";
-    //         break;
-    //     case ChordRecognizer::Type::MajorTriadFirstInversion:
-    //         sType = "Major Triad, first inversion";
-    //         break;
-    // }
-    // return s + " " + sType;
-    return "foo";
+std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
+    std::string s = PitchKnowledge::nameOfShort(pitchFromInfo(info));
+    std::string sType;
+    switch (typeFromInfo(info)) {
+        case Type::Unrecognized:
+            return { "", "" };
+        case ChordRecognizer::Type::MajorTriad:
+            sType = "Major Triad";
+            break;
+        case ChordRecognizer::Type::MinorTriad:
+            sType = "Minor Triad";
+            break;
+        case ChordRecognizer::Type::Sus2Triad:
+            sType = "Sus2 Triad";
+            break;
+        case ChordRecognizer::Type::Sus4Triad:
+            sType = "Sus4 Triad";
+            break;
+        default: 
+            assert(false);
+    }
+
+    std::string sInversion;
+    switch (inversionFromInfo(info)) {
+        case Inversion::Root:
+            sInversion = "";
+            break;
+        case Inversion::First:
+            sInversion = "First Inversion";
+            break;
+        case Inversion::Second:
+            sInversion = "Second Inversions";
+            break;
+        default: 
+            assert(false);
+    }
+
+    return { s + " " + sType, sInversion };
 }

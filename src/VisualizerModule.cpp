@@ -2,6 +2,8 @@
 #include "plugin.hpp"  // must be first include (for now).
 #ifdef _VISUALIZER
 
+#include <string>
+
 #include "BufferingParent.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
@@ -10,8 +12,6 @@
 #include "SqLog.h"
 #include "Visualizer.h"
 #include "WidgetComposite.h"
-
-#include <string>
 
 using Comp = Visualizer<WidgetComposite>;
 
@@ -40,28 +40,34 @@ public:
         addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
 
         _displayString = addLabel(Vec(10, 100), "chord");
+        _displayString2 = addLabel(Vec(10, 120), "chord");
     }
 
     void step() override {
         _displayString->step();
+        _displayString2->step();
         const float changeParam = APP->engine->getParamValue(module, Comp::CHANGE_PARAM);
         if (changeParam == _changeParam) {
             return;
         }
 
         _changeParam = changeParam;
-        const ChordRecognizer::Type type =  ChordRecognizer::Type(APP->engine->getParamValue(module, Comp::TYPE_PARAM));
-        const int root =  APP->engine->getParamValue(module, Comp::ROOT_PARAM);
-        ChordRecognizer::ChordInfo info = std::make_tuple(type, root);
-        std::string s = ChordRecognizer::toString(info);
-        _displayString->getChild()->text = s;
+        const ChordRecognizer::Type type = ChordRecognizer::Type(APP->engine->getParamValue(module, Comp::TYPE_PARAM));
+        const ChordRecognizer::Inversion inversion = ChordRecognizer::Inversion(APP->engine->getParamValue(module, Comp::INVERSION_PARAM));
+        const int root = APP->engine->getParamValue(module, Comp::ROOT_PARAM);
+        ChordRecognizer::ChordInfo info = std::make_tuple(type, inversion, root);
+        const auto v = ChordRecognizer::toString(info);
+        _displayString->getChild()->text = v[0];
         _displayString->setDirty();
+        _displayString2->getChild()->text = v[1];
+        _displayString2->setDirty();
     }
 
 private:
     float _changeParam = -1;
 
-    BufferingParent<SqLabel>*  _displayString;
+    BufferingParent<SqLabel>* _displayString;
+    BufferingParent<SqLabel>* _displayString2;
     /**
      * @brief
      *

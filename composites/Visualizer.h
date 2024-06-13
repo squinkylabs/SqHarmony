@@ -20,6 +20,7 @@ public:
         TYPE_PARAM,
         ROOT_PARAM,
         CHANGE_PARAM,
+        INVERSION_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -105,13 +106,7 @@ inline void Visualizer<TBase>::_processInput() {
     if (!wasChange) {
         return;
     }
-    SQINFO("was change");
-
-    // int temp[17];
     const auto chord = ChordRecognizer::recognize(_inputPitches, _inputChannels);
-  //  const auto type = std::get<0>(chord);
-  //  const auto root = std::get<1>(chord);
-  //  const aut
 
     TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
@@ -119,14 +114,7 @@ inline void Visualizer<TBase>::_processInput() {
     }
     TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
     TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
-
-
-    // SQINFO("type = %d", (int) type);  
-    // if (type == ChordRecognizer::Type::Unrecognized) {
-    //     SQINFO("new chord is unrecognized");
-    // } else {
-    //     SQINFO("New chord recognized! %s", ChordRecognizer::toString(chord).c_str());
-    // }
+    TBase::params[INVERSION_PARAM].value =  int(ChordRecognizer::inversionFromInfo(chord));
 }
 
 template <class TBase>

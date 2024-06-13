@@ -3,6 +3,7 @@
 // #include <algorithm>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "MidiNote.h"
 
@@ -11,9 +12,9 @@ public:
     enum class Type {
         Unrecognized,
         MajorTriad,
-    //    MajorTriadFirstInversion,
-     //   MajorTriadSecondInversion,
         MinorTriad,
+        Sus2Triad,
+        Sus4Triad
     };
 
     enum class Inversion {
@@ -40,7 +41,7 @@ public:
     static ChordInfo recognize(const int* chord, unsigned size);
 
     // Don't call from audio thread!
-    static std::string toString(const ChordInfo&);
+    static std::vector<std::string> toString(const ChordInfo&);
 
 private:
     /**
