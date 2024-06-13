@@ -110,7 +110,10 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         if (recognizedType != Type::Unrecognized) {
             // here we found an inversion!
             SQINFO("found inversion at i=%d", i);
-            assert(false);
+            const auto inversion = (i == 2) ? ChordRecognizer::Inversion::First : ChordRecognizer::Inversion::Second;
+            const int offset = (inversion == ChordRecognizer::Inversion::First) ? -4 : -7;
+            return std::make_tuple(recognizedType, inversion, (base + std::get<1>(t) + offset) % 12);
+          //  assert(false);
         }
         outputChord[i] -= delta;
     }
@@ -150,20 +153,21 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(
 }
 
 std::string ChordRecognizer::toString(const ChordInfo& info) {
-    std::string s = PitchKnowledge::nameOfAbs(pitchFromInfo(info));
-    std::string sType;
-    switch (std::get<0>(info)) {
-        case ChordRecognizer::Type::Unrecognized:
-            return "";
-        case ChordRecognizer::Type::MajorTriad:
-            sType = "Major Triad";
-            break;
-        case ChordRecognizer::Type::MinorTriad:
-            sType = "Minor Triad";
-            break;
-        case ChordRecognizer::Type::MajorTriadFirstInversion:
-            sType = "Major Triad, first inversion";
-            break;
-    }
-    return s + " " + sType;
+    // std::string s = PitchKnowledge::nameOfAbs(pitchFromInfo(info));
+    // std::string sType;
+    // switch (std::get<0>(info)) {
+    //     case ChordRecognizer::Type::Unrecognized:
+    //         return "";
+    //     case ChordRecognizer::Type::MajorTriad:
+    //         sType = "Major Triad";
+    //         break;
+    //     case ChordRecognizer::Type::MinorTriad:
+    //         sType = "Minor Triad";
+    //         break;
+    //     case ChordRecognizer::Type::MajorTriadFirstInversion:
+    //         sType = "Major Triad, first inversion";
+    //         break;
+    // }
+    // return s + " " + sType;
+    return "foo";
 }

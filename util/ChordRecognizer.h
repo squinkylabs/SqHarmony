@@ -11,8 +11,8 @@ public:
     enum class Type {
         Unrecognized,
         MajorTriad,
-        MajorTriadFirstInversion,
-        MajorTriadSecondInversion,
+    //    MajorTriadFirstInversion,
+     //   MajorTriadSecondInversion,
         MinorTriad,
     };
 
