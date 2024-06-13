@@ -1,8 +1,8 @@
 #pragma once
 
 // #include <algorithm>
-#include <tuple>
 #include <string>
+#include <tuple>
 
 #include "MidiNote.h"
 
@@ -12,10 +12,26 @@ public:
         Unrecognized,
         MajorTriad,
         MajorTriadFirstInversion,
+        MajorTriadSecondInversion,
         MinorTriad,
     };
 
-    using ChordInfo = std::tuple<Type, int>;
+    enum class Inversion {
+        Root,
+        First,
+        Second
+    };
+
+    using ChordInfo = std::tuple<Type, Inversion, int>;
+    static Type typeFromInfo(const ChordInfo& info) {
+        return std::get<0>(info);
+    }
+    static Inversion inversionFromInfo(const ChordInfo& info) {
+        return std::get<1>(info);
+    }
+    static int pitchFromInfo(const ChordInfo& info) {
+        return std::get<2>(info);
+    }
 
     /**
      * @param chord - chord to analyze.
@@ -28,7 +44,7 @@ public:
 
 private:
     /**
-     * 
+     *
      * @param chord - chord to analyze, already normalized, sorted, etc...
      * @return 0 is type of chord, 1 is amount it needs to be transposed.
      */
@@ -37,10 +53,10 @@ private:
 
     static void copy(int* dest, const int* src, unsigned length);
     /**
-     * 
-     * @param outputChord 
-     * @param inputChord 
-     * @param length 
+     *
+     * @param outputChord
+     * @param inputChord
+     * @param length
      * @return 0: unsigned the length of the output, 1:int the chord nomralization base
      */
     static std::tuple<unsigned, int> normalize(int* outputChord, const int* inputChord, unsigned length);

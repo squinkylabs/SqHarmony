@@ -74,21 +74,22 @@ std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, unsigned inputLength) {
     int outputChord[16];
+    const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
     const auto normalized = normalize(outputChord, inputChord, inputLength);
     const unsigned finalLength = std::get<0>(normalized);
     const int base = std::get<1>(normalized);
     if (finalLength == 0) {
         SQINFO("normalize failed");
-        return std::make_tuple(Type::Unrecognized, MidiNote::C);
+        return error;
     }
 
     const auto t = recognizeType(outputChord, finalLength);
     const auto recognizedType = std::get<0>(t);
     if (recognizedType != Type::Unrecognized) {
-        return std::make_tuple(recognizedType, (base + std::get<1>(t)) % 12);
+        return std::make_tuple(recognizedType, Inversion::Root, (base + std::get<1>(t)) % 12);
     }
 
-    SQINFO("");
+    SQINFO(" ");
     for (unsigned i = 0; i < finalLength; ++i) {
         SQINFO("+++ in loop, i=%d", i);
         // try knocking a note up an octave to look for inversions
@@ -114,7 +115,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         outputChord[i] -= delta;
     }
     SQINFO("not recognized (yet)");
-    return std::make_tuple(Type::Unrecognized, MidiNote::C);
+    return error;
 }
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int* chord, unsigned length) {
@@ -149,7 +150,7 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(
 }
 
 std::string ChordRecognizer::toString(const ChordInfo& info) {
-    std::string s = PitchKnowledge::nameOfAbs(std::get<1>(info));
+    std::string s = PitchKnowledge::nameOfAbs(pitchFromInfo(info));
     std::string sType;
     switch (std::get<0>(info)) {
         case ChordRecognizer::Type::Unrecognized:

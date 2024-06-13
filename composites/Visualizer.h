@@ -109,23 +109,24 @@ inline void Visualizer<TBase>::_processInput() {
 
     // int temp[17];
     const auto chord = ChordRecognizer::recognize(_inputPitches, _inputChannels);
-    const auto type = std::get<0>(chord);
-    const auto root = std::get<1>(chord);
+  //  const auto type = std::get<0>(chord);
+  //  const auto root = std::get<1>(chord);
+  //  const aut
 
     TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
         TBase::params[CHANGE_PARAM].value = 0;
     }
-    TBase::params[TYPE_PARAM].value = int(type);
-    TBase::params[ROOT_PARAM].value = root;
+    TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
+    TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
 
 
-    SQINFO("type = %d", (int) type);  
-    if (type == ChordRecognizer::Type::Unrecognized) {
-        SQINFO("new chord is unrecognized");
-    } else {
-        SQINFO("New chord recognized! %s", ChordRecognizer::toString(chord).c_str());
-    }
+    // SQINFO("type = %d", (int) type);  
+    // if (type == ChordRecognizer::Type::Unrecognized) {
+    //     SQINFO("new chord is unrecognized");
+    // } else {
+    //     SQINFO("New chord recognized! %s", ChordRecognizer::toString(chord).c_str());
+    // }
 }
 
 template <class TBase>
