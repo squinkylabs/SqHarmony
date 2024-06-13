@@ -14,7 +14,9 @@ public:
         MajorTriad,
         MinorTriad,
         Sus2Triad,
-        Sus4Triad
+        Sus4Triad,
+        DiminishedTriad,
+        AugmentedTriad
     };
 
     enum class Inversion {
@@ -51,6 +53,8 @@ private:
      */
     static std::tuple<Type, int> recognizeType(const int* chord, unsigned length);
     static std::tuple<Type, int> recognizeType3WithFifth(const int* chord);
+    static std::tuple<Type, int> recognizeType3WithAugFifth(const int* chord);
+    static std::tuple<Type, int> recognizeType3WithTritone(const int* chord);
 
     static void copy(int* dest, const int* src, unsigned length);
     /**

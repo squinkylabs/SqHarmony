@@ -123,8 +123,14 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int* chord, unsigned length) {
     assert(chord[0] == 0);
-    if ((length == 3) && (chord[2] == MidiNote::G)) {
-        return recognizeType3WithFifth(chord);
+    if (length == 3) {
+        if (chord[2] == MidiNote::G) {
+            return recognizeType3WithFifth(chord);
+        } else if (chord[2] == MidiNote::G -1) {
+            return recognizeType3WithTritone(chord);
+        }  else if (chord[2] == MidiNote::G + 1) {
+            return recognizeType3WithAugFifth(chord);
+        }
     }
 
     // This is what an triad in first inversion looks like. strange, but probably correct
@@ -134,6 +140,30 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int*
     //     (chord[2] == MidiNote::G + 1)) {
     //     return std::make_tuple(Type::MajorTriadFirstInversion, -4);
     // }
+
+    return std::make_tuple(Type::Unrecognized, 0);
+}
+
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithAugFifth(const int* chord) {
+    assert(chord[0] == 0);
+    assert(chord[2] == MidiNote::G + 1);
+
+    switch(chord[1]) {
+        case MidiNote::E:
+            return std::make_tuple(Type::AugmentedTriad, 0);
+    }
+
+    return std::make_tuple(Type::Unrecognized, 0);
+}
+
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithTritone(const int* chord) {
+    assert(chord[0] == 0);
+    assert(chord[2] == MidiNote::G -1);
+
+    switch(chord[1]) {
+        case MidiNote::E - 1:
+            return std::make_tuple(Type::DiminishedTriad, 0);
+    }
 
     return std::make_tuple(Type::Unrecognized, 0);
 }
@@ -173,6 +203,12 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
             break;
         case ChordRecognizer::Type::Sus4Triad:
             sType = "Sus4 Triad";
+            break;
+        case ChordRecognizer::Type::AugmentedTriad:
+            sType = "Aug Triad";
+            break;
+         case ChordRecognizer::Type::DiminishedTriad:
+            sType = "Dim Triad";
             break;
         default: 
             assert(false);
