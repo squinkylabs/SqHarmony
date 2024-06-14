@@ -47,6 +47,15 @@ static void testCMajMinRecognized() {
         MidiNote::C);
 }
 
+static void testCMinorFirstInversion() {
+    const int chord[] = {MidiNote::C + 12, MidiNote::E-1, MidiNote::G};
+    testRecognizer(
+        chord, 3,
+        ChordRecognizer::Type::MinorTriad,
+        ChordRecognizer::Inversion::First,
+        MidiNote::C);
+}
+
 static void testCMajMajRecognized() {
     const int chord[] = {MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::B};
     testRecognizer(
@@ -245,6 +254,7 @@ void testChordRecognizer() {
     testGMajorRecognized();
     testCMajorOneNoteCrazyOctave();
     testCMajorFirstInversion();
+    testCMinorFirstInversion();
     testCMajorSecondInversion();
     testToString();
     testCMinorRecognized();
@@ -266,12 +276,13 @@ void testChordRecognizer() {
     // chords larger than an octave (9th)
 }
 
-#if 1
+#if 0
 void testFirst() {
     //  testCMajorRecognized();
     //  testCMajor4Voice();
-    // testCMajorFirstInversion();
-    testCMajorSecondInversion();
+   //  testCMajorFirstInversion();
+     testCMinorFirstInversion();
+  //  testCMajorSecondInversion();
     //  testToString();
 }
 #endif
