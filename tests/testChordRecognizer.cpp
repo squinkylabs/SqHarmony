@@ -47,6 +47,16 @@ static void testCMajMinRecognized() {
         MidiNote::C);
 }
 
+static void testCMajMinFirstInversionRecognized() {
+    const int chord[] = {MidiNote::C+12, MidiNote::E, MidiNote::G, MidiNote::B - 1};
+    testRecognizer(
+        chord,
+        4,
+        ChordRecognizer::Type::MajMinSeventh,
+        ChordRecognizer::Inversion::First,
+        MidiNote::C);
+}
+
 static void testCMinorFirstInversion() {
     const int chord[] = {MidiNote::C + 12, MidiNote::E-1, MidiNote::G};
     testRecognizer(
@@ -267,6 +277,7 @@ void testChordRecognizer() {
     testCMajMajRecognized();
     testCMinMinRecognized();
     testCMinMajRecognized();
+     testCMajMinFirstInversionRecognized();
 
     // To add:
 
@@ -281,7 +292,9 @@ void testFirst() {
     //  testCMajorRecognized();
     //  testCMajor4Voice();
    //  testCMajorFirstInversion();
-     testCMinorFirstInversion();
+  //   testCMinorFirstInversion();
+    testCMajMinFirstInversionRecognized();
+
   //  testCMajorSecondInversion();
     //  testToString();
 }
