@@ -21,15 +21,15 @@ static void testRecognizer(
     Inversion expectedInversion,
     int expectedRoot) {
 
-  //  show("testRecognizer", chord, length);
-  //  SQINFO("type = %d", int(expectedType));
+   // show("testRecognizer", chord, length);
+   // SQINFO("type = %d", int(expectedType));
     auto const result = ChordRecognizer::recognize(chord, length);
     assert(ChordRecognizer::typeFromInfo(result) == expectedType);
     assert(ChordRecognizer::inversionFromInfo(result) == expectedInversion);
     assertEQ(ChordRecognizer::pitchFromInfo(result), expectedRoot);
 }
 
-static void testTypeAndChordTransposed(int transpose, Type type, int* inputChord, unsigned size) {
+static void testTypeAndChordTransposed(int transpose, Type type, const int* inputChord, unsigned size) {
     int chord[16];
     copy(chord, inputChord, size);
     for (unsigned i=0; i<size; ++i) {
@@ -47,17 +47,21 @@ static void testTypeAndChordTransposed(int transpose, Type type, int* inputChord
         expectedRoot);
 }
 
-static void testTypeAndChord(Type type, int* chord, unsigned size) {
+static void testTypeAndChord(Type type, const int* chord, unsigned size) {
     for (int i = 0; i < 24; ++i) {
-      //  SQINFO("in loop, i=%d", i);
         testTypeAndChordTransposed(i, type, chord, size);
-    //    testTypeAndChordTransposed(70 + i, type, chord, size);
+    }
+
+    for (int i = 0; i < 24; ++i) {
+        testTypeAndChordTransposed(i + 70, type, chord, size);
     }
 }
 
 static void generalChordTestType(ChordRecognizer::Type type) {
     int chord[16];
     int size = 0;
+
+    //SQINFO("type = %d", int(type));
     switch (type) {
         case Type::MajorTriad: {  // only real one, so far
             int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G};
