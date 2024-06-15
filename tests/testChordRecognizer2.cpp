@@ -62,35 +62,35 @@ static void generalChordTestType(ChordRecognizer::Type type) {
             copy(chord, chord2, 3);
         } break;
         case Type::AugmentedTriad: {
-            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G};
+            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G+1};
             size = 3;
             copy(chord, chord2, 3);
         } break;
         case Type::DiminishedTriad: {
-            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G};
+            int chord2[] = {MidiNote::C, MidiNote::E-1, MidiNote::G-1};
             size = 3;
             copy(chord, chord2, 3);
         } break;
 
         case Type::MajMajSeventh: {
-            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G};
-            size = 3;
-            copy(chord, chord2, 3);
+            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::B};
+            size = 4;
+            copy(chord, chord2, 4);
         } break;
         case Type::MajMinSeventh: {
-            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G};
-            size = 3;
-            copy(chord, chord2, 3);
+            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::B -1};
+            size = 4;
+            copy(chord, chord2, 4);
         } break;
         case Type::MinMajSeventh: {
-            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G};
-            size = 3;
-            copy(chord, chord2, 3);
+            int chord2[] = {MidiNote::C, MidiNote::E-1, MidiNote::G, MidiNote::B};
+            size = 4;
+            copy(chord, chord2, 4);
         } break;
         case Type::MinMinSeventh: {
-            int chord2[] = {MidiNote::C, MidiNote::E, MidiNote::G};
-            size = 3;
-            copy(chord, chord2, 3);
+            int chord2[] = {MidiNote::C, MidiNote::E-1, MidiNote::G, MidiNote::B -1};
+            size = 4;
+            copy(chord, chord2, 4);
         } break;
 
         case Type::Unrecognized: {
