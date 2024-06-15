@@ -48,7 +48,7 @@ static void testCMajMinRecognized() {
 }
 
 static void testCMajMinFirstInversionRecognized() {
-    const int chord[] = {MidiNote::C+12, MidiNote::E, MidiNote::G, MidiNote::B - 1};
+    const int chord[] = {MidiNote::C + 12, MidiNote::E, MidiNote::G, MidiNote::B - 1};
     testRecognizer(
         chord,
         4,
@@ -57,8 +57,18 @@ static void testCMajMinFirstInversionRecognized() {
         MidiNote::C);
 }
 
+static void testCMajMinSecondInversionRecognized() {
+    const int chord[] = {MidiNote::C + 12, MidiNote::E + 12, MidiNote::G, MidiNote::B - 1};
+    testRecognizer(
+        chord,
+        4,
+        ChordRecognizer::Type::MajMinSeventh,
+        ChordRecognizer::Inversion::Second,
+        MidiNote::C);
+}
+
 static void testCMinorFirstInversion() {
-    const int chord[] = {MidiNote::C + 12, MidiNote::E-1, MidiNote::G};
+    const int chord[] = {MidiNote::C + 12, MidiNote::E - 1, MidiNote::G};
     testRecognizer(
         chord, 3,
         ChordRecognizer::Type::MinorTriad,
@@ -212,7 +222,6 @@ static void testCMajorSecondInversion() {
 }
 
 static void testToStringSub(const ChordRecognizer::ChordInfo& info) {
-
     const bool expectInversion = ChordRecognizer::inversionFromInfo(info) != ChordRecognizer::Inversion::Root;
     std::vector<std::string> v = ChordRecognizer::toString(info);
     assertEQ(v.size(), 2);
@@ -277,7 +286,8 @@ void testChordRecognizer() {
     testCMajMajRecognized();
     testCMinMinRecognized();
     testCMinMajRecognized();
-     testCMajMinFirstInversionRecognized();
+    testCMajMinFirstInversionRecognized();
+    testCMajMinSecondInversionRecognized();
 
     // To add:
 
@@ -287,13 +297,14 @@ void testChordRecognizer() {
     // chords larger than an octave (9th)
 }
 
-#if 0
+#if 1
 void testFirst() {
     //  testCMajorRecognized();
     //  testCMajor4Voice();
-   //  testCMajorFirstInversion();
+     testCMajorFirstInversion();
   //   testCMinorFirstInversion();
-    testCMajMinFirstInversionRecognized();
+   testCMajMinFirstInversionRecognized();
+  //  testCMajMinSecondInversionRecognized();
 
   //  testCMajorSecondInversion();
     //  testToString();

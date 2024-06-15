@@ -13,7 +13,7 @@ void show(const char* msg, const int* p, int num) {
         SQINFO("%s = %d, %d, %d, %d", msg, p[0], p[1], p[2], p[3]);
     } else {
         SQINFO("??? num=%d", num);
-        assert(false);
+ //       assert(false);
     }
     // #endif
 }
@@ -113,8 +113,45 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         const auto recognizedType = std::get<0>(t);
         if (recognizedType != Type::Unrecognized) {
             // here we found an inversion!
-            SQINFO("found inversion at i=%d", i);
-            ChordRecognizer::Inversion inversion = ChordRecognizer::Inversion::First;
+            SQINFO("found inversion at i=%d lengh=%d", i, finalLength);
+            //SQINFO("c=%d", c);
+
+            return figureOutInversion(recognizedType, basePossibleInversion, baseNonInverted );
+           
+        }
+        outputChord[i] -= delta;
+    }
+    return error;
+}
+
+ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type type, int recognizedPitch, int firstOffset) {
+    Inversion inversion = Inversion::Root;
+    int pitch = 0;
+  //  Type type = Type::Unrecognized;
+    SQINFO("called to figure out inversion, with type=%d", type, recognizedPitch, firstOffset);
+
+    if ((type == Type::MajorTriad) && (firstOffset == 4)) {
+        inversion = Inversion::First;
+    } else if (type == Type::MajorTriad && firstOffset == 7) {
+        inversion = Inversion::Second;
+    } else if (type == Type::MinorTriad && firstOffset == 3) {
+        inversion = Inversion::First;
+    } else if (type == Type::MajMinSeventh && firstOffset == 4) {
+        inversion = Inversion::First;
+    } else if (type == Type::MajMinSeventh && firstOffset == 7) {
+        inversion = Inversion::Second;
+    } else {
+        assert(false);
+    }
+
+    pitch = (recognizedPitch + firstOffset) % 12;
+
+    return std::make_tuple(type, inversion, pitch);
+
+}
+
+#if 0
+  ChordRecognizer::Inversion inversion = ChordRecognizer::Inversion::First;
             if (finalLength == 3) {
                 switch (i) {
                 case 2:
@@ -139,14 +176,10 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
             }
         //    const auto inversion = (i == 2) ? ChordRecognizer::Inversion::First : ChordRecognizer::Inversion::Second;
 
-            const int baseSum = basePossibleInversion + baseNonInverted;
+            const int baseSum = c + baseNonInverted;
            SQINFO(" base sum = %d mod=%d", baseSum, baseSum % 12);
             return std::make_tuple(recognizedType, inversion, baseSum % 12);
-        }
-        outputChord[i] -= delta;
-    }
-    return error;
-}
+    #endif
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int* chord, unsigned length) {
     assert(chord[0] == 0);
@@ -289,7 +322,7 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
             sInversion = "First Inversion";
             break;
         case Inversion::Second:
-            sInversion = "Second Inversions";
+            sInversion = "Second Inversion";
             break;
         default:
             assert(false);
