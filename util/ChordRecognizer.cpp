@@ -4,6 +4,9 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
+//#define _LOG
+
+
 void show(const char* msg, const int* p, int num) {
     // #ifdef _DEBUG
     if (num == 3) {
@@ -26,11 +29,15 @@ void ChordRecognizer::copy(int* dest, const int* src, unsigned length) {
 
 std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int* inputChord, unsigned length) {
     const auto error = std::make_tuple(0, 0);
+#ifdef _LOG
     SQINFO("In normalize %d", length);
     show("input chord", inputChord, length);
+#endif
 
     if (length < 1) {
+#ifdef _LOG
         SQINFO("In recognize exit early");
+#endif
         return error;
     }
 
@@ -38,14 +45,17 @@ std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int
     copy(sortedChord, inputChord, length);
     std::sort(sortedChord, sortedChord + (length));
 
+#ifdef _LOG
     show("sorted chord", sortedChord, length);
-
+#endif
     const int base = sortedChord[0];
     if (base < 0) {
         return error;
     }
 
+#ifdef _LOG
     SQINFO("... in nomralize pass, adding %d", -base);
+#endif
     unsigned i;
     int normalizedChord[16];
     for (i = 0; i < length; ++i) {
@@ -54,9 +64,13 @@ std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int
         normalizedChord[i] = note;
     }
 
+#ifdef _LOG
     show("normalizedChord", normalizedChord, length);
+#endif
     std::sort(normalizedChord, normalizedChord + (length));
+#ifdef _LOG
     show("sorted normalizedChord", normalizedChord, length);
+#endif
 
     // remove dupes
     unsigned j;
@@ -67,7 +81,9 @@ std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int
     }
     //  chord2[j] = -1;
     length = j;
+#ifdef _LOG
     show("final", outputChord, length);
+#endif
     for (unsigned i = 0; i < length; ++i) {
         assert(outputChord[i] >= 0);
     }
@@ -75,14 +91,18 @@ std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int
 }
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, unsigned inputLength) {
+    #ifdef _LOG
     SQINFO("----------------- enter recognize ------------------");
+    #endif
     int outputChord[16];
     const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
     const auto normalized = normalize(outputChord, inputChord, inputLength);
     const unsigned finalLength = std::get<0>(normalized);
     const int baseNonInverted = std::get<1>(normalized);
     if (finalLength == 0) {
+    #ifdef _LOG
         SQINFO("normalize failed");
+    #endif
         return error;
     }
 
@@ -92,10 +112,14 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, (baseNonInverted + std::get<1>(nonInvertedRecognize)) % 12);
     }
 
+#ifdef _LOG
     SQINFO(" ");
+#endif
     for (unsigned i = 0; i < finalLength; ++i) {
+        #ifdef _LOG
          SQINFO(" ");
         SQINFO("+++ in loop, i=%d", i);
+        #endif
         // try knocking a note up an octave to look for inversions
 
         const int delta = -12;
@@ -103,10 +127,14 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         int possibleInversion[16];
         copy(possibleInversion, outputChord, finalLength);
         possibleInversion[i] += delta;
+    #ifdef _LOG
         show("in inv search, pre norm", possibleInversion, finalLength);
+    #endif
         const auto normalized = normalize(possibleInversion, outputChord, finalLength);
         const int basePossibleInversion = std::get<1>(normalized);
+    #ifdef _LOG
         show("in inv search, post norm", possibleInversion, finalLength);
+    #endif
         const unsigned l = std::get<0>(normalized);
         assert(l == finalLength);  // should not have changed length due to this
 
@@ -114,7 +142,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         const auto recognizedType = std::get<0>(t);
         if (recognizedType != Type::Unrecognized) {
             // here we found an inversion!
+            #ifdef _LOG
             SQINFO("found inversion at i=%d lengh=%d", i, finalLength);
+            #endif
             //SQINFO("c=%d", c);
 
             return figureOutInversion(recognizedType, basePossibleInversion, baseNonInverted );
@@ -129,7 +159,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type type, int re
     Inversion inversion = Inversion::Root;
     int pitch = 0;
   //  Type type = Type::Unrecognized;
+#ifdef _LOG
     SQINFO("called to figure out inversion, with type=%d, %d, %d", int(type), recognizedPitch, firstOffset);
+#endif
 
     if (firstOffset == 3 || firstOffset == 4) {
         // If the lowest note is a third, then it's a first inversion.
@@ -137,61 +169,17 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type type, int re
     } else if (firstOffset == 7) {
         inversion = Inversion::Second;
     } else {
+#ifdef _LOG
         SQINFO("can't figure out inversion first offset=%d", firstOffset);
-       // assert(false);
+    #endif
+
     }
-#if 0
-    if ((type == Type::MajorTriad) && (firstOffset == 4)) {
-        inversion = Inversion::First;
-    } else if (type == Type::MajorTriad && firstOffset == 7) {
-        inversion = Inversion::Second;
-    } else if (type == Type::MinorTriad && firstOffset == 3) {
-        inversion = Inversion::First;
-    } else if (type == Type::MajMinSeventh && firstOffset == 4) {
-        inversion = Inversion::First;
-    } else if (type == Type::MajMinSeventh && firstOffset == 7) {
-        inversion = Inversion::Second;
-    } else {
-        assert(false);
-    }
-#endif
 
     pitch = (recognizedPitch + firstOffset) % 12;
 
     return std::make_tuple(type, inversion, pitch);
 
 }
-
-#if 0
-  ChordRecognizer::Inversion inversion = ChordRecognizer::Inversion::First;
-            if (finalLength == 3) {
-                switch (i) {
-                case 2:
-                    inversion = ChordRecognizer::Inversion::First;
-                    break;
-                case 1:
-                    inversion = ChordRecognizer::Inversion::Second;
-                    break;
-                default:
-                    assert(false);
-                }
-            } else if (finalLength == 4) {
-                switch (i) {
-                case 3:
-                    inversion = ChordRecognizer::Inversion::First;
-                    break;
-                default:
-                    SQINFO("don't know inversion for 4 note where i=%d", i);
-                }
-            } else {
-                SQINFO("can't find iversion of chords of this size");
-            }
-        //    const auto inversion = (i == 2) ? ChordRecognizer::Inversion::First : ChordRecognizer::Inversion::Second;
-
-            const int baseSum = c + baseNonInverted;
-           SQINFO(" base sum = %d mod=%d", baseSum, baseSum % 12);
-            return std::make_tuple(recognizedType, inversion, baseSum % 12);
-    #endif
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int* chord, unsigned length) {
     assert(chord[0] == 0);
@@ -213,12 +201,16 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int*
 }
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType7th(const int* chord) {
+#ifdef _LOG
     show("enter recognizeType7th chord=", chord, 4);
+#endif
     const auto error = std::make_tuple(Type::Unrecognized, 0);
     assert(chord[0] == MidiNote::C);
 
     if (chord[2] != MidiNote::G) {
+    #ifdef _LOG
         SQINFO("not 7th, as doesn't have a perfect fifth");
+    #endif
         return error;
     }
 
@@ -238,7 +230,6 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType7th(const i
         (chord[3] == MidiNote::B)) {
         return std::make_tuple(Type::MinMajSeventh, 0);
     }
-
 
     return error;
 }
