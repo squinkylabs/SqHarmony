@@ -130,6 +130,16 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type type, int re
   //  Type type = Type::Unrecognized;
     SQINFO("called to figure out inversion, with type=%d", type, recognizedPitch, firstOffset);
 
+    if (firstOffset == 3 || firstOffset == 4) {
+        // If the lowest note is a third, then it's a first inversion.
+        inversion = Inversion::First;
+    } else if (firstOffset == 7) {
+        inversion = Inversion::Second;
+    } else {
+        SQINFO("can't figure out inversion first offset=%d", firstOffset);
+       // assert(false);
+    }
+#if 0
     if ((type == Type::MajorTriad) && (firstOffset == 4)) {
         inversion = Inversion::First;
     } else if (type == Type::MajorTriad && firstOffset == 7) {
@@ -143,6 +153,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type type, int re
     } else {
         assert(false);
     }
+#endif
 
     pitch = (recognizedPitch + firstOffset) % 12;
 

@@ -57,6 +57,26 @@ static void testCMajMinFirstInversionRecognized() {
         MidiNote::C);
 }
 
+static void testCMajMajFirstInversionRecognized() {
+    const int chord[] = {MidiNote::C + 12, MidiNote::E, MidiNote::G, MidiNote::B};
+    testRecognizer(
+        chord,
+        4,
+        ChordRecognizer::Type::MajMajSeventh,
+        ChordRecognizer::Inversion::First,
+        MidiNote::C);
+}
+
+static void testCMajMajSecondInversionRecognized() {
+    const int chord[] = {MidiNote::C + 12, MidiNote::E + 12, MidiNote::G, MidiNote::B};
+    testRecognizer(
+        chord,
+        4,
+        ChordRecognizer::Type::MajMajSeventh,
+        ChordRecognizer::Inversion::Second,
+        MidiNote::C);
+}
+
 static void testCMajMinSecondInversionRecognized() {
     const int chord[] = {MidiNote::C + 12, MidiNote::E + 12, MidiNote::G, MidiNote::B - 1};
     testRecognizer(
@@ -286,8 +306,12 @@ void testChordRecognizer() {
     testCMajMajRecognized();
     testCMinMinRecognized();
     testCMinMajRecognized();
+
     testCMajMinFirstInversionRecognized();
     testCMajMinSecondInversionRecognized();
+
+    testCMajMajFirstInversionRecognized();
+    testCMajMajSecondInversionRecognized();
 
     // To add:
 
@@ -297,7 +321,7 @@ void testChordRecognizer() {
     // chords larger than an octave (9th)
 }
 
-#if 1
+#if 0
 void testFirst() {
     //  testCMajorRecognized();
     //  testCMajor4Voice();
