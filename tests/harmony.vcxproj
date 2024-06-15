@@ -188,6 +188,7 @@
     <ClCompile Include="testChord4.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
     <ClCompile Include="testChordRecognizer.cpp" />
+    <ClCompile Include="testChordRecognizer2.cpp" />
     <ClCompile Include="testClockMult.cpp" />
     <ClCompile Include="testClockShifter5.cpp" />
     <ClCompile Include="testClockShifter5b.cpp" />

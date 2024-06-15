@@ -232,6 +232,15 @@ static void testCMajorFirstInversion() {
     assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C);
 }
 
+static void testCMajorFirstInversion2() {
+    ChordRecognizer ch;
+    const int chord[] = {MidiNote::C + 12 + 48, MidiNote::E + 48, MidiNote::G + 48};
+    auto const result = ch.recognize(chord, 3);
+    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
+    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
+    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C);
+}
+
 static void testCMajorSecondInversion() {
     ChordRecognizer ch;
     const int chord[] = {MidiNote::C + 12, MidiNote::E + 12, MidiNote::G};
@@ -292,7 +301,8 @@ void testChordRecognizer() {
     testCMajor4Voice();
     testGMajorRecognized();
     testCMajorOneNoteCrazyOctave();
-    testCMajorFirstInversion();
+      testCMajorFirstInversion();
+      testCMajorFirstInversion2();
     testCMinorFirstInversion();
     testCMajorSecondInversion();
     testToString();
@@ -325,12 +335,12 @@ void testChordRecognizer() {
 void testFirst() {
     //  testCMajorRecognized();
     //  testCMajor4Voice();
-     testCMajorFirstInversion();
-  //   testCMinorFirstInversion();
-   testCMajMinFirstInversionRecognized();
-  //  testCMajMinSecondInversionRecognized();
+    testCMajorFirstInversion2();
+    //   testCMinorFirstInversion();
+    // testCMajMinFirstInversionRecognized();
+    //  testCMajMinSecondInversionRecognized();
 
-  //  testCMajorSecondInversion();
+    //  testCMajorSecondInversion();
     //  testToString();
 }
 #endif

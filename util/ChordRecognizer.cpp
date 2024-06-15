@@ -75,6 +75,7 @@ std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int
 }
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, unsigned inputLength) {
+    SQINFO("----------------- enter recognize ------------------");
     int outputChord[16];
     const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
     const auto normalized = normalize(outputChord, inputChord, inputLength);
@@ -128,7 +129,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type type, int re
     Inversion inversion = Inversion::Root;
     int pitch = 0;
   //  Type type = Type::Unrecognized;
-    SQINFO("called to figure out inversion, with type=%d", type, recognizedPitch, firstOffset);
+    SQINFO("called to figure out inversion, with type=%d, %d, %d", int(type), recognizedPitch, firstOffset);
 
     if (firstOffset == 3 || firstOffset == 4) {
         // If the lowest note is a third, then it's a first inversion.
