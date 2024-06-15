@@ -291,6 +291,17 @@ static void testToString() {
     testToStringSub(std::make_tuple(ChordRecognizer::Type::MinMajSeventh, ChordRecognizer::Inversion::Root, 0));
 }
 
+static void testNotesInChord() {
+     for (int i = 0; i <= int(ChordRecognizer::Type::MinMajSeventh); ++i) {
+        const int notes = ChordRecognizer::notesInChord(ChordRecognizer::Type(i));
+        if (notes != 0) {
+            assertGE(notes, 3);
+            assertLE(notes, 4);
+        }
+       
+    }
+}
+
 void testChordRecognizer() {
     //  testCanCreate();
     testJunkNotRecognized();
@@ -301,11 +312,11 @@ void testChordRecognizer() {
     testCMajor4Voice();
     testGMajorRecognized();
     testCMajorOneNoteCrazyOctave();
-      testCMajorFirstInversion();
-      testCMajorFirstInversion2();
+    testCMajorFirstInversion();
+    testCMajorFirstInversion2();
     testCMinorFirstInversion();
     testCMajorSecondInversion();
-    testToString();
+
     testCMinorRecognized();
     testCSus4Recognized();
     testCSus2Recognized();
@@ -323,23 +334,21 @@ void testChordRecognizer() {
     testCMajMajFirstInversionRecognized();
     testCMajMajSecondInversionRecognized();
 
-    // To add:
+    testToString();
+    testNotesInChord();
 
-    // chord inverted
-    // non-major triads
-    // other chord types
-    // chords larger than an octave (9th)
+
 }
 
 #if 0
 void testFirst() {
     //  testCMajorRecognized();
     //  testCMajor4Voice();
-    testCMajorFirstInversion2();
+  //  testCMajorFirstInversion2();
     //   testCMinorFirstInversion();
     // testCMajMinFirstInversionRecognized();
     //  testCMajMinSecondInversionRecognized();
-
+ testNotesInChord();
     //  testCMajorSecondInversion();
     //  testToString();
 }

@@ -342,3 +342,26 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
 
     return {s + " " + sType, sInversion};
 }
+
+unsigned ChordRecognizer::notesInChord(Type type) {
+    switch(type) {
+        case Type::AugmentedTriad:
+        case Type::DiminishedTriad:
+        case Type::MajorTriad:
+        case Type::MinorTriad:
+        case Type::Sus2Triad:
+        case Type::Sus4Triad:
+            return 3;
+
+        case Type::MajMajSeventh:
+        case Type::MajMinSeventh:
+        case Type::MinMajSeventh:
+        case Type::MinMinSeventh:
+            return 4;
+        case Type::Unrecognized:
+            return 0;
+        default:
+            assert(false);
+    }
+    return 100;
+}

@@ -52,7 +52,7 @@ public:
     // Don't call from audio thread!
     static std::vector<std::string> toString(const ChordInfo&);
 
-
+    static unsigned notesInChord(Type);
 private:
     /**
      *
