@@ -65,6 +65,8 @@ public:
      *  1 is how much it was transposed (the base)
      */
     static std::tuple<unsigned, int> _makeCanonical(int* outputChord, const int* inputChord, unsigned length);
+
+    static void copy(int* dest, const int* src, unsigned length);
 private:
     /**
      *
@@ -78,7 +80,7 @@ private:
     static std::tuple<Type, int> recognizeType7th(const int* chord);
     static ChordInfo figureOutInversion(Type type, int recognizedPitch, int firstOffset);
 
-    static void copy(int* dest, const int* src, unsigned length);
+    
     /**
      *
      * @param outputChord
