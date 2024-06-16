@@ -232,6 +232,27 @@ static void testCMajorFirstInversion() {
     assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C);
 }
 
+
+static void testCSharpMajorFirstInversion() {
+    ChordRecognizer ch;
+    const int chord[] = {MidiNote::C + 12 + 1, MidiNote::E +1, MidiNote::G
+        +1}; 
+    auto const result = ch.recognize(chord, 3);
+    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
+    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
+    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C + 1);
+}
+
+static void testGSharpMajorFirstInversion() {
+    ChordRecognizer ch;
+    const int chord[] = {MidiNote::G + 12 + 1, MidiNote::C, MidiNote::D +1};  // G#, C D# is a major chor
+    //const int chord[] = { MidiNote::G + 12 + 1, MidiNote::E + 1, MidiNote::G + 1 };
+    auto const result = ch.recognize(chord, 3);
+    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
+    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
+    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C + 1);
+}
+
 static void testCMajorFirstInversion2() {
     ChordRecognizer ch;
     const int chord[] = {MidiNote::C + 12 + 48, MidiNote::E + 48, MidiNote::G + 48};
@@ -316,6 +337,7 @@ void testChordRecognizer() {
     testCMajorFirstInversion2();
     testCMinorFirstInversion();
     testCMajorSecondInversion();
+     testCSharpMajorFirstInversion();
 
     testCMinorRecognized();
     testCSus4Recognized();
@@ -333,6 +355,7 @@ void testChordRecognizer() {
 
     testCMajMajFirstInversionRecognized();
     testCMajMajSecondInversionRecognized();
+    testGSharpMajorFirstInversion();
 
     testToString();
     testNotesInChord();
@@ -340,15 +363,18 @@ void testChordRecognizer() {
 
 }
 
-#if 0
+#if 1
 void testFirst() {
     //  testCMajorRecognized();
     //  testCMajor4Voice();
   //  testCMajorFirstInversion2();
+  // testCSharpMajorFirstInversion();
+   testGSharpMajorFirstInversion();
+
     //   testCMinorFirstInversion();
     // testCMajMinFirstInversionRecognized();
     //  testCMajMinSecondInversionRecognized();
- testNotesInChord();
+ //testNotesInChord();
     //  testCMajorSecondInversion();
     //  testToString();
 }

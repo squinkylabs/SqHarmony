@@ -20,8 +20,8 @@ static void testRecognizer(
     Type expectedType,
     Inversion expectedInversion,
     int expectedRoot) {
-    show("testRecognizer", chord, length);
-    SQINFO("type = %d", int(expectedType));
+    //show("testRecognizer", chord, length);
+    //SQINFO("type = %d", int(expectedType));
     auto const result = ChordRecognizer::recognize(chord, length);
     assert(ChordRecognizer::typeFromInfo(result) == expectedType);
     assert(ChordRecognizer::inversionFromInfo(result) == expectedInversion);
@@ -166,7 +166,7 @@ void testChordRecognizer2() {
     generalChordTest();
 }
 
-#if 1
+#if 0
 void testFirst() {
     generalChordTest();
 }
