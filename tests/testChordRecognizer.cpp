@@ -243,19 +243,11 @@ static void testCSharpMajorFirstInversion() {
 
 static void testGSharpMajorFirstInversion() {
     ChordRecognizer ch;
-
-    // This one is voiced two octaves up. Still should find it....
-    // const int chord[] = {MidiNote::G + 12 + 1, MidiNote::C, MidiNote::D + 1};  // G#, C D# is a major chord
     const int chord[] = {MidiNote::G + 1, MidiNote::C, MidiNote::D + 1};  // G#, C D# is a major chord
-
     auto const result = ch.recognize(chord, 3);
     assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
     assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
-
-    // This  + 12 is a hack - fix it
     assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::G + 1);
-    //  SQINFO("now will fail for hack");
-    //  assert(false);
 }
 
 static void testCMajorFirstInversion2() {
@@ -365,7 +357,7 @@ void testChordRecognizer() {
     testNotesInChord();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // This one is a problem
     // testGSharpMajorFirstInversion();

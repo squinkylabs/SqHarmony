@@ -26,9 +26,13 @@ static void testRecognizer(
     assertEQ(ChordRecognizer::pitchFromInfo(result), expectedRoot);
 }
 
-static void testTypeAndChord2(Type expectedType, const int* inputChord, unsigned size, int expectedRoot) {
+static void testTypeAndChordInverted(Type expectedType, const int* inputChord, unsigned size, int expectedRoot) {
     testRecognizer(inputChord, size, expectedType, Inversion::Root, expectedRoot);
     if (expectedType == Type::Unrecognized) {
+        return;
+    }
+    if (expectedType == Type::Sus2Triad || expectedType == Type::Sus4Triad || expectedType == Type::AugmentedTriad) {
+        // SQINFO("these chords can't be inverted");
         return;
     }
 #if 1
@@ -52,7 +56,8 @@ static void testTypeAndChordTransposed(int transpose, Type type, const int* inpu
     if (type == Type::Unrecognized) {
         expectedRoot = 0;
     }
-    testTypeAndChord2(type, chord, size, expectedRoot);
+
+    testTypeAndChordInverted(type, chord, size, expectedRoot);
 
 // Test
 #if 0
@@ -164,7 +169,7 @@ void testChordRecognizer2() {
     generalChordTest();
 }
 
-#if 0
+#if 1
 void testFirst() {
     generalChordTest();
 }
