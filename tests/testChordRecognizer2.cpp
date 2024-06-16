@@ -3,8 +3,6 @@
 #include "ChordRecognizer.h"
 #include "asserts.h"
 
-extern void show(const char* msg, const int* p, int num);
-
 using Type = ChordRecognizer::Type;
 using Inversion = ChordRecognizer::Inversion;
 

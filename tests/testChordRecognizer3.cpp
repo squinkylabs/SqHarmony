@@ -58,17 +58,31 @@ static void testMajorFirstInversion() {
         int test[16];
         const auto x = ChordRecognizer::_makeCanonical(test, transposed, 3);
         assertEQ(test[0], 0);
-        assertEQ(test[1], 4);
-        assertEQ(test[2], 7);
+        assertEQ(test[1], 3);
+        assertEQ(test[2], 8);
         assertEQ(std::get<0>(x), 3);
-        assertEQ(std::get<1>(x), i);
+        assertEQ(std::get<1>(x), i + 4);        // expect the third now
     }
 }
 
 
+static void testNormalizeIntPositive() {
+    assertEQ(ChordRecognizer::normalizeIntPositive(0, 12), 0);
+    assertEQ(ChordRecognizer::normalizeIntPositive(5, 12), 5);
+    assertEQ(ChordRecognizer::normalizeIntPositive(12, 12), 0);
+    assertEQ(ChordRecognizer::normalizeIntPositive(110, 100), 10);
+    assertEQ(ChordRecognizer::normalizeIntPositive(10010, 100), 10);
+
+    assertEQ(ChordRecognizer::normalizeIntPositive(-4, 12), 8);
+    assertEQ(ChordRecognizer::normalizeIntPositive(-10010, 100), 90);
+}
+
 void testChordRecognizer3() {
     testMajor();
     testMajorOpen();
+    testMajorFirstInversion();
+    testNormalizeIntPositive();
+
 }
 
 

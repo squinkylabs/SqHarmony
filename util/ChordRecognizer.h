@@ -67,6 +67,16 @@ public:
     static std::tuple<unsigned, int> _makeCanonical(int* outputChord, const int* inputChord, unsigned length);
 
     static void copy(int* dest, const int* src, unsigned length);
+    static void show(const char* msg, const int* p, unsigned num);
+
+    /**
+     * @brief gets the "fractional part" of a number, wraps into range if negative.
+     * 
+     * @param input 
+     * @param rangeTop 
+     * @return int strictly between 0...rangeTop-1 
+     */
+    static int normalizeIntPositive(int input, int rangeTop);
 private:
     /**
      *

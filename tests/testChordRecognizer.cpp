@@ -251,7 +251,11 @@ static void testGSharpMajorFirstInversion() {
     auto const result = ch.recognize(chord, 3);
     assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
     assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C + 1);
+
+    // This  + 12 is a hack - fix it
+    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::G + 1);
+  //  SQINFO("now will fail for hack");
+  //  assert(false);
 }
 
 static void testCMajorFirstInversion2() {
@@ -355,7 +359,7 @@ void testChordRecognizer() {
 
     testCMajMajFirstInversionRecognized();
     testCMajMajSecondInversionRecognized();
-   // testGSharpMajorFirstInversion();
+    testGSharpMajorFirstInversion();
 
     testToString();
     testNotesInChord();
@@ -366,8 +370,9 @@ void testFirst() {
     
 
     // This one is a problem
-    //testGSharpMajorFirstInversion();
-    testCMajorFirstInversion();
+   // testGSharpMajorFirstInversion();
+    //testCMajorFirstInversion();
+    testChordRecognizer();
 
 
 }
