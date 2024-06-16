@@ -4,7 +4,7 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
-#define _LOG
+// #define _LOG
 
 void ChordRecognizer::show(const char* msg, const int* p, unsigned num) {
     if (num == 3) {
@@ -45,12 +45,12 @@ std::tuple<unsigned, int> ChordRecognizer::_makeCanonical(int* outputChord, cons
     show("sorted chord", sortedChord, length);
 #endif
     const int base = sortedChord[0];
-    if (base < 0) {
-        // SQFATAL("!! logical error in norm !!");
-        // show(" the bad sort was", sortedChord, length);
-        // return error;
-        SQINFO("was error - norm had so move pitch up. base=" + base);
-    }
+    // if (base < 0) {
+    //     // SQFATAL("!! logical error in norm !!");
+    //     // show(" the bad sort was", sortedChord, length);
+    //     // return error;
+    //     SQINFO("was error - norm had so move pitch up. base=" + base);
+    // }
 
 #ifdef _LOG
     SQINFO("... in nomralize pass, adding %d", -base);

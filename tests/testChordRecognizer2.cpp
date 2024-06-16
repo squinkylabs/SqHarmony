@@ -18,8 +18,8 @@ static void testRecognizer(
     Type expectedType,
     Inversion expectedInversion,
     int expectedRoot) {
-    //show("testRecognizer", chord, length);
-    //SQINFO("type = %d", int(expectedType));
+    // show("testRecognizer", chord, length);
+    // SQINFO("type = %d", int(expectedType));
     auto const result = ChordRecognizer::recognize(chord, length);
     assert(ChordRecognizer::typeFromInfo(result) == expectedType);
     assert(ChordRecognizer::inversionFromInfo(result) == expectedInversion);
@@ -38,7 +38,7 @@ static void testTypeAndChord2(Type expectedType, const int* inputChord, unsigned
         invertedChord[0] += 12;
         testRecognizer(invertedChord, size, expectedType, Inversion::First, expectedRoot);
     }
-    #endif
+#endif
 }
 
 static void testTypeAndChordTransposed(int transpose, Type type, const int* inputChord, unsigned size) {
