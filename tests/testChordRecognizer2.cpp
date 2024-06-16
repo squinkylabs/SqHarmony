@@ -37,10 +37,22 @@ static void testTypeAndChordInverted(Type expectedType, const int* inputChord, u
     }
 #if 1
     {
+        // Inversions shouldn't move the root around, so expectedRoot is still valid
         int invertedChord[16];
         copy(invertedChord, inputChord, size);
         invertedChord[0] += 12;
         testRecognizer(invertedChord, size, expectedType, Inversion::First, expectedRoot);
+
+        // try inverted two octaves up.
+        invertedChord[0] += 24;
+        testRecognizer(invertedChord, size, expectedType, Inversion::First, expectedRoot);
+
+        // Try second inversion
+        copy(invertedChord, inputChord, size);
+        invertedChord[0] += 12;
+        invertedChord[1] += 12;
+        testRecognizer(invertedChord, size, expectedType, Inversion::Second, expectedRoot);
+
     }
 #endif
 }
@@ -58,26 +70,6 @@ static void testTypeAndChordTransposed(int transpose, Type type, const int* inpu
     }
 
     testTypeAndChordInverted(type, chord, size, expectedRoot);
-
-// Test
-#if 0
-    testRecognizer(
-        chord,
-        size,
-        type,
-        Inversion::Root,
-        expectedRoot);
-
-    // Now try some inversions
-    // assume chords are already sorted 1,3,5
-    {
-        int invertedChord[16];
-        copy(invertedChord, chors, size);
-        invertedChord[0] += 12;
-
-
-    }
-#endif
 }
 
 static void testTypeAndChord(Type type, const int* chord, unsigned size) {
@@ -169,7 +161,7 @@ void testChordRecognizer2() {
     generalChordTest();
 }
 
-#if 1
+#if 0
 void testFirst() {
     generalChordTest();
 }

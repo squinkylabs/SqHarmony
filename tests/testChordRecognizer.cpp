@@ -23,7 +23,18 @@ static void testCMajorRecognized() {
 
     assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
     assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+
 }
+
+static void testCDiminishedSecondInversion() {
+    const int chord[] = {MidiNote::C + 12, MidiNote::E-1 + 12, MidiNote::G-1};
+    auto const result = ChordRecognizer::recognize(chord, 3);
+
+    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::DiminishedTriad);
+    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::Second);
+}
+
 
 static void testRecognizer(
     const int* chord,
@@ -357,11 +368,12 @@ void testChordRecognizer() {
     testNotesInChord();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // This one is a problem
     // testGSharpMajorFirstInversion();
     // testCMajorFirstInversion();
-    testChordRecognizer();
+    //testChordRecognizer();
+    testCDiminishedSecondInversion();
 }
 #endif
