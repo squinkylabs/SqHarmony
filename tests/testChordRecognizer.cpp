@@ -361,12 +361,13 @@ void testChordRecognizer() {
     testNotesInChord();
 }
 
-#if 0
+#if 1
 void testFirst() {
     
 
     // This one is a problem
     //testGSharpMajorFirstInversion();
+    testCMajorFirstInversion();
 
 
 }
