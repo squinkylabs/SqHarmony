@@ -161,7 +161,7 @@ void testChordRecognizer2() {
     generalChordTest();
 }
 
-#if 0
+#if 1
 void testFirst() {
     generalChordTest();
 }
