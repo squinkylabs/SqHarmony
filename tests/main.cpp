@@ -80,6 +80,7 @@ extern void testDeGlitch();
 extern void testDeGlitch();
 extern void testChordRecognizer();
 extern void testChordRecognizer2();
+extern void testChordRecognizer3();
 extern void testVisualizer();
 
 #include "SqLog.h"
@@ -103,7 +104,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if  1
+#if  0
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -130,6 +131,7 @@ int main(const char**, int) {
     testShiftCalc();
     testSharpFlatMonitor();
     testDifferenticalClockCounter();
+    testChordRecognizer3();
     testChordRecognizer();
     testChordRecognizer2();
     testVisualizer();

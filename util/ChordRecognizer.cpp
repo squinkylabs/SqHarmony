@@ -4,7 +4,7 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
-// #define _LOG
+#define _LOG
 
 void show(const char* msg, const int* p, int num) {
     // #ifdef _DEBUG
@@ -105,6 +105,10 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         return error;
     }
 
+    #ifdef _LOG
+        show("final processed chord", outputChord, finalLength);
+    #endif
+
     const auto nonInvertedRecognize = recognizeType(outputChord, finalLength);
     const auto nonInvertedRecognizedType = std::get<0>(nonInvertedRecognize);
     if (nonInvertedRecognizedType != Type::Unrecognized) {
@@ -148,7 +152,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
 
             return figureOutInversion(recognizedType, basePossibleInversion, baseNonInverted);
         }
-        outputChord[i] -= delta;
+        //outputChord[i] -= delta;
     }
     return error;
 }
@@ -183,7 +187,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type _type, int _
         inversion = Inversion::Second;
     } else {
 #ifdef _LOG
-        SQINFO("can't figure out inversion first offset=%d", firstOffset);
+        SQINFO("can't figure out inversion refo=%d", relativeEffectiveFirstOffset);
 #endif
     }
 
