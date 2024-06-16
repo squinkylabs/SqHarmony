@@ -53,6 +53,18 @@ public:
     static std::vector<std::string> toString(const ChordInfo&);
 
     static unsigned notesInChord(Type);
+
+    /**
+     * @brief sorts and normalizes a chord to put it in a canonical form for regocnizing
+     * 
+     * @param outputChord 
+     * @param inputChord 
+     * @param length 
+     * @return std::tuple<unsigned, int> 
+     *  0 is the new length, 
+     *  1 is how much it was transposed (the base)
+     */
+    static std::tuple<unsigned, int> _makeCanonical(int* outputChord, const int* inputChord, unsigned length);
 private:
     /**
      *
@@ -74,5 +86,5 @@ private:
      * @param length
      * @return 0: unsigned the length of the output, 1:int the chord nomralization base
      */
-    static std::tuple<unsigned, int> normalize(int* outputChord, const int* inputChord, unsigned length);
+   // static std::tuple<unsigned, int> normalize(int* outputChord, const int* inputChord, unsigned length);
 };

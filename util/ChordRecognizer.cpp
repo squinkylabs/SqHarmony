@@ -26,7 +26,8 @@ void ChordRecognizer::copy(int* dest, const int* src, unsigned length) {
     }
 }
 
-std::tuple<unsigned, int> ChordRecognizer::normalize(int* outputChord, const int* inputChord, unsigned length) {
+// returns 0 is the new length, return 1 is how much it was transposed
+std::tuple<unsigned, int> ChordRecognizer::_makeCanonical(int* outputChord, const int* inputChord, unsigned length) {
     const auto error = std::make_tuple(0, 0);
 #ifdef _LOG
     SQINFO("In normalize %d", length);
@@ -95,7 +96,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
 #endif
     int outputChord[16];
     const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
-    const auto normalized = normalize(outputChord, inputChord, inputLength);
+    const auto normalized = _makeCanonical(outputChord, inputChord, inputLength);
     const unsigned finalLength = std::get<0>(normalized);
     const int baseNonInverted = std::get<1>(normalized);
     if (finalLength == 0) {
@@ -133,7 +134,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
 #ifdef _LOG
         show("in inv search, pre norm", possibleInversion, finalLength);
 #endif
-        const auto normalized = normalize(possibleInversion, outputChord, finalLength);
+        const auto normalized = _makeCanonical(possibleInversion, outputChord, finalLength);
         const int basePossibleInversion = std::get<1>(normalized);
 #ifdef _LOG
         show("in inv search, post norm", possibleInversion, finalLength);
