@@ -71,6 +71,13 @@ private:
     //  YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
     float noteY(const MidiNote &note, bool bassStaff) const;
 
+    class YInfo {
+    public:
+        float position = 200;
+        float ledgerPos[3] = {};
+    };
+    YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
+
     void drawStaff(const DrawArgs &args, float y) const;
     void drawBarLine(const DrawArgs &args, float x, float y) const;
     // float drawChordRoot(const DrawArgs &args, float x, const Comp::Chord &chord) const;
@@ -126,7 +133,7 @@ void ScoreChord::drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, flo
 
 void ScoreChord::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const {
     w = std::min(w, 80.f);  //  clip with to 80, temp (TODO: do we need this?)
-  //  SQINFO("rect width=%f h=%f", w, h);
+                            //  SQINFO("rect width=%f h=%f", w, h);
     nvgFillColor(vg, color);
     nvgBeginPath(vg);
     nvgRoundedRect(vg, x, y, w, h, rounding);
@@ -198,27 +205,86 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
     drawBarLine(args, barlineX2, yBassStaff);
 
     return std::make_pair(keysigWidth, keysigEnd);
-    ;
 }
+
+inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassStaff) const {
+    YInfo ret;
+    if (note.get() < 10) {
+        return ret;
+    }
+
+    float y = 0;
+
+    const int ledgerLine = note.getLedgerLine(bassStaff);
+    const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
+
+    if (ledgerLine < -1) {
+        ret.ledgerPos[0] = staffBasePos + (2.f * spaceBetweenLines);
+    }
+    if (ledgerLine < -3) {
+        ret.ledgerPos[1] = staffBasePos + (4.f * spaceBetweenLines);
+    }
+    if (ledgerLine < -5) {
+        ret.ledgerPos[2] = staffBasePos + (6.f * spaceBetweenLines);
+    }
+    if (ledgerLine > 9) {
+        ret.ledgerPos[0] = staffBasePos + (-10.f * spaceBetweenLines);
+    }
+    if (ledgerLine > 11) {
+        ret.ledgerPos[1] = staffBasePos + (-12.f * spaceBetweenLines);
+    }
+    if (ledgerLine > 13) {
+        ret.ledgerPos[2] = staffBasePos + (-14.f * spaceBetweenLines);
+    }
+
+    y -= ledgerLine * spaceBetweenLines;
+    y += staffBasePos;
+
+    ret.position = y;
+    return ret;
+}
+
 
 // why is this here
 inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const {
     SQINFO("call to draw notes - do it!");
-    #if 0
-     unsigned changeParam = _module->getChangeParam();
-        if (changeParam != _changeParam) {
-            _changeParam = changeParam;
-            SQINFO("........... ScoreChord::change!()");
-            this->_scoreIsDirty = true;
-            const auto pitchesAndChannels = _module->getQuantizedPitchesAndChannels();
-            const int channels = std::get<1>(pitchesAndChannels);
-            const int* pitches = std::get<0>(pitchesAndChannels);
-            if (channels > 0) {
-             SQINFO("On change, ch=%d p0=%d", channels, pitches[0]);
-            } else {
-                SQINFO("On change, nothing");
+    if (_module) {
+        //     _changeParam = changeParam;
+        //  SQINFO("........... draw::change!()");
+        //   this->_scoreIsDirty = true;
+        const auto pitchesAndChannels = _module->getQuantizedPitchesAndChannels();
+        const int channels = std::get<1>(pitchesAndChannels);
+        const int *pitches = std::get<0>(pitchesAndChannels);
+        if (channels <= 0) {
+            SQINFO("On change, nothing");
+            return; 
+        }
+  
+        SQINFO("On change, ch=%d p0=%d", channels, pitches[0]);
+
+      
+
+   //     MidiNote note = pitches[0];
+      //  const float yf = noteY(note, false);
+        const bool stemUp = false;
+      //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
+        const auto yInfo = noteYInfo(pitches[0], true);
+
+         const float x = noteXPos(0, keysigLayout);
+
+#if 0
+        for (int i = 0; i < 3; ++i) {
+            if (yInfo.ledgerPos[i] != 0) {
+                nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
             }
-        #endif
+        }
+    #endif
+        const char *notePtr = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
+        SQINFO("drawing text x = %f y = %f", x, yInfo.position);
+        nvgText(args.vg, x, yInfo.position, notePtr, NULL);
+
+        // const float yf = noteY(note, !treble);
+    }
 }
 
 inline void ScoreChord::drawBarLine(const DrawArgs &args, float x, float y) const {
@@ -233,6 +299,7 @@ inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysi
     const float delta = totalWidthForNotes / 8.5;
     const float firstNotePosition = leftMargin + keysigXEnds;
 
+    SQINFO("noteXPos called with noteNumber = %d, keysig layout = %f, %f", noteNumber, _keysigLayout.first, _keysigLayout.second);
     float x = firstNotePosition + noteNumber * delta;
     if (noteNumber > 3) {
         // little bump into the next bar. Used to be a while delta, the /2 is new.
@@ -308,26 +375,15 @@ inline void ScoreChord::drawStaff(const DrawArgs &args, float yBase) const {
 }
 
 inline void ScoreChord::step() {
-   #if 1
+#if 1
     if (_module) {
         unsigned changeParam = _module->getChangeParam();
         if (changeParam != _changeParam) {
             _changeParam = changeParam;
-            SQINFO("........... ScoreChord::change!()");
+            SQINFO("ScoreChord::step sees change!");
             this->_scoreIsDirty = true;
-    #if 0
-            const auto pitchesAndChannels = _module->getQuantizedPitchesAndChannels();
-            const int channels = std::get<1>(pitchesAndChannels);
-            const int* pitches = std::get<0>(pitchesAndChannels);
-            if (channels > 0) {
-             SQINFO("On change, ch=%d p0=%d", channels, pitches[0]);
-            } else {
-                SQINFO("On change, nothing");
-            }
-    #endif
         }
-    
     }
-    #endif
+#endif
     Widget::step();
 }
