@@ -11,25 +11,9 @@
 #include "ScoreChord.h"
 #include "SqLabel.h"
 #include "SqLog.h"
-#include "Visualizer.h"
-#include "WidgetComposite.h"
-
-using Comp = Visualizer<WidgetComposite>;
 
 template <>
 int BufferingParent<ScoreChord>::_refCount = 0;
-
-class VisualizerModule : public rack::engine::Module {
-public:
-    std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);
-    VisualizerModule() {
-        config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
-        // addParams();
-    }
-    void process(const ProcessArgs& args) override {
-        comp->process(args);
-    }
-};
 
 class VisualizerWidget : public ModuleWidget {
 public:
@@ -44,8 +28,8 @@ public:
 #endif
         addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
 
-        _displayString = addLabel(Vec(10, 100), "chord");
-        _displayString2 = addLabel(Vec(10, 120), "chord");
+        _displayString = addLabel(Vec(10, 160), "chord");
+        _displayString2 = addLabel(Vec(10, 180), "chord");
     }
 
     void step() override {
@@ -77,7 +61,7 @@ private:
     ScoreChord* _scoreChord = nullptr;
     void addScore(VisualizerModule* module) {
         _scoreChord = new ScoreChord(module);
-        auto size = Vec(134, 100);
+        auto size = Vec(800, 80);
         auto vu = new BufferingParent<ScoreChord>(_scoreChord, size, _scoreChord);
 
         vu->box.pos = Vec(8, 28),
