@@ -2,6 +2,9 @@
 
 #include "ChordRecognizer.h"
 #include "Divider.h"
+#include "KeysigOld.h"
+#include "Options.h"
+#include "Scale.h"
 #include "ScaleQuantizer.h"
 #include "SqLog.h"
 
@@ -47,6 +50,13 @@ public:
     void process(const typename TBase::ProcessArgs& args) override;
     static int getSubSampleFactor() { return 32; }
 
+    ConstScalePtr getScale() const {
+        SQINFO("in get scale co = %p", _chordOptions.get());
+         SQINFO("in get scale ks = %p", _chordOptions->keysig.get());
+
+        return _chordOptions->keysig->getUnderlyingScale();
+    }
+
 private:
     void _init();
     void _stepn();
@@ -56,6 +66,7 @@ private:
     int _inputPitches[16] = {0};
     int _inputChannels = 0;
     ScaleQuantizerPtr _quantizer;
+    OptionsPtr _chordOptions;
   
 };
 
@@ -70,6 +81,11 @@ inline void Visualizer<TBase>::_init() {
     _quantizerOptions->scale = std::make_shared<Scale>();
     _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Chromatic);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
+
+      // Chord options get cmag
+    auto keysig = std::make_shared<KeysigOld>(Roots::C);
+    auto style = std::make_shared<Style>();
+    _chordOptions = std::make_shared<Options>(keysig, style);
 }
 
 template <class TBase>

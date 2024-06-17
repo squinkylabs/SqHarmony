@@ -16,4 +16,6 @@ public:
     void process(const ProcessArgs& args) override {
         comp->process(args);
     }
+
+    ConstScalePtr getScale() const { return comp->getScale(); }
 };

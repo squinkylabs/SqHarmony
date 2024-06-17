@@ -60,12 +60,26 @@ private:
     // void drawChordNumbers(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
     void drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
 
+    /**
+     * @brief get info about vertical placement
+     *
+     * @param note
+     * @param bassStaff
+     * @return std::pair<float, bool> first is the y position, second it flag if need ledger line
+     */
+  //  YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
+    float noteY(const MidiNote &note, bool bassStaff) const;
+
     void drawStaff(const DrawArgs &args, float y) const;
     void drawBarLine(const DrawArgs &args, float x, float y) const;
    // float drawChordRoot(const DrawArgs &args, float x, const Comp::Chord &chord) const;
    // void drawChordInversion(const DrawArgs &args, float x, const Comp::Chord &chord) const;
+    /**
+     * @return float width of key signature
+     */
+    std::pair<float, float> drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebleClef, float y) const;
 
-   float Score::noteXPos(int noteNumber, std::pair<float, float> _keysigLayout) const;
+   float noteXPos(int noteNumber, std::pair<float, float> _keysigLayout) const;
 
     NVGcolor getForegroundColor() const;
     NVGcolor getBackgroundColor() const;
@@ -88,6 +102,26 @@ NVGcolor ScoreChord::getForegroundColor() const {
 
 NVGcolor ScoreChord::getBackgroundColor() const {
     return _whiteOnBlack ? nvgRGB(0, 0, 0) : nvgRGB(0xff, 0xff, 0xff);
+}
+
+void ScoreChord::drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const {
+    nvgBeginPath(vg);
+    nvgMoveTo(vg, x, y);
+    nvgLineTo(vg, x, y - length);
+    nvgStrokeColor(vg, color);
+    nvgStrokeWidth(vg, width);
+    nvgStroke(vg);
+    nvgClosePath(vg);
+}
+
+void ScoreChord::drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const {
+    nvgBeginPath(vg);
+    nvgMoveTo(vg, x, y);
+    nvgLineTo(vg, x + length, y);
+    nvgStrokeColor(vg, color);
+    nvgStrokeWidth(vg, width);
+    nvgStroke(vg);
+    nvgClosePath(vg);
 }
 
 void ScoreChord::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const {
@@ -166,5 +200,105 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
     return std::make_pair(keysigWidth, keysigEnd);;
 }
 
+// why is this here
 inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const {
+}
+
+inline void ScoreChord::drawBarLine(const DrawArgs &args, float x, float y) const {
+    auto color = getForegroundColor();
+  //  drawVLine(args.vg, color, x, y, barlineHeight, .5f);
+   drawVLine(args.vg, color, x, y, barlineHeight, .75f);
+}
+
+// void ScoreChord::drawVLine(NVGcontext *vg, NVGcolor color, float x, float y, float length, float width) const {
+//     nvgBeginPath(vg);
+//     nvgMoveTo(vg, x, y);
+//     nvgLineTo(vg, x, y - length);
+//     nvgStrokeColor(vg, color);
+//     nvgStrokeWidth(vg, width);
+//     nvgStroke(vg);
+//     nvgClosePath(vg);
+// }
+
+inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysigLayout) const {
+    const float keysigXEnds = _keysigLayout.second;
+    const float totalWidth = box.size.x - 2 * leftMargin;
+   // const float totalWidthForNotes = totalWidth - keysigWidth;
+    const float totalWidthForNotes = totalWidth - keysigXEnds;
+    const float delta = totalWidthForNotes / 8.5;
+    const float firstNotePosition = leftMargin + keysigXEnds;
+
+//    const float firstNotePosition = leftMargin + keysigWidth;
+    float x = firstNotePosition + noteNumber * delta;
+    if (noteNumber > 3) {
+        // little bump into the next bar. Used to be a while delta, the /2 is new.
+        x += (delta / 2.f);
+    }
+    // SQINFO("n=%d totalW=%f for notes = %f", noteNumber, totalWidth, totalWidthForNotes);
+    // SQINFO(" first note pos = %f, ret x=%f keysig end = %f", firstNotePosition, x, keysigXEnds);
+    return x;
+}
+
+inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
+    const auto info = scale->getScoreInfo();
+    float width = 0;
+    float pos = xClef + paddingAfterKeysig;
+    const MidiNote *accidentals = nullptr;
+    bool areFlats = false;
+    int num = 0;
+    if (info.numFlats == 0 && info.numSharps == 0) {
+        // cmaj, we are good.
+    } else if (info.numFlats == 0) {
+        areFlats = false;
+    } else if (info.numSharps == 0) {
+        areFlats = true;
+    } else {
+        areFlats = info.numFlats < info.numSharps;
+    }
+
+    if (areFlats) {
+        accidentals = treble ? info.flatsInTrebleClef : info.flatsInBassClef;
+        num = info.numFlats;
+    } else {
+        accidentals = treble ? info.sharpsInTrebleClef : info.sharpsInBassClef;
+        num = info.numSharps;
+    }
+
+    const char *character = (areFlats) ? flat.c_str() : sharp.c_str();
+    if (num) {
+        float w = 0;
+        float p = 0;
+        for (int i = 0; i < num; ++i) {
+            const float x = xClef + paddingAfterKeysig + w;
+            const int note = accidentals[i].get();
+            const float yf = noteY(note, !treble);
+            nvgText(args.vg, x, yf, character, NULL);
+            w += 4;
+            p = std::max(p, x + 4);
+            //p += 4;
+        }
+        width = std::max(width, w);
+        pos = std::max (pos, p);
+    }
+    // SQINFO("drawKeysig returning %f,%f", width, pos);
+    return std::make_pair(width, pos);
+}
+
+float ScoreChord::noteY(const MidiNote &note, bool bassStaff) const {
+    float y = 0;
+    const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
+    const int ledgerLine = note.getLedgerLine(bassStaff);
+    y -= ledgerLine * spaceBetweenLines;
+    y += staffBasePos;
+    return y;
+}
+
+inline void ScoreChord::drawStaff(const DrawArgs &args, float yBase) const {
+    const float x = xStaff;
+    const float length = args.clipBox.size.x - 2 * leftMargin;
+    const auto color = getForegroundColor();
+    for (int i = 0; i < 5; ++i) {
+        float y = yBase - 2.f * float(i) * spaceBetweenLines;
+        drawHLine(args.vg, color, x, y, length, .5f);
+    }
 }
