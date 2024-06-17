@@ -8,12 +8,16 @@
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
+#include "ScoreChord.h"
 #include "SqLabel.h"
 #include "SqLog.h"
 #include "Visualizer.h"
 #include "WidgetComposite.h"
 
 using Comp = Visualizer<WidgetComposite>;
+
+template <>
+int BufferingParent<ScoreChord>::_refCount = 0;
 
 class VisualizerModule : public rack::engine::Module {
 public:
@@ -31,6 +35,7 @@ class VisualizerWidget : public ModuleWidget {
 public:
     VisualizerWidget(VisualizerModule* module) {
         setModule(module);
+        addScore(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
 #if 1  // def _LAB
         addLabel(Vec(20, 6), "Visualizer", 20);
@@ -68,6 +73,17 @@ private:
 
     BufferingParent<SqLabel>* _displayString;
     BufferingParent<SqLabel>* _displayString2;
+
+    ScoreChord* _scoreChord = nullptr;
+    void addScore(VisualizerModule* module) {
+        _scoreChord = new ScoreChord(module);
+        auto size = Vec(134, 100);
+        auto vu = new BufferingParent<ScoreChord>(_scoreChord, size, _scoreChord);
+
+        vu->box.pos = Vec(8, 28),
+        addChild(vu);
+    }
+
     /**
      * @brief
      *
