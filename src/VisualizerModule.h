@@ -18,4 +18,9 @@ public:
     }
 
     ConstScalePtr getScale() const { return comp->getScale(); }
+    std::tuple<const int *, unsigned> getQuantizedPitchesAndChannels() const { return comp->getQuantizedPitchesAndChannels(); }
+
+    unsigned getChangeParam() {
+        return unsigned(APP->engine->getParamValue(this, Comp::CHANGE_PARAM));
+    }
 };

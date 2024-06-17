@@ -32,11 +32,16 @@ public:
         _displayString2 = addLabel(Vec(10, 180), "chord");
     }
 
+    unsigned getChangeParam() {
+        return unsigned(APP->engine->getParamValue(module, Comp::CHANGE_PARAM));
+    }
+
     void step() override {
         _displayString->step();
         _displayString2->step();
-        const float changeParam = APP->engine->getParamValue(module, Comp::CHANGE_PARAM);
+        const float changeParam = getChangeParam();
         if (changeParam == _changeParam) {
+            Widget::step();
             return;
         }
 
@@ -50,10 +55,12 @@ public:
         _displayString->setDirty();
         _displayString2->getChild()->text = v[1];
         _displayString2->setDirty();
+
+        Widget::step();
     }
 
 private:
-    float _changeParam = -1;
+    unsigned _changeParam = 1000;
 
     BufferingParent<SqLabel>* _displayString;
     BufferingParent<SqLabel>* _displayString2;

@@ -51,10 +51,14 @@ public:
     static int getSubSampleFactor() { return 32; }
 
     ConstScalePtr getScale() const {
-        SQINFO("in get scale co = %p", _chordOptions.get());
-         SQINFO("in get scale ks = %p", _chordOptions->keysig.get());
+      //  SQINFO("in get scale co = %p", _chordOptions.get());
+      //   SQINFO("in get scale ks = %p", _chordOptions->keysig.get());
 
         return _chordOptions->keysig->getUnderlyingScale();
+    }
+
+    std::tuple<const int *, unsigned> getQuantizedPitchesAndChannels() const {
+        return std::make_tuple(_quantizedInputPitches, _inputChannels);
     }
 
 private:
@@ -63,8 +67,8 @@ private:
     void _processInput();
 
     Divider _divn;
-    int _inputPitches[16] = {0};
-    int _inputChannels = 0;
+    int _quantizedInputPitches[16] = {0};
+    unsigned _inputChannels = 0;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
   
@@ -99,13 +103,13 @@ inline void Visualizer<TBase>::_processInput() {
     // Read in the CV from the input port.
     bool wasChange = false;
     auto& inputPort = TBase::inputs[CV_INPUT];
-    const int channels = inputPort.getChannels();
-    for (int i = 0; i < channels; ++i) {
+    const unsigned channels = inputPort.getChannels();
+    for (unsigned i = 0; i < channels; ++i) {
         const float f = inputPort.getVoltage(i);
         const MidiNote mn = _quantizer->run(f);
         const int iNote = mn.get();
-        if (_inputPitches[i] != iNote) {
-            _inputPitches[i] = iNote;
+        if (_quantizedInputPitches[i] != iNote) {
+            _quantizedInputPitches[i] = iNote;
             wasChange = true;
         }
     }
@@ -116,7 +120,7 @@ inline void Visualizer<TBase>::_processInput() {
 
     // Zero out all the pitches above our range.
     for (int i = channels; i < 16; ++i) {
-        _inputPitches[i] = 0;
+        _quantizedInputPitches[i] = 0;
     }
 
     if (!wasChange) {
@@ -124,7 +128,7 @@ inline void Visualizer<TBase>::_processInput() {
     }
 
     // Now put the new chord into the params.
-    const auto chord = ChordRecognizer::recognize(_inputPitches, _inputChannels);
+    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches, _inputChannels);
     TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
     TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
 
