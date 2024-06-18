@@ -27,8 +27,10 @@ private:
 
     VisualizerModule *const _module = nullptr;
 
-    const std::string noteQuarterUp = u8"\ue1d5";
-    const std::string noteQuarterDown = u8"\ue1d6";
+    //const std::string noteQuarterUp = u8"\ue1d5";
+   // const std::string noteQuarterDown = u8"\ue1d6";
+    const std::string wholeNote = u8"\ue1d2";
+
     const std::string staffFiveLines = u8"\ue014";
     const std::string gClef = u8"\ue050";
     const std::string fClef = u8"\ue062";
@@ -266,20 +268,21 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
 
    //     MidiNote note = pitches[0];
       //  const float yf = noteY(note, false);
-        const bool stemUp = false;
+       // const bool stemUp = false;
       //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
         const auto yInfo = noteYInfo(pitches[0], true);
 
          const float x = noteXPos(0, keysigLayout);
 
-#if 0
+#if 0   // ledger lines?
         for (int i = 0; i < 3; ++i) {
             if (yInfo.ledgerPos[i] != 0) {
                 nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
             }
         }
     #endif
-        const char *notePtr = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
+    //    const char *notePtr = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
+        const char * notePtr = wholeNote.c_str();
         SQINFO("drawing text x = %f y = %f", x, yInfo.position);
         nvgText(args.vg, x, yInfo.position, notePtr, NULL);
 

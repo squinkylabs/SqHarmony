@@ -45,6 +45,7 @@ public:
     void set(const MidiNote& base, Scales mode);
     std::pair<const MidiNote, Scales> get() const;
 
+    // All of this Role stuff is for converting Scale <> PES
     enum class Role {
         Root,
         InScale,
