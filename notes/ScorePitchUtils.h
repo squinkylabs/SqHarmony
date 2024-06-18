@@ -11,7 +11,10 @@ class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
     enum class Accidental {
-        none
+        none,
+        sharp,
+        flat,
+        natural
     };
 
     static std::tuple<ScaleNote, Accidental> getNotationNote(const Scale&, const MidiNote&);
