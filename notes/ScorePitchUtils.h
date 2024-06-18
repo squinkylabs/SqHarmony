@@ -22,8 +22,22 @@ public:
 };
 
 
- inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale&, const MidiNote&) {
-     ScaleNote sn;
-     return std::make_tuple(sn, Accidental::none);
+ inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote) {
+    ScaleNote sn = scale.m2s(midiNote);
+    Accidental accidental = Accidental::none;
+    switch (sn.getAdjustment()) {
+        case ScaleNote::RelativeAdjustment::none:
+            break;
+        case ScaleNote::RelativeAdjustment::sharp:
+            accidental = Accidental::sharp;
+            break;
+        case ScaleNote::RelativeAdjustment::flat:
+            accidental = Accidental::flat;
+            break;
+        default:
+            assert(false);
+    }
+
+     return std::make_tuple(sn, accidental);
  }
 
