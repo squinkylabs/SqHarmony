@@ -57,7 +57,7 @@ static void testf2sCMajCsharp5() {
     NoteConvert::f2s(sn, scale, fn);
     assertEQ(sn.getDegree(), 0);
     assert(sn.isAccidental());
-    assert(sn.getAccidental() == ScaleNote::Accidental::sharp);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
     assertEQ(sn.getOctave(), 5);  // c4 is defaulat
 }
 

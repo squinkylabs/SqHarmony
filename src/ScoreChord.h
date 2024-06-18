@@ -1,8 +1,18 @@
 #pragma once
 
-// class VisualizerModule;
-
 #include "VisualizerModule.h"
+
+/*
+ * TODO:
+ *  rename the old SRN::Accidental to something else (Adjustment?) (done)
+ *  make new class ScorePitchUtils
+ *      (SRN, Accidental) getAccidental(scale, MidiNote)
+ *      (SRN, Accidental ) or none getOtherSpelling(SRN, Accidental)
+ * get single pitch notation working
+ * sort pitches
+ * make not overlap with last
+ * put in the natural and accidental if overlap.
+ */
 
 class ScoreChord : public app::LightWidget, public Dirty {
 public:
@@ -27,10 +37,7 @@ private:
 
     VisualizerModule *const _module = nullptr;
 
-    //const std::string noteQuarterUp = u8"\ue1d5";
-   // const std::string noteQuarterDown = u8"\ue1d6";
     const std::string wholeNote = u8"\ue1d2";
-
     const std::string staffFiveLines = u8"\ue014";
     const std::string gClef = u8"\ue050";
     const std::string fClef = u8"\ue062";
@@ -38,7 +45,6 @@ private:
     const std::string flat = u8"\ue260";
     const std::string sharp = u8"\ue262";
 
-    // topMargin = 36.5f;  is original
     const float topMargin = 27.5f;
     const float yTrebleStaff = topMargin + 0;
     const float yBassStaff = yTrebleStaff + 42;    // 28 way too close
@@ -60,17 +66,8 @@ private:
     const float paddingAfterKeysig = 9;     // space between the clef or clef + keysig and the first note
 
     std::pair<float, float> drawMusicNonNotes(const DrawArgs &args) const;
-    // void drawChordNumbers(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
     void drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
 
-    /**
-     * @brief get info about vertical placement
-     *
-     * @param note
-     * @param bassStaff
-     * @return std::pair<float, bool> first is the y position, second it flag if need ledger line
-     */
-    //  YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
     float noteY(const MidiNote &note, bool bassStaff) const;
 
     class YInfo {
@@ -81,9 +78,7 @@ private:
     YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
 
     void drawStaff(const DrawArgs &args, float y) const;
-    void drawBarLine(const DrawArgs &args, float x, float y) const;
-    // float drawChordRoot(const DrawArgs &args, float x, const Comp::Chord &chord) const;
-    // void drawChordInversion(const DrawArgs &args, float x, const Comp::Chord &chord) const;
+    void drawBarLine(const DrawArgs &args, float x, float y) const;;
     /**
      * @return float width of key signature
      */
@@ -159,7 +154,6 @@ inline void ScoreChord::draw(const DrawArgs &args) {
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const auto keysigLayout = drawMusicNonNotes(args);
     drawNotes(args, keysigLayout);
-    //  drawChordNumbers(args, keysigLayout);
     _scoreIsDirty = false;
 
     Widget::draw(args);
@@ -199,7 +193,6 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
 
     drawBarLine(args, xStaff, yBassStaff);
 
-    // const float secondBarLineX = 3 + .5f * (noteXPos(3, keysigWidth) + noteXPos(4, keysigWidth));
     const float secondBarLineX = 2 + .5f * (noteXPos(3, ksStuff) + noteXPos(4, ksStuff));
     drawBarLine(args, secondBarLineX, yBassStaff);
 
@@ -281,7 +274,6 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
             }
         }
     #endif
-    //    const char *notePtr = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
         const char * notePtr = wholeNote.c_str();
         SQINFO("drawing text x = %f y = %f", x, yInfo.position);
         nvgText(args.vg, x, yInfo.position, notePtr, NULL);
@@ -308,8 +300,6 @@ inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysi
         // little bump into the next bar. Used to be a while delta, the /2 is new.
         x += (delta / 2.f);
     }
-    // SQINFO("n=%d totalW=%f for notes = %f", noteNumber, totalWidth, totalWidthForNotes);
-    // SQINFO(" first note pos = %f, ret x=%f keysig end = %f", firstNotePosition, x, keysigXEnds);
     return x;
 }
 
@@ -354,7 +344,6 @@ inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, Cons
         width = std::max(width, w);
         pos = std::max(pos, p);
     }
-    // SQINFO("drawKeysig returning %f,%f", width, pos);
     return std::make_pair(width, pos);
 }
 

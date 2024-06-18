@@ -162,7 +162,7 @@ static void testm2sCMajCsharp4() {
     ScaleNote sn = scale.m2s(c);
     assertEQ(sn.getDegree(), 0);
     assertEQ(sn.getOctave(), 4);
-    assert(sn.getAccidental() == ScaleNote::Accidental::sharp);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
 }
 
 static void tests2mCMajC4() {

@@ -114,7 +114,7 @@ static void testScaleNoteCtor() {
 }
 
 static void testScaleNoteCtor2() {
-    ScaleNote d(1, 2, ScaleNote::Accidental::sharp);
+    ScaleNote d(1, 2, ScaleNote::RelativeAdjustment::sharp);
     assertEQ(d.getDegree(), 1);
     assertEQ(d.getOctave(), 2);
     assertEQ(d.isAccidental(), true);
@@ -141,7 +141,7 @@ static void testScaleNoteToMidiC5() {
 static void testScaleNoteToMidiCsharp5() {
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
-    ScaleNote sn(0, 5, ScaleNote::Accidental::sharp);  // C5 sharp
+    ScaleNote sn(0, 5, ScaleNote::RelativeAdjustment::sharp);  // C5 sharp
     MidiNote m;
     NoteConvert::s2m(m, scale, sn);
     // assertEQ(m.get(), 64 + 12 + 1);

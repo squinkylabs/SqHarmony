@@ -32,7 +32,7 @@ ScaleNote Scale::m2s(const MidiNote& mn) const {
     }
 
     auto sn = _makeScaleNote(offset);
-    ScaleNote final(sn.getDegree(), octave, sn.getAccidental());
+    ScaleNote final(sn.getDegree(), octave, sn.getAdjustment());
     // need octave into
     return final;
 }
@@ -41,14 +41,14 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     const int semitones = degreeToSemitone(scaleNote.getDegree());
 
     int accidentalOffset = 0;
-    switch (scaleNote.getAccidental()) {
-        case ScaleNote::Accidental::sharp:
+    switch (scaleNote.getAdjustment()) {
+        case ScaleNote::RelativeAdjustment::sharp:
             accidentalOffset = 1;
             break;
-        case ScaleNote::Accidental::flat:
+        case ScaleNote::RelativeAdjustment::flat:
             accidentalOffset = -1;
             break;
-        case ScaleNote::Accidental::none:
+        case ScaleNote::RelativeAdjustment::none:
             accidentalOffset = 0;
             break;
         default:
@@ -68,11 +68,11 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
     }
     degree = _quantizeInScale(offset - 1);
     if (degree >= 0) {
-        return ScaleNote(degree, 0, ScaleNote::Accidental::sharp);
+        return ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
     }
     degree = _quantizeInScale(offset + 1);
     if (degree >= 0) {
-        return ScaleNote(degree, 0, ScaleNote::Accidental::flat);
+        return ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
     }
     assert(false);
     return ScaleNote();

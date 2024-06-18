@@ -238,6 +238,7 @@
     <ClCompile Include="testNotes.cpp" />
     <ClCompile Include="testScaleRelativeNote.cpp" />
     <ClCompile Include="testSchmidtTrigger.cpp" />
+    <ClCompile Include="testScorePitchUtils.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
     <ClCompile Include="testSharpFlatMonitor.cpp" />

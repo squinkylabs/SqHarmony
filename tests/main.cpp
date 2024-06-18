@@ -82,6 +82,7 @@ extern void testChordRecognizer();
 extern void testChordRecognizer2();
 extern void testChordRecognizer3();
 extern void testVisualizer();
+extern void testScorePitchUtils();
 
 #include "SqLog.h"
 
@@ -131,6 +132,7 @@ int main(const char**, int) {
     testShiftCalc();
     testSharpFlatMonitor();
     testDifferenticalClockCounter();
+    testScorePitchUtils();
     testChordRecognizer3();
     testChordRecognizer();
     testChordRecognizer2();
