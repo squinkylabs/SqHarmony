@@ -122,7 +122,7 @@ static void testScaleNoteCtor2() {
 
 static void testScaleNoteToMidiC4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);  // 4 = C
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);  // 4 = C
     ScaleNote sn(0, 4);                            // middle C
     MidiNote m;
     NoteConvert::s2m(m, scale, sn);
@@ -131,7 +131,7 @@ static void testScaleNoteToMidiC4() {
 
 static void testScaleNoteToMidiC5() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScaleNote sn(0, 5);  // middle C up an octave
     MidiNote m;
     NoteConvert::s2m(m, scale, sn);
@@ -140,7 +140,7 @@ static void testScaleNoteToMidiC5() {
 
 static void testScaleNoteToMidiCsharp5() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScaleNote sn(0, 5, ScaleNote::Accidental::sharp);  // C5 sharp
     MidiNote m;
     NoteConvert::s2m(m, scale, sn);
@@ -171,7 +171,7 @@ static void testScaleNoteTrans3() {
 
 static void testScaleNoteTrans4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScaleNote sn(0, 4);  // start at middle C
     MidiNote mn;
     NoteConvert::s2m(mn, scale, sn);
@@ -215,7 +215,7 @@ static void testScaleNoteTrans4() {
 
 static void testScaleNoteToMidiD4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     ScaleNote d(1, 4);  // degree 1 in cmaj, d above middle c
     MidiNote m;

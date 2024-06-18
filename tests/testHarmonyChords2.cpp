@@ -17,7 +17,7 @@ static StylePtr makeStyle() {
 static KeysigOldPtr makeKeysig(bool minor) {
     auto ret = std::make_shared<KeysigOld>(Roots::C);
     if (minor) {
-        ret->set(MidiNote::C, Scale::Scales::Minor);
+        ret->set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     }
     return ret;
 }
@@ -30,7 +30,7 @@ static Options makeOptions(bool minor) {
 static Options makeOptions(int root, Scale::Scales scale) {
     auto ks = std::make_shared<KeysigOld>(Roots::C);
 
-    ks->set(root, scale);
+    ks->set(MidiNote(root), scale);
     Options o(ks, makeStyle());
     return o;
 }
@@ -107,7 +107,7 @@ static void testHistory(int setting) {
     auto keysig = options.keysig;
     const int basePitch = MidiNote::C;
     auto mode = Scale::Scales::Major;
-    keysig->set(basePitch, mode);
+    keysig->set(MidiNote(basePitch), mode);
     Chord4Manager mgr(options);
 
     HarmonyChords::ChordHistory history;

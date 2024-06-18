@@ -30,7 +30,7 @@ public:
         const auto mode = Scale::Scales(int(std::round(_comp->params[TComp::MODE_PARAM].value)));
         auto _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
         _quantizerOptions->scale = std::make_shared<Scale>();
-        _quantizerOptions->scale->set(basePitch, mode);
+        _quantizerOptions->scale->set(MidiNote(basePitch), mode);
 
         const auto scale = _quantizerOptions->scale;
         const auto scaleSharpFlatPref = scale->getSharpsFlatsPref();

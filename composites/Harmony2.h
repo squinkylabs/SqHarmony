@@ -195,7 +195,7 @@ template <class TBase>
 inline void Harmony2<TBase>::_init() {
     _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     _quantizerOptions->scale = std::make_shared<Scale>();
-    _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
+    _quantizerOptions->scale->set(MidiNote(MidiNote::C), Scale::Scales::Major);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
 
     _updater.set(this, getSubSampleFactor());
@@ -245,7 +245,7 @@ inline void Harmony2<TBase>::_serviceKeysigParams() {
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
 
     assert(basePitch < 12);
-    _quantizerOptions->scale->set(basePitch, mode);
+    _quantizerOptions->scale->set(MidiNote(basePitch), mode);
 }
 
 template <class TBase>
@@ -379,7 +379,7 @@ inline void Harmony2<TBase>::_serviceScaleOutput() {
         output.channels = 12;
     }
 
-    const auto note = MidiNote::C + int(std::round(TBase::params[KEY_PARAM].value));
+    const auto note = MidiNote(MidiNote::C + int(std::round(TBase::params[KEY_PARAM].value)));
     const auto mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
     const Scale::RoleArray roleArray = Scale::convert(note, mode);
     for (int i = 0; i < 12; ++i) {

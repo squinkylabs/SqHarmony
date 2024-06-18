@@ -7,7 +7,7 @@
 class MidiNote {
 public:
     // Note: this constructor should probably be "explicit", but a lot of stuff breaks!
-    MidiNote(int p) : pitch(p) {}
+    explicit MidiNote(int p) : pitch(p) {}
     MidiNote() : pitch(64) {}
 
     int get() const { return pitch; }

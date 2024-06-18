@@ -83,7 +83,7 @@ inline void Visualizer<TBase>::_init() {
     ScaleQuantizer::OptionsPtr _quantizerOptions;
     _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     _quantizerOptions->scale = std::make_shared<Scale>();
-    _quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Chromatic);
+    _quantizerOptions->scale->set(MidiNote(MidiNote::C), Scale::Scales::Chromatic);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
 
       // Chord options get cmag

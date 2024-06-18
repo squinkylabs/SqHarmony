@@ -6,7 +6,7 @@
 
 static void testm2sRoundTrip() {
     Scale scale;
-    scale.set(4, Scale::Scales::Major);
+    scale.set(MidiNote(4), Scale::Scales::Major);
     for (int i = 0; i < 128; ++i) {
         MidiNote mn(i);
         ScaleNote sn;
@@ -19,7 +19,7 @@ static void testm2sRoundTrip() {
 
 static void testf2sCMajC4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // float is VCV standard: 0 = c4
     const FloatNote fn;
@@ -32,7 +32,7 @@ static void testf2sCMajC4() {
 
 static void testf2sRoundTrip() {
     Scale scale;
-    scale.set(MidiNote::C + 4, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C + 4), Scale::Scales::Major);
 
     for (int i = -20; i < 200; ++i) {
         MidiNote mn(i);
@@ -50,7 +50,7 @@ static void testf2sRoundTrip() {
 
 static void testf2sCMajCsharp5() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     const FloatNote fn(1 + (1.f / 12.f));  // c sharp
     ScaleNote sn;
@@ -63,7 +63,7 @@ static void testf2sCMajCsharp5() {
 
 static void tests2fCMajC4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     ScaleNote sn(0, 4);  // C4
 

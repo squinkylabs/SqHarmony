@@ -6,7 +6,7 @@
 
 static void testCMaj() {
     Scale scale;
-    scale.set(4, Scale::Scales::Major);
+    scale.set(MidiNote(4), Scale::Scales::Major);
     assertEQ(scale.degreeToSemitone(0), 0);   // C
     assertEQ(scale.degreeToSemitone(1), 2);   // D
     assertEQ(scale.degreeToSemitone(2), 4);   // E
@@ -29,7 +29,7 @@ static void testGeneral() {
         for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
             Scale scale;
             Scale::Scales emode = Scale::Scales(mode);
-            scale.set(root, emode);
+            scale.set(MidiNote(root), emode);
             for (int testPitch = 0; testPitch < 12; testPitch++) {
                 const int x = scale.quantize(testPitch);
             }
@@ -39,7 +39,7 @@ static void testGeneral() {
 
 static void testAMin() {
     Scale scale;
-    scale.set(4 - 3, Scale::Scales::Minor);
+    scale.set(MidiNote(4 - 3), Scale::Scales::Minor);
     assertEQ(scale.degreeToSemitone(0), 0);   // A
     assertEQ(scale.degreeToSemitone(1), 2);   // B
     assertEQ(scale.degreeToSemitone(2), 3);   // C
@@ -52,7 +52,7 @@ static void testAMin() {
 static void testChromatic() {
     Scale scale;
     // C chromatic
-    scale.set(MidiNote::C, Scale::Scales::Chromatic);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Chromatic);
 
     assertEQ(scale.degreeToSemitone(0), 0);  // A
     assertEQ(scale.degreeToSemitone(1), 1);
@@ -70,7 +70,7 @@ static void testChromatic() {
 
 static void testQuantCMin() {
     Scale scale;
-    scale.set(4, Scale::Scales::Minor);
+    scale.set(MidiNote(4), Scale::Scales::Minor);
     // already in scale
     assertEQ(scale.quantize(0), 0);   // c -> c (0)
     assertEQ(scale.quantize(2), 1);   // d -> d (1)
@@ -90,7 +90,7 @@ static void testQuantCMin() {
 
 static void testQuantCMaj() {
     Scale scale;
-    scale.set(4, Scale::Scales::Major);
+    scale.set(MidiNote(4), Scale::Scales::Major);
     // already in scale
     assertEQ(scale.quantize(0), 0);  // c -> c (0)
     assertEQ(scale.quantize(2), 1);  // d -> d (1)
@@ -110,7 +110,7 @@ static void testQuantCMaj() {
 
 static void testQuantEPenta() {
     Scale scale;
-    scale.set(4 + 4, Scale::Scales::MinorPentatonic);
+    scale.set(MidiNote(4 + 4), Scale::Scales::MinorPentatonic);
 
     // already in scale
     assertEQ(scale.quantize(0), 0);   // e -> e (0)
@@ -132,7 +132,7 @@ static void testQuantEPenta() {
 
 static void testm2sCMajC3() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     MidiNote c(MidiNote::C3);
     ScaleNote sn = scale.m2s(c);
@@ -143,7 +143,7 @@ static void testm2sCMajC3() {
 
 static void testm2sCMajC4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // middle c is degree 0 in cmaj
     MidiNote c(MidiNote::C3 + 12);
@@ -155,7 +155,7 @@ static void testm2sCMajC4() {
 
 static void testm2sCMajCsharp4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // MAKE C#4
     MidiNote c(MidiNote::C3 + 12 + 1);
@@ -167,7 +167,7 @@ static void testm2sCMajCsharp4() {
 
 static void tests2mCMajC4() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // middle c is degree 0 in cmaj, octave c
     ScaleNote sn(0, 3);
@@ -177,7 +177,7 @@ static void tests2mCMajC4() {
 
 static void tests2mCMajC5() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // middle c is degree 0 in cmaj
     ScaleNote sn(0, 5);
@@ -222,7 +222,7 @@ static void validate(const Scale::ScoreInfo& info, int expectedSharps, int expec
 
 static void testScore() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     auto info = scale.getScoreInfo();
     assertEQ(info.numFlats, 0);
@@ -230,7 +230,7 @@ static void testScore() {
     validate(info);
 
     // gmaj
-    scale.set(MidiNote::C + 7, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C + 7), Scale::Scales::Major);
     info = scale.getScoreInfo();
     assertEQ(info.numFlats, 0);
     assertEQ(info.numSharps, 1);
@@ -241,7 +241,7 @@ static void testScore2() {
     Scale scale;
 
     // E flat is three flat major
-    scale.set(MidiNote::C + 3, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C + 3), Scale::Scales::Major);
 
     auto info = scale.getScoreInfo();
     assertEQ(info.numFlats, 3);
@@ -249,7 +249,7 @@ static void testScore2() {
     validate(info);
 
     // C Min is the relative minor
-    scale.set(MidiNote::C, Scale::Scales::Minor);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     info = scale.getScoreInfo();
     assertEQ(info.numFlats, 3);
     assertEQ(info.numSharps, 0);
@@ -259,87 +259,87 @@ static void testScore2() {
 static void testSharpsFlatsDiatonic() {
     Scale scale;
 
-    scale.set(MidiNote::C, Scale::Scales::Minor);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     auto info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
     // C#/Dflat
-    scale.set(MidiNote::C + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
-    scale.set(MidiNote::D, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
     // D#/Eflat
-    scale.set(MidiNote::D + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::D + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
-    scale.set(MidiNote::E, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::E), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
-    scale.set(MidiNote::F, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::F), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
     // F#/G-
-    scale.set(MidiNote::F + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::F + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
-    scale.set(MidiNote::G, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::G), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
     // G#/A-
-    scale.set(MidiNote::G + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::G + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
-    scale.set(MidiNote::A, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::A), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
     // A#/B-
-    scale.set(MidiNote::A + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::A + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
-    scale.set(MidiNote::B, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::B), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 }
 
 static void testSharpsFlatsOtherMinor() {
     Scale scale;
-    scale.set(MidiNote::E, Scale::Scales::MinorPentatonic);
+    scale.set(MidiNote(MidiNote::E), Scale::Scales::MinorPentatonic);
     auto info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
-    scale.set(MidiNote::E, Scale::Scales::HarmonicMinor);
+    scale.set(MidiNote(MidiNote::E), Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Sharps);
 
-    scale.set(MidiNote::E - 1, Scale::Scales::MinorPentatonic);
+    scale.set(MidiNote(MidiNote::E - 1), Scale::Scales::MinorPentatonic);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
-    scale.set(MidiNote::E - 1, Scale::Scales::HarmonicMinor);
+    scale.set(MidiNote(MidiNote::E - 1), Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::DontCare);
 
-    scale.set(MidiNote::G, Scale::Scales::MinorPentatonic);
+    scale.set(MidiNote(MidiNote::G), Scale::Scales::MinorPentatonic);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 
-    scale.set(MidiNote::G, Scale::Scales::HarmonicMinor);
+    scale.set(MidiNote(MidiNote::G), Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
     assert(info == Scale::SharpsFlatsPref::Flats);
 }
@@ -348,19 +348,19 @@ static void testSharpsFlatsWierdos() {
     Scale scale;
     int count = 0;
     for (int i = MidiNote::C; i <= MidiNote::B; ++i) {
-        scale.set(i, Scale::Scales::Chromatic);
+        scale.set(MidiNote(i), Scale::Scales::Chromatic);
         auto info = scale.getSharpsFlatsPref();
         assert(info == Scale::SharpsFlatsPref::DontCare);
 
-        scale.set(i, Scale::Scales::Diminished);
+        scale.set(MidiNote(i), Scale::Scales::Diminished);
         info = scale.getSharpsFlatsPref();
         assert(info == Scale::SharpsFlatsPref::DontCare);
 
-        scale.set(i, Scale::Scales::DominantDiminished);
+        scale.set(MidiNote(i), Scale::Scales::DominantDiminished);
         info = scale.getSharpsFlatsPref();
         assert(info == Scale::SharpsFlatsPref::DontCare);
 
-        scale.set(i, Scale::Scales::WholeStep);
+        scale.set(MidiNote(i), Scale::Scales::WholeStep);
         info = scale.getSharpsFlatsPref();
         assert(info == Scale::SharpsFlatsPref::Sharps);
         ++count;
@@ -372,7 +372,7 @@ static void testSharpsFlatsNoAssert() {
     Scale scale;
     int count = 0;
     for (int i = int(Scale::Scales::Major); i <= int(Scale::Scales::Chromatic); ++i) {
-        scale.set(0, Scale::Scales(i));
+        scale.set(MidiNote(0), Scale::Scales(i));
         auto info = scale.getSharpsFlatsPref();
         ++count;
     }
@@ -383,96 +383,96 @@ static void testScore3() {
     Scale scale;
 
     // all the natural modes
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 0, 0);
-    scale.set(MidiNote::D, Scale::Scales::Dorian);
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Dorian);
     validate(scale.getScoreInfo(), 0, 0);
-    scale.set(MidiNote::E, Scale::Scales::Phrygian);
+    scale.set(MidiNote(MidiNote::E), Scale::Scales::Phrygian);
     validate(scale.getScoreInfo(), 0, 0);
-    scale.set(MidiNote::F, Scale::Scales::Lydian);
+    scale.set(MidiNote(MidiNote::F), Scale::Scales::Lydian);
     validate(scale.getScoreInfo(), 0, 0);
-    scale.set(MidiNote::G, Scale::Scales::Mixolydian);
+    scale.set(MidiNote(MidiNote::G), Scale::Scales::Mixolydian);
     validate(scale.getScoreInfo(), 0, 0);
-    scale.set(MidiNote::A, Scale::Scales::Minor);
+    scale.set(MidiNote(MidiNote::A), Scale::Scales::Minor);
     validate(scale.getScoreInfo(), 0, 0);
-    scale.set(MidiNote::B, Scale::Scales::Locrian);
+    scale.set(MidiNote(MidiNote::B), Scale::Scales::Locrian);
     validate(scale.getScoreInfo(), 0, 0);
 
     // all the one sharp scales
-    scale.set(MidiNote::G, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::G), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 1, 0);
-    scale.set(MidiNote::A, Scale::Scales::Dorian);
+    scale.set(MidiNote(MidiNote::A), Scale::Scales::Dorian);
     validate(scale.getScoreInfo(), 1, 0);
-    scale.set(MidiNote::B, Scale::Scales::Phrygian);
+    scale.set(MidiNote(MidiNote::B), Scale::Scales::Phrygian);
     validate(scale.getScoreInfo(), 1, 0);
-    scale.set(MidiNote::C, Scale::Scales::Lydian);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Lydian);
     validate(scale.getScoreInfo(), 1, 0);
-    scale.set(MidiNote::D, Scale::Scales::Mixolydian);
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Mixolydian);
     validate(scale.getScoreInfo(), 1, 0);
-    scale.set(MidiNote::E, Scale::Scales::Minor);
+    scale.set(MidiNote(MidiNote::E), Scale::Scales::Minor);
     validate(scale.getScoreInfo(), 1, 0);
-    scale.set(MidiNote::F + 1, Scale::Scales::Locrian);
+    scale.set(MidiNote(MidiNote::F + 1), Scale::Scales::Locrian);
     validate(scale.getScoreInfo(), 1, 0);
 
     // all the two sharp scales
-    scale.set(MidiNote::D, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 2, 0);
-    scale.set(MidiNote::E, Scale::Scales::Dorian);
+    scale.set(MidiNote(MidiNote::E), Scale::Scales::Dorian);
     validate(scale.getScoreInfo(), 2, 0);
-    scale.set(MidiNote::F + 1, Scale::Scales::Phrygian);
+    scale.set(MidiNote(MidiNote::F + 1), Scale::Scales::Phrygian);
     validate(scale.getScoreInfo(), 2, 0);
-    scale.set(MidiNote::G, Scale::Scales::Lydian);
+    scale.set(MidiNote(MidiNote::G), Scale::Scales::Lydian);
     validate(scale.getScoreInfo(), 2, 0);
-    scale.set(MidiNote::A, Scale::Scales::Mixolydian);
+    scale.set(MidiNote(MidiNote::A), Scale::Scales::Mixolydian);
     validate(scale.getScoreInfo(), 2, 0);
-    scale.set(MidiNote::B, Scale::Scales::Minor);
+    scale.set(MidiNote(MidiNote::B), Scale::Scales::Minor);
     validate(scale.getScoreInfo(), 2, 0);
-    scale.set(MidiNote::C + 1, Scale::Scales::Locrian);
+    scale.set(MidiNote(MidiNote::C + 1), Scale::Scales::Locrian);
     validate(scale.getScoreInfo(), 2, 0);
 
-    scale.set(MidiNote::A, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::A), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 3, 0);
 
-    scale.set(MidiNote::E, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::E), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 4, 0);
 
     // b maj = 5 sharp or 7 flats
-    scale.set(MidiNote::B, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::B), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 5, 7);
 
-    scale.set(MidiNote::F + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::F + 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 6, 6);
 
     // c# major / d- major
-    scale.set(MidiNote::C + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C + 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 7, 5);
 
     // one flat
-    scale.set(MidiNote::F, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::F), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 0, 1);
 
     // 2 flat b- major
-    scale.set(MidiNote::B - 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::B - 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 0, 2);
 
     // 3 flat e- maj
-    scale.set(MidiNote::E - 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::E - 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 0, 3);
 
     // 4 flats A- major = g# major
-    scale.set(MidiNote::A - 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::A - 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 0, 4);
 
     //  5 flats d- major . also c# major - 7 sharps
-    scale.set(MidiNote::D - 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::D - 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 7, 5);
 
     // 6 flats g- major, algo f# mar
-    scale.set(MidiNote::G - 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::G - 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 6, 6);
 
     // 7 flats c- major. also bmaj = 5 sharps
-    scale.set(MidiNote::C + 12 - 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C + 12 - 1), Scale::Scales::Major);
     validate(scale.getScoreInfo(), 5, 7);
 }
 
@@ -534,7 +534,7 @@ static void testNumNotes() {
 static void testGetNotesInScale() {
     for (int i = 0; i <= Scale::lastScale; ++i) {
         Scale scale;
-        scale.set(MidiNote::C, Scale::Scales(i));
+        scale.set(MidiNote(MidiNote::C), Scale::Scales(i));
         const int* pitches = scale._getNormalizedScalePitches();
         int len = 0;
         while (*pitches >= 0) {
@@ -590,7 +590,7 @@ Scale::Role* getRolesDMajor() {
 
 static void testRolesCMajor() {
     Scale sc;
-    const Scale::RoleArray ar = Scale::convert(MidiNote::C, Scale::Scales::Major);
+    const Scale::RoleArray ar = Scale::convert(MidiNote(MidiNote::C), Scale::Scales::Major);
     Scale::Role* expected = getRolesCMajor();
 
     //  Scale::_dumpRoles("expected", expected);
@@ -603,7 +603,7 @@ static void testRolesCMajor() {
 
 static void testRolesDMajor() {
     Scale sc;
-    const Scale::RoleArray ar = Scale::convert(MidiNote::D, Scale::Scales::Major);
+    const Scale::RoleArray ar = Scale::convert(MidiNote(MidiNote::D), Scale::Scales::Major);
     Scale::Role* expected = getRolesDMajor();
 
     //  Scale::_dumpRoles("expected", expected);
@@ -644,12 +644,12 @@ static void testConvertFrom(const Scale::Role* expectedRoles, MidiNote testRoot,
 
 static void testConvertFromCMajor() {
     const auto roles = getRolesCMajor();
-    testConvertFrom(roles, MidiNote::C, Scale::Scales::Major);
+    testConvertFrom(roles, MidiNote(MidiNote::C), Scale::Scales::Major);
 }
 
 static void testConvertFromDMajor() {
     const auto roles = getRolesDMajor();
-    testConvertFrom(roles, MidiNote::D, Scale::Scales::Major);
+    testConvertFrom(roles, MidiNote(MidiNote::D), Scale::Scales::Major);
 }
 
 static void testConvertCMajor() {
@@ -657,7 +657,7 @@ static void testConvertCMajor() {
     //   Scale::_dumpRoles("cmajor", roles);
     const auto x = Scale::convert(roles, false);
     assertEQ(std::get<0>(x), true);
-    assert(std::get<1>(x) == MidiNote::C);
+    assert(std::get<1>(x) == MidiNote(MidiNote::C));
     assert(std::get<2>(x) == Scale::Scales::Major);
 }
 
@@ -665,7 +665,7 @@ static void testConvertDMajor() {
     const auto roles = getRolesDMajor();
     const auto x = Scale::convert(roles, false);
     assertEQ(std::get<0>(x), true);
-    assert(std::get<1>(x) == MidiNote::D);
+    assert(std::get<1>(x) == MidiNote(MidiNote::D));
     assert(std::get<2>(x) == Scale::Scales::Major);
 }
 
@@ -691,7 +691,7 @@ static void testConvertCMinor() {
     const auto roles = getRolesCMinor();
     const auto x = Scale::convert(roles, false);
     assertEQ(std::get<0>(x), true);
-    assert(std::get<1>(x) == MidiNote::C);
+    assert(std::get<1>(x) == MidiNote(MidiNote::C));
     assert(std::get<2>(x) == Scale::Scales::Minor);
 }
 
@@ -720,20 +720,20 @@ static void testRoundTrip(Scale scale, bool diatonicOnly) {
 
 static void testRoundTrip(bool diatonicOnly) {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     testRoundTrip(scale, diatonicOnly);
 
-    scale.set(MidiNote::C, Scale::Scales::Chromatic);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Chromatic);
     testRoundTrip(scale, diatonicOnly);
-    scale.set(MidiNote::C + 1, Scale::Scales::Chromatic);
+    scale.set(MidiNote(MidiNote::C + 1), Scale::Scales::Chromatic);
     testRoundTrip(scale, diatonicOnly);
-    scale.set(MidiNote::C + 1, Scale::Scales::Major);
+    scale.set(MidiNote(MidiNote::C + 1), Scale::Scales::Major);
     testRoundTrip(scale, diatonicOnly);
 
     for (int mode = Scale::firstScale; mode <= Scale::lastScale; ++mode) {
         const auto smode = Scale::Scales(mode);
         for (int pitch = MidiNote::C; pitch <= MidiNote::B; ++pitch) {
-            scale.set(pitch, smode);
+            scale.set(MidiNote(pitch), smode);
             testRoundTrip(scale, diatonicOnly);
         }
     }
@@ -771,7 +771,7 @@ static void testMultiRoot() {
 
 static void testChromatic2() {
     Scale sc;
-    sc.set(MidiNote::C, Scale::Scales::Chromatic);
+    sc.set(MidiNote(MidiNote::C), Scale::Scales::Chromatic);
     const int * p = sc._getNormalizedScalePitches();
     int last = -1;
     int len = 0;
