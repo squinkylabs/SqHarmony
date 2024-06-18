@@ -270,7 +270,7 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
       //  const float yf = noteY(note, false);
        // const bool stemUp = false;
       //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
-        const auto yInfo = noteYInfo(pitches[0], true);
+        const auto yInfo = noteYInfo(MidiNote(pitches[0]), true);
 
          const float x = noteXPos(0, keysigLayout);
 
@@ -345,7 +345,7 @@ inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, Cons
         for (int i = 0; i < num; ++i) {
             const float x = xClef + paddingAfterKeysig + w;
             const int note = accidentals[i].get();
-            const float yf = noteY(note, !treble);
+            const float yf = noteY(MidiNote(note), !treble);
             nvgText(args.vg, x, yf, character, NULL);
             w += 4;
             p = std::max(p, x + 4);

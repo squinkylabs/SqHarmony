@@ -172,66 +172,66 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     Comp::Chord c;
     c.inversion = 0;
     c.root = 1;
-    c.pitch[0] = 60;
-    c.pitch[1] = 72;
-    c.pitch[2] = 76;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(60);
+    c.pitch[1] = MidiNote(72);
+    c.pitch[2] = MidiNote(76);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 3;
-    c.pitch[0] = 64;
-    c.pitch[1] = 71;
-    c.pitch[2] = 76;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(64);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(76);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 1;
     c.root = 2;
-    c.pitch[0] = 65;
-    c.pitch[1] = 69;
-    c.pitch[2] = 74;
-    c.pitch[3] = 77;
+    c.pitch[0] = MidiNote(65);
+    c.pitch[1] = MidiNote(69);
+    c.pitch[2] = MidiNote(74);
+    c.pitch[3] = MidiNote(77);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 7;
-    c.pitch[0] = 59;
-    c.pitch[1] = 71;
-    c.pitch[2] = 74;
-    c.pitch[3] = 77;
+    c.pitch[0] = MidiNote(59);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(74);
+    c.pitch[3] = MidiNote(77);
     chords.push_back(c);
 
     c.inversion = 1;
     c.root = 3;
-    c.pitch[0] = 55;
-    c.pitch[1] = 71;
-    c.pitch[2] = 76;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(55);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(76);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 4;
-    c.pitch[0] = 53;
-    c.pitch[1] = 72;
-    c.pitch[2] = 77;
-    c.pitch[3] = 81;
+    c.pitch[0] = MidiNote(53);
+    c.pitch[1] = MidiNote(72);
+    c.pitch[2] = MidiNote(77);
+    c.pitch[3] = MidiNote(81);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 5;
-    c.pitch[0] = 55;
-    c.pitch[1] = 71;
-    c.pitch[2] = 74;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(55);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(74);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 1;
-    c.pitch[0] = 60;
-    c.pitch[1] = 67;
-    c.pitch[2] = 72;
-    c.pitch[3] = 76;
+    c.pitch[0] = MidiNote(60);
+    c.pitch[1] = MidiNote(67);
+    c.pitch[2] = MidiNote(72);
+    c.pitch[3] = MidiNote(76);
     chords.push_back(c);
 #endif
 }
@@ -439,7 +439,7 @@ inline std::pair<float, float> Score::drawKeysig(const DrawArgs &args, ConstScal
         for (int i = 0; i < num; ++i) {
             const float x = xClef + paddingAfterKeysig + w;
             const int note = accidentals[i].get();
-            const float yf = noteY(note, !treble);
+            const float yf = noteY(MidiNote(note), !treble);
             nvgText(args.vg, x, yf, character, NULL);
             w += 4;
             p = std::max(p, x + 4);
