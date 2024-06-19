@@ -1,8 +1,7 @@
 #pragma once
 
-#include "VisualizerModule.h"
-
 #include "ScorePitchUtils.h"
+#include "VisualizerModule.h"
 
 /*
  * TODO:
@@ -10,11 +9,13 @@
  *  make new class ScorePitchUtils (done)
  *      (SRN, Accidental) getAccidental(scale, MidiNote)
  *      (SRN, Accidental ) or none getOtherSpelling(SRN, Accidental)
- * 
+ *
  * add keysig select to ui. (done)
- * implement keysig select in composite.
- * 
- * get single pitch notation working with accidental drawing
+ * implement keysig select in composite. 
+ *
+ * get single pitch notation working with accidental drawing (done).
+ * make larger
+ * notate all notes.
  * sort pitches
  * make note not overlap with last in stacked close chords.
  * put in the natural and accidental if overlap.
@@ -49,6 +50,7 @@ private:
     const std::string fClef = u8"\ue062";
     const std::string ledgerLine = u8"\ue022";
     const std::string flat = u8"\ue260";
+    const std::string natural = u8"\ue261";
     const std::string sharp = u8"\ue262";
 
     const float topMargin = 27.5f;
@@ -57,6 +59,7 @@ private:
     const float yTrebleClef = yTrebleStaff - 3.3;  // 3 a little low, 4 way high
     const float yBassClef = yBassStaff - 10;       // 11 too much
     const float yNoteInfo = yBassStaff + 17;       // 0 too high 12 for a long time...
+    const float _deltaAccidental = -6;
 
     // X axis pos
     const float leftMargin = 4.5f;
@@ -84,7 +87,8 @@ private:
     YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
 
     void drawStaff(const DrawArgs &args, float y) const;
-    void drawBarLine(const DrawArgs &args, float x, float y) const;;
+    void drawBarLine(const DrawArgs &args, float x, float y) const;
+    ;
     /**
      * @return float width of key signature
      */
@@ -245,7 +249,6 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
     return ret;
 }
 
-
 // why is this here
 inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const {
     SQINFO("call to draw notes - do it!");
@@ -258,34 +261,50 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
         const int *pitches = std::get<0>(pitchesAndChannels);
         if (channels <= 0) {
             SQINFO("On change, nothing");
-            return; 
+            return;
         }
-  
-         ConstScalePtr scale = _module->getScale();
-         MidiNote mn(pitches[0]);
-         const auto  qq = ScorePitchUtils::getNotationNote(*scale, mn);
+
+        ConstScalePtr scale = _module->getScale();
+        MidiNote mn(pitches[0]);
+        const auto qq = ScorePitchUtils::getNotationNote(*scale, mn);
         SQINFO("On change, ch=%d p0=%d accid=%d", channels, pitches[0], int(std::get<1>(qq)));
 
-      
-
-   //     MidiNote note = pitches[0];
-      //  const float yf = noteY(note, false);
-       // const bool stemUp = false;
-      //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
+        //     MidiNote note = pitches[0];
+        //  const float yf = noteY(note, false);
+        // const bool stemUp = false;
+        //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
         const auto yInfo = noteYInfo(MidiNote(pitches[0]), false);
 
-         const float x = noteXPos(0, keysigLayout);
+        const float x = noteXPos(0, keysigLayout);
 
-#if 1   // ledger lines?
+#if 1  // ledger lines?
         for (int i = 0; i < 3; ++i) {
             if (yInfo.ledgerPos[i] != 0) {
                 nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
             }
         }
-    #endif
-        const char * notePtr = wholeNote.c_str();
+#endif
+        const char *notePtr = wholeNote.c_str();
         SQINFO("drawing text x = %f y = %f", x, yInfo.position);
         nvgText(args.vg, x, yInfo.position, notePtr, NULL);
+        if (std::get<1>(qq) != ScorePitchUtils::Accidental::none) {
+            std::string symbol = "";
+            switch (std::get<1>(qq)) {
+                case ScorePitchUtils::Accidental::sharp:
+                    symbol = sharp;
+                    break;
+                case ScorePitchUtils::Accidental::flat:
+                    symbol = flat;
+                    break;
+                case ScorePitchUtils::Accidental::natural:
+                    symbol = natural;
+                    break;
+                default:
+                    SQFATAL("unknown accidental");
+                    break;
+            }
+            nvgText(args.vg, x + _deltaAccidental, yInfo.position, symbol.c_str(), NULL);
+        }
 
         // const float yf = noteY(note, !treble);
     }
