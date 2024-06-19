@@ -1,11 +1,11 @@
 
 #pragma once
 
+#include <tuple>
+
 #include "MidiNote.h"
 #include "Scale.h"
 #include "ScaleNote.h"
-
-#include <tuple>
 
 class ScorePitchUtils {
 public:
@@ -21,10 +21,22 @@ public:
     // (SRN, Accidental) getAccidental(scale, MidiNote)
 };
 
-
- inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote) {
+inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote) {
     ScaleNote sn = scale.m2s(midiNote);
     Accidental accidental = Accidental::none;
+
+    if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
+        accidental = Accidental::none;
+    } else if (!midiNote.isBlackKey()) {
+        accidental = Accidental::natural;
+    } else {
+        assert(false);
+        accidental = Accidental::sharp;
+    }
+
+    return std::make_tuple(sn, accidental);
+#if 0
+    // Just pass on the stuff from the ScaleNote. It's not quite right, but for now will get tests started.
     switch (sn.getAdjustment()) {
         case ScaleNote::RelativeAdjustment::none:
             break;
@@ -38,6 +50,7 @@ public:
             assert(false);
     }
 
-     return std::make_tuple(sn, accidental);
- }
 
+    return std::make_tuple(sn, accidental);
+#endif
+}

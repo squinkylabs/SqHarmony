@@ -7,16 +7,17 @@
 class MidiNote {
 public:
     // Note: this constructor should probably be "explicit", but a lot of stuff breaks!
-    explicit MidiNote(int p) : pitch(p) {}
-    MidiNote() : pitch(64) {}
+    explicit MidiNote(int p) : _pitch(p) {}
+    MidiNote() : _pitch(64) {}
 
-    int get() const { return pitch; }
+    int get() const { return _pitch; }
 
     bool operator==(const MidiNote& other) const {
-        return this->pitch == other.pitch;
+        return this->_pitch == other._pitch;
     }
 
     int getLedgerLine(bool bassStaff) const;
+    bool isBlackKey() const;
 
     static const int C3 = 60;  // C3 is 60 in midi spec.
     static const int C = 0;
@@ -30,11 +31,11 @@ public:
     static const int MiddleC = 60 + 12;
 
 private:
-    int pitch = C3;
+    int _pitch = C3;
 };
 
 inline int MidiNote::getLedgerLine(bool bassStaff) const {
-    const int normalizedPitch = pitch - MiddleC;
+    const int normalizedPitch = _pitch - MiddleC;
     int octave = (normalizedPitch / 12);
     int semi = normalizedPitch % 12;
     if (semi < 0) {
@@ -78,4 +79,31 @@ inline int MidiNote::getLedgerLine(bool bassStaff) const {
     }
     // printf("MidiNote::Ll ret %d for pitch %d\n", line, pitch);
     return line;
+}
+
+inline bool MidiNote::isBlackKey() const {
+    bool isBlackKey = false;
+    int pitch = this->_pitch % 12;
+    switch (pitch) {
+    case 0:
+    case 2:
+    case 4:
+    case 5:
+    case 7:
+    case 9:
+    case 11:
+        isBlackKey = false;
+        break;
+    case 1:
+    case 3:
+    case 6:
+    case 8:
+    case 10:
+        isBlackKey = true;
+        break;
+    default:
+        assert(false);
+    }
+
+    return isBlackKey;
 }

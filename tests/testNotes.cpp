@@ -286,6 +286,25 @@ static void testMidiStaffX() {
     const int ll3 = mn3.getLedgerLine(false);
 }
 
+static void testMidiIsBlackKey() {
+    assertEQ(MidiNote(MidiNote::C).isBlackKey(), false);
+    assertEQ(MidiNote(MidiNote::C + 1).isBlackKey(), true);
+    assertEQ(MidiNote(MidiNote::D).isBlackKey(), false);
+    assertEQ(MidiNote(MidiNote::D + 1).isBlackKey(), true);
+    assertEQ(MidiNote(MidiNote::E).isBlackKey(), false);
+    assertEQ(MidiNote(MidiNote::F).isBlackKey(), false);
+    assertEQ(MidiNote(MidiNote::F + 1).isBlackKey(), true);
+    assertEQ(MidiNote(MidiNote::G).isBlackKey(), false);
+    assertEQ(MidiNote(MidiNote::G + 1).isBlackKey(), true);
+    assertEQ(MidiNote(MidiNote::A).isBlackKey(), false);
+    assertEQ(MidiNote(MidiNote::A + 1).isBlackKey(), true);
+    assertEQ(MidiNote(MidiNote::B).isBlackKey(), false);
+
+    assertEQ(MidiNote(MidiNote::C + 24).isBlackKey(), false);
+    assertEQ(MidiNote(MidiNote::C + 1 + 48).isBlackKey(), true);
+
+}
+
 void testNotes() {
     testMidiNoteCtor();
     testMidiNoteNorm();
@@ -323,4 +342,14 @@ void testNotes() {
     // testMidiBassStaffA();
     testMidiStaffAll(false);
     testMidiStaffAll(true);
+     testMidiIsBlackKey();
 }
+
+// bool isBlackKey() const;
+
+ #if 1
+void testFirst() {
+    //  testScorePitchUtils();
+    testMidiIsBlackKey();
+}
+#endif
