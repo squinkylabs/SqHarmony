@@ -35,10 +35,17 @@ public:
     }
 
     unsigned getChangeParam() {
+        if (!module) {
+            return 0;
+        }
         return unsigned(APP->engine->getParamValue(module, Comp::CHANGE_PARAM));
     }
 
     void step() override {
+        if (!module) {
+            Widget::step();
+            return;
+        }
         _displayString->step();
         _displayString2->step();
         const float changeParam = getChangeParam();

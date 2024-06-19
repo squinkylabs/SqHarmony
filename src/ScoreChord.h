@@ -10,11 +10,14 @@
  *      (SRN, Accidental) getAccidental(scale, MidiNote)
  *      (SRN, Accidental ) or none getOtherSpelling(SRN, Accidental)
  *
+ * get single pitch notation working with accidental drawing (done).
  * add keysig select to ui. (done)
  * implement keysig select in composite. 
+ * 
+ * implement zoom so we can see stuff
+ * why is keysig UI broken
+ * make changing key sig re-draw
  *
- * get single pitch notation working with accidental drawing (done).
- * make larger
  * notate all notes.
  * sort pitches
  * make note not overlap with last in stacked close chords.
