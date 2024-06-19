@@ -2,12 +2,15 @@
 
 #include "VisualizerModule.h"
 
+#include "ScorePitchUtils.h"
+
 /*
  * TODO:
  *  rename the old SRN::Accidental to something else (Adjustment?) (done)
- *  make new class ScorePitchUtils
+ *  make new class ScorePitchUtils (done)
  *      (SRN, Accidental) getAccidental(scale, MidiNote)
  *      (SRN, Accidental ) or none getOtherSpelling(SRN, Accidental)
+ * 
  * get single pitch notation working
  * sort pitches
  * make not overlap with last
@@ -255,7 +258,10 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
             return; 
         }
   
-        SQINFO("On change, ch=%d p0=%d", channels, pitches[0]);
+         ConstScalePtr scale = _module->getScale();
+         MidiNote mn(pitches[0]);
+         const auto  qq = ScorePitchUtils::getNotationNote(*scale, mn);
+        SQINFO("On change, ch=%d p0=%d accid=%d", channels, pitches[0], int(std::get<1>(qq)));
 
       
 
@@ -263,11 +269,11 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
       //  const float yf = noteY(note, false);
        // const bool stemUp = false;
       //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
-        const auto yInfo = noteYInfo(MidiNote(pitches[0]), true);
+        const auto yInfo = noteYInfo(MidiNote(pitches[0]), false);
 
          const float x = noteXPos(0, keysigLayout);
 
-#if 0   // ledger lines?
+#if 1   // ledger lines?
         for (int i = 0; i < 3; ++i) {
             if (yInfo.ledgerPos[i] != 0) {
                 nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
