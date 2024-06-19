@@ -68,6 +68,7 @@ private:
     void _init();
     void _stepn();
     void _processInput();
+    void _lookForKeysigChange();
 
     Divider _divn;
     int _quantizedInputPitches[16] = {0};
@@ -96,6 +97,7 @@ inline void Visualizer<TBase>::_init() {
 
 template <class TBase>
 inline void Visualizer<TBase>::_stepn() {
+    _lookForKeysigChange();
     _processInput();
 }
 
@@ -144,4 +146,22 @@ inline void Visualizer<TBase>::_processInput() {
 template <class TBase>
 inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
+}
+
+template <class TBase>
+inline void Visualizer<TBase>::_lookForKeysigChange() {
+    // This for PES support
+   // _pollPESInput();
+    const int basePitch = int(std::round((Visualizer<TBase>::params[KEY_PARAM].value)));
+    const auto mode = Scale::Scales(int(std::round(Visualizer<TBase>::params[MODE_PARAM].value)));
+    // const auto newSetting = std::make_pair(basePitch, mode);
+
+    const auto current = _chordOptions->keysig->get();
+    const int currentPitch = current.first.get();
+    if ((current.second != mode) || (currentPitch != basePitch)) {
+        // this form Hramony for efficiency
+      //  _mustUpdate = true;
+        _chordOptions->keysig->set(MidiNote(basePitch), mode);
+      //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
+    }
 }
