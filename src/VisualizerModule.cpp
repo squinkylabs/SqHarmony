@@ -30,6 +30,8 @@ public:
 
         _displayString = addLabel(Vec(10, 160), "chord");
         _displayString2 = addLabel(Vec(10, 180), "chord");
+
+        addKeysig();
     }
 
     unsigned getChangeParam() {
@@ -64,6 +66,7 @@ private:
 
     BufferingParent<SqLabel>* _displayString;
     BufferingParent<SqLabel>* _displayString2;
+    PopupMenuParamWidget* _keyRootWidget = nullptr;
 
     ScoreChord* _scoreChord = nullptr;
     void addScore(VisualizerModule* module) {
@@ -73,6 +76,34 @@ private:
 
         vu->box.pos = Vec(8, 28),
         addChild(vu);
+    }
+
+    void addKeysig() {
+        const float yScale = 190;
+        const float yMode = yScale + 28;
+
+        PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
+            Vec(8, yScale),
+            module,
+            Comp::KEY_PARAM);
+        p->setLabels(Scale::getRootLabels(false));
+        p->box.size.x = 40;
+        p->box.size.y = 22;
+        p->text = "C";
+        addParam(p);
+        _keyRootWidget = p;  // remember this so we can poll it.
+
+        p = createParam<PopupMenuParamWidget>(
+            Vec(8, yMode),
+            module,
+            Comp::MODE_PARAM);
+        p->setShortLabels(Scale::getShortScaleLabels(true));
+        p->setLabels(Scale::getScaleLabels(true));
+
+        p->box.size.x = 70;  // width
+        p->box.size.y = 22;
+        p->text = "Maj";
+        addParam(p);
     }
 
     /**

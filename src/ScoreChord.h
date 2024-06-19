@@ -11,9 +11,12 @@
  *      (SRN, Accidental) getAccidental(scale, MidiNote)
  *      (SRN, Accidental ) or none getOtherSpelling(SRN, Accidental)
  * 
- * get single pitch notation working
+ * add keysig select to ui. (done)
+ * implement keysig select in composite.
+ * 
+ * get single pitch notation working with accidental drawing
  * sort pitches
- * make not overlap with last
+ * make note not overlap with last in stacked close chords.
  * put in the natural and accidental if overlap.
  */
 

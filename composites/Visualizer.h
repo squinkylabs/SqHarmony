@@ -20,10 +20,13 @@ class Visualizer : public TBase {
 public:
     friend class TestX;
     enum ParamIds {
-        TYPE_PARAM,
-        ROOT_PARAM,
-        CHANGE_PARAM,
-        INVERSION_PARAM,
+        TYPE_PARAM,       // For reporting back the identified chord type.
+        ROOT_PARAM,       // For reporting back the identified chord root.
+        CHANGE_PARAM,     // For reporting back the identified chord has changed.
+        INVERSION_PARAM,  // For reporting back the identified chord inversion.
+
+        KEY_PARAM,      // For controlling the key signature root.
+        MODE_PARAM,     // For controlling the key signature mode.
         NUM_PARAMS
     };
     enum InputIds {
@@ -51,13 +54,13 @@ public:
     static int getSubSampleFactor() { return 32; }
 
     ConstScalePtr getScale() const {
-      //  SQINFO("in get scale co = %p", _chordOptions.get());
-      //   SQINFO("in get scale ks = %p", _chordOptions->keysig.get());
+        //  SQINFO("in get scale co = %p", _chordOptions.get());
+        //   SQINFO("in get scale ks = %p", _chordOptions->keysig.get());
 
         return _chordOptions->keysig->getUnderlyingScale();
     }
 
-    std::tuple<const int *, unsigned> getQuantizedPitchesAndChannels() const {
+    std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
         return std::make_tuple(_quantizedInputPitches, _inputChannels);
     }
 
@@ -71,7 +74,6 @@ private:
     unsigned _inputChannels = 0;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
-  
 };
 
 template <class TBase>
@@ -86,7 +88,7 @@ inline void Visualizer<TBase>::_init() {
     _quantizerOptions->scale->set(MidiNote(MidiNote::C), Scale::Scales::Chromatic);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
 
-      // Chord options get cmag
+    // Chord options get cmag
     auto keysig = std::make_shared<KeysigOld>(Roots::C);
     auto style = std::make_shared<Style>();
     _chordOptions = std::make_shared<Options>(keysig, style);
@@ -99,7 +101,6 @@ inline void Visualizer<TBase>::_stepn() {
 
 template <class TBase>
 inline void Visualizer<TBase>::_processInput() {
-
     // Read in the CV from the input port.
     bool wasChange = false;
     auto& inputPort = TBase::inputs[CV_INPUT];
@@ -133,8 +134,8 @@ inline void Visualizer<TBase>::_processInput() {
     TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
 
     // And signal a change.
-    TBase::params[INVERSION_PARAM].value =  int(ChordRecognizer::inversionFromInfo(chord));
-        TBase::params[CHANGE_PARAM].value += 1;
+    TBase::params[INVERSION_PARAM].value = int(ChordRecognizer::inversionFromInfo(chord));
+    TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
         TBase::params[CHANGE_PARAM].value = 0;
     }
