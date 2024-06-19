@@ -53,27 +53,31 @@ private:
     const std::string _natural = u8"\ue261";
     const std::string _sharp = u8"\ue262";
 
-    const float topMargin = 27.5f;
+    const float _zoom = 1.4;
+
+    const float topMargin = 27.5f * _zoom;
     const float yTrebleStaff = topMargin + 0;
-    const float yBassStaff = yTrebleStaff + 42;    // 28 way too close
-    const float yTrebleClef = yTrebleStaff - 3.3;  // 3 a little low, 4 way high
-    const float yBassClef = yBassStaff - 10;       // 11 too much
-    const float yNoteInfo = yBassStaff + 17;       // 0 too high 12 for a long time...
+    const float yBassStaff = yTrebleStaff + (34);   
+    const float yTrebleClef = yTrebleStaff - (3.3 * _zoom);  // 3 a little low, 4 way high
+    const float yBassClef = yBassStaff - (10 * _zoom);       // 11 too much
+    const float yNoteInfo = yBassStaff + (17 * _zoom);       // 0 too high 12 for a long time...
     
 
     // X axis pos
     const float leftMargin = 4.5f;
     const float xStaff = leftMargin;
-    const float xClef = xStaff + 2;
-    const float xNote0 = xClef + 18;
+    const float _xClef = xStaff + 2;
+    const float _xClefWidth = 8 * _zoom;
+    const float xNote0 = _xClef + 18 * _zoom;
     const float _deltaXAccidental = -6;              // accidental drawn this far from note, in x di
     const float deltaXNote = 13;            // 8 seemed close. was 10 for a long time. 12 is good now, try 13
+    const float _noteXIndent = 6;           // Distance from the keysig to the first note, horizontally.
 
-    const float spaceBetweenLines = 1.67f;  // 1.7 slightly high
+    const float _ySpaceBetweenLines = 1.67f * _zoom;  // 1.7 slightly high
                                             // 1.65 low
     const float barlineHeight = 55.5;       // 55 low
                                             // 57 went high
-    const float paddingAfterKeysig = 9;     // space between the clef or clef + keysig and the first note
+    const float _paddingAfterKeysig = 9 * _zoom;     // space between the clef or clef + keysig and the first note
 
     std::pair<float, float> drawMusicNonNotes(const DrawArgs &args) const;
     void drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
@@ -158,7 +162,8 @@ void ScoreChord::prepareFontMusic(const DrawArgs &args) const {
         return;
     }
     nvgFontFaceId(args.vg, font->handle);
-    nvgFontSize(args.vg, 54);
+    const float fontSize = 54 * _zoom;
+    nvgFontSize(args.vg, fontSize);
 }
 
 inline void ScoreChord::draw(const DrawArgs &args) {
@@ -182,10 +187,10 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
     nvgFillColor(args.vg, color);
 
     drawStaff(args, yTrebleStaff);
-    nvgText(args.vg, xClef, yTrebleClef, _gClef.c_str(), NULL);
+    nvgText(args.vg, _xClef, yTrebleClef, _gClef.c_str(), NULL);
 
     drawStaff(args, yBassStaff);
-    nvgText(args.vg, xClef, yBassClef, _fClef.c_str(), NULL);
+    nvgText(args.vg, _xClef, yBassClef, _fClef.c_str(), NULL);
 
     float keysigWidth = 0;
     float keysigEnd = 0;
@@ -225,25 +230,25 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
 
     if (ledgerLine < -1) {
-        ret.ledgerPos[0] = staffBasePos + (2.f * spaceBetweenLines);
+        ret.ledgerPos[0] = staffBasePos + (2.f * _ySpaceBetweenLines);
     }
     if (ledgerLine < -3) {
-        ret.ledgerPos[1] = staffBasePos + (4.f * spaceBetweenLines);
+        ret.ledgerPos[1] = staffBasePos + (4.f * _ySpaceBetweenLines);
     }
     if (ledgerLine < -5) {
-        ret.ledgerPos[2] = staffBasePos + (6.f * spaceBetweenLines);
+        ret.ledgerPos[2] = staffBasePos + (6.f * _ySpaceBetweenLines);
     }
     if (ledgerLine > 9) {
-        ret.ledgerPos[0] = staffBasePos + (-10.f * spaceBetweenLines);
+        ret.ledgerPos[0] = staffBasePos + (-10.f * _ySpaceBetweenLines);
     }
     if (ledgerLine > 11) {
-        ret.ledgerPos[1] = staffBasePos + (-12.f * spaceBetweenLines);
+        ret.ledgerPos[1] = staffBasePos + (-12.f * _ySpaceBetweenLines);
     }
     if (ledgerLine > 13) {
-        ret.ledgerPos[2] = staffBasePos + (-14.f * spaceBetweenLines);
+        ret.ledgerPos[2] = staffBasePos + (-14.f * _ySpaceBetweenLines);
     }
 
-    y -= ledgerLine * spaceBetweenLines;
+    y -= ledgerLine * _ySpaceBetweenLines;
     y += staffBasePos;
 
     ret.position = y;
@@ -321,7 +326,7 @@ inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysi
     const float totalWidth = box.size.x - 2 * leftMargin;
     const float totalWidthForNotes = totalWidth - keysigXEnds;
     const float delta = totalWidthForNotes / 8.5;
-    const float firstNotePosition = leftMargin + keysigXEnds;
+    const float firstNotePosition = leftMargin + keysigXEnds + _noteXIndent;
 
     SQINFO("noteXPos called with noteNumber = %d, keysig layout = %f, %f", noteNumber, _keysigLayout.first, _keysigLayout.second);
     float x = firstNotePosition + noteNumber * delta;
@@ -335,7 +340,7 @@ inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysi
 inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
     const auto info = scale->getScoreInfo();
     float width = 0;
-    float pos = xClef + paddingAfterKeysig;
+    float pos = _xClef + _paddingAfterKeysig + _xClefWidth;
     const MidiNote *accidentals = nullptr;
     bool areFlats = false;
     int num = 0;
@@ -357,18 +362,18 @@ inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, Cons
         num = info.numSharps;
     }
 
+    const float widthOfSharpFlat = 4 * _zoom;
     const char *character = (areFlats) ? _flat.c_str() : _sharp.c_str();
     if (num) {
         float w = 0;
         float p = 0;
         for (int i = 0; i < num; ++i) {
-            const float x = xClef + paddingAfterKeysig + w;
+            const float x = _xClef + +_xClefWidth + _paddingAfterKeysig + w;
             const int note = accidentals[i].get();
             const float yf = noteY(MidiNote(note), !treble);
             nvgText(args.vg, x, yf, character, NULL);
-            w += 4;
-            p = std::max(p, x + 4);
-            // p += 4;
+            w += widthOfSharpFlat;
+            p = std::max(p, x + widthOfSharpFlat);
         }
         width = std::max(width, w);
         pos = std::max(pos, p);
@@ -380,7 +385,7 @@ float ScoreChord::noteY(const MidiNote &note, bool bassStaff) const {
     float y = 0;
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
     const int ledgerLine = note.getLedgerLine(bassStaff);
-    y -= ledgerLine * spaceBetweenLines;
+    y -= ledgerLine * _ySpaceBetweenLines;
     y += staffBasePos;
     return y;
 }
@@ -390,7 +395,7 @@ inline void ScoreChord::drawStaff(const DrawArgs &args, float yBase) const {
     const float length = args.clipBox.size.x - 2 * leftMargin;
     const auto color = getForegroundColor();
     for (int i = 0; i < 5; ++i) {
-        float y = yBase - 2.f * float(i) * spaceBetweenLines;
+        float y = yBase - 2.f * float(i) * _ySpaceBetweenLines;
         drawHLine(args.vg, color, x, y, length, .5f);
     }
 }
