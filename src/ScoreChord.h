@@ -44,14 +44,14 @@ private:
 
     VisualizerModule *const _module = nullptr;
 
-    const std::string wholeNote = u8"\ue1d2";
-    const std::string staffFiveLines = u8"\ue014";
-    const std::string gClef = u8"\ue050";
-    const std::string fClef = u8"\ue062";
-    const std::string ledgerLine = u8"\ue022";
-    const std::string flat = u8"\ue260";
-    const std::string natural = u8"\ue261";
-    const std::string sharp = u8"\ue262";
+    const std::string _wholeNote = u8"\ue1d2";
+    const std::string _staffFiveLines = u8"\ue014";
+    const std::string _gClef = u8"\ue050";
+    const std::string _fClef = u8"\ue062";
+    const std::string _ledgerLine = u8"\ue022";
+    const std::string _flat = u8"\ue260";
+    const std::string _natural = u8"\ue261";
+    const std::string _sharp = u8"\ue262";
 
     const float topMargin = 27.5f;
     const float yTrebleStaff = topMargin + 0;
@@ -59,15 +59,16 @@ private:
     const float yTrebleClef = yTrebleStaff - 3.3;  // 3 a little low, 4 way high
     const float yBassClef = yBassStaff - 10;       // 11 too much
     const float yNoteInfo = yBassStaff + 17;       // 0 too high 12 for a long time...
-    const float _deltaAccidental = -6;
+    
 
     // X axis pos
     const float leftMargin = 4.5f;
     const float xStaff = leftMargin;
     const float xClef = xStaff + 2;
     const float xNote0 = xClef + 18;
-
+    const float _deltaXAccidental = -6;              // accidental drawn this far from note, in x di
     const float deltaXNote = 13;            // 8 seemed close. was 10 for a long time. 12 is good now, try 13
+
     const float spaceBetweenLines = 1.67f;  // 1.7 slightly high
                                             // 1.65 low
     const float barlineHeight = 55.5;       // 55 low
@@ -181,10 +182,10 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
     nvgFillColor(args.vg, color);
 
     drawStaff(args, yTrebleStaff);
-    nvgText(args.vg, xClef, yTrebleClef, gClef.c_str(), NULL);
+    nvgText(args.vg, xClef, yTrebleClef, _gClef.c_str(), NULL);
 
     drawStaff(args, yBassStaff);
-    nvgText(args.vg, xClef, yBassClef, fClef.c_str(), NULL);
+    nvgText(args.vg, xClef, yBassClef, _fClef.c_str(), NULL);
 
     float keysigWidth = 0;
     float keysigEnd = 0;
@@ -280,30 +281,30 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
 #if 1  // ledger lines?
         for (int i = 0; i < 3; ++i) {
             if (yInfo.ledgerPos[i] != 0) {
-                nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
+                nvgText(args.vg, x, yInfo.ledgerPos[i], _ledgerLine.c_str(), NULL);
             }
         }
 #endif
-        const char *notePtr = wholeNote.c_str();
+        const char *notePtr = _wholeNote.c_str();
         SQINFO("drawing text x = %f y = %f", x, yInfo.position);
         nvgText(args.vg, x, yInfo.position, notePtr, NULL);
         if (std::get<1>(qq) != ScorePitchUtils::Accidental::none) {
             std::string symbol = "";
             switch (std::get<1>(qq)) {
                 case ScorePitchUtils::Accidental::sharp:
-                    symbol = sharp;
+                    symbol = _sharp;
                     break;
                 case ScorePitchUtils::Accidental::flat:
-                    symbol = flat;
+                    symbol = _flat;
                     break;
                 case ScorePitchUtils::Accidental::natural:
-                    symbol = natural;
+                    symbol = _natural;
                     break;
                 default:
                     SQFATAL("unknown accidental");
                     break;
             }
-            nvgText(args.vg, x + _deltaAccidental, yInfo.position, symbol.c_str(), NULL);
+            nvgText(args.vg, x + _deltaXAccidental, yInfo.position, symbol.c_str(), NULL);
         }
 
         // const float yf = noteY(note, !treble);
@@ -356,7 +357,7 @@ inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, Cons
         num = info.numSharps;
     }
 
-    const char *character = (areFlats) ? flat.c_str() : sharp.c_str();
+    const char *character = (areFlats) ? _flat.c_str() : _sharp.c_str();
     if (num) {
         float w = 0;
         float p = 0;
