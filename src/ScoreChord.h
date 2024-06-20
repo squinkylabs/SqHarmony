@@ -18,7 +18,7 @@
  * why is keysig UI broken (done)
  * make changing key sig re-draw (done)
  *
- * notate all notes.
+ * notate all notes. (done)
  * sort pitches
  * make note not overlap with last in stacked close chords.
  * put in the natural and accidental if overlap.
@@ -47,7 +47,6 @@ private:
     bool _whiteOnBlack = false;
 
     VisualizerModule *const _module = nullptr;
- //   std::pair<const MidiNote, Scale::Scales> _lastScale;
     MidiNote _lastScaleBase;
     Scale::Scales _lastScaleMode;
 
@@ -269,53 +268,56 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
         //  SQINFO("........... draw::change!()");
         //   this->_scoreIsDirty = true;
         const auto pitchesAndChannels = _module->getQuantizedPitchesAndChannels();
-        const int channels = std::get<1>(pitchesAndChannels);
+        const unsigned channels = std::get<1>(pitchesAndChannels);
         const int *pitches = std::get<0>(pitchesAndChannels);
         if (channels <= 0) {
             SQINFO("On change, nothing");
             return;
         }
+        SQINFO("change, channels=%d", channels);
 
         ConstScalePtr scale = _module->getScale();
-        MidiNote mn(pitches[0]);
-        const auto qq = ScorePitchUtils::getNotationNote(*scale, mn);
-        SQINFO("On change, ch=%d p0=%d accid=%d", channels, pitches[0], int(std::get<1>(qq)));
+        for (unsigned i = 0; i < channels; ++i) {
+            MidiNote mn(pitches[i]);
+            const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn);
+            SQINFO("On change, ch=%d p0=%d accid=%d", channels, pitches[0], int(std::get<1>(notationNote)));
 
-        //     MidiNote note = pitches[0];
-        //  const float yf = noteY(note, false);
-        // const bool stemUp = false;
-        //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
-        const auto yInfo = noteYInfo(MidiNote(pitches[0]), false);
+            //     MidiNote note = pitches[0];
+            //  const float yf = noteY(note, false);
+            // const bool stemUp = false;
+            //  auto yInfo = noteYInfo(chord.pitch[i], i < 2);
+            const auto yInfo = noteYInfo(mn, false);
 
-        const float x = noteXPos(0, keysigLayout);
+            const float x = noteXPos(0, keysigLayout);
 
 #if 1  // ledger lines?
-        for (int i = 0; i < 3; ++i) {
-            if (yInfo.ledgerPos[i] != 0) {
-                nvgText(args.vg, x, yInfo.ledgerPos[i], _ledgerLine.c_str(), NULL);
+            for (int i = 0; i < 3; ++i) {
+                if (yInfo.ledgerPos[i] != 0) {
+                    nvgText(args.vg, x, yInfo.ledgerPos[i], _ledgerLine.c_str(), NULL);
+                }
             }
-        }
 #endif
-        const char *notePtr = _wholeNote.c_str();
-        SQINFO("drawing text x = %f y = %f", x, yInfo.position);
-        nvgText(args.vg, x, yInfo.position, notePtr, NULL);
-        if (std::get<1>(qq) != ScorePitchUtils::Accidental::none) {
-            std::string symbol = "";
-            switch (std::get<1>(qq)) {
-                case ScorePitchUtils::Accidental::sharp:
-                    symbol = _sharp;
-                    break;
-                case ScorePitchUtils::Accidental::flat:
-                    symbol = _flat;
-                    break;
-                case ScorePitchUtils::Accidental::natural:
-                    symbol = _natural;
-                    break;
-                default:
-                    SQFATAL("unknown accidental");
-                    break;
+            const char *notePtr = _wholeNote.c_str();
+         //   SQINFO("drawing text x = %f y = %f", x, yInfo.position);
+            nvgText(args.vg, x, yInfo.position, notePtr, NULL);
+            if (std::get<1>(notationNote) != ScorePitchUtils::Accidental::none) {
+                std::string symbol = "";
+                switch (std::get<1>(notationNote)) {
+                    case ScorePitchUtils::Accidental::sharp:
+                        symbol = _sharp;
+                        break;
+                    case ScorePitchUtils::Accidental::flat:
+                        symbol = _flat;
+                        break;
+                    case ScorePitchUtils::Accidental::natural:
+                        symbol = _natural;
+                        break;
+                    default:
+                        SQFATAL("unknown accidental");
+                        break;
+                }
+                nvgText(args.vg, x + _deltaXAccidental, yInfo.position, symbol.c_str(), NULL);
             }
-            nvgText(args.vg, x + _deltaXAccidental, yInfo.position, symbol.c_str(), NULL);
         }
 
         // const float yf = noteY(note, !treble);
@@ -416,7 +418,7 @@ inline void ScoreChord::step() {
         }
 
         const auto scale = _module->getScale();
-        const auto scaleInfo = scale->get(); 
+        const auto scaleInfo = scale->get();
         if (scaleInfo.first.get() != _lastScaleBase.get() ||
             scaleInfo.second != _lastScaleMode) {
             SQINFO("see scale change!!");
