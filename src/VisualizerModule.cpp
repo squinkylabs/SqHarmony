@@ -89,6 +89,11 @@ private:
         const float yScale = 190;
         const float yMode = yScale + 28;
 
+{
+        int x = Scale::getShortScaleLabels(true).size();
+        int y = Scale::getScaleLabels(true).size();
+        SQINFO("add keyszig, modes = %d, %d", x, y);
+}
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
             Vec(8, yScale),
             module,

@@ -12,6 +12,8 @@ public:
     VisualizerModule() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
         // addParams();
+        this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
+        this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
     }
     void process(const ProcessArgs& args) override {
         comp->process(args);

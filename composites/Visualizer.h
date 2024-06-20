@@ -161,6 +161,7 @@ inline void Visualizer<TBase>::_lookForKeysigChange() {
     if ((current.second != mode) || (currentPitch != basePitch)) {
         // this form Hramony for efficiency
       //  _mustUpdate = true;
+      SQINFO("in look for change, see new mode = %d", int(mode));
         _chordOptions->keysig->set(MidiNote(basePitch), mode);
       //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
     }

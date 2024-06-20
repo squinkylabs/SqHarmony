@@ -12,16 +12,17 @@
  *
  * get single pitch notation working with accidental drawing (done).
  * add keysig select to ui. (done)
- * implement keysig select in composite. 
- * 
- * implement zoom so we can see stuff
- * why is keysig UI broken
- * make changing key sig re-draw
+ * implement keysig select in composite. (done)
+ *
+ * implement zoom so we can see stuff (done)
+ * why is keysig UI broken (done)
+ * make changing key sig re-draw (done)
  *
  * notate all notes.
  * sort pitches
  * make note not overlap with last in stacked close chords.
  * put in the natural and accidental if overlap.
+ * make it look decent.
  */
 
 class ScoreChord : public app::LightWidget, public Dirty {
@@ -46,6 +47,9 @@ private:
     bool _whiteOnBlack = false;
 
     VisualizerModule *const _module = nullptr;
+ //   std::pair<const MidiNote, Scale::Scales> _lastScale;
+    MidiNote _lastScaleBase;
+    Scale::Scales _lastScaleMode;
 
     const std::string _wholeNote = u8"\ue1d2";
     const std::string _staffFiveLines = u8"\ue014";
@@ -60,11 +64,10 @@ private:
 
     const float topMargin = 27.5f * _zoom;
     const float yTrebleStaff = topMargin + 0;
-    const float yBassStaff = yTrebleStaff + (34);   
+    const float yBassStaff = yTrebleStaff + (34);
     const float yTrebleClef = yTrebleStaff - (3.3 * _zoom);  // 3 a little low, 4 way high
     const float yBassClef = yBassStaff - (10 * _zoom);       // 11 too much
     const float yNoteInfo = yBassStaff + (17 * _zoom);       // 0 too high 12 for a long time...
-    
 
     // X axis pos
     const float leftMargin = 4.5f;
@@ -72,15 +75,15 @@ private:
     const float _xClef = xStaff + 2;
     const float _xClefWidth = 8 * _zoom;
     const float xNote0 = _xClef + 18 * _zoom;
-    const float _deltaXAccidental = -6;              // accidental drawn this far from note, in x di
-    const float deltaXNote = 13;            // 8 seemed close. was 10 for a long time. 12 is good now, try 13
-    const float _noteXIndent = 6;           // Distance from the keysig to the first note, horizontally.
+    const float _deltaXAccidental = -6;  // accidental drawn this far from note, in x di
+    const float deltaXNote = 13;         // 8 seemed close. was 10 for a long time. 12 is good now, try 13
+    const float _noteXIndent = 6;        // Distance from the keysig to the first note, horizontally.
 
     const float _ySpaceBetweenLines = 1.67f * _zoom;  // 1.7 slightly high
-                                            // 1.65 low
-    const float barlineHeight = 55.5;       // 55 low
-                                            // 57 went high
-    const float _paddingAfterKeysig = 9 * _zoom;     // space between the clef or clef + keysig and the first note
+                                                      // 1.65 low
+    const float barlineHeight = 55.5;                 // 55 low
+                                                      // 57 went high
+    const float _paddingAfterKeysig = 9 * _zoom;      // space between the clef or clef + keysig and the first note
 
     std::pair<float, float> drawMusicNonNotes(const DrawArgs &args) const;
     void drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
@@ -404,7 +407,6 @@ inline void ScoreChord::drawStaff(const DrawArgs &args, float yBase) const {
 }
 
 inline void ScoreChord::step() {
-#if 1
     if (_module) {
         unsigned changeParam = _module->getChangeParam();
         if (changeParam != _changeParam) {
@@ -412,7 +414,16 @@ inline void ScoreChord::step() {
             SQINFO("ScoreChord::step sees change!");
             this->_scoreIsDirty = true;
         }
+
+        const auto scale = _module->getScale();
+        const auto scaleInfo = scale->get(); 
+        if (scaleInfo.first.get() != _lastScaleBase.get() ||
+            scaleInfo.second != _lastScaleMode) {
+            SQINFO("see scale change!!");
+            _lastScaleBase = scaleInfo.first;
+            _lastScaleMode = scaleInfo.second;
+            _scoreIsDirty = true;
+        }
     }
-#endif
     Widget::step();
 }
