@@ -123,7 +123,7 @@ static void testScaleNoteCtor2() {
 static void testScaleNoteToMidiC4() {
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);  // 4 = C
-    ScaleNote sn(0, 4);                            // middle C
+    ScaleNote sn(0, 4);                                      // middle C
     MidiNote m;
     NoteConvert::s2m(m, scale, sn);
     assertEQ(m.get(), MidiNote::C3 + 12);
@@ -187,7 +187,7 @@ static void testScaleNoteTrans4() {
     NoteConvert::s2m(mn, scale, sn);
     assertEQ(mn.get(), MidiNote::MiddleC + 2 + 2);
 
-     // fourth degree of CMaj is F
+    // fourth degree of CMaj is F
     sn.transposeDegree(1, Scale::numStepsInDiatonicScale);
     NoteConvert::s2m(mn, scale, sn);
     assertEQ(mn.get(), MidiNote::MiddleC + 5);
@@ -302,7 +302,6 @@ static void testMidiIsBlackKey() {
 
     assertEQ(MidiNote(MidiNote::C + 24).isBlackKey(), false);
     assertEQ(MidiNote(MidiNote::C + 1 + 48).isBlackKey(), true);
-
 }
 
 void testNotes() {
@@ -342,12 +341,10 @@ void testNotes() {
     // testMidiBassStaffA();
     testMidiStaffAll(false);
     testMidiStaffAll(true);
-     testMidiIsBlackKey();
+    testMidiIsBlackKey();
 }
 
-// bool isBlackKey() const;
-
- #if 1
+#if 0
 void testFirst() {
     //  testScorePitchUtils();
     testMidiIsBlackKey();

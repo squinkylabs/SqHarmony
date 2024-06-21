@@ -4,7 +4,7 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
-// #define _LOG
+//#define _LOG
 
 void ChordRecognizer::show(const char* msg, const int* p, unsigned num) {
     if (num == 3) {
@@ -25,7 +25,7 @@ void ChordRecognizer::copy(int* dest, const int* src, unsigned length) {
 // returns 0 is the new length, return 1 is how much it was transposed
 std::tuple<unsigned, int> ChordRecognizer::_makeCanonical(int* outputChord, const int* inputChord, unsigned length) {
     const auto error = std::make_tuple(0, 0);
-#ifdef _LOG
+#if defined _LOG
     SQINFO("In normalize %d", length);
     show("input chord", inputChord, length);
 #endif
@@ -53,7 +53,7 @@ std::tuple<unsigned, int> ChordRecognizer::_makeCanonical(int* outputChord, cons
     // }
 
 #ifdef _LOG
-    SQINFO("... in nomralize pass, adding %d", -base);
+    SQINFO("... in normalize pass, adding %d", -base);
 #endif
     unsigned i;
     int normalizedChord[16];
@@ -89,8 +89,9 @@ std::tuple<unsigned, int> ChordRecognizer::_makeCanonical(int* outputChord, cons
 }
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, unsigned inputLength) {
-#ifdef _LOG
+#if defined(_LOG) || 1
     SQINFO("----------------- enter recognize ------------------");
+    show("input chord ", inputChord, inputLength);
 #endif
     int outputChord[16];
     const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
@@ -140,6 +141,15 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, uns
         show(":: in inv search, post norm", possibleInversionCanonical, finalLength);
 #endif
         const unsigned l = std::get<0>(normalized);
+
+        if (l != finalLength) {
+            SQINFO("length changed in normalize was %d, now %d", finalLength, l);
+            show("here is norm output", possibleInversionCanonical, l);
+            if (l == 1) {
+                SQINFO("one note chord is %d", possibleInversionCanonical[0]);
+            }
+        }
+
 
         // make this not an error - we might have errored out of _makeCacnonical
         assert(l == finalLength);  // should not have changed length due to this
@@ -206,7 +216,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type _type, int _
 #if defined(_LOG)
     SQINFO("leaving figure out inversion, with type= %d, recognized =%d, fistOffset= %d finalRootPitch=%d",
            int(_type), _recognizedPitch, _firstOffset, finalRootPitch);
-    SQINFO("type=%d, inversion=%d, pitch = %d", int(_type), int(inversion));
+    SQINFO("type=%d, inversion=%d, pitch = %d", int(_type), int(inversion), _recognizedPitch);
     SQINFO("relativeEffectiveFirstOffset=%d", relativeEffectiveFirstOffset);
 #endif
 

@@ -340,6 +340,16 @@ static void testNotesInChord() {
     }
 }
 
+
+static void test007() {
+    ChordRecognizer ch;
+    const int chord[] = {72, 72, 79};
+    auto const result = ch.recognize(chord, 3);
+    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::Unrecognized);
+    //assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::Second);
+    //assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C);
+}
+
 void testChordRecognizer() {
     //  testCanCreate();
     testJunkNotRecognized();
@@ -379,16 +389,18 @@ void testChordRecognizer() {
 
     testToString();
     testNotesInChord();
+    test007();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // This one is a problem
     // testGSharpMajorFirstInversion();
     // testCMajorFirstInversion();
-    testChordRecognizer();
+  //  testChordRecognizer();
     // 
  //  testCDiminishedSecondInversion();
   //  testCDiminished();
+    test007();
 }
 #endif

@@ -103,7 +103,6 @@ inline void PopupMenuParamWidget::setValueToIndexFunction(ValueToIndexFunction f
 }
 
 inline void PopupMenuParamWidget::onChange(const ::rack::event::Change &e) {
-    SQINFO("dropdown, on change");
     if (!this->getParamQuantity()) {
         return;  // No module. Probably in the module browser.
     }
@@ -116,7 +115,6 @@ inline void PopupMenuParamWidget::onChange(const ::rack::event::Change &e) {
     }
 
     auto label = getShortLabel(index);
-    SQINFO("index = %d, label = %s", index, label.c_str());
     if (!label.empty()) {
         this->text = label;
         _curIndex = index;  // remember it
