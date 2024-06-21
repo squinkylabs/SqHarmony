@@ -20,9 +20,15 @@
  *
  * notate all notes. (done)
  * sort pitches (done)
- * make note not overlap with last in stacked close chords.
+ * make note not overlap with last in stacked close chords. (done)
+ * draw double notes, when required
  * put in the natural and accidental if overlap.
+ * find and fix 0,0,7 bug.
  * make it look decent.
+ * enharmonic spelling:
+ *      use flats in flat keys.
+ *      try to space identifiable chords.
+ *      try to space all chords.
  */
 
 class ScoreChord : public app::LightWidget, public Dirty {
@@ -74,7 +80,7 @@ private:
     const float _xClef = xStaff + 2;
     const float _xClefWidth = 8 * _zoom;
     const float xNote0 = _xClef + 18 * _zoom;
-    const float _deltaXAccidental = -6;  // accidental drawn this far from note, in x di
+    const float _deltaXAccidental = -5 * _zoom;  // accidental drawn this far from note, in x di
     const float deltaXNote = 13;         // 8 seemed close. was 10 for a long time. 12 is good now, try 13
     const float _noteXIndent = 6;        // Distance from the keysig to the first note, horizontally.
 
@@ -408,7 +414,9 @@ inline void ScoreChord::drawOneNote(
     SQINFO("  drawOneNote offset=%d", offsetNote);
     drawLedgerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
-    nvgText(args.vg, xPosition, yInfo.position, notePtr, NULL);
+
+    const float noteXOffset = offsetNote ? 9 : 0;
+    nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
     if (std::get<1>(notationNote) != ScorePitchUtils::Accidental::none) {
         std::string symbol = "";
         switch (std::get<1>(notationNote)) {
