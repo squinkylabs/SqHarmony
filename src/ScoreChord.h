@@ -59,7 +59,7 @@ private:
     const std::string _natural = u8"\ue261";
     const std::string _sharp = u8"\ue262";
 
-    const float _zoom = 1.4;
+    const float _zoom = 1.6;
 
     const float topMargin = 27.5f * _zoom;
     const float yTrebleStaff = topMargin + 0;
@@ -95,7 +95,20 @@ private:
     };
     YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
     void drawLedgerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
-    void drawOneNote(const DrawArgs &args, const MidiNote &note, const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote, const YInfo &yInfo, float xPosition) const;
+    void drawOneNote(
+        const DrawArgs &args,
+        const MidiNote &note,
+        const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
+        const YInfo &yInfo,
+        float xPosition,
+        bool offsetNote) const;
+    void drawTwoNotes(
+        const DrawArgs &args,
+        const MidiNote &note,
+        const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
+        const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote2,
+        const YInfo &yInfo,
+        float xPosition) const;
 
     void drawStaff(const DrawArgs &args, float y) const;
     void drawBarLine(const DrawArgs &args, float x, float y) const;
@@ -375,7 +388,24 @@ inline void ScoreChord::drawLedgerLinesForNotes(const DrawArgs &args, const YInf
     }
 }
 
-inline void ScoreChord::drawOneNote(const DrawArgs &args, const MidiNote &note, const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote, const YInfo &yInfo, float xPosition) const {
+inline void ScoreChord::drawTwoNotes(
+    const DrawArgs &args,
+    const MidiNote &note,
+    const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
+    const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote2,
+    const YInfo &yInfo,
+    float xPosition) const {
+    SQINFO("!! two notes nimp");
+}
+
+inline void ScoreChord::drawOneNote(
+    const DrawArgs &args,
+    const MidiNote &note,
+    const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
+    const YInfo &yInfo,
+    float xPosition,
+    bool offsetNote) const {
+    SQINFO("  drawOneNote offset=%d", offsetNote);
     drawLedgerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
     nvgText(args.vg, xPosition, yInfo.position, notePtr, NULL);
@@ -421,50 +451,51 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
     }
     std::sort(copyOfPitches, copyOfPitches + channels);
 
+    const float xPosition = noteXPos(0, keysigLayout);
     int lastYPos = 1000;
+    bool lastNoteOffset = false;
+
+    // for (unsigned i = 0; i < channels; ++i) {
+    //     MidiNote mn(copyOfPitches[i]);
+    //     SQINFO("before loop, pitch[%d] = %d", i, copyOfPitches[i]);
+    // }
     for (unsigned i = 0; i < channels; ++i) {
         MidiNote mn(copyOfPitches[i]);
         const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn);
         const auto yInfo = noteYInfo(mn, false);
+        SQINFO("in draw loop i=%d pitch=%d y=%f", i, mn.get(), yInfo.position);
+        const float distance = lastYPos - yInfo.position;
+        lastYPos = yInfo.position;
+        const bool noteOffsetByTwoLines = (distance / _ySpaceBetweenLines) > 1.2;
 
+        bool twoNotesOnSameLine = false;
+        std::tuple<ScaleNote, ScorePitchUtils::Accidental> notationNoteNext;
         // if there is a line after us
         if (i < channels - 1) {
-            MidiNote mnNext(copyOfPitches[i + i]);
+            MidiNote mnNext(copyOfPitches[i + 1]);
             const auto yInfoNext = noteYInfo(mnNext, false);
             if (yInfo.position == yInfoNext.position) {
-                SQWARN("two notes at same location");
+                SQWARN("two notes at same location pitch = %d, %d, y=%f, %f", mn.get(), mnNext.get(), yInfo.position, yInfoNext.position);
+
+                twoNotesOnSameLine = true;
+                notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext);
+                ++i;
             }
         }
 
-        const float distance = lastYPos - yInfo.position;
-        SQINFO("distance = %f", distance);
-
-        lastYPos = yInfo.position;
-
-        const float xPosition = noteXPos(0, keysigLayout);
-        drawOneNote(args, mn, notationNote, yInfo, xPosition);
-        #if 0
-        drawLedgerLinesForNotes(args, yInfo, xPosition);
-        const char *notePtr = _wholeNote.c_str();
-        nvgText(args.vg, xPosition, yInfo.position, notePtr, NULL);
-        if (std::get<1>(notationNote) != ScorePitchUtils::Accidental::none) {
-            std::string symbol = "";
-            switch (std::get<1>(notationNote)) {
-                case ScorePitchUtils::Accidental::sharp:
-                    symbol = _sharp;
-                    break;
-                case ScorePitchUtils::Accidental::flat:
-                    symbol = _flat;
-                    break;
-                case ScorePitchUtils::Accidental::natural:
-                    symbol = _natural;
-                    break;
-                default:
-                    SQFATAL("unknown accidental");
-                    break;
-            }
-            nvgText(args.vg, xPosition + _deltaXAccidental, yInfo.position, symbol.c_str(), NULL);
+        if (!twoNotesOnSameLine) {
+            const bool offsetThisNote = !noteOffsetByTwoLines && !lastNoteOffset;
+            SQINFO("offset flag will be %d", offsetThisNote);
+            lastNoteOffset = offsetThisNote;
+            drawOneNote(args, mn, notationNote, yInfo, xPosition, offsetThisNote);
+        } else {
+            drawTwoNotes(args, mn, notationNote, notationNoteNext, yInfo, xPosition);
         }
-        #endif
+
+        //  distance = 2.161999 between lines=2.338000 next=0
+
+        //  SQINFO("distance = %f between lines=%f next=%d", distance, _ySpaceBetweenLines, nextLine);
+
+        // drawOneNote(args, mn, notationNote, yInfo, xPosition);
     }
 }
