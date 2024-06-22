@@ -71,14 +71,16 @@ std::tuple<unsigned, int> ChordRecognizer::_makeCanonical(int* outputChord, cons
     show("sorted normalizedChord", normalizedChord, length);
 #endif
 
-    // remove dupes
+    //--- Remove dupes ---
     unsigned j;
     for (i = j = 0; i < length; ++i) {
-        if (normalizedChord[i] != (normalizedChord[i + 1])) {
-            outputChord[j++] = normalizedChord[i];
+        // Copy this one over if it is not a dupe. last one is never a dupe.
+        if ((i == (length-1)) || (normalizedChord[i] != normalizedChord[i + 1])) {
+            outputChord[j++] = normalizedChord[i]; 
         }
     }
     length = j;
+
 #ifdef _LOG
     show("final", outputChord, length);
 #endif
@@ -89,7 +91,7 @@ std::tuple<unsigned, int> ChordRecognizer::_makeCanonical(int* outputChord, cons
 }
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const int* inputChord, unsigned inputLength) {
-#if defined(_LOG) || 1
+#if defined(_LOG)
     SQINFO("----------------- enter recognize ------------------");
     show("input chord ", inputChord, inputLength);
 #endif

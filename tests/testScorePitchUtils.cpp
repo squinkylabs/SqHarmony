@@ -6,7 +6,7 @@ static void test() {
     // ScorePitchUtils sp;
     Scale sc;
     MidiNote mn;
-    ScorePitchUtils::getNotationNote(sc, mn);
+   // ScorePitchUtils::getNotationNote(sc, mn);
 }
 
 static void testCMajor() {
@@ -38,8 +38,6 @@ static void testCMinor() {
   x = ScorePitchUtils::getNotationNote(sc, mnE);
   assert(std::get<1>(x) == ScorePitchUtils::Accidental::natural);
     
-  
-  assert(false);
 }
 
 void testScorePitchUtils() {
