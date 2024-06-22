@@ -25,11 +25,12 @@
  * find and fix 0,0,7 bug. (done)
  *
  * make it look decent.
- *      make outer frame correct size
- *      make staff draw correct
- *      make bar lines draw correctly
- *      fix key sig spacing
- *      make ledger lines look right
+ *      make outer frame correct size (done)
+ *      make staff draw correct (done)
+ *      make bar lines draw correctly (done)
+ *      fix key sig spacing (done)
+ *      put notes in correct x pos. (done, but could be better?)
+ *      make ledger lines look right (better)
  *
  * put in the natural and accidental if overlap.
  * assign notes to correct staff
@@ -40,6 +41,9 @@
  *      use flats in flat keys.
  *      try to space identifiable chords.
  *      try to space all chords.
+ * 
+ * Bugs:
+ *      cmajor chord in C# Major - accidentals get on key sig.
  */
 
 class ScoreChord : public app::LightWidget, public Dirty {
@@ -72,6 +76,7 @@ private:
     const std::string _gClef = u8"\ue050";
     const std::string _fClef = u8"\ue062";
     const std::string _ledgerLine = u8"\ue022";
+        const std::string _ledgerLineWide = u8"\ue023";
     const std::string _flat = u8"\ue260";
     const std::string _natural = u8"\ue261";
     const std::string _sharp = u8"\ue262";
@@ -80,31 +85,31 @@ private:
 
     const float topMargin = 27.5f * _zoom;
     const float yTrebleStaff = topMargin + 0;
-    const float yBassStaff = yTrebleStaff + (34);
+    const float yBassStaff = yTrebleStaff + (25 * _zoom);           // 21.5 looks ok - a little wide
     const float yTrebleClef = yTrebleStaff - (3.3 * _zoom);  // 3 a little low, 4 way high
     const float yBassClef = yBassStaff - (10 * _zoom);       // 11 too much
-    const float yNoteInfo = yBassStaff + (17 * _zoom);       // 0 too high 12 for a long time...
+    const float yNoteInfo = yBassStaff + (17 * _zoom);       // 0  high 12 for a long time...
 
     // X axis pos
-    const float leftMargin = 4.5f;
-    const float xStaff = leftMargin;
-    const float _xClef = xStaff + 2;
+    const float _leftMargin = 4.5f;
+    const float _xStaff = _leftMargin;
+    const float _xClef = _xStaff + 2;
     const float _xBarlineEnd = 83.5;
-    const float _xBarlineFirst = leftMargin;
+    const float _xBarlineFirst = _leftMargin;
     const float _xKeysig = 16 * _zoom;           // x position of the first accidental in the key signature.
     const float _deltaXAccidental = -5 * _zoom;  // accidental drawn this far from note, in x di
-    const float deltaXNote = 13;                 // 8 seemed close. was 10 for a long time. 12 is good now, try 13
     const float _noteXIndent = 6;                // Distance from the keysig to the first note, horizontally.
 
     const float _ySpaceBetweenLines = 1.67f * _zoom;  // 1.7 slightly high
                                                       // 1.65 low
-    const float barlineHeight = 55.5;                 // 55 low
+  //  const float barlineHeight = 55.5;                 // 55 low
                                                       // 57 went high
-  //  const float _paddingAfterKeysig = 9 * _zoom;      // space between the clef or clef + keysig and the first note
+                                                      // height = yBassStaff + x * zoom
+    const float _barlineHeight = yBassStaff + (-14 * _zoom);     // 13.5 sticks up  15 gap
 
-    std::pair<float, float> drawMusicNonNotes(const DrawArgs &args) const;
-    void drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
-    float noteY(const MidiNote &note, bool bassStaff) const;
+    float _drawMusicNonNotes(const DrawArgs &args) const;       // returns x pos at end of ksig
+    void _drawNotes(const DrawArgs &args, float xPosition) const;
+    float _noteY(const MidiNote &note, bool bassStaff) const;
 
     class YInfo {
     public:
@@ -206,16 +211,17 @@ void ScoreChord::prepareFontMusic(const DrawArgs &args) const {
 
 inline void ScoreChord::draw(const DrawArgs &args) {
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
-    const auto keysigLayout = drawMusicNonNotes(args);
+    const float left = _drawMusicNonNotes(args);
+    const float right = _xBarlineEnd;
+    const float xPosition = ((left + right) / 2.f) - _zoom * 5;
 
-    // TODO: put this back
-    //  drawNotes(args, keysigLayout);
+    _drawNotes(args, xPosition);
     _scoreIsDirty = false;
 
     Widget::draw(args);
 }
 
-inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &args) const {
+float ScoreChord::_drawMusicNonNotes(const DrawArgs &args) const {
     NVGcolor color = getBackgroundColor();
     filledRect(args.vg, color, 0, 0, box.size.x, box.size.y, 5);
     prepareFontMusic(args);
@@ -229,13 +235,14 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
     drawStaff(args, yBassStaff);
     nvgText(args.vg, _xClef, yBassClef, _fClef.c_str(), NULL);
 
-    float keysigWidth = 0;
-    float keysigEnd = 0;
+   float keysigWidth = 0;
+   float keysigEnd = 0;
 
     if (_module) {
-        auto scale = _module->getScale();
+        const auto scale = _module->getScale();
         const auto a = drawKeysig(args, scale, true, yTrebleStaff);
         const auto b = drawKeysig(args, scale, false, yBassStaff);
+        SQINFO("!! in non music, a.first = %f, second=%f", a.first, a.second);
         keysigWidth = std::max(keysigWidth, a.first);
         keysigWidth = std::max(keysigWidth, b.first);
 
@@ -255,9 +262,8 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
  //   SQINFO("barlineX2 = %f, size x=%f leftMarg= %f", barlineX2, args.clipBox.size.x, leftMargin);
     drawBarLine(args, _xBarlineEnd, yBassStaff);
     drawBarLine(args, _xBarlineFirst, yBassStaff);
-
-
-    return std::make_pair(keysigWidth, keysigEnd);
+    SQINFO("draw non notes returning ksig end %f", keysigEnd);
+    return keysigEnd;
 }
 
 inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassStaff) const {
@@ -299,15 +305,15 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
 
 inline void ScoreChord::drawBarLine(const DrawArgs &args, float x, float y) const {
     auto color = getForegroundColor();
-    drawVLine(args.vg, color, x, y, barlineHeight, .75f);
+    drawVLine(args.vg, color, x, y, _barlineHeight, .75f);
 }
 
 inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysigLayout) const {
     const float keysigXEnds = _keysigLayout.second;
-    const float totalWidth = box.size.x - 2 * leftMargin;
+    const float totalWidth = box.size.x - 2 * _leftMargin;
     const float totalWidthForNotes = totalWidth - keysigXEnds;
     const float delta = totalWidthForNotes / 8.5;
-    const float firstNotePosition = leftMargin + keysigXEnds + _noteXIndent;
+    const float firstNotePosition = _leftMargin + keysigXEnds + _noteXIndent;
 
     SQINFO("noteXPos called with noteNumber = %d, keysig layout = %f, %f", noteNumber, _keysigLayout.first, _keysigLayout.second);
     float x = firstNotePosition + noteNumber * delta;
@@ -353,18 +359,23 @@ inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, Cons
         for (int i = 0; i < num; ++i) {
             const float x = _xKeysig + w;
             const int note = accidentals[i].get();
-            const float yf = noteY(MidiNote(note), !treble);
+            const float yf = _noteY(MidiNote(note), !treble);
             nvgText(args.vg, x, yf, character, NULL);
             w += widthOfSharpFlat;
+            SQINFO("in loop, w=%f", w);
             p = std::max(p, x + widthOfSharpFlat);
         }
         width = std::max(width, w);
         pos = std::max(pos, p);
+    } else {
+        width = 0;
+        pos = _xKeysig;
     }
+    SQINFO("return width=%f pos=%f", width, pos);
     return std::make_pair(width, pos);
 }
 
-float ScoreChord::noteY(const MidiNote &note, bool bassStaff) const {
+float ScoreChord::_noteY(const MidiNote &note, bool bassStaff) const {
     float y = 0;
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
     const int ledgerLine = note.getLedgerLine(bassStaff);
@@ -374,9 +385,8 @@ float ScoreChord::noteY(const MidiNote &note, bool bassStaff) const {
 }
 
 inline void ScoreChord::drawStaff(const DrawArgs &args, float yBase) const {
-    const float x = xStaff;
- //   const float length = args.clipBox.size.x - 2 * leftMargin;
-    const float length = _xBarlineEnd - leftMargin;
+    const float x = _xStaff;
+    const float length = _xBarlineEnd - _leftMargin;
     const auto color = getForegroundColor();
     for (int i = 0; i < 5; ++i) {
         float y = yBase - 2.f * float(i) * _ySpaceBetweenLines;
@@ -409,7 +419,7 @@ inline void ScoreChord::step() {
 inline void ScoreChord::drawLedgerLinesForNotes(const DrawArgs &args, const YInfo &yInfo, float xPosition) const {
     for (int i = 0; i < 3; ++i) {
         if (yInfo.ledgerPos[i] != 0) {
-            nvgText(args.vg, xPosition, yInfo.ledgerPos[i], _ledgerLine.c_str(), NULL);
+            nvgText(args.vg, xPosition, yInfo.ledgerPos[i], _ledgerLineWide.c_str(), NULL);
         }
     }
 }
@@ -499,7 +509,7 @@ inline void ScoreChord::drawOneNote(
     drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, std::get<1>(notationNote));
 }
 
-inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const {
+inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const {
     if (!_module) {
         return;
     }
@@ -508,10 +518,11 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
     const unsigned channels = std::get<1>(pitchesAndChannels);
     const int *originalPitches = std::get<0>(pitchesAndChannels);
     if (channels <= 0) {
-        SQINFO("On change 274, nothing");
+   //     SQINFO("On change 274, nothing");
         return;
     }
-    SQINFO("change, channels=%d", channels);
+ //   SQINFO("change, channels=%d", channels);
+    SQINFO("_drawNOtes, pos=%f", xPosition);
 
     ConstScalePtr scale = _module->getScale();
     int copyOfPitches[16];
@@ -521,7 +532,7 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
     }
     std::sort(copyOfPitches, copyOfPitches + channels);
 
-    const float xPosition = noteXPos(0, keysigLayout);
+ //   const float xPosition = noteXPos(0, keysigLayout);
     int lastYPos = 1000;
     bool lastNoteOffset = false;
 
