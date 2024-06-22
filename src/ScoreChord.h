@@ -21,10 +21,21 @@
  * notate all notes. (done)
  * sort pitches (done)
  * make note not overlap with last in stacked close chords. (done)
- * draw double notes, when required
- * put in the natural and accidental if overlap.
- * find and fix 0,0,7 bug.
+ * draw double notes, when required (done)
+ * find and fix 0,0,7 bug. (done)
+ *
  * make it look decent.
+ *      make outer frame correct size
+ *      make staff draw correct
+ *      make bar lines draw correctly
+ *      fix key sig spacing
+ *      make ledger lines look right
+ *
+ * put in the natural and accidental if overlap.
+ * assign notes to correct staff
+ * put in 8va 8vb markings
+ * don't draw notes off page
+ *
  * enharmonic spelling:
  *      use flats in flat keys.
  *      try to space identifiable chords.
@@ -78,8 +89,9 @@ private:
     const float leftMargin = 4.5f;
     const float xStaff = leftMargin;
     const float _xClef = xStaff + 2;
-    const float _xClefWidth = 8 * _zoom;
-    const float xNote0 = _xClef + 18 * _zoom;
+    const float _xBarlineEnd = 83.5;
+    const float _xBarlineFirst = leftMargin;
+    const float _xKeysig = 16 * _zoom;           // x position of the first accidental in the key signature.
     const float _deltaXAccidental = -5 * _zoom;  // accidental drawn this far from note, in x di
     const float deltaXNote = 13;                 // 8 seemed close. was 10 for a long time. 12 is good now, try 13
     const float _noteXIndent = 6;                // Distance from the keysig to the first note, horizontally.
@@ -88,7 +100,7 @@ private:
                                                       // 1.65 low
     const float barlineHeight = 55.5;                 // 55 low
                                                       // 57 went high
-    const float _paddingAfterKeysig = 9 * _zoom;      // space between the clef or clef + keysig and the first note
+  //  const float _paddingAfterKeysig = 9 * _zoom;      // space between the clef or clef + keysig and the first note
 
     std::pair<float, float> drawMusicNonNotes(const DrawArgs &args) const;
     void drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const;
@@ -170,7 +182,7 @@ void ScoreChord::drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, flo
 }
 
 void ScoreChord::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const {
-    w = std::min(w, 80.f);  //  clip with to 80, temp (TODO: do we need this?)
+    w = std::min(w, 88.f);  //  clip with to 80, temp (TODO: do we need this?)
                             //  SQINFO("rect width=%f h=%f", w, h);
     nvgFillColor(vg, color);
     nvgBeginPath(vg);
@@ -195,7 +207,9 @@ void ScoreChord::prepareFontMusic(const DrawArgs &args) const {
 inline void ScoreChord::draw(const DrawArgs &args) {
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const auto keysigLayout = drawMusicNonNotes(args);
-    drawNotes(args, keysigLayout);
+
+    // TODO: put this back
+    //  drawNotes(args, keysigLayout);
     _scoreIsDirty = false;
 
     Widget::draw(args);
@@ -203,13 +217,10 @@ inline void ScoreChord::draw(const DrawArgs &args) {
 
 inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &args) const {
     NVGcolor color = getBackgroundColor();
-
     filledRect(args.vg, color, 0, 0, box.size.x, box.size.y, 5);
-
     prepareFontMusic(args);
-
     color = getForegroundColor();
-    // Background text
+
     nvgFillColor(args.vg, color);
 
     drawStaff(args, yTrebleStaff);
@@ -231,15 +242,20 @@ inline std::pair<float, float> ScoreChord::drawMusicNonNotes(const DrawArgs &arg
         keysigEnd = std::max(keysigWidth, a.second);
         keysigEnd = std::max(keysigWidth, b.second);
     }
+// TODO: put this back
+#if 0
     const std::pair<float, float> ksStuff = std::make_pair(keysigWidth, keysigEnd);
 
     drawBarLine(args, xStaff, yBassStaff);
 
     const float secondBarLineX = 2 + .5f * (noteXPos(3, ksStuff) + noteXPos(4, ksStuff));
     drawBarLine(args, secondBarLineX, yBassStaff);
+#endif
+  //  const float barlineX2 = args.clipBox.size.x - leftMargin;
+ //   SQINFO("barlineX2 = %f, size x=%f leftMarg= %f", barlineX2, args.clipBox.size.x, leftMargin);
+    drawBarLine(args, _xBarlineEnd, yBassStaff);
+    drawBarLine(args, _xBarlineFirst, yBassStaff);
 
-    const float barlineX2 = args.clipBox.size.x - leftMargin;
-    drawBarLine(args, barlineX2, yBassStaff);
 
     return std::make_pair(keysigWidth, keysigEnd);
 }
@@ -305,7 +321,8 @@ inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysi
 inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
     const auto info = scale->getScoreInfo();
     float width = 0;
-    float pos = _xClef + _paddingAfterKeysig + _xClefWidth;
+   // float pos = _xClef + _paddingAfterKeysig + _xClefWidth;
+    float pos = 0;
     const MidiNote *accidentals = nullptr;
     bool areFlats = false;
     int num = 0;
@@ -327,13 +344,14 @@ inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, Cons
         num = info.numSharps;
     }
 
-    const float widthOfSharpFlat = 4 * _zoom;
+  //  SQINFO("in draw keysig, _xClef=%f, _xClefWidth=%f padding after = %f", _xClef, _xClefWidth, _paddingAfterKeysig);
+    const float widthOfSharpFlat = (areFlats ? 3.0 : 3.5) * _zoom;
     const char *character = (areFlats) ? _flat.c_str() : _sharp.c_str();
     if (num) {
         float w = 0;
         float p = 0;
         for (int i = 0; i < num; ++i) {
-            const float x = _xClef + +_xClefWidth + _paddingAfterKeysig + w;
+            const float x = _xKeysig + w;
             const int note = accidentals[i].get();
             const float yf = noteY(MidiNote(note), !treble);
             nvgText(args.vg, x, yf, character, NULL);
@@ -357,7 +375,8 @@ float ScoreChord::noteY(const MidiNote &note, bool bassStaff) const {
 
 inline void ScoreChord::drawStaff(const DrawArgs &args, float yBase) const {
     const float x = xStaff;
-    const float length = args.clipBox.size.x - 2 * leftMargin;
+ //   const float length = args.clipBox.size.x - 2 * leftMargin;
+    const float length = _xBarlineEnd - leftMargin;
     const auto color = getForegroundColor();
     for (int i = 0; i < 5; ++i) {
         float y = yBase - 2.f * float(i) * _ySpaceBetweenLines;
@@ -416,7 +435,7 @@ inline void ScoreChord::drawAccidental(const DrawArgs &args, float xPosition, fl
             SQFATAL("unknown accidental");
             break;
     }
-    SQINFO("draw accidental %d at %f,%f", accidental, xPosition, yPosition);
+    SQINFO("draw accidental %d at %f,%f", int(accidental), xPosition, yPosition);
     nvgText(args.vg, xPosition + _deltaXAccidental, yPosition, symbol.c_str(), NULL);
 }
 
@@ -434,25 +453,25 @@ inline void ScoreChord::drawTwoNotes(
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
     nvgText(args.vg, xPosition - noteXOffset, yInfo.position, notePtr, NULL);
     const auto accidental1 = std::get<1>(notationNote);
-const auto accidental2 = std::get<1>(notationNote2);
+    const auto accidental2 = std::get<1>(notationNote2);
 
-    int numAccidentals = 0;
+    // int numAccidentals = 0;
     bool showAccidental1 = false;
     bool showAccidental2 = false;
     if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
-        numAccidentals = 0;
+        // numAccidentals = 0;
         showAccidental1 = showAccidental2 = false;
     } else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
-        numAccidentals = 1;
+        //  numAccidentals = 1;
         showAccidental1 = true;
         showAccidental2 = false;
     } else if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
-        numAccidentals = 1;
-         showAccidental1 = false;
+        //   numAccidentals = 1;
+        showAccidental1 = false;
         showAccidental2 = true;
-    }else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
-        numAccidentals = 2;
-          showAccidental1 = true;
+    } else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
+        //  numAccidentals = 2;
+        showAccidental1 = true;
         showAccidental2 = true;
     }
     SQINFO("will draw accid, show1=%d show 2 = %d", showAccidental1, showAccidental2);

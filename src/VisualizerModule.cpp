@@ -15,13 +15,23 @@
 template <>
 int BufferingParent<ScoreChord>::_refCount = 0;
 
+/**
+ * TODO:
+ *  fix score drawing
+ *  add gate input
+ *  add pes
+ *
+ * 
+ */
 class VisualizerWidget : public ModuleWidget {
 public:
     VisualizerWidget(VisualizerModule* module) {
         setModule(module);
-        addScore(module);
+     
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
+        addScore(module);
 #if 1  // def _LAB
+
         addLabel(Vec(20, 6), "Visualizer", 20);
         // addLabel(Vec(28, 60), "Under Construction", 14);
         addLabel(Vec(25, 356), "Squinktronix", 16);
@@ -78,7 +88,7 @@ private:
     ScoreChord* _scoreChord = nullptr;
     void addScore(VisualizerModule* module) {
         _scoreChord = new ScoreChord(module);
-        auto size = Vec(800, 80);
+        auto size = Vec(104, 100);
         auto vu = new BufferingParent<ScoreChord>(_scoreChord, size, _scoreChord);
 
         vu->box.pos = Vec(8, 28),
@@ -89,11 +99,6 @@ private:
         const float yScale = 190;
         const float yMode = yScale + 28;
 
-{
-        int x = Scale::getShortScaleLabels(true).size();
-        int y = Scale::getScaleLabels(true).size();
-        SQINFO("add keyszig, modes = %d, %d", x, y);
-}
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
             Vec(8, yScale),
             module,
@@ -114,7 +119,7 @@ private:
 
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
-        p->text = "Maj";
+     //   p->text = "Maj";
         addParam(p);
     }
 
