@@ -27,13 +27,13 @@ inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNo
     Accidental accidental = Accidental::none;
 
     if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
-        SQINFO("none at 29");
+      //  SQINFO("none at 29");
         accidental = Accidental::none;
     } else if (!midiNote.isBlackKey()) {
-        SQINFO("natural at 31");
+      //  SQINFO("natural at 31");
         accidental = Accidental::natural;
     } else {
-        SQINFO("default to sharps - might not be right");
+      //  SQINFO("default to sharps - might not be right");
         accidental = Accidental::sharp;
     }
 

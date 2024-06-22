@@ -81,8 +81,8 @@ private:
     const float _xClefWidth = 8 * _zoom;
     const float xNote0 = _xClef + 18 * _zoom;
     const float _deltaXAccidental = -5 * _zoom;  // accidental drawn this far from note, in x di
-    const float deltaXNote = 13;         // 8 seemed close. was 10 for a long time. 12 is good now, try 13
-    const float _noteXIndent = 6;        // Distance from the keysig to the first note, horizontally.
+    const float deltaXNote = 13;                 // 8 seemed close. was 10 for a long time. 12 is good now, try 13
+    const float _noteXIndent = 6;                // Distance from the keysig to the first note, horizontally.
 
     const float _ySpaceBetweenLines = 1.67f * _zoom;  // 1.7 slightly high
                                                       // 1.65 low
@@ -118,6 +118,7 @@ private:
 
     void drawStaff(const DrawArgs &args, float y) const;
     void drawBarLine(const DrawArgs &args, float x, float y) const;
+    void drawAccidental(const DrawArgs &args, float x, float y, ScorePitchUtils::Accidental accidental) const;
     ;
     /**
      * @return float width of key signature
@@ -394,6 +395,31 @@ inline void ScoreChord::drawLedgerLinesForNotes(const DrawArgs &args, const YInf
     }
 }
 
+inline void ScoreChord::drawAccidental(const DrawArgs &args, float xPosition, float yPosition, ScorePitchUtils::Accidental accidental) const {
+    SQINFO("draw accid");
+    if (accidental == ScorePitchUtils::Accidental::none) {
+        SQINFO("ret early");
+        return;
+    }
+    std::string symbol = "";
+    switch (accidental) {
+        case ScorePitchUtils::Accidental::sharp:
+            symbol = _sharp;
+            break;
+        case ScorePitchUtils::Accidental::flat:
+            symbol = _flat;
+            break;
+        case ScorePitchUtils::Accidental::natural:
+            symbol = _natural;
+            break;
+        default:
+            SQFATAL("unknown accidental");
+            break;
+    }
+    SQINFO("draw accidental %d at %f,%f", accidental, xPosition, yPosition);
+    nvgText(args.vg, xPosition + _deltaXAccidental, yPosition, symbol.c_str(), NULL);
+}
+
 inline void ScoreChord::drawTwoNotes(
     const DrawArgs &args,
     const MidiNote &note,
@@ -401,7 +427,41 @@ inline void ScoreChord::drawTwoNotes(
     const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote2,
     const YInfo &yInfo,
     float xPosition) const {
-    SQINFO("!! two notes nimp");
+    drawLedgerLinesForNotes(args, yInfo, xPosition);
+    const char *notePtr = _wholeNote.c_str();
+
+    const float noteXOffset = 5;
+    nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
+    nvgText(args.vg, xPosition - noteXOffset, yInfo.position, notePtr, NULL);
+    const auto accidental1 = std::get<1>(notationNote);
+const auto accidental2 = std::get<1>(notationNote2);
+
+    int numAccidentals = 0;
+    bool showAccidental1 = false;
+    bool showAccidental2 = false;
+    if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
+        numAccidentals = 0;
+        showAccidental1 = showAccidental2 = false;
+    } else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
+        numAccidentals = 1;
+        showAccidental1 = true;
+        showAccidental2 = false;
+    } else if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
+        numAccidentals = 1;
+         showAccidental1 = false;
+        showAccidental2 = true;
+    }else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
+        numAccidentals = 2;
+          showAccidental1 = true;
+        showAccidental2 = true;
+    }
+    SQINFO("will draw accid, show1=%d show 2 = %d", showAccidental1, showAccidental2);
+    if (showAccidental1) {
+        drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, accidental1);
+    }
+    if (showAccidental2) {
+        drawAccidental(args, xPosition + 2 * _deltaXAccidental, yInfo.position, accidental2);
+    }
 }
 
 inline void ScoreChord::drawOneNote(
@@ -417,24 +477,7 @@ inline void ScoreChord::drawOneNote(
 
     const float noteXOffset = offsetNote ? 9 : 0;
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
-    if (std::get<1>(notationNote) != ScorePitchUtils::Accidental::none) {
-        std::string symbol = "";
-        switch (std::get<1>(notationNote)) {
-            case ScorePitchUtils::Accidental::sharp:
-                symbol = _sharp;
-                break;
-            case ScorePitchUtils::Accidental::flat:
-                symbol = _flat;
-                break;
-            case ScorePitchUtils::Accidental::natural:
-                symbol = _natural;
-                break;
-            default:
-                SQFATAL("unknown accidental");
-                break;
-        }
-        nvgText(args.vg, xPosition + _deltaXAccidental, yInfo.position, symbol.c_str(), NULL);
-    }
+    drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, std::get<1>(notationNote));
 }
 
 inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> keysigLayout) const {
@@ -463,10 +506,6 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
     int lastYPos = 1000;
     bool lastNoteOffset = false;
 
-    // for (unsigned i = 0; i < channels; ++i) {
-    //     MidiNote mn(copyOfPitches[i]);
-    //     SQINFO("before loop, pitch[%d] = %d", i, copyOfPitches[i]);
-    // }
     for (unsigned i = 0; i < channels; ++i) {
         MidiNote mn(copyOfPitches[i]);
         const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn);
@@ -499,11 +538,5 @@ inline void ScoreChord::drawNotes(const DrawArgs &args, std::pair<float, float> 
         } else {
             drawTwoNotes(args, mn, notationNote, notationNoteNext, yInfo, xPosition);
         }
-
-        //  distance = 2.161999 between lines=2.338000 next=0
-
-        //  SQINFO("distance = %f between lines=%f next=%d", distance, _ySpaceBetweenLines, nextLine);
-
-        // drawOneNote(args, mn, notationNote, yInfo, xPosition);
     }
 }
