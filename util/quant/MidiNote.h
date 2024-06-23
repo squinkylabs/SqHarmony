@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <stdio.h>
 
+#include "SqLog.h"
+
 class MidiNote {
 public:
     // Note: this constructor should probably be "explicit", but a lot of stuff breaks!
@@ -84,6 +86,9 @@ inline int MidiNote::getLedgerLine(bool bassStaff) const {
 inline bool MidiNote::isBlackKey() const {
     bool isBlackKey = false;
     int pitch = this->_pitch % 12;
+    if (pitch < 0) {
+        pitch += 12;
+    }
     switch (pitch) {
     case 0:
     case 2:
@@ -102,6 +107,7 @@ inline bool MidiNote::isBlackKey() const {
         isBlackKey = true;
         break;
     default:
+        SQINFO("pitch is %d", pitch);
         assert(false);
     }
 

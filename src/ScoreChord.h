@@ -33,7 +33,7 @@
  *      make ledger lines look right (better)
  *
  * put in the natural and accidental if overlap.
- * assign notes to correct staff
+ * assign notes to correct staff (done)
  * put in 8va 8vb markings
  * don't draw notes off page
  *
@@ -44,6 +44,7 @@
  *
  * Bugs:
  *      cmajor chord in C# Major - accidentals get on key sig.
+ *      C and E in C major - doesn't draw the C
  */
 
 class ScoreChord : public app::LightWidget, public Dirty {
@@ -97,7 +98,7 @@ private:
     const float _xBarlineEnd = 83.5;
     const float _xBarlineFirst = _leftMargin;
     const float _xKeysig = 16 * _zoom;           // x position of the first accidental in the key signature.
-    const float _deltaXAccidental = -5 * _zoom;  // accidental drawn this far from note, in x di
+    const float _deltaXAccidental = -8 * _zoom;  // accidental drawn this far from note, in x di
     const float _noteXIndent = 6;                // Distance from the keysig to the first note, horizontally.
 
     const float _ySpaceBetweenLines = 1.67f * _zoom;           // 1.7 slightly high
@@ -131,9 +132,9 @@ private:
         const YInfo &yInfo,
         float xPosition) const;
 
-    void drawStaff(const DrawArgs &args, float y) const;
-    void drawBarLine(const DrawArgs &args, float x, float y) const;
-    void drawAccidental(const DrawArgs &args, float x, float y, ScorePitchUtils::Accidental accidental) const;
+    void _drawStaff(const DrawArgs &args, float y) const;
+    void _drawBarLine(const DrawArgs &args, float x, float y) const;
+    void _drawAccidental(const DrawArgs &args, float x, float y, ScorePitchUtils::Accidental accidental) const;
     ;
     /**
      * @return float width of key signature
@@ -227,10 +228,10 @@ float ScoreChord::_drawMusicNonNotes(const DrawArgs &args) const {
 
     nvgFillColor(args.vg, color);
 
-    drawStaff(args, _yTrebleStaff);
+    _drawStaff(args, _yTrebleStaff);
     nvgText(args.vg, _xClef, _yTrebleClef, _gClef.c_str(), NULL);
 
-    drawStaff(args, _yBassStaff);
+    _drawStaff(args, _yBassStaff);
     nvgText(args.vg, _xClef, _yBassClef, _fClef.c_str(), NULL);
 
     float keysigWidth = 0;
@@ -248,8 +249,8 @@ float ScoreChord::_drawMusicNonNotes(const DrawArgs &args) const {
         keysigEnd = std::max(keysigWidth, b.second);
     }
 
-    drawBarLine(args, _xBarlineEnd, _yBassStaff);
-    drawBarLine(args, _xBarlineFirst, _yBassStaff);
+    _drawBarLine(args, _xBarlineEnd, _yBassStaff);
+    _drawBarLine(args, _xBarlineFirst, _yBassStaff);
     // SQINFO("draw non notes returning ksig end %f", keysigEnd);
     return keysigEnd;
 }
@@ -291,7 +292,7 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
     return ret;
 }
 
-inline void ScoreChord::drawBarLine(const DrawArgs &args, float x, float y) const {
+inline void ScoreChord::_drawBarLine(const DrawArgs &args, float x, float y) const {
     auto color = getForegroundColor();
     drawVLine(args.vg, color, x, y, _barlineHeight, .75f);
 }
@@ -370,7 +371,7 @@ float ScoreChord::_noteY(const MidiNote &note, bool bassStaff) const {
     return y;
 }
 
-inline void ScoreChord::drawStaff(const DrawArgs &args, float yBase) const {
+inline void ScoreChord::_drawStaff(const DrawArgs &args, float yBase) const {
     const float x = _xStaff;
     const float length = _xBarlineEnd - _leftMargin;
     const auto color = getForegroundColor();
@@ -410,10 +411,10 @@ inline void ScoreChord::drawLedgerLinesForNotes(const DrawArgs &args, const YInf
     }
 }
 
-inline void ScoreChord::drawAccidental(const DrawArgs &args, float xPosition, float yPosition, ScorePitchUtils::Accidental accidental) const {
-    SQINFO("draw accid");
+inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, ScorePitchUtils::Accidental accidental) const {
+    SQINFO("drawAccidental x=%f, acciental=%d", xPosition, int(accidental));
     if (accidental == ScorePitchUtils::Accidental::none) {
-        SQINFO("ret early");
+        SQINFO("ret early from draw accid");
         return;
     }
     std::string symbol = "";
@@ -431,9 +432,31 @@ inline void ScoreChord::drawAccidental(const DrawArgs &args, float xPosition, fl
             SQFATAL("unknown accidental");
             break;
     }
-    SQINFO("draw accidental %d at %f,%f", int(accidental), xPosition, yPosition);
+    SQINFO("drawAccidental (%d) at %f,%f", int(accidental), xPosition, yPosition);
     nvgText(args.vg, xPosition + _deltaXAccidental, yPosition, symbol.c_str(), NULL);
 }
+
+// returns true if accidental1 <= accidental2
+inline bool compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
+    SQINFO("compare %d vs %d. flat=%d, sharp=%d, natural=%d, none=%d",
+        int(accidental1), int(accidental2),
+    int(ScorePitchUtils::Accidental::flat), int(ScorePitchUtils::Accidental::sharp), int(ScorePitchUtils::Accidental::natural), int(ScorePitchUtils::Accidental::none)); 
+
+    if (accidental1 == accidental2) {
+        return true;
+    }
+
+    if (accidental2 == ScorePitchUtils::Accidental::sharp) {
+        // if the second is a sharp, it must be GE the other one.
+        return true;                    
+    }
+    if (accidental1 == ScorePitchUtils::Accidental::sharp) {
+        return false;
+    }
+    // More cases to implement.
+    assert(false);
+    return false;
+} 
 
 inline void ScoreChord::drawTwoNotes(
     const DrawArgs &args,
@@ -446,36 +469,56 @@ inline void ScoreChord::drawTwoNotes(
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = 5;
+    SQINFO("drwing two notes at %f and %f", xPosition + noteXOffset, xPosition - noteXOffset);
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
     nvgText(args.vg, xPosition - noteXOffset, yInfo.position, notePtr, NULL);
     const auto accidental1 = std::get<1>(notationNote);
     const auto accidental2 = std::get<1>(notationNote2);
 
-    // int numAccidentals = 0;
     bool showAccidental1 = false;
     bool showAccidental2 = false;
     if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
-        // numAccidentals = 0;
         showAccidental1 = showAccidental2 = false;
     } else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
-        //  numAccidentals = 1;
         showAccidental1 = true;
         showAccidental2 = false;
     } else if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
-        //   numAccidentals = 1;
         showAccidental1 = false;
         showAccidental2 = true;
     } else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
-        //  numAccidentals = 2;
         showAccidental1 = true;
         showAccidental2 = true;
     }
+
+    const bool showTwoAccidentals = showAccidental1 && showAccidental2;
+
+    ScorePitchUtils::Accidental inOrderAccidendals[2] = {ScorePitchUtils::Accidental::none, ScorePitchUtils::Accidental::none };
+    int accidentalIndex = 0;
+    if (showAccidental1) {
+        inOrderAccidendals[accidentalIndex++] = accidental1;
+    }
+
+    if (showAccidental2) {
+        inOrderAccidendals[accidentalIndex++] = accidental2;
+    }
+
+    if (compareAccidentals(inOrderAccidendals[0], inOrderAccidendals[1])) {
+        std::swap(inOrderAccidendals[0], inOrderAccidendals[1]);
+    }
+
+
+    float xPositionAccidental = xPosition + _deltaXAccidental;
+    if (showTwoAccidentals) {
+        xPositionAccidental += _deltaXAccidental;
+    }
     //   SQINFO("will draw accid, show1=%d show 2 = %d", showAccidental1, showAccidental2);
     if (showAccidental1) {
-        drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, accidental1);
+        SQINFO("in two notes, drawing acciental1");
+        _drawAccidental(args, xPositionAccidental, yInfo.position, inOrderAccidendals[0]);
     }
     if (showAccidental2) {
-        drawAccidental(args, xPosition + 2 * _deltaXAccidental, yInfo.position, accidental2);
+         SQINFO("in two notes, drawing acciental2");
+        _drawAccidental(args, xPositionAccidental - _deltaXAccidental, yInfo.position, inOrderAccidendals[1]);
     }
 }
 
@@ -486,13 +529,13 @@ inline void ScoreChord::drawOneNote(
     const YInfo &yInfo,
     float xPosition,
     bool offsetNote) const {
-    //   SQINFO("  drawOneNote offset=%d", offsetNote);
+    SQINFO("  drawOneNote offset=%d dxAccid=%f", offsetNote, _deltaXAccidental);
     drawLedgerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = offsetNote ? 9 : 0;
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
-    drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, std::get<1>(notationNote));
+    _drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, std::get<1>(notationNote));
 }
 
 inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const {
@@ -508,7 +551,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return;
     }
     //   SQINFO("change, channels=%d", channels);
-    SQINFO("_drawNOtes, pos=%f", xPosition);
+  //  SQINFO("_drawNOtes, pos=%f", xPosition);
 
     ConstScalePtr scale = _module->getScale();
     int copyOfPitches[16];
@@ -548,7 +591,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             lastTrebleNote = pitchIterator;
         }
     }
-    SQINFO("after pass 1 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
+ //   SQINFO("after pass 1 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
 
     // Decide where middle C belongs
     if (firstMiddleC) {
@@ -566,7 +609,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
              SQINFO("mixed");
         }
     }
-     SQINFO("after pass 2 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
+   //  SQINFO("after pass 2 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
     if (firstBassNote) {
         _drawNotesOnStaff(args, scale, xPosition, true, firstBassNote, lastBassNote + 1);
     }
@@ -579,7 +622,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
 }
 
 inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
-    SQINFO("_drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
+  //  SQINFO("_drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
     int lastYPos = 1000;
     bool lastNoteOffset = false;
 
