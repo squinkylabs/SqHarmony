@@ -392,7 +392,7 @@ void testChordRecognizer() {
     test007();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // This one is a problem
     // testGSharpMajorFirstInversion();

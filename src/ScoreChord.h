@@ -436,6 +436,7 @@ inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, f
     nvgText(args.vg, xPosition + _deltaXAccidental, yPosition, symbol.c_str(), NULL);
 }
 
+// TODO: if this test was in ScorePitchUtils we could unit test it!!
 // returns true if accidental1 <= accidental2
 inline bool compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
     SQINFO("compare %d vs %d. flat=%d, sharp=%d, natural=%d, none=%d",
@@ -529,7 +530,7 @@ inline void ScoreChord::drawOneNote(
     const YInfo &yInfo,
     float xPosition,
     bool offsetNote) const {
-    SQINFO("  drawOneNote offset=%d dxAccid=%f", offsetNote, _deltaXAccidental);
+    SQINFO("--- drawOneNote offset=%d dxAccid=%f xPos=%f", offsetNote, _deltaXAccidental, xPosition);
     drawLedgerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 

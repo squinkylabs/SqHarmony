@@ -40,15 +40,31 @@ static void testCMinor() {
     
 }
 
+static void  testCompare() {
+    // First the equal cases
+    bool b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::flat, ScorePitchUtils::Accidental::flat);
+    assertEQ(b, true);
+     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::sharp, ScorePitchUtils::Accidental::sharp);
+    assertEQ(b, true);
+     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::natural, ScorePitchUtils::Accidental::natural);
+    assertEQ(b, true);
+     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::none, ScorePitchUtils::Accidental::none);
+    assertEQ(b, true);
+
+    assert(false);
+
+}
 void testScorePitchUtils() {
     test();
     testCMajor();
     testCMinor();
+     testCompare();
 }
 
-#if 0
+#if 1
 void testFirst() {
     //  testScorePitchUtils();
-    testCMinor();
+   // testCMinor();
+   testCompare();
 }
 #endif

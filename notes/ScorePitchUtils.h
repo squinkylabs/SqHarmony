@@ -20,6 +20,12 @@ public:
 
     static std::tuple<ScaleNote, Accidental> getNotationNote(const Scale&, const MidiNote&);
     // (SRN, Accidental) getAccidental(scale, MidiNote)
+
+    /** 
+     * @return returns true if accidental1 <= accidental2 
+     * @return false if  accidental1 > accidental2 
+     */
+    static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
 };
 
 inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote) {
@@ -38,22 +44,26 @@ inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNo
     }
 
     return std::make_tuple(sn, accidental);
-#if 0
-    // Just pass on the stuff from the ScaleNote. It's not quite right, but for now will get tests started.
-    switch (sn.getAdjustment()) {
-        case ScaleNote::RelativeAdjustment::none:
-            break;
-        case ScaleNote::RelativeAdjustment::sharp:
-            accidental = Accidental::sharp;
-            break;
-        case ScaleNote::RelativeAdjustment::flat:
-            accidental = Accidental::flat;
-            break;
-        default:
-            assert(false);
+}
+
+
+inline bool ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
+    SQINFO("compare %d vs %d. flat=%d, sharp=%d, natural=%d, none=%d",
+        int(accidental1), int(accidental2),
+    int(ScorePitchUtils::Accidental::flat), int(ScorePitchUtils::Accidental::sharp), int(ScorePitchUtils::Accidental::natural), int(ScorePitchUtils::Accidental::none)); 
+
+    if (accidental1 == accidental2) {
+        return true;
     }
 
-
-    return std::make_tuple(sn, accidental);
-#endif
-}
+    if (accidental2 == ScorePitchUtils::Accidental::sharp) {
+        // if the second is a sharp, it must be GE the other one.
+        return true;                    
+    }
+    if (accidental1 == ScorePitchUtils::Accidental::sharp) {
+        return false;
+    }
+    // More cases to implement.
+    assert(false);
+    return false;
+} 
