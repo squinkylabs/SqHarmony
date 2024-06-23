@@ -32,10 +32,11 @@
  *      put notes in correct x pos. (done, but could be better?)
  *      make ledger lines look right (better)
  *
- * put in the natural and accidental if overlap.
+ * put in the natural and accidental if overlap. (done)
  * assign notes to correct staff (done)
  * put in 8va 8vb markings
  * don't draw notes off page
+ * two accidentals on one line - spacing not right
  *
  * enharmonic spelling:
  *      use flats in flat keys.
@@ -44,7 +45,8 @@
  *
  * Bugs:
  *      cmajor chord in C# Major - accidentals get on key sig.
- *      C and E in C major - doesn't draw the C
+ *      C and E in C major - doesn't draw the C (fixed)
+ *      In C Major one note, I don't see A natural, only sharp??
  */
 
 class ScoreChord : public app::LightWidget, public Dirty {
@@ -73,10 +75,10 @@ private:
     Scale::Scales _lastScaleMode;
 
     const std::string _wholeNote = u8"\ue1d2";
-    const std::string _staffFiveLines = u8"\ue014";
+    // const std::string _staffFiveLines = u8"\ue014";
     const std::string _gClef = u8"\ue050";
     const std::string _fClef = u8"\ue062";
-    const std::string _ledgerLine = u8"\ue022";
+    //  const std::string _ledgerLine = u8"\ue022";
     const std::string _ledgerLineWide = u8"\ue023";
     const std::string _flat = u8"\ue260";
     const std::string _natural = u8"\ue261";
@@ -97,9 +99,12 @@ private:
     const float _xClef = _xStaff + 2;
     const float _xBarlineEnd = 83.5;
     const float _xBarlineFirst = _leftMargin;
-    const float _xKeysig = 16 * _zoom;           // x position of the first accidental in the key signature.
-    const float _deltaXAccidental = -8 * _zoom;  // accidental drawn this far from note, in x di
-    const float _noteXIndent = 6;                // Distance from the keysig to the first note, horizontally.
+    const float _xKeysig = 16 * _zoom;             // x position of the first accidental in the key signature.
+    const float _deltaXAccidental = -2.2 * _zoom;  // accidental drawn this far from note, in x di
+                                                   // for single note, -8 is way too much, -4 tolerable, -2 just about touching.
+                                                   // 0 is on top, as it should be. -2.2 is pretty good for single notes.
+
+    const float _noteXIndent = 6;  // Distance from the keysig to the first note, horizontally.
 
     const float _ySpaceBetweenLines = 1.67f * _zoom;           // 1.7 slightly high
                                                                // 1.65 low
@@ -458,7 +463,7 @@ inline bool compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePit
     // More cases to implement.
     assert(false);
     return false;
-} 
+}
 #endif
 
 inline void ScoreChord::drawTwoNotes(
@@ -495,7 +500,7 @@ inline void ScoreChord::drawTwoNotes(
 
     const bool showTwoAccidentals = showAccidental1 && showAccidental2;
 
-    ScorePitchUtils::Accidental inOrderAccidendals[2] = {ScorePitchUtils::Accidental::none, ScorePitchUtils::Accidental::none };
+    ScorePitchUtils::Accidental inOrderAccidendals[2] = {ScorePitchUtils::Accidental::none, ScorePitchUtils::Accidental::none};
     int accidentalIndex = 0;
     if (showAccidental1) {
         inOrderAccidendals[accidentalIndex++] = accidental1;
@@ -509,7 +514,6 @@ inline void ScoreChord::drawTwoNotes(
     //     std::swap(inOrderAccidendals[0], inOrderAccidendals[1]);
     // }
 
-
     float xPositionAccidental = xPosition + _deltaXAccidental;
     if (showTwoAccidentals) {
         xPositionAccidental += _deltaXAccidental;
@@ -520,7 +524,7 @@ inline void ScoreChord::drawTwoNotes(
         _drawAccidental(args, xPositionAccidental, yInfo.position, inOrderAccidendals[0]);
     }
     if (showAccidental2) {
-         SQINFO("in two notes, drawing acciental2");
+        SQINFO("in two notes, drawing acciental2");
         _drawAccidental(args, xPositionAccidental - _deltaXAccidental, yInfo.position, inOrderAccidendals[1]);
     }
 }
@@ -596,7 +600,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             lastTrebleNote = pitchIterator;
         }
     }
- //   SQINFO("after pass 1 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
+    //   SQINFO("after pass 1 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
 
     // Decide where middle C belongs
     if (firstMiddleC) {
@@ -607,14 +611,14 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         } else if (firstTrebleNote && !firstBassNote) {
             SQINFO("putting in treble, lastTN was %p, will be %p", lastTrebleNote, (copyOfPitches + channels - 1));
             firstTrebleNote = firstMiddleC;
-            lastTrebleNote =  copyOfPitches + channels - 1;
+            lastTrebleNote = copyOfPitches + channels - 1;
         } else {
-             // otherwise it's mixed, to put in treble
-             firstTrebleNote = firstMiddleC;
-             if (!lastTrebleNote) {
+            // otherwise it's mixed, to put in treble
+            firstTrebleNote = firstMiddleC;
+            if (!lastTrebleNote) {
                 lastTrebleNote = lastMiddleC;
-             }
-             SQINFO("mixed");
+            }
+            SQINFO("mixed");
         }
     }
     SQINFO("after pass 2 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
