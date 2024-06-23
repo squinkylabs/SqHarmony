@@ -22,10 +22,11 @@ public:
     // (SRN, Accidental) getAccidental(scale, MidiNote)
 
     /** 
+     * Note needed right now.
      * @return returns true if accidental1 <= accidental2 
      * @return false if  accidental1 > accidental2 
      */
-    static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
+  //  static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
 };
 
 inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote) {
@@ -47,11 +48,14 @@ inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNo
 }
 
 
+#if 0
 inline bool ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
     SQINFO("compare %d vs %d. flat=%d, sharp=%d, natural=%d, none=%d",
         int(accidental1), int(accidental2),
     int(ScorePitchUtils::Accidental::flat), int(ScorePitchUtils::Accidental::sharp), int(ScorePitchUtils::Accidental::natural), int(ScorePitchUtils::Accidental::none)); 
 
+    assert(accidental1 != Accidental::none);    
+    assert(accidental2 != Accidental::none);
     if (accidental1 == accidental2) {
         return true;
     }
@@ -67,3 +71,4 @@ inline bool ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental acci
     assert(false);
     return false;
 } 
+#endif

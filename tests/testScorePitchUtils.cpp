@@ -40,6 +40,7 @@ static void testCMinor() {
     
 }
 
+#if 0
 static void  testCompare() {
     // First the equal cases
     bool b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::flat, ScorePitchUtils::Accidental::flat);
@@ -54,17 +55,18 @@ static void  testCompare() {
     assert(false);
 
 }
+#endif
 void testScorePitchUtils() {
     test();
     testCMajor();
     testCMinor();
-     testCompare();
+    // testCompare();
 }
 
-#if 1
+#if 0
 void testFirst() {
     //  testScorePitchUtils();
    // testCMinor();
-   testCompare();
+  // testCompare();
 }
 #endif
