@@ -39,12 +39,12 @@ private:
     int _pitch = C3;
 };
 
-inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
-    assert(sharpsFlats == SharpsFlatsPref::Sharps || sharpsFlats == SharpsFlatsPref::DontCare);
-    return getLegerLine(bassStaff);
-}
 
 inline int MidiNote::getLegerLine(bool bassStaff) const {
+    return getLegerLine(SharpsFlatsPref::Sharps, bassStaff);
+}
+
+inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
     const int normalizedPitch = _pitch - MiddleC;
     int octave = (normalizedPitch / 12);
     int semi = normalizedPitch % 12;
@@ -53,14 +53,19 @@ inline int MidiNote::getLegerLine(bool bassStaff) const {
         octave -= 1;
     }
     int line = 0;
+    const bool preferFlats = sharpsFlats == SharpsFlatsPref::Flats;
     switch (semi) {
-        case 0:  // C, C#
-        case 1:
+        case 0:  // C
             line = -2;
             break;
-        case 2:  // D, D#
-        case 3:
+        case 1:     // C#/D-
+            line = preferFlats ? -1 : -2;
+            break;
+        case 2:  // D
             line = -1;
+            break;
+        case 3:     // D# / E-
+            line = preferFlats ? 0 : -1;
             break;
         case 4:  // E
             line = 0;

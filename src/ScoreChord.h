@@ -121,20 +121,20 @@ private:
         float position = 200;
         float legerPos[3] = {};
     };
-    YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
+    YInfo noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     void drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
     void drawOneNote(
         const DrawArgs &args,
         const MidiNote &note,
-        const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
+        const ScorePitchUtils::NotationNote &notationNote,
         const YInfo &yInfo,
         float xPosition,
         bool offsetNote) const;
     void drawTwoNotes(
         const DrawArgs &args,
         const MidiNote &note,
-        const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
-        const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote2,
+        const ScorePitchUtils::NotationNote &notationNote,
+        const ScorePitchUtils::NotationNote &notationNote2,
         const YInfo &yInfo,
         float xPosition) const;
 
@@ -261,7 +261,7 @@ float ScoreChord::_drawMusicNonNotes(const DrawArgs &args) const {
     return keysigEnd;
 }
 
-inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassStaff) const {
+inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const {
     YInfo ret;
     if (note.get() < 10) {
         return ret;
@@ -269,7 +269,7 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
 
     float yPosition = 0;
 
-    const int legerLine = note.getLegerLine(bassStaff);
+  //  const int legerLine = note.getLegerLine(prefs, bassStaff);
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
 
     if (legerLine < -1) {
@@ -473,8 +473,8 @@ inline bool compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePit
 inline void ScoreChord::drawTwoNotes(
     const DrawArgs &args,
     const MidiNote &note,
-    const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
-    const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote2,
+    const ScorePitchUtils::NotationNote &notationNote,
+    const ScorePitchUtils::NotationNote  &notationNote2,
     const YInfo &yInfo,
     float xPosition) const {
     drawLegerLinesForNotes(args, yInfo, xPosition);
@@ -484,8 +484,8 @@ inline void ScoreChord::drawTwoNotes(
     SQINFO("drwing two notes at %f and %f", xPosition + noteXOffset, xPosition - noteXOffset);
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
     nvgText(args.vg, xPosition - noteXOffset, yInfo.position, notePtr, NULL);
-    const auto accidental1 = std::get<1>(notationNote);
-    const auto accidental2 = std::get<1>(notationNote2);
+    const auto accidental1 =notationNote._accidental;
+    const auto accidental2 = notationNote2._accidental;
 
     bool showAccidental1 = false;
     bool showAccidental2 = false;
@@ -536,7 +536,7 @@ inline void ScoreChord::drawTwoNotes(
 inline void ScoreChord::drawOneNote(
     const DrawArgs &args,
     const MidiNote &note,
-    const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote,
+    const ScorePitchUtils::NotationNote  &notationNote,
     const YInfo &yInfo,
     float xPosition,
     bool offsetNote) const {
@@ -546,7 +546,7 @@ inline void ScoreChord::drawOneNote(
 
     const float noteXOffset = offsetNote ? 9 : 0;
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
-    _drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, std::get<1>(notationNote));
+    _drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, notationNote._accidental);
 }
 
 inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const {
@@ -645,24 +645,27 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
 
     for (const int *pitchIterator = begin; pitchIterator < end; ++pitchIterator) {
         MidiNote mn(*pitchIterator);
-        const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn);
-        const auto yInfo = noteYInfo(mn, bassStaff);
+        const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn, bassStaff);
+        const auto yInfo = noteYInfo(mn, notationNote._legerLine, bassStaff);
         SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
         const float distance = lastYPos - yInfo.position;
         lastYPos = yInfo.position;
         const bool noteOffsetByTwoLines = (distance / _ySpaceBetweenLines) > 1.2;
 
         bool twoNotesOnSameLine = false;
-        std::tuple<ScaleNote, ScorePitchUtils::Accidental> notationNoteNext;
+      //  std::tuple<ScaleNote, ScorePitchUtils::Accidental> notationNoteNext;
         // if there is another note after this one
+        ScorePitchUtils::NotationNote notationNoteNext;
         if ((pitchIterator + 1) < end) {
             MidiNote mnNext(*(pitchIterator + 1));
-            const auto yInfoNext = noteYInfo(mnNext, bassStaff);
+          //  const auto yInfoNext = noteYInfo(mnNext, bassStaff);
+            notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff); 
+            const auto yInfoNext = noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
             if (yInfo.position == yInfoNext.position) {
                 SQWARN("two notes at same location pitch = %d, %d, y=%f, %f", mn.get(), mnNext.get(), yInfo.position, yInfoNext.position);
 
                 twoNotesOnSameLine = true;
-                notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext);
+              //  notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext);
                 ++pitchIterator;
             }
         }

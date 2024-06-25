@@ -225,8 +225,25 @@ static void testScaleNoteToMidiD4() {
 
 static void testMidiStaffE() {
     MidiNote mn(MidiNote::MiddleC + 4);  // e above middle C
-    const int ll = mn.getLegerLine(false);
+    int ll = mn.getLegerLine(false);
     assertEQ(ll, 0);
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 0);
+}
+
+static void testMidiStaffEFlat() {
+    MidiNote mn(MidiNote::MiddleC + 3);  // e flat above middle C
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, -1);           // default to d#
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 0);
+
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, -1);
+
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, -1);
+    
 }
 
 static void testMidiStaffG() {
@@ -333,6 +350,8 @@ void testNotes() {
 
     testMidiStaffX();
     testMidiStaffE();
+    testMidiStaffEFlat();
+    
     testMidiStaffG();
     testMidiStaffC();
     testMidiStaffC2();
@@ -344,9 +363,11 @@ void testNotes() {
     testMidiIsBlackKey();
 }
 
-#if 0
+#if 1
 void testFirst() {
     //  testScorePitchUtils();
-    testMidiIsBlackKey();
+   // testMidiIsBlackKey();
+    testMidiStaffE();
+     testMidiStaffEFlat();
 }
 #endif
