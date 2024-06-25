@@ -1,8 +1,9 @@
 #pragma once
 
 #include <assert.h>
-#include <algorithm>
 #include <stdio.h>
+
+#include <algorithm>
 
 #include "SharpsFlatsPref.h"
 #include "SqLog.h"
@@ -32,13 +33,12 @@ public:
     static const int G = 7;
     static const int A = 9;
     static const int B = 11;
-    
+
     static const int MiddleC = 60 + 12;
 
 private:
     int _pitch = C3;
 };
-
 
 inline int MidiNote::getLegerLine(bool bassStaff) const {
     return getLegerLine(SharpsFlatsPref::Sharps, bassStaff);
@@ -58,29 +58,35 @@ inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) c
         case 0:  // C
             line = -2;
             break;
-        case 1:     // C#/D-
+        case 1:  // C#/D-
             line = preferFlats ? -1 : -2;
             break;
         case 2:  // D
             line = -1;
             break;
-        case 3:     // D# / E-
+        case 3:  // D# / E-
             line = preferFlats ? 0 : -1;
             break;
         case 4:  // E
             line = 0;
             break;
-        case 5:  // F, F#
-        case 6:
+        case 5:  //
             line = 1;
             break;
-        case 7:  // G, G#
-        case 8:
+        case 6:  // F# / G-
+            line = preferFlats ? 2 : 1;
+            break;
+        case 7:  // G
             line = 2;
             break;
-        case 9:  // A, A#
-        case 10:
+        case 8:  // G# / A-
+            line = preferFlats ? 3 : 2;
+            break;
+        case 9:  // A
             line = 3;
+            break;
+        case 10:    // A# / B-
+            line = preferFlats ? 4 : 3;
             break;
         case 11:  // B
             line = 4;
@@ -103,25 +109,25 @@ inline bool MidiNote::isBlackKey() const {
         pitch += 12;
     }
     switch (pitch) {
-    case 0:
-    case 2:
-    case 4:
-    case 5:
-    case 7:
-    case 9:
-    case 11:
-        isBlackKey = false;
-        break;
-    case 1:
-    case 3:
-    case 6:
-    case 8:
-    case 10:
-        isBlackKey = true;
-        break;
-    default:
-        SQINFO("pitch is %d", pitch);
-        assert(false);
+        case 0:
+        case 2:
+        case 4:
+        case 5:
+        case 7:
+        case 9:
+        case 11:
+            isBlackKey = false;
+            break;
+        case 1:
+        case 3:
+        case 6:
+        case 8:
+        case 10:
+            isBlackKey = true;
+            break;
+        default:
+            SQINFO("pitch is %d", pitch);
+            assert(false);
     }
 
     return isBlackKey;

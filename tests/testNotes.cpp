@@ -223,6 +223,13 @@ static void testScaleNoteToMidiD4() {
     assertEQ(m.get(), MidiNote::C3 + 2 + 12);
 }
 
+//------------------- let's test c on up
+static void testMidiStaffC() {
+    MidiNote mn(MidiNote::MiddleC);
+    const int ll = mn.getLegerLine(false);
+    assertEQ(ll, -2);
+}
+
 static void testMidiStaffE() {
     MidiNote mn(MidiNote::MiddleC + 4);  // e above middle C
     int ll = mn.getLegerLine(false);
@@ -234,7 +241,7 @@ static void testMidiStaffE() {
 static void testMidiStaffEFlat() {
     MidiNote mn(MidiNote::MiddleC + 3);  // e flat above middle C
     int ll = mn.getLegerLine(false);
-    assertEQ(ll, -1);           // default to d#
+    assertEQ(ll, -1);  // default to d#
     ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
     assertEQ(ll, 0);
 
@@ -243,20 +250,97 @@ static void testMidiStaffEFlat() {
 
     ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
     assertEQ(ll, -1);
-    
+}
+
+static void testMidiStaffF() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::F);  // F above middle C
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, 1);  // default to F
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 1);
+
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, 1);
+
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, 1);
+}
+
+static void testMidiStaffFSharp() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::F + 1);
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, 1);  // default to F#
+
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 2);    // G flat
+
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, 1);
+
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, 1);
 }
 
 static void testMidiStaffG() {
-    MidiNote mn(MidiNote::MiddleC + 7);
-    const int ll = mn.getLegerLine(false);
+    MidiNote mn(MidiNote::MiddleC + MidiNote::G);  // G above middle C
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, 2);  // default to F
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 2);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, 2);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
     assertEQ(ll, 2);
 }
 
-static void testMidiStaffC() {
-    MidiNote mn(MidiNote::MiddleC);
-    const int ll = mn.getLegerLine(false);
-    assertEQ(ll, -2);
+static void testMidiStaffGSharp() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::G + 1);  // G# above middle C
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, 2); 
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 3);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, 2);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, 2);
 }
+
+static void testMidiStaffA() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::A);
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, 3);  
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 3);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, 3);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, 3);
+}
+
+static void testMidiStaffASharp() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::A + 1);
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, 3);
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 4);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, 3);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, 3);
+}
+
+static void testMidiStaffB() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::B);  // G# above middle C
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, 4);
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 4);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, 4);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, 4);
+}
+
 
 static void testMidiStaffC2() {
     MidiNote mn(MidiNote::MiddleC + 12);
@@ -349,11 +433,20 @@ void testNotes() {
     testScaleNoteTrans4();
 
     testMidiStaffX();
+
+    // C on up
+    testMidiStaffC();
     testMidiStaffE();
     testMidiStaffEFlat();
-    
+    testMidiStaffF();
+    testMidiStaffFSharp();
     testMidiStaffG();
-    testMidiStaffC();
+    testMidiStaffGSharp();
+    testMidiStaffA();
+    testMidiStaffASharp();
+    testMidiStaffB();
+
+   
     testMidiStaffC2();
     testMidiStaffC3();
     testMidiStaffLowA();
@@ -363,11 +456,12 @@ void testNotes() {
     testMidiIsBlackKey();
 }
 
-#if 1
+#if 0
 void testFirst() {
     //  testScorePitchUtils();
-   // testMidiIsBlackKey();
-    testMidiStaffE();
-     testMidiStaffEFlat();
+    // testMidiIsBlackKey();
+    // testMidiStaffE();
+    //  testMidiStaffEFlat();
+    testNotes();
 }
 #endif
