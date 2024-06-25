@@ -37,6 +37,7 @@
  * put in 8va 8vb markings
  * don't draw notes off page
  * two accidentals on one line - spacing not right
+ * get rid of debug stuff:     ScaleNote m2s(const MidiNote&, bool printDebug = false) const;
  *
  * enharmonic spelling:
  *      use flats in flat keys.
@@ -46,7 +47,7 @@
  * Bugs:
  *      cmajor chord in C# Major - accidentals get on key sig.
  *      C and E in C major - doesn't draw the C (fixed)
- *      In C Major one note, I don't see A natural, only sharp??
+ *      In C Major one note, I don't see A natural, only sharp?? (user error)
  */
 
 class ScoreChord : public app::LightWidget, public Dirty {
@@ -266,7 +267,7 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
         return ret;
     }
 
-    float y = 0;
+    float yPosition = 0;
 
     const int ledgerLine = note.getLedgerLine(bassStaff);
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
@@ -290,10 +291,12 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
         ret.ledgerPos[2] = staffBasePos + (-14.f * _ySpaceBetweenLines);
     }
 
-    y -= ledgerLine * _ySpaceBetweenLines;
-    y += staffBasePos;
+    yPosition -= ledgerLine * _ySpaceBetweenLines;
+    yPosition += staffBasePos;
 
-    ret.position = y;
+    ret.position = yPosition;
+
+      SQINFO("YY noteYInfo note %d bassStaff=%d, ledger line = %d pos=%f", note.get(), bassStaff, ledgerLine, ret.position);
     return ret;
 }
 
@@ -368,6 +371,7 @@ inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, Cons
 }
 
 float ScoreChord::_noteY(const MidiNote &note, bool bassStaff) const {
+    assert(!note.isBlackKey());
     float y = 0;
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
     const int ledgerLine = note.getLedgerLine(bassStaff);

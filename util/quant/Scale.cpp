@@ -18,7 +18,10 @@ std::pair<const MidiNote, Scale::Scales> Scale::get() const {
     return std::make_pair(_baseNote, _scale);
 }
 
-ScaleNote Scale::m2s(const MidiNote& mn) const {
+ScaleNote Scale::m2s(const MidiNote& mn, bool printDebug) const {
+    if (printDebug) {
+        SQINFO("....m2s called with %d", mn.get());
+    }
     int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
@@ -31,7 +34,15 @@ ScaleNote Scale::m2s(const MidiNote& mn) const {
         octave -= 1;
     }
 
-    auto sn = _makeScaleNote(offset);
+    if (printDebug) {
+        SQINFO("m2s calling make Scale note(offset=%d)", offset);
+    }
+
+    auto sn = _makeScaleNote(offset, printDebug);
+
+    if (printDebug) {
+        SQINFO("sn that comes back has degree=%d adj=%d", sn.getDegree(), int(sn.getAdjustment()));
+    }
     ScaleNote final(sn.getDegree(), octave, sn.getAdjustment());
     // need octave into
     return final;
@@ -60,18 +71,27 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     return MidiNote(midiPitch);
 }
 
-ScaleNote Scale::_makeScaleNote(int offset) const {
+ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
     assert(offset >= 0 && offset < 12);
-    int degree = _quantizeInScale(offset);
+    int degree = _quantizeInScale(offset, printDebug);
     if (degree >= 0) {
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 78 (found)", offset, degree);
+        }
         return ScaleNote(degree, 0);
     }
-    degree = _quantizeInScale(offset - 1);
+    degree = _quantizeInScale(offset - 1, printDebug);
     if (degree >= 0) {
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 86 (found one under)", offset, degree);
+        }
         return ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
     }
-    degree = _quantizeInScale(offset + 1);
+    degree = _quantizeInScale(offset + 1, printDebug);
     if (degree >= 0) {
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
+        }
         return ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
     }
     assert(false);
@@ -131,20 +151,20 @@ std::vector<std::string> Scale::getRootLabels(bool useFlats) {
 int Scale::quantize(int offset) const {
     assert(_wasSet);
     assert(offset >= 0 && offset <= 11);
-    int x = _quantizeInScale(offset);
+    int x = _quantizeInScale(offset, false);
     if (x >= 0) {
         return x;
     }
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    int qUpOne = _quantizeInScale(offset + 1);
-    const int qDnOne = _quantizeInScale(offset - 1);
+    int qUpOne = _quantizeInScale(offset + 1, false);
+    const int qDnOne = _quantizeInScale(offset - 1, false);
 
     if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
-      //  SQINFO("In bad case. offset == 11");
-        qUpOne = 12;            // special case - we know we can go to octave here.
-                                // seems to only happen with Major Pentatonic
+        //  SQINFO("In bad case. offset == 11");
+        qUpOne = 12;  // special case - we know we can go to octave here.
+                      // seems to only happen with Major Pentatonic
     }
 
     switch (offset) {
@@ -213,17 +233,29 @@ int Scale::quantize(int offset) const {
     return 0;
 }
 
-int Scale::_quantizeInScale(int offset) const {
+int Scale::_quantizeInScale(int offset, bool printDebug) const {
     const int* pitches = _getNormalizedScalePitches();
+    if (printDebug) {
+        SQINFO("Pitches = %d, %d, %d", pitches[0], pitches[1], pitches[2]);
+    }
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
             // reached end of list
             degreeIndex = -1;  // not in scale
+            if (printDebug) {
+                SQINFO("reached end of list, not in scale");
+            }
             done = true;
         } else if (pitches[degreeIndex] == offset) {
+            if (printDebug) {
+                SQINFO("found a match at index %d with offset %d", degreeIndex, offset);
+            }
             done = true;
         } else {
+            if (printDebug) {
+                SQINFO("degree index = %d, will go farther", degreeIndex);
+            }
             ++degreeIndex;
         }
     }
@@ -285,14 +317,13 @@ const int* Scale::_getNormalizedScalePitches() const {
             return ret;
         } break;
         case Scales::MajorPentatonic: {
-            static const int ret[] = { 0, 2, 4, 7, 9, -1 };
+            static const int ret[] = {0, 2, 4, 7, 9, -1};
             return ret;
         } break;
         case Scales::HarmonicMinor: {
             static const int ret[] = {0, 2, 3, 5, 7, 8, 11, -1};
             return ret;
-        }
-        break;
+        } break;
         case Scales::Diminished: {
             static const int ret[] = {0, 2, 3, 5, 6, 8, 9, 11, -1};
             return ret;
@@ -384,19 +415,19 @@ const int numflats[12] = {
     7   // B
 };
 
-const Scale::SharpsFlatsPref preferSharps[12] = {
-    Scale::SharpsFlatsPref::DontCare,  // C Maj (
-    Scale::SharpsFlatsPref::Flats,     // C# / D flat (notated as D flat)
-    Scale::SharpsFlatsPref::Sharps,    // D
-    Scale::SharpsFlatsPref::Flats,     // D# / E flat
-    Scale::SharpsFlatsPref::Sharps,    // E
-    Scale::SharpsFlatsPref::Flats,     // F
-    Scale::SharpsFlatsPref::DontCare,  // F# G flat (this one is ambiguous, could be either)
-    Scale::SharpsFlatsPref::Sharps,    // G
-    Scale::SharpsFlatsPref::Flats,     // G# / A flat
-    Scale::SharpsFlatsPref::Sharps,    // A
-    Scale::SharpsFlatsPref::Flats,     // A# / B -
-    Scale::SharpsFlatsPref::Sharps     // B
+const SharpsFlatsPref preferSharps[12] = {
+    SharpsFlatsPref::DontCare,  // C Maj (
+    SharpsFlatsPref::Flats,     // C# / D flat (notated as D flat)
+    SharpsFlatsPref::Sharps,    // D
+    SharpsFlatsPref::Flats,     // D# / E flat
+    SharpsFlatsPref::Sharps,    // E
+    SharpsFlatsPref::Flats,     // F
+    SharpsFlatsPref::DontCare,  // F# G flat (this one is ambiguous, could be either)
+    SharpsFlatsPref::Sharps,    // G
+    SharpsFlatsPref::Flats,     // G# / A flat
+    SharpsFlatsPref::Sharps,    // A
+    SharpsFlatsPref::Flats,     // A# / B -
+    SharpsFlatsPref::Sharps     // B
 };
 
 const MidiNote sharpsInTreble[12] = {
@@ -455,7 +486,7 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     return ret;
 }
 
-Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
+SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
         assert(basePitch >= 0);
@@ -548,7 +579,7 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
         int roleCount = 0;
         int rootCount = 0;
         const Role* rp = noteRoles;
-        
+
         bool foundRoot = false;
         while (*rp != Role::End) {
             if (*rp == Role::Root) {
@@ -573,7 +604,7 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
         }
     }
 
-  //  const int lastValidScale = diatonicOnly ? Scale:: : 
+    //  const int lastValidScale = diatonicOnly ? Scale:: :
     const int numScales = Scale::numScales(diatonicOnly);
     for (int mode = Scale::firstScale; mode < numScales; ++mode) {
         const auto smode = Scale::Scales(mode);
@@ -618,7 +649,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         }
         rotatedRoles[destIndex] = r;
     }
-   
+
     {
         // a little sanity check.
         int roleCount = 0;
@@ -661,7 +692,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         // if the chromatic degree we are examining is in the scale
         if (roleIn) {
             if (roleIndex != pitch) {  // and we are looking note that degree
-                return false;  // then no match
+                return false;          // then no match
             }
             ++pitchIndex;  // if a match, look at the nextPitch.
         }
@@ -684,9 +715,8 @@ const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
         }
         roles.data[pitch] = Role::InScale;
     }
-    
 
     // put in the root where it should be
-     roles.data[root.get()] = Role::Root;
+    roles.data[root.get()] = Role::Root;
     return roles;
 }

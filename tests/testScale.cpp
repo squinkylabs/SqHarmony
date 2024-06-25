@@ -165,6 +165,22 @@ static void testm2sCMajCsharp4() {
     assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
 }
 
+#if 0
+static void testm2sDSharp() {
+    Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
+
+    // MAKE D#4
+    MidiNote c(MidiNote::C3 + 12 + 3);
+    ScaleNote sn = scale.m2s(c, true);
+
+    //assert(false);
+    assertEQ(sn.getDegree(), 1);
+    assertEQ(sn.getOctave(), 4);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
+}
+#endif
+
 static void tests2mCMajC4() {
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
@@ -261,87 +277,87 @@ static void testSharpsFlatsDiatonic() {
 
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     auto info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::DontCare);
+    assert(info == SharpsFlatsPref::DontCare);
 
     // C#/Dflat
     scale.set(MidiNote(MidiNote::C + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 
     scale.set(MidiNote(MidiNote::D), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == SharpsFlatsPref::Sharps);
 
     // D#/Eflat
     scale.set(MidiNote(MidiNote::D + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 
     scale.set(MidiNote(MidiNote::E), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == SharpsFlatsPref::Sharps);
 
     scale.set(MidiNote(MidiNote::F), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 
     // F#/G-
     scale.set(MidiNote(MidiNote::F + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::DontCare);
+    assert(info == SharpsFlatsPref::DontCare);
 
     scale.set(MidiNote(MidiNote::G), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == SharpsFlatsPref::Sharps);
 
     // G#/A-
     scale.set(MidiNote(MidiNote::G + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 
     scale.set(MidiNote(MidiNote::A), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == SharpsFlatsPref::Sharps);
 
     // A#/B-
     scale.set(MidiNote(MidiNote::A + 1), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 
     scale.set(MidiNote(MidiNote::B), Scale::Scales::Major);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == SharpsFlatsPref::Sharps);
 }
 
 static void testSharpsFlatsOtherMinor() {
     Scale scale;
     scale.set(MidiNote(MidiNote::E), Scale::Scales::MinorPentatonic);
     auto info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == SharpsFlatsPref::Sharps);
 
     scale.set(MidiNote(MidiNote::E), Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Sharps);
+    assert(info == SharpsFlatsPref::Sharps);
 
     scale.set(MidiNote(MidiNote::E - 1), Scale::Scales::MinorPentatonic);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::DontCare);
+    assert(info == SharpsFlatsPref::DontCare);
 
     scale.set(MidiNote(MidiNote::E - 1), Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::DontCare);
+    assert(info == SharpsFlatsPref::DontCare);
 
     scale.set(MidiNote(MidiNote::G), Scale::Scales::MinorPentatonic);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 
     scale.set(MidiNote(MidiNote::G), Scale::Scales::HarmonicMinor);
     info = scale.getSharpsFlatsPref();
-    assert(info == Scale::SharpsFlatsPref::Flats);
+    assert(info == SharpsFlatsPref::Flats);
 }
 
 static void testSharpsFlatsWierdos() {
@@ -350,19 +366,19 @@ static void testSharpsFlatsWierdos() {
     for (int i = MidiNote::C; i <= MidiNote::B; ++i) {
         scale.set(MidiNote(i), Scale::Scales::Chromatic);
         auto info = scale.getSharpsFlatsPref();
-        assert(info == Scale::SharpsFlatsPref::DontCare);
+        assert(info == SharpsFlatsPref::DontCare);
 
         scale.set(MidiNote(i), Scale::Scales::Diminished);
         info = scale.getSharpsFlatsPref();
-        assert(info == Scale::SharpsFlatsPref::DontCare);
+        assert(info == SharpsFlatsPref::DontCare);
 
         scale.set(MidiNote(i), Scale::Scales::DominantDiminished);
         info = scale.getSharpsFlatsPref();
-        assert(info == Scale::SharpsFlatsPref::DontCare);
+        assert(info == SharpsFlatsPref::DontCare);
 
         scale.set(MidiNote(i), Scale::Scales::WholeStep);
         info = scale.getSharpsFlatsPref();
-        assert(info == Scale::SharpsFlatsPref::Sharps);
+        assert(info == SharpsFlatsPref::Sharps);
         ++count;
     }
     assertEQ(count, 12);
@@ -802,6 +818,7 @@ void testScale() {
     testm2sCMajC3();
     testm2sCMajC4();
     testm2sCMajCsharp4();
+  //  testm2sDSharp();
 
     tests2mCMajC4();
     tests2mCMajC5();
@@ -818,29 +835,11 @@ void testScale() {
     testConvert();
     // SQINFO("Make multi root work");
     testMultiRoot();
+   
 }
 
 #if 0
 void testFirst() {
-   // testConvertFromDMajor();
-    // testSharpsFlatsWierdos();
-    // testSharpsFlatsNoAssert();
-    // testNumNotes();
-    // testConvert();
-    //  testRolesCMajor();
-    //   testConvertCMajor();
-    // testConvertCMinor();
-    //  testRolesDMajor();
-    //   testConvertDMajor();
-    //  testRoundTrip();
-    //  testMultiRoot();
-    //   Scale scale;
-
-    // SQINFO("will get roles");
-    // const auto scaleParts = scale.get();
-    //testScaleNumbers();
-
-    //testChromatic2();
-    testRoundTrip();
+    testm2sDSharp();
 }
 #endif

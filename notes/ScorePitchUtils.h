@@ -30,17 +30,18 @@ public:
 };
 
 inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote) {
-    ScaleNote sn = scale.m2s(midiNote);
+    ScaleNote sn = scale.m2s(midiNote, true);
+    SQINFO("in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
     Accidental accidental = Accidental::none;
 
     if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
-      //  SQINFO("none at 29");
+        SQINFO("none at 38");
         accidental = Accidental::none;
     } else if (!midiNote.isBlackKey()) {
-      //  SQINFO("natural at 31");
+        SQINFO("natural at 41");
         accidental = Accidental::natural;
     } else {
-      //  SQINFO("default to sharps - might not be right");
+        SQINFO("default to sharps - might not be right");
         accidental = Accidental::sharp;
     }
 

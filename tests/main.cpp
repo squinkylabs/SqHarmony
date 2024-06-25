@@ -83,6 +83,7 @@ extern void testChordRecognizer2();
 extern void testChordRecognizer3();
 extern void testVisualizer();
 extern void testScorePitchUtils();
+extern void   testLedgerScore();
 
 #include "SqLog.h"
 
@@ -151,6 +152,7 @@ int main(const char**, int) {
     testPhasePatternsPoly();
 
     testNotes();
+    testLedgerScore();
     testScaleNotes();
     testScale();
     testScaleRelativeNote();
@@ -160,6 +162,7 @@ int main(const char**, int) {
     testHarmony2C();
     
     testHarmonyNote();
+      testLedgerScore();
 #if 0
     printf("XX: leaving early for clock stuff");
     std::exit(0);

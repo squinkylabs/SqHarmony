@@ -6,6 +6,7 @@
 
 #include "MidiNote.h"
 #include "ScaleNote.h"
+#include "SharpsFlatsPref.h"
 
 class Scale {
 public:
@@ -42,7 +43,7 @@ public:
     static std::vector<std::string> getShortScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getRootLabels(bool useFlats);
 
-    void set(const MidiNote& base, Scales mode);
+    void set(const  MidiNote& base, Scales mode);
     std::pair<const MidiNote, Scales> get() const;
 
     // All of this Role stuff is for converting Scale <> PES
@@ -96,7 +97,7 @@ public:
      *
      * @return ScaleNote
      */
-    ScaleNote m2s(const MidiNote&) const;
+    ScaleNote m2s(const MidiNote&, bool printDebug = false) const;
 
     MidiNote s2m(const ScaleNote&) const;
 
@@ -124,11 +125,7 @@ public:
      */
     ScoreInfo getScoreInfo() const;
 
-    enum class SharpsFlatsPref {
-        Sharps,
-        Flats,
-        DontCare
-    };
+
     SharpsFlatsPref getSharpsFlatsPref() const;
 
     MidiNote getRelativeMajor() const;
@@ -142,7 +139,7 @@ public:
     const int* _getNormalizedScalePitches() const;
 
 private:
-    ScaleNote _makeScaleNote(int offset) const;
+    ScaleNote _makeScaleNote(int offset, bool printDebug) const;
 
     MidiNote _baseNote;
     Scales _scale;
@@ -151,7 +148,7 @@ private:
     //  bool _getScalePitches(int * destination, unsigned destinationSize);
 
     // returns < - if note isn't in scale.
-    int _quantizeInScale(int offset) const;
+    int _quantizeInScale(int offset, bool printDebug) const;
 
     static bool _doesScaleMatch(const Role*, Scales, MidiNote);
 };
