@@ -225,43 +225,43 @@ static void testScaleNoteToMidiD4() {
 
 static void testMidiStaffE() {
     MidiNote mn(MidiNote::MiddleC + 4);  // e above middle C
-    const int ll = mn.getLedgerLine(false);
+    const int ll = mn.getLegerLine(false);
     assertEQ(ll, 0);
 }
 
 static void testMidiStaffG() {
     MidiNote mn(MidiNote::MiddleC + 7);
-    const int ll = mn.getLedgerLine(false);
+    const int ll = mn.getLegerLine(false);
     assertEQ(ll, 2);
 }
 
 static void testMidiStaffC() {
     MidiNote mn(MidiNote::MiddleC);
-    const int ll = mn.getLedgerLine(false);
+    const int ll = mn.getLegerLine(false);
     assertEQ(ll, -2);
 }
 
 static void testMidiStaffC2() {
     MidiNote mn(MidiNote::MiddleC + 12);
-    const int ll = mn.getLedgerLine(false);
+    const int ll = mn.getLegerLine(false);
     assertEQ(ll, 5);
 }
 
 static void testMidiStaffC3() {
     MidiNote mn(MidiNote::MiddleC + 2 * 12);
-    const int ll = mn.getLedgerLine(false);
+    const int ll = mn.getLegerLine(false);
     assertEQ(ll, 12);
 }
 
 static void testMidiStaffLowA() {
     MidiNote mn(MidiNote::MiddleC - 3);
-    const int ll = mn.getLedgerLine(false);
+    const int ll = mn.getLegerLine(false);
     assertEQ(ll, -4);
 }
 
 static void testMidiBassStaffA() {
     MidiNote mn(MidiNote::MiddleC - 3);  // A below middle C. top of bass
-    const int ll = mn.getLedgerLine(true);
+    const int ll = mn.getLegerLine(true);
     assertEQ(ll, 8);
 }
 
@@ -269,7 +269,7 @@ static void testMidiStaffAll(bool bassStaff) {
     int lastLL = 0;
     for (int i = 0; i < 128; ++i) {
         MidiNote mn(i);
-        const int ll = mn.getLedgerLine(bassStaff);
+        const int ll = mn.getLegerLine(bassStaff);
         if (i != 0) {
             assert((ll == lastLL) || (ll == (lastLL + 1)));
         }
@@ -279,11 +279,11 @@ static void testMidiStaffAll(bool bassStaff) {
 
 static void testMidiStaffX() {
     MidiNote mn(MidiNote::MiddleC);
-    const int ll = mn.getLedgerLine(false);
+    const int ll = mn.getLegerLine(false);
     MidiNote mn2(MidiNote::MiddleC + 2);  // D
-    const int ll2 = mn2.getLedgerLine(false);
+    const int ll2 = mn2.getLegerLine(false);
     MidiNote mn3(MidiNote::MiddleC + 4);  // E
-    const int ll3 = mn3.getLedgerLine(false);
+    const int ll3 = mn3.getLegerLine(false);
 }
 
 static void testMidiIsBlackKey() {

@@ -30,7 +30,7 @@
  *      make bar lines draw correctly (done)
  *      fix key sig spacing (done)
  *      put notes in correct x pos. (done, but could be better?)
- *      make ledger lines look right (better)
+ *      make leger lines look right (better)
  *
  * put in the natural and accidental if overlap. (done)
  * assign notes to correct staff (done)
@@ -79,8 +79,8 @@ private:
     // const std::string _staffFiveLines = u8"\ue014";
     const std::string _gClef = u8"\ue050";
     const std::string _fClef = u8"\ue062";
-    //  const std::string _ledgerLine = u8"\ue022";
-    const std::string _ledgerLineWide = u8"\ue023";
+    //  const std::string _legerLine = u8"\ue022";
+    const std::string _legerLineWide = u8"\ue023";
     const std::string _flat = u8"\ue260";
     const std::string _natural = u8"\ue261";
     const std::string _sharp = u8"\ue262";
@@ -119,10 +119,10 @@ private:
     class YInfo {
     public:
         float position = 200;
-        float ledgerPos[3] = {};
+        float legerPos[3] = {};
     };
     YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
-    void drawLedgerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
+    void drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
     void drawOneNote(
         const DrawArgs &args,
         const MidiNote &note,
@@ -269,34 +269,34 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, bool bassSt
 
     float yPosition = 0;
 
-    const int ledgerLine = note.getLedgerLine(bassStaff);
+    const int legerLine = note.getLegerLine(bassStaff);
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
 
-    if (ledgerLine < -1) {
-        ret.ledgerPos[0] = staffBasePos + (2.f * _ySpaceBetweenLines);
+    if (legerLine < -1) {
+        ret.legerPos[0] = staffBasePos + (2.f * _ySpaceBetweenLines);
     }
-    if (ledgerLine < -3) {
-        ret.ledgerPos[1] = staffBasePos + (4.f * _ySpaceBetweenLines);
+    if (legerLine < -3) {
+        ret.legerPos[1] = staffBasePos + (4.f * _ySpaceBetweenLines);
     }
-    if (ledgerLine < -5) {
-        ret.ledgerPos[2] = staffBasePos + (6.f * _ySpaceBetweenLines);
+    if (legerLine < -5) {
+        ret.legerPos[2] = staffBasePos + (6.f * _ySpaceBetweenLines);
     }
-    if (ledgerLine > 9) {
-        ret.ledgerPos[0] = staffBasePos + (-10.f * _ySpaceBetweenLines);
+    if (legerLine > 9) {
+        ret.legerPos[0] = staffBasePos + (-10.f * _ySpaceBetweenLines);
     }
-    if (ledgerLine > 11) {
-        ret.ledgerPos[1] = staffBasePos + (-12.f * _ySpaceBetweenLines);
+    if (legerLine > 11) {
+        ret.legerPos[1] = staffBasePos + (-12.f * _ySpaceBetweenLines);
     }
-    if (ledgerLine > 13) {
-        ret.ledgerPos[2] = staffBasePos + (-14.f * _ySpaceBetweenLines);
+    if (legerLine > 13) {
+        ret.legerPos[2] = staffBasePos + (-14.f * _ySpaceBetweenLines);
     }
 
-    yPosition -= ledgerLine * _ySpaceBetweenLines;
+    yPosition -= legerLine * _ySpaceBetweenLines;
     yPosition += staffBasePos;
 
     ret.position = yPosition;
 
-      SQINFO("YY noteYInfo note %d bassStaff=%d, ledger line = %d pos=%f", note.get(), bassStaff, ledgerLine, ret.position);
+    SQINFO("YY noteYInfo note %d bassStaff=%d, leger line = %d pos=%f", note.get(), bassStaff, legerLine, ret.position);
     return ret;
 }
 
@@ -374,8 +374,8 @@ float ScoreChord::_noteY(const MidiNote &note, bool bassStaff) const {
     assert(!note.isBlackKey());
     float y = 0;
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
-    const int ledgerLine = note.getLedgerLine(bassStaff);
-    y -= ledgerLine * _ySpaceBetweenLines;
+    const int legerLine = note.getLegerLine(bassStaff);
+    y -= legerLine * _ySpaceBetweenLines;
     y += staffBasePos;
     return y;
 }
@@ -412,10 +412,10 @@ inline void ScoreChord::step() {
     Widget::step();
 }
 
-inline void ScoreChord::drawLedgerLinesForNotes(const DrawArgs &args, const YInfo &yInfo, float xPosition) const {
+inline void ScoreChord::drawLegerLinesForNotes(const DrawArgs &args, const YInfo &yInfo, float xPosition) const {
     for (int i = 0; i < 3; ++i) {
-        if (yInfo.ledgerPos[i] != 0) {
-            nvgText(args.vg, xPosition, yInfo.ledgerPos[i], _ledgerLineWide.c_str(), NULL);
+        if (yInfo.legerPos[i] != 0) {
+            nvgText(args.vg, xPosition, yInfo.legerPos[i], _legerLineWide.c_str(), NULL);
         }
     }
 }
@@ -477,7 +477,7 @@ inline void ScoreChord::drawTwoNotes(
     const std::tuple<ScaleNote, ScorePitchUtils::Accidental> &notationNote2,
     const YInfo &yInfo,
     float xPosition) const {
-    drawLedgerLinesForNotes(args, yInfo, xPosition);
+    drawLegerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = 5;
@@ -541,7 +541,7 @@ inline void ScoreChord::drawOneNote(
     float xPosition,
     bool offsetNote) const {
     SQINFO("--- drawOneNote offset=%d dxAccid=%f Pos=%f,%f", offsetNote, _deltaXAccidental, xPosition, yInfo.position);
-    drawLedgerLinesForNotes(args, yInfo, xPosition);
+    drawLegerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = offsetNote ? 9 : 0;

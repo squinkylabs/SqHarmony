@@ -15,12 +15,12 @@ static void testCMajor() {
     MidiNote mncSharp(MidiNote::C + 1);
     sc.set(mnc, Scale::Scales::Major);
 
-    auto x = ScorePitchUtils::getNotationNote(sc, mnc);
-    assert(std::get<1>(x) == ScorePitchUtils::Accidental::none);
+    auto x = ScorePitchUtils::getNotationNote(sc, mnc, false);
+    assert(x._accidental == ScorePitchUtils::Accidental::none);
 
     // This note is also D-. I guess this API uses sharps all the time
-    x = ScorePitchUtils::getNotationNote(sc, mncSharp);
-    assert(std::get<1>(x) == ScorePitchUtils::Accidental::sharp);
+    x = ScorePitchUtils::getNotationNote(sc, mncSharp, false);
+    assert(x._accidental == ScorePitchUtils::Accidental::sharp);
 }
 
 static void testCMinor() {
@@ -32,11 +32,11 @@ static void testCMinor() {
     sc.set(mnEFlat, Scale::Scales::Minor);
 
     // In C minor, E flat notated needs no accidental
-  auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat);
-  assert(std::get<1>(x) == ScorePitchUtils::Accidental::none);
+  auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat, false);
+  assert(x._accidental == ScorePitchUtils::Accidental::none);
 
-  x = ScorePitchUtils::getNotationNote(sc, mnE);
-  assert(std::get<1>(x) == ScorePitchUtils::Accidental::natural);
+  x = ScorePitchUtils::getNotationNote(sc, mnE, false);
+  assert(x._accidental == ScorePitchUtils::Accidental::natural);
     
 }
 

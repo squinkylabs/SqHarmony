@@ -333,7 +333,7 @@
     <ClCompile Include="testScorePitchUtils.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testLedgerScore.cpp">
+    <ClCompile Include="testLegerScore.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>

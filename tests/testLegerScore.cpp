@@ -13,9 +13,9 @@ static void test1() {
     MidiNote mn(75);
 
     // This should give us the second degree of C minor, unadjusted, whic is E flat.
-    const auto notationNote = ScorePitchUtils::getNotationNote(scale, mn);
-    const auto scaleNote = std::get<0>(notationNote);
-    const auto accidental = std::get<1>(notationNote);
+    const auto notationNote = ScorePitchUtils::getNotationNote(scale, mn, false);
+    const auto scaleNote = notationNote._scaleNote;
+    const auto accidental = notationNote._accidental;
 
 // this one gives us E flat, which is the normal second degree.
 // Q, but how would be know what ledger line to draw this on?
@@ -23,12 +23,12 @@ static void test1() {
     assert(scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none);
 
     // so we expect to be on E, in treble clef.
-    const auto ledgerLine = mn.getLedgerLine(false);
-    assertEQ(ledgerLine, 0);
+    const auto legerLine = mn.getLegerLine(false);
+    assertEQ(legerLine, 0);
    
 }
 
-void testLedgerScore() {
+void testLegerScore() {
     //test1();
 }
 

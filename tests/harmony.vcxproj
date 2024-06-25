@@ -209,7 +209,7 @@
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChords2023.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
-    <ClCompile Include="testLedgerScore.cpp" />
+    <ClCompile Include="testLegerScore.cpp" />
     <ClCompile Include="testLFNDsp.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
     <ClCompile Include="testNoiseGen.cpp" />

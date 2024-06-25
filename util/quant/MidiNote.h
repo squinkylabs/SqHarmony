@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <stdio.h>
 
+#include "SharpsFlatsPref.h"
 #include "SqLog.h"
 
 class MidiNote {
@@ -18,7 +19,9 @@ public:
         return this->_pitch == other._pitch;
     }
 
-    int getLedgerLine(bool bassStaff) const;
+    int getLegerLine(bool bassStaff) const;
+    int getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const;
+
     bool isBlackKey() const;
 
     static const int C3 = 60;  // C3 is 60 in midi spec.
@@ -36,7 +39,12 @@ private:
     int _pitch = C3;
 };
 
-inline int MidiNote::getLedgerLine(bool bassStaff) const {
+inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
+    assert(sharpsFlats == SharpsFlatsPref::Sharps || sharpsFlats == SharpsFlatsPref::DontCare);
+    return getLegerLine(bassStaff);
+}
+
+inline int MidiNote::getLegerLine(bool bassStaff) const {
     const int normalizedPitch = _pitch - MiddleC;
     int octave = (normalizedPitch / 12);
     int semi = normalizedPitch % 12;

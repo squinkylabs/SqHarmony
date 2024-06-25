@@ -18,18 +18,27 @@ public:
         natural
     };
 
-    static std::tuple<ScaleNote, Accidental> getNotationNote(const Scale&, const MidiNote&);
-    // (SRN, Accidental) getAccidental(scale, MidiNote)
+    class NotationNote {
+    public:
+        NotationNote(ScaleNote sn, ScorePitchUtils::Accidental ac, int ll) : _scaleNote(sn), _accidental(ac), _legerLine(ll) {} 
+        ScaleNote _scaleNote;
+        Accidental _accidental = ScorePitchUtils::Accidental::none;
+        int _legerLine = 0;
+    };
 
-    /** 
-     * Note needed right now.
-     * @return returns true if accidental1 <= accidental2 
-     * @return false if  accidental1 > accidental2 
+    static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
+
+
+    /**
+     * Not needed right now.
+     * @return returns true if accidental1 <= accidental2
+     * @return false if  accidental1 > accidental2
      */
-  //  static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
+    //  static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
 };
 
-inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote) {
+inline ScorePitchUtils::NotationNote
+ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
     ScaleNote sn = scale.m2s(midiNote, true);
     SQINFO("in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
     Accidental accidental = Accidental::none;
@@ -45,9 +54,9 @@ inline std::tuple<ScaleNote, ScorePitchUtils::Accidental> ScorePitchUtils::getNo
         accidental = Accidental::sharp;
     }
 
-    return std::make_tuple(sn, accidental);
+    const auto pref = scale.getSharpsFlatsPref();
+    return NotationNote(sn, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
-
 
 #if 0
 inline bool ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
@@ -71,5 +80,5 @@ inline bool ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental acci
     // More cases to implement.
     assert(false);
     return false;
-} 
+}
 #endif

@@ -297,7 +297,7 @@ inline float Score::noteXPos(int noteNumber, float keysigWidth) const {
 float Score::noteY(const MidiNote &note, bool bassStaff) const {
     float y = 0;
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
-    const int ledgerLine = note.getLedgerLine(bassStaff);
+    const int ledgerLine = note.getLegerLine(bassStaff);
     y -= ledgerLine * spaceBetweenLines;
     y += staffBasePos;
     return y;
@@ -311,7 +311,7 @@ inline Score::YInfo Score::noteYInfo(const MidiNote &note, bool bassStaff) const
 
     float y = 0;
 
-    const int ledgerLine = note.getLedgerLine(bassStaff);
+    const int ledgerLine = note.getLegerLine(bassStaff);
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
 
     if (ledgerLine < -1) {
