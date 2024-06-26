@@ -60,6 +60,7 @@ inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) c
             break;
         case 1:  // C#/D-
             line = preferFlats ? -1 : -2;
+            SQINFO("in MidiNote::getLEdgetLine semi=%d line=%d prefFlats = %d", semi, line, preferFlats);
             break;
         case 2:  // D
             line = -1;

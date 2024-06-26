@@ -138,6 +138,7 @@ public:
      */
     const int* _getNormalizedScalePitches() const;
 
+    void _validateScaleNote(const ScaleNote&) const;
 private:
     ScaleNote _makeScaleNote(int offset, bool printDebug) const;
 
@@ -151,4 +152,5 @@ private:
     int _quantizeInScale(int offset, bool printDebug) const;
 
     static bool _doesScaleMatch(const Role*, Scales, MidiNote);
+
 };

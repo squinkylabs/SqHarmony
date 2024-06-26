@@ -226,8 +226,51 @@ static void testScaleNoteToMidiD4() {
 //------------------- let's test c on up
 static void testMidiStaffC() {
     MidiNote mn(MidiNote::MiddleC);
-    const int ll = mn.getLegerLine(false);
+    int ll = mn.getLegerLine(false);
     assertEQ(ll, -2);
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, -2);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, -2);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, -2);
+
+}
+
+static void testMidiStaffCSharp() {
+    MidiNote mn(MidiNote::MiddleC + 1);
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, -2);
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, -1);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, -2);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, -2);
+}
+
+static void testMidiStaffD() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::D);
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, -1);
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, -1);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, -1);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, -1);
+}
+
+static void testMidiStaffDSharp() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::D + 1);
+    int ll = mn.getLegerLine(false);
+    assertEQ(ll, -1);
+    ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
+    assertEQ(ll, 0);
+    ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
+    assertEQ(ll, -1);
+    ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
+    assertEQ(ll, -1);
 }
 
 static void testMidiStaffE() {
@@ -272,7 +315,7 @@ static void testMidiStaffFSharp() {
     assertEQ(ll, 1);  // default to F#
 
     ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
-    assertEQ(ll, 2);    // G flat
+    assertEQ(ll, 2);  // G flat
 
     ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
     assertEQ(ll, 1);
@@ -296,7 +339,7 @@ static void testMidiStaffG() {
 static void testMidiStaffGSharp() {
     MidiNote mn(MidiNote::MiddleC + MidiNote::G + 1);  // G# above middle C
     int ll = mn.getLegerLine(false);
-    assertEQ(ll, 2); 
+    assertEQ(ll, 2);
     ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
     assertEQ(ll, 3);
     ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
@@ -308,7 +351,7 @@ static void testMidiStaffGSharp() {
 static void testMidiStaffA() {
     MidiNote mn(MidiNote::MiddleC + MidiNote::A);
     int ll = mn.getLegerLine(false);
-    assertEQ(ll, 3);  
+    assertEQ(ll, 3);
     ll = mn.getLegerLine(SharpsFlatsPref::Flats, false);
     assertEQ(ll, 3);
     ll = mn.getLegerLine(SharpsFlatsPref::Sharps, false);
@@ -340,7 +383,6 @@ static void testMidiStaffB() {
     ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
     assertEQ(ll, 4);
 }
-
 
 static void testMidiStaffC2() {
     MidiNote mn(MidiNote::MiddleC + 12);
@@ -436,6 +478,9 @@ void testNotes() {
 
     // C on up
     testMidiStaffC();
+    testMidiStaffCSharp();
+    testMidiStaffD();
+    testMidiStaffDSharp();
     testMidiStaffE();
     testMidiStaffEFlat();
     testMidiStaffF();
@@ -446,7 +491,6 @@ void testNotes() {
     testMidiStaffASharp();
     testMidiStaffB();
 
-   
     testMidiStaffC2();
     testMidiStaffC3();
     testMidiStaffLowA();

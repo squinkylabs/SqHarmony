@@ -73,10 +73,34 @@ static void tests2fCMajC4() {
     assertEQ(fn.get(), 0);
 }
 
+static void testCMinorValid() {
+    Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
+
+    MidiNote mn(MidiNote::MiddleC);
+    scale.m2s(mn);
+
+
+    // At moment this asserts, but it would fail
+    MidiNote mn2(MidiNote::MiddleC + 1);
+    scale.m2s(mn2);
+
+
+}
+
 void testScaleNotes() {
     testf2sCMajC4();
     testf2sCMajCsharp5();
     tests2fCMajC4();
     testm2sRoundTrip();
     testf2sRoundTrip();
+
+// not working yet
+   // testCMinorValid();
 }
+
+#if 1
+void testFirst() {
+    testCMinorValid();
+}
+#endif

@@ -296,7 +296,7 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, int legerLi
 
     ret.position = yPosition;
 
-    SQINFO("YY noteYInfo note %d bassStaff=%d, leger line = %d pos=%f", note.get(), bassStaff, legerLine, ret.position);
+    SQINFO("YY noteYInfo(note %d bassStaff=%d, leger line = %d) pos=%f", note.get(), bassStaff, legerLine, ret.position);
     return ret;
 }
 
@@ -421,7 +421,7 @@ inline void ScoreChord::drawLegerLinesForNotes(const DrawArgs &args, const YInfo
 }
 
 inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, ScorePitchUtils::Accidental accidental) const {
-    SQINFO("drawAccidental x=%f, acciental=%d", xPosition, int(accidental));
+    SQINFO("drawAccidental424  x=%f, acciental=%d (flat=%d )", xPosition, int(accidental), int(ScorePitchUtils::Accidental::flat));
     if (accidental == ScorePitchUtils::Accidental::none) {
         SQINFO("ret early from draw accid");
         return;
@@ -540,7 +540,8 @@ inline void ScoreChord::drawOneNote(
     const YInfo &yInfo,
     float xPosition,
     bool offsetNote) const {
-    SQINFO("--- drawOneNote offset=%d dxAccid=%f Pos=%f,%f", offsetNote, _deltaXAccidental, xPosition, yInfo.position);
+    SQINFO("--- drawOneNote offset=%d dxAccid=%f Pos=%f,%f notationNoteaccid=%d", 
+        offsetNote, _deltaXAccidental, xPosition, yInfo.position, int(notationNote._accidental));
     drawLegerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
@@ -646,6 +647,7 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
     for (const int *pitchIterator = begin; pitchIterator < end; ++pitchIterator) {
         MidiNote mn(*pitchIterator);
         const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn, bassStaff);
+        SQINFO("drawNotesOnStaff just got notation note with accid=%d", int(notationNote._accidental));
         const auto yInfo = noteYInfo(mn, notationNote._legerLine, bassStaff);
         SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
         const float distance = lastYPos - yInfo.position;

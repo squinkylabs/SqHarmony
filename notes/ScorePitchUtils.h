@@ -21,14 +21,13 @@ public:
     class NotationNote {
     public:
         NotationNote() {}
-        NotationNote(ScaleNote sn, ScorePitchUtils::Accidental ac, int ll) : _scaleNote(sn), _accidental(ac), _legerLine(ll) {} 
+        NotationNote(ScaleNote sn, ScorePitchUtils::Accidental ac, int ll) : _scaleNote(sn), _accidental(ac), _legerLine(ll) {}
         ScaleNote _scaleNote;
         Accidental _accidental = ScorePitchUtils::Accidental::none;
         int _legerLine = 0;
     };
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
-
 
     /**
      * Not needed right now.
@@ -41,7 +40,9 @@ public:
 inline ScorePitchUtils::NotationNote
 ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
     ScaleNote sn = scale.m2s(midiNote, true);
-    SQINFO("in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
+    scale._validateScaleNote(sn);
+    SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
+    SQINFO("-- midiPitch is %d", midiNote.get());
     Accidental accidental = Accidental::none;
 
     if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
@@ -51,11 +52,16 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
         SQINFO("natural at 41");
         accidental = Accidental::natural;
     } else {
-        SQINFO("default to sharps - might not be right");
-        accidental = Accidental::sharp;
+      //  SQINFO("default to sharps - might not be right (it's a black key, and not in scale)");
+        accidental = (sn.getAdjustment() == ScaleNote::RelativeAdjustment::flat) ? Accidental::flat :  Accidental::sharp;
+        SQINFO("getting acciendtal from adj, accid = %d", int(accidental));
     }
 
     const auto pref = scale.getSharpsFlatsPref();
+    SQINFO("return from getNotationNote with ledger line %d pref = %d flats=%d",
+           midiNote.getLegerLine(pref, bassStaff),
+           int(pref),
+           int(SharpsFlatsPref::Flats));
     return NotationNote(sn, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
 

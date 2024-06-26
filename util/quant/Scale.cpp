@@ -39,17 +39,20 @@ ScaleNote Scale::m2s(const MidiNote& mn, bool printDebug) const {
     }
 
     auto sn = _makeScaleNote(offset, printDebug);
+    _validateScaleNote(sn);
 
     if (printDebug) {
         SQINFO("sn that comes back has degree=%d adj=%d", sn.getDegree(), int(sn.getAdjustment()));
     }
     ScaleNote final(sn.getDegree(), octave, sn.getAdjustment());
+    _validateScaleNote(final);
     // need octave into
     return final;
 }
 
 MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     const int semitones = degreeToSemitone(scaleNote.getDegree());
+    _validateScaleNote(scaleNote);
 
     int accidentalOffset = 0;
     switch (scaleNote.getAdjustment()) {
@@ -78,21 +81,27 @@ ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
         if (printDebug) {
             SQINFO("_makeScaleNote(%d) will returns degree %d from 78 (found)", offset, degree);
         }
-        return ScaleNote(degree, 0);
+        const auto ret = ScaleNote(degree, 0);
+        _validateScaleNote(ret);
+        return ret;
     }
     degree = _quantizeInScale(offset - 1, printDebug);
     if (degree >= 0) {
         if (printDebug) {
             SQINFO("_makeScaleNote(%d) will returns degree %d from 86 (found one under)", offset, degree);
         }
-        return ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
+        _validateScaleNote(ret);
+        return ret;
     }
     degree = _quantizeInScale(offset + 1, printDebug);
     if (degree >= 0) {
         if (printDebug) {
             SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
         }
-        return ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
+        _validateScaleNote(ret);
+        return ret;
     }
     assert(false);
     return ScaleNote();
@@ -719,4 +728,16 @@ const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
     // put in the root where it should be
     roles.data[root.get()] = Role::Root;
     return roles;
+}
+
+void Scale::_validateScaleNote(const ScaleNote& sn) const {
+    const auto scalePref = this->getSharpsFlatsPref();
+    switch (sn.getAdjustment()) {
+        case ScaleNote::RelativeAdjustment::flat:
+            assert(scalePref == SharpsFlatsPref::Flats);
+            break;
+        case ScaleNote::RelativeAdjustment::sharp:
+            assert(scalePref != SharpsFlatsPref::Flats);
+            break;
+    }
 }
