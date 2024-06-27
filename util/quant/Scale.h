@@ -127,6 +127,12 @@ public:
 
 
     SharpsFlatsPref getSharpsFlatsPref() const;
+    /**
+     * This one return true for prefer sharps. Always has a preference, since.
+     * all our scoring stuff assumes sharp for default.
+     * TODO: add unit tests.
+     */
+    bool getSharpsFlatsPrefForScoring() const;
 
     MidiNote getRelativeMajor() const;
 
@@ -138,7 +144,7 @@ public:
      */
     const int* _getNormalizedScalePitches() const;
 
-    void _validateScaleNote(const ScaleNote&) const;
+    bool _validateScaleNote(const ScaleNote&) const;
 private:
     ScaleNote _makeScaleNote(int offset, bool printDebug) const;
 

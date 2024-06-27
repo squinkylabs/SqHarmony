@@ -79,6 +79,48 @@ ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
     int degree = _quantizeInScale(offset, printDebug);
     if (degree >= 0) {
         if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 82 (found in key)", offset, degree);
+        }
+        const auto ret = ScaleNote(degree, 0);
+        _validateScaleNote(ret);
+        return ret;
+    }
+    const bool preferSharps = getSharpsFlatsPrefForScoring();
+    // If we didn't get a match, see if the next higher note is in the scale. But since it will
+    // Yield a flat accidental, only do that if we want that.
+    degree = _quantizeInScale((offset + 1) % 12 , printDebug);
+    if ((degree >= 0) && !preferSharps) {
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
+        }
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
+        assert(!preferSharps);
+        _validateScaleNote(ret);
+        return ret;
+    }
+
+    degree = _quantizeInScale(offset - 1, printDebug);
+    if ((degree >= 0) && preferSharps) {
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
+        }
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
+        assert(preferSharps);
+        _validateScaleNote(ret);
+        return ret;
+    }
+
+
+    assert(false);  // now we are down where we need more code
+    return ScaleNote(0, 0);
+}
+
+#if 0 // old one
+ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
+    assert(offset >= 0 && offset < 12);
+    int degree = _quantizeInScale(offset, printDebug);
+    if (degree >= 0) {
+        if (printDebug) {
             SQINFO("_makeScaleNote(%d) will returns degree %d from 78 (found)", offset, degree);
         }
         const auto ret = ScaleNote(degree, 0);
@@ -106,6 +148,7 @@ ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
     assert(false);
     return ScaleNote();
 }
+#endif
 
 std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
     if (justDiatonic) {
@@ -167,7 +210,7 @@ int Scale::quantize(int offset) const {
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    int qUpOne = _quantizeInScale(offset + 1, false);
+    int qUpOne = _quantizeInScale((offset + 1) % 12, false);
     const int qDnOne = _quantizeInScale(offset - 1, false);
 
     if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
@@ -243,6 +286,8 @@ int Scale::quantize(int offset) const {
 }
 
 int Scale::_quantizeInScale(int offset, bool printDebug) const {
+    assert(offset >= 0);
+    assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
     if (printDebug) {
         SQINFO("Pitches = %d, %d, %d", pitches[0], pitches[1], pitches[2]);
@@ -538,6 +583,11 @@ SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     return SharpsFlatsPref::DontCare;
 }
 
+bool Scale::getSharpsFlatsPrefForScoring() const {
+    const auto pref = getSharpsFlatsPref();
+    return pref != SharpsFlatsPref::Flats;
+}
+
 int Scale::numNotesInScale(Scales scale) {
     int ret = 0;
     switch (scale) {
@@ -730,14 +780,18 @@ const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
     return roles;
 }
 
-void Scale::_validateScaleNote(const ScaleNote& sn) const {
+bool Scale::_validateScaleNote(const ScaleNote& sn) const {
     const auto scalePref = this->getSharpsFlatsPref();
     switch (sn.getAdjustment()) {
         case ScaleNote::RelativeAdjustment::flat:
             assert(scalePref == SharpsFlatsPref::Flats);
+            return (scalePref == SharpsFlatsPref::Flats);
             break;
         case ScaleNote::RelativeAdjustment::sharp:
             assert(scalePref != SharpsFlatsPref::Flats);
+            return(scalePref != SharpsFlatsPref::Flats);
             break;
     }
+    //assert(false);
+    return true;
 }

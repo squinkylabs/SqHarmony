@@ -73,19 +73,156 @@ static void tests2fCMajC4() {
     assertEQ(fn.get(), 0);
 }
 
-static void testCMinorValid() {
+static void testCMinorValidInScale() {
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
 
     MidiNote mn(MidiNote::MiddleC);
-    scale.m2s(mn);
+    auto sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 0);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+    assertEQ(sn.getOctave(), 4);
 
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::D);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 1);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
 
-    // At moment this asserts, but it would fail
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::E - 1);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 2);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::F);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 3);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::F);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 3);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::G);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 4);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::A - 1);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 5);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::B - 1);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 6);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+    assertEQ(sn.getOctave(), 4);
+
+    mn = MidiNote(MidiNote::MiddleC + 12);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 0);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+    assertEQ(sn.getOctave(), 5);
+}
+
+static void testCMinorValidNotInScale() {
+    Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
+
+    // C# / D- should go to D flat.
     MidiNote mn2(MidiNote::MiddleC + 1);
-    scale.m2s(mn2);
+    auto sn = scale.m2s(mn2);
+    assertEQ(sn.getDegree(), 1);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::flat);
+    assertEQ(sn.getOctave(), 4);
 
+    SQINFO("finish me");
+}
 
+static void testDMajorValidInScale() {
+    Scale scale;
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Major);
+
+    MidiNote mn(MidiNote::MiddleC + MidiNote::D);
+    auto sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 0);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+    assertEQ(sn.getOctave(), 4);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::E);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 1);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::F + 1);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 2);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::G);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 3);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::A);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 4);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::B);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 5);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::C + 1);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 6);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::D + 12);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 0);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+    assertEQ(sn.getOctave(), 5);
+}
+
+static void testDMajorValidNotInScale() {
+    Scale scale;
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Major);
+
+    // D# / E- should go to D#.
+    MidiNote mn(MidiNote::MiddleC + MidiNote::D + 1);
+    auto sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 0);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
+    assertEQ(sn.getOctave(), 4);
+
+    // F - not scale -> sharp of degree 1
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::F);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 1);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
+
+    // G#/A-
+    mn = MidiNote(MidiNote::MiddleC + MidiNote::G + 1);
+    sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 3);
+    assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
+
+    SQINFO("finish me 203");
+}
+
+static void TestCMinor47() {
+     Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
+
+      MidiNote mn(47);
+     auto sn = scale.m2s(mn);
+    assertEQ(sn.getDegree(), 0);
+  //  assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
+  //  assertEQ(sn.getOctave(), 4);
+    assertEQ(scale._validateScaleNote(sn), true);
 }
 
 void testScaleNotes() {
@@ -94,13 +231,18 @@ void testScaleNotes() {
     tests2fCMajC4();
     testm2sRoundTrip();
     testf2sRoundTrip();
-
-// not working yet
-   // testCMinorValid();
+    testCMinorValidInScale();
+    testCMinorValidNotInScale();
+    testDMajorValidInScale();
+    testDMajorValidNotInScale();
+    TestCMinor47();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    testCMinorValid();
+    //  testCMinorValidInScale();
+    //  testCMinorValid2();
+    // testDMajorValidNotInScale();
+    TestCMinor47();
 }
 #endif
