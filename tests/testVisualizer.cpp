@@ -56,6 +56,14 @@ static void testCanClockInEMinor() {
     assertEQ(v.params[Comp::ROOT_PARAM].value, float(MidiNote::E));
 }
 
+ static void testWrongNumberNotRecognized() {
+    Comp v;
+    const float semi = 1.f / 12.f;
+    const std::vector<float> foo = {0, 4 * semi, 7 * semi, 8 * semi};
+    run(v, foo);
+    assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::Unrecognized));
+ }
+
 void testVisualizer() {
     testCanCall();
 
@@ -63,8 +71,9 @@ void testVisualizer() {
     testCanClockInEMinor();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testCanClockInEMinor();
+  //  testCanClockInEMinor();
+    testWrongNumberNotRecognized();
 }
 #endif

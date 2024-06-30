@@ -31,14 +31,18 @@ public:
     };
     enum InputIds {
         CV_INPUT,
+        GATE_INPUT,
+        PES_INPUT,
         NUM_INPUTS
     };
 
     enum OutputIds {
+        PES_OUTPUT,
         NUM_OUTPUTS
     };
 
     enum LightIds {
+        PES_INVALID_LIGHT,
         NUM_LIGHTS
     };
 

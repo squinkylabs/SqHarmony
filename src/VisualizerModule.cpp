@@ -5,6 +5,7 @@
 #include <string>
 
 #include "BufferingParent.h"
+#include "GfxUtils.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
@@ -36,7 +37,9 @@ public:
         // addLabel(Vec(28, 60), "Under Construction", 14);
         addLabel(Vec(25, 356), "Squinktronix", 16);
 #endif
-        addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
+     //   addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
+        addRow2();
+        addRow1();
 
         _displayString = addLabel(Vec(10, 160), "chord");
         _displayString2 = addLabel(Vec(10, 180), "chord");
@@ -96,7 +99,7 @@ private:
     }
 
     void addKeysig() {
-        const float yScale = 190;
+        const float yScale = 170;
         const float yMode = yScale + 28;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -155,6 +158,65 @@ private:
         addChild(parent);
         return parent;
     }
+
+        void addOutputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
+        addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
+        Vec vlabel(vec.x, vec.y);
+        vlabel.y -= 20;
+        vlabel.x += 4;
+        vlabel.x += label_dx;
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
+        vlabel.x -= xOffset;
+        addLabel(vlabel, text);
+#endif
+    }
+
+    void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
+        addInput(createInput<PJ301MPort>(vec, module, outputNumber));
+#ifdef _LAB
+        Vec vlabel(vec.x, vec.y);
+        vlabel.y -= 20;
+        vlabel.x += 4;
+        vlabel.x += label_dx;
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
+        vlabel.x -= xOffset;
+        addLabel(vlabel, text);
+#endif
+    }
+
+    const float x0 = 11;
+    const float dx = 20; // 34;
+    void addRow2() {
+         const float y = 317;
+
+        // addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
+
+        RoundedRect* r = new RoundedRect(Vec(73, y - 18), Vec(70, 54));
+        addChild(r);
+
+        addInputL(Vec(x0, y), Comp::CV_INPUT, "V/Oct", 3);
+      //  addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "V/Oct", 3);
+
+        addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES", -1);
+
+    }
+     void addRow1() {
+                float y = 270;
+      //  addInputL(Vec(x0, y), Comp::XPOSE_INPUT, "XP");
+
+      //  addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key", 0.f);
+      //  addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode", -1);
+
+addInputL(Vec(x0 + 0 * dx, y), Comp::GATE_INPUT, "Gate", 0.f);
+        addInputL(Vec(x0 + 2 * dx, y), Comp::PES_INPUT, "PES", -1);
+
+         y = 258;
+        addChild(createLight<SmallLight<RedLight>>(
+            Vec(26 + x0 + 2 * dx, y),
+            module,
+            Comp::PES_INVALID_LIGHT));
+     }
 };
 
 Model* modelVisualizer = createModel<VisualizerModule, VisualizerWidget>("sqh-visualizer");
