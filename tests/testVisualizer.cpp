@@ -51,7 +51,7 @@ static void testCanClockInEMinor() {
         2 + semi * MidiNote::B};
 
     run(v, foo);
-    assertEQ(v.params[Comp::TYPE_PARAM].value, float(Scale::Scales::Minor));
+    assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::MinorTriad));
     assertEQ(v.params[Comp::INVERSION_PARAM].value, float(ChordRecognizer::Inversion::Root));
     assertEQ(v.params[Comp::ROOT_PARAM].value, float(MidiNote::E));
 }
@@ -63,8 +63,8 @@ void testVisualizer() {
     testCanClockInEMinor();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    testCanClockInCMajor();
+    testCanClockInEMinor();
 }
 #endif
