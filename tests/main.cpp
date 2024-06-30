@@ -82,6 +82,7 @@ extern void testChordRecognizer();
 extern void testChordRecognizer2();
 extern void testChordRecognizer3();
 extern void testVisualizer();
+extern void testPESConverter();
 extern void testScorePitchUtils();
 extern void testLegerScore();
 
@@ -137,6 +138,7 @@ int main(const char**, int) {
     testChordRecognizer3();
     testChordRecognizer();
     testChordRecognizer2();
+    testPESConverter();
     testVisualizer();
 
     testClockMult();
