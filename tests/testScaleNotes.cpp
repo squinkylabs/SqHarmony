@@ -213,7 +213,7 @@ static void testDMajorValidNotInScale() {
     SQINFO("finish me 203");
 }
 
-static void TestCMinor47() {
+static void testCMinor47() {
      Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
 
@@ -223,6 +223,19 @@ static void TestCMinor47() {
   //  assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
   //  assertEQ(sn.getOctave(), 4);
     assertEQ(scale._validateScaleNote(sn), true);
+}
+
+static void testAll() {
+    for (int pitch = 0; pitch < 12; ++pitch) {
+        for (int mode = int(Scale::Scales::Major); mode <= int(Scale::Scales::Locrian); mode++) {
+            Scale scale;
+            scale.set(MidiNote(pitch), Scale::Scales(mode));
+            for (int testPitch=0; testPitch < 12; ++testPitch) {
+                auto sn = scale.m2s(MidiNote(testPitch));
+                assertEQ(scale._validateScaleNote(sn), true);
+            }
+        }
+    }
 }
 
 void testScaleNotes() {
@@ -235,7 +248,8 @@ void testScaleNotes() {
     testCMinorValidNotInScale();
     testDMajorValidInScale();
     testDMajorValidNotInScale();
-    TestCMinor47();
+    testCMinor47();
+    testAll();
 }
 
 #if 0
@@ -243,6 +257,6 @@ void testFirst() {
     //  testCMinorValidInScale();
     //  testCMinorValid2();
     // testDMajorValidNotInScale();
-    TestCMinor47();
+    testAll();
 }
 #endif

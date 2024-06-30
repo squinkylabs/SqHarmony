@@ -1,30 +1,70 @@
 
 
-#include "Visualizer.h"
 #include "TestComposite.h"
-
+#include "Visualizer.h"
 #include "asserts.h"
 
 using Comp = Visualizer<TestComposite>;
 
-void clockInChord(Comp&,  const std::vector<int>&) {
+void run(Comp& comp, const std::vector<float>& cVin) {
+    if (!cVin.empty()) {
+        comp.inputs[Comp::CV_INPUT].channels = 1;  // connect the input.
+        comp.inputs[Comp::CV_INPUT].setChannels(cVin.size());
 
+        //  comp.inputs.push_back(Port());
+        // const auto ips = comp.inputs.size();
+        for (int i = 0; i < cVin.size(); ++i) {
+            SQINFO("setting2 input %d to %f", i, cVin[i]);
+            comp.inputs[Comp::CV_INPUT].setVoltage(cVin[i], i);
+        }
+    }
+
+    const auto args = TestComposite::ProcessArgs();
+    for (int i = 0; i < Comp::getSubSampleFactor(); ++i) {
+        comp.process(args);
+    }
 }
 
 static void testCanCall() {
     Comp v;
 
-    const std::vector<int> foo;
-    clockInChord(v, foo);
+    const std::vector<float> foo;
+    run(v, foo);
 }
 
-static void testCanClockIn() {
+static void testCanClockInCMajor() {
     Comp v;
-    const std::vector<int> foo;
-    clockInChord(v, foo);
+    const float semi = 1.f / 12.f;
+    const std::vector<float> foo = {0, 4 * semi, 7 * semi};
+    run(v, foo);
+    assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::MajorTriad));
+    assertEQ(v.params[Comp::INVERSION_PARAM].value, float(ChordRecognizer::Inversion::Root));
+    assertEQ(v.params[Comp::ROOT_PARAM].value, float(MidiNote::C));
+}
+
+static void testCanClockInEMinor() {
+    Comp v;
+    const float semi = 1.f / 12.f;
+    const std::vector<float> foo = {
+        2 + semi * MidiNote::E,
+        2 + semi * MidiNote::G,
+        2 + semi * MidiNote::B};
+
+    run(v, foo);
+    assertEQ(v.params[Comp::TYPE_PARAM].value, float(Scale::Scales::Minor));
+    assertEQ(v.params[Comp::INVERSION_PARAM].value, float(ChordRecognizer::Inversion::Root));
+    assertEQ(v.params[Comp::ROOT_PARAM].value, float(MidiNote::E));
 }
 
 void testVisualizer() {
     testCanCall();
-    testCanClockIn();
+
+    testCanClockInCMajor();
+    testCanClockInEMinor();
 }
+
+#if 1
+void testFirst() {
+    testCanClockInCMajor();
+}
+#endif
