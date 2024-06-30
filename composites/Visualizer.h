@@ -25,8 +25,8 @@ public:
         CHANGE_PARAM,     // For reporting back the identified chord has changed.
         INVERSION_PARAM,  // For reporting back the identified chord inversion.
 
-        KEY_PARAM,      // For controlling the key signature root.
-        MODE_PARAM,     // For controlling the key signature mode.
+        KEY_PARAM,   // For controlling the key signature root.
+        MODE_PARAM,  // For controlling the key signature mode.
         NUM_PARAMS
     };
     enum InputIds {
@@ -65,7 +65,7 @@ public:
     }
 
     std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
-        return std::make_tuple(_quantizedInputPitches, _inputChannels);
+        return std::make_tuple(_quantizedInputPitches, _outputChannels);
     }
 
 private:
@@ -75,8 +75,10 @@ private:
     void _lookForKeysigChange();
 
     Divider _divn;
+
+    // quantized pitches and number of valid entries.
     int _quantizedInputPitches[16] = {0};
-    unsigned _inputChannels = 0;
+    unsigned _outputChannels = 0;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
 };
@@ -108,25 +110,43 @@ inline void Visualizer<TBase>::_stepn() {
 template <class TBase>
 inline void Visualizer<TBase>::_processInput() {
     // Read in the CV from the input port.
+    //  bool gates[16] = {0};
     bool wasChange = false;
     auto& inputPort = TBase::inputs[CV_INPUT];
-    const unsigned channels = inputPort.getChannels();
-    for (unsigned i = 0; i < channels; ++i) {
-        const float f = inputPort.getVoltage(i);
-        const MidiNote mn = _quantizer->run(f);
-        const int iNote = mn.get();
-        if (_quantizedInputPitches[i] != iNote) {
-            _quantizedInputPitches[i] = iNote;
-            wasChange = true;
+    auto& gatePort = TBase::inputs[GATE_INPUT];
+
+    const unsigned gateChannels = gatePort.isConnected() ? gatePort.getChannels() : 0;
+    const unsigned cvChannels = inputPort.getChannels();
+    unsigned outputChannel = 0;
+    // Loop throught all the input CV that are valid, building up a list of quantized pitches.
+    for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
+        const float f = inputPort.getVoltage(inputChannel);
+
+        //
+        bool gate;
+        if (!gatePort.isConnected()) {
+            gate = true;                // if the port isn't connected, the all gates assumed "on"
+        } else {
+            gate = (inputChannel > gateChannels) ? false : gatePort.getVoltage(inputChannel) > 5;
+        }
+
+        if (gate) {
+            const MidiNote mn = _quantizer->run(f);
+            const int iNote = mn.get();
+            if (_quantizedInputPitches[outputChannel] != iNote) {
+                _quantizedInputPitches[outputChannel] = iNote;
+                wasChange = true;
+            }
+            outputChannel++;
         }
     }
-    if (channels != _inputChannels) {
+    if (outputChannel != _outputChannels) {
         wasChange = true;
-        _inputChannels = channels;
+        _outputChannels = cvChannels;
     }
 
     // Zero out all the pitches above our range.
-    for (int i = channels; i < 16; ++i) {
+    for (int i = outputChannel; i < 16; ++i) {
         _quantizedInputPitches[i] = 0;
     }
 
@@ -135,7 +155,7 @@ inline void Visualizer<TBase>::_processInput() {
     }
 
     // Now put the new chord into the params.
-    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches, _inputChannels);
+    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches, _outputChannels);
     TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
     TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
 
@@ -155,7 +175,7 @@ inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) 
 template <class TBase>
 inline void Visualizer<TBase>::_lookForKeysigChange() {
     // This for PES support
-   // _pollPESInput();
+    // _pollPESInput();
     const int basePitch = int(std::round((Visualizer<TBase>::params[KEY_PARAM].value)));
     const auto mode = Scale::Scales(int(std::round(Visualizer<TBase>::params[MODE_PARAM].value)));
     // const auto newSetting = std::make_pair(basePitch, mode);
@@ -164,9 +184,9 @@ inline void Visualizer<TBase>::_lookForKeysigChange() {
     const int currentPitch = current.first.get();
     if ((current.second != mode) || (currentPitch != basePitch)) {
         // this form Hramony for efficiency
-      //  _mustUpdate = true;
-      SQINFO("in look for change, see new mode = %d", int(mode));
+        //  _mustUpdate = true;
+        SQINFO("in look for change, see new mode = %d", int(mode));
         _chordOptions->keysig->set(MidiNote(basePitch), mode);
-      //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
+        //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
     }
 }
