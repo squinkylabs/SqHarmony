@@ -45,8 +45,8 @@
  *      try to space all chords.
  *
  * Bugs:
- *      C and D flat in cmajor, draws two C 
- * 
+ *      C and A below middle C - draws crazy leger lines
+ *      C and D flat in cmajor, draws two C (done)
  *      cmajor chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
@@ -271,7 +271,7 @@ inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, int legerLi
 
     float yPosition = 0;
 
-  //  const int legerLine = note.getLegerLine(prefs, bassStaff);
+    //  const int legerLine = note.getLegerLine(prefs, bassStaff);
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
 
     if (legerLine < -1) {
@@ -423,7 +423,6 @@ inline void ScoreChord::drawLegerLinesForNotes(const DrawArgs &args, const YInfo
 }
 
 inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, ScorePitchUtils::Accidental accidental) const {
-    
     /*
     enum class Accidental {
         none,
@@ -432,7 +431,7 @@ inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, f
         natural
     };
     */
-    SQINFO("drawAccidental424  x=%f, acciental=%d (for ref flat=%d )", xPosition, int(accidental), int(ScorePitchUtils::Accidental::flat));
+    SQINFO("drawAccidental 424  x=%f, acciental=%d (for ref flat=%d )", xPosition, int(accidental), int(ScorePitchUtils::Accidental::flat));
     if (accidental == ScorePitchUtils::Accidental::none) {
         SQINFO("ret early from draw accidental = none");
         return;
@@ -460,17 +459,18 @@ inline void ScoreChord::drawTwoNotes(
     const DrawArgs &args,
     const MidiNote &note,
     const ScorePitchUtils::NotationNote &notationNote,
-    const ScorePitchUtils::NotationNote  &notationNote2,
+    const ScorePitchUtils::NotationNote &notationNote2,
     const YInfo &yInfo,
     float xPosition) const {
     drawLegerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = 5;
-    SQINFO("drawing two notes at xpos=%f and xpos=%f", xPosition + noteXOffset, xPosition - noteXOffset);
+    SQINFO("-- drawing two notes at xpos=%f and xpos=%f", xPosition + noteXOffset, xPosition - noteXOffset);
+    SQINFO(" nn ll=%d accid=%d nn2 ll=%d accid=%d", notationNote._legerLine, int(notationNote._accidental), notationNote2._legerLine, int(notationNote2._accidental));
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
     nvgText(args.vg, xPosition - noteXOffset, yInfo.position, notePtr, NULL);
-    const auto accidental1 =notationNote._accidental;
+    const auto accidental1 = notationNote._accidental;
     const auto accidental2 = notationNote2._accidental;
 
     bool showAccidental1 = false;
@@ -489,6 +489,26 @@ inline void ScoreChord::drawTwoNotes(
     }
 
     const bool showTwoAccidentals = showAccidental1 && showAccidental2;
+    float xAccidentalPostion;
+    if (showTwoAccidentals) {
+        xAccidentalPostion = xPosition + 2 * _deltaXAccidental - noteXOffset;
+    } else {
+        xAccidentalPostion = xPosition + _deltaXAccidental - noteXOffset;
+    }
+
+    if (showTwoAccidentals) {
+        //SQWARN("can't show two atm");
+        _drawAccidental(args, xAccidentalPostion, yInfo.position, accidental1);
+        xAccidentalPostion -= _deltaXAccidental;
+        _drawAccidental(args, xAccidentalPostion, yInfo.position, accidental2); 
+
+    } else if (showAccidental1) {
+        _drawAccidental(args, xAccidentalPostion, yInfo.position, accidental1);
+    } else if (showAccidental2) {
+        _drawAccidental(args, xAccidentalPostion, yInfo.position, accidental2);
+    }
+
+#if 0
 
     ScorePitchUtils::Accidental inOrderAccidendals[2] = {ScorePitchUtils::Accidental::none, ScorePitchUtils::Accidental::none};
     int accidentalIndex = 0;
@@ -517,17 +537,18 @@ inline void ScoreChord::drawTwoNotes(
         SQINFO("in drawTwoNotes, drawing acciental2");
         _drawAccidental(args, xPositionAccidental - _deltaXAccidental, yInfo.position, inOrderAccidendals[1]);
     }
+#endif
 }
 
 inline void ScoreChord::drawOneNote(
     const DrawArgs &args,
     const MidiNote &note,
-    const ScorePitchUtils::NotationNote  &notationNote,
+    const ScorePitchUtils::NotationNote &notationNote,
     const YInfo &yInfo,
     float xPosition,
     bool offsetNote) const {
-    SQINFO("--- drawOneNote offset=%d dxAccid=%f Pos=%f,%f notationNoteaccid=%d", 
-        offsetNote, _deltaXAccidental, xPosition, yInfo.position, int(notationNote._accidental));
+    SQINFO("--- drawOneNote offset=%d dxAccid=%f Pos=%f,%f notationNoteaccid=%d",
+           offsetNote, _deltaXAccidental, xPosition, yInfo.position, int(notationNote._accidental));
     drawLegerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
@@ -641,19 +662,19 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
         const bool noteOffsetByTwoLines = (distance / _ySpaceBetweenLines) > 1.2;
 
         bool twoNotesOnSameLine = false;
-      //  std::tuple<ScaleNote, ScorePitchUtils::Accidental> notationNoteNext;
+        //  std::tuple<ScaleNote, ScorePitchUtils::Accidental> notationNoteNext;
         // if there is another note after this one
         ScorePitchUtils::NotationNote notationNoteNext;
         if ((pitchIterator + 1) < end) {
             MidiNote mnNext(*(pitchIterator + 1));
-          //  const auto yInfoNext = noteYInfo(mnNext, bassStaff);
-            notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff); 
+            //  const auto yInfoNext = noteYInfo(mnNext, bassStaff);
+            notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff);
             const auto yInfoNext = noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
             if (yInfo.position == yInfoNext.position) {
                 SQWARN("two notes at same location pitch = %d, %d, y=%f, %f", mn.get(), mnNext.get(), yInfo.position, yInfoNext.position);
 
                 twoNotesOnSameLine = true;
-              //  notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext);
+                //  notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext);
                 ++pitchIterator;
             }
         }

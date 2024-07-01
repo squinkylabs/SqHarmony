@@ -18,10 +18,8 @@ std::pair<const MidiNote, Scale::Scales> Scale::get() const {
     return std::make_pair(_baseNote, _scale);
 }
 
-ScaleNote Scale::m2s(const MidiNote& mn, bool printDebug) const {
-    if (printDebug) {
-        SQINFO("....m2s called with %d", mn.get());
-    }
+ScaleNote Scale::m2s(const MidiNote& mn) const {
+
     int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
@@ -34,16 +32,9 @@ ScaleNote Scale::m2s(const MidiNote& mn, bool printDebug) const {
         octave -= 1;
     }
 
-    if (printDebug) {
-        SQINFO("m2s calling make Scale note(offset=%d)", offset);
-    }
-
-    auto sn = _makeScaleNote(offset, printDebug);
+    auto sn = _makeScaleNote(offset);
     _validateScaleNote(sn);
 
-    if (printDebug) {
-        SQINFO("sn that comes back has degree=%d adj=%d", sn.getDegree(), int(sn.getAdjustment()));
-    }
     ScaleNote final(sn.getDegree(), octave, sn.getAdjustment());
     _validateScaleNote(final);
     // need octave into
@@ -74,13 +65,10 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     return MidiNote(midiPitch);
 }
 
-ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
+ScaleNote Scale::_makeScaleNote(int offset) const {
     assert(offset >= 0 && offset < 12);
-    int degree = _quantizeInScale(offset, printDebug);
+    int degree = _quantizeInScale(offset);
     if (degree >= 0) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 82 (found in key)", offset, degree);
-        }
         const auto ret = ScaleNote(degree, 0);
         _validateScaleNote(ret);
         return ret;
@@ -88,22 +76,16 @@ ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
     const bool preferSharps = getSharpsFlatsPrefForScoring();
     // If we didn't get a match, see if the next higher note is in the scale. But since it will
     // Yield a flat accidental, only do that if we want that.
-    degree = _quantizeInScale((offset + 1) % 12 , printDebug);
+    degree = _quantizeInScale((offset + 1) % 12);
     if ((degree >= 0) && !preferSharps) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
-        }
         const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
         assert(!preferSharps);
         _validateScaleNote(ret);
         return ret;
     }
 
-    degree = _quantizeInScale(offset - 1, printDebug);
+    degree = _quantizeInScale(offset - 1);
     if ((degree >= 0) && preferSharps) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
-        }
         const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
         assert(preferSharps);
         _validateScaleNote(ret);
@@ -203,15 +185,15 @@ std::vector<std::string> Scale::getRootLabels(bool useFlats) {
 int Scale::quantize(int offset) const {
     assert(_wasSet);
     assert(offset >= 0 && offset <= 11);
-    int x = _quantizeInScale(offset, false);
+    int x = _quantizeInScale(offset);
     if (x >= 0) {
         return x;
     }
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    int qUpOne = _quantizeInScale((offset + 1) % 12, false);
-    const int qDnOne = _quantizeInScale(offset - 1, false);
+    int qUpOne = _quantizeInScale((offset + 1) % 12);
+    const int qDnOne = _quantizeInScale(offset - 1);
 
     if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
         //  SQINFO("In bad case. offset == 11");
@@ -285,31 +267,19 @@ int Scale::quantize(int offset) const {
     return 0;
 }
 
-int Scale::_quantizeInScale(int offset, bool printDebug) const {
+int Scale::_quantizeInScale(int offset) const {
     assert(offset >= 0);
     assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
-    if (printDebug) {
-        SQINFO("Pitches = %d, %d, %d", pitches[0], pitches[1], pitches[2]);
-    }
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
             // reached end of list
             degreeIndex = -1;  // not in scale
-            if (printDebug) {
-                SQINFO("reached end of list, not in scale");
-            }
             done = true;
         } else if (pitches[degreeIndex] == offset) {
-            if (printDebug) {
-                SQINFO("found a match at index %d with offset %d", degreeIndex, offset);
-            }
             done = true;
         } else {
-            if (printDebug) {
-                SQINFO("degree index = %d, will go farther", degreeIndex);
-            }
             ++degreeIndex;
         }
     }

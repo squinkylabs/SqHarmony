@@ -97,7 +97,7 @@ public:
      *
      * @return ScaleNote
      */
-    ScaleNote m2s(const MidiNote&, bool printDebug = false) const;
+    ScaleNote m2s(const MidiNote&) const;
 
     MidiNote s2m(const ScaleNote&) const;
 
@@ -146,7 +146,7 @@ public:
 
     bool _validateScaleNote(const ScaleNote&) const;
 private:
-    ScaleNote _makeScaleNote(int offset, bool printDebug) const;
+    ScaleNote _makeScaleNote(int offset) const;
 
     MidiNote _baseNote;
     Scales _scale;
@@ -155,7 +155,7 @@ private:
     //  bool _getScalePitches(int * destination, unsigned destinationSize);
 
     // returns < - if note isn't in scale.
-    int _quantizeInScale(int offset, bool printDebug) const;
+    int _quantizeInScale(int offset) const;
 
     static bool _doesScaleMatch(const Role*, Scales, MidiNote);
 

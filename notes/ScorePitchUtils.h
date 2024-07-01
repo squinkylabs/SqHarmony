@@ -39,7 +39,7 @@ public:
 
 inline ScorePitchUtils::NotationNote
 ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
-    ScaleNote sn = scale.m2s(midiNote, true);
+    ScaleNote sn = scale.m2s(midiNote);
     scale._validateScaleNote(sn);
     SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
     SQINFO("-- midiPitch is %d", midiNote.get());
