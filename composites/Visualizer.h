@@ -177,19 +177,30 @@ inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) 
 
 template <class TBase>
 inline void Visualizer<TBase>::_servicePES() {
-    // This is all fake.
+    // Parse out the incoming PES.
     auto pes = PESConverter::convertToPES(TBase::inputs[PES_INPUT]);
+    if (!pes.valid) {
+        TBase::lights[PES_INVALID_LIGHT].value = 8;
+        pes.valid = true;
+        // ok, get valid pes now so we can send it out.
+        pes.keyRoot = MidiNote::C + int(std::round(TBase::params[KEY_PARAM].value));
+        pes.mode =  Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
+    } else {
+        // Just 
+         TBase::lights[PES_INVALID_LIGHT].value = 0;
+        TBase::params[KEY_PARAM].value = pes.keyRoot;
+        TBase::params[MODE_PARAM].value = int(pes.mode);
+
+    }
+
+    // Write out valid PES.
     PESConverter::outputPES(TBase::outputs[PES_OUTPUT], pes);
-    assert(false);
 }
 
 template <class TBase>
 inline void Visualizer<TBase>::_lookForKeysigChange() {
-    // This for PES support
-    // _pollPESInput();
     const int basePitch = int(std::round((Visualizer<TBase>::params[KEY_PARAM].value)));
     const auto mode = Scale::Scales(int(std::round(Visualizer<TBase>::params[MODE_PARAM].value)));
-    // const auto newSetting = std::make_pair(basePitch, mode);
 
     const auto current = _chordOptions->keysig->get();
     const int currentPitch = current.first.get();

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Scale.h"
-#include "TestComposite.h"
+//#include "TestComposite.h"
 
 class PESConverter {
 public:

@@ -1,4 +1,5 @@
 
+#include "TestComposite.h"
 #include "PESConverter.h"
 #include "asserts.h"
 
