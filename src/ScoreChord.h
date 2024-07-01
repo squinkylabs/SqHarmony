@@ -570,7 +570,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return;
     }
 
-    SQINFO("--- _drawNOtes, pos=%f", xPosition);
+    SQINFO("++++ _drawNOtes, pos=%f channels=%d", xPosition, channels);
 
     ConstScalePtr scale = _module->getScale();
     int copyOfPitches[16];
@@ -612,34 +612,43 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             lastTrebleNote = pitchIterator;
         }
     }
-    //   SQINFO("after pass 1 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
+    SQINFO("after pass 1 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
+    SQINFO("base #=%d", unsigned(lastBassNote - firstBassNote));
 
     // Decide where middle C belongs
     if (firstMiddleC) {
         SQINFO("saw middle c");
         // If all notes are in bass, then put middle C there, too
         if (firstBassNote && !firstTrebleNote) {
-            lastBassNote = copyOfPitches + channels;
+            SQINFO("putting middle c in bass");
+          //  lastBassNote = copyOfPitches + channels;
+            lastBassNote = firstMiddleC;
         } else if (firstTrebleNote && !firstBassNote) {
             SQINFO("putting in treble, lastTN was %p, will be %p", lastTrebleNote, (copyOfPitches + channels - 1));
             firstTrebleNote = firstMiddleC;
-            lastTrebleNote = copyOfPitches + channels - 1;
+           // lastTrebleNote = copyOfPitches + channels - 1;
         } else {
+            SQINFO("mixed - middle c go into treble by default");
             // otherwise it's mixed, to put in treble
             firstTrebleNote = firstMiddleC;
             if (!lastTrebleNote) {
                 lastTrebleNote = lastMiddleC;
             }
-            SQINFO("mixed");
         }
     }
     SQINFO("after pass 2 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
     if (firstBassNote) {
+        SQINFO("drawing bass, there are %d", unsigned((lastBassNote + 1) - firstBassNote));
+        const unsigned num = unsigned((lastBassNote + 1) - firstBassNote);
+        assert(num <= channels);
         _drawNotesOnStaff(args, scale, xPosition, true, firstBassNote, lastBassNote + 1);
     }
 
     if (firstTrebleNote) {
         SQINFO("about to call draw notes on staff tn0=%d, tn1=%d", firstTrebleNote[0], firstTrebleNote[1]);
+
+        const unsigned num = unsigned((lastTrebleNote + 1) - firstTrebleNote);
+        assert(num <= channels);
         _drawNotesOnStaff(args, scale, xPosition, false, firstTrebleNote, lastTrebleNote + 1);
     }
 
@@ -647,12 +656,22 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
 }
 
 inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
-    SQINFO("_drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
+    SQINFO("\n!!!! _drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
+    SQINFO("scale=%p", scale.get());
+    SQINFO("scale base = %d", scale->base().get());
+
+    assert(scale.get() != nullptr);
     int lastYPos = 1000;
     bool lastNoteOffset = false;
 
     for (const int *pitchIterator = begin; pitchIterator < end; ++pitchIterator) {
         MidiNote mn(*pitchIterator);
+        {
+            const auto x = *pitchIterator;
+            assert(x < 1000);
+            assert(x > -1000);
+            SQINFO("in loop, x=%d mn.get() = %d", x, mn.get());
+        }
         const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn, bassStaff);
         SQINFO("drawNotesOnStaff just got notation note with accid=%d", int(notationNote._accidental));
         const auto yInfo = noteYInfo(mn, notationNote._legerLine, bassStaff);
@@ -668,13 +687,13 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
         if ((pitchIterator + 1) < end) {
             MidiNote mnNext(*(pitchIterator + 1));
             //  const auto yInfoNext = noteYInfo(mnNext, bassStaff);
+            SQINFO("will get nn for next, pitch = %d", mnNext.get());
             notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff);
             const auto yInfoNext = noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
             if (yInfo.position == yInfoNext.position) {
                 SQWARN("two notes at same location pitch = %d, %d, y=%f, %f", mn.get(), mnNext.get(), yInfo.position, yInfoNext.position);
 
                 twoNotesOnSameLine = true;
-                //  notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext);
                 ++pitchIterator;
             }
         }

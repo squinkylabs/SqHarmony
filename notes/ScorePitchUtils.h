@@ -43,6 +43,9 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
     scale._validateScaleNote(sn);
     SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
     SQINFO("-- midiPitch is %d", midiNote.get());
+
+    assert(midiNote.get() < 1000);
+
     Accidental accidental = Accidental::none;
 
     if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
