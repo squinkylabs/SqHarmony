@@ -13,31 +13,35 @@
 #include "SqLabel.h"
 #include "SqLog.h"
 
+#define _LAB
+
 template <>
 int BufferingParent<ScoreChord>::_refCount = 0;
 
 /**
  * TODO:
- *  fix score drawing
- *  add gate input
- *  add pes
+ * fix score drawing (details in ScoreChord.h)
+ * make panel look decent
+ * make docs
+ * build current sdk on linux
+ * fully test scoring
+ * test recognizer
+ * implement 9th chords?
+ * look at text for chord type names.
  *
- * 
+ *
  */
 class VisualizerWidget : public ModuleWidget {
 public:
     VisualizerWidget(VisualizerModule* module) {
         setModule(module);
-     
+
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
         addScore(module);
 #if 1  // def _LAB
-
         addLabel(Vec(20, 6), "Visualizer", 20);
-        // addLabel(Vec(28, 60), "Under Construction", 14);
         addLabel(Vec(25, 356), "Squinktronix", 16);
 #endif
-     //   addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
         addRow2();
         addRow1();
 
@@ -111,7 +115,7 @@ private:
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
-        _keyRootWidget = p;  // remember this so we can poll it.
+        _keyRootWidget = p;  // Remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
             Vec(8, yMode),
@@ -122,7 +126,6 @@ private:
 
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
-     //   p->text = "Maj";
         addParam(p);
     }
 
@@ -159,7 +162,7 @@ private:
         return parent;
     }
 
-        void addOutputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
+    void addOutputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
 #ifdef _LAB
         Vec vlabel(vec.x, vec.y);
@@ -186,37 +189,27 @@ private:
     }
 
     const float x0 = 11;
-    const float dx = 20; // 34;
+    const float x1 = 66;
     void addRow2() {
-         const float y = 317;
+        const float y = 317;
 
-        // addInput(createInput<PJ301MPort>(Vec(42, 300), module, Comp::CV_INPUT));
-
-        RoundedRect* r = new RoundedRect(Vec(73, y - 18), Vec(70, 54));
+        RoundedRect* r = new RoundedRect(Vec(x1 - 7, y - 18), Vec(39.5, 54));
         addChild(r);
-
         addInputL(Vec(x0, y), Comp::CV_INPUT, "V/Oct", 3);
-      //  addOutputL(Vec(x0 + dx * 2, y), Comp::PITCH_OUTPUT, "V/Oct", 3);
-
-        addOutputL(Vec(x0 + dx * 3, y), Comp::PES_OUTPUT, "PES", -1);
-
+        addOutputL(Vec(x1, y), Comp::PES_OUTPUT, "PES", -1);
     }
-     void addRow1() {
-                float y = 270;
-      //  addInputL(Vec(x0, y), Comp::XPOSE_INPUT, "XP");
 
-      //  addInputL(Vec(x0 + dx, y), Comp::KEY_INPUT, "Key", 0.f);
-      //  addInputL(Vec(x0 + 2 * dx, y), Comp::MODE_INPUT, "Mode", -1);
+    void addRow1() {
+        float y = 270;
+        addInputL(Vec(x0, y), Comp::GATE_INPUT, "[Gate]", 6.5f);
+        addInputL(Vec(x1, y), Comp::PES_INPUT, "PES", -1);
 
-addInputL(Vec(x0 + 0 * dx, y), Comp::GATE_INPUT, "Gate", 0.f);
-        addInputL(Vec(x0 + 2 * dx, y), Comp::PES_INPUT, "PES", -1);
-
-         y = 258;
+        y = 258;
         addChild(createLight<SmallLight<RedLight>>(
-            Vec(26 + x0 + 2 * dx, y),
+            Vec(x1 - 8, y),
             module,
             Comp::PES_INVALID_LIGHT));
-     }
+    }
 };
 
 Model* modelVisualizer = createModel<VisualizerModule, VisualizerWidget>("sqh-visualizer");

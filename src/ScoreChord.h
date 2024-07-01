@@ -40,12 +40,12 @@
  * get rid of debug stuff:     ScaleNote m2s(const MidiNote&, bool printDebug = false) const;
  *
  * enharmonic spelling:
- *      use flats in flat keys.
+ *      use flats in flat keys. (done)
  *      try to space identifiable chords.
  *      try to space all chords.
  *
  * Bugs:
- *      cmajor chord in C# Major - accidentals get on key sig.
+ *      cmajor chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
  */
@@ -444,31 +444,6 @@ inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, f
     SQINFO("drawAccidental (%d) at %f,%f", int(accidental), xPosition, yPosition);
     nvgText(args.vg, xPosition + _deltaXAccidental, yPosition, symbol.c_str(), NULL);
 }
-
-// If we want to do this, use the tested version in ScorePitchUtils.h
-// returns true if accidental1 <= accidental2
-#if 0
-inline bool compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
-    SQINFO("compare %d vs %d. flat=%d, sharp=%d, natural=%d, none=%d",
-        int(accidental1), int(accidental2),
-    int(ScorePitchUtils::Accidental::flat), int(ScorePitchUtils::Accidental::sharp), int(ScorePitchUtils::Accidental::natural), int(ScorePitchUtils::Accidental::none)); 
-
-    if (accidental1 == accidental2) {
-        return true;
-    }
-
-    if (accidental2 == ScorePitchUtils::Accidental::sharp) {
-        // if the second is a sharp, it must be GE the other one.
-        return true;                    
-    }
-    if (accidental1 == ScorePitchUtils::Accidental::sharp) {
-        return false;
-    }
-    // More cases to implement.
-    assert(false);
-    return false;
-}
-#endif
 
 inline void ScoreChord::drawTwoNotes(
     const DrawArgs &args,
