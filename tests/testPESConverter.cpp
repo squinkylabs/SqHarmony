@@ -34,7 +34,6 @@ static void outputCMajor() {
 
 static void inputCMajor() {
     TestComposite comp;
-//    auto outputToTest = comp.outputs[2];
     auto inputToTest = comp.inputs[4];
     inputToTest.channels = 12;  // connect it.
 
@@ -51,7 +50,7 @@ static void inputCMajor() {
     inputToTest.setVoltage(0, 10);  // A#
     inputToTest.setVoltage(8, 11);  // B
 
-    const auto result = PESConverter::convertToPES(inputToTest);
+    const auto result = PESConverter::convertToPES(inputToTest, false);
 
     assertEQ(result.valid, true);
     assertEQ(result.keyRoot, MidiNote::C);
@@ -59,14 +58,47 @@ static void inputCMajor() {
 
 }
 
+static void nonDiatonic(bool acceptNonDiatonic) {
+    TestComposite comp;
+    auto inputToTest = comp.inputs[4];
+    inputToTest.channels = 12;  // connect it.
+
+    inputToTest.setVoltage(10, 0);  // C
+    inputToTest.setVoltage(8, 1);  // C#
+    inputToTest.setVoltage(8, 2);  // D
+    inputToTest.setVoltage(8, 3);  // D#
+    inputToTest.setVoltage(8, 4);  // E
+    inputToTest.setVoltage(8, 5);  // F
+    inputToTest.setVoltage(8, 6);  // F#
+    inputToTest.setVoltage(8, 7);  // G
+    inputToTest.setVoltage(8, 8);  // G#
+    inputToTest.setVoltage(8, 9);  // A
+    inputToTest.setVoltage(8, 10);  // A#
+    inputToTest.setVoltage(8, 11);  // B
+
+    const auto result = PESConverter::convertToPES(inputToTest, acceptNonDiatonic);
+
+    assertEQ(result.valid, acceptNonDiatonic);
+    if (acceptNonDiatonic) {
+        assertEQ(result.keyRoot, MidiNote::C);
+        assert(result.mode == Scale::Scales::Chromatic);
+    }
+}
+
+static void nonDiatonic() {
+    nonDiatonic(true);
+    nonDiatonic(false);
+}
+
 void testPESConverter() {
     outputCMajor();
     inputCMajor();
 }
 
-#if 0
+#if 1
 void testFirst() {
     //outputCMajor();
-     inputCMajor();
+   //  inputCMajor();
+     nonDiatonic();
 }
 #endif

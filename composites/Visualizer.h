@@ -128,7 +128,7 @@ inline void Visualizer<TBase>::_processInput() {
         //
         bool gate;
         if (!gatePort.isConnected()) {
-            gate = true;                // if the port isn't connected, the all gates assumed "on"
+            gate = true;  // if the port isn't connected, the all gates assumed "on"
         } else {
             gate = (inputChannel > gateChannels) ? false : gatePort.getVoltage(inputChannel) > 5;
         }
@@ -177,24 +177,29 @@ inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) 
 
 template <class TBase>
 inline void Visualizer<TBase>::_servicePES() {
-    // Parse out the incoming PES.
-    auto pes = PESConverter::convertToPES(TBase::inputs[PES_INPUT]);
+    // SQINFO("service pes 180");
+    //  Parse out the incoming PES.
+    auto pesInput = TBase::inputs[PES_INPUT];
+    auto pes = PESConverter::convertToPES(pesInput, false);
+    // SQINFO("service pes 183");
     if (!pes.valid) {
-        TBase::lights[PES_INVALID_LIGHT].value = 8;
+        TBase::lights[PES_INVALID_LIGHT].value = pesInput.isConnected() ? 8 : 0;
         pes.valid = true;
         // ok, get valid pes now so we can send it out.
         pes.keyRoot = MidiNote::C + int(std::round(TBase::params[KEY_PARAM].value));
-        pes.mode =  Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
+        pes.mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
+        // SQINFO("service pes 184");
     } else {
-        // Just 
-         TBase::lights[PES_INVALID_LIGHT].value = 0;
+        // Just
+        TBase::lights[PES_INVALID_LIGHT].value = 0;
         TBase::params[KEY_PARAM].value = pes.keyRoot;
         TBase::params[MODE_PARAM].value = int(pes.mode);
-
     }
 
+    // SQINFO("service pes 199");
     // Write out valid PES.
     PESConverter::outputPES(TBase::outputs[PES_OUTPUT], pes);
+    //  SQINFO("service pes 202");
 }
 
 template <class TBase>

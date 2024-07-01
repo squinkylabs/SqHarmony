@@ -13,11 +13,11 @@ public:
         int keyRoot = 0;
     };
 
-    static PESOutput convertToPES(Input& input);
+    static PESOutput convertToPES(Input& input, bool acceptNonDiatonic);
     static void outputPES(Output& output, const PESOutput& params);
 };
 
-inline PESConverter::PESOutput PESConverter::convertToPES(Input& input) {
+inline PESConverter::PESOutput PESConverter::convertToPES(Input& input, bool acceptNonDiatonic) {
       if (input.channels < 1) {
         PESOutput ret;   // unconnected
         ret.valid = true;
@@ -46,7 +46,7 @@ inline PESConverter::PESOutput PESConverter::convertToPES(Input& input) {
     roles[12] = Scale::Role::End;
     PESOutput returnValue;
 
-    const auto scaleConverted = Scale::convert(roles, false);
+    const auto scaleConverted = Scale::convert(roles, !acceptNonDiatonic);
     if (std::get<0>(scaleConverted) == false) {
         //TBase::lights[PES_INVALID_LIGHT].value = 8;
         returnValue.valid = false;
