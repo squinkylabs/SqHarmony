@@ -6,9 +6,6 @@
 
 class PESConverter {
 public:
-    //   TBase::lights[PES_INVALID_LIGHT].value = 0;
-    //     TBase::params[KEY_PARAM].value = std::get<1>(scaleConverted).get();
-    //    TBase::params[MODE_PARAM].value = int(std::get<2>(scaleConverted));
     class PESOutput {
     public:
         bool valid = false;

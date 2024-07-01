@@ -4,6 +4,7 @@
 #include "Divider.h"
 #include "KeysigOld.h"
 #include "Options.h"
+#include "PESConverter.h"
 #include "Scale.h"
 #include "ScaleQuantizer.h"
 #include "SqLog.h"
@@ -73,6 +74,7 @@ private:
     void _stepn();
     void _processInput();
     void _lookForKeysigChange();
+    void _servicePES();
 
     Divider _divn;
 
@@ -105,6 +107,7 @@ template <class TBase>
 inline void Visualizer<TBase>::_stepn() {
     _lookForKeysigChange();
     _processInput();
+    _servicePES();
 }
 
 template <class TBase>
@@ -170,6 +173,14 @@ inline void Visualizer<TBase>::_processInput() {
 template <class TBase>
 inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
+}
+
+template <class TBase>
+inline void Visualizer<TBase>::_servicePES() {
+    // This is all fake.
+    auto pes = PESConverter::convertToPES(TBase::inputs[PES_INPUT]);
+    PESConverter::outputPES(TBase::outputs[PES_OUTPUT], pes);
+    assert(false);
 }
 
 template <class TBase>
