@@ -18,7 +18,7 @@ static void test1() {
     const auto accidental = notationNote._accidental;
 
 // this one gives us E flat, which is the normal second degree.
-// Q, but how would be know what ledger line to draw this on?
+// Q, but how would be know what leger line to draw this on?
     assertEQ(scaleNote.getDegree(), 2);
     assert(scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none);
 

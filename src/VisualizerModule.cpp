@@ -21,13 +21,16 @@ int BufferingParent<ScoreChord>::_refCount = 0;
 /**
  * TODO:
  * fix score drawing (details in ScoreChord.h)
- * make panel look decent
- * make docs
+ * make panel look decent (done first pass)
  * build current sdk on linux
  * fully test scoring
  * test recognizer
- * implement 9th chords?
- * look at text for chord type names.
+ * recognize all inversions of 7th
+ * implement 9th chords? C9, Cm9, CMaj9
+ * ninth with a suspended 5th?
+ * look at text for chord type names. C7 CMaj7 CMin7, CMinMaj7
+ * merge to main
+ * make docs
  *
  *
  */
@@ -45,8 +48,9 @@ public:
         addRow2();
         addRow1();
 
-        _displayString = addLabel(Vec(10, 160), "chord");
-        _displayString2 = addLabel(Vec(10, 180), "chord");
+        const float y = 146;
+        _displayString = addLabel(Vec(10, y), "chord");
+        _displayString2 = addLabel(Vec(10, y+19.5), "chord");
 
         addKeysig();
     }
@@ -98,13 +102,14 @@ private:
         auto size = Vec(104, 100);
         auto vu = new BufferingParent<ScoreChord>(_scoreChord, size, _scoreChord);
 
-        vu->box.pos = Vec(8, 28),
-        addChild(vu);
+        vu->box.pos = Vec(8, 40.0f),  // was 8,28
+            addChild(vu);
     }
 
     void addKeysig() {
-        const float yScale = 170;
-        const float yMode = yScale + 28;
+
+        const float yMode = 216;
+        const float yScale = yMode - 24;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
             Vec(8, yScale),

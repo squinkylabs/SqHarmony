@@ -45,6 +45,8 @@
  *      try to space all chords.
  *
  * Bugs:
+ *      C and D flat in cmajor, draws two C 
+ * 
  *      cmajor chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
@@ -421,9 +423,18 @@ inline void ScoreChord::drawLegerLinesForNotes(const DrawArgs &args, const YInfo
 }
 
 inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, ScorePitchUtils::Accidental accidental) const {
-    SQINFO("drawAccidental424  x=%f, acciental=%d (flat=%d )", xPosition, int(accidental), int(ScorePitchUtils::Accidental::flat));
+    
+    /*
+    enum class Accidental {
+        none,
+        sharp,
+        flat,
+        natural
+    };
+    */
+    SQINFO("drawAccidental424  x=%f, acciental=%d (for ref flat=%d )", xPosition, int(accidental), int(ScorePitchUtils::Accidental::flat));
     if (accidental == ScorePitchUtils::Accidental::none) {
-        SQINFO("ret early from draw accid");
+        SQINFO("ret early from draw accidental = none");
         return;
     }
     std::string symbol = "";
@@ -456,7 +467,7 @@ inline void ScoreChord::drawTwoNotes(
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = 5;
-    SQINFO("drwing two notes at %f and %f", xPosition + noteXOffset, xPosition - noteXOffset);
+    SQINFO("drawing two notes at xpos=%f and xpos=%f", xPosition + noteXOffset, xPosition - noteXOffset);
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
     nvgText(args.vg, xPosition - noteXOffset, yInfo.position, notePtr, NULL);
     const auto accidental1 =notationNote._accidental;
@@ -497,13 +508,13 @@ inline void ScoreChord::drawTwoNotes(
     if (showTwoAccidentals) {
         xPositionAccidental += _deltaXAccidental;
     }
-    //   SQINFO("will draw accid, show1=%d show 2 = %d", showAccidental1, showAccidental2);
+    SQINFO("in drawTwoNotes will draw accid, show1=%d show 2 = %d", showAccidental1, showAccidental2);
     if (showAccidental1) {
-        SQINFO("in two notes, drawing acciental1");
+        SQINFO("in drawTwoNotes, drawing acciental1");
         _drawAccidental(args, xPositionAccidental, yInfo.position, inOrderAccidendals[0]);
     }
     if (showAccidental2) {
-        SQINFO("in two notes, drawing acciental2");
+        SQINFO("in drawTwoNotes, drawing acciental2");
         _drawAccidental(args, xPositionAccidental - _deltaXAccidental, yInfo.position, inOrderAccidendals[1]);
     }
 }

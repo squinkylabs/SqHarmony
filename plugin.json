@@ -35,7 +35,7 @@
 			"slug": "sqh-visualizer",
 			"name": "Visualizer",
 			"disabled": false,
-			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/harmonyII.md",
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/visualizer.md",
 			"tags": ["Utility"]
 		}
     ]

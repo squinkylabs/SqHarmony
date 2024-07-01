@@ -58,7 +58,7 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
     }
 
     const auto pref = scale.getSharpsFlatsPref();
-    SQINFO("return from getNotationNote with ledger line %d pref = %d flats=%d",
+    SQINFO("return from getNotationNote with leger line %d pref = %d flats=%d",
            midiNote.getLegerLine(pref, bassStaff),
            int(pref),
            int(SharpsFlatsPref::Flats));
