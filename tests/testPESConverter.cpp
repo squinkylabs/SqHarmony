@@ -95,7 +95,7 @@ void testPESConverter() {
     inputCMajor();
 }
 
-#if 1
+#if 0
 void testFirst() {
     //outputCMajor();
    //  inputCMajor();

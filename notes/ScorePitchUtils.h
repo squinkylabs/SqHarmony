@@ -41,30 +41,30 @@ inline ScorePitchUtils::NotationNote
 ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
     ScaleNote sn = scale.m2s(midiNote);
     scale._validateScaleNote(sn);
-    SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
-    SQINFO("-- midiPitch is %d", midiNote.get());
+    //SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
+    //SQINFO("-- midiPitch is %d", midiNote.get());
 
     assert(midiNote.get() < 1000);
 
     Accidental accidental = Accidental::none;
 
     if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
-        SQINFO("none at 38");
+        //SQINFO("none at 38");
         accidental = Accidental::none;
     } else if (!midiNote.isBlackKey()) {
-        SQINFO("natural at 41");
+        //SQINFO("natural at 41");
         accidental = Accidental::natural;
     } else {
       //  SQINFO("default to sharps - might not be right (it's a black key, and not in scale)");
         accidental = (sn.getAdjustment() == ScaleNote::RelativeAdjustment::flat) ? Accidental::flat :  Accidental::sharp;
-        SQINFO("getting acciendtal from adj, accid = %d", int(accidental));
+        //SQINFO("getting acciendtal from adj, accid = %d", int(accidental));
     }
 
     const auto pref = scale.getSharpsFlatsPref();
-    SQINFO("return from getNotationNote with leger line %d pref = %d flats=%d",
-           midiNote.getLegerLine(pref, bassStaff),
-           int(pref),
-           int(SharpsFlatsPref::Flats));
+    // SQINFO("return from getNotationNote with leger line %d pref = %d flats=%d",
+    //        midiNote.getLegerLine(pref, bassStaff),
+    //        int(pref),
+    //        int(SharpsFlatsPref::Flats));
     return NotationNote(sn, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
 

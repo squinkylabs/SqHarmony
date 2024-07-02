@@ -23,13 +23,13 @@ public:
         MajMajSeventh,
         MinMinSeventh,
         MinMajSeventh,
-
     };
 
     enum class Inversion {
         Root,
         First,
-        Second
+        Second,
+        Third
     };
 
     using ChordInfo = std::tuple<Type, Inversion, int>;
@@ -90,7 +90,6 @@ private:
     static std::tuple<Type, int> recognizeType7th(const int* chord);
     static ChordInfo figureOutInversion(Type type, int recognizedPitch, int firstOffset);
 
-    
     /**
      *
      * @param outputChord

@@ -4,7 +4,7 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
-//#define _LOG
+// #define _LOG
 
 void ChordRecognizer::show(const char* msg, const int* p, unsigned num) {
     if (num == 3) {
@@ -203,12 +203,19 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type _type, int _
     if (relativeEffectiveFirstOffset == 3 || relativeEffectiveFirstOffset == 4) {
         // If the lowest note is a third, then it's a first inversion.
         inversion = Inversion::First;
-    } else if (relativeEffectiveFirstOffset == 7 || relativeEffectiveFirstOffset == 6) {
+    }
+    else if (relativeEffectiveFirstOffset == 7 || relativeEffectiveFirstOffset == 6) {
         // If the lowest note is a 5th, or a tritone, it's second inversions.
         // (tritone for diminished chords)
         inversion = Inversion::Second;
+    } 
+    else if (relativeEffectiveFirstOffset == 10 || relativeEffectiveFirstOffset == 11) {
+        // If the lowest note is a 7th, it's third inversions.
+
+        inversion = Inversion::Third;
     } else {
 #ifdef _LOG
+        assert(false);
         SQINFO("can't figure out inversion refo=%d", relativeEffectiveFirstOffset);
 #endif
     }
@@ -370,6 +377,9 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
             break;
         case Inversion::Second:
             sInversion = "Second Inversion";
+            break;
+        case Inversion::Third:
+            sInversion = "Third Inversion";
             break;
         default:
             assert(false);

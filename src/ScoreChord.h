@@ -45,7 +45,7 @@
  *      try to space all chords.
  *
  * Bugs:
- *      C and A below middle C - draws crazy leger lines
+ *      C and A below middle C - draws crazy leger lines(done)
  *      C and D flat in cmajor, draws two C (done)
  *      cmajor chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
