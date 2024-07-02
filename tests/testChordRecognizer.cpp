@@ -75,6 +75,16 @@ static void testCMajMin9Recognized() {
         MidiNote::C);
 }
 
+static void testCMajMin95SRecognized() {
+    const int chord[] = {MidiNote::C, MidiNote::E, MidiNote::B - 1, MidiNote::D + 12};
+    testRecognizer(
+        chord,
+        4,
+        ChordRecognizer::Type::MajMinNinth,
+        ChordRecognizer::Inversion::Root,
+        MidiNote::C);
+}
+
 static void testCMajMinFirstInversionRecognized() {
     const int chord[] = {MidiNote::C + 12, MidiNote::E, MidiNote::G, MidiNote::B - 1};
     testRecognizer(
@@ -428,6 +438,7 @@ void testChordRecognizer() {
 
     testCMajMinRecognized();
     testCMajMin9Recognized();
+    testCMajMin95SRecognized();
     testCMajMajRecognized();
     testCMajMaj9Recognized();
     testCMinMinRecognized();
@@ -456,13 +467,14 @@ void testFirst() {
     // This one is a problem
     // testGSharpMajorFirstInversion();
     // testCMajorFirstInversion();
-    //  testChordRecognizer();
+      testChordRecognizer();
     //
     //  testCDiminishedSecondInversion();
     //  testCDiminished();
     //   test007();
     // testCMajMajThirdInversionRecognized();
-    testChordRecognizer();
+   // testChordRecognizer();
     //   testCMajMin9Recognized();
+   testCMajMin95SRecognized();
 }
 #endif

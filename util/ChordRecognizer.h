@@ -96,6 +96,8 @@ private:
     static std::tuple<Type, int> recognizeType3WithTritone(const int* chord);
     static std::tuple<Type, int> recognizeType7th(const int* chord);
     static std::tuple<Type, int> recognizeType9th(const int* chord);
+    static std::tuple<Type, int> recognizeTypeNinthWithSuspendedFifth(const int* chord);
+
     static ChordInfo figureOutInversion(Type type, int recognizedPitch, int firstOffset);
 
     /**

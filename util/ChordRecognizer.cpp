@@ -247,12 +247,19 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int*
     }
 
     if (length == 4) {
-        return recognizeType7th(chord);
+        const auto ret = recognizeType7th(chord);
+        if (std::get<0>(ret) != Type::Unrecognized) {
+            return ret;
+        }
+        return recognizeTypeNinthWithSuspendedFifth(chord);
+       
     }
 
     if (length == 5) {
         return recognizeType9th(chord);
     }
+
+    
 
 
     return std::make_tuple(Type::Unrecognized, 0);
@@ -311,6 +318,7 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType9th(const i
 #ifdef _LOG
         SQINFO("not 9th, as doesn't have a ninth (second)");
 #endif
+    return error;
     }
 
     if ((chord[2] == MidiNote::E) &&
@@ -327,6 +335,42 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType9th(const i
     }
     if ((chord[2] == MidiNote::E - 1) &&
         (chord[4] == MidiNote::B)) {
+        return std::make_tuple(Type::MinMajNinth, 0);
+    }
+
+    return error;
+}
+
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeTypeNinthWithSuspendedFifth(const int* chord) {
+    // since chords are sorted, a dom ninth looks like 0 2 4 10. The ninth rolls over to the two
+#ifdef _LOG
+    show("enter recognizeType9th chord=", chord, 5);
+#endif
+    const auto error = std::make_tuple(Type::Unrecognized, 0);
+    assert(chord[0] == MidiNote::C);
+
+
+    if (chord[1] != (MidiNote::D)) {
+#ifdef _LOG
+        SQINFO("not 9th, as doesn't have a ninth (second)");
+#endif
+        return error;
+    }
+
+    if ((chord[2] == MidiNote::E) &&
+        (chord[3] == MidiNote::B - 1)) {
+        return std::make_tuple(Type::MajMinNinth, 0);
+    }
+    if ((chord[2] == MidiNote::E) &&
+        (chord[3] == MidiNote::B)) {
+        return std::make_tuple(Type::MajMajNinth, 0);
+    }
+    if ((chord[2] == MidiNote::E - 1) &&
+        (chord[3] == MidiNote::B - 1)) {
+        return std::make_tuple(Type::MinMinNinth, 0);
+    }
+    if ((chord[2] == MidiNote::E - 1) &&
+        (chord[3] == MidiNote::B)) {
         return std::make_tuple(Type::MinMajNinth, 0);
     }
 

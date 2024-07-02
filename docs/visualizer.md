@@ -6,6 +6,8 @@ Visualizer is a very simple module, and really does one thing. It looks at incom
 
 Visualizer also displays the input in standard music notation, but that is really and secondary function of the module. The Notation display and controls may be completely ignored if you wish.
 
+When identifying chords, Visualizer doesn't care what octave a chord is in, or which channels the pitches are in. So, for example, E2, G7, C5 is still a C Major chord. Also, duplicates/doublings are ignored, so C, E, G, C is recognized as C Major, but C, E, G, A is not.
+
 ## Notes for testers
 
 It would definitely be a bug it a chord is mis-characterized. If it say something is a C Major it should be that. Also if an inversion is displayed it would be a definite bug to be fixed if the information is incorrect.
@@ -26,22 +28,23 @@ In any case where the recognized chord is bad, or the score is bad, it's best if
 
 (Examples below in C, but of course they are recognized at all roots)
 
-C Major : C, E, G
-C minor : C, E flat, G
-C Diminished : C, E flat, G flat
-C Augmented : C, E, G sharp
-C Sus2 : C, D, G
-C Sus4 : C, F, G
+- C Major : C, E, G
+- C minor : C, E flat, G
+- C Diminished : C, E flat, G flat
+- C Augmented : C, E, G sharp
+- C Sus2 : C, D, G
+- C Sus4 : C, F, G
 
-C Seventh : C, E, G, B flat
-C Major Seventh: C, E, G, B
-C minor Seventh: C, E flat, G, B flat
-C mM Seventh: C, E flat, G, B
+- C Seventh : C, E, G, B flat
+- C Major Seventh: C, E, G, B
+- C minor Seventh: C, E flat, G, B flat
+- C mM Seventh: C, E flat, G, B
 
-C Ninth : C, E, G, B flat, D
-C MajorNinth : C, E, G, B, D
-C minor Ninth : C, E flat, G, B flat, D
-C mM Ninth : C, E flat, G, B, D
+Ninth chords are recognized with the fifth present, or not:
+- C Ninth : C, E, [G], B flat, D
+- C MajorNinth : C, E, [G], B, D
+- C minor Ninth : C, E flat, [G], B flat, D
+- C mM Ninth : C, E flat, [G], B, D
 
 ### CV I/O
 
