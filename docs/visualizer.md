@@ -48,7 +48,15 @@ Ninth chords are recognized with the fifth present, or not:
 
 ### CV I/O
 
+V/Oct: Polyphonic pitch input that follows the VCV standards. This is the main input.
+
+[Gate]: polyphonic gate input. Does not need to be hooked up. If it's unconnected, than Visualizer will look at all the pitch channels in the input. If [Gate] is patched, then Visualizer will only look at pitch channels that have their gate active. This could be useful if you are looking at the pitches coming from the VCV MIDI CV module, for example.
+
+PES Input, and PES output. Useful when used with other modules that support PES. Any signal coming into the PES input will control Visualizer's key signature. And Visualizers key signature will be sent to the PES output. You can find more on PES [here](./pes.md)
+
 ### Controls
+
+Key Root, Diatonic Mode: this control only affect the music notation displayed at the top. They do not affect chord recognition at all. They do set the key signature for the transcription.
 
 ## Visualizer block diagram
 

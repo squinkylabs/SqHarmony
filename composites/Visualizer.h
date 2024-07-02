@@ -7,7 +7,7 @@
 #include "PESConverter.h"
 #include "Scale.h"
 #include "ScaleQuantizer.h"
-#include "SqLog.h"
+//#include "SqLog.h"
 
 namespace rack {
 namespace engine {
@@ -212,7 +212,7 @@ inline void Visualizer<TBase>::_lookForKeysigChange() {
     if ((current.second != mode) || (currentPitch != basePitch)) {
         // this form Hramony for efficiency
         //  _mustUpdate = true;
-        SQINFO("in look for change, see new mode = %d", int(mode));
+       // SQINFO("in look for change, see new mode = %d", int(mode));
         _chordOptions->keysig->set(MidiNote(basePitch), mode);
         //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
     }

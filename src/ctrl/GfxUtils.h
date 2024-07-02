@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SqLog.h"
+//#include "SqLog.h"
 
 class GfxUtils {
 public:

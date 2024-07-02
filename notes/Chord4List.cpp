@@ -4,7 +4,7 @@
 #include <algorithm>
 
 #include "Options.h"
-#include "SqLog.h"
+//#include "SqLog.h"
 
 static int compareChords(const Options& options, Chord4Ptr ch1, Chord4Ptr ch2) {
     const int q1 = ch1->quality(options, false);

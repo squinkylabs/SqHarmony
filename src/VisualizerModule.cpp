@@ -21,14 +21,11 @@ int BufferingParent<ScoreChord>::_refCount = 0;
 /**
  * TODO:
  * fix score drawing (details in ScoreChord.h)
- * build current sdk on linux
  * fully test scoring
  * test recognizer
- * ninth with a suspended 5th?
  * sharps/flats for main recognizer display?
 
  * recognize fourth inversion (or remove inversion from 9th chords?)
- * merge to main
  * make docs
  * remove all SQINFO
  * 
@@ -36,7 +33,10 @@ int BufferingParent<ScoreChord>::_refCount = 0;
  * recognize all inversions of 7th (done)
  * implement 9th chords? C9, Cm9, CMaj9 (done)
  * look at text for chord type names. C7 CMaj7 CMin7, CMinMaj7 (done)
- * add tooltips for I/O, etc.
+ * add tooltips for I/O, etc. (done)
+ * build current sdk on linux (done)
+ * ninth with a suspended 5th?
+ * merge to main (done)
  */
 class VisualizerWidget : public ModuleWidget {
 public:

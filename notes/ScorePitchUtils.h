@@ -6,7 +6,7 @@
 #include "MidiNote.h"
 #include "Scale.h"
 #include "ScaleNote.h"
-#include "SqLog.h"
+//#include "SqLog.h"
 
 class ScorePitchUtils {
 public:

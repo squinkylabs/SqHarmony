@@ -2,7 +2,6 @@
 #pragma once
 
 #include "Scale.h"
-//#include "TestComposite.h"
 
 class PESConverter {
 public:
@@ -18,13 +17,13 @@ public:
 };
 
 inline PESConverter::PESOutput PESConverter::convertToPES(Input& input, bool acceptNonDiatonic) {
-      if (input.channels < 1) {
-        PESOutput ret;   // unconnected
+    if (input.channels < 1) {
+        PESOutput ret;  // unconnected
         ret.valid = true;
     }
     if (input.channels < 12) {
         // wrong number of channels - error
-       // TBase::lights[PES_INVALID_LIGHT].value = 8;
+        // TBase::lights[PES_INVALID_LIGHT].value = 8;
         return PESOutput();
     }
     Scale::Role roles[13];
@@ -37,7 +36,7 @@ inline PESConverter::PESOutput PESConverter::convertToPES(Input& input, bool acc
         } else if (v < 9) {
             role = Scale::Role::InScale;
         } else {
-            // only add the first root. Some modules send all note as 10V.
+            // Only add the first root. Some modules send all note as 10V.
             role = haveAddedRoot ? Scale::Role::InScale : Scale::Role::Root;
             haveAddedRoot = true;
         }
@@ -48,15 +47,11 @@ inline PESConverter::PESOutput PESConverter::convertToPES(Input& input, bool acc
 
     const auto scaleConverted = Scale::convert(roles, !acceptNonDiatonic);
     if (std::get<0>(scaleConverted) == false) {
-        //TBase::lights[PES_INVALID_LIGHT].value = 8;
         returnValue.valid = false;
     } else {
-       // TBase::lights[PES_INVALID_LIGHT].value = 0;
-       returnValue.valid = true;
-        //TBase::params[KEY_PARAM].value = std::get<1>(scaleConverted).get();
+        returnValue.valid = true;
         returnValue.keyRoot = std::get<1>(scaleConverted).get();
-       // TBase::params[MODE_PARAM].value = int(std::get<2>(scaleConverted));
-       returnValue.mode = std::get<2>(scaleConverted);
+        returnValue.mode = std::get<2>(scaleConverted);
     }
     return returnValue;
 }
