@@ -11,7 +11,7 @@
 #include "Options.h"
 #include "ProgressionAnalyzer.h"
 #include "ScaleRelativeNote.h"
-#include "SqLog.h"
+//#include "SqLog.h"
 #include "Style.h"
 
 std::atomic<int> __numChord4{0};
