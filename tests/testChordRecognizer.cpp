@@ -65,6 +65,16 @@ static void testCMajMinRecognized() {
         MidiNote::C);
 }
 
+static void testCMajMin9Recognized() {
+    const int chord[] = {MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::B - 1, MidiNote::D + 12};
+    testRecognizer(
+        chord,
+        5,
+        ChordRecognizer::Type::MajMinNinth,
+        ChordRecognizer::Inversion::Root,
+        MidiNote::C);
+}
+
 static void testCMajMinFirstInversionRecognized() {
     const int chord[] = {MidiNote::C + 12, MidiNote::E, MidiNote::G, MidiNote::B - 1};
     testRecognizer(
@@ -338,6 +348,11 @@ static void testToString() {
     testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::First, 0));
     testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Second, 0));
     testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Third, 0));
+
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMinNinth, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajNinth, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinMinNinth, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinMajNinth, ChordRecognizer::Inversion::Root, 0));
 }
 
 static void testNotesInChord() {
@@ -382,6 +397,7 @@ void testChordRecognizer() {
     testCAugRecognized();
 
     testCMajMinRecognized();
+      testCMajMin9Recognized();
     testCMajMajRecognized();
     testCMinMinRecognized();
     testCMinMajRecognized();
@@ -402,7 +418,7 @@ void testChordRecognizer() {
     test007();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // This one is a problem
     // testGSharpMajorFirstInversion();
@@ -413,6 +429,7 @@ void testFirst() {
     //  testCDiminished();
     //   test007();
    //testCMajMajThirdInversionRecognized();
-   testChordRecognizer();
+   //testChordRecognizer();
+    testCMajMin9Recognized();
 }
 #endif

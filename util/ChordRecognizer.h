@@ -23,6 +23,12 @@ public:
         MajMajSeventh,
         MinMinSeventh,
         MinMajSeventh,
+
+        MajMinNinth,  // dominant 7th with a major ninth on top.
+        MajMajNinth,     // major major 7th (Major 7th) with a major ninth
+        MinMinNinth,     // Minor 7th with a major ninth
+        MinMajNinth     // MinMin th with a major ninth
+
     };
 
     enum class Inversion {
@@ -56,12 +62,12 @@ public:
 
     /**
      * @brief sorts and normalizes a chord to put it in a canonical form for regocnizing
-     * 
-     * @param outputChord 
-     * @param inputChord 
-     * @param length 
-     * @return std::tuple<unsigned, int> 
-     *  0 is the new length, 
+     *
+     * @param outputChord
+     * @param inputChord
+     * @param length
+     * @return std::tuple<unsigned, int>
+     *  0 is the new length,
      *  1 is how much it was transposed (the base)
      */
     static std::tuple<unsigned, int> _makeCanonical(int* outputChord, const int* inputChord, unsigned length);
@@ -71,12 +77,13 @@ public:
 
     /**
      * @brief gets the "fractional part" of a number, wraps into range if negative.
-     * 
-     * @param input 
-     * @param rangeTop 
-     * @return int strictly between 0...rangeTop-1 
+     *
+     * @param input
+     * @param rangeTop
+     * @return int strictly between 0...rangeTop-1
      */
     static int normalizeIntPositive(int input, int rangeTop);
+
 private:
     /**
      *
@@ -88,6 +95,7 @@ private:
     static std::tuple<Type, int> recognizeType3WithAugFifth(const int* chord);
     static std::tuple<Type, int> recognizeType3WithTritone(const int* chord);
     static std::tuple<Type, int> recognizeType7th(const int* chord);
+    static std::tuple<Type, int> recognizeType9th(const int* chord);
     static ChordInfo figureOutInversion(Type type, int recognizedPitch, int firstOffset);
 
     /**
@@ -97,5 +105,5 @@ private:
      * @param length
      * @return 0: unsigned the length of the output, 1:int the chord nomralization base
      */
-   // static std::tuple<unsigned, int> normalize(int* outputChord, const int* inputChord, unsigned length);
+    // static std::tuple<unsigned, int> normalize(int* outputChord, const int* inputChord, unsigned length);
 };

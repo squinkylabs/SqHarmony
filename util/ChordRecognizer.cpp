@@ -4,14 +4,16 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
-// #define _LOG
+#define _LOG
 
 void ChordRecognizer::show(const char* msg, const int* p, unsigned num) {
     if (num == 3) {
         SQINFO("%s = %d, %d, %d", msg, p[0], p[1], p[2]);
     } else if (num == 4) {
         SQINFO("%s = %d, %d, %d, %d", msg, p[0], p[1], p[2], p[3]);
-    } else {
+    } else if (num == 5) {
+        SQINFO("%s = %d, %d, %d, %d %d", msg, p[0], p[1], p[2], p[3], p[4]);
+    }else {
         SQINFO("??? num=%d", num);
     }
 }
@@ -248,6 +250,11 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const int*
         return recognizeType7th(chord);
     }
 
+    if (length == 5) {
+        return recognizeType9th(chord);
+    }
+
+
     return std::make_tuple(Type::Unrecognized, 0);
 }
 
@@ -280,6 +287,47 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType7th(const i
     if ((chord[1] == MidiNote::E - 1) &&
         (chord[3] == MidiNote::B)) {
         return std::make_tuple(Type::MinMajSeventh, 0);
+    }
+
+    return error;
+}
+
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType9th(const int* chord) {
+    // since chords are sorted, a dom ninth looks like 0 2 4 7 10. The ninth rolls over to the two
+#ifdef _LOG
+    show("enter recognizeType9th chord=", chord, 5);
+#endif
+    const auto error = std::make_tuple(Type::Unrecognized, 0);
+    assert(chord[0] == MidiNote::C);
+
+    if (chord[3] != MidiNote::G) {
+#ifdef _LOG
+        SQINFO("not 9th, as doesn't have a perfect fifth");
+#endif
+        return error;
+    }
+
+    if (chord[1] != (MidiNote::D)) {
+#ifdef _LOG
+        SQINFO("not 9th, as doesn't have a ninth (second)");
+#endif
+    }
+
+    if ((chord[2] == MidiNote::E) &&
+        (chord[4] == MidiNote::B - 1)) {
+        return std::make_tuple(Type::MajMinNinth, 0);
+    }
+    if ((chord[2] == MidiNote::E) &&
+        (chord[4] == MidiNote::B)) {
+        return std::make_tuple(Type::MajMajNinth, 0);
+    }
+    if ((chord[2] == MidiNote::E - 1) &&
+        (chord[4] == MidiNote::B - 1)) {
+        return std::make_tuple(Type::MinMinNinth, 0);
+    }
+    if ((chord[2] == MidiNote::E - 1) &&
+        (chord[4] == MidiNote::B)) {
+        return std::make_tuple(Type::MinMajNinth, 0);
     }
 
     return error;
@@ -334,34 +382,47 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
         case Type::Unrecognized:
             return {"", ""};
         case ChordRecognizer::Type::MajorTriad:
-            sType = "Major Triad";
+            sType = "Major";
             break;
         case ChordRecognizer::Type::MinorTriad:
-            sType = "Minor Triad";
+            sType = "minor";
             break;
         case ChordRecognizer::Type::Sus2Triad:
-            sType = "Sus2 Triad";
+            sType = "Sus2";
             break;
         case ChordRecognizer::Type::Sus4Triad:
-            sType = "Sus4 Triad";
+            sType = "Sus4";
             break;
         case ChordRecognizer::Type::AugmentedTriad:
-            sType = "Aug Triad";
+            sType = "Augmented";
             break;
         case ChordRecognizer::Type::DiminishedTriad:
-            sType = "Dim Triad";
+            sType = "Diminished";
             break;
         case Type::MajMinSeventh:
             sType = "Seventh";
             break;
-        case Type::MajMajSeventh:
-            sType = "MM Seventh";
+        case Type::MajMinNinth:
+            sType = "Ninth";
             break;
+        case Type::MajMajSeventh:
+            sType = "Major Seventh";
+            break;
+        case Type::MajMajNinth:
+            sType = "Major Ninth";
+            break;
+
         case Type::MinMinSeventh:
-            sType = "mm Seventh";
+            sType = "minor Seventh";
+            break;
+        case Type::MinMinNinth:
+            sType = "minor Ninth";
             break;
         case Type::MinMajSeventh:
             sType = "mM Seventh";
+            break;
+        case Type::MinMajNinth:
+            sType = "mM Ninth";
             break;
         default:
             assert(false);
