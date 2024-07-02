@@ -167,7 +167,7 @@ inline void Harmony<TBase>::init() {
     // Input Q get CMaj
     quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
     quantizerOptions->scale = std::make_shared<Scale>();
-    quantizerOptions->scale->set(MidiNote::C, Scale::Scales::Major);
+    quantizerOptions->scale->set(MidiNote(MidiNote::C), Scale::Scales::Major);
     inputQuantizer = std::make_shared<ScaleQuantizer>(quantizerOptions);
 
     chordManager = std::make_shared<Chord4Manager>(*chordOptions);
@@ -317,8 +317,8 @@ inline void Harmony<TBase>::lookForKeysigChange() {
     const int currentPitch = current.first.get();
     if ((current.second != mode) || (currentPitch != basePitch)) {
         mustUpdate = true;
-        chordOptions->keysig->set(basePitch, mode);
-        quantizerOptions->scale->set(basePitch, mode);
+        chordOptions->keysig->set(MidiNote(basePitch), mode);
+        quantizerOptions->scale->set(MidiNote(basePitch), mode);
     }
 }
 
@@ -341,7 +341,7 @@ inline void Harmony<TBase>::outputPitches(const Chord4* chord) {
         const int outputChannel = voiceToChannel[i];
         Harmony<TBase>::outputs[outputPort].setVoltage(fn.get(), outputChannel);
         // SQINFO("set output[%d] to volt %f  midiPitch = %d midi midc=%d", i, fn.get(), mn.get(), MidiNote::MiddleC);
-        c.pitch[i] = mn.get();
+        c.pitch[i] = mn;
     }
 
     if (!chordsOut.full()) {

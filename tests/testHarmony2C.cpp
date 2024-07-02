@@ -44,7 +44,7 @@ static Scale::Role* getRolesCMinor() {
 
 static void testPESOutput() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Minor);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     auto comp = makeComp(scale);
     processOnce(*comp);
 
@@ -69,7 +69,7 @@ static void testPESOutput() {
 
 static void testPESInput() {
     Scale scale;
-    scale.set(MidiNote::D, Scale::Scales::Dorian);
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Dorian);
     auto comp = makeComp(scale);
     auto& input = comp->inputs[Comp::PES_INPUT];
     input.channels = 12;
@@ -95,11 +95,11 @@ static void testPESInput() {
 
 static void testRoundTrip() {
     Scale scale;
-    scale.set(MidiNote::C, Scale::Scales::Minor);
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     auto compSetter = makeComp(scale);
     auto& setterOutput = compSetter->outputs[Comp::PES_OUTPUT];
 
-    scale.set(MidiNote::D, Scale::Scales::Dorian);
+    scale.set(MidiNote(MidiNote::D), Scale::Scales::Dorian);
     auto compGetter = makeComp(scale);
     auto& getterInput = compGetter->inputs[Comp::PES_INPUT];
     getterInput.channels = 12;

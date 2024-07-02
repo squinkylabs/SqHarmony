@@ -24,6 +24,11 @@ int PitchKnowledge::octaveFromAbs(int nPitch) {
     return oct;
 }
 
+std::string PitchKnowledge::nameOfShort(int nPitch) {
+     const int chro = chromaticFromAbs(nPitch);
+     return names[chro];
+}
+
 std::string PitchKnowledge::nameOfAbs(int nPitch) {
     const int chro = chromaticFromAbs(nPitch);
     const int oct = octaveFromAbs(nPitch);

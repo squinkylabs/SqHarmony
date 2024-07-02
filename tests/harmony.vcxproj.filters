@@ -315,6 +315,30 @@
     <ClCompile Include="testDeGlitch.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="testChordRecognizer.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\ChordRecognizer.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="testVisualizer.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testChordRecognizer2.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testChordRecognizer3.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testScorePitchUtils.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testLegerScore.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="testPESConverter.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">

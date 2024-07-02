@@ -496,13 +496,13 @@ static void testFloat2int() {
     assertEQ(AudioMath::float2int(-44), -44);
 
     assertEQ(AudioMath::float2int(0.49), 0);
-    assertEQ(AudioMath::float2int(0.51), 1)
+    assertEQ(AudioMath::float2int(0.51), 1);
 
     assertEQ(AudioMath::float2int(10.49), 10);
-    assertEQ(AudioMath::float2int(10.51), 11)
+    assertEQ(AudioMath::float2int(10.51), 11);
 
     assertEQ(AudioMath::float2int(-10.49), -10);
-    assertEQ(AudioMath::float2int(-10.51), -11)
+    assertEQ(AudioMath::float2int(-10.51), -11);
 }
 
 static void testFloat2intScale() {

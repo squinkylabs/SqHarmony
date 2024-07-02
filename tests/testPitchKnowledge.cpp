@@ -13,6 +13,16 @@ static void testCanGetName() {
     assertEQ(s, "C-2");  // Octave names a little strange here. But risky to change this old code.
 }
 
+static void testCanGetRelativeName() {
+    for (int i = 0; i < 127; ++i) {
+        std::string s = PitchKnowledge::nameOfShort(i);
+        // ; Ex; C, C#, C# - 1
+        assert(s.size() == 1 || s.size() == 2 || s.size() == 4);
+    }
+    std::string s = PitchKnowledge::nameOfShort(0);
+    assertEQ(s, "C"); 
+}
+
 static void testPitchFromName() {
     int pitch = PitchKnowledge::pitchFromName("C2");
     assertEQ(pitch, 48);
@@ -39,6 +49,7 @@ static void testRoundTrip() {
 
 void testPitchKnowledge() {
     testCanGetName();
+    testCanGetRelativeName();
     testPitchFromName();
     testRoundTrip();
 }

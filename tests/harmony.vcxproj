@@ -166,6 +166,7 @@
     <ClCompile Include="..\notes\Style.cpp" />
     <ClCompile Include="..\util\ArpegPlayer.cpp" />
     <ClCompile Include="..\util\AudioMath.cpp" />
+    <ClCompile Include="..\util\ChordRecognizer.cpp" />
     <ClCompile Include="..\util\quant\NoteConvert.cpp" />
     <ClCompile Include="..\util\quant\Scale.cpp" />
     <ClCompile Include="..\util\quant\ScaleQuantizer.cpp" />
@@ -186,6 +187,9 @@
     <ClCompile Include="testButter.cpp" />
     <ClCompile Include="testChord4.cpp" />
     <ClCompile Include="testChord4Manager.cpp" />
+    <ClCompile Include="testChordRecognizer.cpp" />
+    <ClCompile Include="testChordRecognizer2.cpp" />
+    <ClCompile Include="testChordRecognizer3.cpp" />
     <ClCompile Include="testClockMult.cpp" />
     <ClCompile Include="testClockShifter5.cpp" />
     <ClCompile Include="testClockShifter5b.cpp" />
@@ -205,6 +209,7 @@
     <ClCompile Include="testHarmonyChords2.cpp" />
     <ClCompile Include="testHarmonyChords2023.cpp" />
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
+    <ClCompile Include="testLegerScore.cpp" />
     <ClCompile Include="testLFNDsp.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
     <ClCompile Include="testNoiseGen.cpp" />
@@ -216,6 +221,7 @@
     <ClCompile Include="testNumberFormatter.cpp" />
     <ClCompile Include="testOneShot.cpp" />
     <ClCompile Include="testOneShotSampleTimer.cpp" />
+    <ClCompile Include="testPESConverter.cpp" />
     <ClCompile Include="testPhasePatterns.cpp" />
     <ClCompile Include="testPhasePatternsPoly.cpp" />
     <ClCompile Include="testPinkFilter.cpp" />
@@ -234,6 +240,7 @@
     <ClCompile Include="testNotes.cpp" />
     <ClCompile Include="testScaleRelativeNote.cpp" />
     <ClCompile Include="testSchmidtTrigger.cpp" />
+    <ClCompile Include="testScorePitchUtils.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
     <ClCompile Include="testSharpFlatMonitor.cpp" />
@@ -244,6 +251,7 @@
     <ClCompile Include="testTestLFO.cpp" />
     <ClCompile Include="testTwister.cpp" />
     <ClCompile Include="testUpdater.cpp" />
+    <ClCompile Include="testVisualizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\composites\Harmony.h" />

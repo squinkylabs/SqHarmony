@@ -19,6 +19,7 @@ std::pair<const MidiNote, Scale::Scales> Scale::get() const {
 }
 
 ScaleNote Scale::m2s(const MidiNote& mn) const {
+
     int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
@@ -32,23 +33,27 @@ ScaleNote Scale::m2s(const MidiNote& mn) const {
     }
 
     auto sn = _makeScaleNote(offset);
-    ScaleNote final(sn.getDegree(), octave, sn.getAccidental());
+    _validateScaleNote(sn);
+
+    ScaleNote final(sn.getDegree(), octave, sn.getAdjustment());
+    _validateScaleNote(final);
     // need octave into
     return final;
 }
 
 MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     const int semitones = degreeToSemitone(scaleNote.getDegree());
+    _validateScaleNote(scaleNote);
 
     int accidentalOffset = 0;
-    switch (scaleNote.getAccidental()) {
-        case ScaleNote::Accidental::sharp:
+    switch (scaleNote.getAdjustment()) {
+        case ScaleNote::RelativeAdjustment::sharp:
             accidentalOffset = 1;
             break;
-        case ScaleNote::Accidental::flat:
+        case ScaleNote::RelativeAdjustment::flat:
             accidentalOffset = -1;
             break;
-        case ScaleNote::Accidental::none:
+        case ScaleNote::RelativeAdjustment::none:
             accidentalOffset = 0;
             break;
         default:
@@ -64,19 +69,68 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
     assert(offset >= 0 && offset < 12);
     int degree = _quantizeInScale(offset);
     if (degree >= 0) {
-        return ScaleNote(degree, 0);
+        const auto ret = ScaleNote(degree, 0);
+        _validateScaleNote(ret);
+        return ret;
     }
+    const bool preferSharps = getSharpsFlatsPrefForScoring();
+    // If we didn't get a match, see if the next higher note is in the scale. But since it will
+    // Yield a flat accidental, only do that if we want that.
+    degree = _quantizeInScale((offset + 1) % 12);
+    if ((degree >= 0) && !preferSharps) {
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
+        assert(!preferSharps);
+        _validateScaleNote(ret);
+        return ret;
+    }
+
     degree = _quantizeInScale(offset - 1);
-    if (degree >= 0) {
-        return ScaleNote(degree, 0, ScaleNote::Accidental::sharp);
+    if ((degree >= 0) && preferSharps) {
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
+        assert(preferSharps);
+        _validateScaleNote(ret);
+        return ret;
     }
-    degree = _quantizeInScale(offset + 1);
+
+
+    assert(false);  // now we are down where we need more code
+    return ScaleNote(0, 0);
+}
+
+#if 0 // old one
+ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
+    assert(offset >= 0 && offset < 12);
+    int degree = _quantizeInScale(offset, printDebug);
     if (degree >= 0) {
-        return ScaleNote(degree, 0, ScaleNote::Accidental::flat);
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 78 (found)", offset, degree);
+        }
+        const auto ret = ScaleNote(degree, 0);
+        _validateScaleNote(ret);
+        return ret;
+    }
+    degree = _quantizeInScale(offset - 1, printDebug);
+    if (degree >= 0) {
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 86 (found one under)", offset, degree);
+        }
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
+        _validateScaleNote(ret);
+        return ret;
+    }
+    degree = _quantizeInScale(offset + 1, printDebug);
+    if (degree >= 0) {
+        if (printDebug) {
+            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
+        }
+        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
+        _validateScaleNote(ret);
+        return ret;
     }
     assert(false);
     return ScaleNote();
 }
+#endif
 
 std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
     if (justDiatonic) {
@@ -138,13 +192,13 @@ int Scale::quantize(int offset) const {
 
     // get the scale degrees for above and below
     //  const int* pitches = getNormalizedScalePitches();
-    int qUpOne = _quantizeInScale(offset + 1);
+    int qUpOne = _quantizeInScale((offset + 1) % 12);
     const int qDnOne = _quantizeInScale(offset - 1);
 
     if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
-      //  SQINFO("In bad case. offset == 11");
-        qUpOne = 12;            // special case - we know we can go to octave here.
-                                // seems to only happen with Major Pentatonic
+        //  SQINFO("In bad case. offset == 11");
+        qUpOne = 12;  // special case - we know we can go to octave here.
+                      // seems to only happen with Major Pentatonic
     }
 
     switch (offset) {
@@ -214,6 +268,8 @@ int Scale::quantize(int offset) const {
 }
 
 int Scale::_quantizeInScale(int offset) const {
+    assert(offset >= 0);
+    assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
     for (bool done = false; !done;) {
@@ -285,14 +341,13 @@ const int* Scale::_getNormalizedScalePitches() const {
             return ret;
         } break;
         case Scales::MajorPentatonic: {
-            static const int ret[] = { 0, 2, 4, 7, 9, -1 };
+            static const int ret[] = {0, 2, 4, 7, 9, -1};
             return ret;
         } break;
         case Scales::HarmonicMinor: {
             static const int ret[] = {0, 2, 3, 5, 7, 8, 11, -1};
             return ret;
-        }
-        break;
+        } break;
         case Scales::Diminished: {
             static const int ret[] = {0, 2, 3, 5, 6, 8, 9, 11, -1};
             return ret;
@@ -384,19 +439,19 @@ const int numflats[12] = {
     7   // B
 };
 
-const Scale::SharpsFlatsPref preferSharps[12] = {
-    Scale::SharpsFlatsPref::DontCare,  // C Maj (
-    Scale::SharpsFlatsPref::Flats,     // C# / D flat (notated as D flat)
-    Scale::SharpsFlatsPref::Sharps,    // D
-    Scale::SharpsFlatsPref::Flats,     // D# / E flat
-    Scale::SharpsFlatsPref::Sharps,    // E
-    Scale::SharpsFlatsPref::Flats,     // F
-    Scale::SharpsFlatsPref::DontCare,  // F# G flat (this one is ambiguous, could be either)
-    Scale::SharpsFlatsPref::Sharps,    // G
-    Scale::SharpsFlatsPref::Flats,     // G# / A flat
-    Scale::SharpsFlatsPref::Sharps,    // A
-    Scale::SharpsFlatsPref::Flats,     // A# / B -
-    Scale::SharpsFlatsPref::Sharps     // B
+const SharpsFlatsPref preferSharps[12] = {
+    SharpsFlatsPref::DontCare,  // C Maj (
+    SharpsFlatsPref::Flats,     // C# / D flat (notated as D flat)
+    SharpsFlatsPref::Sharps,    // D
+    SharpsFlatsPref::Flats,     // D# / E flat
+    SharpsFlatsPref::Sharps,    // E
+    SharpsFlatsPref::Flats,     // F
+    SharpsFlatsPref::DontCare,  // F# G flat (this one is ambiguous, could be either)
+    SharpsFlatsPref::Sharps,    // G
+    SharpsFlatsPref::Flats,     // G# / A flat
+    SharpsFlatsPref::Sharps,    // A
+    SharpsFlatsPref::Flats,     // A# / B -
+    SharpsFlatsPref::Sharps     // B
 };
 
 const MidiNote sharpsInTreble[12] = {
@@ -455,7 +510,7 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     return ret;
 }
 
-Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
+SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
         assert(basePitch >= 0);
@@ -496,6 +551,11 @@ Scale::SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     }
     assert(false);
     return SharpsFlatsPref::DontCare;
+}
+
+bool Scale::getSharpsFlatsPrefForScoring() const {
+    const auto pref = getSharpsFlatsPref();
+    return pref != SharpsFlatsPref::Flats;
 }
 
 int Scale::numNotesInScale(Scales scale) {
@@ -541,14 +601,14 @@ int Scale::numNotesInScale(Scales scale) {
 }
 
 std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteRoles, bool diatonicOnly) {
-    const auto error = std::make_tuple(false, MidiNote::C, Scale::Scales::Chromatic);
+    const auto error = std::make_tuple(false, MidiNote(MidiNote::C), Scale::Scales::Chromatic);
     int roleRoot = 0;
     // First check the role array for validity and find the root.
     {
         int roleCount = 0;
         int rootCount = 0;
         const Role* rp = noteRoles;
-        
+
         bool foundRoot = false;
         while (*rp != Role::End) {
             if (*rp == Role::Root) {
@@ -573,12 +633,12 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
         }
     }
 
-  //  const int lastValidScale = diatonicOnly ? Scale:: : 
+    //  const int lastValidScale = diatonicOnly ? Scale:: :
     const int numScales = Scale::numScales(diatonicOnly);
     for (int mode = Scale::firstScale; mode < numScales; ++mode) {
         const auto smode = Scale::Scales(mode);
-        if (_doesScaleMatch(noteRoles, smode, roleRoot)) {
-            return {true, roleRoot, smode};
+        if (_doesScaleMatch(noteRoles, smode, MidiNote(roleRoot))) {
+            return {true, MidiNote(roleRoot), smode};
         }
     }
     return error;
@@ -618,7 +678,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         }
         rotatedRoles[destIndex] = r;
     }
-   
+
     {
         // a little sanity check.
         int roleCount = 0;
@@ -661,7 +721,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         // if the chromatic degree we are examining is in the scale
         if (roleIn) {
             if (roleIndex != pitch) {  // and we are looking note that degree
-                return false;  // then no match
+                return false;          // then no match
             }
             ++pitchIndex;  // if a match, look at the nextPitch.
         }
@@ -684,9 +744,24 @@ const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
         }
         roles.data[pitch] = Role::InScale;
     }
-    
 
     // put in the root where it should be
-     roles.data[root.get()] = Role::Root;
+    roles.data[root.get()] = Role::Root;
     return roles;
+}
+
+bool Scale::_validateScaleNote(const ScaleNote& sn) const {
+    const auto scalePref = this->getSharpsFlatsPref();
+    switch (sn.getAdjustment()) {
+        case ScaleNote::RelativeAdjustment::flat:
+            assert(scalePref == SharpsFlatsPref::Flats);
+            return (scalePref == SharpsFlatsPref::Flats);
+            break;
+        case ScaleNote::RelativeAdjustment::sharp:
+            assert(scalePref != SharpsFlatsPref::Flats);
+            return(scalePref != SharpsFlatsPref::Flats);
+            break;
+    }
+    //assert(false);
+    return true;
 }

@@ -14,7 +14,7 @@ ScaleQuantizer::ScaleQuantizer(ConstOptionsPtr opt) : options(opt) {
 
 ScaleQuantizerPtr ScaleQuantizer::makeTest(int baseMidiPitch, Scale::Scales scaleChoice) {
     auto scale = std::make_shared<Scale>();
-    scale->set(baseMidiPitch, scaleChoice);
+    scale->set(MidiNote(baseMidiPitch), scaleChoice);
     auto options = std::make_shared<Options>();
     options->scale = scale;
     auto quantizer = std::make_shared<ScaleQuantizer>(options);

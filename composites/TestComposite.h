@@ -20,7 +20,7 @@ struct alignas(32) Port {
     /** Voltage of the port. */
     union {
         /** Unstable API. Use getVoltage() and setVoltage() instead. */
-        float voltages[PORT_MAX_CHANNELS] = {};
+        float voltages[::PORT_MAX_CHANNELS] = {};
         /** DEPRECATED. Unstable API. Use getVoltage() and setVoltage() instead. */
 
         // TODO: get rid of this
@@ -38,7 +38,7 @@ struct alignas(32) Port {
     /** For rendering plug lights on cables.
 	Green for positive, red for negative, and blue for polyphonic.
 	*/
-    Light plugLights[3];
+    ::Light plugLights[3];
 
     /** Sets the voltage of the given channel. */
     void setVoltage(float voltage, int channel = 0) {

@@ -47,14 +47,14 @@ private:
     class YInfo {
     public:
         float position = 200;
-        float ledgerPos[3] = {};
+        float legerPos[3] = {};
     };
     /**
      * @brief get info about vertical placement
      *
      * @param note
      * @param bassStaff
-     * @return std::pair<float, bool> first is the y position, second it flag if need ledger line
+     * @return std::pair<float, bool> first is the y position, second it flag if need leger line
      */
     YInfo noteYInfo(const MidiNote &note, bool bassStaff) const;
     float noteY(const MidiNote &note, bool bassStaff) const;
@@ -68,7 +68,7 @@ private:
     const std::string staffFiveLines = u8"\ue014";
     const std::string gClef = u8"\ue050";
     const std::string fClef = u8"\ue062";
-    const std::string ledgerLine = u8"\ue022";
+    const std::string legerLine = u8"\ue022";
     const std::string flat = u8"\ue260";
     const std::string sharp = u8"\ue262";
 
@@ -96,7 +96,7 @@ private:
      * @return float width of key signature
      */
     std::pair<float, float> drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebleClef, float y) const;
-    float ledgerLine2Pos(int ledgerLine, bool bassStaff) const;
+    float legerLine2Pos(int legerLine, bool bassStaff) const;
 
     NVGcolor getForegroundColor() const;
     NVGcolor getBackgroundColor() const;
@@ -172,66 +172,66 @@ inline Score::Score(Harmony1Module *m) : module(m) {
     Comp::Chord c;
     c.inversion = 0;
     c.root = 1;
-    c.pitch[0] = 60;
-    c.pitch[1] = 72;
-    c.pitch[2] = 76;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(60);
+    c.pitch[1] = MidiNote(72);
+    c.pitch[2] = MidiNote(76);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 3;
-    c.pitch[0] = 64;
-    c.pitch[1] = 71;
-    c.pitch[2] = 76;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(64);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(76);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 1;
     c.root = 2;
-    c.pitch[0] = 65;
-    c.pitch[1] = 69;
-    c.pitch[2] = 74;
-    c.pitch[3] = 77;
+    c.pitch[0] = MidiNote(65);
+    c.pitch[1] = MidiNote(69);
+    c.pitch[2] = MidiNote(74);
+    c.pitch[3] = MidiNote(77);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 7;
-    c.pitch[0] = 59;
-    c.pitch[1] = 71;
-    c.pitch[2] = 74;
-    c.pitch[3] = 77;
+    c.pitch[0] = MidiNote(59);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(74);
+    c.pitch[3] = MidiNote(77);
     chords.push_back(c);
 
     c.inversion = 1;
     c.root = 3;
-    c.pitch[0] = 55;
-    c.pitch[1] = 71;
-    c.pitch[2] = 76;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(55);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(76);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 4;
-    c.pitch[0] = 53;
-    c.pitch[1] = 72;
-    c.pitch[2] = 77;
-    c.pitch[3] = 81;
+    c.pitch[0] = MidiNote(53);
+    c.pitch[1] = MidiNote(72);
+    c.pitch[2] = MidiNote(77);
+    c.pitch[3] = MidiNote(81);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 5;
-    c.pitch[0] = 55;
-    c.pitch[1] = 71;
-    c.pitch[2] = 74;
-    c.pitch[3] = 79;
+    c.pitch[0] = MidiNote(55);
+    c.pitch[1] = MidiNote(71);
+    c.pitch[2] = MidiNote(74);
+    c.pitch[3] = MidiNote(79);
     chords.push_back(c);
 
     c.inversion = 0;
     c.root = 1;
-    c.pitch[0] = 60;
-    c.pitch[1] = 67;
-    c.pitch[2] = 72;
-    c.pitch[3] = 76;
+    c.pitch[0] = MidiNote(60);
+    c.pitch[1] = MidiNote(67);
+    c.pitch[2] = MidiNote(72);
+    c.pitch[3] = MidiNote(76);
     chords.push_back(c);
 #endif
 }
@@ -297,8 +297,8 @@ inline float Score::noteXPos(int noteNumber, float keysigWidth) const {
 float Score::noteY(const MidiNote &note, bool bassStaff) const {
     float y = 0;
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
-    const int ledgerLine = note.getLedgerLine(bassStaff);
-    y -= ledgerLine * spaceBetweenLines;
+    const int legerLine = note.getLegerLine(bassStaff);
+    y -= legerLine * spaceBetweenLines;
     y += staffBasePos;
     return y;
 }
@@ -311,29 +311,29 @@ inline Score::YInfo Score::noteYInfo(const MidiNote &note, bool bassStaff) const
 
     float y = 0;
 
-    const int ledgerLine = note.getLedgerLine(bassStaff);
+    const int legerLine = note.getLegerLine(bassStaff);
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
 
-    if (ledgerLine < -1) {
-        ret.ledgerPos[0] = staffBasePos + (2.f * spaceBetweenLines);
+    if (legerLine < -1) {
+        ret.legerPos[0] = staffBasePos + (2.f * spaceBetweenLines);
     }
-    if (ledgerLine < -3) {
-        ret.ledgerPos[1] = staffBasePos + (4.f * spaceBetweenLines);
+    if (legerLine < -3) {
+        ret.legerPos[1] = staffBasePos + (4.f * spaceBetweenLines);
     }
-    if (ledgerLine < -5) {
-        ret.ledgerPos[2] = staffBasePos + (6.f * spaceBetweenLines);
+    if (legerLine < -5) {
+        ret.legerPos[2] = staffBasePos + (6.f * spaceBetweenLines);
     }
-    if (ledgerLine > 9) {
-        ret.ledgerPos[0] = staffBasePos + (-10.f * spaceBetweenLines);
+    if (legerLine > 9) {
+        ret.legerPos[0] = staffBasePos + (-10.f * spaceBetweenLines);
     }
-    if (ledgerLine > 11) {
-        ret.ledgerPos[1] = staffBasePos + (-12.f * spaceBetweenLines);
+    if (legerLine > 11) {
+        ret.legerPos[1] = staffBasePos + (-12.f * spaceBetweenLines);
     }
-    if (ledgerLine > 13) {
-        ret.ledgerPos[2] = staffBasePos + (-14.f * spaceBetweenLines);
+    if (legerLine > 13) {
+        ret.legerPos[2] = staffBasePos + (-14.f * spaceBetweenLines);
     }
 
-    y -= ledgerLine * spaceBetweenLines;
+    y -= legerLine * spaceBetweenLines;
     y += staffBasePos;
 
     ret.position = y;
@@ -395,8 +395,8 @@ inline void Score::drawNotes(const DrawArgs &args,  std::pair<float, float> keys
                 auto yInfo = noteYInfo(chord.pitch[i], i < 2);
 
                 for (int i = 0; i < 3; ++i) {
-                    if (yInfo.ledgerPos[i] != 0) {
-                        nvgText(args.vg, x, yInfo.ledgerPos[i], ledgerLine.c_str(), NULL);
+                    if (yInfo.legerPos[i] != 0) {
+                        nvgText(args.vg, x, yInfo.legerPos[i], legerLine.c_str(), NULL);
                     }
                 }
                 const char *note = stemUp ? noteQuarterUp.c_str() : noteQuarterDown.c_str();
@@ -439,7 +439,7 @@ inline std::pair<float, float> Score::drawKeysig(const DrawArgs &args, ConstScal
         for (int i = 0; i < num; ++i) {
             const float x = xClef + paddingAfterKeysig + w;
             const int note = accidentals[i].get();
-            const float yf = noteY(note, !treble);
+            const float yf = noteY(MidiNote(note), !treble);
             nvgText(args.vg, x, yf, character, NULL);
             w += 4;
             p = std::max(p, x + 4);

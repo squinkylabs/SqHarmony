@@ -6,6 +6,7 @@
 
 #include "MidiNote.h"
 #include "ScaleNote.h"
+#include "SharpsFlatsPref.h"
 
 class Scale {
 public:
@@ -42,9 +43,10 @@ public:
     static std::vector<std::string> getShortScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getRootLabels(bool useFlats);
 
-    void set(const MidiNote& base, Scales mode);
+    void set(const  MidiNote& base, Scales mode);
     std::pair<const MidiNote, Scales> get() const;
 
+    // All of this Role stuff is for converting Scale <> PES
     enum class Role {
         Root,
         InScale,
@@ -123,12 +125,14 @@ public:
      */
     ScoreInfo getScoreInfo() const;
 
-    enum class SharpsFlatsPref {
-        Sharps,
-        Flats,
-        DontCare
-    };
+
     SharpsFlatsPref getSharpsFlatsPref() const;
+    /**
+     * This one return true for prefer sharps. Always has a preference, since.
+     * all our scoring stuff assumes sharp for default.
+     * TODO: add unit tests.
+     */
+    bool getSharpsFlatsPrefForScoring() const;
 
     MidiNote getRelativeMajor() const;
 
@@ -140,6 +144,7 @@ public:
      */
     const int* _getNormalizedScalePitches() const;
 
+    bool _validateScaleNote(const ScaleNote&) const;
 private:
     ScaleNote _makeScaleNote(int offset) const;
 
@@ -153,4 +158,5 @@ private:
     int _quantizeInScale(int offset) const;
 
     static bool _doesScaleMatch(const Role*, Scales, MidiNote);
+
 };

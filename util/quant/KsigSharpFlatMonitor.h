@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SharpsFlatsPref.h"
+
 class PopupMenuParamWidget;
 
 enum class SharpFlatUserOptions {
@@ -30,14 +32,14 @@ public:
         const auto mode = Scale::Scales(int(std::round(_comp->params[TComp::MODE_PARAM].value)));
         auto _quantizerOptions = std::make_shared<ScaleQuantizer::Options>();
         _quantizerOptions->scale = std::make_shared<Scale>();
-        _quantizerOptions->scale->set(basePitch, mode);
+        _quantizerOptions->scale->set(MidiNote(basePitch), mode);
 
         const auto scale = _quantizerOptions->scale;
         const auto scaleSharpFlatPref = scale->getSharpsFlatsPref();
         const std::string sRoot = _keyRootWidget->getShortLabel(1);
         bool isSharps = sRoot.find('#') != std::string::npos;
 
-        const bool scalePrefersSharps = (scaleSharpFlatPref == Scale::SharpsFlatsPref::Sharps);
+        const bool scalePrefersSharps = (scaleSharpFlatPref == SharpsFlatsPref::Sharps);
         const float compositePref = int(std::round(_comp->params[TComp::SHARPS_FLATS_PARAM].value));
         const bool defaultIsOkWithComposite = (compositePref < 2);
 
@@ -45,19 +47,19 @@ public:
 
         // If we are cool with defaults, and ksig has a default, and we are set to it, leave
         // we don't really need this case...
-        if (defaultIsOkWithComposite && (scaleSharpFlatPref != Scale::SharpsFlatsPref::DontCare) &&
+        if (defaultIsOkWithComposite && (scaleSharpFlatPref != SharpsFlatsPref::DontCare) &&
             (scalePrefersSharps == isSharps)) {
             return;
         }
         // If we are cool with defaults, and ksig has a default, and we are NOT set to it, set to it.
-        if (defaultIsOkWithComposite && (scaleSharpFlatPref != Scale::SharpsFlatsPref::DontCare) &&
+        if (defaultIsOkWithComposite && (scaleSharpFlatPref != SharpsFlatsPref::DontCare) &&
             (scalePrefersSharps != isSharps)) {
             // then set to default, and return.
             _keyRootWidget->setLabels(Scale::getRootLabels(!scalePrefersSharps));
             return;
         }
         // If it's a don't care scale, but we aren't set to pref then set to user pref.
-        if (defaultIsOkWithComposite && (scaleSharpFlatPref == Scale::SharpsFlatsPref::DontCare) &&
+        if (defaultIsOkWithComposite && (scaleSharpFlatPref == SharpsFlatsPref::DontCare) &&
             (compositeTieBreakerIsSharps != isSharps)) {
             _keyRootWidget->setLabels(Scale::getRootLabels(!compositeTieBreakerIsSharps));
             return;

@@ -78,6 +78,13 @@ extern void testAudioMath();
 extern void testDifferenticalClockCounter();
 extern void testDeGlitch();
 extern void testDeGlitch();
+extern void testChordRecognizer();
+extern void testChordRecognizer2();
+extern void testChordRecognizer3();
+extern void testVisualizer();
+extern void testPESConverter();
+extern void testScorePitchUtils();
+extern void testLegerScore();
 
 #include "SqLog.h"
 
@@ -100,7 +107,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if  0
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -127,6 +134,12 @@ int main(const char**, int) {
     testShiftCalc();
     testSharpFlatMonitor();
     testDifferenticalClockCounter();
+    testScorePitchUtils();
+    testChordRecognizer3();
+    testChordRecognizer();
+    testChordRecognizer2();
+    testPESConverter();
+    testVisualizer();
 
     testClockMult();
     testMultiplier();
@@ -141,6 +154,7 @@ int main(const char**, int) {
     testPhasePatternsPoly();
 
     testNotes();
+    testLegerScore();
     testScaleNotes();
     testScale();
     testScaleRelativeNote();
@@ -150,6 +164,7 @@ int main(const char**, int) {
     testHarmony2C();
     
     testHarmonyNote();
+testLegerScore();
 #if 0
     printf("XX: leaving early for clock stuff");
     std::exit(0);
