@@ -50,9 +50,10 @@ public:
         addRow2();
         addRow1();
 
-        const float y = 146;
-        _displayString = addLabel(Vec(10, y), "chord");
-        _displayString2 = addLabel(Vec(10, y+19.5), "chord");
+        const float y = 144.5;
+        const float x = 8.5;
+        _displayString = addLabel(Vec(x, y), "chord");
+        _displayString2 = addLabel(Vec(x, y+18.5), "chord");
 
         addKeysig();
     }

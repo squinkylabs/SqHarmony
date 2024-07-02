@@ -20,8 +20,8 @@ public:
         this->configInput(Comp::CV_INPUT, "Visualizer Pitch");
         this->configInput(Comp::GATE_INPUT, "Optional Gate");
         this->configInput(Comp::PES_INPUT, "Scale (PES)");
-
     }
+    
     void process(const ProcessArgs& args) override {
         comp->process(args);
     }
