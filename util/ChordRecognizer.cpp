@@ -4,7 +4,7 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
-#define _LOG
+// #define _LOG
 
 void ChordRecognizer::show(const char* msg, const int* p, unsigned num) {
     if (num == 3) {

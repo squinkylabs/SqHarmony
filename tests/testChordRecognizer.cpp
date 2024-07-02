@@ -143,6 +143,16 @@ static void testCMajMajRecognized() {
         MidiNote::C);
 }
 
+static void testCMajMaj9Recognized() {
+    const int chord[] = {MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::B, MidiNote::D + 12};
+    testRecognizer(
+        chord,
+        5,
+        ChordRecognizer::Type::MajMajNinth,
+        ChordRecognizer::Inversion::Root,
+        MidiNote::C);
+}
+
 static void testCMinMinRecognized() {
     const int chord[] = {MidiNote::C, MidiNote::E - 1, MidiNote::G, MidiNote::B - 1};
     testRecognizer(
@@ -153,12 +163,32 @@ static void testCMinMinRecognized() {
         MidiNote::C);
 }
 
+static void testCMinMin9Recognized() {
+    const int chord[] = {MidiNote::C, MidiNote::E - 1, MidiNote::G, MidiNote::B - 1, MidiNote::D + 12};
+    testRecognizer(
+        chord,
+        5,
+        ChordRecognizer::Type::MinMinNinth,
+        ChordRecognizer::Inversion::Root,
+        MidiNote::C);
+}
+
 static void testCMinMajRecognized() {
     const int chord[] = {MidiNote::C, MidiNote::E - 1, MidiNote::G, MidiNote::B};
     testRecognizer(
         chord,
         4,
         ChordRecognizer::Type::MinMajSeventh,
+        ChordRecognizer::Inversion::Root,
+        MidiNote::C);
+}
+
+static void testCMinMaj9Recognized() {
+    const int chord[] = {MidiNote::C, MidiNote::E - 1, MidiNote::G, MidiNote::B, MidiNote::D + 12};
+    testRecognizer(
+        chord,
+        5,
+        ChordRecognizer::Type::MinMajNinth,
         ChordRecognizer::Inversion::Root,
         MidiNote::C);
 }
@@ -397,10 +427,13 @@ void testChordRecognizer() {
     testCAugRecognized();
 
     testCMajMinRecognized();
-      testCMajMin9Recognized();
+    testCMajMin9Recognized();
     testCMajMajRecognized();
+    testCMajMaj9Recognized();
     testCMinMinRecognized();
+    testCMinMin9Recognized();
     testCMinMajRecognized();
+    testCMinMaj9Recognized();
 
     testCMajMinFirstInversionRecognized();
     testCMajMinSecondInversionRecognized();
@@ -428,8 +461,8 @@ void testFirst() {
     //  testCDiminishedSecondInversion();
     //  testCDiminished();
     //   test007();
-   //testCMajMajThirdInversionRecognized();
-   //testChordRecognizer();
-    testCMajMin9Recognized();
+    // testCMajMajThirdInversionRecognized();
+    testChordRecognizer();
+    //   testCMajMin9Recognized();
 }
 #endif

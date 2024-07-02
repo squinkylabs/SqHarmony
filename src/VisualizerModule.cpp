@@ -25,12 +25,14 @@ int BufferingParent<ScoreChord>::_refCount = 0;
  * build current sdk on linux
  * fully test scoring
  * test recognizer
- * recognize all inversions of 7th
- * implement 9th chords? C9, Cm9, CMaj9
+ * recognize all inversions of 7th (done)
+ * implement 9th chords? C9, Cm9, CMaj9 (done)
  * ninth with a suspended 5th?
- * look at text for chord type names. C7 CMaj7 CMin7, CMinMaj7
+ * look at text for chord type names. C7 CMaj7 CMin7, CMinMaj7 (done)
  * merge to main
  * make docs
+ * remove all SQINFO
+ * add tooltips for I/O, etc.
  *
  *
  */

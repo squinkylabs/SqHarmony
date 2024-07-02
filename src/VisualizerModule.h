@@ -14,6 +14,13 @@ public:
         // addParams();
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
         this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
+
+        this->configOutput(Comp::PES_OUTPUT, "Scale (PES)");
+
+        this->configInput(Comp::CV_INPUT, "Visualizer Pitch");
+        this->configInput(Comp::GATE_INPUT, "Optional Gate");
+        this->configInput(Comp::PES_INPUT, "Scale (PES)");
+
     }
     void process(const ProcessArgs& args) override {
         comp->process(args);
