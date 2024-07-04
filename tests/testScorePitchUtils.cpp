@@ -4,7 +4,8 @@
 
 static void test() {
     Scale sc;
-    MidiNote mn;
+    MidiNote mn(MidiNote::C);
+    sc.set(mn, Scale::Scales::Major);
     //     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
   //  static NotationNote getNotationNoteForce(const Scale&, const MidiNote&, bool bassStaff, bool useSharps);
    ScorePitchUtils::getNotationNote(sc, mn, false);
@@ -20,9 +21,20 @@ static void testCMajor() {
     auto x = ScorePitchUtils::getNotationNote(sc, mnc, false);
     assert(x._accidental == ScorePitchUtils::Accidental::none);
 
-    // This note is also D-. I guess this API uses sharps all the time
+    // Even when we try to "force" C to use sharps or flats it should.
+    x = ScorePitchUtils::getNotationNoteForce(sc, mnc, false, true);
+    assert(x._accidental == ScorePitchUtils::Accidental::none);
+    x = ScorePitchUtils::getNotationNoteForce(sc, mnc, false, false);
+    assert(x._accidental == ScorePitchUtils::Accidental::none);
+
+    // This note is also D-. But C Major defaults to sharps
     x = ScorePitchUtils::getNotationNote(sc, mncSharp, false);
     assert(x._accidental == ScorePitchUtils::Accidental::sharp);
+
+     x = ScorePitchUtils::getNotationNoteForce(sc, mncSharp, false, true);
+    assert(x._accidental == ScorePitchUtils::Accidental::sharp);
+    x = ScorePitchUtils::getNotationNoteForce(sc, mncSharp, false, false);
+    assert(x._accidental == ScorePitchUtils::Accidental::flat);
 }
 
 static void testCMinor() {
