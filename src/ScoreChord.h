@@ -50,6 +50,18 @@
  *      cmajor chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
+ * 
+ * How are sharps/flats handled now?
+ * _drawNotes() doesn't care. it divides midi pitches between staves and calls
+ * _drawNotesOnStaff, passing midi pitch and a Scale.
+ * _drawNotesOnStaff makes NotationNote
+ * NotationNote has ScorePitchUtils::Accidental, and int _legerLine;
+ * ScorePitchUtils::getNotationNote uses the pref from the scale. Also it calls Scale::m2s,
+ * and the resulting ScaleNote does have sharp/flat built in.
+ * So, to make it overridable, would need pass a preference into getNotationNote, and of course make it work.
+ * probably means adding a pref to Scale::m2s()
+ * 
+ * experiment 1: make sharps/flats specifiable, and made a test version hard-write to sharps or flats.
  */
 
 // #define _LOG
