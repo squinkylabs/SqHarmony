@@ -3,10 +3,12 @@
 #include "asserts.h"
 
 static void test() {
-    // ScorePitchUtils sp;
     Scale sc;
     MidiNote mn;
-   // ScorePitchUtils::getNotationNote(sc, mn);
+    //     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
+  //  static NotationNote getNotationNoteForce(const Scale&, const MidiNote&, bool bassStaff, bool useSharps);
+   ScorePitchUtils::getNotationNote(sc, mn, false);
+   ScorePitchUtils::getNotationNoteForce(sc, mn, false, true);
 }
 
 static void testCMajor() {
@@ -63,9 +65,9 @@ void testScorePitchUtils() {
     // testCompare();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    //  testScorePitchUtils();
+    testScorePitchUtils();
    // testCMinor();
   // testCompare();
 }
