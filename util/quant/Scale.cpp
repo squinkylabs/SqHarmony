@@ -18,8 +18,43 @@ std::pair<const MidiNote, Scale::Scales> Scale::get() const {
     return std::make_pair(_baseNote, _scale);
 }
 
-ScaleNote Scale::m2s(const MidiNote& mn) const {
+std::vector<ScaleNotePtr> Scale::m2sv(const MidiNote& mn) const {
 
+    auto note = std::make_shared<ScaleNote>(m2s(mn));
+    std::vector<ScaleNotePtr> ret;
+    ret.push_back(note);
+
+    // make a variation
+  //  auto note2 = std::make_shared<ScaleNote>(m2s(mn));
+
+    // if the note is a natural (in scale?)
+    if (note->_relativeAdjustment == ScaleNote::RelativeAdjustment::none) {
+        // and it's a white key
+        if (!mn.isBlackKey()) {
+            // then look for a white key on either side
+            const MidiNote nextMn = MidiNote(mn.get() + 1);
+            const MidiNote prevMn = MidiNote(mn.get() - 1);
+            if (!nextMn.isBlackKey()) {
+                auto x =  std::make_shared<ScaleNote>(m2s(mn));
+                x
+                ret.push_back(nextMn);
+            }
+
+        }
+        // make it sharp.
+        note2->_relativeAdjustment = ScaleNote::RelativeAdjustment::sharp;
+        ret.push_back(note2);
+    } else {
+        assert(false);
+    }
+    return ret;
+}
+
+ScaleNote Scale::m2s(const MidiNote& mn) const {
+    return m2s(mn, SharpsFlatsPref::DontCare);  // don't care  means use scale
+}
+
+ScaleNote Scale::m2s(const MidiNote& mn, SharpsFlatsPref pref) const {
     int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
@@ -32,18 +67,18 @@ ScaleNote Scale::m2s(const MidiNote& mn) const {
         octave -= 1;
     }
 
-    auto sn = _makeScaleNote(offset);
-    _validateScaleNote(sn);
+    auto sn = _makeScaleNote(offset, pref);
+    _validateScaleNote(sn, pref);
 
     ScaleNote final(sn.getDegree(), octave, sn.getAdjustment());
-    _validateScaleNote(final);
+    _validateScaleNote(final, pref);
     // need octave into
     return final;
 }
 
 MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     const int semitones = degreeToSemitone(scaleNote.getDegree());
-    _validateScaleNote(scaleNote);
+    _validateScaleNote(scaleNote, SharpsFlatsPref::DontCare);
 
     int accidentalOffset = 0;
     switch (scaleNote.getAdjustment()) {
@@ -65,22 +100,36 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     return MidiNote(midiPitch);
 }
 
-ScaleNote Scale::_makeScaleNote(int offset) const {
+ScaleNote Scale::_makeScaleNote(int offset, SharpsFlatsPref pref) const {
     assert(offset >= 0 && offset < 12);
     int degree = _quantizeInScale(offset);
     if (degree >= 0) {
         const auto ret = ScaleNote(degree, 0);
-        _validateScaleNote(ret);
+        _validateScaleNote(ret, pref);
         return ret;
     }
-    const bool preferSharps = getSharpsFlatsPrefForScoring();
+    bool preferSharps = false;
+
+    switch (pref) {
+        case SharpsFlatsPref::DontCare:
+            preferSharps = getSharpsFlatsPrefForScoring();
+            break;
+        case SharpsFlatsPref::Sharps:
+            preferSharps = true;
+            break;
+        case SharpsFlatsPref::Flats:
+            preferSharps = false;
+            break;
+        default:
+            assert(false);
+    }
     // If we didn't get a match, see if the next higher note is in the scale. But since it will
     // Yield a flat accidental, only do that if we want that.
     degree = _quantizeInScale((offset + 1) % 12);
     if ((degree >= 0) && !preferSharps) {
         const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
         assert(!preferSharps);
-        _validateScaleNote(ret);
+        _validateScaleNote(ret, pref);
         return ret;
     }
 
@@ -88,16 +137,15 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
     if ((degree >= 0) && preferSharps) {
         const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
         assert(preferSharps);
-        _validateScaleNote(ret);
+        _validateScaleNote(ret, pref);
         return ret;
     }
-
 
     assert(false);  // now we are down where we need more code
     return ScaleNote(0, 0);
 }
 
-#if 0 // old one
+#if 0  // old one
 ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
     assert(offset >= 0 && offset < 12);
     int degree = _quantizeInScale(offset, printDebug);
@@ -750,18 +798,36 @@ const Scale::RoleArray Scale::convert(MidiNote root, Scales mode) {
     return roles;
 }
 
-bool Scale::_validateScaleNote(const ScaleNote& sn) const {
+bool Scale::_validateScaleNote(const ScaleNote& sn, SharpsFlatsPref pref) const {
     const auto scalePref = this->getSharpsFlatsPref();
-    switch (sn.getAdjustment()) {
-        case ScaleNote::RelativeAdjustment::flat:
-            assert(scalePref == SharpsFlatsPref::Flats);
-            return (scalePref == SharpsFlatsPref::Flats);
-            break;
-        case ScaleNote::RelativeAdjustment::sharp:
-            assert(scalePref != SharpsFlatsPref::Flats);
-            return(scalePref != SharpsFlatsPref::Flats);
-            break;
+    if (pref == SharpsFlatsPref::DontCare) {
+        switch (sn.getAdjustment()) {
+            case ScaleNote::RelativeAdjustment::flat:
+                assert(scalePref == SharpsFlatsPref::Flats);
+                return (scalePref == SharpsFlatsPref::Flats);
+                break;
+            case ScaleNote::RelativeAdjustment::sharp:
+                assert(scalePref != SharpsFlatsPref::Flats);
+                return (scalePref != SharpsFlatsPref::Flats);
+                break;
+            case ScaleNote::RelativeAdjustment::none:
+                break;
+        }
+    } else {
+        // preference expressed
+        switch (sn.getAdjustment()) {
+            case ScaleNote::RelativeAdjustment::flat:
+                assert(pref == SharpsFlatsPref::Flats);
+                return (pref == SharpsFlatsPref::Flats);
+                break;
+            case ScaleNote::RelativeAdjustment::sharp:
+                assert(pref != SharpsFlatsPref::Flats);
+                return (pref != SharpsFlatsPref::Flats);
+                break;
+            case ScaleNote::RelativeAdjustment::none:
+                break;
+        }
     }
-    //assert(false);
+    // assert(false);
     return true;
 }

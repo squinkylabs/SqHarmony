@@ -1,11 +1,14 @@
 #pragma once
 
+#include <memory>
+
 /**
  * Can represent any pitch, but is in context for a scale
  * 
  */
 class ScaleNote {
 public:
+    friend class Scale;
     /**
      * This used to be called Accidental, but really it's and adjustment from the pitch in the
      * scale.
@@ -53,3 +56,5 @@ private:
     int _octave = 0;
     RelativeAdjustment _relativeAdjustment = RelativeAdjustment::none;
 };
+
+using ScaleNotePtr = std::shared_ptr<ScaleNote>;

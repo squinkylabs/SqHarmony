@@ -62,6 +62,12 @@
  * probably means adding a pref to Scale::m2s()
  * 
  * experiment 1: make sharps/flats specifiable, and made a test version hard-write to sharps or flats.
+ *      will need unit tests for the new Scale functions that take a pref.
+ *      beef up unit tests in testScorePitchUtils
+ * 
+ * experiment 2: make versions of the scoring functions that return vectors of options.
+ * 
+ * experiment 3: use the above to implement a "spelling function". Perhaps in ScorePitchUtils
  */
 
 // #define _LOG
@@ -81,6 +87,10 @@ public:
     void step() override;
 
 private:
+    // Experiment
+    const SharpsFlatsPref _scoringPref = SharpsFlatsPref::Flats;
+    ScorePitchUtils::NotationNote _getNotationNote(const Scale&, const MidiNote&, bool bassStaff) const;
+
     bool _scoreIsDirty = false;
     unsigned _changeParam = 100000;
     static int _refCount;
@@ -91,10 +101,8 @@ private:
     Scale::Scales _lastScaleMode;
 
     const std::string _wholeNote = u8"\ue1d2";
-    // const std::string _staffFiveLines = u8"\ue014";
     const std::string _gClef = u8"\ue050";
     const std::string _fClef = u8"\ue062";
-    //  const std::string _legerLine = u8"\ue022";
     const std::string _legerLineWide = u8"\ue023";
     const std::string _flat = u8"\ue260";
     const std::string _natural = u8"\ue261";
@@ -663,6 +671,19 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     }
 }
 
+
+//  ScorePitchUtils::NotationNote _getNotationNote(const Scale&, const MidiNote&, bool bassStaff) const;
+inline ScorePitchUtils::NotationNote  ScoreChord::_getNotationNote( const Scale& scale, const MidiNote& mn, bool bassStaff) const {
+    if (_scoringPref == SharpsFlatsPref::DontCare) {
+        return ScorePitchUtils::getNotationNote(scale, mn, bassStaff);
+    } else {
+        const auto pref =  (_scoringPref == SharpsFlatsPref::Sharps);
+        return ScorePitchUtils::getNotationNoteForce(scale, mn, bassStaff, pref);
+    }
+    assert(false);
+    return ScorePitchUtils::NotationNote();
+}
+
 inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
     #ifdef _LOG
     SQINFO("\n!!!! _drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
@@ -684,7 +705,7 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
             SQINFO("in loop, x=%d mn.get() = %d", x, mn.get());
         }
         #endif
-        const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn, bassStaff);
+        const auto notationNote = _getNotationNote(*scale, mn, bassStaff);
         //SQINFO("drawNotesOnStaff just got notation note with accid=%d", int(notationNote._accidental));
         const auto yInfo = noteYInfo(mn, notationNote._legerLine, bassStaff);
         //SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
@@ -698,7 +719,7 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
         if ((pitchIterator + 1) < end) {
             MidiNote mnNext(*(pitchIterator + 1));
             // SQINFO("will get nn for next, pitch = %d", mnNext.get());
-            notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff);
+            notationNoteNext = _getNotationNote(*scale, mnNext, bassStaff);
             const auto yInfoNext = noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
             if (yInfo.position == yInfoNext.position) {
                 // SQWARN("two notes at same location pitch = %d, %d, y=%f, %f", mn.get(), mnNext.get(), yInfo.position, yInfoNext.position);

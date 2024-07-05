@@ -800,6 +800,37 @@ static void testChromatic2() {
     assertEQ(len, 12);
 }
 
+
+static void testAllPitchSame(Scale& sc, const std::vector<ScaleNotePtr> v) {
+    int refPitch = -1000;
+    ScaleNotePtr ref, other;
+    unsigned otherPitch;
+    for (auto x : v) {
+        if (refPitch < -999) {
+            refPitch = sc.s2m(*x).get();
+            ref = x;
+        } else {
+            const auto pitch = sc.s2m(*x).get();
+            other = x;
+            otherPitch = pitch; 
+            assertEQ(pitch, refPitch);
+        }
+    }
+}
+
+static void testCMajorVariations() {
+    Scale sc;
+    sc.set(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    auto v = sc.m2sv(MidiNote(MidiNote::C3));
+    assert(!v.empty());
+    assertGT(v.size(), 1);
+
+    testAllPitchSame(sc, v);
+
+    
+}
+
 void testScale() {
     testScaleNumbers();
     testLabels();
@@ -838,8 +869,8 @@ void testScale() {
    
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testm2sDSharp();
+    testCMajorVariations();
 }
 #endif

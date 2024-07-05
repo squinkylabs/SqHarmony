@@ -51,14 +51,14 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
 inline ScorePitchUtils::NotationNote
 ScorePitchUtils::getNotationNoteForce(const Scale& scale, const MidiNote& midiNote, bool bassStaff, bool useSharps) {
     // not correct, but will get tests compiling...
-    return getNotationNote(scale, midiNote, bassStaff);
+    return getNotationNoteEx(scale, midiNote, bassStaff, useSharps ? SharpsFlatsPref::Sharps : SharpsFlatsPref::Flats);
 }
 
 inline ScorePitchUtils::NotationNote
-ScorePitchUtils::getNotationNoteEx(const Scale& scale, const MidiNote& midiNote, bool bassStaff, SharpsFlatsPref _pref) {
-    assert(_pref == SharpsFlatsPref::DontCare);
-    ScaleNote sn = scale.m2s(midiNote);
-    scale._validateScaleNote(sn);
+ScorePitchUtils::getNotationNoteEx(const Scale& scale, const MidiNote& midiNote, bool bassStaff, SharpsFlatsPref pref) {
+//    assert(_pref == SharpsFlatsPref::DontCare);
+    ScaleNote sn = scale.m2s(midiNote, pref);
+    scale._validateScaleNote(sn, pref);
     //SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
     //SQINFO("-- midiPitch is %d", midiNote.get());
 
@@ -78,7 +78,9 @@ ScorePitchUtils::getNotationNoteEx(const Scale& scale, const MidiNote& midiNote,
         //SQINFO("getting acciendtal from adj, accid = %d", int(accidental));
     }
 
-    const auto pref = scale.getSharpsFlatsPref();
+    if (pref == SharpsFlatsPref::DontCare) {
+        pref = scale.getSharpsFlatsPref();
+    }
     // SQINFO("return from getNotationNote with leger line %d pref = %d flats=%d",
     //        midiNote.getLegerLine(pref, bassStaff),
     //        int(pref),

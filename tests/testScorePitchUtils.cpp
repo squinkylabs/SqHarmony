@@ -6,8 +6,6 @@ static void test() {
     Scale sc;
     MidiNote mn(MidiNote::C);
     sc.set(mn, Scale::Scales::Major);
-    //     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
-    //  static NotationNote getNotationNoteForce(const Scale&, const MidiNote&, bool bassStaff, bool useSharps);
     ScorePitchUtils::getNotationNote(sc, mn, false);
     ScorePitchUtils::getNotationNoteForce(sc, mn, false, true);
 }
@@ -46,17 +44,20 @@ static void testCMajorCSharp() {
     // This note is also D-. But C Major defaults to sharps
     auto x = ScorePitchUtils::getNotationNote(sc, mncSharp, false);
     assert(x._accidental == ScorePitchUtils::Accidental::sharp);
+    assertEQ(x._legerLine, -2);
+    assert(x._scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
 
     x = ScorePitchUtils::getNotationNoteForce(sc, mncSharp, false, true);
     assert(x._accidental == ScorePitchUtils::Accidental::sharp);
+
     x = ScorePitchUtils::getNotationNoteForce(sc, mncSharp, false, false);
     assert(x._accidental == ScorePitchUtils::Accidental::flat);
+    assertEQ(x._legerLine, -1);
+    assert(x._scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::flat);
 }
 
 static void testCMinor() {
     Scale sc;
-    // MidiNote mnc(MidiNote::C);
-    // MidiNote mncSharp(MidiNote::C + 1);
     MidiNote mnEFlat(MidiNote::E - 1);
     MidiNote mnE(MidiNote::E);
     sc.set(mnEFlat, Scale::Scales::Minor);
@@ -69,34 +70,15 @@ static void testCMinor() {
     assert(x._accidental == ScorePitchUtils::Accidental::natural);
 }
 
-#if 0
-static void  testCompare() {
-    // First the equal cases
-    bool b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::flat, ScorePitchUtils::Accidental::flat);
-    assertEQ(b, true);
-     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::sharp, ScorePitchUtils::Accidental::sharp);
-    assertEQ(b, true);
-     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::natural, ScorePitchUtils::Accidental::natural);
-    assertEQ(b, true);
-     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::none, ScorePitchUtils::Accidental::none);
-    assertEQ(b, true);
-
-    assert(false);
-
-}
-#endif
 void testScorePitchUtils() {
     test();
     testCMajorC();
     testCMajorCSharp();
     testCMinor();
-    // testCompare();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testScorePitchUtils();
-    // testCMinor();
-    // testCompare();
 }
 #endif
