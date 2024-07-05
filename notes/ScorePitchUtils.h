@@ -21,8 +21,8 @@ public:
     class NotationNote {
     public:
         NotationNote() {}
-        NotationNote(ScaleNote sn, ScorePitchUtils::Accidental ac, int ll) : _scaleNote(sn), _accidental(ac), _legerLine(ll) {}
-        ScaleNote _scaleNote;
+        NotationNote(ScaleNote sn, ScorePitchUtils::Accidental ac, int ll) : _accidental(ac), _legerLine(ll) {}
+     //   ScaleNote _scaleNote;
         Accidental _accidental = ScorePitchUtils::Accidental::none;
         int _legerLine = 0;
     };
