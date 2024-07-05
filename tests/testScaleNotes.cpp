@@ -222,7 +222,7 @@ static void testCMinor47() {
     assertEQ(sn.getDegree(), 0);
   //  assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
   //  assertEQ(sn.getOctave(), 4);
-    assertEQ(scale._validateScaleNote(sn), true);
+    assertEQ(scale._validateScaleNote(sn, SharpsFlatsPref::DontCare), true);
 }
 
 static void testAll() {
@@ -232,7 +232,7 @@ static void testAll() {
             scale.set(MidiNote(pitch), Scale::Scales(mode));
             for (int testPitch=0; testPitch < 12; ++testPitch) {
                 auto sn = scale.m2s(MidiNote(testPitch));
-                assertEQ(scale._validateScaleNote(sn), true);
+                assertEQ(scale._validateScaleNote(sn, SharpsFlatsPref::DontCare), true);
             }
         }
     }

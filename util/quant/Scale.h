@@ -8,6 +8,7 @@
 #include "ScaleNote.h"
 #include "SharpsFlatsPref.h"
 
+
 class Scale {
 public:
     enum class Scales {
@@ -98,6 +99,9 @@ public:
      * @return ScaleNote
      */
     ScaleNote m2s(const MidiNote&) const;
+    ScaleNote m2s(const MidiNote&, SharpsFlatsPref pref) const; 
+    std::vector<ScaleNotePtr> m2sv(const MidiNote&) const;
+
 
     MidiNote s2m(const ScaleNote&) const;
 
@@ -144,9 +148,10 @@ public:
      */
     const int* _getNormalizedScalePitches() const;
 
-    bool _validateScaleNote(const ScaleNote&) const;
+    bool _validateScaleNote(const ScaleNote&, SharpsFlatsPref pref) const;
 private:
-    ScaleNote _makeScaleNote(int offset) const;
+    // pref - don't care means get from scale.
+    ScaleNote _makeScaleNote(int offset, SharpsFlatsPref pref) const;
 
     MidiNote _baseNote;
     Scales _scale;

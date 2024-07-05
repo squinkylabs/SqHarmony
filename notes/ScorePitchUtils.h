@@ -28,6 +28,7 @@ public:
     };
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
+    static NotationNote getNotationNoteForce(const Scale&, const MidiNote&, bool bassStaff, bool useSharps);
 
     /**
      * Not needed right now.
@@ -35,12 +36,29 @@ public:
      * @return false if  accidental1 > accidental2
      */
     //  static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
+
+private:
+    static NotationNote getNotationNoteEx(const Scale&, const MidiNote&, bool bassStaff, SharpsFlatsPref pref);
+
 };
+
 
 inline ScorePitchUtils::NotationNote
 ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
-    ScaleNote sn = scale.m2s(midiNote);
-    scale._validateScaleNote(sn);
+    return getNotationNoteEx(scale, midiNote, bassStaff, SharpsFlatsPref::DontCare);
+}
+
+inline ScorePitchUtils::NotationNote
+ScorePitchUtils::getNotationNoteForce(const Scale& scale, const MidiNote& midiNote, bool bassStaff, bool useSharps) {
+    // not correct, but will get tests compiling...
+    return getNotationNoteEx(scale, midiNote, bassStaff, useSharps ? SharpsFlatsPref::Sharps : SharpsFlatsPref::Flats);
+}
+
+inline ScorePitchUtils::NotationNote
+ScorePitchUtils::getNotationNoteEx(const Scale& scale, const MidiNote& midiNote, bool bassStaff, SharpsFlatsPref pref) {
+//    assert(_pref == SharpsFlatsPref::DontCare);
+    ScaleNote sn = scale.m2s(midiNote, pref);
+    scale._validateScaleNote(sn, pref);
     //SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
     //SQINFO("-- midiPitch is %d", midiNote.get());
 
@@ -60,7 +78,9 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
         //SQINFO("getting acciendtal from adj, accid = %d", int(accidental));
     }
 
-    const auto pref = scale.getSharpsFlatsPref();
+    if (pref == SharpsFlatsPref::DontCare) {
+        pref = scale.getSharpsFlatsPref();
+    }
     // SQINFO("return from getNotationNote with leger line %d pref = %d flats=%d",
     //        midiNote.getLegerLine(pref, bassStaff),
     //        int(pref),
