@@ -58,6 +58,12 @@
  * NotationNote has ScorePitchUtils::Accidental, and int _legerLine;
  * ScorePitchUtils::getNotationNote uses the pref from the scale. Also it calls Scale::m2s,
  * and the resulting ScaleNote does have sharp/flat built in.
+ * 
+ * step 1: remove ScaleNote from NotationNote (done).
+ * step 2: break out NotationNote into own class. (done)
+ * step 3: make "getAlternateSpelling" method, with unit tests.
+ * step 4: add util to get vector of spellings. 
+ * step 5: use it, re-do scoring (?), make new spelling stuff unit testable.
  */
 
 // #define _LOG

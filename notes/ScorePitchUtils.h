@@ -3,6 +3,7 @@
 
 #include <tuple>
 
+#include"NotationNote.h"
 #include "MidiNote.h"
 #include "Scale.h"
 #include "ScaleNote.h"
@@ -11,22 +12,6 @@
 class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
-    enum class Accidental {
-        none,
-        sharp,
-        flat,
-        natural
-    };
-
-    class NotationNote {
-    public:
-        NotationNote() {}
-        NotationNote(ScaleNote sn, ScorePitchUtils::Accidental ac, int ll) : _accidental(ac), _legerLine(ll) {}
-     //   ScaleNote _scaleNote;
-        Accidental _accidental = ScorePitchUtils::Accidental::none;
-        int _legerLine = 0;
-    };
-
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
 
     /**
@@ -37,7 +22,7 @@ public:
     //  static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
 };
 
-inline ScorePitchUtils::NotationNote
+inline NotationNote
 ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
     ScaleNote sn = scale.m2s(midiNote);
     scale._validateScaleNote(sn);
@@ -46,17 +31,17 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
 
     assert(midiNote.get() < 1000);
 
-    Accidental accidental = Accidental::none;
+    NotationNote::Accidental accidental = NotationNote::Accidental::none;
 
     if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
         //SQINFO("none at 38");
-        accidental = Accidental::none;
+        accidental = NotationNote::Accidental::none;
     } else if (!midiNote.isBlackKey()) {
         //SQINFO("natural at 41");
-        accidental = Accidental::natural;
+        accidental = NotationNote::Accidental::natural;
     } else {
       //  SQINFO("default to sharps - might not be right (it's a black key, and not in scale)");
-        accidental = (sn.getAdjustment() == ScaleNote::RelativeAdjustment::flat) ? Accidental::flat :  Accidental::sharp;
+        accidental = (sn.getAdjustment() == ScaleNote::RelativeAdjustment::flat) ? NotationNote::Accidental::flat : NotationNote::Accidental::sharp;
         //SQINFO("getting acciendtal from adj, accid = %d", int(accidental));
     }
 
@@ -65,7 +50,7 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
     //        midiNote.getLegerLine(pref, bassStaff),
     //        int(pref),
     //        int(SharpsFlatsPref::Flats));
-    return NotationNote(sn, accidental, midiNote.getLegerLine(pref, bassStaff));
+    return NotationNote(accidental, midiNote.getLegerLine(pref, bassStaff));
 }
 
 #if 0
