@@ -61,7 +61,7 @@
  * 
  * step 1: remove ScaleNote from NotationNote (done).
  * step 2: break out NotationNote into own class. (done)
- * step 3: make "getAlternateSpelling" method, with unit tests.
+ * step 3: make "getAlternateSpelling" method, with unit tests. (move the spelling stuff back into utils?)
  * step 4: add util to get vector of spellings. 
  * step 5: use it, re-do scoring (?), make new spelling stuff unit testable.
  */
@@ -138,26 +138,26 @@ private:
         float position = 200;
         float legerPos[3] = {};
     };
-    YInfo noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
+    YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     void drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
     void drawOneNote(
         const DrawArgs &args,
         const MidiNote &note,
-        const ScorePitchUtils::NotationNote &notationNote,
+        const NotationNote &notationNote,
         const YInfo &yInfo,
         float xPosition,
         bool offsetNote) const;
     void drawTwoNotes(
         const DrawArgs &args,
         const MidiNote &note,
-        const ScorePitchUtils::NotationNote &notationNote,
-        const ScorePitchUtils::NotationNote &notationNote2,
+        const NotationNote &notationNote,
+        const NotationNote &notationNote2,
         const YInfo &yInfo,
         float xPosition) const;
 
     void _drawStaff(const DrawArgs &args, float y) const;
     void _drawBarLine(const DrawArgs &args, float x, float y) const;
-    void _drawAccidental(const DrawArgs &args, float x, float y, ScorePitchUtils::Accidental accidental) const;
+    void _drawAccidental(const DrawArgs &args, float x, float y, NotationNote::Accidental accidental) const;
     ;
     /**
      * @return float width of key signature
@@ -275,7 +275,7 @@ float ScoreChord::_drawMusicNonNotes(const DrawArgs &args) const {
     return keysigEnd;
 }
 
-inline ScoreChord::YInfo ScoreChord::noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const {
+inline ScoreChord::YInfo ScoreChord::_noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const {
     YInfo ret;
     if (note.get() < 10) {
         return ret;
@@ -431,11 +431,11 @@ inline void ScoreChord::drawLegerLinesForNotes(const DrawArgs &args, const YInfo
     }
 }
 
-inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, ScorePitchUtils::Accidental accidental) const {
+inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, NotationNote::Accidental accidental) const {
 #ifdef _LOG
     SQINFO("drawAccidental 424  x=%f, acciental=%d (for ref flat=%d )", xPosition, int(accidental), int(ScorePitchUtils::Accidental::flat));
 #endif
-    if (accidental == ScorePitchUtils::Accidental::none) {
+    if (accidental == NotationNote::Accidental::none) {
 #ifdef _LOG
         SQINFO("ret early from draw accidental = none");
 #endif
@@ -443,13 +443,13 @@ inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, f
     }
     std::string symbol = "";
     switch (accidental) {
-        case ScorePitchUtils::Accidental::sharp:
+        case NotationNote::Accidental::sharp:
             symbol = _sharp;
             break;
-        case ScorePitchUtils::Accidental::flat:
+        case NotationNote::Accidental::flat:
             symbol = _flat;
             break;
-        case ScorePitchUtils::Accidental::natural:
+        case NotationNote::Accidental::natural:
             symbol = _natural;
             break;
         default:
@@ -465,8 +465,8 @@ inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, f
 inline void ScoreChord::drawTwoNotes(
     const DrawArgs &args,
     const MidiNote &note,
-    const ScorePitchUtils::NotationNote &notationNote,
-    const ScorePitchUtils::NotationNote &notationNote2,
+    const NotationNote &notationNote,
+    const NotationNote &notationNote2,
     const YInfo &yInfo,
     float xPosition) const {
     drawLegerLinesForNotes(args, yInfo, xPosition);
@@ -484,15 +484,15 @@ inline void ScoreChord::drawTwoNotes(
 
     bool showAccidental1 = false;
     bool showAccidental2 = false;
-    if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
+    if ((accidental1 == NotationNote::Accidental::none) && (accidental2 == NotationNote::Accidental::none)) {
         showAccidental1 = showAccidental2 = false;
-    } else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 == ScorePitchUtils::Accidental::none)) {
+    } else if ((accidental1 != NotationNote::Accidental::none) && (accidental2 == NotationNote::Accidental::none)) {
         showAccidental1 = true;
         showAccidental2 = false;
-    } else if ((accidental1 == ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
+    } else if ((accidental1 == NotationNote::Accidental::none) && (accidental2 != NotationNote::Accidental::none)) {
         showAccidental1 = false;
         showAccidental2 = true;
-    } else if ((accidental1 != ScorePitchUtils::Accidental::none) && (accidental2 != ScorePitchUtils::Accidental::none)) {
+    } else if ((accidental1 != NotationNote::Accidental::none) && (accidental2 != NotationNote::Accidental::none)) {
         showAccidental1 = true;
         showAccidental2 = true;
     }
@@ -552,7 +552,7 @@ inline void ScoreChord::drawTwoNotes(
 inline void ScoreChord::drawOneNote(
     const DrawArgs &args,
     const MidiNote &note,
-    const ScorePitchUtils::NotationNote &notationNote,
+    const NotationNote &notationNote,
     const YInfo &yInfo,
     float xPosition,
     bool offsetNote) const {
@@ -688,7 +688,7 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
         #endif
         const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn, bassStaff);
         //SQINFO("drawNotesOnStaff just got notation note with accid=%d", int(notationNote._accidental));
-        const auto yInfo = noteYInfo(mn, notationNote._legerLine, bassStaff);
+        const auto yInfo = _noteYInfo(mn, notationNote._legerLine, bassStaff);
         //SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
         const float distance = lastYPos - yInfo.position;
         lastYPos = yInfo.position;
@@ -696,12 +696,12 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
 
         bool twoNotesOnSameLine = false;
         // if there is another note after this one
-        ScorePitchUtils::NotationNote notationNoteNext;
+        NotationNote notationNoteNext;
         if ((pitchIterator + 1) < end) {
             MidiNote mnNext(*(pitchIterator + 1));
             // SQINFO("will get nn for next, pitch = %d", mnNext.get());
             notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff);
-            const auto yInfoNext = noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
+            const auto yInfoNext = _noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
             if (yInfo.position == yInfoNext.position) {
                 // SQWARN("two notes at same location pitch = %d, %d, y=%f, %f", mn.get(), mnNext.get(), yInfo.position, yInfoNext.position);
 

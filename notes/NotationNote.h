@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MidiNote.h"
+#include "SqLog.h"
 
 class NotationNote {
 public:
@@ -27,8 +28,39 @@ public:
     Accidental _accidental = Accidental::none;
     int _legerLine = 0;
     MidiNote _midiNote;
+
+private:
+    bool _reSpellFlats();
+    bool _reSpellSharps();
+    bool _canFlatCurrentLeger();
 };
 
-inline bool NotationNote::reSpell(bool moreSharps) {
+
+inline bool NotationNote::_canFlatCurrentLeger() {
+    assert(false);
     return false;
+}
+
+// Algorithm, for more flats:
+// can we flat the existing leger (depends on scale, and _accidental), then flat it.
+
+inline bool NotationNote::_reSpellFlats() {
+    SQINFO("in _reSpellFlats");
+    if (_canFlatCurrentLeger()) {
+        assert(false);              // don't know how
+        return false;
+    }
+
+    // OK, here we know we can't flat current, so we need to go to a lower leger.
+
+    assert(false);      // shouldn't get here.
+    return false;
+}
+
+inline bool NotationNote::_reSpellSharps() {
+    return false;
+}
+
+inline bool NotationNote::reSpell(bool moreSharps) {
+    return moreSharps ? _reSpellSharps() : _reSpellFlats();
 }
