@@ -50,7 +50,7 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
     //        midiNote.getLegerLine(pref, bassStaff),
     //        int(pref),
     //        int(SharpsFlatsPref::Flats));
-    return NotationNote(accidental, midiNote.getLegerLine(pref, bassStaff));
+    return NotationNote(midiNote, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
 
 #if 0

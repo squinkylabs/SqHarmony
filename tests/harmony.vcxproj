@@ -213,6 +213,7 @@
     <ClCompile Include="testLFNDsp.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
     <ClCompile Include="testNoiseGen.cpp" />
+    <ClCompile Include="testNotationNote.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
     <ClCompile Include="testChord.cpp" />
     <ClCompile Include="testChordRelativeNote.cpp" />
