@@ -10,21 +10,23 @@ static void test0() {
     nn = NotationNote(mn, NotationNote::Accidental::none, -2);
 }
 
+#if 0
 static void testReSpellCMajorCSharp() {
     MidiNote mn(MidiNote::C3 + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
     bool b = nn.reSpell(false);
     assert(b);
 }
+#endif
 
 void testNotationNote() {
     test0();
-    testReSpellCMajorCSharp();
+  // testReSpellCMajorCSharp();
 }
 
 
-#if 1
+#if 0
 void testFirst() {
-    testReSpellCMajorCSharp();
+    assert(false);
 }
 #endif

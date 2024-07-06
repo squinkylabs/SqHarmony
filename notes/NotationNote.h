@@ -23,23 +23,25 @@ public:
      * @param moreSharps - if true will attemt to re-spell at a lower pitch, with more sharps.
      * @return  true if success.
      */
-    bool reSpell(bool moreSharps);
+  //  bool reSpell(bool moreSharps);
 
     Accidental _accidental = Accidental::none;
     int _legerLine = 0;
     MidiNote _midiNote;
 
 private:
-    bool _reSpellFlats();
-    bool _reSpellSharps();
-    bool _canFlatCurrentLeger();
+    // bool _reSpellFlats();
+    // bool _reSpellSharps();
+    // bool _canFlatCurrentLeger();
 };
 
 
+#if 0
 inline bool NotationNote::_canFlatCurrentLeger() {
     assert(false);
     return false;
 }
+
 
 // Algorithm, for more flats:
 // can we flat the existing leger (depends on scale, and _accidental), then flat it.
@@ -64,3 +66,4 @@ inline bool NotationNote::_reSpellSharps() {
 inline bool NotationNote::reSpell(bool moreSharps) {
     return moreSharps ? _reSpellSharps() : _reSpellFlats();
 }
+#endif

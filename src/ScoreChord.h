@@ -61,7 +61,10 @@
  * 
  * step 1: remove ScaleNote from NotationNote (done).
  * step 2: break out NotationNote into own class. (done)
- * step 3: make "getAlternateSpelling" method, with unit tests. (move the spelling stuff back into utils?)
+ * step 3: make "getAlternateSpelling" method, with unit tests. 
+ *  (move the spelling stuff back into utils?)
+ *  make a util in MidiNote for leger line + accidental -> pitch.
+ *  consider breaking out MidiNote unit tests from testNotes.cpp
  * step 4: add util to get vector of spellings. 
  * step 5: use it, re-do scoring (?), make new spelling stuff unit testable.
  */
@@ -131,6 +134,8 @@ private:
     float _drawMusicNonNotes(const DrawArgs &args) const;  // returns x pos at end of ksig
     void _drawNotes(const DrawArgs &args, float xPosition) const;
     void _drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
+    
+    // This is limited to white keys. Only used for keysig drawing.
     float _noteY(const MidiNote &note, bool bassStaff) const;
 
     class YInfo {
@@ -139,15 +144,15 @@ private:
         float legerPos[3] = {};
     };
     YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
-    void drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
-    void drawOneNote(
+    void _drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
+    void _drawOneNote(
         const DrawArgs &args,
         const MidiNote &note,
         const NotationNote &notationNote,
         const YInfo &yInfo,
         float xPosition,
         bool offsetNote) const;
-    void drawTwoNotes(
+    void _drawTwoNotes(
         const DrawArgs &args,
         const MidiNote &note,
         const NotationNote &notationNote,
@@ -162,7 +167,7 @@ private:
     /**
      * @return float width of key signature
      */
-    std::pair<float, float> drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebleClef, float y) const;
+    std::pair<float, float> _drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool trebleClef, float y) const;
 
     float noteXPos(int noteNumber, std::pair<float, float> _keysigLayout) const;
 
@@ -261,8 +266,8 @@ float ScoreChord::_drawMusicNonNotes(const DrawArgs &args) const {
 
     if (_module) {
         const auto scale = _module->getScale();
-        const auto a = drawKeysig(args, scale, true, _yTrebleStaff);
-        const auto b = drawKeysig(args, scale, false, _yBassStaff);
+        const auto a = _drawKeysig(args, scale, true, _yTrebleStaff);
+        const auto b = _drawKeysig(args, scale, false, _yBassStaff);
         keysigWidth = std::max(keysigWidth, a.first);
         keysigWidth = std::max(keysigWidth, b.first);
 
@@ -282,8 +287,6 @@ inline ScoreChord::YInfo ScoreChord::_noteYInfo(const MidiNote &note, int legerL
     }
 
     float yPosition = 0;
-
-    //  const int legerLine = note.getLegerLine(prefs, bassStaff);
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
 
     if (legerLine < -1) {
@@ -336,7 +339,7 @@ inline float ScoreChord::noteXPos(int noteNumber, std::pair<float, float> _keysi
     return x;
 }
 
-inline std::pair<float, float> ScoreChord::drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
+inline std::pair<float, float> ScoreChord::_drawKeysig(const DrawArgs &args, ConstScalePtr scale, bool treble, float y) const {
     const auto info = scale->getScoreInfo();
     float width = 0;
     float pos = 0;
@@ -423,7 +426,7 @@ inline void ScoreChord::step() {
     Widget::step();
 }
 
-inline void ScoreChord::drawLegerLinesForNotes(const DrawArgs &args, const YInfo &yInfo, float xPosition) const {
+inline void ScoreChord::_drawLegerLinesForNotes(const DrawArgs &args, const YInfo &yInfo, float xPosition) const {
     for (int i = 0; i < 3; ++i) {
         if (yInfo.legerPos[i] != 0) {
             nvgText(args.vg, xPosition, yInfo.legerPos[i], _legerLineWide.c_str(), NULL);
@@ -462,14 +465,14 @@ inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, f
     nvgText(args.vg, xPosition + _deltaXAccidental, yPosition, symbol.c_str(), NULL);
 }
 
-inline void ScoreChord::drawTwoNotes(
+inline void ScoreChord::_drawTwoNotes(
     const DrawArgs &args,
     const MidiNote &note,
     const NotationNote &notationNote,
     const NotationNote &notationNote2,
     const YInfo &yInfo,
     float xPosition) const {
-    drawLegerLinesForNotes(args, yInfo, xPosition);
+    _drawLegerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = 5;
@@ -549,7 +552,7 @@ inline void ScoreChord::drawTwoNotes(
 #endif
 }
 
-inline void ScoreChord::drawOneNote(
+inline void ScoreChord::_drawOneNote(
     const DrawArgs &args,
     const MidiNote &note,
     const NotationNote &notationNote,
@@ -560,7 +563,7 @@ inline void ScoreChord::drawOneNote(
     SQINFO("--- drawOneNote offset=%d dxAccid=%f Pos=%f,%f notationNoteaccid=%d",
            offsetNote, _deltaXAccidental, xPosition, yInfo.position, int(notationNote._accidental));
 #endif
-    drawLegerLinesForNotes(args, yInfo, xPosition);
+    _drawLegerLinesForNotes(args, yInfo, xPosition);
     const char *notePtr = _wholeNote.c_str();
 
     const float noteXOffset = offsetNote ? 9 : 0;
@@ -714,9 +717,9 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
             const bool offsetThisNote = !noteOffsetByTwoLines && !lastNoteOffset;
             //SQINFO("offset flag will be %d y=%f", offsetThisNote, yInfo.position);
             lastNoteOffset = offsetThisNote;
-            drawOneNote(args, mn, notationNote, yInfo, xPosition, offsetThisNote);
+            _drawOneNote(args, mn, notationNote, yInfo, xPosition, offsetThisNote);
         } else {
-            drawTwoNotes(args, mn, notationNote, notationNoteNext, yInfo, xPosition);
+            _drawTwoNotes(args, mn, notationNote, notationNoteNext, yInfo, xPosition);
         }
     }
 }

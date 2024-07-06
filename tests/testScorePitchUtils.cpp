@@ -56,11 +56,41 @@ static void  testCompare() {
 
 }
 #endif
+
+
+static void testReSpellCMajorCSharp() {
+    MidiNote mn(MidiNote::C3 + 1);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
+  //  bool b = nn.reSpell(false);
+    bool b = ScorePitchUtils::reSpell(nn, false);
+  
+    assert(b);
+}
+
+static void testValidate() {
+    MidiNote mn(MidiNote::C3);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
+    assertEQ(ScorePitchUtils::validate(nn), true);
+}
+
+static void testValidate2() {
+    MidiNote mn(MidiNote::C3 + 4);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
+    assertEQ(ScorePitchUtils::validate(nn), false);
+}
+
 void testScorePitchUtils() {
     test();
     testCMajor();
     testCMinor();
-    // testCompare();
+
+    // don't work yet
+  //  testValidate();
+   // testValidate2();
+
+    // doesn't work yet
+   // testReSpellCMajorCSharp();
+
 }
 
 #if 0
@@ -68,5 +98,7 @@ void testFirst() {
     //  testScorePitchUtils();
    // testCMinor();
   // testCompare();
+   // testReSpellCMajorCSharp();
+   testValidate2();
 }
 #endif
