@@ -236,96 +236,85 @@ static void testMidiIsBlackKey() {
 
 static void testPitchFromLegerTreble() {
     auto x = MidiNote::pitchFromLeger(false, -2, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC);
+    assertEQ(x, MidiNote::MiddleC);
 
     x = MidiNote::pitchFromLeger(false, -1, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::D);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::D);
 
     x = MidiNote::pitchFromLeger(false, 0, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::E);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::E);
 
     x = MidiNote::pitchFromLeger(false, 1, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::F);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::F);
 
     x = MidiNote::pitchFromLeger(false, 2, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::G);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::G);
 
     x = MidiNote::pitchFromLeger(false, 3, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::A);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::A);
 
     x = MidiNote::pitchFromLeger(false, 4, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::B);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::B);
 
     x = MidiNote::pitchFromLeger(false, 5, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 12);
+    assertEQ(x, MidiNote::MiddleC + 12);
 
     x = MidiNote::pitchFromLeger(false, 6, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 12 + MidiNote::D);
+    assertEQ(x, MidiNote::MiddleC + 12 + MidiNote::D);
 
     x = MidiNote::pitchFromLeger(false, 7, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 12 + MidiNote::E);
+    assertEQ(x, MidiNote::MiddleC + 12 + MidiNote::E);
 
     x = MidiNote::pitchFromLeger(false, 8, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 12 + MidiNote::F);
+    assertEQ(x, MidiNote::MiddleC + 12 + MidiNote::F);
 
     x = MidiNote::pitchFromLeger(false, 9, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 12 + MidiNote::G);
+    assertEQ(x, MidiNote::MiddleC + 12 + MidiNote::G);
 
     x = MidiNote::pitchFromLeger(false, 10, SharpsFlatsPref::DontCare);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 12 + MidiNote::A);
+    assertEQ(x, MidiNote::MiddleC + 12 + MidiNote::A);
 }
 
 static void testPitchFromLegerTrebleSharp() {
     auto x = MidiNote::pitchFromLeger(false, -2, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 1);
+    assertEQ(x, MidiNote::MiddleC + 1);
 
     x = MidiNote::pitchFromLeger(false, -1, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::D  + 1);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::D  + 1);
 
     x = MidiNote::pitchFromLeger(false, 0, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::F);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::F);
 
     x = MidiNote::pitchFromLeger(false, 1, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::F + 1);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::F + 1);
 
     x = MidiNote::pitchFromLeger(false, 2, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::G + 1);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::G + 1);
 
     x = MidiNote::pitchFromLeger(false, 3, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::A + 1);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::A + 1);
 
     x = MidiNote::pitchFromLeger(false, 4, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + MidiNote::B + 1);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::B + 1);
 
     x = MidiNote::pitchFromLeger(false, 5, SharpsFlatsPref::Sharps);
-    assertEQ(std::get<0>(x), true);
-    assertEQ(std::get<1>(x), MidiNote::MiddleC + 12 + 1);
-
+    assertEQ(x, MidiNote::MiddleC + 12 + 1);
 }
 
-   
-
-
+static void testPitchFromLegerTrebleFlat() {
+    assertEQ(MidiNote::pitchFromLeger(false, -2, SharpsFlatsPref::Flats), MidiNote::MiddleC - 1);
+    assertEQ(MidiNote::pitchFromLeger(false, -1, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::D- 1);
+    assertEQ(MidiNote::pitchFromLeger(false, 0, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::E - 1);
+    assertEQ(MidiNote::pitchFromLeger(false, 1, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::F - 1);
+    assertEQ(MidiNote::pitchFromLeger(false, 2, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::G - 1);
+    assertEQ(MidiNote::pitchFromLeger(false, 3, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::A - 1);
+    assertEQ(MidiNote::pitchFromLeger(false, 4, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::B - 1);
+    assertEQ(MidiNote::pitchFromLeger(false, 5, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::C - 1 + 12);
+    assertEQ(MidiNote::pitchFromLeger(false, 6, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::D - 1 + 12);
+    assertEQ(MidiNote::pitchFromLeger(false, 7, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::E - 1 + 12);
+    assertEQ(MidiNote::pitchFromLeger(false, 8, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::F - 1 + 12);
+    assertEQ(MidiNote::pitchFromLeger(false, 9, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::G - 1 + 12);
+}
 
 void testMidiNote() {
     testMidiNoteCtor();
@@ -355,12 +344,14 @@ void testMidiNote() {
     testMidiIsBlackKey();
     testPitchFromLegerTreble();
     testPitchFromLegerTrebleSharp();
+    testPitchFromLegerTrebleFlat();
 }
 
 #if 1
 void testFirst() {
-    // testMidiNote();
+     testMidiNote();
  //   testPitchFromLegerTreble();
-    testPitchFromLegerTrebleSharp();
+    testPitchFromLegerTrebleFlat();
+ // testPitchFromLegerTrebleSharp();
 }
 #endif

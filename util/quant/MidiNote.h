@@ -32,9 +32,9 @@ public:
      * @param bassStaff - true if bass, false if treble.
      * @param legerLine - line of the staff (or off of it), starting at the lowest (middle C is -2 in treble clef).
      * @param accidental - don't care means none here.
-     * @return std::tuple<bool, unsigned> - first it true if successful, second is the value
+     * @return int - the midi pitch
      */
-    static std::tuple<bool, unsigned> pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
+    static int pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
 
     static const int C3 = 60;  // C3 is 60 in midi spec.
     static const int C = 0;
@@ -55,7 +55,7 @@ inline int MidiNote::getLegerLine(bool bassStaff) const {
     return getLegerLine(SharpsFlatsPref::Sharps, bassStaff);
 }
 
-inline std::tuple<bool, unsigned> MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
+inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
     assert(!bassStaff);
     legerLine += 2;  // push up to C == 0
     unsigned pitch = 0;
@@ -122,7 +122,7 @@ inline std::tuple<bool, unsigned> MidiNote::pitchFromLeger(bool bassStaff, int l
             assert(false);
     }
     SQINFO("returning pitch=%d, octave=%d remainder=%d", pitch, octave, remainder);
-    return std::make_tuple(success, pitch + octave * 12);
+    return pitch + octave * 12;
 }
 
 inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
