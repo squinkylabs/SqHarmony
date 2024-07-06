@@ -6,7 +6,7 @@ static void test() {
     // ScorePitchUtils sp;
     Scale sc;
     MidiNote mn;
-   // ScorePitchUtils::getNotationNote(sc, mn);
+    // ScorePitchUtils::getNotationNote(sc, mn);
 }
 
 static void testCMajor() {
@@ -28,16 +28,15 @@ static void testCMinor() {
     // MidiNote mnc(MidiNote::C);
     // MidiNote mncSharp(MidiNote::C + 1);
     MidiNote mnEFlat(MidiNote::E - 1);
-    MidiNote mnE(MidiNote::E );
+    MidiNote mnE(MidiNote::E);
     sc.set(mnEFlat, Scale::Scales::Minor);
 
     // In C minor, E flat notated needs no accidental
-  auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat, false);
-  assert(x._accidental == NotationNote::Accidental::none);
+    auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat, false);
+    assert(x._accidental == NotationNote::Accidental::none);
 
-  x = ScorePitchUtils::getNotationNote(sc, mnE, false);
-  assert(x._accidental == NotationNote::Accidental::natural);
-    
+    x = ScorePitchUtils::getNotationNote(sc, mnE, false);
+    assert(x._accidental == NotationNote::Accidental::natural);
 }
 
 #if 0
@@ -57,24 +56,23 @@ static void  testCompare() {
 }
 #endif
 
-
 static void testReSpellCMajorCSharp() {
     MidiNote mn(MidiNote::C3 + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
-  //  bool b = nn.reSpell(false);
+    //  bool b = nn.reSpell(false);
     bool b = ScorePitchUtils::reSpell(nn, false);
-  
+
     assert(b);
 }
 
 static void testValidate() {
-    MidiNote mn(MidiNote::C3);
+    MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
     assertEQ(ScorePitchUtils::validate(nn), true);
 }
 
 static void testValidate2() {
-    MidiNote mn(MidiNote::C3 + 4);
+    MidiNote mn(MidiNote::MiddleC + 4);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
     assertEQ(ScorePitchUtils::validate(nn), false);
 }
@@ -84,21 +82,19 @@ void testScorePitchUtils() {
     testCMajor();
     testCMinor();
 
-    // don't work yet
-  //  testValidate();
-   // testValidate2();
+    testValidate();
+    testValidate2();
 
     // doesn't work yet
-   // testReSpellCMajorCSharp();
-
+    // testReSpellCMajorCSharp();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    //  testScorePitchUtils();
-   // testCMinor();
-  // testCompare();
-   // testReSpellCMajorCSharp();
-   testValidate2();
+    testScorePitchUtils();
+    // testCMinor();
+    // testCompare();
+    // testReSpellCMajorCSharp();
+    //   testValidate();
 }
 #endif

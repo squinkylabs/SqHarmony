@@ -69,39 +69,6 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
     return NotationNote(midiNote, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
 
-#if 0
-inline bool ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
-    SQINFO("compare %d vs %d. flat=%d, sharp=%d, natural=%d, none=%d",
-        int(accidental1), int(accidental2),
-    int(ScorePitchUtils::Accidental::flat), int(ScorePitchUtils::Accidental::sharp), int(ScorePitchUtils::Accidental::natural), int(ScorePitchUtils::Accidental::none)); 
-
-    assert(accidental1 != Accidental::none);    
-    assert(accidental2 != Accidental::none);
-    if (accidental1 == accidental2) {
-        return true;
-    }
-
-    if (accidental2 == ScorePitchUtils::Accidental::sharp) {
-        // if the second is a sharp, it must be GE the other one.
-        return true;                    
-    }
-    if (accidental1 == ScorePitchUtils::Accidental::sharp) {
-        return false;
-    }
-    // More cases to implement.
-    assert(false);
-    return false;
-}
-#endif
-
-// inline bool ScorePitchUtils::_canFlatCurrentLeger(NotationNote& nn) {
-//     assert(false);
-//     return false;
-// }
-
-// Algorithm, for more flats:
-// can we flat the existing leger (depends on scale, and _accidental), then flat it.
-
 inline bool ScorePitchUtils::_reSpellFlats(NotationNote& nn) {
     SQINFO("in _reSpellFlats");
     int evalLedger = nn._legerLine + 1;
@@ -126,6 +93,25 @@ inline bool ScorePitchUtils::reSpell(NotationNote& nn, bool moreSharps) {
     return moreSharps ? _reSpellSharps(nn) : _reSpellFlats(nn);
 }
 
-inline bool ScorePitchUtils::validate(const NotationNote&) {
-    return true;
+inline bool ScorePitchUtils::validate(const NotationNote& nn) {
+    const int midiNotePitch = nn._midiNote.get();
+
+    // This unfortunate conversion is due to our somewhat scatter shot approach to accidental handling....
+    SharpsFlatsPref sharpsPref = SharpsFlatsPref::DontCare;
+    switch (nn._accidental) {
+        case NotationNote::Accidental::flat:
+            sharpsPref = SharpsFlatsPref::Flats;
+            break;
+        case NotationNote::Accidental::sharp:
+            sharpsPref = SharpsFlatsPref::Sharps;
+            break;
+        case NotationNote::Accidental::natural:
+        case NotationNote::Accidental::none:
+            sharpsPref = SharpsFlatsPref::DontCare;
+            break;
+        default:
+            assert(false);
+    }
+    const int legerPitch = MidiNote::pitchFromLeger(false, nn._legerLine, sharpsPref);
+    return midiNotePitch == legerPitch;
 }

@@ -65,6 +65,7 @@
  *  (move the spelling stuff back into utils?)
  *  make a util in MidiNote for leger line + accidental -> pitch.
  *  consider breaking out MidiNote unit tests from testNotes.cpp
+ *  put clef bool into NotationNote
  * step 4: add util to get vector of spellings. 
  * step 5: use it, re-do scoring (?), make new spelling stuff unit testable.
  */

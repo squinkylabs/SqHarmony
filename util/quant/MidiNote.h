@@ -57,12 +57,11 @@ inline int MidiNote::getLegerLine(bool bassStaff) const {
 
 inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
     if (bassStaff) {
-        legerLine -= 3;     // push C to leger line zero in bass 
+        legerLine -= 3;  // push C to leger line zero in bass
     } else {
         legerLine += 2;  // push C to leger line zero in treble
     }
     unsigned pitch = 0;
-    bool success = false;
     int octave = (legerLine / 7);
     int remainder = legerLine % 7;
     if (remainder < 0) {
@@ -75,31 +74,24 @@ inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPr
     switch (remainder) {
         case 0:
             pitch = MidiNote::MiddleC + MidiNote::C;
-            success = true;
             break;
         case 1:
             pitch = MidiNote::MiddleC + MidiNote::D;
-            success = true;
             break;
         case 2:
             pitch = MidiNote::MiddleC + MidiNote::E;
-            success = true;
             break;
         case 3:
             pitch = MidiNote::MiddleC + MidiNote::F;
-            success = true;
             break;
         case 4:
             pitch = MidiNote::MiddleC + MidiNote::G;
-            success = true;
             break;
         case 5:
             pitch = MidiNote::MiddleC + MidiNote::A;
-            success = true;
             break;
         case 6:
             pitch = MidiNote::MiddleC + MidiNote::B;
-            success = true;
             break;
         default:
             assert(false);  // case not implemented yet.
@@ -117,7 +109,7 @@ inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPr
         default:
             assert(false);
     }
-    SQINFO("returning pitch=%d, octave=%d remainder=%d", pitch, octave, remainder);
+
     return pitch + octave * 12;
 }
 

@@ -362,7 +362,7 @@ void testMidiNote() {
     testPitchFromLegerBass();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testMidiNote();
    // testPitchFromLegerBass();
