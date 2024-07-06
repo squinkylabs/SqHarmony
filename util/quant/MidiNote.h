@@ -1,9 +1,9 @@
 #pragma once
 
+#include <algorithm>
 #include <assert.h>
 #include <stdio.h>
-
-#include <algorithm>
+#include <tuple>
 
 #include "SharpsFlatsPref.h"
 #include "SqLog.h"
@@ -25,6 +25,17 @@ public:
 
     bool isBlackKey() const;
 
+
+    /**
+     * @brief convert from music staff to midi pitch.
+     * 
+     * @param bassStaff - true if bass, false if treble.
+     * @param legerLine - line of the staff (or off of it), starting at the lowest (middle C is -2 in treble clef).
+     * @param accidental - don't care means none here.
+     * @return std::tuple<bool, unsigned> - first it true if successful, second is the value
+     */
+    static std::tuple<bool, unsigned> pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
+
     static const int C3 = 60;  // C3 is 60 in midi spec.
     static const int C = 0;
     static const int D = 2;
@@ -42,6 +53,10 @@ private:
 
 inline int MidiNote::getLegerLine(bool bassStaff) const {
     return getLegerLine(SharpsFlatsPref::Sharps, bassStaff);
+}
+
+inline std::tuple<bool, unsigned> MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
+    return std::make_tuple(false, 0);
 }
 
 inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {

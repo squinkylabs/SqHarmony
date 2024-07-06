@@ -1,7 +1,6 @@
 
 
 #include "MidiNote.h"
-
 #include "asserts.h"
 
 static void testMidiNoteCtor() {
@@ -11,7 +10,6 @@ static void testMidiNoteCtor() {
     MidiNote m2(12);
     assert(m2.get() == 12);
 }
-
 
 //------------------- let's test c on up
 static void testMidiStaffC() {
@@ -24,7 +22,6 @@ static void testMidiStaffC() {
     assertEQ(ll, -2);
     ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
     assertEQ(ll, -2);
-
 }
 
 static void testMidiStaffCSharp() {
@@ -237,42 +234,45 @@ static void testMidiIsBlackKey() {
     assertEQ(MidiNote(MidiNote::C + 1 + 48).isBlackKey(), true);
 }
 
+//testPitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
+static void testPitchFromLeger() {
+    auto x = MidiNote::pitchFromLeger(false, -2, SharpsFlatsPref::DontCare);
+    assertEQ( std::get<0>(x), true);
+    assertEQ( std::get<1>(x), MidiNote::C3);
+}
 
 void testMidiNote() {
     testMidiNoteCtor();
-     testMidiStaffX();
+    testMidiStaffX();
 
- // C on up
- testMidiStaffC();
- testMidiStaffCSharp();
- testMidiStaffD();
- testMidiStaffDSharp();
- testMidiStaffE();
- testMidiStaffEFlat();
- testMidiStaffF();
- testMidiStaffFSharp();
- testMidiStaffG();
- testMidiStaffGSharp();
- testMidiStaffA();
- testMidiStaffASharp();
- testMidiStaffB();
+    // C on up
+    testMidiStaffC();
+    testMidiStaffCSharp();
+    testMidiStaffD();
+    testMidiStaffDSharp();
+    testMidiStaffE();
+    testMidiStaffEFlat();
+    testMidiStaffF();
+    testMidiStaffFSharp();
+    testMidiStaffG();
+    testMidiStaffGSharp();
+    testMidiStaffA();
+    testMidiStaffASharp();
+    testMidiStaffB();
 
- testMidiStaffC2();
- testMidiStaffC3();
- testMidiStaffLowA();
- // testMidiBassStaffA();
- testMidiStaffAll(false);
- testMidiStaffAll(true);
- testMidiIsBlackKey();
+    testMidiStaffC2();
+    testMidiStaffC3();
+    testMidiStaffLowA();
+    // testMidiBassStaffA();
+    testMidiStaffAll(false);
+    testMidiStaffAll(true);
+    testMidiIsBlackKey();
+    testPitchFromLeger();
 }
-
 
 #if 1
 void testFirst() {
-    //  testScorePitchUtils();
-    // testMidiIsBlackKey();
-    // testMidiStaffE();
-    //  testMidiStaffEFlat();
-    testMidiNote();
+    //testMidiNote();
+    testPitchFromLeger();
 }
 #endif
