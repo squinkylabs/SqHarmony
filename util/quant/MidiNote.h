@@ -1,8 +1,9 @@
 #pragma once
 
-#include <algorithm>
 #include <assert.h>
 #include <stdio.h>
+
+#include <algorithm>
 #include <tuple>
 
 #include "SharpsFlatsPref.h"
@@ -25,10 +26,9 @@ public:
 
     bool isBlackKey() const;
 
-
     /**
      * @brief convert from music staff to midi pitch.
-     * 
+     *
      * @param bassStaff - true if bass, false if treble.
      * @param legerLine - line of the staff (or off of it), starting at the lowest (middle C is -2 in treble clef).
      * @param accidental - don't care means none here.
@@ -56,7 +56,73 @@ inline int MidiNote::getLegerLine(bool bassStaff) const {
 }
 
 inline std::tuple<bool, unsigned> MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
-    return std::make_tuple(false, 0);
+    assert(!bassStaff);
+    legerLine += 2;  // push up to C == 0
+    unsigned pitch = 0;
+    bool success = false;
+    int octave = (legerLine / 7);
+    int remainder = legerLine % 7;
+    if (remainder < 0) {
+        remainder += 7;
+        octave -= 1;
+    }
+    switch (remainder) {
+#if 0
+        case -2:
+            pitch = MidiNote::MiddleC;
+            success = true;
+            break;
+        case -1:
+            pitch = MidiNote::MiddleC + MidiNote::D;
+            success = true;
+            break;
+#endif
+        case 0:
+            pitch = MidiNote::MiddleC + MidiNote::C;
+            success = true;
+            break;
+        case 1:
+            pitch = MidiNote::MiddleC + MidiNote::D;
+            success = true;
+            break;
+        case 2:
+            pitch = MidiNote::MiddleC + MidiNote::E;
+            success = true;
+            break;
+        case 3:
+            pitch = MidiNote::MiddleC + MidiNote::F;
+            success = true;
+            break;
+        case 4:
+            pitch = MidiNote::MiddleC + MidiNote::G;
+            success = true;
+            break;
+        case 5:
+            pitch = MidiNote::MiddleC + MidiNote::A;
+            success = true;
+            break;
+        case 6:
+            pitch = MidiNote::MiddleC + MidiNote::B;
+            success = true;
+            break;
+        default:
+            assert(false);  // case not implemented yet.
+    }
+
+    switch (accidental) {
+        case SharpsFlatsPref::DontCare:
+            break;
+        case SharpsFlatsPref::Sharps:
+            pitch++;
+            break;
+        case SharpsFlatsPref::Flats:
+            pitch--;
+            break;
+        default:
+            assert(false);
+    }
+    SQINFO("returning pitch=%d, octave=%d remainder=%d", pitch, octave, remainder);
+    return std::make_tuple(success, pitch + octave * 12);
 }
 
 inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
@@ -75,7 +141,7 @@ inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) c
             break;
         case 1:  // C#/D-
             line = preferFlats ? -1 : -2;
-            //SQINFO("in MidiNote::getLEdgetLine semi=%d line=%d prefFlats = %d", semi, line, preferFlats);
+            // SQINFO("in MidiNote::getLEdgetLine semi=%d line=%d prefFlats = %d", semi, line, preferFlats);
             break;
         case 2:  // D
             line = -1;
@@ -101,7 +167,7 @@ inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) c
         case 9:  // A
             line = 3;
             break;
-        case 10:    // A# / B-
+        case 10:  // A# / B-
             line = preferFlats ? 4 : 3;
             break;
         case 11:  // B
