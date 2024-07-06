@@ -57,12 +57,15 @@ static void  testCompare() {
 #endif
 
 static void testReSpellCMajorCSharp() {
-    MidiNote mn(MidiNote::C3 + 1);
+    MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
-    //  bool b = nn.reSpell(false);
+    assert(ScorePitchUtils::validate(nn));
     bool b = ScorePitchUtils::reSpell(nn, false);
-
-    assert(b);
+    assertEQ(b, true);
+    assert(ScorePitchUtils::validate(nn));
+    assertEQ(nn._midiNote.get(), MidiNote::MiddleC + 1);
+    assert(nn._accidental == NotationNote::Accidental::flat);
+    assertEQ(nn._legerLine, -1);
 }
 
 static void testValidate() {
@@ -85,16 +88,15 @@ void testScorePitchUtils() {
     testValidate();
     testValidate2();
 
-    // doesn't work yet
-    // testReSpellCMajorCSharp();
+    testReSpellCMajorCSharp();
 }
 
 #if 1
 void testFirst() {
-    testScorePitchUtils();
+    // testScorePitchUtils();
     // testCMinor();
     // testCompare();
-    // testReSpellCMajorCSharp();
+    testReSpellCMajorCSharp();
     //   testValidate();
 }
 #endif

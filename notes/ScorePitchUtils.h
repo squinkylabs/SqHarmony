@@ -34,8 +34,8 @@ public:
 private:
     static bool _reSpellFlats(NotationNote& note);
     static bool _reSpellSharps(NotationNote& note);
-    //  static bool _canFlatCurrentLeger(NotationNote& note);
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine);
+    static bool _makeNoteAtHigherLeger(NotationNote& nn, int legerLine);
 };
 
 inline NotationNote
@@ -76,20 +76,83 @@ inline bool ScorePitchUtils::_reSpellFlats(NotationNote& nn) {
         return true;
     }
     assert(false);  // what now?
-
     return false;
 }
 
-inline bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLine) {
+inline bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLineTarget) {
+    assert(validate(nn));
+
+    assert(legerLineTarget != nn._legerLine);  // unexpected if asked to make a note where we are.
+    if (legerLineTarget > nn._legerLine) {
+        // Make a note at a higher leger line.
+        return _makeNoteAtHigherLeger(nn, legerLineTarget);
+    } else {
+        assert(false);
+    }
+    return false;
+}
+
+inline bool ScorePitchUtils::_makeNoteAtHigherLeger(NotationNote& nn, int legerLineTarget) {
+    auto newNote = NotationNote(nn._midiNote, NotationNote::Accidental::flat, legerLineTarget);
+    if (validate(newNote)) {
+        nn = newNote;
+        return true;
+    }
+    newNote = NotationNote(nn._midiNote, NotationNote::Accidental::none, legerLineTarget);
+    if (validate(newNote)) {
+        nn = newNote;
+        return true;
+    }
+
+    newNote = NotationNote(nn._midiNote, NotationNote::Accidental::sharp, legerLineTarget);
+    if (validate(newNote)) {
+        nn = newNote;
+        return true;
+    }
+
     assert(false);
     return false;
 }
 
+#if 0
+inline bool ScorePitchUtils::_makeNoteAtHigherLeger(NotationNote& nn, int legerLineTarget) {
+    NotationNote newNote(nn);
+    const unsigned refPitch = nn._midiNote.get();
+    const NotationNote::Accidental refAccidental = nn._accidental;
+    while (true) {
+        NotationNote::Accidental nextTry;
+        switch (nn._accidental) {       // could this logic be in NotationNote itself?
+            case NotationNote::Accidental::none:
+            case NotationNote::Accidental::natural:
+                nextTry = NotationNote::Accidental::sharp;
+                break;
+            case NotationNote::Accidental::sharp:
+                // if the target is a sharp, let's try a natural.
+                nextTry = NotationNote::Accidental::none;
+                break;
+            default:
+                assert(false);
+                return false;
+        }
+        newNote = NotationNote(nn._midiNote, nextTry, legerLineTarget);
+        if (validate(newNote)) {
+            nn = newNote;
+            return true;
+        }
+
+        assert(false);
+    }
+    return false;
+}
+#endif
+
 inline bool ScorePitchUtils::_reSpellSharps(NotationNote& nn) {
+    assert(false);
     return false;
 }
 
 inline bool ScorePitchUtils::reSpell(NotationNote& nn, bool moreSharps) {
+    assert(validate(nn));
     return moreSharps ? _reSpellSharps(nn) : _reSpellFlats(nn);
 }
 
