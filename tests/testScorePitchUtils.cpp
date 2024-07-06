@@ -80,6 +80,25 @@ static void testReSpellCMajorDFlat() {
     assertEQ(nn._legerLine, -2);
 }
 
+static void testReSpellCMajorCSharpTwice() {
+    MidiNote mn(MidiNote::MiddleC + 1);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
+  
+    bool b = ScorePitchUtils::reSpell(nn, false);
+    assertEQ(b, true);
+    b = ScorePitchUtils::reSpell(nn, false);
+    assertEQ(b, false);  
+}
+
+static void testCSharpVariations() {
+    MidiNote mn(MidiNote::MiddleC + 1);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
+    assertEQ(ScorePitchUtils::validate(nn), true);
+
+    auto variations = ScorePitchUtils::getVariations(nn);
+    assertEQ(variations.size(), 2);
+}
+
 static void testValidate() {
     MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
@@ -102,10 +121,13 @@ void testScorePitchUtils() {
 
     testReSpellCMajorCSharp();
     testReSpellCMajorDFlat();
+    testReSpellCMajorCSharpTwice();
 }
 
 #if 1
 void testFirst() {
-    testScorePitchUtils();
+   //  testScorePitchUtils();
+   // testReSpellCMajorCSharpTwice();
+   testCSharpVariations();
 }
 #endif

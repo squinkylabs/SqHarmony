@@ -46,8 +46,8 @@
  *
  * Bugs:
  *      C and A below middle C - draws crazy leger lines(done)
- *      C and D flat in cmajor, draws two C (done)
- *      cmajor chord in C# Major - accidentals get on key sig. (done)
+ *      C and D flat in CvMajor, draws two C (done)
+ *      C Major chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
  * 
@@ -61,7 +61,7 @@
  * 
  * step 1: remove ScaleNote from NotationNote (done).
  * step 2: break out NotationNote into own class. (done)
- * step 3: make "getAlternateSpelling" method, with unit tests. 
+ * step 3: make "getAlternateSpelling" method, with unit tests. (done)
  *  (move the spelling stuff back into utils?)
  *  make a util in MidiNote for leger line + accidental -> pitch.
  *  consider breaking out MidiNote unit tests from testNotes.cpp

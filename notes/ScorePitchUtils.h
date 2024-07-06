@@ -14,6 +14,8 @@ public:
     ScorePitchUtils() = delete;
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
 
+    static std::vector<NotationNote> getVariations(const NotationNote&);
+
     /**
      * Not needed right now.
      * @return returns true if accidental1 <= accidental2
@@ -75,7 +77,7 @@ inline bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLin
         return true;
     }
 
-    assert(false);
+    // If no accidentals work, give up. We can't do it.
     return false;
 }
 
@@ -106,4 +108,12 @@ inline bool ScorePitchUtils::validate(const NotationNote& nn) {
     }
     const int legerPitch = MidiNote::pitchFromLeger(false, nn._legerLine, sharpsPref);
     return midiNotePitch == legerPitch;
+}
+
+inline std::vector<NotationNote> ScorePitchUtils::getVariations(const NotationNote& nn) {
+    assert(validate(nn));
+    NotationNote self = nn;
+    std::vector<NotationNote> ret;
+    ret.push_back(self);
+    return ret;
 }
