@@ -56,27 +56,23 @@ inline int MidiNote::getLegerLine(bool bassStaff) const {
 }
 
 inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
-    assert(!bassStaff);
-    legerLine += 2;  // push up to C == 0
+    if (bassStaff) {
+        legerLine -= 3;     // push C to leger line zero in bass 
+    } else {
+        legerLine += 2;  // push C to leger line zero in treble
+    }
     unsigned pitch = 0;
     bool success = false;
     int octave = (legerLine / 7);
     int remainder = legerLine % 7;
     if (remainder < 0) {
         remainder += 7;
-        octave -= 1;
+        octave--;
+    }
+    if (bassStaff) {
+        octave--;
     }
     switch (remainder) {
-#if 0
-        case -2:
-            pitch = MidiNote::MiddleC;
-            success = true;
-            break;
-        case -1:
-            pitch = MidiNote::MiddleC + MidiNote::D;
-            success = true;
-            break;
-#endif
         case 0:
             pitch = MidiNote::MiddleC + MidiNote::C;
             success = true;

@@ -280,7 +280,7 @@ static void testPitchFromLegerTrebleSharp() {
     assertEQ(x, MidiNote::MiddleC + 1);
 
     x = MidiNote::pitchFromLeger(false, -1, SharpsFlatsPref::Sharps);
-    assertEQ(x, MidiNote::MiddleC + MidiNote::D  + 1);
+    assertEQ(x, MidiNote::MiddleC + MidiNote::D + 1);
 
     x = MidiNote::pitchFromLeger(false, 0, SharpsFlatsPref::Sharps);
     assertEQ(x, MidiNote::MiddleC + MidiNote::F);
@@ -303,7 +303,7 @@ static void testPitchFromLegerTrebleSharp() {
 
 static void testPitchFromLegerTrebleFlat() {
     assertEQ(MidiNote::pitchFromLeger(false, -2, SharpsFlatsPref::Flats), MidiNote::MiddleC - 1);
-    assertEQ(MidiNote::pitchFromLeger(false, -1, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::D- 1);
+    assertEQ(MidiNote::pitchFromLeger(false, -1, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::D - 1);
     assertEQ(MidiNote::pitchFromLeger(false, 0, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::E - 1);
     assertEQ(MidiNote::pitchFromLeger(false, 1, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::F - 1);
     assertEQ(MidiNote::pitchFromLeger(false, 2, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::G - 1);
@@ -314,6 +314,20 @@ static void testPitchFromLegerTrebleFlat() {
     assertEQ(MidiNote::pitchFromLeger(false, 7, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::E - 1 + 12);
     assertEQ(MidiNote::pitchFromLeger(false, 8, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::F - 1 + 12);
     assertEQ(MidiNote::pitchFromLeger(false, 9, SharpsFlatsPref::Flats), MidiNote::MiddleC + MidiNote::G - 1 + 12);
+}
+
+
+static void testPitchFromLegerBass() {
+    SQINFO("starting testPitchFromLegerBass");
+    SQINFO("first middle C treble");
+    MidiNote::pitchFromLeger(false, -2, SharpsFlatsPref::DontCare);
+    SQINFO("now low G in bass");
+    MidiNote::pitchFromLeger(true, 0, SharpsFlatsPref::DontCare);
+    SQINFO("now low C in bass");
+    MidiNote::pitchFromLeger(true, 3, SharpsFlatsPref::DontCare);
+    SQINFO("now test");
+
+    assertEQ(MidiNote::pitchFromLeger(true, 10, SharpsFlatsPref::DontCare), MidiNote::MiddleC);
 }
 
 void testMidiNote() {
@@ -345,13 +359,15 @@ void testMidiNote() {
     testPitchFromLegerTreble();
     testPitchFromLegerTrebleSharp();
     testPitchFromLegerTrebleFlat();
+    testPitchFromLegerBass();
 }
 
 #if 1
 void testFirst() {
-     testMidiNote();
- //   testPitchFromLegerTreble();
-    testPitchFromLegerTrebleFlat();
- // testPitchFromLegerTrebleSharp();
+    testMidiNote();
+   // testPitchFromLegerBass();
+    //   testPitchFromLegerTreble();
+    //
+    // testPitchFromLegertestPitchFromLegerTrebleFlat();TrebleSharp();
 }
 #endif
