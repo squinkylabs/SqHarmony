@@ -12,9 +12,28 @@
 class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
+    template <typename T, int capacity>
+    class vlenArray {
+    public:
+        T data[capacity];
+        int size() const {
+            return index;
+        }
+
+        void _push(T t) {
+            data[index] = t;
+            ++index;
+            assert(index <= capacity);
+        }
+
+    private:
+        int index = 0;
+    };
+
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
 
-    static std::vector<NotationNote> getVariations(const NotationNote&);
+    // static std::vector<NotationNote> getVariations(const NotationNote&);
+    static vlenArray<NotationNote, 16> getVariations(const NotationNote&);
 
     /**
      * Not needed right now.
@@ -57,7 +76,6 @@ ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, b
     const auto pref = scale.getSharpsFlatsPref();
     return NotationNote(midiNote, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
-
 
 inline bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLineTarget) {
     auto newNote = NotationNote(nn._midiNote, NotationNote::Accidental::flat, legerLineTarget);
@@ -110,10 +128,16 @@ inline bool ScorePitchUtils::validate(const NotationNote& nn) {
     return midiNotePitch == legerPitch;
 }
 
-inline std::vector<NotationNote> ScorePitchUtils::getVariations(const NotationNote& nn) {
+inline ScorePitchUtils::vlenArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn) {
     assert(validate(nn));
-    NotationNote self = nn;
-    std::vector<NotationNote> ret;
-    ret.push_back(self);
+    NotationNote temp = nn;
+    vlenArray<NotationNote, 16> ret;
+    ret._push(temp);
+    while (reSpell(temp, true)) {
+        ret._push(temp);
+    }
+     while (reSpell(temp, false)) {
+        ret._push(temp);
+    }
     return ret;
 }
