@@ -97,18 +97,22 @@ ScorePitchUtils::vlenArray<NotationNote, 16> ScorePitchUtils::getVariations(cons
     return ret;
 }
 
-void ScorePitchUtils::findSpelling( vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex) {
+void ScorePitchUtils::findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex) {
     // get all the spellings for current notes.
-    SQINFO("findSpelling");
+    SQINFO("findSpelling %d", evalIndex);
+    const int currentPitch = inputPitches[evalIndex];
+    const MidiNote currentMidiNote = MidiNote(currentPitch);
+    const auto defaultNotationNote = getNotationNote(scale, currentMidiNote, bassStaff);
+    const auto currentVariations = getVariations(defaultNotationNote);
 
     // if more notes: recurse down
     if (evalIndex < inputPitches.size()-1) {
         SQINFO("will recurse");
-        findSpelling(inputPitches, outputNotes, bassStaff, evalIndex+1);
+        findSpelling(scale, inputPitches, outputNotes, bassStaff, evalIndex+1);
 
     } else {
         // if no more notes: evaluate and return
-        SQINFO("will returns at index=%d", evalIndex);
+        SQINFO("will return at index=%d", evalIndex);
         return;
     }
 }

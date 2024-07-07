@@ -108,9 +108,11 @@ static void testFindSpelling() {
     ScorePitchUtils::vlenArray<int, 16> inputPitch;
     ScorePitchUtils::vlenArray<NotationNote, 16> outputNotes;
 
+    Scale scale;
+
     inputPitch._push( MidiNote::MiddleC);
     inputPitch._push( MidiNote::MiddleC + 12);
-    ScorePitchUtils::findSpelling(inputPitch, outputNotes, false);
+    ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
 
     assertEQ(inputPitch.size(), 2);
     assertEQ(outputNotes.size(), 2);

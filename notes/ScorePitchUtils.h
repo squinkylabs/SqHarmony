@@ -43,14 +43,7 @@ public:
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
     static vlenArray<NotationNote, 16> getVariations(const NotationNote&);
-    static void findSpelling(vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex = 0);
-
-    /**
-     * Not needed right now.
-     * @return returns true if accidental1 <= accidental2
-     * @return false if  accidental1 > accidental2
-     */
-    //  static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
+    static void findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
@@ -61,7 +54,6 @@ public:
     static bool reSpell(NotationNote& note, bool moreSharps);
 
     static bool validate(const NotationNote&);
-
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine);
 };
