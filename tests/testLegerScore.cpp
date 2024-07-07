@@ -1,7 +1,12 @@
 
 
+#include "NotationNote.h"
+#include "Scale.h"
 #include "ScorePitchUtils.h"
+
+
 #include "asserts.h"
+
 
 
 

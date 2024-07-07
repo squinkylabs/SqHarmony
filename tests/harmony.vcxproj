@@ -163,6 +163,7 @@
     <ClCompile Include="..\notes\ProgressionAnalyzer.cpp" />
     <ClCompile Include="..\notes\RankedChord.cpp" />
     <ClCompile Include="..\notes\ScaleRelativeNote.cpp" />
+    <ClCompile Include="..\notes\ScorePitchUtils.cpp" />
     <ClCompile Include="..\notes\Style.cpp" />
     <ClCompile Include="..\util\ArpegPlayer.cpp" />
     <ClCompile Include="..\util\AudioMath.cpp" />

@@ -345,6 +345,9 @@
     <ClCompile Include="testMidiNote.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\notes\ScorePitchUtils.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">

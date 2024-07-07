@@ -1,5 +1,7 @@
 #pragma once
 
+// #include "SharpsFlatsPref.h"
+#include "NotationNote.h"
 #include "ScorePitchUtils.h"
 #include "VisualizerModule.h"
 
@@ -50,7 +52,7 @@
  *      C Major chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
- * 
+ *
  * How are sharps/flats handled now?
  * _drawNotes() doesn't care. it divides midi pitches between staves and calls
  * _drawNotesOnStaff, passing midi pitch and a Scale.
@@ -58,7 +60,7 @@
  * NotationNote has ScorePitchUtils::Accidental, and int _legerLine;
  * ScorePitchUtils::getNotationNote uses the pref from the scale. Also it calls Scale::m2s,
  * and the resulting ScaleNote does have sharp/flat built in.
- * 
+ *
  * step 1: remove ScaleNote from NotationNote (done).
  * step 2: break out NotationNote into own class. (done)
  * step 3: make "getAlternateSpelling" method, with unit tests. (done)
@@ -66,7 +68,7 @@
  *  make a util in MidiNote for leger line + accidental -> pitch.
  *  consider breaking out MidiNote unit tests from testNotes.cpp
  *  put clef bool into NotationNote
- * step 4: add util to get vector of spellings. 
+ * step 4: add util to get vector of spellings.
  * step 5: use it, re-do scoring (?), make new spelling stuff unit testable.
  */
 
@@ -135,7 +137,7 @@ private:
     float _drawMusicNonNotes(const DrawArgs &args) const;  // returns x pos at end of ksig
     void _drawNotes(const DrawArgs &args, float xPosition) const;
     void _drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
-    
+
     // This is limited to white keys. Only used for keysig drawing.
     float _noteY(const MidiNote &note, bool bassStaff) const;
 
@@ -591,9 +593,9 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     int copyOfPitches[16];
     for (unsigned i = 0; i < channels; ++i) {
         copyOfPitches[i] = originalPitches[i];
-    #ifdef _LOG
+#ifdef _LOG
         SQINFO("copied %d at index %d", copyOfPitches[i], i);
-        #endif
+#endif
     }
     std::sort(copyOfPitches, copyOfPitches + channels);
 
@@ -654,27 +656,34 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     SQINFO("after pass 2 %p, %p, %p, %p, %p", firstBassNote, lastBassNote, firstMiddleC, firstTrebleNote, lastTrebleNote);
 #endif
     if (firstBassNote) {
-        //SQINFO("drawing bass, there are %d", unsigned((lastBassNote + 1) - firstBassNote));
-        const unsigned num = unsigned((lastBassNote + 1) - firstBassNote);
-        assert(num <= channels);
+// SQINFO("drawing bass, there are %d", unsigned((lastBassNote + 1) - firstBassNote));
+#ifdef _DEBUG
+        {
+            const unsigned num = unsigned((lastBassNote + 1) - firstBassNote);
+            assert(num <= channels);
+        }
+#endif
         _drawNotesOnStaff(args, scale, xPosition, true, firstBassNote, lastBassNote + 1);
     }
 
     if (firstTrebleNote) {
-        //SQINFO("about to call draw notes on staff tn0=%d, tn1=%d", firstTrebleNote[0], firstTrebleNote[1]);
-
-        const unsigned num = unsigned((lastTrebleNote + 1) - firstTrebleNote);
-        assert(num <= channels);
+        // SQINFO("about to call draw notes on staff tn0=%d, tn1=%d", firstTrebleNote[0], firstTrebleNote[1]);
+#ifdef _DEBUG
+        {
+            const unsigned num = unsigned((lastTrebleNote + 1) - firstTrebleNote);
+            assert(num <= channels);
+        }
+#endif
         _drawNotesOnStaff(args, scale, xPosition, false, firstTrebleNote, lastTrebleNote + 1);
     }
 }
 
 inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
-    #ifdef _LOG
+#ifdef _LOG
     SQINFO("\n!!!! _drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
     SQINFO("scale=%p", scale.get());
     SQINFO("scale base = %d", scale->base().get());
-    #endif
+#endif
 
     assert(scale.get() != nullptr);
     int lastYPos = 1000;
@@ -682,18 +691,18 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
 
     for (const int *pitchIterator = begin; pitchIterator < end; ++pitchIterator) {
         MidiNote mn(*pitchIterator);
-    #ifdef _LOG
+#ifdef _LOG
         {
             const auto x = *pitchIterator;
             assert(x < 1000);
             assert(x > -1000);
             SQINFO("in loop, x=%d mn.get() = %d", x, mn.get());
         }
-        #endif
+#endif
         const auto notationNote = ScorePitchUtils::getNotationNote(*scale, mn, bassStaff);
-        //SQINFO("drawNotesOnStaff just got notation note with accid=%d", int(notationNote._accidental));
+        // SQINFO("drawNotesOnStaff just got notation note with accid=%d", int(notationNote._accidental));
         const auto yInfo = _noteYInfo(mn, notationNote._legerLine, bassStaff);
-        //SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
+        // SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
         const float distance = lastYPos - yInfo.position;
         lastYPos = yInfo.position;
         const bool noteOffsetByTwoLines = (distance / _ySpaceBetweenLines) > 1.2;
@@ -716,7 +725,7 @@ inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr sc
 
         if (!twoNotesOnSameLine) {
             const bool offsetThisNote = !noteOffsetByTwoLines && !lastNoteOffset;
-            //SQINFO("offset flag will be %d y=%f", offsetThisNote, yInfo.position);
+            // SQINFO("offset flag will be %d y=%f", offsetThisNote, yInfo.position);
             lastNoteOffset = offsetThisNote;
             _drawOneNote(args, mn, notationNote, yInfo, xPosition, offsetThisNote);
         } else {
