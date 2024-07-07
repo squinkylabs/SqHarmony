@@ -12,15 +12,15 @@
 class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
-    template <typename T, int capacity>
+    template <typename T, unsigned capacity>
     class vlenArray {
     public:
        
-        int size() const {
+        unsigned size() const {
             return index;
         }
 
-        const T operator[] (int i) const {
+        const T operator[] (unsigned i) const {
             assert(i < capacity);
             return data[i];
         }
@@ -40,6 +40,8 @@ public:
 
     // static std::vector<NotationNote> getVariations(const NotationNote&);
     static vlenArray<NotationNote, 16> getVariations(const NotationNote&);
+
+    static void findSpelling( vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**
      * Not needed right now.
@@ -146,4 +148,20 @@ inline ScorePitchUtils::vlenArray<NotationNote, 16> ScorePitchUtils::getVariatio
         ret._push(temp);
     }
     return ret;
+}
+
+inline void ScorePitchUtils::findSpelling( vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex) {
+    // get all the spellings for current notes.
+    SQINFO("findSpelling");
+
+    // if more notes: recurse down
+    if (evalIndex < inputPitches.size()-1) {
+        SQINFO("will recurse");
+        findSpelling(inputPitches, outputNotes, bassStaff, evalIndex+1);
+
+    } else {
+        // if no more notes: evaluate and return
+        SQINFO("will returns at index=%d", evalIndex);
+        return;
+    }
 }

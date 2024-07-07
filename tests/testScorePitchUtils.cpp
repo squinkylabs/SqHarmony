@@ -100,6 +100,19 @@ static void testValidate2() {
     assertEQ(ScorePitchUtils::validate(nn), false);
 }
 
+//    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
+static void testFindSpelling() {
+    ScorePitchUtils::vlenArray<int, 16> inputPitch;
+    ScorePitchUtils::vlenArray<NotationNote, 16> outputNotes;
+
+    inputPitch._push( MidiNote::MiddleC);
+    inputPitch._push( MidiNote::MiddleC + 12);
+    ScorePitchUtils::findSpelling(inputPitch, outputNotes, false);
+
+    assertEQ(inputPitch.size(), 2);
+    assertEQ(outputNotes.size(), 2);
+}
+
 void testScorePitchUtils() {
     test();
     testCMajor();
@@ -111,12 +124,14 @@ void testScorePitchUtils() {
     testReSpellCMajorCSharp();
     testReSpellCMajorDFlat();
     testReSpellCMajorCSharpTwice();
+    testCSharpVariations();
 }
 
-#if 1
+#if 0
 void testFirst() {
    //  testScorePitchUtils();
    // testReSpellCMajorCSharpTwice();
-   testCSharpVariations();
+ //  testCSharpVariations();
+    testFindSpelling();
 }
 #endif
