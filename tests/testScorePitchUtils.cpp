@@ -39,23 +39,6 @@ static void testCMinor() {
     assert(x._accidental == NotationNote::Accidental::natural);
 }
 
-#if 0
-static void  testCompare() {
-    // First the equal cases
-    bool b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::flat, ScorePitchUtils::Accidental::flat);
-    assertEQ(b, true);
-     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::sharp, ScorePitchUtils::Accidental::sharp);
-    assertEQ(b, true);
-     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::natural, ScorePitchUtils::Accidental::natural);
-    assertEQ(b, true);
-     b = ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental::none, ScorePitchUtils::Accidental::none);
-    assertEQ(b, true);
-
-    assert(false);
-
-}
-#endif
-
 static void testReSpellCMajorCSharp() {
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
@@ -97,6 +80,12 @@ static void testCSharpVariations() {
 
     auto variations = ScorePitchUtils::getVariations(nn);
     assertEQ(variations.size(), 2);
+
+    assertEQ(variations[0]._midiNote.get(), MidiNote::MiddleC + 1);
+    assertEQ(variations[1]._midiNote.get(), MidiNote::MiddleC + 1);
+    assert(variations[0]._accidental == NotationNote::Accidental::sharp);
+    assert(variations[1]._accidental == NotationNote::Accidental::flat);
+
 }
 
 static void testValidate() {

@@ -15,9 +15,14 @@ public:
     template <typename T, int capacity>
     class vlenArray {
     public:
-        T data[capacity];
+       
         int size() const {
             return index;
+        }
+
+        const T operator[] (int i) const {
+            assert(i < capacity);
+            return data[i];
         }
 
         void _push(T t) {
@@ -28,6 +33,7 @@ public:
 
     private:
         int index = 0;
+         T data[capacity];
     };
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
