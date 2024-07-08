@@ -97,22 +97,35 @@ ScorePitchUtils::vlenArray<NotationNote, 16> ScorePitchUtils::getVariations(cons
     return ret;
 }
 
-void ScorePitchUtils::findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex) {
+int ScorePitchUtils::findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex) {
     // get all the spellings for current notes.
-    SQINFO("findSpelling %d", evalIndex);
+    SQINFO("** enter findSpelling %d size so far = %d", evalIndex, outputNotes.size());
     const int currentPitch = inputPitches[evalIndex];
     const MidiNote currentMidiNote = MidiNote(currentPitch);
     const auto defaultNotationNote = getNotationNote(scale, currentMidiNote, bassStaff);
     const auto currentVariations = getVariations(defaultNotationNote);
+  //  vlenArray<NotationNote, 16> currentVariations = getVariations(defaultNotationNote);
 
     // if more notes: recurse down
     if (evalIndex < inputPitches.size()-1) {
         SQINFO("will recurse");
-        findSpelling(scale, inputPitches, outputNotes, bassStaff, evalIndex+1);
 
+        // TODO: should pick best here, but for now just pick last
+        for (unsigned i = 0; i< currentVariations.size(); ++i) {
+           // outputNotes[evalIndex] = currentVariations[i];
+           
+            findSpelling(scale, inputPitches, outputNotes, bassStaff, evalIndex+1);
+        }
+        SQINFO("pushing after recursive call ");
+        outputNotes._push(currentVariations[0]);
+        return 0;
     } else {
         // if no more notes: evaluate and return
-        SQINFO("will return at index=%d", evalIndex);
-        return;
+        SQINFO("---will return at index=%d", evalIndex);
+      
+        SQINFO("pushing at end");
+        // TODO: also should eval, etc...
+        outputNotes._push(currentVariations[0]);
+        return 0;
     }
 }

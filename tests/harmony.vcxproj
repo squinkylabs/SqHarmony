@@ -250,6 +250,7 @@
     <ClCompile Include="testShiftCalc.cpp" />
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
+    <ClCompile Include="testSqArray.cpp" />
     <ClCompile Include="testTempo.cpp" />
     <ClCompile Include="testTestLFO.cpp" />
     <ClCompile Include="testTwister.cpp" />

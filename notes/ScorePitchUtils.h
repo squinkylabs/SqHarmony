@@ -25,7 +25,12 @@ public:
             return index;
         }
 
-        const T operator[](unsigned i) const {
+        const T& operator[](unsigned i) const {
+            assert(i < capacity);
+            return data[i];
+        }
+
+        T& operator[](unsigned i) {
             assert(i < capacity);
             return data[i];
         }
@@ -43,7 +48,17 @@ public:
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
     static vlenArray<NotationNote, 16> getVariations(const NotationNote&);
-    static void findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16> outputNotes, bool bassStaff, unsigned evalIndex = 0);
+    /**
+     * @brief 
+     * 
+     * @param scale 
+     * @param inputPitches 
+     * @param outputNotes 
+     * @param bassStaff 
+     * @param evalIndex 
+     * @return int = the score for that spelling
+     */
+    static int findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
@@ -54,6 +69,7 @@ public:
     static bool reSpell(NotationNote& note, bool moreSharps);
 
     static bool validate(const NotationNote&);
+
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine);
 };

@@ -87,6 +87,7 @@ extern void testScorePitchUtils();
 extern void testLegerScore();
 extern void testNotationNote();
 extern void testMidiNote();
+extern void  testSqArray();
 
 #include "SqLog.h"
 
@@ -109,7 +110,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running only one for temp debug\n");
     assert(SqLog::errorCount == 0);
     testFirst();
@@ -156,6 +157,7 @@ int main(const char**, int) {
     testPhasePatternsPoly();
 
   
+    testSqArray();
     testNotes();
     testLegerScore();
     testScaleNotes();

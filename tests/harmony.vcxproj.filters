@@ -348,6 +348,9 @@
     <ClCompile Include="..\notes\ScorePitchUtils.cpp">
       <Filter>Source Files\notes</Filter>
     </ClCompile>
+    <ClCompile Include="testSqArray.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">

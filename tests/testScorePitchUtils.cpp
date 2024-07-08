@@ -109,6 +109,7 @@ static void testFindSpelling() {
     ScorePitchUtils::vlenArray<NotationNote, 16> outputNotes;
 
     Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     inputPitch._push( MidiNote::MiddleC);
     inputPitch._push( MidiNote::MiddleC + 12);
