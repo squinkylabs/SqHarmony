@@ -1,13 +1,7 @@
 
 #pragma once
 
-// #include <tuple>
-
-// #include "MidiNote.h"
-// #include "NotationNote.h"
-// #include "Scale.h"
-// #include "ScaleNote.h"
-//  #include "SqLog.h"
+#include "SqArray.h"
 
 #include <assert.h>
 
@@ -18,6 +12,7 @@ class MidiNote;
 class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
+    #if 0
     template <typename T, unsigned capacity>
     class vlenArray {
     public:
@@ -45,9 +40,10 @@ public:
         unsigned index = 0;
         T data[capacity];
     };
+    #endif
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
-    static vlenArray<NotationNote, 16> getVariations(const NotationNote&);
+    static SqArray<NotationNote, 16> getVariations(const NotationNote&);
     /**
      * @brief 
      * 
@@ -58,7 +54,7 @@ public:
      * @param evalIndex 
      * @return int = the score for that spelling
      */
-    static int findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
+    static int findSpelling(const Scale& scale, SqArray<int, 16> inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
@@ -72,4 +68,6 @@ public:
 
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine);
+
+    static int _evaluateSpelling( SqArray<NotationNote, 16>& notes);
 };

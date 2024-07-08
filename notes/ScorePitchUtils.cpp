@@ -1,7 +1,7 @@
 
 #include "ScorePitchUtils.h"
 
-//#include <tuple>
+// #include <tuple>
 
 #include "MidiNote.h"
 #include "NotationNote.h"
@@ -30,7 +30,6 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
     const auto pref = scale.getSharpsFlatsPref();
     return NotationNote(midiNote, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
-
 
 bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLineTarget) {
     auto newNote = NotationNote(nn._midiNote, NotationNote::Accidental::flat, legerLineTarget);
@@ -83,49 +82,78 @@ bool ScorePitchUtils::validate(const NotationNote& nn) {
     return midiNotePitch == legerPitch;
 }
 
-ScorePitchUtils::vlenArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn) {
+SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn) {
     assert(validate(nn));
     NotationNote temp = nn;
-    vlenArray<NotationNote, 16> ret;
-    ret._push(temp);
+    SqArray<NotationNote, 16> ret;
+    // ret._push(temp);
+    unsigned index = 0;
+    ret.putAt(index++, temp);
     while (reSpell(temp, true)) {
-        ret._push(temp);
+        ret.putAt(index++, temp);
     }
-     while (reSpell(temp, false)) {
-        ret._push(temp);
+    while (reSpell(temp, false)) {
+        ret.putAt(index++, temp);
     }
     return ret;
 }
 
-int ScorePitchUtils::findSpelling(const Scale& scale, vlenArray<int, 16> inputPitches, vlenArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex) {
+int ScorePitchUtils::findSpelling(
+    const Scale& scale, 
+    SqArray<int, 16> inputPitches, 
+    SqArray<NotationNote, 16>& outputNotes, 
+    bool bassStaff, 
+    unsigned evalIndex) {
     // get all the spellings for current notes.
-    SQINFO("** enter findSpelling %d size so far = %d", evalIndex, outputNotes.size());
-    const int currentPitch = inputPitches[evalIndex];
+    SQINFO("** enter findSpelling %d size so far = %d nputSize= %d", evalIndex, outputNotes.numValid(), inputPitches.numValid());
+    const int currentPitch = inputPitches.getAt(evalIndex);
     const MidiNote currentMidiNote = MidiNote(currentPitch);
     const auto defaultNotationNote = getNotationNote(scale, currentMidiNote, bassStaff);
     const auto currentVariations = getVariations(defaultNotationNote);
-  //  vlenArray<NotationNote, 16> currentVariations = getVariations(defaultNotationNote);
+    //  vlenArray<NotationNote, 16> currentVariations = getVariations(defaultNotationNote);
 
     // if more notes: recurse down
-    if (evalIndex < inputPitches.size()-1) {
+    if (evalIndex < inputPitches.numValid() - 1) {
         SQINFO("will recurse");
+        unsigned bestIndex = 0;
+        int bestScore = -1000000;
 
-        // TODO: should pick best here, but for now just pick last
-        for (unsigned i = 0; i< currentVariations.size(); ++i) {
-           // outputNotes[evalIndex] = currentVariations[i];
-           
-            findSpelling(scale, inputPitches, outputNotes, bassStaff, evalIndex+1);
+        for (unsigned i = 0; i < currentVariations.numValid(); ++i) {
+            outputNotes.putAt(evalIndex, currentVariations.getAt(i));   // put the current candidate into the test array
+            const int score = findSpelling(scale, inputPitches, outputNotes, bassStaff, evalIndex + 1);
+            if (score < bestScore) {
+                SQINFO("found new best score %d at %d", score, i);
+                bestScore = score;
+                bestIndex = i;
+            }
         }
         SQINFO("pushing after recursive call ");
-        outputNotes._push(currentVariations[0]);
-        return 0;
+      
+        //   outputNotes._push(currentVariations[0]);
+        return bestScore;
     } else {
         // if no more notes: evaluate and return
         SQINFO("---will return at index=%d", evalIndex);
-      
+
         SQINFO("pushing at end");
-        // TODO: also should eval, etc...
-        outputNotes._push(currentVariations[0]);
-        return 0;
+
+
+        unsigned bestIndex = 0;
+        int bestScore = -1000000;
+        for (unsigned i = 0; i < currentVariations.numValid(); ++i) {
+            outputNotes.putAt(evalIndex, currentVariations.getAt(i));   // put the current candidate into the test array
+            const int score = _evaluateSpelling(outputNotes);
+            if (score < bestScore) {
+                SQINFO("found new terminal best score %d at %d", score, i);
+                bestScore = score;
+                bestIndex = i;
+            }
+        }
+
+        return bestScore;
     }
+}
+
+int ScorePitchUtils::_evaluateSpelling( SqArray<NotationNote, 16>& notes) {
+    return 0;
 }

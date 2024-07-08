@@ -82,12 +82,12 @@ static void testCSharpVariations() {
     assertEQ(ScorePitchUtils::validate(nn), true);
 
     auto variations = ScorePitchUtils::getVariations(nn);
-    assertEQ(variations.size(), 2);
+    assertEQ(variations.numValid(), 2);
 
-    assertEQ(variations[0]._midiNote.get(), MidiNote::MiddleC + 1);
-    assertEQ(variations[1]._midiNote.get(), MidiNote::MiddleC + 1);
-    assert(variations[0]._accidental == NotationNote::Accidental::sharp);
-    assert(variations[1]._accidental == NotationNote::Accidental::flat);
+    assertEQ(variations.getAt(0)._midiNote.get(), MidiNote::MiddleC + 1);
+    assertEQ(variations.getAt(1)._midiNote.get(), MidiNote::MiddleC + 1);
+    assert(variations.getAt(0)._accidental == NotationNote::Accidental::sharp);
+    assert(variations.getAt(1)._accidental == NotationNote::Accidental::flat);
 
 }
 
@@ -105,18 +105,18 @@ static void testValidate2() {
 
 //    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
 static void testFindSpelling() {
-    ScorePitchUtils::vlenArray<int, 16> inputPitch;
-    ScorePitchUtils::vlenArray<NotationNote, 16> outputNotes;
+    SqArray<int, 16> inputPitch;
+    SqArray<NotationNote, 16> outputNotes;
 
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
-    inputPitch._push( MidiNote::MiddleC);
-    inputPitch._push( MidiNote::MiddleC + 12);
+    inputPitch.putAt(0, MidiNote::MiddleC);
+    inputPitch.putAt(1,  MidiNote::MiddleC + 12);
     ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
 
-    assertEQ(inputPitch.size(), 2);
-    assertEQ(outputNotes.size(), 2);
+    assertEQ(inputPitch.numValid(), 2);
+    assertEQ(outputNotes.numValid(), 2);
 }
 
 void testScorePitchUtils() {
@@ -133,7 +133,7 @@ void testScorePitchUtils() {
     testCSharpVariations();
 }
 
-#if 0
+#if 1
 void testFirst() {
    //  testScorePitchUtils();
    // testReSpellCMajorCSharpTwice();
