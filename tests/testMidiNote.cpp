@@ -234,6 +234,7 @@ static void testMidiIsBlackKey() {
     assertEQ(MidiNote(MidiNote::C + 1 + 48).isBlackKey(), true);
 }
 
+#if 0
 static void testPitchFromLegerTreble() {
     auto x = MidiNote::pitchFromLeger(false, -2, SharpsFlatsPref::DontCare);
     assertEQ(x, MidiNote::MiddleC);
@@ -329,6 +330,7 @@ static void testPitchFromLegerBass() {
 
     assertEQ(MidiNote::pitchFromLeger(true, 10, SharpsFlatsPref::DontCare), MidiNote::MiddleC);
 }
+#endif
 
 void testMidiNote() {
     testMidiNoteCtor();
@@ -356,10 +358,12 @@ void testMidiNote() {
     testMidiStaffAll(false);
     testMidiStaffAll(true);
     testMidiIsBlackKey();
+#if 0
     testPitchFromLegerTreble();
     testPitchFromLegerTrebleSharp();
     testPitchFromLegerTrebleFlat();
     testPitchFromLegerBass();
+#endif
 }
 
 #if 0

@@ -59,26 +59,68 @@ bool ScorePitchUtils::reSpell(NotationNote& nn, bool moreSharps, const Scale& sc
     return _makeNoteAtLegerLine(nn, legerLineTarget, scale);
 }
 
-bool ScorePitchUtils::validate(const NotationNote& nn, const Scale& scale) {
-    const int midiNotePitch = nn._midiNote.get();
+int ScorePitchUtils::pitchFromLeger(bool bassStaff, int legerLine, NotationNote::Accidental accidental, const Scale& scale) {
+    if (bassStaff) {
+        legerLine -= 3;  // push C to leger line zero in bass
+    } else {
+        legerLine += 2;  // push C to leger line zero in treble
+    }
+    unsigned pitch = 0;
+    int octave = (legerLine / 7);
+    int remainder = legerLine % 7;
+    if (remainder < 0) {
+        remainder += 7;
+        octave--;
+    }
+    if (bassStaff) {
+        octave--;
+    }
+    switch (remainder) {
+        case 0:
+            pitch = MidiNote::MiddleC + MidiNote::C;
+            break;
+        case 1:
+            pitch = MidiNote::MiddleC + MidiNote::D;
+            break;
+        case 2:
+            pitch = MidiNote::MiddleC + MidiNote::E;
+            break;
+        case 3:
+            pitch = MidiNote::MiddleC + MidiNote::F;
+            break;
+        case 4:
+            pitch = MidiNote::MiddleC + MidiNote::G;
+            break;
+        case 5:
+            pitch = MidiNote::MiddleC + MidiNote::A;
+            break;
+        case 6:
+            pitch = MidiNote::MiddleC + MidiNote::B;
+            break;
+        default:
+            assert(false);  // case not implemented yet.
+    }
 
-    // This unfortunate conversion is due to our somewhat scatter shot approach to accidental handling....
-    SharpsFlatsPref sharpsPref = SharpsFlatsPref::DontCare;
-    switch (nn._accidental) {
-        case NotationNote::Accidental::flat:
-            sharpsPref = SharpsFlatsPref::Flats;
+    switch (accidental) {
+        case NotationNote::Accidental::none:
+        case NotationNote::Accidental::natural:
             break;
         case NotationNote::Accidental::sharp:
-            sharpsPref = SharpsFlatsPref::Sharps;
+            pitch++;
             break;
-        case NotationNote::Accidental::natural:
-        case NotationNote::Accidental::none:
-            sharpsPref = SharpsFlatsPref::DontCare;
+        case NotationNote::Accidental::flat:
+            pitch--;
             break;
         default:
             assert(false);
     }
-    const int legerPitch = MidiNote::pitchFromLeger(false, nn._legerLine, sharpsPref);
+
+    return pitch + octave * 12;
+   // return 0;
+}
+bool ScorePitchUtils::validate(const NotationNote& nn, const Scale& scale) {
+    const int midiNotePitch = nn._midiNote.get();
+    const int legerPitch = pitchFromLeger(false, nn._legerLine, nn._accidental, scale);
     return midiNotePitch == legerPitch;
 }
 
@@ -104,9 +146,9 @@ int ScorePitchUtils::findSpelling(
     SqArray<NotationNote, 16>& outputNotes,
     bool bassStaff,
     unsigned evalIndex) {
-   // // get all the spellings for current notes.
-   // SQINFO("\n** enter findSpelling %d size so far = %d inputSize= %d", evalIndex, outputNotes.numValid(), inputPitches.numValid());
-  //  SQINFO("    addr output = %p", &outputNotes);
+    // // get all the spellings for current notes.
+    // SQINFO("\n** enter findSpelling %d size so far = %d inputSize= %d", evalIndex, outputNotes.numValid(), inputPitches.numValid());
+    //  SQINFO("    addr output = %p", &outputNotes);
     const int currentPitch = inputPitches.getAt(evalIndex);
     const MidiNote currentMidiNote = MidiNote(currentPitch);
     const auto defaultNotationNote = getNotationNote(scale, currentMidiNote, bassStaff);
@@ -119,7 +161,7 @@ int ScorePitchUtils::findSpelling(
     NotationNote bestNote;
     for (unsigned i = 0; i < currentVariations.numValid(); ++i) {
         outputNotes.putAt(evalIndex, currentVariations.getAt(i));  // put the current candidate into the test array
-        //SQINFO("about to recurse, index=%d", evalIndex);
+        // SQINFO("about to recurse, index=%d", evalIndex);
 
         int score = 0;
         if (evalIndex < inputPitches.numValid() - 1) {
@@ -136,7 +178,7 @@ int ScorePitchUtils::findSpelling(
             // now need to put best one back
         }
     }
-   // SQINFO("after recurse, restored best note at index =%d note=%s", evalIndex, bestNote.toString().c_str());
+    // SQINFO("after recurse, restored best note at index =%d note=%s", evalIndex, bestNote.toString().c_str());
     outputNotes.putAt(evalIndex, bestNote);
     return bestScore;
 }

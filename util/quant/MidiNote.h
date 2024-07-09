@@ -34,7 +34,8 @@ public:
      * @param accidental - don't care means none here.
      * @return int - the midi pitch
      */
-    static int pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
+    //static int pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
+   // static int pitchFromLeger(bool bassStaff, int legerLine, NotationNote::accidental, const Scale& );
 
     static const int C3 = 60;  // C3 is 60 in midi spec.
     static const int C = 0;
@@ -55,6 +56,7 @@ inline int MidiNote::getLegerLine(bool bassStaff) const {
     return getLegerLine(SharpsFlatsPref::Sharps, bassStaff);
 }
 
+#if 0
 inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
     if (bassStaff) {
         legerLine -= 3;  // push C to leger line zero in bass
@@ -112,6 +114,7 @@ inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPr
 
     return pitch + octave * 12;
 }
+#endif
 
 inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
     const int normalizedPitch = _pitch - MiddleC;

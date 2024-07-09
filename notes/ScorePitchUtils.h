@@ -1,11 +1,12 @@
 
 #pragma once
 
+#include "NotationNote.h"
 #include "SqArray.h"
 
 #include <assert.h>
 
-class NotationNote;
+//class NotationNote;
 class Scale;
 class MidiNote;
 
@@ -66,8 +67,23 @@ public:
 
     static bool validate(const NotationNote&, const Scale&);
 
+    
+           /**
+     * @brief convert from music staff to midi pitch.
+     *
+     * @param bassStaff - true if bass, false if treble.
+     * @param legerLine - line of the staff (or off of it), starting at the lowest (middle C is -2 in treble clef).
+     * @param accidental - don't care means none here.
+     * @return int - the midi pitch
+     */
+    //static int pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
+     static int pitchFromLeger(bool bassStaff, int legerLine, NotationNote::Accidental, const Scale& );
+
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&);
 
     static int _evaluateSpelling( SqArray<NotationNote, 16>& notes);
+
+
+
 };

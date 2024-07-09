@@ -73,6 +73,7 @@
  *      a) make validate take a scale (done).
  *      a2) make a constructor for Scale that takes the arguments we usually pass to set.
  *      b) make MidiNote pitchFromLeger take a scale and a NotationNote::Accidental (including all the unit tests).
+ *          may need to move pitchFromLeger into ScorePitchUtils.
  *      c) make validate pass c minor tests.
  * step 8: make ChordRecognizer::_make canonical re-usable:
  *      a) use SqArray

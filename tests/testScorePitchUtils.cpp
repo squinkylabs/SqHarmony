@@ -210,11 +210,27 @@ static void testFindSpellingCMajor() {
     assert(n._accidental == NotationNote::Accidental::none);
 }
 
+
+static void testPitchFromLegerTrebleCMajorWhite() {
+    Scale scale;
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale), MidiNote::MiddleC);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, -1, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::D);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 0, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::E);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 1, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::F);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 2, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::G);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 3, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::A);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 4, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::B);
+
+}
+
 void testScorePitchUtils() {
     test();
+    testPitchFromLegerTrebleCMajorWhite();
+
     testCMajor();
     testCMinor();
 
+    
     testValidate();
     testValidate2();
     testValidateCMajor();
@@ -229,13 +245,12 @@ void testScorePitchUtils() {
     testFindSpelling();
 }
 
+
 #if 1
 void testFirst() {
-    testValidateCminor();
-  //  testScorePitchUtils();
-    // testReSpellCMajorCSharpTwice();
-    //  testCSharpVariations();
-  //  testFindSpellingCMajor();
-  //  testEVariations();
+    testPitchFromLegerTrebleCMajorWhite();
+
+    // testValidateCminor();
+
 }
 #endif
