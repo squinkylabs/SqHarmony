@@ -69,11 +69,11 @@ static void testReSpellCMajorDFlat() {
 static void testReSpellCMajorCSharpTwice() {
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
-  
+
     bool b = ScorePitchUtils::reSpell(nn, false);
     assertEQ(b, true);
     b = ScorePitchUtils::reSpell(nn, false);
-    assertEQ(b, false);  
+    assertEQ(b, false);
 }
 
 static void testCSharpVariations() {
@@ -89,6 +89,30 @@ static void testCSharpVariations() {
     assert(variations.getAt(0)._accidental == NotationNote::Accidental::sharp);
     assert(variations.getAt(1)._accidental == NotationNote::Accidental::flat);
 
+    //  assertEQ(variations.getAt(0).valid(), true);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(0)), true);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(1)), true);
+}
+
+static void testEVariations() {
+    MidiNote mn(MidiNote::MiddleC + MidiNote::E);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, 0);
+    assertEQ(ScorePitchUtils::validate(nn), true);
+
+    auto variations = ScorePitchUtils::getVariations(nn);
+    assertEQ(variations.numValid(), 2);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(0)), true);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(1)), true);
+
+  //  SQINFO("var0 = %s", variations.getAt(0).toString().c_str());
+  //  SQINFO("var1 = %s", variations.getAt(1).toString().c_str());
+
+    assertEQ(variations.getAt(0)._midiNote.get(), MidiNote::MiddleC + MidiNote::E);
+    assertEQ(variations.getAt(1)._midiNote.get(), MidiNote::MiddleC + MidiNote::E);
+    assert(variations.getAt(0)._accidental == NotationNote::Accidental::none);
+    assert(variations.getAt(1)._accidental == NotationNote::Accidental::flat);
+    assertEQ(variations.getAt(0)._legerLine, 0);
+    assertEQ(variations.getAt(1)._legerLine, 1);
 }
 
 static void testValidate() {
@@ -112,11 +136,43 @@ static void testFindSpelling() {
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     inputPitch.putAt(0, MidiNote::MiddleC);
-    inputPitch.putAt(1,  MidiNote::MiddleC + 12);
+    inputPitch.putAt(1, MidiNote::MiddleC + 12);
     ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
 
     assertEQ(inputPitch.numValid(), 2);
     assertEQ(outputNotes.numValid(), 2);
+}
+
+static void testFindSpellingCMajor() {
+    SqArray<int, 16> inputPitch;
+    SqArray<NotationNote, 16> outputNotes;
+
+    Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    inputPitch.putAt(0, MidiNote::MiddleC);
+    inputPitch.putAt(1, MidiNote::MiddleC + MidiNote::E);
+    inputPitch.putAt(2, MidiNote::MiddleC + MidiNote::G);
+    ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
+
+    assertEQ(inputPitch.numValid(), 3);
+    assertEQ(outputNotes.numValid(), 3);
+
+    SQINFO("0 = %s", outputNotes.getAt(0).toString().c_str());
+    SQINFO("1 = %s", outputNotes.getAt(1).toString().c_str());
+    SQINFO("2 = %s", outputNotes.getAt(2).toString().c_str());
+
+    NotationNote n = outputNotes.getAt(0);
+    assertEQ(n._midiNote.get(), MidiNote::MiddleC);
+    assert(n._accidental == NotationNote::Accidental::none);
+
+    n = outputNotes.getAt(1);
+    assertEQ(n._midiNote.get(), MidiNote::MiddleC + MidiNote::E);
+    assert(n._accidental == NotationNote::Accidental::none);
+
+    n = outputNotes.getAt(2);
+    assertEQ(n._midiNote.get(), MidiNote::MiddleC + MidiNote::G);
+    assert(n._accidental == NotationNote::Accidental::none);
 }
 
 void testScorePitchUtils() {
@@ -131,13 +187,17 @@ void testScorePitchUtils() {
     testReSpellCMajorDFlat();
     testReSpellCMajorCSharpTwice();
     testCSharpVariations();
+    testEVariations();
+
+    testFindSpelling();
 }
 
 #if 1
 void testFirst() {
-   //  testScorePitchUtils();
-   // testReSpellCMajorCSharpTwice();
- //  testCSharpVariations();
-    testFindSpelling();
+  //  testScorePitchUtils();
+    // testReSpellCMajorCSharpTwice();
+    //  testCSharpVariations();
+    testFindSpellingCMajor();
+  //  testEVariations();
 }
 #endif
