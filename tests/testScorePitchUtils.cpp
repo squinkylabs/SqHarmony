@@ -43,45 +43,49 @@ static void testCMinor() {
 }
 
 static void testReSpellCMajorCSharp() {
+    Scale scale;
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
-    assert(ScorePitchUtils::validate(nn));
-    bool b = ScorePitchUtils::reSpell(nn, false);
+    assert(ScorePitchUtils::validate(nn, scale));
+    bool b = ScorePitchUtils::reSpell(nn, false, scale);
     assertEQ(b, true);
-    assert(ScorePitchUtils::validate(nn));
+    assert(ScorePitchUtils::validate(nn, scale));
     assertEQ(nn._midiNote.get(), MidiNote::MiddleC + 1);
     assert(nn._accidental == NotationNote::Accidental::flat);
     assertEQ(nn._legerLine, -1);
 }
 
 static void testReSpellCMajorDFlat() {
+    Scale scale;
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::flat, -1);
-    assert(ScorePitchUtils::validate(nn));
-    bool b = ScorePitchUtils::reSpell(nn, true);
+    assert(ScorePitchUtils::validate(nn, scale));
+    bool b = ScorePitchUtils::reSpell(nn, true, scale);
     assertEQ(b, true);
-    assert(ScorePitchUtils::validate(nn));
+    assert(ScorePitchUtils::validate(nn, scale));
     assertEQ(nn._midiNote.get(), MidiNote::MiddleC + 1);
     assert(nn._accidental == NotationNote::Accidental::sharp);
     assertEQ(nn._legerLine, -2);
 }
 
 static void testReSpellCMajorCSharpTwice() {
+    Scale scale;
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
 
-    bool b = ScorePitchUtils::reSpell(nn, false);
+    bool b = ScorePitchUtils::reSpell(nn, false, scale);
     assertEQ(b, true);
-    b = ScorePitchUtils::reSpell(nn, false);
+    b = ScorePitchUtils::reSpell(nn, false, scale);
     assertEQ(b, false);
 }
 
 static void testCSharpVariations() {
+    Scale scale;
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
-    assertEQ(ScorePitchUtils::validate(nn), true);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
 
-    auto variations = ScorePitchUtils::getVariations(nn);
+    auto variations = ScorePitchUtils::getVariations(nn, scale);
     assertEQ(variations.numValid(), 2);
 
     assertEQ(variations.getAt(0)._midiNote.get(), MidiNote::MiddleC + 1);
@@ -90,19 +94,20 @@ static void testCSharpVariations() {
     assert(variations.getAt(1)._accidental == NotationNote::Accidental::flat);
 
     //  assertEQ(variations.getAt(0).valid(), true);
-    assertEQ(ScorePitchUtils::validate(variations.getAt(0)), true);
-    assertEQ(ScorePitchUtils::validate(variations.getAt(1)), true);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(0), scale), true);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(1), scale), true);
 }
 
 static void testEVariations() {
+    Scale scale;
     MidiNote mn(MidiNote::MiddleC + MidiNote::E);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, 0);
-    assertEQ(ScorePitchUtils::validate(nn), true);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
 
-    auto variations = ScorePitchUtils::getVariations(nn);
+    auto variations = ScorePitchUtils::getVariations(nn, scale);
     assertEQ(variations.numValid(), 2);
-    assertEQ(ScorePitchUtils::validate(variations.getAt(0)), true);
-    assertEQ(ScorePitchUtils::validate(variations.getAt(1)), true);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(0), scale), true);
+    assertEQ(ScorePitchUtils::validate(variations.getAt(1), scale), true);
 
   //  SQINFO("var0 = %s", variations.getAt(0).toString().c_str());
   //  SQINFO("var1 = %s", variations.getAt(1).toString().c_str());
@@ -116,16 +121,41 @@ static void testEVariations() {
 }
 
 static void testValidate() {
+    Scale scale;
     MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
-    assertEQ(ScorePitchUtils::validate(nn), true);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
 }
 
 static void testValidate2() {
+    Scale scale;
     MidiNote mn(MidiNote::MiddleC + 4);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
-    assertEQ(ScorePitchUtils::validate(nn), false);
+    assertEQ(ScorePitchUtils::validate(nn, scale), false);
 }
+
+static void testValidateCMajor() {
+    Scale scale;
+    MidiNote mn(MidiNote::MiddleC + MidiNote::E);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, 0);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
+
+    MidiNote mn2(MidiNote::MiddleC + MidiNote::E - 1);
+    NotationNote nn2 = NotationNote(mn2, NotationNote::Accidental::flat, 0);
+    assertEQ(ScorePitchUtils::validate(nn2, scale), true);
+}
+
+static void testValidateCminor() {
+    Scale scale;
+    MidiNote mn(MidiNote::MiddleC + MidiNote::E);
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::natural, 0);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
+
+    MidiNote mn2(MidiNote::MiddleC + MidiNote::E - 1);
+    NotationNote nn2 = NotationNote(mn2, NotationNote::Accidental::none, 0);
+    assertEQ(ScorePitchUtils::validate(nn2, scale), true);
+}
+
 
 //    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
 static void testFindSpelling() {
@@ -187,6 +217,8 @@ void testScorePitchUtils() {
 
     testValidate();
     testValidate2();
+    testValidateCMajor();
+    testValidateCminor();
 
     testReSpellCMajorCSharp();
     testReSpellCMajorDFlat();
@@ -197,12 +229,13 @@ void testScorePitchUtils() {
     testFindSpelling();
 }
 
-#if 0
+#if 1
 void testFirst() {
+    testValidateCminor();
   //  testScorePitchUtils();
     // testReSpellCMajorCSharpTwice();
     //  testCSharpVariations();
-    testFindSpellingCMajor();
+  //  testFindSpellingCMajor();
   //  testEVariations();
 }
 #endif

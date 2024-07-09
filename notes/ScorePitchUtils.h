@@ -43,7 +43,7 @@ public:
     #endif
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
-    static SqArray<NotationNote, 16> getVariations(const NotationNote&);
+    static SqArray<NotationNote, 16> getVariations(const NotationNote&, const Scale&);
     /**
      * @brief 
      * 
@@ -62,12 +62,12 @@ public:
      * @param moreSharps - if true will attemt to re-spell at a lower pitch, with more sharps.
      * @return  true if success.
      */
-    static bool reSpell(NotationNote& note, bool moreSharps);
+    static bool reSpell(NotationNote& note, bool moreSharps, const Scale&);
 
-    static bool validate(const NotationNote&);
+    static bool validate(const NotationNote&, const Scale&);
 
 private:
-    static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine);
+    static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&);
 
     static int _evaluateSpelling( SqArray<NotationNote, 16>& notes);
 };

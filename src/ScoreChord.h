@@ -70,6 +70,10 @@
  *  put clef bool into NotationNote (done)
  * step 4: add util to get vector of spellings. (done)
  * step 5: make validate take a scale, and fix none != natural.
+ *      a) make validate take a scale (done).
+ *      a2) make a constructor for Scale that takes the arguments we usually pass to set.
+ *      b) make MidiNote pitchFromLeger take a scale and a NotationNote::Accidental (including all the unit tests).
+ *      c) make validate pass c minor tests.
  * step 8: make ChordRecognizer::_make canonical re-usable:
  *      a) use SqArray
  *      b) templatize it, including sorter

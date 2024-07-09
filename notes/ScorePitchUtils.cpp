@@ -31,20 +31,20 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
     return NotationNote(midiNote, accidental, midiNote.getLegerLine(pref, bassStaff));
 }
 
-bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLineTarget) {
+bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLineTarget, const Scale& scale) {
     auto newNote = NotationNote(nn._midiNote, NotationNote::Accidental::flat, legerLineTarget);
-    if (validate(newNote)) {
+    if (validate(newNote, scale)) {
         nn = newNote;
         return true;
     }
     newNote = NotationNote(nn._midiNote, NotationNote::Accidental::none, legerLineTarget);
-    if (validate(newNote)) {
+    if (validate(newNote, scale)) {
         nn = newNote;
         return true;
     }
 
     newNote = NotationNote(nn._midiNote, NotationNote::Accidental::sharp, legerLineTarget);
-    if (validate(newNote)) {
+    if (validate(newNote, scale)) {
         nn = newNote;
         return true;
     }
@@ -53,13 +53,13 @@ bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLineTarget
     return false;
 }
 
-bool ScorePitchUtils::reSpell(NotationNote& nn, bool moreSharps) {
-    assert(validate(nn));
+bool ScorePitchUtils::reSpell(NotationNote& nn, bool moreSharps, const Scale& scale) {
+    assert(validate(nn, scale));
     const int legerLineTarget = nn._legerLine + ((moreSharps) ? -1 : 1);
-    return _makeNoteAtLegerLine(nn, legerLineTarget);
+    return _makeNoteAtLegerLine(nn, legerLineTarget, scale);
 }
 
-bool ScorePitchUtils::validate(const NotationNote& nn) {
+bool ScorePitchUtils::validate(const NotationNote& nn, const Scale& scale) {
     const int midiNotePitch = nn._midiNote.get();
 
     // This unfortunate conversion is due to our somewhat scatter shot approach to accidental handling....
@@ -82,17 +82,17 @@ bool ScorePitchUtils::validate(const NotationNote& nn) {
     return midiNotePitch == legerPitch;
 }
 
-SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn) {
-    assert(validate(nn));
+SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn, const Scale& scale) {
+    assert(validate(nn, scale));
     NotationNote temp = nn;
     SqArray<NotationNote, 16> ret;
     // ret._push(temp);
     unsigned index = 0;
     ret.putAt(index++, temp);
-    while (reSpell(temp, true)) {
+    while (reSpell(temp, true, scale)) {
         ret.putAt(index++, temp);
     }
-    while (reSpell(temp, false)) {
+    while (reSpell(temp, false, scale)) {
         ret.putAt(index++, temp);
     }
     return ret;
@@ -110,7 +110,7 @@ int ScorePitchUtils::findSpelling(
     const int currentPitch = inputPitches.getAt(evalIndex);
     const MidiNote currentMidiNote = MidiNote(currentPitch);
     const auto defaultNotationNote = getNotationNote(scale, currentMidiNote, bassStaff);
-    const auto currentVariations = getVariations(defaultNotationNote);
+    const auto currentVariations = getVariations(defaultNotationNote, scale);
 
     //  SQINFO("will recurse");
     unsigned bestIndex = 0;

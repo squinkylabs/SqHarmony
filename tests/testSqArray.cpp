@@ -29,7 +29,7 @@ void testSqArray() {
     testPutGet();
 }
 
-#if 1
+#if 0
 void testFirst() {
 
    // testSqArray();
