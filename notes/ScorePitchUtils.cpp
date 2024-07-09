@@ -99,6 +99,50 @@ SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn)
 }
 
 int ScorePitchUtils::findSpelling(
+    const Scale& scale,
+    const SqArray<int, 16>& inputPitches,
+    SqArray<NotationNote, 16>& outputNotes,
+    bool bassStaff,
+    unsigned evalIndex) {
+   // // get all the spellings for current notes.
+   // SQINFO("\n** enter findSpelling %d size so far = %d inputSize= %d", evalIndex, outputNotes.numValid(), inputPitches.numValid());
+  //  SQINFO("    addr output = %p", &outputNotes);
+    const int currentPitch = inputPitches.getAt(evalIndex);
+    const MidiNote currentMidiNote = MidiNote(currentPitch);
+    const auto defaultNotationNote = getNotationNote(scale, currentMidiNote, bassStaff);
+    const auto currentVariations = getVariations(defaultNotationNote);
+
+    //  SQINFO("will recurse");
+    unsigned bestIndex = 0;
+    int bestScore = -1000000;
+
+    NotationNote bestNote;
+    for (unsigned i = 0; i < currentVariations.numValid(); ++i) {
+        outputNotes.putAt(evalIndex, currentVariations.getAt(i));  // put the current candidate into the test array
+        //SQINFO("about to recurse, index=%d", evalIndex);
+
+        int score = 0;
+        if (evalIndex < inputPitches.numValid() - 1) {
+            score = findSpelling(scale, inputPitches, outputNotes, bassStaff, evalIndex + 1);
+        } else {
+            score = _evaluateSpelling(outputNotes);
+        }
+        if (score < bestScore) {
+            // SQINFO("recurse found new best score for %d, note=%s", evalIndex, outputNotes.getAt()
+            bestScore = score;
+            bestIndex = i;
+
+            bestNote = currentVariations.getAt(i);
+            // now need to put best one back
+        }
+    }
+   // SQINFO("after recurse, restored best note at index =%d note=%s", evalIndex, bestNote.toString().c_str());
+    outputNotes.putAt(evalIndex, bestNote);
+    return bestScore;
+}
+
+#if 0
+int ScorePitchUtils::findSpelling(
     const Scale& scale, 
     const SqArray<int, 16>& inputPitches, 
     SqArray<NotationNote, 16>& outputNotes, 
@@ -156,7 +200,8 @@ int ScorePitchUtils::findSpelling(
         return bestScore;
     }
 }
+#endif
 
-int ScorePitchUtils::_evaluateSpelling( SqArray<NotationNote, 16>& notes) {
+int ScorePitchUtils::_evaluateSpelling(SqArray<NotationNote, 16>& notes) {
     return 0;
 }

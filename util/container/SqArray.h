@@ -19,11 +19,9 @@ public:
     }
 
     void putAt(unsigned i, const T& data) {
-      
         assert(i <= _numValid);      // only allow put at end, or overwrite old one
         _data[i] = data;
         _numValid = std::max(i+1, _numValid);
-          SQINFO("put at %d, now numValid=%d", i, _numValid);
     }
 
 private:

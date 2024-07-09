@@ -64,12 +64,21 @@
  * step 1: remove ScaleNote from NotationNote (done).
  * step 2: break out NotationNote into own class. (done)
  * step 3: make "getAlternateSpelling" method, with unit tests. (done)
- *  (move the spelling stuff back into utils?)
- *  make a util in MidiNote for leger line + accidental -> pitch.
- *  consider breaking out MidiNote unit tests from testNotes.cpp
- *  put clef bool into NotationNote
- * step 4: add util to get vector of spellings.
- * step 5: use it, re-do scoring (?), make new spelling stuff unit testable.
+ *  (move the spelling stuff back into utils?) (done)
+ *  make a util in MidiNote for leger line + accidental -> pitch. (done)
+ *  consider breaking out MidiNote unit tests from testNotes.cpp (done)
+ *  put clef bool into NotationNote (done)
+ * step 4: add util to get vector of spellings. (done)
+ * step 5: make validate take a scale, and fix none != natural.
+ * step 8: make ChordRecognizer::_make canonical re-usable:
+ *      a) use SqArray
+ *      b) templatize it, including sorter
+ *      c) use it in speller.
+ * step 9: make sure speller is good now.
+ * 
+ * 
+ * 
+ * step n: use it, re-do scoring (?), make new spelling stuff unit testable.
  */
 
 // #define _LOG
