@@ -153,6 +153,11 @@ static void testFindSpellingCMajor() {
     inputPitch.putAt(0, MidiNote::MiddleC);
     inputPitch.putAt(1, MidiNote::MiddleC + MidiNote::E);
     inputPitch.putAt(2, MidiNote::MiddleC + MidiNote::G);
+
+
+    SQINFO("input 0 = %d", inputPitch.getAt(0));
+    SQINFO("input 1 = %d", inputPitch.getAt(1));
+    SQINFO("input 2 = %d", inputPitch.getAt(2));
     ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
 
     assertEQ(inputPitch.numValid(), 3);
@@ -192,7 +197,7 @@ void testScorePitchUtils() {
     testFindSpelling();
 }
 
-#if 1
+#if 0
 void testFirst() {
   //  testScorePitchUtils();
     // testReSpellCMajorCSharpTwice();

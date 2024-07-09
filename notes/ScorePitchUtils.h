@@ -54,7 +54,7 @@ public:
      * @param evalIndex 
      * @return int = the score for that spelling
      */
-    static int findSpelling(const Scale& scale, SqArray<int, 16> inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
+    static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
