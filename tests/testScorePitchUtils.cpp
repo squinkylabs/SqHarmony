@@ -56,7 +56,7 @@ static void testReSpellCMajorCSharp() {
 }
 
 static void testReSpellCMajorDFlat() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::flat, -1);
     assert(ScorePitchUtils::validate(nn, scale));
@@ -69,7 +69,7 @@ static void testReSpellCMajorDFlat() {
 }
 
 static void testReSpellCMajorCSharpTwice() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
 
@@ -80,7 +80,7 @@ static void testReSpellCMajorCSharpTwice() {
 }
 
 static void testCSharpVariations() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC + 1);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, -2);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
@@ -99,7 +99,7 @@ static void testCSharpVariations() {
 }
 
 static void testEVariations() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC + MidiNote::E);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, 0);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
@@ -121,21 +121,21 @@ static void testEVariations() {
 }
 
 static void testValidate() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
 }
 
 static void testValidate2() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC + 4);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
     assertEQ(ScorePitchUtils::validate(nn, scale), false);
 }
 
 static void testValidateCMajor() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC + MidiNote::E);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, 0);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
@@ -146,7 +146,7 @@ static void testValidateCMajor() {
 }
 
 static void testValidateCminor() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Minor);
     MidiNote mn(MidiNote::MiddleC + MidiNote::E);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::natural, 0);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
@@ -259,7 +259,7 @@ static void testGetAjustmentForLeger() {
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 0);
     }
-     {
+    {
         Scale scale(MidiNote(MidiNote::C), Scale::Scales::Minor);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -2), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -1), 0);
@@ -302,7 +302,7 @@ void testScorePitchUtils() {
 
 #if 1
 void testFirst() {
-    //testScorePitchUtils();
-    testPitchFromLegerCminor();
+    testScorePitchUtils();
+    // testPitchFromLegerCminor();
 }
 #endif
