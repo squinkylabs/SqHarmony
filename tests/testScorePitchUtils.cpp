@@ -109,8 +109,8 @@ static void testEVariations() {
     assertEQ(ScorePitchUtils::validate(variations.getAt(0), scale), true);
     assertEQ(ScorePitchUtils::validate(variations.getAt(1), scale), true);
 
-  //  SQINFO("var0 = %s", variations.getAt(0).toString().c_str());
-  //  SQINFO("var1 = %s", variations.getAt(1).toString().c_str());
+    //  SQINFO("var0 = %s", variations.getAt(0).toString().c_str());
+    //  SQINFO("var1 = %s", variations.getAt(1).toString().c_str());
 
     assertEQ(variations.getAt(0)._midiNote.get(), MidiNote::MiddleC + MidiNote::E);
     assertEQ(variations.getAt(1)._midiNote.get(), MidiNote::MiddleC + MidiNote::E);
@@ -156,7 +156,6 @@ static void testValidateCminor() {
     assertEQ(ScorePitchUtils::validate(nn2, scale), true);
 }
 
-
 //    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
 static void testFindSpelling() {
     SqArray<int, 16> inputPitch;
@@ -184,7 +183,6 @@ static void testFindSpellingCMajor() {
     inputPitch.putAt(1, MidiNote::MiddleC + MidiNote::E);
     inputPitch.putAt(2, MidiNote::MiddleC + MidiNote::G);
 
-
     SQINFO("input 0 = %d", inputPitch.getAt(0));
     SQINFO("input 1 = %d", inputPitch.getAt(1));
     SQINFO("input 2 = %d", inputPitch.getAt(2));
@@ -210,8 +208,7 @@ static void testFindSpellingCMajor() {
     assert(n._accidental == NotationNote::Accidental::none);
 }
 
-
-static void testPitchFromLegerTrebleCMajorWhite() {
+static void testPitchFromLegerTrebleCMajorWhiteKeys() {
     Scale scale;
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale), MidiNote::MiddleC);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -1, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::D);
@@ -220,17 +217,75 @@ static void testPitchFromLegerTrebleCMajorWhite() {
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 2, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::G);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 3, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::A);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 4, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::B);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 5, NotationNote::Accidental::none, scale), MidiNote::MiddleC + 12);
+}
 
+static void testPitchFromLegerTrebleCMajorAccidentals() {
+    Scale scale;
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale), MidiNote::MiddleC);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::sharp, scale), MidiNote::MiddleC + 1);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::flat, scale), MidiNote::MiddleC - 1);
+}
+
+static void testPitchFromLegerTrebleCMajorNatural() {
+    Scale scale;
+    // This case is a little silly/illegal, but whatever...
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale),
+             ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::natural, scale));
+}
+
+static void testPitchFromLegerCminor() {
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Minor);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale), MidiNote::MiddleC);
+    // E flat is in the scale
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 0, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::E - 1);
+    // E natural is not in the scale
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 0, NotationNote::Accidental::natural, scale), MidiNote::MiddleC + MidiNote::E);
+}
+
+static void testGetAjustmentForLeger() {
+    {
+        Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+        const int x = ScorePitchUtils::_getAjustmentForLeger(scale, false, -2);
+        assertEQ(x, 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -1), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 0), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 1), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 2), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 3), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 4), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 5), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 6), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 0);
+    }
+     {
+        Scale scale(MidiNote(MidiNote::C), Scale::Scales::Minor);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -2), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -1), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 0), -1);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 1), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 2), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 3), -1);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 4), -1);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 5), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 6), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 0);
+    }
 }
 
 void testScorePitchUtils() {
     test();
-    testPitchFromLegerTrebleCMajorWhite();
+    testGetAjustmentForLeger();
+    testPitchFromLegerTrebleCMajorWhiteKeys();
+    testPitchFromLegerTrebleCMajorAccidentals();
+    testPitchFromLegerTrebleCMajorNatural();
+    testPitchFromLegerCminor();
 
     testCMajor();
     testCMinor();
 
-    
     testValidate();
     testValidate2();
     testValidateCMajor();
@@ -245,12 +300,10 @@ void testScorePitchUtils() {
     testFindSpelling();
 }
 
-
 #if 1
 void testFirst() {
-    testPitchFromLegerTrebleCMajorWhite();
+    testGetAjustmentForLeger();
 
-    // testValidateCminor();
-
+    // testPitchFromLegerCminor();
 }
 #endif

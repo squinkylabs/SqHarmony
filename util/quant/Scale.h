@@ -27,6 +27,12 @@ public:
         Chromatic
     };
 
+    Scale(const  MidiNote& base, Scales mode) : _baseNote(base), _scale(mode), _wasSet(true)
+    {};
+    Scale() {};
+    void set(const  MidiNote& base, Scales mode);
+    std::pair<const MidiNote, Scales> get() const;
+
     const static int firstScale = int(Scales::Major);
     // KEEP THIS UP TO DATE
     const static int lastScale = int(Scales::Chromatic);
@@ -43,8 +49,7 @@ public:
     static std::vector<std::string> getShortScaleLabels(bool onlyDiatonic);
     static std::vector<std::string> getRootLabels(bool useFlats);
 
-    void set(const  MidiNote& base, Scales mode);
-    std::pair<const MidiNote, Scales> get() const;
+   
 
     // All of this Role stuff is for converting Scale <> PES
     enum class Role {
