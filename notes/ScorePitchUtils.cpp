@@ -106,8 +106,9 @@ int ScorePitchUtils::pitchFromLeger(bool bassStaff, int _legerLine, NotationNote
     switch (accidental) {
         case NotationNote::Accidental::none: {
             // const auto info = scale.getScoreInfo();
-            _getAjustmentForLeger(scale, bassStaff, _legerLine);
-            assert(false);
+            const auto x = _getAjustmentForLeger(scale, bassStaff, _legerLine);
+            SQINFO("got adjustment %d", x);
+            pitch += x;
         }
         case NotationNote::Accidental::natural:
             break;

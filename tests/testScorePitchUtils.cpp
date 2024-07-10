@@ -209,7 +209,7 @@ static void testFindSpellingCMajor() {
 }
 
 static void testPitchFromLegerTrebleCMajorWhiteKeys() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale), MidiNote::MiddleC);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -1, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::D);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 0, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::E);
@@ -221,14 +221,14 @@ static void testPitchFromLegerTrebleCMajorWhiteKeys() {
 }
 
 static void testPitchFromLegerTrebleCMajorAccidentals() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale), MidiNote::MiddleC);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::sharp, scale), MidiNote::MiddleC + 1);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::flat, scale), MidiNote::MiddleC - 1);
 }
 
 static void testPitchFromLegerTrebleCMajorNatural() {
-    Scale scale;
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     // This case is a little silly/illegal, but whatever...
     assertEQ(ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::none, scale),
              ScorePitchUtils::pitchFromLeger(false, -2, NotationNote::Accidental::natural, scale));
@@ -302,8 +302,7 @@ void testScorePitchUtils() {
 
 #if 1
 void testFirst() {
-    testGetAjustmentForLeger();
-
-    // testPitchFromLegerCminor();
+    //testScorePitchUtils();
+    testPitchFromLegerCminor();
 }
 #endif

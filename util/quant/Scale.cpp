@@ -495,6 +495,7 @@ const MidiNote flatsInBass[12] = {
 
 Scale::ScoreInfo Scale::getScoreInfo() const {
     Scale::ScoreInfo ret;
+    assert(_wasSet);
     assert(int(_scale) <= int(Scales::Locrian));
 
     const int basePitch = getRelativeMajor().get();
