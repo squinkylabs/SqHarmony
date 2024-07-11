@@ -102,7 +102,8 @@ static void testEVariations() {
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, 0);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
 
-    SQINFO("---- about to get variation in CMajor for %s", nn.toString().c_str());
+    //SQINFO("---- about to get variation in CMajor for %s", nn.toString().c_str());
+
     auto variations = ScorePitchUtils::getVariations(nn, scale);
     assertEQ(variations.numValid(), 2);
     assertEQ(ScorePitchUtils::validate(variations.getAt(0), scale), true);
@@ -120,7 +121,7 @@ static void testEVariations() {
 }
 
 static void testValidate() {
-    SQINFO("---- testValidate()");
+    //SQINFO("---- testValidate()");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
@@ -209,17 +210,17 @@ static void testFindSpellingCMajor() {
     inputPitch.putAt(1, MidiNote::MiddleC + MidiNote::E);
     inputPitch.putAt(2, MidiNote::MiddleC + MidiNote::G);
 
-    SQINFO("input 0 = %d", inputPitch.getAt(0));
-    SQINFO("input 1 = %d", inputPitch.getAt(1));
-    SQINFO("input 2 = %d", inputPitch.getAt(2));
+    //SQINFO("input 0 = %d", inputPitch.getAt(0));
+    //SQINFO("input 1 = %d", inputPitch.getAt(1));
+    //SQINFO("input 2 = %d", inputPitch.getAt(2));
     ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
 
     assertEQ(inputPitch.numValid(), 3);
     assertEQ(outputNotes.numValid(), 3);
 
-    SQINFO("0 = %s", outputNotes.getAt(0).toString().c_str());
-    SQINFO("1 = %s", outputNotes.getAt(1).toString().c_str());
-    SQINFO("2 = %s", outputNotes.getAt(2).toString().c_str());
+    //SQINFO("0 = %s", outputNotes.getAt(0).toString().c_str());
+    //SQINFO("1 = %s", outputNotes.getAt(1).toString().c_str());
+    //SQINFO("2 = %s", outputNotes.getAt(2).toString().c_str());
 
     NotationNote n = outputNotes.getAt(0);
     assertEQ(n._midiNote.get(), MidiNote::MiddleC);
@@ -364,10 +365,10 @@ void testScorePitchUtils() {
     testFindSpelling();
 }
 
-#if 1
+#if 0
 void testFirst() {
-
-     testMakeCanonical();
+    testScorePitchUtils();
+   //  testMakeCanonical();
   //  testValidateCMajor();
 
 }

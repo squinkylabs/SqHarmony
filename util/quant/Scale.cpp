@@ -271,7 +271,7 @@ int Scale::_quantizeInScale(int offset) const {
     assert(offset >= 0);
     assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
-    SQINFO("pitches in scale = %d, %d, %d, %d...", pitches[0], pitches[1], pitches[2], pitches[3]);
+   // SQINFO("pitches in scale = %d, %d, %d, %d...", pitches[0], pitches[1], pitches[2], pitches[3]);
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
