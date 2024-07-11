@@ -69,13 +69,16 @@
  *  consider breaking out MidiNote unit tests from testNotes.cpp (done)
  *  put clef bool into NotationNote (done)
  * step 4: add util to get vector of spellings. (done)
- * step 5: make validate take a scale, and fix none != natural.
+ * step 5: make validate take a scale, and fix none != natural. (done)
  *      a) make validate take a scale (done).
- *      a2) make a constructor for Scale that takes the arguments we usually pass to set.
- *      b) make MidiNote pitchFromLeger take a scale and a NotationNote::Accidental (including all the unit tests).
+ *      a2) make a constructor for Scale that takes the arguments we usually pass to set. (done)
+ *      b) make MidiNote pitchFromLeger take a scale and a NotationNote::Accidental (including all the unit tests). (done)
  *          may need to move pitchFromLeger into ScorePitchUtils.
- *      c) make validate pass c minor tests.
+ *      c) make validate pass c minor tests.    (done)
  * step 6: more unit tests for validate. natural where not needed, etc...
+ *      a) make canonicalize(NotationNote)
+ *      b) use it in validate
+ *      c) make more unit tests like f# ok.
  * step 8: make ChordRecognizer::_make canonical re-usable:
  *      a) use SqArray
  *      b) templatize it, including sorter

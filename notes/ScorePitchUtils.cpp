@@ -233,6 +233,10 @@ SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn,
     return ret;
 }
 
+NotationNote ScorePitchUtils::makeCanonical(const NotationNote& note) {
+    return note;
+}
+
 int ScorePitchUtils::findSpelling(
     const Scale& scale,
     const SqArray<int, 16>& inputPitches,

@@ -13,35 +13,6 @@ class MidiNote;
 class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
-#if 0
-    template <typename T, unsigned capacity>
-    class vlenArray {
-    public:
-        unsigned size() const {
-            return index;
-        }
-
-        const T& operator[](unsigned i) const {
-            assert(i < capacity);
-            return data[i];
-        }
-
-        T& operator[](unsigned i) {
-            assert(i < capacity);
-            return data[i];
-        }
-
-        void _push(T t) {
-            data[index] = t;
-            ++index;
-            assert(index <= capacity);
-        }
-
-    private:
-        unsigned index = 0;
-        T data[capacity];
-    };
-#endif
 
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
     static SqArray<NotationNote, 16> getVariations(const NotationNote&, const Scale&);
@@ -79,6 +50,8 @@ public:
     static int pitchFromLeger(bool bassStaff, int legerLine, NotationNote::Accidental, const Scale&);
 
     static int _getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine);
+
+    static NotationNote makeCanonical(const NotationNote&);
 
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&);
