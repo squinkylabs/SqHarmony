@@ -307,8 +307,8 @@ static void testGetAjustmentForLeger() {
 static void  testMakeCanonical() {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
-    const MidiNote mn(MidiNote::MiddleC);
-    const NotationNote c(mn, NotationNote::Accidental::none, -2);
+    const MidiNote mnC(MidiNote::MiddleC);
+    const NotationNote c(mnC, NotationNote::Accidental::none, -2);
     auto x = ScorePitchUtils::makeCanonical( c);
     assert(x == c);
 
@@ -317,8 +317,24 @@ static void  testMakeCanonical() {
     const NotationNote fFlat(mnFf,NotationNote::Accidental::flat, 1);
     x = ScorePitchUtils::makeCanonical( fFlat);
     assert(x._accidental == NotationNote::Accidental::none);
+    assertEQ(x._legerLine, 0);
 
-    assert(false);
+    // make C spelled as B sharp
+    const NotationNote bSharp(mnC,NotationNote::Accidental::sharp, -3);
+    x = ScorePitchUtils::makeCanonical( bSharp);
+    assert(x._accidental == NotationNote::Accidental::none);
+    assertEQ(x._legerLine, -2);
+
+    // G Sharp
+    const MidiNote mnGs(MidiNote::MiddleC + MidiNote::G + 1);
+    const NotationNote gSharp(mnGs, NotationNote::Accidental::sharp, 2);
+    x = ScorePitchUtils::makeCanonical(gSharp);
+    assert(x == gSharp);
+
+    // A flat
+    const NotationNote aFlat(mnGs, NotationNote::Accidental::flat, 3);
+    x = ScorePitchUtils::makeCanonical(aFlat);
+    assert(x == aFlat);
 }
 
 void testScorePitchUtils() {

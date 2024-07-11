@@ -234,6 +234,21 @@ SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn,
 }
 
 NotationNote ScorePitchUtils::makeCanonical(const NotationNote& note) {
+    if (note._accidental == NotationNote::Accidental::sharp) {
+        // If the notation note has a sharp, but the pitch is a white key pitch
+        if (!note._midiNote.isBlackKey()) {
+            // Then we can re-spell it as a natural, in key, note one line up.
+            // For example, in all keys B sharp is C natural
+            return NotationNote(note._midiNote, NotationNote::Accidental::none, note._legerLine + 1);
+        }
+    } else if (note._accidental == NotationNote::Accidental::flat) {
+        // If the notation note has a flat, but the pitch is a white key pitch
+        if (!note._midiNote.isBlackKey()) {
+            // Then we can re-spell it as a natural, in key, note one line down.
+            // For example, in all keys F flat is E natural
+            return NotationNote(note._midiNote, NotationNote::Accidental::none, note._legerLine - 1);
+        }
+    }
     return note;
 }
 
