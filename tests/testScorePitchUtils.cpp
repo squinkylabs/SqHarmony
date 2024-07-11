@@ -127,6 +127,10 @@ static void testValidate() {
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
 
+    // This is invalid, becuase C does not need a natural in C
+    nn = NotationNote(mn, NotationNote::Accidental::natural, -2);
+    assertEQ(ScorePitchUtils::validate(nn, scale), false);
+
     MidiNote mn2(MidiNote::C);
     int octavesDown = MidiNote::MiddleC / 12;
     int ll = -2 - octavesDown * int(NotationNote::llInOctave);
@@ -138,6 +142,8 @@ static void testValidate() {
     octavesDown = 1 + MidiNote::MiddleC / 12;
     ll = -2 - octavesDown * int(NotationNote::llInOctave);
     nn = NotationNote(mn3, NotationNote::Accidental::none, ll);
+
+
 }
 
 static void testValidate2() {

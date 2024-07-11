@@ -194,7 +194,27 @@ bool ScorePitchUtils::validate(const NotationNote& nn, const Scale& scale) {
     const int midiNotePitch = nn._midiNote.get();
     const int legerPitch = pitchFromLeger(false, nn._legerLine, nn._accidental, scale);
     SQINFO("midi pitch = %d, ledger = %d", midiNotePitch, legerPitch);
-    return midiNotePitch == legerPitch;
+    if (midiNotePitch != legerPitch) {
+        return false;
+    }
+
+    // still leaves possibilities of bad accidentals:
+    // we passed natural, but natural is assumed in the key.
+    // we passed flat, but flat is assumed in the key
+
+    // so if the pitch is in the key, it doesn't need an accidental. Otherwise it does.
+    const ScaleNote scaleNote = scale.m2s(nn._midiNote);
+    const bool noteInScale = (scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none); 
+    if (nn._accidental == NotationNote::Accidental::none) {
+        SQINFO("we are validating a none, returning %d", noteInScale);
+        return noteInScale;
+    } else {
+        SQINFO("we are validating a sn with accid, returning %d", !noteInScale);
+        return !noteInScale;
+    }
+
+    assert(false);
+  
 }
 
 SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn, const Scale& scale) {
