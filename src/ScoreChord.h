@@ -75,6 +75,7 @@
  *      b) make MidiNote pitchFromLeger take a scale and a NotationNote::Accidental (including all the unit tests).
  *          may need to move pitchFromLeger into ScorePitchUtils.
  *      c) make validate pass c minor tests.
+ * step 6: more unit tests for validate. natural where not needed, etc...
  * step 8: make ChordRecognizer::_make canonical re-usable:
  *      a) use SqArray
  *      b) templatize it, including sorter

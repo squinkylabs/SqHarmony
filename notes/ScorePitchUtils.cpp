@@ -190,8 +190,10 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
 }
 
 bool ScorePitchUtils::validate(const NotationNote& nn, const Scale& scale) {
+    SQINFO("validate called");
     const int midiNotePitch = nn._midiNote.get();
     const int legerPitch = pitchFromLeger(false, nn._legerLine, nn._accidental, scale);
+    SQINFO("midi pitch = %d, ledger = %d", midiNotePitch, legerPitch);
     return midiNotePitch == legerPitch;
 }
 

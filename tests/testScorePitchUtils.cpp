@@ -121,10 +121,23 @@ static void testEVariations() {
 }
 
 static void testValidate() {
+    SQINFO("---- testValidate()");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
+
+    MidiNote mn2(MidiNote::C);
+    int octavesDown = MidiNote::MiddleC / 12;
+    int ll = -2 - octavesDown * int(NotationNote::llInOctave);
+    nn = NotationNote(mn2, NotationNote::Accidental::none, ll);
+
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
+
+    MidiNote mn3(MidiNote::C - 12);
+    octavesDown = 1 + MidiNote::MiddleC / 12;
+    ll = -2 - octavesDown * int(NotationNote::llInOctave);
+    nn = NotationNote(mn3, NotationNote::Accidental::none, ll);
 }
 
 static void testValidate2() {
@@ -151,9 +164,15 @@ static void testValidateCminor() {
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::natural, 0);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
 
+    nn = NotationNote(mn, NotationNote::Accidental::none, 0);
+    assertEQ(ScorePitchUtils::validate(nn, scale), false);
+
     MidiNote mn2(MidiNote::MiddleC + MidiNote::E - 1);
     NotationNote nn2 = NotationNote(mn2, NotationNote::Accidental::none, 0);
     assertEQ(ScorePitchUtils::validate(nn2, scale), true);
+
+    nn2 = NotationNote(mn2, NotationNote::Accidental::natural, 0);
+    assertEQ(ScorePitchUtils::validate(nn2, scale), false);
 }
 
 //    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
@@ -218,6 +237,9 @@ static void testPitchFromLegerTrebleCMajorWhiteKeys() {
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 3, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::A);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 4, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::B);
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 5, NotationNote::Accidental::none, scale), MidiNote::MiddleC + 12);
+
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 5 + NotationNote::llInOctave, NotationNote::Accidental::none, scale), MidiNote::MiddleC + 2 * 12);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 5 - 2 * NotationNote::llInOctave, NotationNote::Accidental::none, scale), MidiNote::MiddleC - 12);
 }
 
 static void testPitchFromLegerTrebleCMajorAccidentals() {
@@ -302,7 +324,8 @@ void testScorePitchUtils() {
 
 #if 1
 void testFirst() {
-    testScorePitchUtils();
+    // testScorePitchUtils();
     // testPitchFromLegerCminor();
+    testValidate();
 }
 #endif
