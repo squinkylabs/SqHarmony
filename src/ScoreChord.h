@@ -43,8 +43,8 @@
  *
  * enharmonic spelling:
  *      use flats in flat keys. (done)
- *      try to space identifiable chords.
- *      try to space all chords.
+ *      try to space identifiable chords correctly.
+ *      try to space all chords correctly.
  *
  * Bugs:
  *      C and A below middle C - draws crazy leger lines(done)
@@ -52,6 +52,10 @@
  *      C Major chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
+ * 
+ * Misc TODO:
+ *      Should NotationNote have a staff in it (yes)?
+ *      Make SqArray take {} to initialize.
  *
  * How are sharps/flats handled now?
  * _drawNotes() doesn't care. it divides midi pitches between staves and calls
@@ -84,7 +88,6 @@
  *      b) templatize it, including sorter
  *      c) use it in speller.
  * step 9: make sure speller is good now.
- * 
  * 
  * 
  * step n: use it, re-do scoring (?), make new spelling stuff unit testable.

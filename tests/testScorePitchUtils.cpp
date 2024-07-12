@@ -199,6 +199,53 @@ static void testFindSpelling() {
     assertEQ(outputNotes.numValid(), 2);
 }
 
+static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNotes, const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff) {
+    assertEQ(expectedOutputNotes.numValid(), inputPitches.numValid());
+    assertGT(inputPitches.numValid(), 0);
+    SqArray<NotationNote, 16> outputNotes;
+    ScorePitchUtils::findSpelling(scale, inputPitches, outputNotes, bassStaff);
+
+    if (inputPitches.numValid() == 3) {
+     SQINFO("input notes = %d | %d | %d",
+           inputPitches.getAt(0),
+           inputPitches.getAt(1),
+           inputPitches.getAt(2));
+
+    SQINFO("output notes = <%s> | <%s> | <%s>",
+           outputNotes.getAt(0).toString().c_str(),
+           outputNotes.getAt(1).toString().c_str(),
+           outputNotes.getAt(2).toString().c_str());
+    } else {
+        SQINFO("can't print input");
+    }
+
+    for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
+        const NotationNote n = outputNotes.getAt(i);
+        const NotationNote expected = expectedOutputNotes.getAt(i);
+        assert(n == expected);
+    }
+}
+
+static void testFindSpellingCMajor() {
+    SQINFO("--- testFindSpellingCMajor");
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    // TODO: make this work
+   // SqArray<int, 16> inputPitch = {MidiNote::MiddleC};
+   SqArray<int, 16> inputPitches;
+   inputPitches.putAt(0, MidiNote::MiddleC);
+   inputPitches.putAt(1, MidiNote::MiddleC + MidiNote::E);
+   inputPitches.putAt(2, MidiNote::MiddleC+ MidiNote::G);
+
+    SqArray<NotationNote, 16> expectedOutputNotes;
+
+    expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2)); 
+    expectedOutputNotes.putAt(1, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::E), NotationNote::Accidental::none, 0));
+    expectedOutputNotes.putAt(2, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::G), NotationNote::Accidental::none, 2));
+
+    testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
+}
+#if 0
 static void testFindSpellingCMajor() {
     SQINFO("--- testFindSpellingCMajor");
     SqArray<int, 16> inputPitch;
@@ -216,11 +263,11 @@ static void testFindSpellingCMajor() {
     assertEQ(inputPitch.numValid(), 3);
     assertEQ(outputNotes.numValid(), 3);
 
-   SQINFO("input notes = %d | %d | %d",
+    SQINFO("input notes = %d | %d | %d",
            inputPitch.getAt(0),
            inputPitch.getAt(1),
            inputPitch.getAt(2));
-         
+
     SQINFO("output notes = %s | %s | %s",
            outputNotes.getAt(0).toString().c_str(),
            outputNotes.getAt(1).toString().c_str(),
@@ -238,6 +285,7 @@ static void testFindSpellingCMajor() {
     assertEQ(n._midiNote.get(), MidiNote::MiddleC + MidiNote::G);
     assert(n._accidental == NotationNote::Accidental::none);
 }
+#endif
 
 static void testPitchFromLegerTrebleCMajorWhiteKeys() {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
