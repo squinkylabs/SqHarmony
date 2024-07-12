@@ -31,7 +31,7 @@ public:
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
      *
-     * @param moreSharps - if true will attemt to re-spell at a lower pitch, with more sharps.
+     * @param moreSharps - if true will attempt to re-spell at a lower pitch, with more sharps.
      * @return  true if success.
      */
     static bool reSpell(NotationNote& note, bool moreSharps, const Scale&);
@@ -44,17 +44,17 @@ public:
      * @param bassStaff - true if bass, false if treble.
      * @param legerLine - line of the staff (or off of it), starting at the lowest (middle C is -2 in treble clef).
      * @param accidental - don't care means none here.
+     * @param scale - the current scale.
      * @return int - the midi pitch
      */
-    // static int pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
     static int pitchFromLeger(bool bassStaff, int legerLine, NotationNote::Accidental, const Scale&);
 
     static int _getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine);
-
     static NotationNote makeCanonical(const NotationNote&);
 
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&);
-
     static int _evaluateSpelling(SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpelling0(SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& notes);
 };

@@ -31,6 +31,8 @@ public:
     NotationNote() {}
     NotationNote(const MidiNote& mn, Accidental ac, int ll) : _midiNote(mn), _accidental(ac), _legerLine(ll) {}
     bool operator==(const NotationNote& other) const;
+    bool operator!=(const NotationNote& other) const;
+    bool isAccidental() const;
 
     std::string toString() const;
     MidiNote _midiNote;
@@ -38,12 +40,19 @@ public:
     int _legerLine = 0;
 };
 
+inline bool NotationNote::isAccidental() const {
+    return _accidental != Accidental::none;
+}
+
 inline bool NotationNote::operator==(const NotationNote& other) const {
     return (other._midiNote.get() == this->_midiNote.get()) &&
         (other._accidental == this->_accidental) &&
         (other._legerLine == this->_legerLine);
 }
 
+inline bool NotationNote::operator!=(const NotationNote& other) const {
+    return !(other == *this);
+}
 inline std::string NotationNote::toString() const {
     std::stringstream s;
     s << _midiNote.get();

@@ -102,7 +102,7 @@ static void testEVariations() {
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, 0);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
 
-    //SQINFO("---- about to get variation in CMajor for %s", nn.toString().c_str());
+    // SQINFO("---- about to get variation in CMajor for %s", nn.toString().c_str());
 
     auto variations = ScorePitchUtils::getVariations(nn, scale);
     assertEQ(variations.numValid(), 2);
@@ -121,7 +121,7 @@ static void testEVariations() {
 }
 
 static void testValidate() {
-    //SQINFO("---- testValidate()");
+    // SQINFO("---- testValidate()");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2);
@@ -200,6 +200,7 @@ static void testFindSpelling() {
 }
 
 static void testFindSpellingCMajor() {
+    SQINFO("--- testFindSpellingCMajor");
     SqArray<int, 16> inputPitch;
     SqArray<NotationNote, 16> outputNotes;
 
@@ -210,17 +211,20 @@ static void testFindSpellingCMajor() {
     inputPitch.putAt(1, MidiNote::MiddleC + MidiNote::E);
     inputPitch.putAt(2, MidiNote::MiddleC + MidiNote::G);
 
-    //SQINFO("input 0 = %d", inputPitch.getAt(0));
-    //SQINFO("input 1 = %d", inputPitch.getAt(1));
-    //SQINFO("input 2 = %d", inputPitch.getAt(2));
     ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
 
     assertEQ(inputPitch.numValid(), 3);
     assertEQ(outputNotes.numValid(), 3);
 
-    //SQINFO("0 = %s", outputNotes.getAt(0).toString().c_str());
-    //SQINFO("1 = %s", outputNotes.getAt(1).toString().c_str());
-    //SQINFO("2 = %s", outputNotes.getAt(2).toString().c_str());
+   SQINFO("input notes = %d | %d | %d",
+           inputPitch.getAt(0),
+           inputPitch.getAt(1),
+           inputPitch.getAt(2));
+         
+    SQINFO("output notes = %s | %s | %s",
+           outputNotes.getAt(0).toString().c_str(),
+           outputNotes.getAt(1).toString().c_str(),
+           outputNotes.getAt(2).toString().c_str());
 
     NotationNote n = outputNotes.getAt(0);
     assertEQ(n._midiNote.get(), MidiNote::MiddleC);
@@ -305,24 +309,24 @@ static void testGetAjustmentForLeger() {
     }
 }
 
-static void  testMakeCanonical() {
+static void testMakeCanonical() {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     const MidiNote mnC(MidiNote::MiddleC);
     const NotationNote c(mnC, NotationNote::Accidental::none, -2);
-    auto x = ScorePitchUtils::makeCanonical( c);
+    auto x = ScorePitchUtils::makeCanonical(c);
     assert(x == c);
 
     // make E spelled as F flat
     const MidiNote mnFf(MidiNote::MiddleC + MidiNote::E);
-    const NotationNote fFlat(mnFf,NotationNote::Accidental::flat, 1);
-    x = ScorePitchUtils::makeCanonical( fFlat);
+    const NotationNote fFlat(mnFf, NotationNote::Accidental::flat, 1);
+    x = ScorePitchUtils::makeCanonical(fFlat);
     assert(x._accidental == NotationNote::Accidental::none);
     assertEQ(x._legerLine, 0);
 
     // make C spelled as B sharp
-    const NotationNote bSharp(mnC,NotationNote::Accidental::sharp, -3);
-    x = ScorePitchUtils::makeCanonical( bSharp);
+    const NotationNote bSharp(mnC, NotationNote::Accidental::sharp, -3);
+    x = ScorePitchUtils::makeCanonical(bSharp);
     assert(x._accidental == NotationNote::Accidental::none);
     assertEQ(x._legerLine, -2);
 
@@ -363,13 +367,15 @@ void testScorePitchUtils() {
     testEVariations();
 
     testFindSpelling();
+    testFindSpellingCMajor();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testScorePitchUtils();
-   //  testMakeCanonical();
-  //  testValidateCMajor();
-
+    // testScorePitchUtils();
+    //  testMakeCanonical();
+    //  testValidateCMajor();
+    testFindSpellingCMajor();
 }
+
 #endif

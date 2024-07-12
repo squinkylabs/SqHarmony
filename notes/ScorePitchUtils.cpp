@@ -251,7 +251,7 @@ int ScorePitchUtils::findSpelling(
     bool bassStaff,
     unsigned evalIndex) {
     // // get all the spellings for current notes.
-    // SQINFO("\n** enter findSpelling %d size so far = %d inputSize= %d", evalIndex, outputNotes.numValid(), inputPitches.numValid());
+    SQINFO("\n** enter findSpelling %d size so far = %d inputSize= %d", evalIndex, outputNotes.numValid(), inputPitches.numValid());
     //  SQINFO("    addr output = %p", &outputNotes);
     const int currentPitch = inputPitches.getAt(evalIndex);
     const MidiNote currentMidiNote = MidiNote(currentPitch);
@@ -263,8 +263,10 @@ int ScorePitchUtils::findSpelling(
     int bestScore = -1000000;
 
     NotationNote bestNote;
+    SQINFO("at 266, new blank best = %s", bestNote.toString().c_str());
     for (unsigned i = 0; i < currentVariations.numValid(); ++i) {
         outputNotes.putAt(evalIndex, currentVariations.getAt(i));  // put the current candidate into the test array
+        SQINFO("at 268 slot %d < %s", evalIndex, currentVariations.getAt(i).toString().c_str());
         // SQINFO("about to recurse, index=%d", evalIndex);
 
         int score = 0;
@@ -273,20 +275,62 @@ int ScorePitchUtils::findSpelling(
         } else {
             score = _evaluateSpelling(outputNotes);
         }
-        if (score < bestScore) {
+        if (score > bestScore) {
             // SQINFO("recurse found new best score for %d, note=%s", evalIndex, outputNotes.getAt()
             bestScore = score;
             // bestIndex = i;
 
             bestNote = currentVariations.getAt(i);
+            SQINFO("set best note to %s", bestNote.toString().c_str());
             // now need to put best one back
         }
     }
     // SQINFO("after recurse, restored best note at index =%d note=%s", evalIndex, bestNote.toString().c_str());
     outputNotes.putAt(evalIndex, bestNote);
+     SQINFO("at 288 slot %d < %s", evalIndex, bestNote.toString().c_str());
     return bestScore;
 }
 
 int ScorePitchUtils::_evaluateSpelling(SqArray<NotationNote, 16>& notes) {
+   // return _evaluateSpellingFirstAttempt(notes);
+   return _evaluateSpelling0(notes);
+}
+
+int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& notes) {
+    SQINFO("evaluate spelling");
+    const unsigned n = notes.numValid();
+    int numAccidentals = 0;
+    int numBadThirds = 0;
+
+    const NotationNote* pn1 = nullptr;
+    const NotationNote* pn2 = nullptr;
+    for (unsigned i=0; i<n; ++i) {
+        pn2 = pn1;
+        pn1 = &notes.getAt(i);
+
+        if (pn1->isAccidental()) {
+            numAccidentals++;
+            SQINFO("see accidental at %s", pn1->toString().c_str());
+        }
+        if (pn2) {
+            const int interval = pn2->_midiNote.get() - pn1->_midiNote.get();
+            SQINFO("interval = %d", interval);
+            if (interval == 3 || interval == 4) {
+                const int distanceLegerLine = pn2->_legerLine - pn1->_legerLine;
+                SQINFO("ll dist = %d", distanceLegerLine);
+                if (distanceLegerLine != 2) {
+                    numBadThirds++;
+                }
+            }
+        }
+        const int score =  - (numAccidentals + 10 * numBadThirds);
+        SQINFO("final score = %d", score);
+        return score;
+
+    }
+
+    return 0;
+}
+int ScorePitchUtils::_evaluateSpelling0(SqArray<NotationNote, 16>& notes) {
     return 0;
 }
