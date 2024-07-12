@@ -157,7 +157,7 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
         accidentals = treble ? info.sharpsInTrebleClef : info.sharpsInBassClef;
         num = info.numSharps;
     }
-    //SQINFO("num=%d, accidentals=%p", num, accidentals);
+    // SQINFO("num=%d, accidentals=%p", num, accidentals);
 
     if (num) {
         for (int i = 0; i < num; ++i) {
@@ -167,8 +167,8 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
 
             assert(candidateLegerLine < 8);
             assert(candidateLegerLine >= 0);
-           // SQINFO("in loop i=%d, cll=%d accidental note pitch=%d pitch rel mid c=%d", i, candidateLegerLine, accidentalNote.get(), accidentalNote.get() - MidiNote::MiddleC);
-          //  SQINFO("  rel c4=%d", accidentalNote.get() - (MidiNote::MiddleC + 12));
+            // SQINFO("in loop i=%d, cll=%d accidental note pitch=%d pitch rel mid c=%d", i, candidateLegerLine, accidentalNote.get(), accidentalNote.get() - MidiNote::MiddleC);
+            //  SQINFO("  rel c4=%d", accidentalNote.get() - (MidiNote::MiddleC + 12));
             if (legerLine == candidateLegerLine) {
                 // here we found an accidental!
                 // assert(false);
@@ -181,10 +181,10 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
 }
 
 bool ScorePitchUtils::validate(const NotationNote& _nn, const Scale& scale) {
-   // SQINFO("validate called");
+    // SQINFO("validate called");
     const int midiNotePitch = _nn._midiNote.get();
     const int legerPitch = pitchFromLeger(false, _nn._legerLine, _nn._accidental, scale);
-   // SQINFO("midi pitch = %d, ledger = %d", midiNotePitch, legerPitch);
+    // SQINFO("midi pitch = %d, ledger = %d", midiNotePitch, legerPitch);
     if (midiNotePitch != legerPitch) {
         return false;
     }
@@ -198,10 +198,10 @@ bool ScorePitchUtils::validate(const NotationNote& _nn, const Scale& scale) {
     const ScaleNote scaleNote = scale.m2s(nn._midiNote);
     const bool noteInScale = (scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none);
     if (nn._accidental == NotationNote::Accidental::none) {
-       // SQINFO("we are validating a none, returning %d", noteInScale);
+        // SQINFO("we are validating a none, returning %d", noteInScale);
         return noteInScale;
     } else {
-        //SQINFO("we are validating a sn with accid, returning %d", !noteInScale);
+        // SQINFO("we are validating a sn with accid, returning %d", !noteInScale);
         return !noteInScale;
     }
 
@@ -287,24 +287,24 @@ int ScorePitchUtils::findSpelling(
     }
     // SQINFO("after recurse, restored best note at index =%d note=%s", evalIndex, bestNote.toString().c_str());
     outputNotes.putAt(evalIndex, bestNote);
-     SQINFO("at 288 slot %d < %s", evalIndex, bestNote.toString().c_str());
+    SQINFO("at 288 slot %d < %s", evalIndex, bestNote.toString().c_str());
     return bestScore;
 }
 
 int ScorePitchUtils::_evaluateSpelling(SqArray<NotationNote, 16>& notes) {
-   // return _evaluateSpellingFirstAttempt(notes);
-   return _evaluateSpelling0(notes);
+    return _evaluateSpellingFirstAttempt(notes);
+    // return _evaluateSpelling0(notes);
 }
 
 int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& notes) {
-    SQINFO("evaluate spelling");
+    SQINFO("!! evaluate spelling first attempt");
     const unsigned n = notes.numValid();
     int numAccidentals = 0;
     int numBadThirds = 0;
 
     const NotationNote* pn1 = nullptr;
     const NotationNote* pn2 = nullptr;
-    for (unsigned i=0; i<n; ++i) {
+    for (unsigned i = 0; i < n; ++i) {
         pn2 = pn1;
         pn1 = &notes.getAt(i);
 
@@ -313,24 +313,24 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& no
             SQINFO("see accidental at %s", pn1->toString().c_str());
         }
         if (pn2) {
-            const int interval = pn2->_midiNote.get() - pn1->_midiNote.get();
+            SQINFO("looking at %d and %d", i, i - 1);
+            const int interval = pn1->_midiNote.get() - pn2->_midiNote.get();
             SQINFO("interval = %d", interval);
             if (interval == 3 || interval == 4) {
-                const int distanceLegerLine = pn2->_legerLine - pn1->_legerLine;
+                const int distanceLegerLine =  pn1->_legerLine - pn2->_legerLine;
                 SQINFO("ll dist = %d", distanceLegerLine);
                 if (distanceLegerLine != 2) {
                     numBadThirds++;
                 }
             }
         }
-        const int score =  - (numAccidentals + 10 * numBadThirds);
-        SQINFO("final score = %d", score);
-        return score;
-
     }
-
-    return 0;
+    const int score = -(numAccidentals + 10 * numBadThirds);
+    SQINFO("final score = %d", score);
+    return score;
 }
+
 int ScorePitchUtils::_evaluateSpelling0(SqArray<NotationNote, 16>& notes) {
+    SQWARN("Trivial Eval function");
     return 0;
 }
