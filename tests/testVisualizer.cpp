@@ -81,9 +81,7 @@ void testVisualizer() {
     testCanCall();
 
     testCanClockInCMajor();
-
-    SQINFO("!!! why is testCanClockInEMinor failing now?");
-   // testCanClockInEMinor();
+    testCanClockInEMinor();
     testWrongNumberNotRecognized();
     testWithGate();
     assertEQ(SqLog::errorCount, 0);
@@ -91,6 +89,7 @@ void testVisualizer() {
 
 #if 0
 void testFirst() {
-    testVisualizer();
+   // testVisualizer();
+     testCanClockInEMinor();
 }
 #endif

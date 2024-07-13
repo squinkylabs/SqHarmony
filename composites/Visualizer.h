@@ -7,7 +7,7 @@
 #include "PESConverter.h"
 #include "Scale.h"
 #include "ScaleQuantizer.h"
-//#include "SqLog.h"
+// #include "SqLog.h"
 
 namespace rack {
 namespace engine {
@@ -65,13 +65,13 @@ public:
         return _chordOptions->keysig->getUnderlyingScale();
     }
 
-   // TODO: this doesn't compile with new SqArray stuff
+    // TODO: this doesn't compile with new SqArray stuff
     std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
         assert(false);
-        const int * a = nullptr;
+        const int* a = nullptr;
         unsigned b = 0;
         return std::make_tuple(a, b);
-        //return std::make_tuple(_quantizedInputPitches, _outputChannels);
+        // return std::make_tuple(_quantizedInputPitches, _outputChannels);
     }
 
 private:
@@ -92,7 +92,7 @@ private:
 
 template <class TBase>
 inline void Visualizer<TBase>::_init() {
-    _quantizedInputPitches.allowRandomAccess();         // so we remain compatible with the stuff from before SqArray.
+    //   _quantizedInputPitches.allowRandomAccess();         // so we remain compatible with the stuff from before SqArray.
     _divn.setup(getSubSampleFactor(), [this]() {
         this->_stepn();
     });
@@ -142,10 +142,15 @@ inline void Visualizer<TBase>::_processInput() {
         if (gate) {
             const MidiNote mn = _quantizer->run(f);
             const int iNote = mn.get();
-            if (_quantizedInputPitches.getAt(outputChannel) != iNote) {
+            // SQINFO("will try to gate in a pitch on channel %d, numvalid=%d", outputChannel, _quantizedInputPitches.numValid());
+            // If we are adding one past the last valid one.
+            // OR we are changing one already valid
+            if ((outputChannel == _quantizedInputPitches.numValid()) ||
+                ((_quantizedInputPitches.numValid() > outputChannel) &&
+                 (_quantizedInputPitches.getAt(outputChannel) != iNote))) {
                 _quantizedInputPitches.putAt(outputChannel, iNote);
                 wasChange = true;
-            }
+            } 
             outputChannel++;
         }
     }
@@ -155,7 +160,8 @@ inline void Visualizer<TBase>::_processInput() {
     }
 
     // Zero out all the pitches above our range.
-    for (int i = outputChannel; i < 16; ++i) {
+    // for (int i = outputChannel; i < 16; ++i) {
+    for (unsigned i = outputChannel; i < _quantizedInputPitches.numValid(); ++i) {
         _quantizedInputPitches.putAt(i, 0);
     }
 
@@ -218,7 +224,7 @@ inline void Visualizer<TBase>::_lookForKeysigChange() {
     if ((current.second != mode) || (currentPitch != basePitch)) {
         // this form Hramony for efficiency
         //  _mustUpdate = true;
-       // SQINFO("in look for change, see new mode = %d", int(mode));
+        // SQINFO("in look for change, see new mode = %d", int(mode));
         _chordOptions->keysig->set(MidiNote(basePitch), mode);
         //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
     }
