@@ -941,6 +941,6 @@ void testArpegComposite() {
     testMonoGateChangeNotPlayingTo5();
     testPolyChange();
 
-    SQWARN("!!!! put back the pull cable test");
+    //SQINFO("!!!! put back the pull cable test");
     // testPullCable();
 }

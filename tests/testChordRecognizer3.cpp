@@ -94,7 +94,7 @@ void testChordRecognizer3() {
     testMajorOpen();
     testMajorFirstInversion();
     testNormalizeIntPositive();
-    SQWARN("make testMajorFirstInversion work");
+    SQINFO("!!! make testMajorFirstInversion work");
 }
 
 #if 0

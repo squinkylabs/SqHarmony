@@ -297,6 +297,7 @@ static void testRunRamp() {
 }
 
 void testClockShifter6d() {
+    assertEQ(SqLog::errorCount, 0);
     testCanCall();
     testDelayRamp();
     testConstantRamp();

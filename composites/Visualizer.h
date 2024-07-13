@@ -92,6 +92,7 @@ private:
 
 template <class TBase>
 inline void Visualizer<TBase>::_init() {
+    _quantizedInputPitches.allowRandomAccess();         // so we remain compatible with the stuff from before SqArray.
     _divn.setup(getSubSampleFactor(), [this]() {
         this->_stepn();
     });
