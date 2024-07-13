@@ -7,6 +7,7 @@
 
 #include "MidiNote.h"
 #include "PitchKnowledge.h"
+#include "SqArray.h"
 
 class ChordRecognizer {
 public:
@@ -25,9 +26,9 @@ public:
         MinMajSeventh,
 
         MajMinNinth,  // dominant 7th with a major ninth on top.
-        MajMajNinth,     // major major 7th (Major 7th) with a major ninth
-        MinMinNinth,     // Minor 7th with a major ninth
-        MinMajNinth     // MinMin th with a major ninth
+        MajMajNinth,  // major major 7th (Major 7th) with a major ninth
+        MinMinNinth,  // Minor 7th with a major ninth
+        MinMajNinth   // MinMin th with a major ninth
 
     };
 
@@ -53,7 +54,7 @@ public:
      * @param chord - chord to analyze.
      * @return 0 is type of chord, 1 is the root.
      */
-    static ChordInfo recognize(const int* chord, unsigned size);
+    static ChordInfo recognize(const SqArray<int, 16>& chord);
 
     // Don't call from audio thread!
     static std::vector<std::string> toString(const ChordInfo&);
@@ -61,19 +62,17 @@ public:
     static unsigned notesInChord(Type);
 
     /**
-     * @brief sorts and normalizes a chord to put it in a canonical form for regocnizing
+     * @brief Sorts and normalizes a chord to put it in a canonical form for recognizing.
      *
      * @param outputChord
      * @param inputChord
      * @param length
-     * @return std::tuple<unsigned, int>
-     *  0 is the new length,
-     *  1 is how much it was transposed (the base)
+     * @return true if successful
      */
-    static std::tuple<unsigned, int> _makeCanonical(int* outputChord, const int* inputChord, unsigned length);
+    static bool _makeCanonical(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord, int& transposeAmount);
 
-    static void copy(int* dest, const int* src, unsigned length);
-    static void show(const char* msg, const int* p, unsigned num);
+    static void _copy(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord);
+    static void _show(const char* msg, const SqArray<int, 16>& chord);
 
     /**
      * @brief gets the "fractional part" of a number, wraps into range if negative.
@@ -90,22 +89,13 @@ private:
      * @param chord - chord to analyze, already normalized, sorted, etc...
      * @return 0 is type of chord, 1 is amount it needs to be transposed.
      */
-    static std::tuple<Type, int> recognizeType(const int* chord, unsigned length);
-    static std::tuple<Type, int> recognizeType3WithFifth(const int* chord);
-    static std::tuple<Type, int> recognizeType3WithAugFifth(const int* chord);
-    static std::tuple<Type, int> recognizeType3WithTritone(const int* chord);
-    static std::tuple<Type, int> recognizeType7th(const int* chord);
-    static std::tuple<Type, int> recognizeType9th(const int* chord);
-    static std::tuple<Type, int> recognizeTypeNinthWithSuspendedFifth(const int* chord);
+    static std::tuple<Type, int> recognizeType(const SqArray<int, 16>& inputChord);
+    static std::tuple<Type, int> recognizeType3WithFifth(const SqArray<int, 16>& chord);
+    static std::tuple<Type, int> recognizeType3WithAugFifth(const SqArray<int, 16>& chord);
+    static std::tuple<Type, int> recognizeType3WithTritone(const SqArray<int, 16>& chord);
+    static std::tuple<Type, int> recognizeType7th(const SqArray<int, 16>& chord);
+    static std::tuple<Type, int> recognizeType9th(const SqArray<int, 16>& chord);
+    static std::tuple<Type, int> recognizeTypeNinthWithSuspendedFifth(const SqArray<int, 16>& chord);
 
     static ChordInfo figureOutInversion(Type type, int recognizedPitch, int firstOffset);
-
-    /**
-     *
-     * @param outputChord
-     * @param inputChord
-     * @param length
-     * @return 0: unsigned the length of the output, 1:int the chord nomralization base
-     */
-    // static std::tuple<unsigned, int> normalize(int* outputChord, const int* inputChord, unsigned length);
 };

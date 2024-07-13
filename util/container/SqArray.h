@@ -24,6 +24,11 @@ public:
         _numValid = std::max(i+1, _numValid);
     }
 
+    T* getDirectPtrAt(unsigned int i) {
+         assert(i <= _numValid);    // allowed to go one past, for std iterator conventions 
+        return _data + i;
+    }
+
 private:
     T _data[capacity];
     unsigned _numValid = 0;

@@ -24,9 +24,17 @@ static void testBack() {
     assertEQ(x.numValid(), 3);
 }
 
+static void testGetDirect() {
+    SqArray<unsigned ,5> x;
+    x.putAt(0, 27);
+    x.putAt(1, 33);
+    std::sort(x.getDirectPtrAt(0), x.getDirectPtrAt(2));
+}
+
 void testSqArray() {
     testInit();
     testPutGet();
+    testGetDirect();
 }
 
 #if 0

@@ -6,19 +6,15 @@
 
 using Comp = Visualizer<TestComposite>;
 
+
 static void copyInCV(Comp& comp, int input, const std::vector<float>& cVin) {
-  //  SQINFO("-- copy in CV");
      if (!cVin.empty()) {
         comp.inputs[input].channels = 1;  // connect the input.
         comp.inputs[input].setChannels(cVin.size());
 
-        //  comp.inputs.push_back(Port());
-        // const auto ips = comp.inputs.size();
         for (int i = 0; i < cVin.size(); ++i) {
-         //   SQINFO("setting2 input %d to %f", i, cVin[i]);
             comp.inputs[input].setVoltage(cVin[i], i);
         }
-       // SQINFO("for input %d set channels to %d", input, comp.inputs[input].getChannels());
     }
 }
 
@@ -40,7 +36,6 @@ static void testCanCall() {
 }
 
 static void testCanClockInCMajor() {
-  //  SQINFO("------------ testCanClockInCMajor");
     Comp v;
     const float semi = 1.f / 12.f;
     const std::vector<float> foo = {0, 4 * semi, 7 * semi};
@@ -92,9 +87,6 @@ void testVisualizer() {
 
 #if 0
 void testFirst() {
- //   testCanClockInCMajor();
-    //  testCanClockInEMinor();
-  //  testWithGate();
     testVisualizer();
 }
 #endif

@@ -65,8 +65,13 @@ public:
         return _chordOptions->keysig->getUnderlyingScale();
     }
 
+   // TODO: this doesn't compile with new SqArray stuff
     std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
-        return std::make_tuple(_quantizedInputPitches, _outputChannels);
+        assert(false);
+        const int * a = nullptr;
+        unsigned b = 0;
+        return std::make_tuple(a, b);
+        //return std::make_tuple(_quantizedInputPitches, _outputChannels);
     }
 
 private:
@@ -79,7 +84,7 @@ private:
     Divider _divn;
 
     // quantized pitches and number of valid entries.
-    int _quantizedInputPitches[16] = {0};
+    SqArray<int, 16> _quantizedInputPitches;
     unsigned _outputChannels = 0;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
@@ -121,7 +126,7 @@ inline void Visualizer<TBase>::_processInput() {
     const unsigned gateChannels = gatePort.isConnected() ? gatePort.getChannels() : 0;
     const unsigned cvChannels = inputPort.getChannels();
     unsigned outputChannel = 0;
-    // Loop throught all the input CV that are valid, building up a list of quantized pitches.
+    // Loop through all the input CV that are valid, building up a list of quantized pitches.
     for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
         const float f = inputPort.getVoltage(inputChannel);
 
@@ -136,8 +141,8 @@ inline void Visualizer<TBase>::_processInput() {
         if (gate) {
             const MidiNote mn = _quantizer->run(f);
             const int iNote = mn.get();
-            if (_quantizedInputPitches[outputChannel] != iNote) {
-                _quantizedInputPitches[outputChannel] = iNote;
+            if (_quantizedInputPitches.getAt(outputChannel) != iNote) {
+                _quantizedInputPitches.putAt(outputChannel, iNote);
                 wasChange = true;
             }
             outputChannel++;
@@ -150,7 +155,7 @@ inline void Visualizer<TBase>::_processInput() {
 
     // Zero out all the pitches above our range.
     for (int i = outputChannel; i < 16; ++i) {
-        _quantizedInputPitches[i] = 0;
+        _quantizedInputPitches.putAt(i, 0);
     }
 
     if (!wasChange) {
@@ -158,7 +163,7 @@ inline void Visualizer<TBase>::_processInput() {
     }
 
     // Now put the new chord into the params.
-    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches, _outputChannels);
+    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches);
     TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
     TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
 
