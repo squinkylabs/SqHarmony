@@ -83,7 +83,7 @@ void testSqArray() {
     testIteratorInit();
 }
 
-#if 1
+#if 0
 void testFirst() {
      testSqArray();
     //  testDirectAccess();

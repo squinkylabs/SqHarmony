@@ -78,6 +78,63 @@ static void testMajorFirstInversion() {
     }
 }
 
+#if 1
+static void testMakeCanonicalT() {
+    class Cls {
+    public:
+        Cls() {}
+        Cls(int p, int i) : _pitch(p), _index(i) {}
+        // TODO: totally fake
+        bool operator <(const Cls& other) { return this->_pitch < other._pitch;  }
+        operator int() const { return _pitch;  }
+        void operator=(int pitch) { this->_pitch = pitch; }
+
+        int _pitch = 0;
+        int _index = 0;
+    };
+
+    // Cls x[3];
+    // x[0] = Cls(12, 1);
+    // x[1] = Cls(22, 0);
+    // x[2] = Cls(33, 2);
+    SqArray<Cls, 16> inputChord;
+    SqArray<Cls, 16> outputChord;
+    inputChord.putAt(0, Cls(12, 1));
+    inputChord.putAt(1, Cls(22, 0));
+    inputChord.putAt(2, Cls(33, 2));
+
+    int transposeAmount;
+    ChordRecognizer::_makeCanonical(outputChord, inputChord, transposeAmount);
+    assertEQ(outputChord.numValid(), 3);
+    const auto a = outputChord.getAt(0);
+    const auto b = outputChord.getAt(1);
+    const auto c = outputChord.getAt(2);
+    // assert(false);
+    SQINFO("!finish testMakeCanonicalT");
+}
+#endif
+
+// just a test for casting
+static void testMisc() {
+    int x = 5;
+
+    class Cls {
+    public:
+        Cls() {}
+        Cls(int p, int i) : _pitch(p), _index(i) {}
+        operator int() const { return _pitch;  }
+        int _pitch = 0;
+        int _index = 0;
+    };
+
+    Cls y(55, 0);
+
+    const int x2 = int(x);
+    const int y2 = int(y);
+    assertEQ(x2, 5);
+    assertEQ(y2, 55);
+}
+
 static void testNormalizeIntPositive() {
     assertEQ(ChordRecognizer::normalizeIntPositive(0, 12), 0);
     assertEQ(ChordRecognizer::normalizeIntPositive(5, 12), 5);
@@ -95,11 +152,14 @@ void testChordRecognizer3() {
     testMajorFirstInversion();
     testNormalizeIntPositive();
     SQINFO("!!! make testMajorFirstInversion work");
+ //   testMakeCanonicalT();
 }
 
 #if 0
 void testFirst() {
     // Not working yet.
-    testMajorFirstInversion();
+    // testMajorFirstInversion();
+    testMakeCanonicalT();
+ //testMisc();
 }
 #endif

@@ -19,13 +19,16 @@ void ChordRecognizer::_show(const char* msg, const SqArray<int, 16>& inputChord)
     }
 }
 
+#if 0
  void ChordRecognizer::_copy(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord) {
     for (unsigned i=0; i<inputChord.numValid(); ++i) {
         outputChord.putAt(i, inputChord.getAt(i));
     }
 }
+#endif
 
 // return is how much it was transposed
+#if 0
 bool ChordRecognizer::_makeCanonical(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord, int& transposeAmount) {
 #if defined _LOG
     SQINFO("In normalize %d", inputChord.numValid());
@@ -88,6 +91,7 @@ bool ChordRecognizer::_makeCanonical(SqArray<int, 16>& outputChord, const SqArra
     transposeAmount = base;
     return true;
 }
+#endif
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& inputChord) {
 #if defined(_LOG)

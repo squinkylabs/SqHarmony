@@ -69,9 +69,11 @@ public:
      * @param length
      * @return true if successful
      */
-    static bool _makeCanonical(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord, int& transposeAmount);
+    template <typename T>
+    static bool _makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount);
 
-    static void _copy(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord);
+    template <typename T>
+    static void _copy(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord);
     static void _show(const char* msg, const SqArray<int, 16>& chord);
 
     /**
@@ -99,3 +101,89 @@ private:
 
     static ChordInfo figureOutInversion(Type type, int recognizedPitch, int firstOffset);
 };
+
+template <typename T>
+inline void ChordRecognizer::_copy(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord) {
+    for (unsigned i=0; i<inputChord.numValid(); ++i) {
+        outputChord.putAt(i, inputChord.getAt(i));
+    }
+}
+
+template <typename T>
+inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount) {
+    #if defined _LOG
+    SQINFO("In normalize %d", inputChord.numValid());
+    _show("input chord", inputChord);
+#endif
+
+    unsigned length = inputChord.numValid();
+
+    if (length < 1) {
+#ifdef _LOG
+        SQINFO("In recognize exit early");
+#endif
+        return false;
+    }
+
+    SqArray<T, 16> sortedChord;
+    _copy(sortedChord, inputChord);
+    std::sort(sortedChord.getDirectPtrAt(0), sortedChord.getDirectPtrAt(length));
+// up through 49
+#ifdef _LOG
+    _show("sorted chord", sortedChord);
+#endif
+    const T tmp = sortedChord.getAt(0);
+    const int xx = tmp;
+    const int base = sortedChord.getAt(0);
+
+#ifdef _LOG
+    SQINFO("... in normalize pass, adding %d", -base);
+#endif
+    unsigned i;
+    SqArray<T, 16> normalizedChord;
+    for (i = 0; i < length; ++i) {
+        // How do we make this work with T?
+        //int note = sortedChord.getAt(i) - base;  // normalize to base
+        //note = note % 12;                  // normalize to octave
+        //normalizedChord.putAt(i, note);
+
+
+        T note = sortedChord.getAt(i);
+        int notePitch = note;
+        notePitch -= base;
+        notePitch = notePitch % 12;
+        note = notePitch;
+        normalizedChord.putAt(i, note);
+    }
+// up through 66
+
+#ifdef _LOG
+    _show("normalizedChord", normalizedChord);
+#endif
+    std::sort(normalizedChord.getDirectPtrAt(0), normalizedChord.getDirectPtrAt(length));
+#ifdef _LOG
+    _show("sorted normalizedChord", normalizedChord);
+#endif
+
+    //--- Remove dupes ---
+    unsigned j;
+    for (i = j = 0; i < length; ++i) {
+        // Copy this one over if it is not a dupe. last one is never a dupe.
+        if ((i == (length-1)) || ((int)normalizedChord.getAt(i) != (int)normalizedChord.getAt(i + 1))) {
+            const T tmp = normalizedChord.getAt(i);
+            outputChord.putAt(j++, normalizedChord.getAt(i)); 
+        }
+    }
+    length = j;
+
+// through 84
+
+#ifdef _LOG
+    _show("final", outputChord);
+#endif
+    for (unsigned i = 0; i < length; ++i) {
+        assert(outputChord.getAt(i) >= 0);
+    }
+    transposeAmount = base;
+    return true;
+}
