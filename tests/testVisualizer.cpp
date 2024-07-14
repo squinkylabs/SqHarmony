@@ -6,9 +6,8 @@
 
 using Comp = Visualizer<TestComposite>;
 
-
 static void copyInCV(Comp& comp, int input, const std::vector<float>& cVin) {
-     if (!cVin.empty()) {
+    if (!cVin.empty()) {
         comp.inputs[input].channels = 1;  // connect the input.
         comp.inputs[input].setChannels(cVin.size());
 
@@ -18,7 +17,7 @@ static void copyInCV(Comp& comp, int input, const std::vector<float>& cVin) {
     }
 }
 
-static void run(Comp& comp, const std::vector<float>& cVin, const std::vector<float>& gateVin = {} ) {
+static void run(Comp& comp, const std::vector<float>& cVin, const std::vector<float>& gateVin = {}) {
     copyInCV(comp, Comp::CV_INPUT, cVin);
     copyInCV(comp, Comp::GATE_INPUT, gateVin);
 
@@ -59,6 +58,28 @@ static void testCanClockInEMinor() {
     assertEQ(v.params[Comp::ROOT_PARAM].value, float(MidiNote::E));
 }
 
+static void testCanGetOutput() {
+    Comp v;
+    const float semi = 1.f / 12.f;
+    const std::vector<float> foo = {
+        semi * MidiNote::E,
+        semi * MidiNote::G,
+        semi * MidiNote::B};
+
+    run(v, foo);
+    const auto x = v.getQuantizedPitchesAndChannels();
+    const unsigned size = std::get<1>(x);
+    const int* note = std::get<0>(x);
+
+    assertEQ(size, 3);
+    const int n0 = note[0];
+    const int n1 = note[1];
+    const int n2 = note[2];
+    assertEQ(note[0], MidiNote::MiddleC + MidiNote::E);
+    assertEQ(note[1], MidiNote::MiddleC + MidiNote::G);
+    assertEQ(note[2], MidiNote::MiddleC + MidiNote::B);
+}
+
 static void testWrongNumberNotRecognized() {
     Comp v;
     const float semi = 1.f / 12.f;
@@ -71,7 +92,7 @@ static void testWithGate() {
     Comp v;
     const float semi = 1.f / 12.f;
     const std::vector<float> cv = {0, 4 * semi, 7 * semi, 8 * semi};
-    const std::vector<float> gate = { 10, 10, 10, 0 };
+    const std::vector<float> gate = {10, 10, 10, 0};
     run(v, cv, gate);
     assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::MajorTriad));
 }
@@ -84,12 +105,14 @@ void testVisualizer() {
     testCanClockInEMinor();
     testWrongNumberNotRecognized();
     testWithGate();
+    testCanGetOutput();
     assertEQ(SqLog::errorCount, 0);
 }
 
 #if 0
 void testFirst() {
-   // testVisualizer();
-     testCanClockInEMinor();
+    // testVisualizer();
+    // testCanClockInEMinor();
+    testCanGetOutput();
 }
 #endif

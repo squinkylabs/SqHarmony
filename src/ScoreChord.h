@@ -52,7 +52,7 @@
  *      C Major chord in C# Major - accidentals get on key sig. (done)
  *      C and E in C major - doesn't draw the C (fixed)
  *      In C Major one note, I don't see A natural, only sharp?? (user error)
- * 
+ *
  * Misc TODO:
  *      Should NotationNote have a staff in it (yes)?
  *      Make SqArray take {} to initialize.
@@ -62,7 +62,7 @@
  * _drawNotesOnStaff, passing midi pitch and a Scale.
  * _drawNotesOnStaff makes NotationNote
  * NotationNote has ScorePitchUtils::Accidental, and int _legerLine;
- * ScorePitchUtils::getNotationNote uses the pref from the scale. Also it calls Scale::m2s,
+ * ScorePitchUtils::getNotationNote uses the preference from the scale. Also it calls Scale::m2s,
  * and the resulting ScaleNote does have sharp/flat built in.
  *
  * step 1: remove ScaleNote from NotationNote (done).
@@ -87,9 +87,10 @@
  *      a) use SqArray
  *      b) templatize it, including sorter
  *      c) use it in speller.
- * step 9: make sure speller is good now.
- * 
- * 
+ * step 9: make sure speller is good now., can spell C minor correctly.
+ * ste0 10: hook new stuff up to the GUI.
+ *
+ *
  * step n: use it, re-do scoring (?), make new spelling stuff unit testable.
  */
 
@@ -158,6 +159,8 @@ private:
     float _drawMusicNonNotes(const DrawArgs &args) const;  // returns x pos at end of ksig
     void _drawNotes(const DrawArgs &args, float xPosition) const;
     void _drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
+    void _drawNotesOnStaffOG(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
+    void _drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
 
     // This is limited to white keys. Only used for keysig drawing.
     float _noteY(const MidiNote &note, bool bassStaff) const;
@@ -700,6 +703,65 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
 }
 
 inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
+    _drawNotesOnStaffV2(args, scale, xPosition, bassStaff, begin, end);
+}
+
+inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
+#ifdef _LOG
+    SQINFO("\n!!!! _drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
+    SQINFO("scale=%p", scale.get());
+    SQINFO("scale base = %d", scale->base().get());
+#endif
+
+    assert(scale.get() != nullptr);
+    int lastYPos = 1000;
+    bool lastNoteOffset = false;
+
+    // now spell
+    SqArray<int, 16> inputNotes(begin, end);
+    SqArray<NotationNote, 16> outputNotes;
+    //  static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
+
+    ScorePitchUtils::findSpelling(*scale.get(), inputNotes, outputNotes, bassStaff);
+
+    for (unsigned pitchIterator = 0; pitchIterator < outputNotes.numValid(); ++pitchIterator) {
+        const auto notationNote = outputNotes.getAt(pitchIterator);
+        const MidiNote &mn = notationNote._midiNote;
+        const auto yInfo = _noteYInfo(mn, notationNote._legerLine, bassStaff);
+        // SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
+        const float distance = lastYPos - yInfo.position;
+        lastYPos = yInfo.position;
+        const bool noteOffsetByTwoLines = (distance / _ySpaceBetweenLines) > 1.2;
+
+        bool twoNotesOnSameLine = false;
+        // if there is another note after this one
+        NotationNote notationNoteNext;
+        if ((pitchIterator + 1) < outputNotes.numValid()) {
+          //  MidiNote mnNext(*(pitchIterator + 1));
+            const MidiNote& mnNext = outputNotes.getAt(pitchIterator + 1)._midiNote;
+            // SQINFO("will get nn for next, pitch = %d", mnNext.get());
+            notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff);
+            const auto yInfoNext = _noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
+            if (yInfo.position == yInfoNext.position) {
+                // SQWARN("two notes at same location pitch = %d, %d, y=%f, %f", mn.get(), mnNext.get(), yInfo.position, yInfoNext.position);
+
+                twoNotesOnSameLine = true;
+                ++pitchIterator;
+            }
+        }
+
+        if (!twoNotesOnSameLine) {
+            const bool offsetThisNote = !noteOffsetByTwoLines && !lastNoteOffset;
+            // SQINFO("offset flag will be %d y=%f", offsetThisNote, yInfo.position);
+            lastNoteOffset = offsetThisNote;
+            _drawOneNote(args, mn, notationNote, yInfo, xPosition, offsetThisNote);
+        } else {
+            _drawTwoNotes(args, mn, notationNote, notationNoteNext, yInfo, xPosition);
+        }
+    }
+}
+
+inline void ScoreChord::_drawNotesOnStaffOG(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
 #ifdef _LOG
     SQINFO("\n!!!! _drawNotesOnStaff %p, %p bassStuff=%d", begin, end, bassStaff);
     SQINFO("scale=%p", scale.get());

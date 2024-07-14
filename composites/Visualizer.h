@@ -65,13 +65,8 @@ public:
         return _chordOptions->keysig->getUnderlyingScale();
     }
 
-    // TODO: this doesn't compile with new SqArray stuff
     std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
-        assert(false);
-        const int* a = nullptr;
-        unsigned b = 0;
-        return std::make_tuple(a, b);
-        // return std::make_tuple(_quantizedInputPitches, _outputChannels);
+        return std::make_tuple(_quantizedInputPitches.getDirectPtrAt(0), _outputChannels);
     }
 
 private:

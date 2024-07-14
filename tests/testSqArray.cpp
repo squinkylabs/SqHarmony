@@ -42,6 +42,27 @@ static void testDirectAccess() {
     assertEQ(x.getAt(15), 6789);
 }
 
+static void testInitializer() {
+    SqArray<int, 16> x = {1, 2, 3};
+    assertEQ(x.numValid(), 3);
+    assertEQ(x.getAt(0), 1);
+    assertEQ(x.getAt(1), 2);
+    assertEQ(x.getAt(2), 3);
+}
+
+static void testIteratorInit() {
+    const int notes[] = {5, 6, 7, 8, 9};
+    const int* begin = &notes[0];
+    const int* end = &notes[5];
+    SqArray<int, 16> x(begin, end);
+    assertEQ(x.numValid(), 5);
+    assertEQ(x.getAt(0), 5);
+    assertEQ(x.getAt(1), 6);
+    assertEQ(x.getAt(2), 7);
+    assertEQ(x.getAt(3), 8);
+    assertEQ(x.getAt(4), 9);
+}
+
 static void testRandomAccess() {
     SqArray<int, 16> x;
     x.allowRandomAccess();
@@ -58,11 +79,15 @@ void testSqArray() {
     testDirectAccess();
     testBack();
     testRandomAccess();
+    testInitializer();
+    testIteratorInit();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    // testSqArray();
-    testDirectAccess();
+     testSqArray();
+    //  testDirectAccess();
+    // testInitizlizer();
+   // testIteratorInit();
 }
 #endif
