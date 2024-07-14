@@ -48,6 +48,9 @@ public:
 
     static const int MiddleC = 60 + 12;
 
+    void _changePitch(int newPitch) {
+        _pitch = newPitch;
+    }
 private:
     int _pitch = C3;
 };

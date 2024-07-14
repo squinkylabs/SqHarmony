@@ -9,6 +9,8 @@
 #include "PitchKnowledge.h"
 #include "SqArray.h"
 
+// #define _LOG
+
 class ChordRecognizer {
 public:
     enum class Type {
@@ -74,7 +76,9 @@ public:
 
     template <typename T>
     static void _copy(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord);
-    static void _show(const char* msg, const SqArray<int, 16>& chord);
+
+    template <typename T>
+    static void _show(const char* msg, const SqArray<T, 16>& chord);
 
     /**
      * @brief gets the "fractional part" of a number, wraps into range if negative.
@@ -186,4 +190,18 @@ inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const S
     }
     transposeAmount = base;
     return true;
+}
+
+template <typename T>
+inline void ChordRecognizer::_show(const char* msg, const SqArray<T, 16>& inputChord) {
+    const unsigned num = inputChord.numValid();
+    if (num == 3) {
+        SQINFO("%s = %d, %d, %d", msg, (int)inputChord.getAt(0), (int)inputChord.getAt(1), (int)inputChord.getAt(2));
+    } else if (num == 4) {
+        SQINFO("%s = %d, %d, %d, %d", msg, (int)inputChord.getAt(0), (int)inputChord.getAt(1), (int)inputChord.getAt(2), (int)inputChord.getAt(3));
+    } else if (num == 5) {
+        SQINFO("%s = %d, %d, %d, %d %d", msg, (int)inputChord.getAt(0), (int)inputChord.getAt(1), (int)inputChord.getAt(2), (int)inputChord.getAt(3), (int)inputChord.getAt(4));
+    }else {
+        SQINFO("??? num=%d", num);
+    }
 }

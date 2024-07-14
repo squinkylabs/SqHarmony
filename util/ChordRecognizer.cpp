@@ -6,6 +6,7 @@
 
 //#define _LOG
 
+#if 0
 void ChordRecognizer::_show(const char* msg, const SqArray<int, 16>& inputChord) {
     const unsigned num = inputChord.numValid();
     if (num == 3) {
@@ -18,6 +19,7 @@ void ChordRecognizer::_show(const char* msg, const SqArray<int, 16>& inputChord)
         SQINFO("??? num=%d", num);
     }
 }
+#endif
 
 #if 0
  void ChordRecognizer::_copy(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord) {

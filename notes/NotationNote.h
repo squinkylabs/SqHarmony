@@ -32,6 +32,13 @@ public:
     NotationNote(const MidiNote& mn, Accidental ac, int ll) : _midiNote(mn), _accidental(ac), _legerLine(ll) {}
     bool operator==(const NotationNote& other) const;
     bool operator!=(const NotationNote& other) const;
+    // next three (int, operator=, pitch to make it sortable)
+    operator int() const { return pitch(); }
+    void operator=(int pitch) { this->_midiNote._changePitch(pitch); }
+    int pitch() const {
+      return _midiNote.get();
+    }
+
     bool isAccidental() const;
 
     std::string toString() const;

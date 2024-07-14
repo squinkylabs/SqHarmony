@@ -1,5 +1,6 @@
 
 
+#include "ChordRecognizer.h"
 #include "NotationNote.h"
 #include "Scale.h"
 #include "ScorePitchUtils.h"
@@ -200,6 +201,8 @@ static void testFindSpelling() {
 }
 
 static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNotes, const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff) {
+    ChordRecognizer::_show("testFindSpelling input is ", inputPitches);
+    ChordRecognizer::_show("testFindSpelling expected output is ", expectedOutputNotes);
     assertEQ(expectedOutputNotes.numValid(), inputPitches.numValid());
     assertGT(inputPitches.numValid(), 0);
     SqArray<NotationNote, 16> outputNotes;
@@ -270,7 +273,7 @@ static void testFindSpellingCminorFirstInversionInCMajor() {
     SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
-    const int lowEFlat =  MidiNote::MiddleC + MidiNote::E - 1 - 12;
+    const int lowEFlat = MidiNote::MiddleC + MidiNote::E - 1 - 12;
     const int expectedLegerLineLowEFlat = 0 - NotationNote::llInOctave;
 
     SqArray<int, 16> inputPitches;
@@ -458,15 +461,14 @@ void testScorePitchUtils() {
     testFindSpelling();
     testFindSpellingCMajor();
     testFindSpellingCminorInCMajor();
-   // testFindSpellingCminorFirstInversionInCMajor();
+    // testFindSpellingCminorFirstInversionInCMajor();
     SQINFO("put back testFindSpellingCminorFirstInversionInCMajor when it works");
 }
 
-#if 0
+#if 1
 void testFirst() {
-    // testScorePitchUtils();
+    //  testScorePitchUtils();
     testFindSpellingCminorFirstInversionInCMajor();
-    
 }
 
 #endif

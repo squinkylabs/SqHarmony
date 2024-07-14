@@ -57,4 +57,5 @@ private:
     static int _evaluateSpelling(SqArray<NotationNote, 16>& notes);
     static int _evaluateSpelling0(SqArray<NotationNote, 16>& notes);
     static int _evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& notes);
 };

@@ -84,7 +84,7 @@ static void testMakeCanonicalT() {
     public:
         Cls() {}
         Cls(int p, int i) : _pitch(p), _index(i) {}
-        // TODO: totally fake
+
         bool operator <(const Cls& other) { return this->_pitch < other._pitch;  }
         operator int() const { return _pitch;  }
         void operator=(int pitch) { this->_pitch = pitch; }

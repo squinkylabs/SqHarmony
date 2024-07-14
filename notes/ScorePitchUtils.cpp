@@ -2,7 +2,7 @@
 #include "ScorePitchUtils.h"
 
 // #include <tuple>
-
+#include "ChordRecognizer.h"
 #include "MidiNote.h"
 #include "NotationNote.h"
 #include "Scale.h"
@@ -292,7 +292,8 @@ int ScorePitchUtils::findSpelling(
 }
 
 int ScorePitchUtils::_evaluateSpelling(SqArray<NotationNote, 16>& notes) {
-    return _evaluateSpellingFirstAttempt(notes);
+    return _evaluateSpellingSecondAttempt(notes);
+   // return _evaluateSpellingFirstAttempt(notes);
     // return _evaluateSpelling0(notes);
 }
 
@@ -317,7 +318,7 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& no
             const int interval = pn1->_midiNote.get() - pn2->_midiNote.get();
             SQINFO("interval = %d", interval);
             if (interval == 3 || interval == 4) {
-                const int distanceLegerLine =  pn1->_legerLine - pn2->_legerLine;
+                const int distanceLegerLine = pn1->_legerLine - pn2->_legerLine;
                 SQINFO("ll dist = %d", distanceLegerLine);
                 if (distanceLegerLine != 2) {
                     numBadThirds++;
@@ -333,4 +334,72 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& no
 int ScorePitchUtils::_evaluateSpelling0(SqArray<NotationNote, 16>& notes) {
     SQWARN("Trivial Eval function");
     return 0;
+}
+
+class CanonicalNotationNote {
+public:
+    CanonicalNotationNote(const NotationNote& nn, unsigned index) : _notationNote(nn), _index(index) {
+    }
+    CanonicalNotationNote() {}
+
+    bool operator<(const CanonicalNotationNote& other) { return this->pitch() < other.pitch(); }
+    operator int() const { return pitch(); }
+    void operator=(int pitch) { this->_notationNote._midiNote._changePitch(pitch); }
+
+    int pitch() const {
+        return _notationNote._midiNote.get();
+    }
+    NotationNote _notationNote;
+    unsigned _index = 0;  // do we need this?
+};
+
+/**
+ * ScorePitchUtils::_evaluateSpellingSecondAttempt
+ */
+int ScorePitchUtils::_evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& rawNotes) {
+    //SQINFO("!! evaluate spelling second attempt");
+   // NotationNote nn = rawNotes.getAt(0);
+   // int ii = (int) nn;
+    ChordRecognizer::_show("!! evaluate spelling second attempt", rawNotes);
+    const unsigned n = rawNotes.numValid();
+    int numAccidentals = 0;
+    int numBadThirds = 0;
+
+    // Canonicalize all the notes, but preserve index.
+    SqArray<CanonicalNotationNote, 16> convertedNotes;
+    SqArray<CanonicalNotationNote, 16> canonicalNotes;
+    for (unsigned i = 0; i < n; ++i) {
+        convertedNotes.putAt(i, CanonicalNotationNote(rawNotes.getAt(i), i));
+    }
+    int foo = 0;
+    ChordRecognizer::_makeCanonical(canonicalNotes, convertedNotes, foo);
+
+    assert(canonicalNotes.numValid() == convertedNotes.numValid());
+
+    const CanonicalNotationNote* pn1 = nullptr;
+    const CanonicalNotationNote* pn2 = nullptr;
+    for (unsigned i = 0; i < n; ++i) {
+        pn2 = pn1;
+        pn1 = &canonicalNotes.getAt(i);
+
+        if (pn1->_notationNote.isAccidental()) {
+            numAccidentals++;
+            SQINFO("see accidental at %s", pn1->_notationNote.toString().c_str());
+        }
+        if (pn2) {
+            SQINFO("looking at %d and %d", i, i - 1);
+            const int interval = pn1->_notationNote._midiNote.get() - pn2->_notationNote._midiNote.get();
+            SQINFO("interval = %d", interval);
+            if (interval == 3 || interval == 4) {
+                const int distanceLegerLine = pn1->_notationNote._legerLine - pn2->_notationNote._legerLine;
+                SQINFO("ll dist = %d", distanceLegerLine);
+                if (distanceLegerLine != 2) {
+                    numBadThirds++;
+                }
+            }
+        }
+    }
+    const int score = -(numAccidentals + 10 * numBadThirds);
+    SQINFO("final score = %d", score);
+    return score;
 }
