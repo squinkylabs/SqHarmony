@@ -4,10 +4,10 @@
 #include "PitchKnowledge.h"
 #include "SqLog.h"
 
-//#define _LOG
+// #define _LOG
 
-#if 0
-void ChordRecognizer::_show(const char* msg, const SqArray<int, 16>& inputChord) {
+#if 1
+void ChordRecognizer::_show(const char* msg, const SqArray<PitchAndIndex, 16>& inputChord) {
     const unsigned num = inputChord.numValid();
     if (num == 3) {
         SQINFO("%s = %d, %d, %d", msg, inputChord.getAt(0), inputChord.getAt(1), inputChord.getAt(2));
@@ -30,8 +30,8 @@ void ChordRecognizer::_show(const char* msg, const SqArray<int, 16>& inputChord)
 #endif
 
 // return is how much it was transposed
-#if 0
-bool ChordRecognizer::_makeCanonical(SqArray<int, 16>& outputChord, const SqArray<int, 16>& inputChord, int& transposeAmount) {
+#if 1
+bool ChordRecognizer::_makeCanonical(SqArray<PitchAndIndex, 16>& outputChord, const SqArray<PitchAndIndex, 16>& inputChord, int& transposeAmount) {
 #if defined _LOG
     SQINFO("In normalize %d", inputChord.numValid());
     _show("input chord", inputChord);
@@ -46,24 +46,24 @@ bool ChordRecognizer::_makeCanonical(SqArray<int, 16>& outputChord, const SqArra
         return false;
     }
 
-    SqArray<int, 16> sortedChord;
+    SqArray<PitchAndIndex, 16> sortedChord;
     _copy(sortedChord, inputChord);
     std::sort(sortedChord.getDirectPtrAt(0), sortedChord.getDirectPtrAt(length));
 
 #ifdef _LOG
     _show("sorted chord", sortedChord);
 #endif
-    const int base = sortedChord.getAt(0);
+    const int basePitch = sortedChord.getAt(0).pitch;
 
 #ifdef _LOG
     SQINFO("... in normalize pass, adding %d", -base);
 #endif
     unsigned i;
-    SqArray<int, 16> normalizedChord;
+    SqArray<PitchAndIndex, 16> normalizedChord;
     for (i = 0; i < length; ++i) {
-        int note = sortedChord.getAt(i) - base;  // normalize to base
+        int note = sortedChord.getAt(i).pitch - basePitch;  // normalize to base
         note = note % 12;                  // normalize to octave
-        normalizedChord.putAt(i, note);
+        normalizedChord.putAt(i, PitchAndIndex(note, sortedChord.getAt(i).index));
     }
 
 #ifdef _LOG
@@ -78,7 +78,7 @@ bool ChordRecognizer::_makeCanonical(SqArray<int, 16>& outputChord, const SqArra
     unsigned j;
     for (i = j = 0; i < length; ++i) {
         // Copy this one over if it is not a dupe. last one is never a dupe.
-        if ((i == (length-1)) || (normalizedChord.getAt(i) != normalizedChord.getAt(i + 1))) {
+        if ((i == (length-1)) || (normalizedChord.getAt(i).pitch != normalizedChord.getAt(i + 1).pitch)) {
             outputChord.putAt(j++, normalizedChord.getAt(i)); 
         }
     }
@@ -88,20 +88,31 @@ bool ChordRecognizer::_makeCanonical(SqArray<int, 16>& outputChord, const SqArra
     _show("final", outputChord);
 #endif
     for (unsigned i = 0; i < length; ++i) {
-        assert(outputChord.getAt(i) >= 0);
+        assert(outputChord.getAt(i).pitch >= 0);
     }
-    transposeAmount = base;
+    transposeAmount = basePitch;
     return true;
 }
 #endif
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& inputChord) {
+  //  assert(false);
+   // return ChordInfo();
+SqArray<PitchAndIndex, 16> converted;
+    for (unsigned i=0; i<inputChord.numValid(); ++i) {
+        converted.putAt(i, PitchAndIndex(inputChord.getAt(i), i));
+    }
+    assert(converted.numValid() == inputChord.numValid());
+    return _recognize(converted);    
+}
+
+ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndIndex, 16>& inputChord) {
 #if defined(_LOG)
     SQINFO("----------------- enter recognize ------------------");
     _show("input chord ", inputChord);
 #endif
-    SqArray<int, 16> outputChord;
-   // const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
+    SqArray<PitchAndIndex, 16> outputChord;
+    // const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
     ChordInfo error;
     error.setError();
     int transposeAmount = 0;
@@ -124,9 +135,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& in
     if (nonInvertedRecognizedType != Type::Unrecognized) {
         const int finalRecognizedPitch = (baseNonInverted + std::get<1>(nonInvertedRecognize)) % 12;
         assert(finalRecognizedPitch >= 0);
-       // return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
-       // assert(false);
-        return ChordInfo(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
+        // return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
+        // assert(false);
+        return ChordInfo(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch, outputChord);
     }
 
 #ifdef _LOG
@@ -139,11 +150,16 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& in
 #endif
         // Try knocking a note down an octave to look for inversions.
         const int delta = -12;
-        SqArray<int, 16> possibleInversion;
-        SqArray<int, 16>  possibleInversionCanonical;
+        SqArray<PitchAndIndex, 16> possibleInversion;
+        SqArray<PitchAndIndex, 16> possibleInversionCanonical;
 
-        _copy(possibleInversion, outputChord);
-        possibleInversion.putAt(i, possibleInversion.getAt(i) + delta);
+        {
+            _copy(possibleInversion, outputChord);
+            const int newPitch =  possibleInversion.getAt(i).pitch + delta;
+            PitchAndIndex pai(newPitch, possibleInversion.getAt(i).index);
+            possibleInversion.putAt(i, pai);
+        }
+
 #ifdef _LOG
         _show(":: in inv search, pre norm", possibleInversion);
 #endif
@@ -193,13 +209,11 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type _type, int _
     if (relativeEffectiveFirstOffset == 3 || relativeEffectiveFirstOffset == 4) {
         // If the lowest note is a third, then it's a first inversion.
         inversion = Inversion::First;
-    }
-    else if (relativeEffectiveFirstOffset == 7 || relativeEffectiveFirstOffset == 6) {
+    } else if (relativeEffectiveFirstOffset == 7 || relativeEffectiveFirstOffset == 6) {
         // If the lowest note is a 5th, or a tritone, it's second inversions.
         // (tritone for diminished chords)
         inversion = Inversion::Second;
-    } 
-    else if (relativeEffectiveFirstOffset == 10 || relativeEffectiveFirstOffset == 11) {
+    } else if (relativeEffectiveFirstOffset == 10 || relativeEffectiveFirstOffset == 11) {
         // If the lowest note is a 7th, it's third inversions.
 
         inversion = Inversion::Third;
@@ -219,20 +233,20 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type _type, int _
     SQINFO("relativeEffectiveFirstOffset=%d", relativeEffectiveFirstOffset);
 #endif
 
-   // return std::make_tuple(_type, inversion, normalizeIntPositive(finalRootPitch, 12));
-  //  assert(false);
+    // return std::make_tuple(_type, inversion, normalizeIntPositive(finalRootPitch, 12));
+    //  assert(false);
     return ChordInfo(_type, inversion, normalizeIntPositive(finalRootPitch, 12));
 }
 
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType( const SqArray<int, 16>& chord) {
-    assert(chord.getAt(0) == 0);
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType(const SqArray<PitchAndIndex, 16>& chord) {
+    assert(chord.getAt(0).pitch == 0);
     const unsigned length = chord.numValid();
     if (length == 3) {
-        if (chord.getAt(2) == MidiNote::G) {
+        if (chord.getAt(2).pitch == MidiNote::G) {
             return recognizeType3WithFifth(chord);
-        } else if (chord.getAt(2) == MidiNote::G - 1) {
+        } else if (chord.getAt(2).pitch == MidiNote::G - 1) {
             return recognizeType3WithTritone(chord);
-        } else if (chord.getAt(2) == MidiNote::G + 1) {
+        } else if (chord.getAt(2).pitch == MidiNote::G + 1) {
             return recognizeType3WithAugFifth(chord);
         }
     }
@@ -243,7 +257,6 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType( const SqA
             return ret;
         }
         return recognizeTypeNinthWithSuspendedFifth(chord);
-       
     }
 
     if (length == 5) {
@@ -253,123 +266,122 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType( const SqA
     return std::make_tuple(Type::Unrecognized, 0);
 }
 
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType7th(const SqArray<int, 16>& chord) {
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType7th(const SqArray<PitchAndIndex, 16>& chord) {
 #ifdef _LOG
     _show("enter recognizeType7th chord=", chord);
 #endif
     const auto error = std::make_tuple(Type::Unrecognized, 0);
-    assert(chord.getAt(0) == MidiNote::C);
+    assert(chord.getAt(0).pitch == MidiNote::C);
 
-    if (chord.getAt(2) != MidiNote::G) {
+    if (chord.getAt(2).pitch != MidiNote::G) {
 #ifdef _LOG
         SQINFO("not 7th, as doesn't have a perfect fifth");
 #endif
         return error;
     }
 
-    if ((chord.getAt(1) == MidiNote::E) &&
-        (chord.getAt(3) == MidiNote::B - 1)) {
+    if ((chord.getAt(1).pitch == MidiNote::E) &&
+        (chord.getAt(3).pitch == MidiNote::B - 1)) {
         return std::make_tuple(Type::MajMinSeventh, 0);
     }
-    if ((chord.getAt(1) == MidiNote::E) &&
-        (chord.getAt(3) == MidiNote::B)) {
+    if ((chord.getAt(1).pitch == MidiNote::E) &&
+        (chord.getAt(3).pitch == MidiNote::B)) {
         return std::make_tuple(Type::MajMajSeventh, 0);
     }
-    if ((chord.getAt(1) == MidiNote::E - 1) &&
-        (chord.getAt(3) == MidiNote::B - 1)) {
+    if ((chord.getAt(1).pitch == MidiNote::E - 1) &&
+        (chord.getAt(3).pitch == MidiNote::B - 1)) {
         return std::make_tuple(Type::MinMinSeventh, 0);
     }
-    if ((chord.getAt(1) == MidiNote::E - 1) &&
-        (chord.getAt(3) == MidiNote::B)) {
+    if ((chord.getAt(1).pitch == MidiNote::E - 1) &&
+        (chord.getAt(3).pitch == MidiNote::B)) {
         return std::make_tuple(Type::MinMajSeventh, 0);
     }
 
     return error;
 }
 
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType9th(const SqArray<int, 16>& chord) {
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType9th(const SqArray<PitchAndIndex, 16>& chord) {
     // since chords are sorted, a dom ninth looks like 0 2 4 7 10. The ninth rolls over to the two
 #ifdef _LOG
     _show("enter recognizeType9th chord=", chord);
 #endif
     const auto error = std::make_tuple(Type::Unrecognized, 0);
-    assert(chord.getAt(0) == MidiNote::C);
+    assert(chord.getAt(0).pitch == MidiNote::C);
 
-    if (chord.getAt(3) != MidiNote::G) {
+    if (chord.getAt(3).pitch != MidiNote::G) {
 #ifdef _LOG
         SQINFO("not 9th, as doesn't have a perfect fifth");
 #endif
         return error;
     }
 
-    if (chord.getAt(1) != (MidiNote::D)) {
-#ifdef _LOG
-        SQINFO("not 9th, as doesn't have a ninth (second)");
-#endif
-    return error;
-    }
-
-    if ((chord.getAt(2) == MidiNote::E) &&
-        (chord.getAt(4) == MidiNote::B - 1)) {
-        return std::make_tuple(Type::MajMinNinth, 0);
-    }
-    if ((chord.getAt(2) == MidiNote::E) &&
-        (chord.getAt(4) == MidiNote::B)) {
-        return std::make_tuple(Type::MajMajNinth, 0);
-    }
-    if ((chord.getAt(2) == MidiNote::E - 1) &&
-        (chord.getAt(4) == MidiNote::B - 1)) {
-        return std::make_tuple(Type::MinMinNinth, 0);
-    }
-    if ((chord.getAt(2) == MidiNote::E - 1) &&
-        (chord.getAt(4) == MidiNote::B)) {
-        return std::make_tuple(Type::MinMajNinth, 0);
-    }
-
-    return error;
-}
-
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeTypeNinthWithSuspendedFifth(const SqArray<int, 16>& chord) {
-    // since chords are sorted, a dom ninth looks like 0 2 4 10. The ninth rolls over to the two
-#ifdef _LOG
-    _show("enter recognizeType9th chord=", chord);
-#endif
-    const auto error = std::make_tuple(Type::Unrecognized, 0);
-    assert(chord.getAt(0) == MidiNote::C);
-
-
-    if (chord.getAt(1) != (MidiNote::D)) {
+    if (chord.getAt(1).pitch != MidiNote::D) {
 #ifdef _LOG
         SQINFO("not 9th, as doesn't have a ninth (second)");
 #endif
         return error;
     }
 
-    if ((chord.getAt(2) == MidiNote::E) &&
-        (chord.getAt(3) == MidiNote::B - 1)) {
+    if ((chord.getAt(2).pitch == MidiNote::E) &&
+        (chord.getAt(4).pitch == MidiNote::B - 1)) {
         return std::make_tuple(Type::MajMinNinth, 0);
     }
-    if ((chord.getAt(2) == MidiNote::E) &&
-        (chord.getAt(3) == MidiNote::B)) {
+    if ((chord.getAt(2).pitch == MidiNote::E) &&
+        (chord.getAt(4).pitch == MidiNote::B)) {
         return std::make_tuple(Type::MajMajNinth, 0);
     }
-    if ((chord.getAt(2) == MidiNote::E - 1) &&
-        (chord.getAt(3) == MidiNote::B - 1)) {
+    if ((chord.getAt(2).pitch == MidiNote::E - 1) &&
+        (chord.getAt(4).pitch == MidiNote::B - 1)) {
         return std::make_tuple(Type::MinMinNinth, 0);
     }
-    if ((chord.getAt(2) == MidiNote::E - 1) &&
-        (chord.getAt(3) == MidiNote::B)) {
+    if ((chord.getAt(2).pitch == MidiNote::E - 1) &&
+        (chord.getAt(4).pitch == MidiNote::B)) {
         return std::make_tuple(Type::MinMajNinth, 0);
     }
 
     return error;
 }
 
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithAugFifth(const SqArray<int, 16>& chord) {
-    assert(chord.getAt(0) == 0);
-    assert(chord.getAt(2) == MidiNote::G + 1);
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeTypeNinthWithSuspendedFifth(const SqArray<PitchAndIndex, 16>& chord) {
+    // since chords are sorted, a dom ninth looks like 0 2 4 10. The ninth rolls over to the two
+#ifdef _LOG
+    _show("enter recognizeType9th chord=", chord);
+#endif
+    const auto error = std::make_tuple(Type::Unrecognized, 0);
+    assert(chord.getAt(0).pitch == MidiNote::C);
 
-    switch (chord.getAt(1)) {
+    if (chord.getAt(1).pitch != MidiNote::D) {
+#ifdef _LOG
+        SQINFO("not 9th, as doesn't have a ninth (second)");
+#endif
+        return error;
+    }
+
+    if ((chord.getAt(2).pitch == MidiNote::E) &&
+        (chord.getAt(3).pitch == MidiNote::B - 1)) {
+        return std::make_tuple(Type::MajMinNinth, 0);
+    }
+    if ((chord.getAt(2).pitch == MidiNote::E) &&
+        (chord.getAt(3).pitch == MidiNote::B)) {
+        return std::make_tuple(Type::MajMajNinth, 0);
+    }
+    if ((chord.getAt(2).pitch == MidiNote::E - 1) &&
+        (chord.getAt(3).pitch == MidiNote::B - 1)) {
+        return std::make_tuple(Type::MinMinNinth, 0);
+    }
+    if ((chord.getAt(2).pitch == MidiNote::E - 1) &&
+        (chord.getAt(3).pitch == MidiNote::B)) {
+        return std::make_tuple(Type::MinMajNinth, 0);
+    }
+
+    return error;
+}
+
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithAugFifth(const SqArray<PitchAndIndex, 16>& chord) {
+    assert(chord.getAt(0).pitch == 0);
+    assert(chord.getAt(2).pitch == MidiNote::G + 1);
+
+    switch (chord.getAt(1).pitch) {
         case MidiNote::E:
             return std::make_tuple(Type::AugmentedTriad, 0);
     }
@@ -377,11 +389,11 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithAugFif
     return std::make_tuple(Type::Unrecognized, 0);
 }
 
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithTritone(const SqArray<int, 16>& chord) {
-    assert(chord.getAt(0) == 0);
-    assert(chord.getAt(2) == MidiNote::G - 1);
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithTritone(const SqArray<PitchAndIndex, 16>& chord) {
+    assert(chord.getAt(0).pitch == 0);
+    assert(chord.getAt(2).pitch == MidiNote::G - 1);
 
-    switch (chord.getAt(1)) {
+    switch (chord.getAt(1).pitch) {
         case MidiNote::E - 1:
             return std::make_tuple(Type::DiminishedTriad, 0);
     }
@@ -389,16 +401,16 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithTriton
     return std::make_tuple(Type::Unrecognized, 0);
 }
 
-std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(const SqArray<int, 16>& chord) {
-    assert(chord.getAt(0) == 0);
-    assert(chord.getAt(2) == MidiNote::G);
-   // _show("enter recognizeType3WithFifth", chord);
+std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(const SqArray<PitchAndIndex, 16>& chord) {
+    assert(chord.getAt(0).pitch == 0);
+    assert(chord.getAt(2).pitch == MidiNote::G);
+    // _show("enter recognizeType3WithFifth", chord);
 
-    switch (chord.getAt(1)) {
+    switch (chord.getAt(1).pitch) {
         case MidiNote::E:
             return std::make_tuple(Type::MajorTriad, 0);
         case MidiNote::E - 1:
-           // SQINFO("recognizing minor triad E=%d, E flat = %d", MidiNote::E, MidiNote::E - 1);
+            // SQINFO("recognizing minor triad E=%d, E flat = %d", MidiNote::E, MidiNote::E - 1);
             return std::make_tuple(Type::MinorTriad, 0);
         case MidiNote::F:
             return std::make_tuple(Type::Sus4Triad, 0);

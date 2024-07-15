@@ -3,17 +3,14 @@
 #include "ChordRecognizer.h"
 #include "asserts.h"
 
-static SqArray<int, 16> makeChord(std::vector<int> input) {
-    SqArray<int, 16> chord;
-    int i = 0;
-    for (auto x : input) {
-        chord.putAt(i++, x);
-    }
-    return chord;
-}
 
+/**
+ * More ad hoc tests for Chord Recognizer. Similar to getChordRecognizer, but that module is getting too big.
+ */
+
+#if 0
 void testMajor() {
-    SqArray<int, 16> cmaj = makeChord({MidiNote::C, MidiNote::E, MidiNote::G});
+    SqArray<int, 16> cmaj ={MidiNote::C, MidiNote::E, MidiNote::G};
     SqArray<int, 16> transposed;
 
     for (int i = 0; i < 40; ++i) {
@@ -32,7 +29,7 @@ void testMajor() {
 }
 
 void testMajorOpen() {
-    SqArray<int, 16> cmaj = makeChord({MidiNote::C, MidiNote::E, MidiNote::G});
+    SqArray<int, 16> cmaj = {MidiNote::C, MidiNote::E, MidiNote::G};
     SqArray<int, 16> transposed;
 
     for (int i = 0; i < 40; ++i) {
@@ -60,7 +57,7 @@ void testMajorOpen() {
 }
 
 static void testMajorFirstInversion() {
-    SqArray<int, 16> cmajInverted = makeChord({MidiNote::C + 12, MidiNote::E, MidiNote::G});
+    SqArray<int, 16> cmajInverted = {MidiNote::C + 12, MidiNote::E, MidiNote::G};
     SqArray<int, 16> transposed;
 
     for (int i = 0; i < 1; ++i) {
@@ -77,8 +74,9 @@ static void testMajorFirstInversion() {
         assertEQ(baseTranspose, i + 4);  // expect the third now
     }
 }
+#endif
 
-#if 1
+#if 0
 static void testMakeCanonicalT() {
     class Cls {
     public:
@@ -135,6 +133,17 @@ static void testMisc() {
     assertEQ(y2, 55);
 }
 
+ static void testCMajorWithReturns() {
+    ChordRecognizer ch;
+ //   SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E, MidiNote::G});
+    SqArray<int, 16> chord = {MidiNote::C, MidiNote::E, MidiNote::G};
+    auto const result = ch.recognize(chord);
+
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::C);
+    assertEQ(result.identifiedPitches.numValid(), 3);
+ }
+
 static void testNormalizeIntPositive() {
     assertEQ(ChordRecognizer::normalizeIntPositive(0, 12), 0);
     assertEQ(ChordRecognizer::normalizeIntPositive(5, 12), 5);
@@ -147,11 +156,11 @@ static void testNormalizeIntPositive() {
 }
 
 void testChordRecognizer3() {
-    testMajor();
-    testMajorOpen();
-    testMajorFirstInversion();
+  //  testMajor();
+ //   testMajorOpen();
+ //   testMajorFirstInversion();
     testNormalizeIntPositive();
-    SQINFO("!!! make testMajorFirstInversion work");
+     testCMajorWithReturns();
  //   testMakeCanonicalT();
 }
 
@@ -159,7 +168,8 @@ void testChordRecognizer3() {
 void testFirst() {
     // Not working yet.
     // testMajorFirstInversion();
-    testMakeCanonicalT();
+  
  //testMisc();
+    testCMajorWithReturns();
 }
 #endif

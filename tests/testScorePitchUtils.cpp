@@ -201,8 +201,8 @@ static void testFindSpelling() {
 }
 
 static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNotes, const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff) {
-    ChordRecognizer::_show("testFindSpelling input is ", inputPitches);
-    ChordRecognizer::_show("testFindSpelling expected output is ", expectedOutputNotes);
+  //  ChordRecognizer::_show("testFindSpelling input is ", inputPitches);
+  //  ChordRecognizer::_show("testFindSpelling expected output is ", expectedOutputNotes);
     assertEQ(expectedOutputNotes.numValid(), inputPitches.numValid());
     assertGT(inputPitches.numValid(), 0);
     SqArray<NotationNote, 16> outputNotes;
@@ -468,7 +468,8 @@ void testScorePitchUtils() {
 #if 0
 void testFirst() {
     //  testScorePitchUtils();
-    testFindSpellingCminorFirstInversionInCMajor();
+   // testFindSpellingCminorFirstInversionInCMajor();
+    testFindSpelling();
 }
 
 #endif

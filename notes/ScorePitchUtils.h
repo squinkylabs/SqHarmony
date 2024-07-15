@@ -3,12 +3,15 @@
 
 #include <assert.h>
 
+#include "ChordRecognizer.h"
 #include "NotationNote.h"
 #include "SqArray.h"
 
-// class NotationNote;
+
+
 class Scale;
 class MidiNote;
+
 
 class ScorePitchUtils {
 public:
@@ -26,7 +29,8 @@ public:
      * @param evalIndex
      * @return int = the score for that spelling
      */
-    static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
+    static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff);
+    static int _findSpelling(const ChordRecognizer::ChordInfo& info, const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
@@ -54,8 +58,8 @@ public:
 
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&);
-    static int _evaluateSpelling(SqArray<NotationNote, 16>& notes);
-    static int _evaluateSpelling0(SqArray<NotationNote, 16>& notes);
-    static int _evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& notes);
-    static int _evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpelling(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpelling0(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingFirstAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingSecondAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
 };

@@ -249,6 +249,17 @@ int ScorePitchUtils::findSpelling(
     const Scale& scale,
     const SqArray<int, 16>& inputPitches,
     SqArray<NotationNote, 16>& outputNotes,
+    bool bassStaff) {
+
+    const auto info = ChordRecognizer::recognize(inputPitches);
+    return _findSpelling(info, scale, inputPitches, outputNotes, bassStaff);
+}
+
+int ScorePitchUtils::_findSpelling(
+    const ChordRecognizer::ChordInfo& info,
+    const Scale& scale,
+    const SqArray<int, 16>& inputPitches,
+    SqArray<NotationNote, 16>& outputNotes,
     bool bassStaff,
     unsigned evalIndex) {
     // // get all the spellings for current notes.
@@ -272,9 +283,9 @@ int ScorePitchUtils::findSpelling(
 
         int score = 0;
         if (evalIndex < inputPitches.numValid() - 1) {
-            score = findSpelling(scale, inputPitches, outputNotes, bassStaff, evalIndex + 1);
+            score = _findSpelling(info, scale, inputPitches, outputNotes, bassStaff, evalIndex + 1);
         } else {
-            score = _evaluateSpelling(outputNotes);
+            score = _evaluateSpelling(info, outputNotes);
         }
         if (score > bestScore) {
             // SQINFO("recurse found new best score for %d, note=%s", evalIndex, outputNotes.getAt()
@@ -292,13 +303,13 @@ int ScorePitchUtils::findSpelling(
     return bestScore;
 }
 
-int ScorePitchUtils::_evaluateSpelling(SqArray<NotationNote, 16>& notes) {
-   // return _evaluateSpellingSecondAttempt(notes);
-   return _evaluateSpellingFirstAttempt(notes);
-   //return _evaluateSpelling0(notes);
+int ScorePitchUtils::_evaluateSpelling(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
+    // return _evaluateSpellingSecondAttempt(notes);
+    return _evaluateSpellingFirstAttempt(info, notes);
+    // return _evaluateSpelling0(notes);
 }
 
-int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& notes) {
+int ScorePitchUtils::_evaluateSpellingFirstAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
     SQINFO("!! evaluate spelling first attempt");
     const unsigned n = notes.numValid();
     int numAccidentals = 0;
@@ -332,7 +343,7 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& no
     return score;
 }
 
-int ScorePitchUtils::_evaluateSpelling0(SqArray<NotationNote, 16>& notes) {
+int ScorePitchUtils::_evaluateSpelling0(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
     SQWARN("Trivial Eval function");
     return 0;
 }
@@ -356,7 +367,7 @@ public:
         s << _notationNote.toString();
         s << " idx=";
         s << _index;
-        return s.str();       
+        return s.str();
     }
     NotationNote _notationNote;
     unsigned _index = 0;  // do we need this?
@@ -365,11 +376,12 @@ public:
 /**
  * ScorePitchUtils::_evaluateSpellingSecondAttempt
  */
+#if 0
 int ScorePitchUtils::_evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& rawNotes) {
     //SQINFO("!! evaluate spelling second attempt");
    // NotationNote nn = rawNotes.getAt(0);
    // int ii = (int) nn;
-    ChordRecognizer::_show("\n!! evaluate spelling second attempt", rawNotes);
+  //  ChordRecognizer::_show("\n!! evaluate spelling second attempt", rawNotes);
     SQINFO("raw notes = <%s> | <%s> | <%s>",
                rawNotes.getAt(0).toString().c_str(),
                rawNotes.getAt(1).toString().c_str(),
@@ -421,3 +433,4 @@ int ScorePitchUtils::_evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& r
     SQINFO("!! evaluate spelling final score = %d #bad3=%d #acc=%d\n", score, numBadThirds, numAccidentals);
     return score;
 }
+#endif

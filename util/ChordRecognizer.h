@@ -41,34 +41,29 @@ public:
         Third
     };
 
-    /*
-        using ChordInfo = std::tuple<Type, Inversion, int>;
-        static Type typeFromInfo(const ChordInfo& info) {
-            return std::get<0>(info);
-        }
-        static Inversion inversionFromInfo(const ChordInfo& info) {
-            return std::get<1>(info);
-        }
-        static int pitchFromInfo(const ChordInfo& info) {
-            return std::get<2>(info);
-        }
-        */
     class PitchAndIndex {
     public:
-        int16_t pitch;
-        uint16_t index;
+        PitchAndIndex(int p, int i) : pitch(p), index(i) {}
+        PitchAndIndex() {}
+         bool operator <(const PitchAndIndex& other) { return this->pitch < other.pitch;  }
+
+        int16_t pitch=0;
+        uint16_t index=0;
     };
 
     class ChordInfo {
     public:
-        ChordInfo(Type, Inversion, int pitch, SqArray<PitchAndIndex, 16> idPitches );
+        ChordInfo(Type t, Inversion i, int p, SqArray<PitchAndIndex, 16> idp ) :
+            type(t), inversion(i), pitch(p), identifiedPitches(idp) {
+        }
+
         ChordInfo(Type t, Inversion i, int p) : type(t), inversion(i), pitch(p) {} 
         ChordInfo() {}
         Type type = Type::Unrecognized;
         Inversion inversion = Inversion::Root;
         int pitch = 0;
 
-        SqArray<PitchAndIndex, 16> identifiedPitchs;
+        SqArray<PitchAndIndex, 16> identifiedPitches;
 
         void setError() {
             type = Type::Unrecognized;
@@ -80,9 +75,9 @@ public:
 
     /**
      * @param chord - chord to analyze.
-     * @return 0 is type of chord, 1 is the root.
      */
     static ChordInfo recognize(const SqArray<int, 16>& chord);
+
 
     // Don't call from audio thread!
     static std::vector<std::string> toString(const ChordInfo&);
@@ -97,14 +92,15 @@ public:
      * @param length
      * @return true if successful
      */
-    template <typename T>
-    static bool _makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount);
+   // template <typename T>
+  //  static bool _makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount);
+    static bool _makeCanonical(SqArray<PitchAndIndex, 16>& outputChord, const SqArray<PitchAndIndex, 16>& inputChord, int& transposeAmount);
 
     template <typename T>
     static void _copy(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord);
 
-    template <typename T>
-    static void _show(const char* msg, const SqArray<T, 16>& chord);
+  //  template <typename T>
+    static void _show(const char* msg, const SqArray<PitchAndIndex, 16>& chord);
 
     /**
      * @brief gets the "fractional part" of a number, wraps into range if negative.
@@ -121,15 +117,17 @@ private:
      * @param chord - chord to analyze, already normalized, sorted, etc...
      * @return 0 is type of chord, 1 is amount it needs to be transposed.
      */
-    static std::tuple<Type, int> recognizeType(const SqArray<int, 16>& inputChord);
-    static std::tuple<Type, int> recognizeType3WithFifth(const SqArray<int, 16>& chord);
-    static std::tuple<Type, int> recognizeType3WithAugFifth(const SqArray<int, 16>& chord);
-    static std::tuple<Type, int> recognizeType3WithTritone(const SqArray<int, 16>& chord);
-    static std::tuple<Type, int> recognizeType7th(const SqArray<int, 16>& chord);
-    static std::tuple<Type, int> recognizeType9th(const SqArray<int, 16>& chord);
-    static std::tuple<Type, int> recognizeTypeNinthWithSuspendedFifth(const SqArray<int, 16>& chord);
+    static std::tuple<Type, int> recognizeType(const SqArray<PitchAndIndex, 16>& inputChord);
+    static std::tuple<Type, int> recognizeType3WithFifth(const SqArray<PitchAndIndex, 16>& chord);
+    static std::tuple<Type, int> recognizeType3WithAugFifth(const SqArray<PitchAndIndex, 16>& chord);
+    static std::tuple<Type, int> recognizeType3WithTritone(const SqArray<PitchAndIndex, 16>& chord);
+    static std::tuple<Type, int> recognizeType7th(const SqArray<PitchAndIndex, 16>& chord);
+    static std::tuple<Type, int> recognizeType9th(const SqArray<PitchAndIndex, 16>& chord);
+    static std::tuple<Type, int> recognizeTypeNinthWithSuspendedFifth(const SqArray<PitchAndIndex, 16>& chord);
 
     static ChordInfo figureOutInversion(Type type, int recognizedPitch, int firstOffset);
+
+    static ChordInfo _recognize(const SqArray<PitchAndIndex, 16>& chord);
 };
 
 template <typename T>
@@ -139,6 +137,7 @@ inline void ChordRecognizer::_copy(SqArray<T, 16>& outputChord, const SqArray<T,
     }
 }
 
+#if 0
 template <typename T>
 inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount) {
 #if defined _LOG
@@ -163,7 +162,7 @@ inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const S
     _show("sorted chord", sortedChord);
 #endif
     const T tmp = sortedChord.getAt(0);
-    const int xx = tmp;
+   // const int xx = tmp;
     const int base = sortedChord.getAt(0);
 
 #ifdef _LOG
@@ -172,11 +171,6 @@ inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const S
     unsigned i;
     SqArray<T, 16> normalizedChord;
     for (i = 0; i < length; ++i) {
-        // How do we make this work with T?
-        // int note = sortedChord.getAt(i) - base;  // normalize to base
-        // note = note % 12;                  // normalize to octave
-        // normalizedChord.putAt(i, note);
-
         T note = sortedChord.getAt(i);
         int notePitch = note;
         notePitch -= base;
@@ -216,7 +210,9 @@ inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const S
     transposeAmount = base;
     return true;
 }
+#endif
 
+#if 0
 template <typename T>
 inline void ChordRecognizer::_show(const char* msg, const SqArray<T, 16>& inputChord) {
     const unsigned num = inputChord.numValid();
@@ -230,3 +226,4 @@ inline void ChordRecognizer::_show(const char* msg, const SqArray<T, 16>& inputC
         SQINFO("??? num=%d", num);
     }
 }
+#endif
