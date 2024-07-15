@@ -101,7 +101,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& in
     _show("input chord ", inputChord);
 #endif
     SqArray<int, 16> outputChord;
-    const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
+   // const auto error = std::make_tuple(Type::Unrecognized, Inversion::Root, MidiNote::C);
+    ChordInfo error;
+    error.setError();
     int transposeAmount = 0;
     const int canNormalize = _makeCanonical(outputChord, inputChord, transposeAmount);
     const unsigned finalLength = outputChord.numValid();
@@ -122,7 +124,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& in
     if (nonInvertedRecognizedType != Type::Unrecognized) {
         const int finalRecognizedPitch = (baseNonInverted + std::get<1>(nonInvertedRecognize)) % 12;
         assert(finalRecognizedPitch >= 0);
-        return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
+       // return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
+       // assert(false);
+        return ChordInfo(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
     }
 
 #ifdef _LOG
@@ -215,7 +219,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type _type, int _
     SQINFO("relativeEffectiveFirstOffset=%d", relativeEffectiveFirstOffset);
 #endif
 
-    return std::make_tuple(_type, inversion, normalizeIntPositive(finalRootPitch, 12));
+   // return std::make_tuple(_type, inversion, normalizeIntPositive(finalRootPitch, 12));
+  //  assert(false);
+    return ChordInfo(_type, inversion, normalizeIntPositive(finalRootPitch, 12));
 }
 
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType( const SqArray<int, 16>& chord) {
@@ -386,13 +392,13 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithTriton
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(const SqArray<int, 16>& chord) {
     assert(chord.getAt(0) == 0);
     assert(chord.getAt(2) == MidiNote::G);
-    _show("enter recognizeType3WithFifth", chord);
+   // _show("enter recognizeType3WithFifth", chord);
 
     switch (chord.getAt(1)) {
         case MidiNote::E:
             return std::make_tuple(Type::MajorTriad, 0);
         case MidiNote::E - 1:
-            SQINFO("recognizing minor triad E=%d, E flat = %d", MidiNote::E, MidiNote::E - 1);
+           // SQINFO("recognizing minor triad E=%d, E flat = %d", MidiNote::E, MidiNote::E - 1);
             return std::make_tuple(Type::MinorTriad, 0);
         case MidiNote::F:
             return std::make_tuple(Type::Sus4Triad, 0);
@@ -404,9 +410,9 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(
 }
 
 std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
-    std::string s = PitchKnowledge::nameOfShort(pitchFromInfo(info));
+    std::string s = PitchKnowledge::nameOfShort(info.pitch);
     std::string sType;
-    switch (typeFromInfo(info)) {
+    switch (info.type) {
         case Type::Unrecognized:
             return {"", ""};
         case ChordRecognizer::Type::MajorTriad:
@@ -457,7 +463,7 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
     }
 
     std::string sInversion;
-    switch (inversionFromInfo(info)) {
+    switch (info.inversion) {
         case Inversion::Root:
             sInversion = "";
             break;

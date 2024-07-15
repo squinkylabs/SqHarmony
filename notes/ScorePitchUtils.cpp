@@ -293,9 +293,9 @@ int ScorePitchUtils::findSpelling(
 }
 
 int ScorePitchUtils::_evaluateSpelling(SqArray<NotationNote, 16>& notes) {
-    return _evaluateSpellingSecondAttempt(notes);
-   // return _evaluateSpellingFirstAttempt(notes);
-    // return _evaluateSpelling0(notes);
+   // return _evaluateSpellingSecondAttempt(notes);
+   return _evaluateSpellingFirstAttempt(notes);
+   //return _evaluateSpelling0(notes);
 }
 
 int ScorePitchUtils::_evaluateSpellingFirstAttempt(SqArray<NotationNote, 16>& notes) {

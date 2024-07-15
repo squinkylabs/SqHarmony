@@ -12,9 +12,9 @@ static void testRecognizer(
     Inversion expectedInversion,
     int expectedRoot) {
     auto const result = ChordRecognizer::recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == expectedType);
-    assert(ChordRecognizer::inversionFromInfo(result) == expectedInversion);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), expectedRoot);
+    assert(result.type == expectedType);
+    assert(result.inversion == expectedInversion);
+    assertEQ(result.pitch, expectedRoot);
 }
 
 static void testTypeAndChordInverted(Type expectedType, const SqArray<int, 16>& inputChord, int expectedRoot) {

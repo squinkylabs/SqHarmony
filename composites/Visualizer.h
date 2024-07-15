@@ -166,11 +166,11 @@ inline void Visualizer<TBase>::_processInput() {
 
     // Now put the new chord into the params.
     const auto chord = ChordRecognizer::recognize(_quantizedInputPitches);
-    TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
-    TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
+    TBase::params[TYPE_PARAM].value = int(chord.type);
+    TBase::params[ROOT_PARAM].value = chord.pitch;
 
     // And signal a change.
-    TBase::params[INVERSION_PARAM].value = int(ChordRecognizer::inversionFromInfo(chord));
+    TBase::params[INVERSION_PARAM].value = int(chord.inversion);
     TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
         TBase::params[CHANGE_PARAM].value = 0;

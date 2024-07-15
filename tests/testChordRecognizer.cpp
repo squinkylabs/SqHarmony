@@ -34,8 +34,8 @@ static void testJunkNotRecognized() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({1, 2, 3});
     auto const result = ch.recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(t == ChordRecognizer::Type::Unrecognized);
+  //  ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::Unrecognized);
 }
 
 static void testCMajorRecognized() {
@@ -43,26 +43,26 @@ static void testCMajorRecognized() {
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E, MidiNote::G});
     auto const result = ch.recognize(chord);
 
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testCDiminishedSecondInversion() {
     SqArray<int, 16> chord = makeChord({MidiNote::C + 12, MidiNote::E - 1 + 12, MidiNote::G - 1});
     auto const result = ChordRecognizer::recognize(chord);
 
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::DiminishedTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
-    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::Second);
+    assert(result.type == ChordRecognizer::Type::DiminishedTriad);
+    assert(result.pitch== MidiNote::C);
+    assert(result.inversion == ChordRecognizer::Inversion::Second);
 }
 
 static void testCDiminished() {
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E - 1, MidiNote::G - 1});
     auto const result = ChordRecognizer::recognize(chord);
 
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::DiminishedTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
-    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::Root);
+    assert(result.type == ChordRecognizer::Type::DiminishedTriad);
+    assert(result.pitch == MidiNote::C);
+    assert(result.inversion == ChordRecognizer::Inversion::Root);
 }
 
 static void testRecognizer(
@@ -71,9 +71,9 @@ static void testRecognizer(
     ChordRecognizer::Inversion expectedInversion,
     int expectedRoot) {
     auto const result = ChordRecognizer::recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == expectedType);
-    assert(ChordRecognizer::inversionFromInfo(result) == expectedInversion);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), expectedRoot);
+    assert(result.type == expectedType);
+    assert(result.inversion == expectedInversion);
+    assertEQ(result.pitch, expectedRoot);
 }
 
 static void testCMajMinRecognized() {
@@ -215,43 +215,43 @@ static void testCAugRecognized() {
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E, MidiNote::G + 1});
     auto const result = ch.recognize(chord);
 
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::AugmentedTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+    assert(result.type == ChordRecognizer::Type::AugmentedTriad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testCMinorRecognized() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E - 1, MidiNote::G});
     auto const result = ch.recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MinorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+   // ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::MinorTriad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testCDimRecognized() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E - 1, MidiNote::G - 1});
     auto const result = ch.recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::DiminishedTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+ //   ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::DiminishedTriad);
+    assert(result.pitch == MidiNote::C);
 }
 static void testCSus4Recognized() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E + 1, MidiNote::G});
     auto const result = ch.recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::Sus4Triad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+  //  ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::Sus4Triad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testCSus2Recognized() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::D, MidiNote::G});
     auto const result = ch.recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::Sus2Triad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+  //  ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::Sus2Triad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testDMajorRecognized() {
@@ -259,34 +259,34 @@ static void testDMajorRecognized() {
     SqArray<int, 16> chord = makeChord({MidiNote::D, MidiNote::F + 1, MidiNote::A});
     auto const result = ch.recognize(chord);
 
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::D);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::D);
 }
 
 static void testCMajorOctaveRecognized() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C + 12, MidiNote::E + 12, MidiNote::G + 12});
     auto const result = ch.recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+    //ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testCMajorOrder() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::G, MidiNote::E});
     auto const result = ch.recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+ //   ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testCMajor4Voice() {
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E, MidiNote::G, MidiNote::C + 12});
     auto const result = ChordRecognizer::recognize(chord);
-    ChordRecognizer::Type t = std::get<0>(result);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+   // ChordRecognizer::Type t = std::get<0>(result);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testGMajorRecognized() {
@@ -294,65 +294,65 @@ static void testGMajorRecognized() {
     SqArray<int, 16> chord = makeChord({MidiNote::G, MidiNote::B, MidiNote::D + 12});
     auto const result = ch.recognize(chord);
 
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::G);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::G);
 }
 
 static void testCMajorOneNoteCrazyOctave() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C, MidiNote::E, MidiNote::G + 4 * 12});
     auto const result = ch.recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::pitchFromInfo(result) == MidiNote::C);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.pitch == MidiNote::C);
 }
 
 static void testCMajorFirstInversion() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C + 12, MidiNote::E, MidiNote::G});
     auto const result = ch.recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.inversion == ChordRecognizer::Inversion::First);
+    assertEQ(result.pitch, MidiNote::C);
 }
 
 static void testCSharpMajorFirstInversion() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C + 12 + 1, MidiNote::E + 1, MidiNote::G + 1});
     auto const result = ch.recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C + 1);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.inversion == ChordRecognizer::Inversion::First);
+    assertEQ(result.pitch, MidiNote::C + 1);
 }
 
 static void testGSharpMajorFirstInversion() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::G + 1, MidiNote::C, MidiNote::D + 1});  // G#, C D# is a major chord
     auto const result = ch.recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::G + 1);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.inversion == ChordRecognizer::Inversion::First);
+    assertEQ(result.pitch, MidiNote::G + 1);
 }
 
 static void testCMajorFirstInversion2() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C + 12 + 48, MidiNote::E + 48, MidiNote::G + 48});
     auto const result = ch.recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::First);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.inversion == ChordRecognizer::Inversion::First);
+    assertEQ(result.pitch, MidiNote::C);
 }
 
 static void testCMajorSecondInversion() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({MidiNote::C + 12, MidiNote::E + 12, MidiNote::G});
     auto const result = ch.recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::MajorTriad);
-    assert(ChordRecognizer::inversionFromInfo(result) == ChordRecognizer::Inversion::Second);
-    assertEQ(ChordRecognizer::pitchFromInfo(result), MidiNote::C);
+    assert(result.type == ChordRecognizer::Type::MajorTriad);
+    assert(result.inversion == ChordRecognizer::Inversion::Second);
+    assertEQ(result.pitch, MidiNote::C);
 }
 
 static void testToStringSub(const ChordRecognizer::ChordInfo& info) {
-    const bool expectInversion = ChordRecognizer::inversionFromInfo(info) != ChordRecognizer::Inversion::Root;
+    const bool expectInversion = info.inversion != ChordRecognizer::Inversion::Root;
     std::vector<std::string> v = ChordRecognizer::toString(info);
     assertEQ(v.size(), 2);
     assertGT(v[0].size(), 0);
@@ -362,43 +362,44 @@ static void testToStringSub(const ChordRecognizer::ChordInfo& info) {
         assertEQ(v[1].size(), 0);
     }
 
-    const int pitch = ChordRecognizer::pitchFromInfo(info);
-    const std::string name = PitchKnowledge::nameOfShort(pitch);
+  //  const int pitch = ChordRecognizer::pitchFromInfo(info);
+    const std::string name = PitchKnowledge::nameOfShort(info.pitch);
     const auto x = v[0].find(name);
     assertNE(x, std::string::npos);
 }
 
 static void testToString() {
-    std::vector<std::string> v = ChordRecognizer::toString(std::make_tuple(ChordRecognizer::Type::Unrecognized, ChordRecognizer::Inversion::Root, 0));
+    const auto info = ChordRecognizer::ChordInfo(ChordRecognizer::Type::Unrecognized, ChordRecognizer::Inversion::Root, 0);
+    std::vector<std::string> v = ChordRecognizer::toString(info);
     assertEQ(v.size(), 2);
     assertEQ(v[0].size(), 0);
     assertEQ(v[1].size(), 0);
 
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Root, MidiNote::D));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Root, MidiNote::D));
 
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::First, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Second, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinorTriad, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::First, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajorTriad, ChordRecognizer::Inversion::Second, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MinorTriad, ChordRecognizer::Inversion::Root, 0));
 
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::Sus2Triad, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::Sus4Triad, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::AugmentedTriad, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::DiminishedTriad, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::Sus2Triad, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::Sus4Triad, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::AugmentedTriad, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::DiminishedTriad, ChordRecognizer::Inversion::Root, 0));
 
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMinSeventh, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinMinSeventh, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinMajSeventh, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajMinSeventh, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MinMinSeventh, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MinMajSeventh, ChordRecognizer::Inversion::Root, 0));
 
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::First, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Second, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Third, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::First, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Second, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajMajSeventh, ChordRecognizer::Inversion::Third, 0));
 
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMinNinth, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MajMajNinth, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinMinNinth, ChordRecognizer::Inversion::Root, 0));
-    testToStringSub(std::make_tuple(ChordRecognizer::Type::MinMajNinth, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajMinNinth, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MajMajNinth, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MinMinNinth, ChordRecognizer::Inversion::Root, 0));
+    testToStringSub(ChordRecognizer::ChordInfo(ChordRecognizer::Type::MinMajNinth, ChordRecognizer::Inversion::Root, 0));
 }
 
 static void testNotesInChord() {
@@ -415,7 +416,7 @@ static void test007() {
     ChordRecognizer ch;
     SqArray<int, 16> chord = makeChord({72, 72, 79});
     auto const result = ch.recognize(chord);
-    assert(ChordRecognizer::typeFromInfo(result) == ChordRecognizer::Type::Unrecognized);
+    assert(result.type == ChordRecognizer::Type::Unrecognized);
 }
 
 void testChordRecognizer() {
@@ -466,7 +467,7 @@ void testChordRecognizer() {
     test007();
 }
 
-#if 1
+#if 0
 void testFirst() {
    // testChordRecognizer();
     testCMinorFirstInversion();

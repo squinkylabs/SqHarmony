@@ -9,7 +9,7 @@
 #include "PitchKnowledge.h"
 #include "SqArray.h"
 
-#define _LOG
+// #define _LOG
 
 class ChordRecognizer {
 public:
@@ -41,16 +41,42 @@ public:
         Third
     };
 
-    using ChordInfo = std::tuple<Type, Inversion, int>;
-    static Type typeFromInfo(const ChordInfo& info) {
-        return std::get<0>(info);
-    }
-    static Inversion inversionFromInfo(const ChordInfo& info) {
-        return std::get<1>(info);
-    }
-    static int pitchFromInfo(const ChordInfo& info) {
-        return std::get<2>(info);
-    }
+    /*
+        using ChordInfo = std::tuple<Type, Inversion, int>;
+        static Type typeFromInfo(const ChordInfo& info) {
+            return std::get<0>(info);
+        }
+        static Inversion inversionFromInfo(const ChordInfo& info) {
+            return std::get<1>(info);
+        }
+        static int pitchFromInfo(const ChordInfo& info) {
+            return std::get<2>(info);
+        }
+        */
+    class PitchAndIndex {
+    public:
+        int16_t pitch;
+        uint16_t index;
+    };
+
+    class ChordInfo {
+    public:
+        ChordInfo(Type, Inversion, int pitch, SqArray<PitchAndIndex, 16> idPitches );
+        ChordInfo(Type t, Inversion i, int p) : type(t), inversion(i), pitch(p) {} 
+        ChordInfo() {}
+        Type type = Type::Unrecognized;
+        Inversion inversion = Inversion::Root;
+        int pitch = 0;
+
+        SqArray<PitchAndIndex, 16> identifiedPitchs;
+
+        void setError() {
+            type = Type::Unrecognized;
+        }
+        bool isError() const {
+            return type == Type::Unrecognized;
+        }
+    };
 
     /**
      * @param chord - chord to analyze.
@@ -108,14 +134,14 @@ private:
 
 template <typename T>
 inline void ChordRecognizer::_copy(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord) {
-    for (unsigned i=0; i<inputChord.numValid(); ++i) {
+    for (unsigned i = 0; i < inputChord.numValid(); ++i) {
         outputChord.putAt(i, inputChord.getAt(i));
     }
 }
 
 template <typename T>
 inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount) {
-    #if defined _LOG
+#if defined _LOG
     SQINFO("In normalize %d", inputChord.numValid());
     _show("input chord", inputChord);
 #endif
@@ -147,10 +173,9 @@ inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const S
     SqArray<T, 16> normalizedChord;
     for (i = 0; i < length; ++i) {
         // How do we make this work with T?
-        //int note = sortedChord.getAt(i) - base;  // normalize to base
-        //note = note % 12;                  // normalize to octave
-        //normalizedChord.putAt(i, note);
-
+        // int note = sortedChord.getAt(i) - base;  // normalize to base
+        // note = note % 12;                  // normalize to octave
+        // normalizedChord.putAt(i, note);
 
         T note = sortedChord.getAt(i);
         int notePitch = note;
@@ -159,7 +184,7 @@ inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const S
         note = notePitch;
         normalizedChord.putAt(i, note);
     }
-// up through 66
+    // up through 66
 
 #ifdef _LOG
     _show("normalizedChord", normalizedChord);
@@ -173,14 +198,14 @@ inline bool ChordRecognizer::_makeCanonical(SqArray<T, 16>& outputChord, const S
     unsigned j;
     for (i = j = 0; i < length; ++i) {
         // Copy this one over if it is not a dupe. last one is never a dupe.
-        if ((i == (length-1)) || ((int)normalizedChord.getAt(i) != (int)normalizedChord.getAt(i + 1))) {
+        if ((i == (length - 1)) || ((int)normalizedChord.getAt(i) != (int)normalizedChord.getAt(i + 1))) {
             const T tmp = normalizedChord.getAt(i);
-            outputChord.putAt(j++, normalizedChord.getAt(i)); 
+            outputChord.putAt(j++, normalizedChord.getAt(i));
         }
     }
     length = j;
 
-// through 84
+    // through 84
 
 #ifdef _LOG
     _show("final", outputChord);
@@ -201,7 +226,7 @@ inline void ChordRecognizer::_show(const char* msg, const SqArray<T, 16>& inputC
         SQINFO("%s = %d, %d, %d, %d", msg, (int)inputChord.getAt(0), (int)inputChord.getAt(1), (int)inputChord.getAt(2), (int)inputChord.getAt(3));
     } else if (num == 5) {
         SQINFO("%s = %d, %d, %d, %d %d", msg, (int)inputChord.getAt(0), (int)inputChord.getAt(1), (int)inputChord.getAt(2), (int)inputChord.getAt(3), (int)inputChord.getAt(4));
-    }else {
+    } else {
         SQINFO("??? num=%d", num);
     }
 }
