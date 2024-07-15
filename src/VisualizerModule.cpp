@@ -84,7 +84,8 @@ public:
         const ChordRecognizer::Type type = ChordRecognizer::Type(APP->engine->getParamValue(module, Comp::TYPE_PARAM));
         const ChordRecognizer::Inversion inversion = ChordRecognizer::Inversion(APP->engine->getParamValue(module, Comp::INVERSION_PARAM));
         const int root = APP->engine->getParamValue(module, Comp::ROOT_PARAM);
-        ChordRecognizer::ChordInfo info = std::make_tuple(type, inversion, root);
+        SqArray<ChordRecognizer::PitchAndIndex, 16> idp;
+        ChordRecognizer::ChordInfo info = ChordRecognizer::ChordInfo(type, inversion, root, idp);
         const auto v = ChordRecognizer::toString(info);
         _displayString->getChild()->text = v[0];
         _displayString->setDirty();
