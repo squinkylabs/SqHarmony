@@ -466,8 +466,9 @@ void testChordRecognizer() {
     test007();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testChordRecognizer();
+   // testChordRecognizer();
+    testCMinorFirstInversion();
 }
 #endif

@@ -386,11 +386,13 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithTriton
 std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(const SqArray<int, 16>& chord) {
     assert(chord.getAt(0) == 0);
     assert(chord.getAt(2) == MidiNote::G);
+    _show("enter recognizeType3WithFifth", chord);
 
     switch (chord.getAt(1)) {
         case MidiNote::E:
             return std::make_tuple(Type::MajorTriad, 0);
         case MidiNote::E - 1:
+            SQINFO("recognizing minor triad E=%d, E flat = %d", MidiNote::E, MidiNote::E - 1);
             return std::make_tuple(Type::MinorTriad, 0);
         case MidiNote::F:
             return std::make_tuple(Type::Sus4Triad, 0);

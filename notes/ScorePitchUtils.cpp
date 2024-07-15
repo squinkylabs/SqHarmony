@@ -221,6 +221,7 @@ SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn,
     while (reSpell(temp, false, scale)) {
         ret.putAt(index++, temp);
     }
+    SQINFO("getVariations returning %d", ret.numValid());
     return ret;
 }
 
@@ -349,6 +350,14 @@ public:
     int pitch() const {
         return _notationNote._midiNote.get();
     }
+    std::string toString() const {
+        std::stringstream s;
+        s << "cnn: ";
+        s << _notationNote.toString();
+        s << " idx=";
+        s << _index;
+        return s.str();       
+    }
     NotationNote _notationNote;
     unsigned _index = 0;  // do we need this?
 };
@@ -360,7 +369,11 @@ int ScorePitchUtils::_evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& r
     //SQINFO("!! evaluate spelling second attempt");
    // NotationNote nn = rawNotes.getAt(0);
    // int ii = (int) nn;
-    ChordRecognizer::_show("!! evaluate spelling second attempt", rawNotes);
+    ChordRecognizer::_show("\n!! evaluate spelling second attempt", rawNotes);
+    SQINFO("raw notes = <%s> | <%s> | <%s>",
+               rawNotes.getAt(0).toString().c_str(),
+               rawNotes.getAt(1).toString().c_str(),
+               rawNotes.getAt(2).toString().c_str());
     const unsigned n = rawNotes.numValid();
     int numAccidentals = 0;
     int numBadThirds = 0;
@@ -375,6 +388,11 @@ int ScorePitchUtils::_evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& r
     ChordRecognizer::_makeCanonical(canonicalNotes, convertedNotes, foo);
 
     assert(canonicalNotes.numValid() == convertedNotes.numValid());
+
+    SQINFO("canonical notes = <%s> | <%s> | <%s>",
+               canonicalNotes.getAt(0).toString().c_str(),
+               canonicalNotes.getAt(1).toString().c_str(),
+               canonicalNotes.getAt(2).toString().c_str());
 
     const CanonicalNotationNote* pn1 = nullptr;
     const CanonicalNotationNote* pn2 = nullptr;
@@ -400,6 +418,6 @@ int ScorePitchUtils::_evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& r
         }
     }
     const int score = -(numAccidentals + 10 * numBadThirds);
-    SQINFO("final score = %d", score);
+    SQINFO("!! evaluate spelling final score = %d #bad3=%d #acc=%d\n", score, numBadThirds, numAccidentals);
     return score;
 }

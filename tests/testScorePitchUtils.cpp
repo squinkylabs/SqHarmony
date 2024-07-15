@@ -465,7 +465,7 @@ void testScorePitchUtils() {
     SQINFO("put back testFindSpellingCminorFirstInversionInCMajor when it works");
 }
 
-#if 1
+#if 0
 void testFirst() {
     //  testScorePitchUtils();
     testFindSpellingCminorFirstInversionInCMajor();
