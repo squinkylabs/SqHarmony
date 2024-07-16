@@ -178,7 +178,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
             SQINFO("length changed in normalize was %d, now %d", finalLength, l);
           
             if (l == 1) {
-                SQINFO("one note chord is %d", possibleInversionCanonical.getAt(0));
+                SQINFO("one note chord is %d", possibleInversionCanonical.getAt(0).pitch);
             }
         }
 
