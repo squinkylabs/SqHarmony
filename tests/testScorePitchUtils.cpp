@@ -280,6 +280,9 @@ static void testFindSpellingCminorFirstInversionInCMajor() {
     inputPitches.putAt(0, MidiNote::MiddleC);
     inputPitches.putAt(1, lowEFlat);
     inputPitches.putAt(2, MidiNote::MiddleC + MidiNote::G);
+    for (unsigned i=0; i< inputPitches.numValid(); ++i) {
+        SQINFO("input note[%d] = %d", i, inputPitches.getAt(i));
+    }
 
     SqArray<NotationNote, 16> expectedOutputNotes;
     expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2));
@@ -461,15 +464,14 @@ void testScorePitchUtils() {
     testFindSpelling();
     testFindSpellingCMajor();
     testFindSpellingCminorInCMajor();
-    // testFindSpellingCminorFirstInversionInCMajor();
-    SQINFO("put back testFindSpellingCminorFirstInversionInCMajor when it works");
+    testFindSpellingCminorFirstInversionInCMajor();
 }
 
 #if 0
 void testFirst() {
-    //  testScorePitchUtils();
-   // testFindSpellingCminorFirstInversionInCMajor();
-    testFindSpelling();
+    testScorePitchUtils();
+    //testFindSpellingCminorFirstInversionInCMajor();
+   // testFindSpelling();
 }
 
 #endif

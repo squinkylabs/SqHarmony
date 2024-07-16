@@ -62,4 +62,5 @@ private:
     static int _evaluateSpelling0(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
     static int _evaluateSpellingFirstAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
     static int _evaluateSpellingSecondAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingThirdAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
 };

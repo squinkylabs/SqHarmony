@@ -10,11 +10,11 @@
 void ChordRecognizer::_show(const char* msg, const SqArray<PitchAndIndex, 16>& inputChord) {
     const unsigned num = inputChord.numValid();
     if (num == 3) {
-        SQINFO("%s = %d, %d, %d", msg, inputChord.getAt(0), inputChord.getAt(1), inputChord.getAt(2));
+        SQINFO("%s = %d, %d, %d", msg, inputChord.getAt(0).pitch, inputChord.getAt(1).pitch, inputChord.getAt(2).pitch);
     } else if (num == 4) {
-        SQINFO("%s = %d, %d, %d, %d", msg, inputChord.getAt(0), inputChord.getAt(1), inputChord.getAt(2), inputChord.getAt(3));
+        SQINFO("%s = %d, %d, %d, %d", msg, inputChord.getAt(0).pitch, inputChord.getAt(1).pitch, inputChord.getAt(2).pitch, inputChord.getAt(3).pitch);
     } else if (num == 5) {
-        SQINFO("%s = %d, %d, %d, %d %d", msg, inputChord.getAt(0), inputChord.getAt(1), inputChord.getAt(2), inputChord.getAt(3), inputChord.getAt(4));
+        SQINFO("%s = %d, %d, %d, %d %d", msg, inputChord.getAt(0).pitch, inputChord.getAt(1).pitch, inputChord.getAt(2).pitch, inputChord.getAt(3).pitch, inputChord.getAt(4).pitch);
     }else {
         SQINFO("??? num=%d", num);
     }
@@ -56,7 +56,7 @@ bool ChordRecognizer::_makeCanonical(SqArray<PitchAndIndex, 16>& outputChord, co
     const int basePitch = sortedChord.getAt(0).pitch;
 
 #ifdef _LOG
-    SQINFO("... in normalize pass, adding %d", -base);
+    SQINFO("... in normalize pass, adding %d", basePitch);
 #endif
     unsigned i;
     SqArray<PitchAndIndex, 16> normalizedChord;
@@ -103,7 +103,9 @@ SqArray<PitchAndIndex, 16> converted;
         converted.putAt(i, PitchAndIndex(inputChord.getAt(i), i));
     }
     assert(converted.numValid() == inputChord.numValid());
-    return _recognize(converted);    
+    const auto ret = _recognize(converted);
+    assert(ret.isError() || (ret.identifiedPitches.numValid() > 2));
+    return ret;    
 }
 
 ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndIndex, 16>& inputChord) {
@@ -137,6 +139,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
         assert(finalRecognizedPitch >= 0);
         // return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
         // assert(false);
+        SQINFO("return from 142");
         return ChordInfo(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch, outputChord);
     }
 
@@ -170,9 +173,10 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
 #endif
         const unsigned l = possibleInversionCanonical.numValid();
 
+
         if (l != finalLength) {
             SQINFO("length changed in normalize was %d, now %d", finalLength, l);
-            _show("here is norm output", possibleInversionCanonical);
+          
             if (l == 1) {
                 SQINFO("one note chord is %d", possibleInversionCanonical.getAt(0));
             }
@@ -188,10 +192,15 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
             SQINFO("found inversion at i=%d lengh=%d", i, finalLength);
 #endif
             // SQINFO("c=%d", c);
-            return figureOutInversion(recognizedType, basePossibleInversion, baseNonInverted);
+           
+            auto ret = figureOutInversion(recognizedType, basePossibleInversion, baseNonInverted);
+            ret.identifiedPitches = possibleInversionCanonical;
+ SQINFO("!! return from 194, pitches are# %d", ret.identifiedPitches.numValid());
+            return ret;
         }
         // outputChord[i] -= delta;
     }
+    SQINFO("ret error 199");
     return error;
 }
 
@@ -230,7 +239,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::figureOutInversion(Type _type, int _
     SQINFO("leaving figure out inversion, with type= %d, recognized =%d, fistOffset= %d finalRootPitch=%d",
            int(_type), _recognizedPitch, _firstOffset, finalRootPitch);
     SQINFO("type=%d, inversion=%d, pitch = %d", int(_type), int(inversion), _recognizedPitch);
-    SQINFO("relativeEffectiveFirstOffset=%d", relativeEffectiveFirstOffset);
+    SQINFO("relativeEffectiveFirstOffset=%d ", relativeEffectiveFirstOffset);
 #endif
 
     // return std::make_tuple(_type, inversion, normalizeIntPositive(finalRootPitch, 12));

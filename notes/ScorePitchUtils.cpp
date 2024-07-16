@@ -304,9 +304,9 @@ int ScorePitchUtils::_findSpelling(
 }
 
 int ScorePitchUtils::_evaluateSpelling(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
-    // return _evaluateSpellingSecondAttempt(notes);
-    return _evaluateSpellingFirstAttempt(info, notes);
-    // return _evaluateSpelling0(notes);
+    return (info.type == ChordRecognizer::Type::Unrecognized) ? 
+        _evaluateSpellingFirstAttempt(info, notes) :
+        _evaluateSpellingThirdAttempt(info, notes);
 }
 
 int ScorePitchUtils::_evaluateSpellingFirstAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
@@ -348,6 +348,61 @@ int ScorePitchUtils::_evaluateSpelling0(const ChordRecognizer::ChordInfo& info, 
     return 0;
 }
 
+int ScorePitchUtils::_evaluateSpellingThirdAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
+    SQINFO("--------        in _evaluateSpellingThirdAttempt type=%d", int(info.type));
+    ChordRecognizer::_show("input chord to eval", info.identifiedPitches);
+     for (unsigned i=0; i< notes.numValid(); ++i) {
+        const NotationNote& note = notes.getAt(i);
+        SQINFO("note[%d] = %s", i, note.toString().c_str());
+     }
+
+    int numAccidentals = 0;
+    int numBadThirds = 0;
+    // first penalize all the accidentals
+    for (unsigned i=0; i< notes.numValid(); ++i) {
+        const NotationNote& note = notes.getAt(i);
+         if (note.isAccidental()) {
+            numAccidentals++;
+            SQINFO("see accidental at %s", note.toString().c_str());
+        }
+    }
+
+    // now look for intervals
+    const ChordRecognizer::PitchAndIndex* p1 = nullptr;
+    const ChordRecognizer::PitchAndIndex* p2 = nullptr;
+    for (unsigned i = 0; i < info.identifiedPitches.numValid(); ++i) {
+        p2 = p1;
+        p1 = &info.identifiedPitches.getAt(i);
+        if (p2) {
+            SQINFO("looking at %d and %d", i, i - 1);
+            const int interval = p1->pitch - p2->pitch;
+            SQINFO("interval = %d", interval);
+          //  interval = ChordRecognizer::normalizeIntPositive(interval, 8);
+            SQINFO("wrapped interval = %d", interval);
+            if (interval == 3 || interval == 4) {
+                SQINFO("the two notes at index %d and %d", p1->index, p2->index);
+                const auto note1 = notes.getAt(p1->index);
+                const auto note2 = notes.getAt(p2->index);
+                SQINFO("notes forming that interval are %s and %s", note1.toString().c_str(), note2.toString().c_str());
+
+                const int ll1 =  note1._legerLine;
+                const int ll2 =  note2._legerLine; 
+
+                const int distanceLegerLine = ChordRecognizer::normalizeIntPositive(ll1 - ll2, 7);
+                SQINFO("ll dist = %d", distanceLegerLine);
+                if (distanceLegerLine != 2) {
+                    numBadThirds++;
+                }
+            }
+        }
+    }
+
+    const int score = -(numAccidentals + 10 * numBadThirds);
+    SQINFO("------------ final score3 = %d", score);
+    return score;
+}
+
+#if 0
 class CanonicalNotationNote {
 public:
     CanonicalNotationNote(const NotationNote& nn, unsigned index) : _notationNote(nn), _index(index) {
@@ -373,10 +428,12 @@ public:
     unsigned _index = 0;  // do we need this?
 };
 
+
+
 /**
  * ScorePitchUtils::_evaluateSpellingSecondAttempt
  */
-#if 0
+
 int ScorePitchUtils::_evaluateSpellingSecondAttempt(SqArray<NotationNote, 16>& rawNotes) {
     //SQINFO("!! evaluate spelling second attempt");
    // NotationNote nn = rawNotes.getAt(0);
