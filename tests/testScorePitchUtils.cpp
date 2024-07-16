@@ -258,6 +258,26 @@ static void testFindSpellingCMajor() {
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
 }
 
+static void testFindSpellingDFlatMajorInCMajor() {
+    SQINFO("--- testFindSpellingDFlat");
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    // C# major
+    SqArray<int, 16> inputPitches = {
+        MidiNote::MiddleC + 1,
+        MidiNote::MiddleC + MidiNote::E + 1,
+        MidiNote::MiddleC + MidiNote::G + 1};
+
+    SqArray<NotationNote, 16> expectedOutputNotes;
+
+    // want it spelled at D flat
+    expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::D - 1), NotationNote::Accidental::flat, -1));
+    expectedOutputNotes.putAt(1, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::F), NotationNote::Accidental::none, 1));
+    expectedOutputNotes.putAt(2, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::A - 1), NotationNote::Accidental::flat, 3));
+
+    testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
+}
+
 static void testFindSpellingCminorInCMajor() {
     SQINFO("--- testFindSpellingCminorInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
@@ -505,14 +525,16 @@ void testScorePitchUtils() {
     testFindSpellingCMajor();
     testFindSpellingCminorInCMajor();
     testFindSpellingCminorFirstInversionInCMajor();
+    testFindSpellingCminorFirstInversionInCMajorDupesEtc();
+    testFindSpellingDFlatMajorInCMajor();
 }
 
 #if 1
 void testFirst() {
-    testScorePitchUtils();
+  //  testScorePitchUtils();
     // testFindSpellingCminorFirstInversionInCMajor();
     // testFindSpelling();
-    testFindSpellingCminorFirstInversionInCMajorDupesEtc();
+    testFindSpellingDFlatMajorInCMajor();
 }
 
 #endif

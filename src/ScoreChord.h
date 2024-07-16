@@ -463,7 +463,7 @@ inline void ScoreChord::_drawLegerLinesForNotes(const DrawArgs &args, const YInf
 
 inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, NotationNote::Accidental accidental) const {
 #ifdef _LOG
-    SQINFO("drawAccidental 424  x=%f, acciental=%d (for ref flat=%d )", xPosition, int(accidental), int(ScorePitchUtils::Accidental::flat));
+    SQINFO("drawAccidental 424  x=%f, acciental=%d (for ref flat=%d )", xPosition, int(accidental), int(NotationNote::Accidental::flat));
 #endif
     if (accidental == NotationNote::Accidental::none) {
 #ifdef _LOG
