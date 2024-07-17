@@ -29,8 +29,13 @@ public:
      * @param evalIndex
      * @return int = the score for that spelling
      */
-    static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff);
-    static int _findSpelling(const ChordRecognizer::ChordInfo& info, const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
+    class SpellingResults {
+    public:
+        int score = 0;
+        SqArray<NotationNote, 16> notes;
+    };
+    static SpellingResults findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff);
+    static SpellingResults _findSpelling(const ChordRecognizer::ChordInfo& info, const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling

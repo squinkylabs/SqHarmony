@@ -719,13 +719,13 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
 
     // now spell
     SqArray<int, 16> inputNotes(begin, end);
-    SqArray<NotationNote, 16> outputNotes;
+  //  SqArray<NotationNote, 16> outputNotes;
     //  static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
-    ScorePitchUtils::findSpelling(*scale.get(), inputNotes, outputNotes, bassStaff);
+    const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff);
 
-    for (unsigned pitchIterator = 0; pitchIterator < outputNotes.numValid(); ++pitchIterator) {
-        const auto notationNote = outputNotes.getAt(pitchIterator);
+    for (unsigned pitchIterator = 0; pitchIterator < results.notes.numValid(); ++pitchIterator) {
+        const auto notationNote = results.notes.getAt(pitchIterator);
         const MidiNote &mn = notationNote._midiNote;
         const auto yInfo = _noteYInfo(mn, notationNote._legerLine, bassStaff);
         // SQINFO("in draw loop iter=%p pitch=%d y=%f", pitchIterator, mn.get(), yInfo.position);
@@ -736,9 +736,9 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
         bool twoNotesOnSameLine = false;
         // if there is another note after this one
         NotationNote notationNoteNext;
-        if ((pitchIterator + 1) < outputNotes.numValid()) {
+        if ((pitchIterator + 1) < results.notes.numValid()) {
           //  MidiNote mnNext(*(pitchIterator + 1));
-            const MidiNote& mnNext = outputNotes.getAt(pitchIterator + 1)._midiNote;
+            const MidiNote& mnNext = results.notes.getAt(pitchIterator + 1)._midiNote;
             // SQINFO("will get nn for next, pitch = %d", mnNext.get());
             notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff);
             const auto yInfoNext = _noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);

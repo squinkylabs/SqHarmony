@@ -139,7 +139,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
         assert(finalRecognizedPitch >= 0);
         // return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
         // assert(false);
-        SQINFO("return from 142");
+       // SQINFO("return from 142");
         return ChordInfo(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch, outputChord);
     }
 
@@ -174,6 +174,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
         const unsigned l = possibleInversionCanonical.numValid();
 
 
+#ifdef _LOG
         if (l != finalLength) {
             SQINFO("length changed in normalize was %d, now %d", finalLength, l);
           
@@ -181,6 +182,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
                 SQINFO("one note chord is %d", possibleInversionCanonical.getAt(0).pitch);
             }
         }
+#endif
 
         // make this not an error - we might have errored out of _makeCanonical
         assert(l == finalLength);  // should not have changed length due to this
@@ -195,12 +197,12 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
            
             auto ret = figureOutInversion(recognizedType, basePossibleInversion, baseNonInverted);
             ret.identifiedPitches = possibleInversionCanonical;
- SQINFO("!! return from 194, pitches are# %d", ret.identifiedPitches.numValid());
+            // SQINFO("!! return from 194, pitches are# %d", ret.identifiedPitches.numValid());
             return ret;
         }
         // outputChord[i] -= delta;
     }
-    SQINFO("ret error 199");
+    // SQINFO("ret error 199");
     return error;
 }
 

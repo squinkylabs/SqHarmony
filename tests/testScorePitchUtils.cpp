@@ -187,25 +187,25 @@ static void testValidateCminor() {
 //    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
 static void testFindSpelling() {
     SqArray<int, 16> inputPitch;
-    SqArray<NotationNote, 16> outputNotes;
+    //SqArray<NotationNote, 16> outputNotes;
 
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     inputPitch.putAt(0, MidiNote::MiddleC);
     inputPitch.putAt(1, MidiNote::MiddleC + 12);
-    ScorePitchUtils::findSpelling(scale, inputPitch, outputNotes, false);
+    const auto results = ScorePitchUtils::findSpelling(scale, inputPitch, false);
 
     assertEQ(inputPitch.numValid(), 2);
-    assertEQ(outputNotes.numValid(), 2);
+    assertEQ(results.notes.numValid(), 2);
 }
 
 static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNotes, const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff) {
     // assertEQ(expectedOutputNotes.numValid(), inputPitches.numValid());
     assertGT(inputPitches.numValid(), 0);
-    SqArray<NotationNote, 16> outputNotes;
-    ScorePitchUtils::findSpelling(scale, inputPitches, outputNotes, bassStaff);
+    const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff);
 
+   // SQINFO("final score = %d", result.score);
 #if 0
     if (inputPitches.numValid() == 3) {
         SQINFO("input notes = %d | %d | %d",
@@ -224,22 +224,22 @@ static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNote
 
     for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
         // ChordRecognizer::_show("intput notes", inputPitches);
-        SQINFO("input[%d]=%d", i, inputPitches.getAt(i));
+        //SQINFO("input[%d]=%d", i, inputPitches.getAt(i));
     }
 
-    for (unsigned i = 0; i < outputNotes.numValid(); ++i) {
-        SQINFO("output[%d]=%s", i, outputNotes.getAt(i).toString().c_str());
+    for (unsigned i = 0; i < result.notes.numValid(); ++i) {
+        //SQINFO("output[%d]=%s", i, result.notes.getAt(i).toString().c_str());
     }
 
     for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
-        const NotationNote n = outputNotes.getAt(i);
+        const NotationNote n = result.notes.getAt(i);
         const NotationNote expected = expectedOutputNotes.getAt(i);
         assert(n == expected);
     }
 }
 
 static void testFindSpellingCMajor() {
-    SQINFO("--- testFindSpellingCMajor");
+   //SQINFO("--- testFindSpellingCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // TODO: make this work
@@ -259,7 +259,7 @@ static void testFindSpellingCMajor() {
 }
 
 static void testFindSpellingDFlatMajorInCMajor() {
-    SQINFO("--- testFindSpellingDFlat");
+    //SQINFO("--- testFindSpellingDFlat");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // C# major
@@ -278,8 +278,28 @@ static void testFindSpellingDFlatMajorInCMajor() {
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
 }
 
+static void testFindSpellingEMajorInCMajor() {
+    //SQINFO("--- testFindSpellingE");
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    // E major: E, G#, B
+    SqArray<int, 16> inputPitches = {
+        MidiNote::MiddleC + MidiNote::E,
+        MidiNote::MiddleC + MidiNote::G + 1,
+        MidiNote::MiddleC + MidiNote::B};
+
+    SqArray<NotationNote, 16> expectedOutputNotes;
+
+    // want it spelled at D flat
+    expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::E), NotationNote::Accidental::none, 0));
+    expectedOutputNotes.putAt(1, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::G + 1), NotationNote::Accidental::sharp, 2));
+    expectedOutputNotes.putAt(2, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::B), NotationNote::Accidental::none, 4));
+
+    testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
+}
+
 static void testFindSpellingCminorInCMajor() {
-    SQINFO("--- testFindSpellingCminorInCMajor");
+   // SQINFO("--- testFindSpellingCminorInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // TODO: make this work
@@ -299,7 +319,7 @@ static void testFindSpellingCminorInCMajor() {
 }
 
 static void testFindSpellingCminorFirstInversionInCMajor() {
-    SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
+  //  SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     const int lowEFlat = MidiNote::MiddleC + MidiNote::E - 1 - 12;
@@ -309,9 +329,9 @@ static void testFindSpellingCminorFirstInversionInCMajor() {
     inputPitches.putAt(0, MidiNote::MiddleC);
     inputPitches.putAt(1, lowEFlat);
     inputPitches.putAt(2, MidiNote::MiddleC + MidiNote::G);
-    for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
-        SQINFO("input note[%d] = %d", i, inputPitches.getAt(i));
-    }
+    // for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
+    //     SQINFO("input note[%d] = %d", i, inputPitches.getAt(i));
+    // }
 
     SqArray<NotationNote, 16> expectedOutputNotes;
     expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2));
@@ -322,7 +342,7 @@ static void testFindSpellingCminorFirstInversionInCMajor() {
 }
 
 static void testFindSpellingCminorFirstInversionInCMajorDupesEtc() {
-    SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
+   // SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     const int lowEFlat = MidiNote::MiddleC + MidiNote::E - 1 - 12;
@@ -337,9 +357,9 @@ static void testFindSpellingCminorFirstInversionInCMajorDupesEtc() {
     inputPitches.putAt(4, lowEFlat);
     inputPitches.putAt(5, MidiNote::MiddleC);
 
-    for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
-        SQINFO("input note[%d] = %d", i, inputPitches.getAt(i));
-    }
+    // for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
+    //     SQINFO("input note[%d] = %d", i, inputPitches.getAt(i));
+    // }
 
     SqArray<NotationNote, 16> expectedOutputNotes;
     expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2));
@@ -527,14 +547,16 @@ void testScorePitchUtils() {
     testFindSpellingCminorFirstInversionInCMajor();
     testFindSpellingCminorFirstInversionInCMajorDupesEtc();
     testFindSpellingDFlatMajorInCMajor();
+    testFindSpellingEMajorInCMajor();
 }
 
-#if 1
+#if 0
 void testFirst() {
-  //  testScorePitchUtils();
+    //  testScorePitchUtils();
     // testFindSpellingCminorFirstInversionInCMajor();
     // testFindSpelling();
-    testFindSpellingDFlatMajorInCMajor();
+    //  testFindSpellingDFlatMajorInCMajor();
+    testFindSpellingEMajorInCMajor();
 }
 
 #endif

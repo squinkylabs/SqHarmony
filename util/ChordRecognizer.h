@@ -9,7 +9,7 @@
 #include "PitchKnowledge.h"
 #include "SqArray.h"
 
-#define _LOG
+// #define _LOG
 
 class ChordRecognizer {
 public:
