@@ -518,7 +518,8 @@ SharpsFlatsPref Scale::getSharpsFlatsPref() const {
         assert(basePitch >= 0);
         assert(basePitch < 12);
 
-        return preferSharps[basePitch];
+        const auto ret = preferSharps[basePitch];
+        return ret;
     }
 
     switch (_scale) {

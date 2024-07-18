@@ -29,14 +29,14 @@ public:
     };
     static const unsigned llInOctave = 7;
     NotationNote() {}
-    NotationNote(const MidiNote& mn, Accidental ac, int ll) : _midiNote(mn), _accidental(ac), _legerLine(ll) {}
+    NotationNote(const MidiNote& mn, Accidental ac, int ll, bool bs);
     bool operator==(const NotationNote& other) const;
     bool operator!=(const NotationNote& other) const;
     // next three (int, operator=, pitch to make it sortable)
     operator int() const { return pitch(); }
     void operator=(int pitch) { this->_midiNote._changePitch(pitch); }
     int pitch() const {
-      return _midiNote.get();
+        return _midiNote.get();
     }
 
     bool isAccidental() const;
@@ -45,7 +45,14 @@ public:
     MidiNote _midiNote;
     Accidental _accidental = Accidental::none;
     int _legerLine = 0;
+    bool _bassStaff = false;
 };
+
+inline NotationNote::NotationNote(const MidiNote& mn, Accidental ac, int ll, bool bs) : _midiNote(mn),
+                                                                                        _accidental(ac),
+                                                                                        _legerLine(ll),
+                                                                                        _bassStaff(bs) {
+}
 
 inline bool NotationNote::isAccidental() const {
     return _accidental != Accidental::none;
@@ -53,8 +60,8 @@ inline bool NotationNote::isAccidental() const {
 
 inline bool NotationNote::operator==(const NotationNote& other) const {
     return (other._midiNote.get() == this->_midiNote.get()) &&
-        (other._accidental == this->_accidental) &&
-        (other._legerLine == this->_legerLine);
+           (other._accidental == this->_accidental) &&
+           (other._legerLine == this->_legerLine);
 }
 
 inline bool NotationNote::operator!=(const NotationNote& other) const {
@@ -66,7 +73,7 @@ inline std::string NotationNote::toString() const {
     s << ", ";
     switch (_accidental) {
         case Accidental::none:
-            s << "none";
+            s << "accid none";
             break;
         case Accidental::sharp:
             s << "sharp";

@@ -17,6 +17,13 @@ class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
 
+    /**
+     * requirements:
+     *      returns a valid note
+     *      returns a note at the right pitch
+     * do we care about the spelling of the returned note?
+ 
+     */
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
     static SqArray<NotationNote, 16> getVariations(const NotationNote&, const Scale&);
     /**
@@ -62,7 +69,7 @@ public:
     static NotationNote makeCanonical(const NotationNote&);
 
 private:
-    static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&);
+    static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&, bool bassStaff);
     static int _evaluateSpelling(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
     static int _evaluateSpelling0(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
     static int _evaluateSpellingFirstAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
