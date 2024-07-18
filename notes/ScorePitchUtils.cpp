@@ -39,11 +39,8 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
            int(NotationNote::Accidental::flat),
            int(NotationNote::Accidental::natural));
 
-    const auto pref = scale.getSharpsFlatsPref();
-    //  assert(pref != SharpsFlatsPref::DontCare);      // we can't handle this case, and it is unexpected.
-    if (pref == SharpsFlatsPref::DontCare) {
-        SQWARN("this is a dont care scale");
-    }
+    const ResolvedSharpsFlatsPref pref = scale.getSharpsFlatsPrefResolved();
+   
     SQINFO("about to make notation note,pref=%d bassStaff=%d. pref sharp=%d, flat=%d d/c=%d ",
            pref,
            bassStaff,
@@ -187,7 +184,6 @@ inline int normalizeIntPositive(int input, int rangeTop) {
     return (rem < 0) ? rem + rangeTop : rem;
 }
 
-// static int _getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine);
 int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine) {
     // SQINFO("\n\n----- enter _getAjustmentForLeger line=%d, bass=%d", legerLine, bassStaff);
     const auto info = scale.getScoreInfo();

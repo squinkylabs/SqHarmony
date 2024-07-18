@@ -512,6 +512,11 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     return ret;
 }
 
+ResolvedSharpsFlatsPref Scale::getSharpsFlatsPrefResolved() const {
+    const auto p = getSharpsFlatsPref();
+    return AccidentalResolver::resolve(p);
+}
+
 SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();

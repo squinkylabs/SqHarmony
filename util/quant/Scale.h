@@ -132,6 +132,8 @@ public:
 
 
     SharpsFlatsPref getSharpsFlatsPref() const;
+    ResolvedSharpsFlatsPref getSharpsFlatsPrefResolved() const;
+
     /**
      * This one return true for prefer sharps. Always has a preference, since.
      * all our scoring stuff assumes sharp for default.

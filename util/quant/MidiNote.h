@@ -22,20 +22,9 @@ public:
     }
 
     int getLegerLine(bool bassStaff) const;
-    int getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const;
+    int getLegerLine(ResolvedSharpsFlatsPref sharpsFlats, bool bassStaff) const;
 
     bool isBlackKey() const;
-
-    /**
-     * @brief convert from music staff to midi pitch.
-     *
-     * @param bassStaff - true if bass, false if treble.
-     * @param legerLine - line of the staff (or off of it), starting at the lowest (middle C is -2 in treble clef).
-     * @param accidental - don't care means none here.
-     * @return int - the midi pitch
-     */
-    //static int pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental);
-   // static int pitchFromLeger(bool bassStaff, int legerLine, NotationNote::accidental, const Scale& );
 
     static const int C3 = 60;  // C3 is 60 in midi spec.
     static const int C = 0;
@@ -56,70 +45,10 @@ private:
 };
 
 inline int MidiNote::getLegerLine(bool bassStaff) const {
-    return getLegerLine(SharpsFlatsPref::Sharps, bassStaff);
+    return getLegerLine(AccidentalResolver::getPref(), bassStaff);
 }
 
-#if 0
-inline int MidiNote::pitchFromLeger(bool bassStaff, int legerLine, SharpsFlatsPref accidental) {
-    if (bassStaff) {
-        legerLine -= 3;  // push C to leger line zero in bass
-    } else {
-        legerLine += 2;  // push C to leger line zero in treble
-    }
-    unsigned pitch = 0;
-    int octave = (legerLine / 7);
-    int remainder = legerLine % 7;
-    if (remainder < 0) {
-        remainder += 7;
-        octave--;
-    }
-    if (bassStaff) {
-        octave--;
-    }
-    switch (remainder) {
-        case 0:
-            pitch = MidiNote::MiddleC + MidiNote::C;
-            break;
-        case 1:
-            pitch = MidiNote::MiddleC + MidiNote::D;
-            break;
-        case 2:
-            pitch = MidiNote::MiddleC + MidiNote::E;
-            break;
-        case 3:
-            pitch = MidiNote::MiddleC + MidiNote::F;
-            break;
-        case 4:
-            pitch = MidiNote::MiddleC + MidiNote::G;
-            break;
-        case 5:
-            pitch = MidiNote::MiddleC + MidiNote::A;
-            break;
-        case 6:
-            pitch = MidiNote::MiddleC + MidiNote::B;
-            break;
-        default:
-            assert(false);  // case not implemented yet.
-    }
-
-    switch (accidental) {
-        case SharpsFlatsPref::DontCare:
-            break;
-        case SharpsFlatsPref::Sharps:
-            pitch++;
-            break;
-        case SharpsFlatsPref::Flats:
-            pitch--;
-            break;
-        default:
-            assert(false);
-    }
-
-    return pitch + octave * 12;
-}
-#endif
-
-inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
+inline int MidiNote::getLegerLine(ResolvedSharpsFlatsPref sharpsFlats, bool bassStaff) const {
     const int normalizedPitch = _pitch - MiddleC;
     int octave = (normalizedPitch / 12);
     int semi = normalizedPitch % 12;
@@ -128,7 +57,8 @@ inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) c
         octave -= 1;
     }
     int line = 0;
-    const bool preferFlats = sharpsFlats == SharpsFlatsPref::Flats;
+   // const bool preferFlats = sharpsFlats == SharpsFlatsPref::Flats;
+    const bool preferFlats = sharpsFlats == ResolvedSharpsFlatsPref::Flats;
     switch (semi) {
         case 0:  // C
             line = -2;

@@ -65,6 +65,14 @@ public:
      */
     static int pitchFromLeger(bool bassStaff, int legerLine, NotationNote::Accidental, const Scale&);
 
+    /**
+     * @brief returns the adjustment in leger lines due to note getting a sharp or flat from the scale
+     * 
+     * @param scale - The scale currently in effect.
+     * @param bassStaff - Which staff we are asking about.
+     * @param legerLine - the line the note would be on, if not for the Scale (key signature).
+     * @return int - the adjustment in leger lines to move the note to the correct pitch, based on scale.
+     */
     static int _getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine);
     static NotationNote makeCanonical(const NotationNote&);
 

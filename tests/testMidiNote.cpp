@@ -11,6 +11,8 @@ static void testMidiNoteCtor() {
     assert(m2.get() == 12);
 }
 
+#if 0
+
 //------------------- let's test c on up
 static void testMidiStaffC() {
     MidiNote mn(MidiNote::MiddleC);
@@ -170,6 +172,7 @@ static void testMidiStaffB() {
     ll = mn.getLegerLine(SharpsFlatsPref::DontCare, false);
     assertEQ(ll, 4);
 }
+#endif
 
 static void testMidiStaffC2() {
     MidiNote mn(MidiNote::MiddleC + 12);
@@ -337,6 +340,7 @@ void testMidiNote() {
     testMidiStaffX();
 
     // C on up
+#if 0
     testMidiStaffC();
     testMidiStaffCSharp();
     testMidiStaffD();
@@ -350,6 +354,9 @@ void testMidiNote() {
     testMidiStaffA();
     testMidiStaffASharp();
     testMidiStaffB();
+#endif
+    SQWARN("WHERE ARE MISSING MIDI NOTE TESTS?");
+    assert(false);
 
     testMidiStaffC2();
     testMidiStaffC3();

@@ -493,6 +493,7 @@ static void testPitchFromLegerEFlatMinor() {
 
 static void testGetAjustmentForLeger() {
     {
+        // CMajor - all white keys.
         Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
         const int x = ScorePitchUtils::_getAjustmentForLeger(scale, false, -2);
         assertEQ(x, 0);
@@ -508,6 +509,9 @@ static void testGetAjustmentForLeger() {
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 0);
     }
     {
+        // C Minor, root is white key, but some accidentals.
+        // Will be affected by current pref
+        assert(AccidentalResolver::getPref() == ResolvedSharpsFlatsPref::Sharps);
         Scale scale(MidiNote(MidiNote::C), Scale::Scales::Minor);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -2), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -1), 0);
@@ -521,6 +525,7 @@ static void testGetAjustmentForLeger() {
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 0);
     }
+    assert(false);  // need e flat major, maybe an easier one, too.
 }
 
 static void testMakeCanonical() {
@@ -594,14 +599,12 @@ void testScorePitchUtils() {
 
 #if 1
 void testFirst() {
-testPitchFromLegerEFlatMinor();
+    testGetAjustmentForLeger();
+    testPitchFromLegerEFlatMinor();
     //testNoteEFlatInEFlatMinor();
 
     //  testScorePitchUtils();
-    // testFindSpellingCminorFirstInversionInCMajor();
-    // testFindSpelling();
-    //  testFindSpellingDFlatMajorInCMajor();
- //   testFindSpellingEMajorInCMajor();
+  
 }
 
 #endif
