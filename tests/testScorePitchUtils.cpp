@@ -4,6 +4,7 @@
 #include "NotationNote.h"
 #include "Scale.h"
 #include "ScorePitchUtils.h"
+#include "SharpsFlatsPref.h"
 #include "asserts.h"
 
 static void test() {
@@ -486,12 +487,16 @@ static void testPitchFromLegerCminor() {
 
 static void testPitchFromLegerEFlatMinor() {
     Scale scale(MidiNote(MidiNote::E - 1), Scale::Scales::Minor);
-    assertEQ(ScorePitchUtils::pitchFromLeger(false, 0, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::E - 1);
-   // assert(false);
+
+    // It's really going to be D# minor with our current preferences
+    assert(scale.getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps);
+    assertEQ(ScorePitchUtils::pitchFromLeger(false, 0, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::E + 1);
 }
 
 
+
 static void testGetAjustmentForLeger() {
+    #if 1
     {
         // CMajor - all white keys.
         Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
@@ -509,10 +514,11 @@ static void testGetAjustmentForLeger() {
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 0);
     }
     {
-        // C Minor, root is white key, but some accidentals.
+        // C Minor, root is white key, but some accidentals. (flats)
         // Will be affected by current pref
         assert(AccidentalResolver::getPref() == ResolvedSharpsFlatsPref::Sharps);
         Scale scale(MidiNote(MidiNote::C), Scale::Scales::Minor);
+        assert(scale.getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Flats);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -2), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -1), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 0), -1);
@@ -522,10 +528,29 @@ static void testGetAjustmentForLeger() {
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 4), -1);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 5), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 6), 0);
-        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), -1);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 0);
     }
-    assert(false);  // need e flat major, maybe an easier one, too.
+#endif
+    {
+        // D Major, some sharps
+        Scale scale(MidiNote(MidiNote::D), Scale::Scales::Major);
+        assert(scale.getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -2), 1);      // C#
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -1), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 0), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 1), 1);       // F#
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 2), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 3), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 4), 0);       // B
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 5), 1);       // C#
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 6), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), 0);
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 1);       // F#
+
+    }
+   // assert(false);  // need e flat major, maybe an easier one, too.
+    SQWARN("need more unit tests for get adjustment");
 }
 
 static void testMakeCanonical() {
@@ -597,7 +622,7 @@ void testScorePitchUtils() {
     testFindSpellingEMajorInCMajor();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testGetAjustmentForLeger();
     testPitchFromLegerEFlatMinor();

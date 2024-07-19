@@ -139,7 +139,7 @@ public:
      * all our scoring stuff assumes sharp for default.
      * TODO: add unit tests.
      */
-    bool getSharpsFlatsPrefForScoring() const;
+    //bool getSharpsFlatsPrefForScoring() const;
 
     MidiNote getRelativeMajor() const;
 

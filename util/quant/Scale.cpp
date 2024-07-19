@@ -73,7 +73,8 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         _validateScaleNote(ret);
         return ret;
     }
-    const bool preferSharps = getSharpsFlatsPrefForScoring();
+ //   const bool preferSharps = getSharpsFlatsPrefForScoring();
+    const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
     // If we didn't get a match, see if the next higher note is in the scale. But since it will
     // Yield a flat accidental, only do that if we want that.
     degree = _quantizeInScale((offset + 1) % 12);
@@ -561,10 +562,10 @@ SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     return SharpsFlatsPref::DontCare;
 }
 
-bool Scale::getSharpsFlatsPrefForScoring() const {
-    const auto pref = getSharpsFlatsPref();
-    return pref != SharpsFlatsPref::Flats;
-}
+// bool Scale::getSharpsFlatsPrefForScoring() const {
+//     const auto pref = getSharpsFlatsPref();
+//     return pref != SharpsFlatsPref::Flats;
+// }
 
 int Scale::numNotesInScale(Scales scale) {
     int ret = 0;
