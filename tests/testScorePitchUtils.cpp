@@ -37,8 +37,8 @@ static void testNoteEFlatInEFlatMinor() {
     // note that this is strange key! The key of E flat (D sharp) minor.
     // I think originally this test was supposed to be in C minor...
     // I think the test passes in E flat major!
-    sc.set(mnEFlat, Scale::Scales::Minor);     
-    SQINFO("set keysig root to %d (+72 = %d)", mnEFlat.get(), mnEFlat.get() + 72 );
+    sc.set(mnEFlat, Scale::Scales::Minor);
+    SQINFO("set keysig root to %d (+72 = %d)", mnEFlat.get(), mnEFlat.get() + 72);
 
     // In E flat (minor), E flat notated needs no accidental
     auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat3, false);
@@ -52,7 +52,7 @@ static void testNoteEFlatInEFlatMajor() {
     MidiNote mnEFlat3(MidiNote::MiddleC + MidiNote::E - 1);
     MidiNote mnEFlat(MidiNote::E - 1);
 
-    sc.set(mnEFlat, Scale::Scales::Major);      
+    sc.set(mnEFlat, Scale::Scales::Major);
 
     // In E flat (minor), E flat notated needs no accidental
     auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat3, false);
@@ -64,7 +64,7 @@ static void testCMinor() {
     Scale sc;
     MidiNote mnEFlat(MidiNote::E - 1);
     MidiNote mnE(MidiNote::E);
-    sc.set(mnEFlat, Scale::Scales::Minor);          // Is this a mistake that we did the test in this key?
+    sc.set(mnEFlat, Scale::Scales::Minor);  // Is this a mistake that we did the test in this key?
 
     // In C minor, E flat notated needs no accidental
     auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat, false);
@@ -220,7 +220,7 @@ static void testValidateCminor() {
 //    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
 static void testFindSpelling() {
     SqArray<int, 16> inputPitch;
-    //SqArray<NotationNote, 16> outputNotes;
+    // SqArray<NotationNote, 16> outputNotes;
 
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
@@ -238,18 +238,21 @@ static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNote
     assertGT(inputPitches.numValid(), 0);
     const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff);
 
-   // SQINFO("final score = %d", result.score);
-#if 0
-    if (inputPitches.numValid() == 3) {
-        SQINFO("input notes = %d | %d | %d",
+     SQINFO("final score = %d", result.score);
+#if 1
+    if (inputPitches.numValid() == 4) {
+        SQINFO("input notes = %d | %d | %d | %d",
                inputPitches.getAt(0),
                inputPitches.getAt(1),
-               inputPitches.getAt(2));
+               inputPitches.getAt(2),
+                inputPitches.getAt(3));
 
-        SQINFO("output notes = <%s> | <%s> | <%s>",
-               outputNotes.getAt(0).toString().c_str(),
-               outputNotes.getAt(1).toString().c_str(),
-               outputNotes.getAt(2).toString().c_str());
+        SQINFO("output notes = <%s> | <%s> | <%s> | <%s>",
+               result.notes.getAt(0).toString().c_str(),
+               result.notes.getAt(1).toString().c_str(),
+               result.notes.getAt(2).toString().c_str(),
+               result.notes.getAt(3).toString().c_str()
+               );
     } else {
         SQINFO("can't print input");
     }
@@ -257,11 +260,11 @@ static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNote
 
     for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
         // ChordRecognizer::_show("intput notes", inputPitches);
-        //SQINFO("input[%d]=%d", i, inputPitches.getAt(i));
+        // SQINFO("input[%d]=%d", i, inputPitches.getAt(i));
     }
 
     for (unsigned i = 0; i < result.notes.numValid(); ++i) {
-        //SQINFO("output[%d]=%s", i, result.notes.getAt(i).toString().c_str());
+        // SQINFO("output[%d]=%s", i, result.notes.getAt(i).toString().c_str());
     }
 
     for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
@@ -272,7 +275,7 @@ static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNote
 }
 
 static void testFindSpellingCMajor() {
-   //SQINFO("--- testFindSpellingCMajor");
+    // SQINFO("--- testFindSpellingCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // TODO: make this work
@@ -292,7 +295,7 @@ static void testFindSpellingCMajor() {
 }
 
 static void testFindSpellingDFlatMajorInCMajor() {
-    //SQINFO("--- testFindSpellingDFlat");
+    // SQINFO("--- testFindSpellingDFlat");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // C# major
@@ -312,7 +315,7 @@ static void testFindSpellingDFlatMajorInCMajor() {
 }
 
 static void testFindSpellingEMajorInCMajor() {
-    //SQINFO("--- testFindSpellingE");
+    // SQINFO("--- testFindSpellingE");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // E major: E, G#, B
@@ -332,7 +335,7 @@ static void testFindSpellingEMajorInCMajor() {
 }
 
 static void testFindSpellingCminorInCMajor() {
-   // SQINFO("--- testFindSpellingCminorInCMajor");
+    // SQINFO("--- testFindSpellingCminorInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     // TODO: make this work
@@ -352,7 +355,7 @@ static void testFindSpellingCminorInCMajor() {
 }
 
 static void testFindSpellingCminorFirstInversionInCMajor() {
-  //  SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
+    //  SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     const int lowEFlat = MidiNote::MiddleC + MidiNote::E - 1 - 12;
@@ -375,7 +378,7 @@ static void testFindSpellingCminorFirstInversionInCMajor() {
 }
 
 static void testFindSpellingCminorFirstInversionInCMajorDupesEtc() {
-   // SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
+    // SQINFO("--- testFindSpellingCminorFirstInversionInCMajor");
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
     const int lowEFlat = MidiNote::MiddleC + MidiNote::E - 1 - 12;
@@ -401,6 +404,24 @@ static void testFindSpellingCminorFirstInversionInCMajorDupesEtc() {
     expectedOutputNotes.putAt(3, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::G), NotationNote::Accidental::none, 2, false));
     expectedOutputNotes.putAt(4, NotationNote(MidiNote(lowEFlat), NotationNote::Accidental::flat, expectedLegerLineLowEFlat, false));
     expectedOutputNotes.putAt(5, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2, false));
+
+    testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
+}
+
+static void testFindSpelling9thNo5() {
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    SqArray<int, 16> inputPitches;
+    inputPitches.putAt(0, MidiNote::MiddleC);
+    inputPitches.putAt(1, MidiNote::MiddleC + MidiNote::E);
+    inputPitches.putAt(2, MidiNote::MiddleC + MidiNote::B - 1);
+    inputPitches.putAt(3, MidiNote::MiddleC + MidiNote::D);
+
+    SqArray<NotationNote, 16> expectedOutputNotes;
+    expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2, false));
+    expectedOutputNotes.putAt(1, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::E), NotationNote::Accidental::none, 0, false));
+    expectedOutputNotes.putAt(2, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::B - 1), NotationNote::Accidental::flat, 4, false));
+    expectedOutputNotes.putAt(3, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::D), NotationNote::Accidental::none, 6, false));
 
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
 }
@@ -493,10 +514,8 @@ static void testPitchFromLegerEFlatMinor() {
     assertEQ(ScorePitchUtils::pitchFromLeger(false, 0, NotationNote::Accidental::none, scale), MidiNote::MiddleC + MidiNote::E + 1);
 }
 
-
-
 static void testGetAjustmentForLeger() {
-    #if 1
+#if 1
     {
         // CMajor - all white keys.
         Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
@@ -536,20 +555,19 @@ static void testGetAjustmentForLeger() {
         // D Major, some sharps
         Scale scale(MidiNote(MidiNote::D), Scale::Scales::Major);
         assert(scale.getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps);
-        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -2), 1);      // C#
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -2), 1);  // C#
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, -1), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 0), 0);
-        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 1), 1);       // F#
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 1), 1);  // F#
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 2), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 3), 0);
-        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 4), 0);       // B
-        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 5), 1);       // C#
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 4), 0);  // B
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 5), 1);  // C#
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 6), 0);
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 7), 0);
-        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 1);       // F#
-
+        assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 1);  // F#
     }
-   // assert(false);  // need e flat major, maybe an easier one, too.
+    // assert(false);  // need e flat major, maybe an easier one, too.
     SQWARN("need more unit tests for get adjustment");
 }
 
@@ -604,7 +622,7 @@ void testScorePitchUtils() {
     testValidate2();
     testValidateCMajor();
     testValidateCminor();
-     testNoteEFlatInEFlatMajor();
+    testNoteEFlatInEFlatMajor();
     testNoteEFlatInEFlatMinor();
 
     testReSpellCMajorCSharp();
@@ -620,16 +638,17 @@ void testScorePitchUtils() {
     testFindSpellingCminorFirstInversionInCMajorDupesEtc();
     testFindSpellingDFlatMajorInCMajor();
     testFindSpellingEMajorInCMajor();
+    testFindSpelling9thNo5();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testGetAjustmentForLeger();
-    testPitchFromLegerEFlatMinor();
-    //testNoteEFlatInEFlatMinor();
+    // testGetAjustmentForLeger();
+    //  testPitchFromLegerEFlatMinor();
+    testFindSpelling9thNo5();
+    // testNoteEFlatInEFlatMinor();
 
     //  testScorePitchUtils();
-  
 }
 
 #endif

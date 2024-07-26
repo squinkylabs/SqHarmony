@@ -11,6 +11,7 @@
 #include "PopupMenuParamWidget.h"
 #include "ScoreChord.h"
 #include "SqLabel.h"
+#include "SqMenuItem.h"
 #include "SqLog.h"
 
 #define _LAB
@@ -221,6 +222,32 @@ private:
             module,
             Comp::PES_INVALID_LIGHT));
     }
+
+        void _setSharpFlat(int index) {
+        APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
+    }
+
+    void appendContextMenu(ui::Menu* menu) override {
+        if (!module) {
+            return;
+        }
+
+        // SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM);
+        // item->text = "Mode CV only diatonic";
+        // menu->addChild(item);
+
+        const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
+        const int index = int(std::round(p));
+        menu->addChild(createSubmenuItem("Sharps&Flats", "",
+                                         [=](Menu* menu) {
+                                             menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() { _setSharpFlat(0); }));
+                                             menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() { _setSharpFlat(1); }));
+                                             menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() { _setSharpFlat(2); }));
+                                             menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() { _setSharpFlat(3); }));
+                                         }));
+    }
+
+
 };
 
 Model* modelVisualizer = createModel<VisualizerModule, VisualizerWidget>("sqh-visualizer");

@@ -28,6 +28,7 @@ public:
 
         KEY_PARAM,   // For controlling the key signature root.
         MODE_PARAM,  // For controlling the key signature mode.
+        SHARPS_FLATS_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

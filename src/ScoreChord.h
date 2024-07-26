@@ -89,9 +89,16 @@
  *      c) use it in speller.
  * step 9: make sure speller is good now., can spell C minor correctly.
  * ste0 10: hook new stuff up to the GUI.
- *
- *
- * step n: use it, re-do scoring (?), make new spelling stuff unit testable.
+ * step n: use it, re-do scoring (?), make new spelling stuff unit testable. (done)
+ * 
+ * Open items:
+ *      1) notes out of range draw funny. Maybe don't draw.
+ *      2) accidentals can overlap. score drawing could be better, visually.
+ *      3) need user choice for accidentals.
+ *          a) In C major, do we use sharps or flats? (def+sharp, def+flat).
+ *          b) when drawing an accidental all by itself, use sharps or flats? (sharp, flat).
+ *      4) make key select UI respond to sharp/flats in key, like harmony2.
+ *      5) should enharmonic spelling avoid mixing sharps and flats?
  */
 
 // #define _LOG
