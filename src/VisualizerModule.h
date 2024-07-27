@@ -33,4 +33,8 @@ public:
     unsigned getChangeParam() {
         return unsigned(APP->engine->getParamValue(this, Comp::CHANGE_PARAM));
     }
+
+    std::shared_ptr<Comp> getComp() const {
+        return comp;
+    }
 };

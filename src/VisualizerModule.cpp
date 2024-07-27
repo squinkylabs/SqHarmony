@@ -6,6 +6,7 @@
 
 #include "BufferingParent.h"
 #include "GfxUtils.h"
+#include "KsigSharpFlatMonitor.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
@@ -59,6 +60,11 @@ public:
         _displayString2 = addLabel(Vec(x, y+18.5), "chord");
 
         addKeysig();
+
+        if (module) {
+            const Comp* comp = module->getComp().get();
+            _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
+        }
     }
 
     unsigned getChangeParam() {
@@ -68,11 +74,19 @@ public:
         return unsigned(APP->engine->getParamValue(module, Comp::CHANGE_PARAM));
     }
 
+     void _stepForKeysig()  {
+        ModuleWidget::step();
+        if (module && _ksigMonitor) {
+            _ksigMonitor->poll();
+        }
+    }
+
     void step() override {
         if (!module) {
             Widget::step();
             return;
         }
+        _stepForKeysig();
         _displayString->step();
         _displayString2->step();
         const float changeParam = getChangeParam();
@@ -102,6 +116,8 @@ private:
     BufferingParent<SqLabel>* _displayString;
     BufferingParent<SqLabel>* _displayString2;
     PopupMenuParamWidget* _keyRootWidget = nullptr;
+  //      PopupMenuParamWidget* _keyRootWidget = nullptr;
+    std::shared_ptr<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>> _ksigMonitor;
 
     ScoreChord* _scoreChord = nullptr;
     void addScore(VisualizerModule* module) {

@@ -729,7 +729,7 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
   //  SqArray<NotationNote, 16> outputNotes;
     //  static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
-    const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff);
+    const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff, SharpsFlatsPref::DontCare);
 
     for (unsigned pitchIterator = 0; pitchIterator < results.notes.numValid(); ++pitchIterator) {
         const auto notationNote = results.notes.getAt(pitchIterator);

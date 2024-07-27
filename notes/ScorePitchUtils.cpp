@@ -312,7 +312,8 @@ NotationNote ScorePitchUtils::makeCanonical(const NotationNote& note) {
 ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
     const Scale& scale,
     const SqArray<int, 16>& inputPitches,
-    bool bassStaff) {
+    bool bassStaff,
+    SharpsFlatsPref pref) {
     // for (unsigned i=0; i< inputPitches.numValid(); ++i) {
     //     SQINFO("findSpell[%d] %d", i, inputPitches.getAt(i));
     // }

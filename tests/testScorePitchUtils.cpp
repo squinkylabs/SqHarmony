@@ -227,7 +227,7 @@ static void testFindSpelling() {
 
     inputPitch.putAt(0, MidiNote::MiddleC);
     inputPitch.putAt(1, MidiNote::MiddleC + 12);
-    const auto results = ScorePitchUtils::findSpelling(scale, inputPitch, false);
+    const auto results = ScorePitchUtils::findSpelling(scale, inputPitch, false, SharpsFlatsPref::DontCare);
 
     assertEQ(inputPitch.numValid(), 2);
     assertEQ(results.notes.numValid(), 2);
@@ -236,7 +236,7 @@ static void testFindSpelling() {
 static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNotes, const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff) {
     // assertEQ(expectedOutputNotes.numValid(), inputPitches.numValid());
     assertGT(inputPitches.numValid(), 0);
-    const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff);
+    const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff, SharpsFlatsPref::DontCare);
 
      SQINFO("final score = %d", result.score);
 #if 1
