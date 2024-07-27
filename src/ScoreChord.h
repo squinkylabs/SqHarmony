@@ -95,8 +95,9 @@
  *      1) notes out of range draw funny. Maybe don't draw.
  *      2) accidentals can overlap. score drawing could be better, visually.
  *      3) need user choice for accidentals.
- *          a) In C major, do we use sharps or flats? (def+sharp, def+flat).
+ *          a) In C major, do we use sharps or flats? (def+sharp, def+flat). (done)
  *          b) when drawing an accidental all by itself, use sharps or flats? (sharp, flat).
+ *          c) make spelling pay attention to setting
  *      4) make key select UI respond to sharp/flats in key, like harmony2.
  *      5) should enharmonic spelling avoid mixing sharps and flats?
  */
@@ -726,10 +727,8 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
 
     // now spell
     SqArray<int, 16> inputNotes(begin, end);
-  //  SqArray<NotationNote, 16> outputNotes;
-    //  static int findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
-
-    const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff, SharpsFlatsPref::DontCare);
+    SharpsFlatsPref pref = _module->getSharpsFlatsPref();
+    const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff, pref);
 
     for (unsigned pitchIterator = 0; pitchIterator < results.notes.numValid(); ++pitchIterator) {
         const auto notationNote = results.notes.getAt(pitchIterator);
