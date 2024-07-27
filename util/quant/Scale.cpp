@@ -74,7 +74,18 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         return ret;
     }
  //   const bool preferSharps = getSharpsFlatsPrefForScoring();
-    const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
+  //  const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
+   
+    // here we let "don't care" go to sharps. Perhaps this should be a pref?
+
+    const bool preferSharps = getSharpsFlatsPref() != SharpsFlatsPref::Flats;
+    {
+        static bool b = true;
+        if (b) {
+            SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
+            b = false;
+        }
+    }
     // If we didn't get a match, see if the next higher note is in the scale. But since it will
     // Yield a flat accidental, only do that if we want that.
     degree = _quantizeInScale((offset + 1) % 12);
@@ -513,10 +524,12 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     return ret;
 }
 
+#if 0
 ResolvedSharpsFlatsPref Scale::getSharpsFlatsPrefResolved() const {
     const auto p = getSharpsFlatsPref();
     return AccidentalResolver::resolve(p);
 }
+#endif
 
 SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     if (int(_scale) <= int(Scales::Locrian)) {

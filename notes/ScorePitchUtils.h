@@ -41,7 +41,7 @@ public:
         int score = 0;
         SqArray<NotationNote, 16> notes;
     };
-    static SpellingResults findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff, SharpsFlatsPref pref);
+    static SpellingResults findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff, UIPrefSharpsFlats pref);
     static SpellingResults _findSpelling(const ChordRecognizer::ChordInfo& info, const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
 
     /**

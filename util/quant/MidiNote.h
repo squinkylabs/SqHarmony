@@ -21,7 +21,7 @@ public:
         return this->_pitch == other._pitch;
     }
 
-    int getLegerLine(bool bassStaff) const;
+    //int getLegerLine(bool bassStaff) const;
     int getLegerLine(ResolvedSharpsFlatsPref sharpsFlats, bool bassStaff) const;
 
     bool isBlackKey() const;
@@ -44,9 +44,9 @@ private:
     int _pitch = C3;
 };
 
-inline int MidiNote::getLegerLine(bool bassStaff) const {
-    return getLegerLine(AccidentalResolver::getPref(), bassStaff);
-}
+// inline int MidiNote::getLegerLine(bool bassStaff) const {
+//     return getLegerLine(AccidentalResolver::getPref(), bassStaff);
+// }
 
 inline int MidiNote::getLegerLine(ResolvedSharpsFlatsPref sharpsFlats, bool bassStaff) const {
     const int normalizedPitch = _pitch - MiddleC;

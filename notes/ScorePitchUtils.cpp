@@ -40,7 +40,26 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
     //        int(NotationNote::Accidental::flat),
     //        int(NotationNote::Accidental::natural));
 
-    const ResolvedSharpsFlatsPref pref = scale.getSharpsFlatsPrefResolved();
+  //  const ResolvedSharpsFlatsPref pref = scale.getSharpsFlatsPrefResolved();
+
+    // const ResolvedSharpsFlatsPref pref = scale.getSharpsFlatsPref() == SharpsFlatsPref::Sharps
+    //     ? ResolvedSharpsFlatsPref::Sharps : ResolvedSharpsFlatsPref::Flats;
+    ResolvedSharpsFlatsPref pref;
+    switch (scale.getSharpsFlatsPref()) {
+        case SharpsFlatsPref::Sharps:
+            pref = ResolvedSharpsFlatsPref::Sharps;
+            break;
+        case SharpsFlatsPref::Flats:
+            pref = ResolvedSharpsFlatsPref::Flats;
+            break;
+        case SharpsFlatsPref::DontCare:
+            SQINFO("ScorePitchUtils.cpp 56. turning don't care into sharp");
+            pref = ResolvedSharpsFlatsPref::Sharps;
+            break;
+        default:
+            assert(false);
+    }
+    SQINFO("fake pref ScorePitchUtils.cpp 62 use pref %d, sharps=%d. should perhaps be a user pref?", int(pref), int(ResolvedSharpsFlatsPref::Sharps));
 
     // SQINFO("about to make notation note,pref=%d bassStaff=%d. pref sharp=%d, flat=%d d/c=%d ",
     //        pref,
@@ -222,7 +241,8 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
     if (num) {
         for (int i = 0; i < num; ++i) {
             const auto accidentalNote = accidentals[i];
-            const int candidateLegerLine = normalizeIntPositive(accidentalNote.getLegerLine(bassStaff), 7);
+            SQINFO("possible fake pref 229");
+            const int candidateLegerLine = normalizeIntPositive(accidentalNote.getLegerLine(ResolvedSharpsFlatsPref::Sharps , bassStaff), 7);
 
             assert(candidateLegerLine < 8);
             assert(candidateLegerLine >= 0);
@@ -313,7 +333,7 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
     const Scale& scale,
     const SqArray<int, 16>& inputPitches,
     bool bassStaff,
-    SharpsFlatsPref pref) {
+    UIPrefSharpsFlats pref) {
     // for (unsigned i=0; i< inputPitches.numValid(); ++i) {
     //     SQINFO("findSpell[%d] %d", i, inputPitches.getAt(i));
     // }

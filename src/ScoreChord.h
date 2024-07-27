@@ -100,6 +100,13 @@
  *          c) make spelling pay attention to setting
  *      4) make key select UI respond to sharp/flats in key, like harmony2.
  *      5) should enharmonic spelling avoid mixing sharps and flats?
+ * 
+ * 
+ *              ksig name       accidental gfx in cmaj          in cmin     
+ * def+sharp                    sharp                           flat
+ * del+flat                     flat                            flat
+ * sharp                        sharp                           sharp
+ * flat                         flat                            flat
  */
 
 // #define _LOG
@@ -425,7 +432,7 @@ float ScoreChord::_noteY(const MidiNote &note, bool bassStaff) const {
     assert(!note.isBlackKey());
     float y = 0;
     const float staffBasePos = bassStaff ? _yBassStaff : _yTrebleStaff;
-    const int legerLine = note.getLegerLine(bassStaff);
+    const int legerLine = note.getLegerLine(ResolvedSharpsFlatsPref::Sharps, bassStaff);
     y -= legerLine * _ySpaceBetweenLines;
     y += staffBasePos;
     return y;
@@ -727,7 +734,7 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
 
     // now spell
     SqArray<int, 16> inputNotes(begin, end);
-    SharpsFlatsPref pref = _module->getSharpsFlatsPref();
+    UIPrefSharpsFlats pref = _module->getSharpsFlatsPref();
     const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff, pref);
 
     for (unsigned pitchIterator = 0; pitchIterator < results.notes.numValid(); ++pitchIterator) {

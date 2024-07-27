@@ -61,7 +61,9 @@ inline bool NotationNote::isAccidental() const {
 inline bool NotationNote::operator==(const NotationNote& other) const {
     return (other._midiNote.get() == this->_midiNote.get()) &&
            (other._accidental == this->_accidental) &&
-           (other._legerLine == this->_legerLine);
+           (other._legerLine == this->_legerLine) &&
+           (other._bassStaff == this->_bassStaff);
+            
 }
 
 inline bool NotationNote::operator!=(const NotationNote& other) const {

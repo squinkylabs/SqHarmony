@@ -28,7 +28,7 @@ static void test1() {
   //  assert(scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none);
 
     // so we expect to be on E, in treble clef.
-    const auto legerLine = mn.getLegerLine(false);
+    const auto legerLine = mn.getLegerLine(ResolvedSharpsFlatsPref::Sharps, false);
     assertEQ(legerLine, 0);
    
 }

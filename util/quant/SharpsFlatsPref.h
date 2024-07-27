@@ -11,6 +11,28 @@ enum class ResolvedSharpsFlatsPref {
     Flats
 };
 
+
+enum class UIPrefSharpsFlats {
+    DefaultPlusSharps,
+    DefaultPlusFlats,
+    Sharps,
+    Flats
+};
+
+
+inline UIPrefSharpsFlats float2Pref(float x) {
+    if (x < .5)
+        return UIPrefSharpsFlats::DefaultPlusSharps;
+    if (x < 1.5)
+        return UIPrefSharpsFlats::DefaultPlusFlats;
+    if (x < 2.5)
+        return UIPrefSharpsFlats::Sharps;
+
+    return UIPrefSharpsFlats::Flats;
+}
+
+
+#if 0
 class AccidentalResolver {
 public:
     AccidentalResolver() = delete;
@@ -29,3 +51,4 @@ public:
         }
     }
 };
+#endif

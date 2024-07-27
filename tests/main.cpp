@@ -110,7 +110,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 1
+#if 0
     printf("running only one for temp debug\n");
     //assert(false);
     assert(SqLog::errorCount == 0);
@@ -135,7 +135,7 @@ int main(const char**, int) {
     testFreqMeasure();
     testFreqMeasure2();
     testShiftCalc();
-    testSharpFlatMonitor();
+
     testDifferenticalClockCounter();
     testNotationNote();
     testScorePitchUtils();
@@ -143,6 +143,7 @@ int main(const char**, int) {
     testChordRecognizer();
     testChordRecognizer2();
     testPESConverter();
+    testSharpFlatMonitor();
     testVisualizer();
 
     testClockMult();
