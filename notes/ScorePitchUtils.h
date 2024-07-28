@@ -1,94 +1,101 @@
 
 #pragma once
 
-#include <tuple>
+#include <assert.h>
 
-#include "MidiNote.h"
-#include "Scale.h"
-#include "ScaleNote.h"
-//#include "SqLog.h"
+#include "ChordRecognizer.h"
+#include "NotationNote.h"
+#include "SqArray.h"
+
+class Scale;
+class MidiNote;
 
 class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
-    enum class Accidental {
-        none,
-        sharp,
-        flat,
-        natural
-    };
-
-    class NotationNote {
-    public:
-        NotationNote() {}
-        NotationNote(ScaleNote sn, ScorePitchUtils::Accidental ac, int ll) : _scaleNote(sn), _accidental(ac), _legerLine(ll) {}
-        ScaleNote _scaleNote;
-        Accidental _accidental = ScorePitchUtils::Accidental::none;
-        int _legerLine = 0;
-    };
-
-    static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
 
     /**
-     * Not needed right now.
-     * @return returns true if accidental1 <= accidental2
-     * @return false if  accidental1 > accidental2
+     * requirements:
+     *      returns a valid note
+     *      returns a note at the right pitch
+     * do we care about the spelling of the returned note?
+
      */
-    //  static bool compareAccidentals(Accidental accidental1, Accidental accidental2);
+    static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
+    static SqArray<NotationNote, 16> getVariations(const NotationNote&, const Scale&);
+    /**
+     * @brief
+     *
+     * @param scale
+     * @param inputPitches
+     * @param outputNotes
+     * @param bassStaff
+     * @param evalIndex
+     * @return int = the score for that spelling
+     */
+    class SpellingResults {
+    public:
+        int score = 0;
+        SqArray<NotationNote, 16> notes;
+    };
+
+    class SpellingPreferences {
+    public:
+        bool sharpsOrFlats = true;
+    };
+
+    static SpellingResults findSpelling(
+        const Scale& scale,
+        const SqArray<int, 16>& inputPitches,
+        bool bassStaff,
+        UIPrefSharpsFlats pref);
+
+    static SpellingResults _findSpelling(
+        const SpellingPreferences& prefs,
+        const ChordRecognizer::ChordInfo& info,
+        const Scale& scale,
+        const SqArray<int, 16>& inputPitches,
+        SqArray<NotationNote, 16>& outputNotes,
+        bool bassStaff,
+        unsigned evalIndex = 0);
+
+    /**
+     * @brief  change accidental and leger line for an alternate enharmonic spelling
+     *
+     * @param moreSharps - if true will attempt to re-spell at a lower pitch, with more sharps.
+     * @return  true if success.
+     */
+    static bool reSpell(NotationNote& note, bool moreSharps, const Scale&);
+
+    static bool validate(const NotationNote&, const Scale&);
+
+    /**
+     * @brief convert from music staff to midi pitch.
+     *
+     * @param bassStaff - true if bass, false if treble.
+     * @param legerLine - line of the staff (or off of it), starting at the lowest (middle C is -2 in treble clef).
+     * @param accidental - don't care means none here.
+     * @param scale - the current scale.
+     * @return int - the midi pitch
+     */
+    static int pitchFromLeger(bool bassStaff, int legerLine, NotationNote::Accidental, const Scale&);
+
+    /**
+     * @brief returns the adjustment in leger lines due to note getting a sharp or flat from the scale
+     *
+     * @param scale - The scale currently in effect.
+     * @param bassStaff - Which staff we are asking about.
+     * @param legerLine - the line the note would be on, if not for the Scale (key signature).
+     * @return int - the adjustment in leger lines to move the note to the correct pitch, based on scale.
+     */
+    static int _getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine);
+    static NotationNote makeCanonical(const NotationNote&);
+
+private:
+    static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&, bool bassStaff);
+    static int _evaluateSpelling(const SpellingPreferences& prefs, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpelling0(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingFirstAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingSecondAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingThirdAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
 };
-
-inline ScorePitchUtils::NotationNote
-ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
-    ScaleNote sn = scale.m2s(midiNote);
-    scale._validateScaleNote(sn);
-    //SQINFO("--in getNotationNote srn octave=%d degree=%d adj=%d (none, sharp, flat)", sn.getOctave(), sn.getDegree(), int(sn.getAdjustment()));
-    //SQINFO("-- midiPitch is %d", midiNote.get());
-
-    assert(midiNote.get() < 1000);
-
-    Accidental accidental = Accidental::none;
-
-    if (sn.getAdjustment() == ScaleNote::RelativeAdjustment::none) {
-        //SQINFO("none at 38");
-        accidental = Accidental::none;
-    } else if (!midiNote.isBlackKey()) {
-        //SQINFO("natural at 41");
-        accidental = Accidental::natural;
-    } else {
-      //  SQINFO("default to sharps - might not be right (it's a black key, and not in scale)");
-        accidental = (sn.getAdjustment() == ScaleNote::RelativeAdjustment::flat) ? Accidental::flat :  Accidental::sharp;
-        //SQINFO("getting acciendtal from adj, accid = %d", int(accidental));
-    }
-
-    const auto pref = scale.getSharpsFlatsPref();
-    // SQINFO("return from getNotationNote with leger line %d pref = %d flats=%d",
-    //        midiNote.getLegerLine(pref, bassStaff),
-    //        int(pref),
-    //        int(SharpsFlatsPref::Flats));
-    return NotationNote(sn, accidental, midiNote.getLegerLine(pref, bassStaff));
-}
-
-#if 0
-inline bool ScorePitchUtils::compareAccidentals(ScorePitchUtils::Accidental accidental1, ScorePitchUtils::Accidental accidental2) {
-    SQINFO("compare %d vs %d. flat=%d, sharp=%d, natural=%d, none=%d",
-        int(accidental1), int(accidental2),
-    int(ScorePitchUtils::Accidental::flat), int(ScorePitchUtils::Accidental::sharp), int(ScorePitchUtils::Accidental::natural), int(ScorePitchUtils::Accidental::none)); 
-
-    assert(accidental1 != Accidental::none);    
-    assert(accidental2 != Accidental::none);
-    if (accidental1 == accidental2) {
-        return true;
-    }
-
-    if (accidental2 == ScorePitchUtils::Accidental::sharp) {
-        // if the second is a sharp, it must be GE the other one.
-        return true;                    
-    }
-    if (accidental1 == ScorePitchUtils::Accidental::sharp) {
-        return false;
-    }
-    // More cases to implement.
-    assert(false);
-    return false;
-}
-#endif

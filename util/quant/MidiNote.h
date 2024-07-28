@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <algorithm>
+#include <tuple>
 
 #include "SharpsFlatsPref.h"
 #include "SqLog.h"
@@ -20,8 +21,8 @@ public:
         return this->_pitch == other._pitch;
     }
 
-    int getLegerLine(bool bassStaff) const;
-    int getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const;
+    //int getLegerLine(bool bassStaff) const;
+    int getLegerLine(ResolvedSharpsFlatsPref sharpsFlats, bool bassStaff) const;
 
     bool isBlackKey() const;
 
@@ -36,15 +37,18 @@ public:
 
     static const int MiddleC = 60 + 12;
 
+    void _changePitch(int newPitch) {
+        _pitch = newPitch;
+    }
 private:
     int _pitch = C3;
 };
 
-inline int MidiNote::getLegerLine(bool bassStaff) const {
-    return getLegerLine(SharpsFlatsPref::Sharps, bassStaff);
-}
+// inline int MidiNote::getLegerLine(bool bassStaff) const {
+//     return getLegerLine(AccidentalResolver::getPref(), bassStaff);
+// }
 
-inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) const {
+inline int MidiNote::getLegerLine(ResolvedSharpsFlatsPref sharpsFlats, bool bassStaff) const {
     const int normalizedPitch = _pitch - MiddleC;
     int octave = (normalizedPitch / 12);
     int semi = normalizedPitch % 12;
@@ -53,14 +57,15 @@ inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) c
         octave -= 1;
     }
     int line = 0;
-    const bool preferFlats = sharpsFlats == SharpsFlatsPref::Flats;
+   // const bool preferFlats = sharpsFlats == SharpsFlatsPref::Flats;
+    const bool preferFlats = sharpsFlats == ResolvedSharpsFlatsPref::Flats;
     switch (semi) {
         case 0:  // C
             line = -2;
             break;
         case 1:  // C#/D-
             line = preferFlats ? -1 : -2;
-            //SQINFO("in MidiNote::getLEdgetLine semi=%d line=%d prefFlats = %d", semi, line, preferFlats);
+            // SQINFO("in MidiNote::getLEdgetLine semi=%d line=%d prefFlats = %d", semi, line, preferFlats);
             break;
         case 2:  // D
             line = -1;
@@ -86,7 +91,7 @@ inline int MidiNote::getLegerLine(SharpsFlatsPref sharpsFlats, bool bassStaff) c
         case 9:  // A
             line = 3;
             break;
-        case 10:    // A# / B-
+        case 10:  // A# / B-
             line = preferFlats ? 4 : 3;
             break;
         case 11:  // B

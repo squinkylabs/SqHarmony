@@ -73,7 +73,19 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         _validateScaleNote(ret);
         return ret;
     }
-    const bool preferSharps = getSharpsFlatsPrefForScoring();
+ //   const bool preferSharps = getSharpsFlatsPrefForScoring();
+  //  const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
+   
+    // here we let "don't care" go to sharps. Perhaps this should be a pref?
+
+    const bool preferSharps = getSharpsFlatsPref() != SharpsFlatsPref::Flats;
+    {
+        static bool b = true;
+        if (b) {
+            SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
+            b = false;
+        }
+    }
     // If we didn't get a match, see if the next higher note is in the scale. But since it will
     // Yield a flat accidental, only do that if we want that.
     degree = _quantizeInScale((offset + 1) % 12);
@@ -271,6 +283,7 @@ int Scale::_quantizeInScale(int offset) const {
     assert(offset >= 0);
     assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
+   // SQINFO("pitches in scale = %d, %d, %d, %d...", pitches[0], pitches[1], pitches[2], pitches[3]);
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
@@ -494,6 +507,7 @@ const MidiNote flatsInBass[12] = {
 
 Scale::ScoreInfo Scale::getScoreInfo() const {
     Scale::ScoreInfo ret;
+    assert(_wasSet);
     assert(int(_scale) <= int(Scales::Locrian));
 
     const int basePitch = getRelativeMajor().get();
@@ -510,13 +524,21 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     return ret;
 }
 
+#if 0
+ResolvedSharpsFlatsPref Scale::getSharpsFlatsPrefResolved() const {
+    const auto p = getSharpsFlatsPref();
+    return AccidentalResolver::resolve(p);
+}
+#endif
+
 SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
         assert(basePitch >= 0);
         assert(basePitch < 12);
 
-        return preferSharps[basePitch];
+        const auto ret = preferSharps[basePitch];
+        return ret;
     }
 
     switch (_scale) {
@@ -553,10 +575,10 @@ SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     return SharpsFlatsPref::DontCare;
 }
 
-bool Scale::getSharpsFlatsPrefForScoring() const {
-    const auto pref = getSharpsFlatsPref();
-    return pref != SharpsFlatsPref::Flats;
-}
+// bool Scale::getSharpsFlatsPrefForScoring() const {
+//     const auto pref = getSharpsFlatsPref();
+//     return pref != SharpsFlatsPref::Flats;
+// }
 
 int Scale::numNotesInScale(Scales scale) {
     int ret = 0;

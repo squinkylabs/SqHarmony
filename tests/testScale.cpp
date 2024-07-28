@@ -757,7 +757,7 @@ static void testRoundTrip(bool diatonicOnly) {
 
 static void testRoundTrip() {
     testRoundTrip(false);
-     testRoundTrip(true);
+    testRoundTrip(true);
 }
 
 static void testConvert() {
@@ -788,19 +788,29 @@ static void testMultiRoot() {
 static void testChromatic2() {
     Scale sc;
     sc.set(MidiNote(MidiNote::C), Scale::Scales::Chromatic);
-    const int * p = sc._getNormalizedScalePitches();
+    const int* p = sc._getNormalizedScalePitches();
     int last = -1;
     int len = 0;
-    for (int i=0; p[i] >= 0; ++i) {
+    for (int i = 0; p[i] >= 0; ++i) {
         // SQINFO("p[%d] = %d", i, p[i]);
-        assertEQ(p[i], ( last + 1));
+        assertEQ(p[i], (last + 1));
         last = p[i];
         ++len;
     }
     assertEQ(len, 12);
 }
 
+static void testCtor() {
+    Scale scale(MidiNote(MidiNote::F), Scale::Scales::Minor);
+    const auto x = scale.get();
+    assertEQ(x.first.get(), MidiNote::F);
+    assert(x.second == Scale::Scales::Minor);
+
+    scale.degreeToSemitone(0);          // would assert if not prop init.
+}
+
 void testScale() {
+    testCtor();
     testScaleNumbers();
     testLabels();
     testNumNotes();
@@ -818,7 +828,7 @@ void testScale() {
     testm2sCMajC3();
     testm2sCMajC4();
     testm2sCMajCsharp4();
-  //  testm2sDSharp();
+    //  testm2sDSharp();
 
     tests2mCMajC4();
     tests2mCMajC5();
@@ -835,11 +845,10 @@ void testScale() {
     testConvert();
     // SQINFO("Make multi root work");
     testMultiRoot();
-   
 }
 
 #if 0
 void testFirst() {
-    testm2sDSharp();
+    testCtor();
 }
 #endif

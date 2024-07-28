@@ -85,6 +85,9 @@ extern void testVisualizer();
 extern void testPESConverter();
 extern void testScorePitchUtils();
 extern void testLegerScore();
+extern void testNotationNote();
+extern void testMidiNote();
+extern void  testSqArray();
 
 #include "SqLog.h"
 
@@ -107,15 +110,15 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if  0
+#if 0
     printf("running only one for temp debug\n");
+    //assert(false);
     assert(SqLog::errorCount == 0);
     testFirst();
     std::exit(0);
-#endif 
+#endif
     testAudioMath();
     testUpdater();
-    
 
     testTwister();
     testPinkFilter();
@@ -132,13 +135,15 @@ int main(const char**, int) {
     testFreqMeasure();
     testFreqMeasure2();
     testShiftCalc();
-    testSharpFlatMonitor();
+
     testDifferenticalClockCounter();
+    testNotationNote();
     testScorePitchUtils();
     testChordRecognizer3();
     testChordRecognizer();
     testChordRecognizer2();
     testPESConverter();
+    testSharpFlatMonitor();
     testVisualizer();
 
     testClockMult();
@@ -153,18 +158,21 @@ int main(const char**, int) {
     testPhasePatterns();
     testPhasePatternsPoly();
 
+  
+    testSqArray();
     testNotes();
     testLegerScore();
     testScaleNotes();
     testScale();
+    testMidiNote();
     testScaleRelativeNote();
     testScaleQuantizer();
     testHarmony2();
     testHarmony2B();
     testHarmony2C();
-    
+
     testHarmonyNote();
-testLegerScore();
+    testLegerScore();
 #if 0
     printf("XX: leaving early for clock stuff");
     std::exit(0);
@@ -203,7 +211,7 @@ testLegerScore();
     testHarmonyComposite();
     testProgressions();
     testChord4Manager();
-   // printf("put back test progression?\n");
+    // printf("put back test progression?\n");
 
 #endif
 }

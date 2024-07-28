@@ -6,11 +6,13 @@
 
 #include "BufferingParent.h"
 #include "GfxUtils.h"
+#include "KsigSharpFlatMonitor.h"
 #include "NumberFormatter.h"
 #include "PhasePatterns.h"
 #include "PopupMenuParamWidget.h"
 #include "ScoreChord.h"
 #include "SqLabel.h"
+#include "SqMenuItem.h"
 #include "SqLog.h"
 
 #define _LAB
@@ -58,6 +60,11 @@ public:
         _displayString2 = addLabel(Vec(x, y+18.5), "chord");
 
         addKeysig();
+
+        if (module) {
+            const Comp* comp = module->getComp().get();
+            _ksigMonitor = std::make_shared<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>>(comp, _keyRootWidget);
+        }
     }
 
     unsigned getChangeParam() {
@@ -67,11 +74,19 @@ public:
         return unsigned(APP->engine->getParamValue(module, Comp::CHANGE_PARAM));
     }
 
+     void _stepForKeysig()  {
+        ModuleWidget::step();
+        if (module && _ksigMonitor) {
+            _ksigMonitor->poll();
+        }
+    }
+
     void step() override {
         if (!module) {
             Widget::step();
             return;
         }
+        _stepForKeysig();
         _displayString->step();
         _displayString2->step();
         const float changeParam = getChangeParam();
@@ -84,7 +99,8 @@ public:
         const ChordRecognizer::Type type = ChordRecognizer::Type(APP->engine->getParamValue(module, Comp::TYPE_PARAM));
         const ChordRecognizer::Inversion inversion = ChordRecognizer::Inversion(APP->engine->getParamValue(module, Comp::INVERSION_PARAM));
         const int root = APP->engine->getParamValue(module, Comp::ROOT_PARAM);
-        ChordRecognizer::ChordInfo info = std::make_tuple(type, inversion, root);
+        SqArray<ChordRecognizer::PitchAndIndex, 16> idp;
+        ChordRecognizer::ChordInfo info = ChordRecognizer::ChordInfo(type, inversion, root, idp);
         const auto v = ChordRecognizer::toString(info);
         _displayString->getChild()->text = v[0];
         _displayString->setDirty();
@@ -100,6 +116,8 @@ private:
     BufferingParent<SqLabel>* _displayString;
     BufferingParent<SqLabel>* _displayString2;
     PopupMenuParamWidget* _keyRootWidget = nullptr;
+  //      PopupMenuParamWidget* _keyRootWidget = nullptr;
+    std::shared_ptr<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>> _ksigMonitor;
 
     ScoreChord* _scoreChord = nullptr;
     void addScore(VisualizerModule* module) {
@@ -220,6 +238,32 @@ private:
             module,
             Comp::PES_INVALID_LIGHT));
     }
+
+        void _setSharpFlat(int index) {
+        APP->engine->setParamValue(module, Comp::SHARPS_FLATS_PARAM, float(index));
+    }
+
+    void appendContextMenu(ui::Menu* menu) override {
+        if (!module) {
+            return;
+        }
+
+        // SqMenuItem_BooleanParam2* item = new SqMenuItem_BooleanParam2(module, Comp::ONLY_USE_DIATONIC_FOR_CV_PARAM);
+        // item->text = "Mode CV only diatonic";
+        // menu->addChild(item);
+
+        const float p = APP->engine->getParamValue(module, Comp::SHARPS_FLATS_PARAM);
+        const int index = int(std::round(p));
+        menu->addChild(createSubmenuItem("Sharps&Flats", "",
+                                         [=](Menu* menu) {
+                                             menu->addChild(createMenuItem("Default+sharps", CHECKMARK(index == 0), [=]() { _setSharpFlat(0); }));
+                                             menu->addChild(createMenuItem("Default+flats", CHECKMARK(index == 1), [=]() { _setSharpFlat(1); }));
+                                             menu->addChild(createMenuItem("Sharps", CHECKMARK(index == 2), [=]() { _setSharpFlat(2); }));
+                                             menu->addChild(createMenuItem("Flats", CHECKMARK(index == 3), [=]() { _setSharpFlat(3); }));
+                                         }));
+    }
+
+
 };
 
 Model* modelVisualizer = createModel<VisualizerModule, VisualizerWidget>("sqh-visualizer");

@@ -7,7 +7,7 @@
 #include "PESConverter.h"
 #include "Scale.h"
 #include "ScaleQuantizer.h"
-//#include "SqLog.h"
+// #include "SqLog.h"
 
 namespace rack {
 namespace engine {
@@ -28,6 +28,7 @@ public:
 
         KEY_PARAM,   // For controlling the key signature root.
         MODE_PARAM,  // For controlling the key signature mode.
+        SHARPS_FLATS_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -66,7 +67,7 @@ public:
     }
 
     std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
-        return std::make_tuple(_quantizedInputPitches, _outputChannels);
+        return std::make_tuple(_quantizedInputPitches.getDirectPtrAt(0), _outputChannels);
     }
 
 private:
@@ -79,7 +80,7 @@ private:
     Divider _divn;
 
     // quantized pitches and number of valid entries.
-    int _quantizedInputPitches[16] = {0};
+    SqArray<int, 16> _quantizedInputPitches;
     unsigned _outputChannels = 0;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
@@ -87,6 +88,7 @@ private:
 
 template <class TBase>
 inline void Visualizer<TBase>::_init() {
+    //   _quantizedInputPitches.allowRandomAccess();         // so we remain compatible with the stuff from before SqArray.
     _divn.setup(getSubSampleFactor(), [this]() {
         this->_stepn();
     });
@@ -121,7 +123,7 @@ inline void Visualizer<TBase>::_processInput() {
     const unsigned gateChannels = gatePort.isConnected() ? gatePort.getChannels() : 0;
     const unsigned cvChannels = inputPort.getChannels();
     unsigned outputChannel = 0;
-    // Loop throught all the input CV that are valid, building up a list of quantized pitches.
+    // Loop through all the input CV that are valid, building up a list of quantized pitches.
     for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
         const float f = inputPort.getVoltage(inputChannel);
 
@@ -136,10 +138,15 @@ inline void Visualizer<TBase>::_processInput() {
         if (gate) {
             const MidiNote mn = _quantizer->run(f);
             const int iNote = mn.get();
-            if (_quantizedInputPitches[outputChannel] != iNote) {
-                _quantizedInputPitches[outputChannel] = iNote;
+            // SQINFO("will try to gate in a pitch on channel %d, numvalid=%d", outputChannel, _quantizedInputPitches.numValid());
+            // If we are adding one past the last valid one.
+            // OR we are changing one already valid
+            if ((outputChannel == _quantizedInputPitches.numValid()) ||
+                ((_quantizedInputPitches.numValid() > outputChannel) &&
+                 (_quantizedInputPitches.getAt(outputChannel) != iNote))) {
+                _quantizedInputPitches.putAt(outputChannel, iNote);
                 wasChange = true;
-            }
+            } 
             outputChannel++;
         }
     }
@@ -149,8 +156,9 @@ inline void Visualizer<TBase>::_processInput() {
     }
 
     // Zero out all the pitches above our range.
-    for (int i = outputChannel; i < 16; ++i) {
-        _quantizedInputPitches[i] = 0;
+    // for (int i = outputChannel; i < 16; ++i) {
+    for (unsigned i = outputChannel; i < _quantizedInputPitches.numValid(); ++i) {
+        _quantizedInputPitches.putAt(i, 0);
     }
 
     if (!wasChange) {
@@ -158,12 +166,12 @@ inline void Visualizer<TBase>::_processInput() {
     }
 
     // Now put the new chord into the params.
-    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches, _outputChannels);
-    TBase::params[TYPE_PARAM].value = int(ChordRecognizer::typeFromInfo(chord));
-    TBase::params[ROOT_PARAM].value = ChordRecognizer::pitchFromInfo(chord);
+    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches);
+    TBase::params[TYPE_PARAM].value = int(chord.type);
+    TBase::params[ROOT_PARAM].value = chord.pitch;
 
     // And signal a change.
-    TBase::params[INVERSION_PARAM].value = int(ChordRecognizer::inversionFromInfo(chord));
+    TBase::params[INVERSION_PARAM].value = int(chord.inversion);
     TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
         TBase::params[CHANGE_PARAM].value = 0;
@@ -212,7 +220,7 @@ inline void Visualizer<TBase>::_lookForKeysigChange() {
     if ((current.second != mode) || (currentPitch != basePitch)) {
         // this form Hramony for efficiency
         //  _mustUpdate = true;
-       // SQINFO("in look for change, see new mode = %d", int(mode));
+        // SQINFO("in look for change, see new mode = %d", int(mode));
         _chordOptions->keysig->set(MidiNote(basePitch), mode);
         //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
     }

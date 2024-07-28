@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Scale.h"
+#include "ScaleQuantizer.h"
 #include "SharpsFlatsPref.h"
 
 class PopupMenuParamWidget;
