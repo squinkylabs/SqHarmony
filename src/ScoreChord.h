@@ -735,6 +735,7 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
     // now spell
     SqArray<int, 16> inputNotes(begin, end);
     UIPrefSharpsFlats pref = _module->getSharpsFlatsPref();
+    //SQINFO("--- calling find with pref = %d", int(pref));
     const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff, pref);
 
     for (unsigned pitchIterator = 0; pitchIterator < results.notes.numValid(); ++pitchIterator) {

@@ -7,11 +7,8 @@
 #include "NotationNote.h"
 #include "SqArray.h"
 
-
-
 class Scale;
 class MidiNote;
-
 
 class ScorePitchUtils {
 public:
@@ -22,7 +19,7 @@ public:
      *      returns a valid note
      *      returns a note at the right pitch
      * do we care about the spelling of the returned note?
- 
+
      */
     static NotationNote getNotationNote(const Scale&, const MidiNote&, bool bassStaff);
     static SqArray<NotationNote, 16> getVariations(const NotationNote&, const Scale&);
@@ -41,8 +38,26 @@ public:
         int score = 0;
         SqArray<NotationNote, 16> notes;
     };
-    static SpellingResults findSpelling(const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff, UIPrefSharpsFlats pref);
-    static SpellingResults _findSpelling(const ChordRecognizer::ChordInfo& info, const Scale& scale, const SqArray<int, 16>& inputPitches, SqArray<NotationNote, 16>& outputNotes, bool bassStaff, unsigned evalIndex = 0);
+
+    class SpellingPreferences {
+    public:
+        bool sharpsOrFlats = true;
+    };
+
+    static SpellingResults findSpelling(
+        const Scale& scale,
+        const SqArray<int, 16>& inputPitches,
+        bool bassStaff,
+        UIPrefSharpsFlats pref);
+
+    static SpellingResults _findSpelling(
+        const SpellingPreferences& prefs,
+        const ChordRecognizer::ChordInfo& info,
+        const Scale& scale,
+        const SqArray<int, 16>& inputPitches,
+        SqArray<NotationNote, 16>& outputNotes,
+        bool bassStaff,
+        unsigned evalIndex = 0);
 
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
@@ -67,7 +82,7 @@ public:
 
     /**
      * @brief returns the adjustment in leger lines due to note getting a sharp or flat from the scale
-     * 
+     *
      * @param scale - The scale currently in effect.
      * @param bassStaff - Which staff we are asking about.
      * @param legerLine - the line the note would be on, if not for the Scale (key signature).
@@ -78,9 +93,9 @@ public:
 
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&, bool bassStaff);
-    static int _evaluateSpelling(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
-    static int _evaluateSpelling0(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
-    static int _evaluateSpellingFirstAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
-    static int _evaluateSpellingSecondAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
-    static int _evaluateSpellingThirdAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpelling(const SpellingPreferences& prefs, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpelling0(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingFirstAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingSecondAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
+    static int _evaluateSpellingThirdAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes);
 };

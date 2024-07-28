@@ -11,11 +11,13 @@
 
 #include <assert.h>
 
+// #define _LOG
+
 NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
-   // SQINFO("getNotationNote, midi pitch = %d, bassStaff = %d", midiNote.get(), bassStaff);
+    // SQINFO("getNotationNote, midi pitch = %d, bassStaff = %d", midiNote.get(), bassStaff);
     ScaleNote sn = scale.m2s(midiNote);
     //  scale._validateScaleNote(sn);
-  //  SQINFO("converted to scale note degree=%d octave=%d, adj=%d", sn.getDegree(), sn.getOctave(), int(sn.getAdjustment()));
+    //  SQINFO("converted to scale note degree=%d octave=%d, adj=%d", sn.getDegree(), sn.getOctave(), int(sn.getAdjustment()));
 
     assert(midiNote.get() < 1000);
 
@@ -40,7 +42,7 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
     //        int(NotationNote::Accidental::flat),
     //        int(NotationNote::Accidental::natural));
 
-  //  const ResolvedSharpsFlatsPref pref = scale.getSharpsFlatsPrefResolved();
+    //  const ResolvedSharpsFlatsPref pref = scale.getSharpsFlatsPrefResolved();
 
     // const ResolvedSharpsFlatsPref pref = scale.getSharpsFlatsPref() == SharpsFlatsPref::Sharps
     //     ? ResolvedSharpsFlatsPref::Sharps : ResolvedSharpsFlatsPref::Flats;
@@ -53,13 +55,13 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
             pref = ResolvedSharpsFlatsPref::Flats;
             break;
         case SharpsFlatsPref::DontCare:
-            SQINFO("ScorePitchUtils.cpp 56. turning don't care into sharp");
+            // SQINFO("ScorePitchUtils.cpp 56. turning don't care into sharp");
             pref = ResolvedSharpsFlatsPref::Sharps;
             break;
         default:
             assert(false);
     }
-    SQINFO("fake pref ScorePitchUtils.cpp 62 use pref %d, sharps=%d. should perhaps be a user pref?", int(pref), int(ResolvedSharpsFlatsPref::Sharps));
+    // SQINFO("fake pref ScorePitchUtils.cpp 62 use pref %d, sharps=%d. should perhaps be a user pref?", int(pref), int(ResolvedSharpsFlatsPref::Sharps));
 
     // SQINFO("about to make notation note,pref=%d bassStaff=%d. pref sharp=%d, flat=%d d/c=%d ",
     //        pref,
@@ -68,33 +70,33 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
     //        int(SharpsFlatsPref::Flats),
     //        int(SharpsFlatsPref::DontCare)
     //        );
-    //SQINFO("MidiNote.get line =%d", midiNote.getLegerLine(pref, bassStaff));
-    //SQINFO("");
+    // SQINFO("MidiNote.get line =%d", midiNote.getLegerLine(pref, bassStaff));
+    // SQINFO("");
 
     const int legerLine = midiNote.getLegerLine(pref, bassStaff);
     auto ret = NotationNote(midiNote, accidental, legerLine, bassStaff);
-    //SQINFO("first try = %s using ll=%d", ret.toString().c_str(), legerLine);
+    // SQINFO("first try = %s using ll=%d", ret.toString().c_str(), legerLine);
     if (validate(ret, scale)) {
-        //SQINFO("accepted first try");
+        // SQINFO("accepted first try");
         return ret;
     }
     ret = NotationNote(midiNote, accidental, legerLine - 1, bassStaff);
-    //SQINFO("");
-   // SQINFO("second try = %s using ll=%d", ret.toString().c_str(), legerLine - 1);
+    // SQINFO("");
+    // SQINFO("second try = %s using ll=%d", ret.toString().c_str(), legerLine - 1);
     if (validate(ret, scale)) {
-       // SQINFO("accepted line down");
+        // SQINFO("accepted line down");
         return ret;
     }
     ret = NotationNote(midiNote, accidental, legerLine + 1, bassStaff);
-   // SQINFO("");
-   // SQINFO("third try = %s using ll=%d", ret.toString().c_str(), legerLine + 1);
+    // SQINFO("");
+    // SQINFO("third try = %s using ll=%d", ret.toString().c_str(), legerLine + 1);
     if (validate(ret, scale)) {
-       // SQINFO("accepted line up");
+        // SQINFO("accepted line up");
         return ret;
     }
 
     assert(false);  // shouldn't happen
-  // SQINFO("made note %s ", ret.toString().c_str());
+                    // SQINFO("made note %s ", ret.toString().c_str());
     assert(validate(ret, scale));
     return ret;
 }
@@ -129,14 +131,14 @@ bool ScorePitchUtils::reSpell(NotationNote& nn, bool moreSharps, const Scale& sc
 
 // Now problem is pitch from leger is wrong for keys that are on "accidentals"
 int ScorePitchUtils::pitchFromLeger(bool bassStaff, int _legerLine, NotationNote::Accidental accidental, const Scale& scale) {
-   // SQINFO("SPU::pitch from ledger(%d,%d, %d)", bassStaff, _legerLine, int(accidental));
+    // SQINFO("SPU::pitch from ledger(%d,%d, %d)", bassStaff, _legerLine, int(accidental));
     int normalizedLegerLine = _legerLine;
     if (bassStaff) {
         normalizedLegerLine -= 3;  // push C to leger line zero in bass
     } else {
         normalizedLegerLine += 2;  // push C to leger line zero in treble
     }
-    //SQINFO("normalized ll = %d", normalizedLegerLine);
+    // SQINFO("normalized ll = %d", normalizedLegerLine);
     unsigned pitch = 0;
     int octave = (normalizedLegerLine / 7);
     int remainder = normalizedLegerLine % 7;
@@ -147,7 +149,7 @@ int ScorePitchUtils::pitchFromLeger(bool bassStaff, int _legerLine, NotationNote
     if (bassStaff) {
         octave--;
     }
-    //SQINFO("after munge, oct=%d rem=%d", octave, remainder);
+    // SQINFO("after munge, oct=%d rem=%d", octave, remainder);
 
     switch (remainder) {
         case 0:
@@ -174,7 +176,7 @@ int ScorePitchUtils::pitchFromLeger(bool bassStaff, int _legerLine, NotationNote
         default:
             assert(false);  // case not implemented yet.
     }
-    //SQINFO("no accid pitch is %d", pitch);
+    // SQINFO("no accid pitch is %d", pitch);
 
     switch (accidental) {
         case NotationNote::Accidental::none: {
@@ -194,7 +196,7 @@ int ScorePitchUtils::pitchFromLeger(bool bassStaff, int _legerLine, NotationNote
         default:
             assert(false);
     }
-    //SQINFO("after accid pitch is %d oct=%d will ret %d", pitch, octave, pitch + octave * 12);
+    // SQINFO("after accid pitch is %d oct=%d will ret %d", pitch, octave, pitch + octave * 12);
     return pitch + octave * 12;
 }
 
@@ -207,7 +209,7 @@ inline int normalizeIntPositive(int input, int rangeTop) {
 
 int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, int _legerLine) {
     const int normalizedLegerLine = normalizeIntPositive(_legerLine, 7);
-  //  SQINFO("\n\n----- enter _getAjustmentForLeger line=%d, bass=%d", _legerLine, bassStaff);
+    //  SQINFO("\n\n----- enter _getAjustmentForLeger line=%d, bass=%d", _legerLine, bassStaff);
     const auto info = scale.getScoreInfo();
 
     const bool treble = !bassStaff;
@@ -231,7 +233,7 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
         accidentals = treble ? info.sharpsInTrebleClef : info.sharpsInBassClef;
         num = info.numSharps;
     }
-    //SQINFO("num=%d, accidentals=%p", num, accidentals);
+    // SQINFO("num=%d, accidentals=%p", num, accidentals);
 
     // for (int i = 0; i < num; ++i) {
     //     const MidiNote& r = accidentals[i];
@@ -242,7 +244,7 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
         for (int i = 0; i < num; ++i) {
             const auto accidentalNote = accidentals[i];
             SQINFO("possible fake pref 229");
-            const int candidateLegerLine = normalizeIntPositive(accidentalNote.getLegerLine(ResolvedSharpsFlatsPref::Sharps , bassStaff), 7);
+            const int candidateLegerLine = normalizeIntPositive(accidentalNote.getLegerLine(ResolvedSharpsFlatsPref::Sharps, bassStaff), 7);
 
             assert(candidateLegerLine < 8);
             assert(candidateLegerLine >= 0);
@@ -264,11 +266,11 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
 }
 
 bool ScorePitchUtils::validate(const NotationNote& _nn, const Scale& scale) {
-    //SQINFO("validate called");
+    // SQINFO("validate called");
     const int midiNotePitch = _nn._midiNote.get();
     const int legerPitch = pitchFromLeger(_nn._bassStaff, _nn._legerLine, _nn._accidental, scale);
 
-    //SQINFO("midi pitch = %d, leger pitch = %d leger line=%d", midiNotePitch, legerPitch, _nn._legerLine);
+    // SQINFO("midi pitch = %d, leger pitch = %d leger line=%d", midiNotePitch, legerPitch, _nn._legerLine);
     if (midiNotePitch != legerPitch) {
         return false;
     }
@@ -334,22 +336,44 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
     const SqArray<int, 16>& inputPitches,
     bool bassStaff,
     UIPrefSharpsFlats pref) {
-    // for (unsigned i=0; i< inputPitches.numValid(); ++i) {
-    //     SQINFO("findSpell[%d] %d", i, inputPitches.getAt(i));
-    // }
+    SpellingPreferences thePrefs;
+
+    // SQINFO("findSpelling, pref=%d", int(pref));
+    const auto scalePref = scale.getSharpsFlatsPref();
+    switch (pref) {
+        case UIPrefSharpsFlats::DefaultPlusSharps:
+            // only set to flats if scale is a flats scals
+            thePrefs.sharpsOrFlats = scalePref != SharpsFlatsPref::Flats;
+            break;
+        case UIPrefSharpsFlats::DefaultPlusFlats:
+            // only set to sharps is scale is a sharp scales
+            thePrefs.sharpsOrFlats = scalePref == SharpsFlatsPref::Sharps;
+            // SQINFO("in convert, ui pref = flats+def so set sharps to %d", thePrefs.sharpsOrFlats);
+            break;
+        case UIPrefSharpsFlats::Sharps:
+            thePrefs.sharpsOrFlats = true;
+            break;
+        case UIPrefSharpsFlats::Flats:
+            thePrefs.sharpsOrFlats = false;
+            break;
+        default:
+            assert(false);
+    }
 
     SqArray<NotationNote, 16> outputNotes;
     const auto info = ChordRecognizer::recognize(inputPitches);
-    return _findSpelling(info, scale, inputPitches, outputNotes, bassStaff);
+    return _findSpelling(thePrefs, info, scale, inputPitches, outputNotes, bassStaff);
 }
 
 ScorePitchUtils::SpellingResults ScorePitchUtils::_findSpelling(
+    const SpellingPreferences& prefs,
     const ChordRecognizer::ChordInfo& info,
     const Scale& scale,
     const SqArray<int, 16>& inputPitches,
     SqArray<NotationNote, 16>& outputNotes,
     bool bassStaff,
     unsigned evalIndex) {
+    // SQINFO("_findSpelling, pref sharpsorflats =%d", prefs.sharpsOrFlats);
     // // get all the spellings for current notes.
     // SQINFO("\n** enter findSpelling %d size so far = %d inputSize= %d", evalIndex, outputNotes.numValid(), inputPitches.numValid());
     //  SQINFO("    addr output = %p", &outputNotes);
@@ -373,9 +397,9 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::_findSpelling(
         ScorePitchUtils::SpellingResults results;
         if (evalIndex < inputPitches.numValid() - 1) {
             // recurse down to search
-            results = _findSpelling(info, scale, inputPitches, outputNotes, bassStaff, evalIndex + 1);
+            results = _findSpelling(prefs, info, scale, inputPitches, outputNotes, bassStaff, evalIndex + 1);
         } else {
-            const int score = _evaluateSpelling(info, outputNotes);
+            const int score = _evaluateSpelling(prefs, info, outputNotes);
             results.score = score;
             results.notes = outputNotes;
         }
@@ -402,15 +426,20 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::_findSpelling(
     return bestResult;
 }
 
-int ScorePitchUtils::_evaluateSpelling(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
-    return (info.type == ChordRecognizer::Type::Unrecognized) ? _evaluateSpellingFirstAttempt(info, notes) : _evaluateSpellingThirdAttempt(info, notes);
+int ScorePitchUtils::_evaluateSpelling(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
+    return (info.type == ChordRecognizer::Type::Unrecognized) ? _evaluateSpellingFirstAttempt(pref, info, notes) : _evaluateSpellingThirdAttempt(pref, info, notes);
 }
 
-int ScorePitchUtils::_evaluateSpellingFirstAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
-    // SQINFO("!! evaluate spelling first attempt");
+// currently used for unrecognized chords
+int ScorePitchUtils::_evaluateSpellingFirstAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
+#ifdef _LOG
+    SQINFO("!! evaluate spelling first attempt pret sharp/flats=%d", pref.sharpsOrFlats);
+#endif
+
     const unsigned n = notes.numValid();
     int numAccidentals = 0;
     int numBadThirds = 0;
+    int numBadAccidentals = 0;
 
     const NotationNote* pn1 = nullptr;
     const NotationNote* pn2 = nullptr;
@@ -418,9 +447,18 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(const ChordRecognizer::ChordI
         pn2 = pn1;
         pn1 = &notes.getAt(i);
 
+#ifdef _LOG
+        SQINFO("in loop, nn=%s", pn1->toString().c_str());
+#endif
+
         if (pn1->isAccidental()) {
             numAccidentals++;
             // SQINFO("see accidental at %s", pn1->toString().c_str());
+            const bool isSharp = pn1->_accidental == NotationNote::Accidental::sharp;
+            numBadAccidentals += (isSharp == pref.sharpsOrFlats) ? 0 : 1;
+#ifdef _LOG
+            SQINFO("saw accidental, now #=%d, bad=%d", numAccidentals, numBadAccidentals);
+#endif
         }
         if (pn2) {
             // SQINFO("looking at %d and %d", i, i - 1);
@@ -435,17 +473,20 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(const ChordRecognizer::ChordI
             }
         }
     }
-    const int score = -(numAccidentals + 10 * numBadThirds);
-    // SQINFO("final score = %d", score);
+    const int score = -(numBadAccidentals + numAccidentals + 10 * numBadThirds);
+#ifdef _LOG
+    SQINFO("final score = %d", score);
+#endif
     return score;
 }
 
-int ScorePitchUtils::_evaluateSpelling0(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
+int ScorePitchUtils::_evaluateSpelling0(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
     SQWARN("Trivial Eval function");
     return 0;
 }
 
-int ScorePitchUtils::_evaluateSpellingThirdAttempt(const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
+// currently used for recognized chords
+int ScorePitchUtils::_evaluateSpellingThirdAttempt(const SpellingPreferences& pref, const ChordRecognizer::ChordInfo& info, SqArray<NotationNote, 16>& notes) {
 #ifdef _LOG
     SQINFO("--------        in _evaluateSpellingThirdAttempt type=%d", int(info.type));
     ChordRecognizer::_show("input chord to eval", info.identifiedPitches);
@@ -457,6 +498,7 @@ int ScorePitchUtils::_evaluateSpellingThirdAttempt(const ChordRecognizer::ChordI
 
     int numAccidentals = 0;
     int numBadThirds = 0;
+    int numBadAccidentals = 0;
     // first penalize all the accidentals
 
     for (unsigned i = 0; i < notes.numValid(); ++i) {
@@ -464,6 +506,8 @@ int ScorePitchUtils::_evaluateSpellingThirdAttempt(const ChordRecognizer::ChordI
         if (note.isAccidental()) {
             numAccidentals++;
             // SQINFO("see accidental at %s", note.toString().c_str());
+            const bool isSharp = note._accidental == NotationNote::Accidental::sharp;
+            numBadAccidentals += (isSharp == pref.sharpsOrFlats) ? 0 : 1;
         }
     }
 
@@ -497,7 +541,7 @@ int ScorePitchUtils::_evaluateSpellingThirdAttempt(const ChordRecognizer::ChordI
         }
     }
 
-    const int score = -(numAccidentals + 10 * numBadThirds);
+    const int score = -(numBadAccidentals + numAccidentals + 10 * numBadThirds);
 #ifdef _LOG
     SQINFO("------------ leave eval sp final score3 = %d bad3=%d accid=%d", score, numBadThirds, numAccidentals);
 #endif

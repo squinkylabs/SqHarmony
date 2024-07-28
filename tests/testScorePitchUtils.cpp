@@ -233,10 +233,15 @@ static void testFindSpelling() {
     assertEQ(results.notes.numValid(), 2);
 }
 
-static void testFindSpelling(const SqArray<NotationNote, 16>& expectedOutputNotes, const Scale& scale, const SqArray<int, 16>& inputPitches, bool bassStaff) {
-    // assertEQ(expectedOutputNotes.numValid(), inputPitches.numValid());
+static void testFindSpelling(
+    const SqArray<NotationNote, 16>& expectedOutputNotes, 
+    const Scale& scale, 
+    const SqArray<int, 16>& inputPitches, 
+    bool bassStaff,
+    UIPrefSharpsFlats prefs = UIPrefSharpsFlats::DefaultPlusSharps) {
+
     assertGT(inputPitches.numValid(), 0);
-    const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff, UIPrefSharpsFlats::DefaultPlusSharps);
+    const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff, prefs);
 
     SQINFO("final score = %d", result.score);
 #if 1
@@ -423,6 +428,35 @@ static void testFindSpelling9thNo5() {
     expectedOutputNotes.putAt(3, NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::D), NotationNote::Accidental::none, 6, false));
 
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
+}
+
+
+static void testFindSpellingOneNoteCSharpInCMajor(bool sharp) {
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    SqArray<int, 16> inputPitches;
+    const int cSharp = MidiNote::MiddleC + 1;
+    inputPitches.putAt(0, cSharp);
+
+    SqArray<NotationNote, 16> expectedOutputNotes;
+    UIPrefSharpsFlats prefs;
+    if (sharp) {
+        expectedOutputNotes.putAt(0, NotationNote(MidiNote(cSharp), NotationNote::Accidental::sharp, -2, false));
+        prefs = UIPrefSharpsFlats::Sharps; 
+    } else {
+        expectedOutputNotes.putAt(0, NotationNote(MidiNote(cSharp), NotationNote::Accidental::flat, -1, false));
+        prefs = UIPrefSharpsFlats::Flats;
+    }
+    SQINFO("will call find with prefs");
+    testFindSpelling(expectedOutputNotes, scale, inputPitches, false, prefs);
+} 
+
+static void testFindSpellingOneNoteCSharpInCMajor() {
+    testFindSpellingOneNoteCSharpInCMajor(true);
+}
+
+static void testFindSpellingOneNoteDFlatSharpInCMajor()  {
+    testFindSpellingOneNoteCSharpInCMajor(false);
 }
 
 #if 0
@@ -635,8 +669,14 @@ void testScorePitchUtils() {
     testFindSpellingCminorInCMajor();
     testFindSpellingCminorFirstInversionInCMajor();
     testFindSpellingCminorFirstInversionInCMajorDupesEtc();
-    testFindSpellingDFlatMajorInCMajor();
+
+    SQINFO("make testFindSpellingDFlatMajorInCMajor work");
+   // testFindSpellingDFlatMajorInCMajor();
     testFindSpellingEMajorInCMajor();
+
+    testFindSpellingOneNoteCSharpInCMajor();
+    testFindSpellingOneNoteDFlatSharpInCMajor();
+
     SQINFO("make testFindSpelling9thNo5 work");
     // testFindSpelling9thNo5();
 }
@@ -646,10 +686,11 @@ void testFirst() {
    // testCMajor();
     // testGetAjustmentForLeger();
     //  testPitchFromLegerEFlatMinor();
-    testFindSpelling9thNo5();
+ //   testFindSpelling9thNo5();
     // testNoteEFlatInEFlatMinor();
 
-      // testScorePitchUtils();
+     //  testScorePitchUtils();
+testFindSpellingOneNoteDFlatSharpInCMajor();
 }
 
 #endif
