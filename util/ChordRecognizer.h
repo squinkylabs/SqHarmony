@@ -45,19 +45,20 @@ public:
     public:
         PitchAndIndex(int p, int i) : pitch(p), index(i) {}
         PitchAndIndex() {}
-         bool operator <(const PitchAndIndex& other) { return this->pitch < other.pitch;  }
+        bool operator<(const PitchAndIndex& other) const {
+            return this->pitch < other.pitch;
+        }
 
-        int16_t pitch=0;
-        uint16_t index=0;
+        int16_t pitch = 0;
+        uint16_t index = 0;
     };
 
     class ChordInfo {
     public:
-        ChordInfo(Type t, Inversion i, int p, SqArray<PitchAndIndex, 16> idp ) :
-            type(t), inversion(i), pitch(p), identifiedPitches(idp) {
+        ChordInfo(Type t, Inversion i, int p, SqArray<PitchAndIndex, 16> idp) : type(t), inversion(i), pitch(p), identifiedPitches(idp) {
         }
 
-        ChordInfo(Type t, Inversion i, int p) : type(t), inversion(i), pitch(p) {} 
+        ChordInfo(Type t, Inversion i, int p) : type(t), inversion(i), pitch(p) {}
         ChordInfo() {}
         Type type = Type::Unrecognized;
         Inversion inversion = Inversion::Root;
@@ -78,7 +79,6 @@ public:
      */
     static ChordInfo recognize(const SqArray<int, 16>& chord);
 
-
     // Don't call from audio thread!
     static std::vector<std::string> toString(const ChordInfo&);
 
@@ -92,14 +92,14 @@ public:
      * @param length
      * @return true if successful
      */
-   // template <typename T>
-  //  static bool _makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount);
+    // template <typename T>
+    //  static bool _makeCanonical(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord, int& transposeAmount);
     static bool _makeCanonical(SqArray<PitchAndIndex, 16>& outputChord, const SqArray<PitchAndIndex, 16>& inputChord, int& transposeAmount);
 
     template <typename T>
     static void _copy(SqArray<T, 16>& outputChord, const SqArray<T, 16>& inputChord);
 
-  //  template <typename T>
+    //  template <typename T>
     static void _show(const char* msg, const SqArray<PitchAndIndex, 16>& chord);
 
     /**
