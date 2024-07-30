@@ -36,16 +36,6 @@ public:
 
     UIPrefSharpsFlats getSharpsFlatsPref() {
         const float f = APP->engine->getParamValue(this, Comp::SHARPS_FLATS_PARAM);
-        // if (f < 1.5) {
-        //     // should really get this from the scale, with our override!
-        //     return SharpsFlatsPref::DontCare;           // first two, accept the defaults
-        // } else if (f < 2.5) {
-        //     return SharpsFlatsPref::Sharps;
-        // }
-        // return SharpsFlatsPref::Flats;
-       // assert(false);
-      //  return UIPrefSharpsFlats::DefaultPlusSharps;
-
         return float2Pref(f);
     }
 

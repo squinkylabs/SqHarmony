@@ -107,6 +107,14 @@
  * del+flat                     flat                            flat
  * sharp                        sharp                           sharp
  * flat                         flat                            flat
+ * 
+ * To fix enh spelling of chord name.
+ * make new API ChordRecognizer::toString(const ChordInfo& info, bool useSharps);
+ * Make a new conversions function: f(scale, uiPref) -> useSharps)
+ *      use it where we do this already.
+ *      use below
+ * add tests for new API.
+ * call API from VisualizerModule. use new conversion API.
  */
 
 // #define _LOG
