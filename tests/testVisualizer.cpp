@@ -113,6 +113,6 @@ void testVisualizer() {
 void testFirst() {
     // testVisualizer();
     // testCanClockInEMinor();
-    testCanGetOutput();
+    testWithGate();
 }
 #endif

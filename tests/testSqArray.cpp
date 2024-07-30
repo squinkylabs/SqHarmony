@@ -72,6 +72,14 @@ static void testRandomAccess() {
     x.getDirectPtrAt(3);
 }
 
+static void testClear() {
+    SqArray<int, 16> x;
+    x.putAt(0, 57);
+    assertNE(x.numValid(), 0);
+    x.clear();
+    assertEQ(x.numValid(), 0);
+}
+
 void testSqArray() {
     testInit();
     testPutGet();
@@ -81,6 +89,7 @@ void testSqArray() {
     testRandomAccess();
     testInitializer();
     testIteratorInit();
+    testClear();
 }
 
 #if 0

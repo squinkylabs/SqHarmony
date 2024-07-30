@@ -15,7 +15,7 @@ void ChordRecognizer::_show(const char* msg, const SqArray<PitchAndIndex, 16>& i
         SQINFO("%s = %d, %d, %d, %d", msg, inputChord.getAt(0).pitch, inputChord.getAt(1).pitch, inputChord.getAt(2).pitch, inputChord.getAt(3).pitch);
     } else if (num == 5) {
         SQINFO("%s = %d, %d, %d, %d %d", msg, inputChord.getAt(0).pitch, inputChord.getAt(1).pitch, inputChord.getAt(2).pitch, inputChord.getAt(3).pitch, inputChord.getAt(4).pitch);
-    }else {
+    } else {
         SQINFO("??? num=%d", num);
     }
 }
@@ -62,7 +62,7 @@ bool ChordRecognizer::_makeCanonical(SqArray<PitchAndIndex, 16>& outputChord, co
     SqArray<PitchAndIndex, 16> normalizedChord;
     for (i = 0; i < length; ++i) {
         int note = sortedChord.getAt(i).pitch - basePitch;  // normalize to base
-        note = note % 12;                  // normalize to octave
+        note = note % 12;                                   // normalize to octave
         normalizedChord.putAt(i, PitchAndIndex(note, sortedChord.getAt(i).index));
     }
 
@@ -78,8 +78,8 @@ bool ChordRecognizer::_makeCanonical(SqArray<PitchAndIndex, 16>& outputChord, co
     unsigned j;
     for (i = j = 0; i < length; ++i) {
         // Copy this one over if it is not a dupe. last one is never a dupe.
-        if ((i == (length-1)) || (normalizedChord.getAt(i).pitch != normalizedChord.getAt(i + 1).pitch)) {
-            outputChord.putAt(j++, normalizedChord.getAt(i)); 
+        if ((i == (length - 1)) || (normalizedChord.getAt(i).pitch != normalizedChord.getAt(i + 1).pitch)) {
+            outputChord.putAt(j++, normalizedChord.getAt(i));
         }
     }
     length = j;
@@ -96,16 +96,14 @@ bool ChordRecognizer::_makeCanonical(SqArray<PitchAndIndex, 16>& outputChord, co
 #endif
 
 ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& inputChord) {
-  //  assert(false);
-   // return ChordInfo();
-SqArray<PitchAndIndex, 16> converted;
-    for (unsigned i=0; i<inputChord.numValid(); ++i) {
+    SqArray<PitchAndIndex, 16> converted;
+    for (unsigned i = 0; i < inputChord.numValid(); ++i) {
         converted.putAt(i, PitchAndIndex(inputChord.getAt(i), i));
     }
     assert(converted.numValid() == inputChord.numValid());
     const auto ret = _recognize(converted);
     assert(ret.isError() || (ret.identifiedPitches.numValid() > 2));
-    return ret;    
+    return ret;
 }
 
 ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndIndex, 16>& inputChord) {
@@ -139,7 +137,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
         assert(finalRecognizedPitch >= 0);
         // return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
         // assert(false);
-       // SQINFO("return from 142");
+        // SQINFO("return from 142");
         return ChordInfo(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch, outputChord);
     }
 
@@ -158,7 +156,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
 
         {
             _copy(possibleInversion, outputChord);
-            const int newPitch =  possibleInversion.getAt(i).pitch + delta;
+            const int newPitch = possibleInversion.getAt(i).pitch + delta;
             PitchAndIndex pai(newPitch, possibleInversion.getAt(i).index);
             possibleInversion.putAt(i, pai);
         }
@@ -173,11 +171,10 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
 #endif
         const unsigned l = possibleInversionCanonical.numValid();
 
-
 #ifdef _LOG
         if (l != finalLength) {
             SQINFO("length changed in normalize was %d, now %d", finalLength, l);
-          
+
             if (l == 1) {
                 SQINFO("one note chord is %d", possibleInversionCanonical.getAt(0).pitch);
             }
@@ -194,7 +191,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
             SQINFO("found inversion at i=%d lengh=%d", i, finalLength);
 #endif
             // SQINFO("c=%d", c);
-           
+
             auto ret = figureOutInversion(recognizedType, basePossibleInversion, baseNonInverted);
             ret.identifiedPitches = possibleInversionCanonical;
             // SQINFO("!! return from 194, pitches are# %d", ret.identifiedPitches.numValid());

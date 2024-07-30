@@ -17,15 +17,14 @@ public:
         for (auto iterator = ilist.begin(); iterator != ilist.end(); ++iterator) {
             _data[_numValid++] = *iterator;
         }
-
     }
-     SqArray(const T* begin, const T* end) {
-          _numValid = 0;
+    SqArray(const T* begin, const T* end) {
+        _numValid = 0;
         _allowRandomAccess = false;
         for (auto iterator = begin; iterator != end; ++iterator) {
             _data[_numValid++] = *iterator;
         }
-     }
+    }
 
     unsigned numValid() const {
         return _numValid;
@@ -52,9 +51,12 @@ public:
         return _data + i;
     }
 
-
     void allowRandomAccess() {
         _allowRandomAccess = true;
+    }
+
+    void clear() {
+        _numValid = 0;
     }
 
 private:

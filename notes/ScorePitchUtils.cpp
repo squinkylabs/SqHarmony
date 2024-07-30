@@ -243,7 +243,7 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
     if (num) {
         for (int i = 0; i < num; ++i) {
             const auto accidentalNote = accidentals[i];
-            SQINFO("possible fake pref 229");
+          //  SQINFO("possible fake pref 229");
             const int candidateLegerLine = normalizeIntPositive(accidentalNote.getLegerLine(ResolvedSharpsFlatsPref::Sharps, bassStaff), 7);
 
             assert(candidateLegerLine < 8);

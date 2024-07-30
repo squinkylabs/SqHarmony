@@ -123,6 +123,10 @@ inline void Visualizer<TBase>::_processInput() {
     const unsigned gateChannels = gatePort.isConnected() ? gatePort.getChannels() : 0;
     const unsigned cvChannels = inputPort.getChannels();
     unsigned outputChannel = 0;
+
+    if (cvChannels != _quantizedInputPitches.numValid()) {
+        _quantizedInputPitches.clear(); // clear them all out
+    }
     // Loop through all the input CV that are valid, building up a list of quantized pitches.
     for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
         const float f = inputPort.getVoltage(inputChannel);
@@ -144,6 +148,7 @@ inline void Visualizer<TBase>::_processInput() {
             if ((outputChannel == _quantizedInputPitches.numValid()) ||
                 ((_quantizedInputPitches.numValid() > outputChannel) &&
                  (_quantizedInputPitches.getAt(outputChannel) != iNote))) {
+
                 _quantizedInputPitches.putAt(outputChannel, iNote);
                 wasChange = true;
             } 
@@ -164,6 +169,7 @@ inline void Visualizer<TBase>::_processInput() {
     if (!wasChange) {
         return;
     }
+    assert(_outputChannels >=_quantizedInputPitches.numValid());
 
     // Now put the new chord into the params.
     const auto chord = ChordRecognizer::recognize(_quantizedInputPitches);
