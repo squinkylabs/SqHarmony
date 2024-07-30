@@ -87,7 +87,8 @@ extern void testScorePitchUtils();
 extern void testLegerScore();
 extern void testNotationNote();
 extern void testMidiNote();
-extern void  testSqArray();
+extern void testSqArray();
+extern void testSharpsFlatsPref();
 
 #include "SqLog.h"
 
@@ -137,6 +138,7 @@ int main(const char**, int) {
     testShiftCalc();
 
     testDifferenticalClockCounter();
+    testSharpsFlatsPref();
     testNotationNote();
     testScorePitchUtils();
     testChordRecognizer3();

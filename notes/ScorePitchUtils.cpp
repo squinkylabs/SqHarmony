@@ -339,6 +339,9 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
     SpellingPreferences thePrefs;
 
     // SQINFO("findSpelling, pref=%d", int(pref));
+    #if 1
+        thePrefs.sharpsOrFlats = resolveSharpPref(pref, scale);
+    #else
     const auto scalePref = scale.getSharpsFlatsPref();
     switch (pref) {
         case UIPrefSharpsFlats::DefaultPlusSharps:
@@ -359,6 +362,7 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
         default:
             assert(false);
     }
+    #endif
 
     SqArray<NotationNote, 16> outputNotes;
     const auto info = ChordRecognizer::recognize(inputPitches);

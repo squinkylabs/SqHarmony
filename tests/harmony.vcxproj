@@ -171,6 +171,7 @@
     <ClCompile Include="..\util\quant\NoteConvert.cpp" />
     <ClCompile Include="..\util\quant\Scale.cpp" />
     <ClCompile Include="..\util\quant\ScaleQuantizer.cpp" />
+    <ClCompile Include="..\util\quant\SharpsFlatsPref.cpp" />
     <ClCompile Include="..\util\SqLog.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="testAdditive.cpp" />
@@ -247,6 +248,7 @@
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />
     <ClCompile Include="testSharpFlatMonitor.cpp" />
+    <ClCompile Include="testSharpsFlatsPref.cpp" />
     <ClCompile Include="testShiftCalc.cpp" />
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
