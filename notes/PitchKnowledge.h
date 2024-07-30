@@ -14,7 +14,9 @@ public:
     static int octaveFromAbs(int nPitch);
     static std::string nameOfAbs(int nPitch);        // converts midi pitch to Name (a-0, b-7, c-2)
     static std::string nameOfShort(int nPitch);     // no octave
+    static std::string nameOfShort(int nPitch, bool useSharps); 
     static int pitchFromName(const std::string& s);  // Opposite of nameOfAbs.
 private:
-    static char const* const names[13];
+    static char const* const namesSharps[13];
+    static char const* const namesFlats[13];
 };

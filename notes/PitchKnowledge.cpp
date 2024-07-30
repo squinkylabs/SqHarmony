@@ -24,17 +24,22 @@ int PitchKnowledge::octaveFromAbs(int nPitch) {
     return oct;
 }
 
-std::string PitchKnowledge::nameOfShort(int nPitch) {
+std::string PitchKnowledge::nameOfShort(int nPitch, bool useSharps) {
      const int chro = chromaticFromAbs(nPitch);
-     return names[chro];
+     return useSharps ? namesSharps[chro] : namesFlats[chro];
 }
+
+std::string PitchKnowledge::nameOfShort(int nPitch) {
+    return nameOfShort(nPitch, true);
+}
+    
 
 std::string PitchKnowledge::nameOfAbs(int nPitch) {
     const int chro = chromaticFromAbs(nPitch);
     const int oct = octaveFromAbs(nPitch);
 
     std::stringstream s;
-    s << names[chro];
+    s << namesSharps[chro];
     s << (oct - 3);
     return s.str();
 }
@@ -48,7 +53,7 @@ int PitchKnowledge::pitchFromName(const std::string& sInput) {
     const std::string noteName = sInput.substr(0, noteNameLen);
     int index = -1;
     for (int i = 1; i <= 12; ++i) {
-        std::string s = names[i];
+        std::string s = namesSharps[i];
         if (s == noteName) {
             index = i;
             break;
@@ -75,7 +80,7 @@ int PitchKnowledge::pitchFromName(const std::string& sInput) {
     return retVal;
 }
 
-char const* const PitchKnowledge::names[] = {
+char const* const PitchKnowledge::namesSharps[] = {
     "X",  // no pitch zero in our world
     "C",
     "C#",
@@ -88,6 +93,21 @@ char const* const PitchKnowledge::names[] = {
     "G#",
     "A",
     "A#",
+    "B"};
+
+char const* const PitchKnowledge::namesFlats[] = {
+    "X",  // no pitch zero in our world
+    "C",
+    "D-",
+    "D",
+    "E-",
+    "E",
+    "F",
+    "G-",
+    "G",
+    "A-",
+    "A",
+    "B-",
     "B"};
 
 PitchKnowledge ThePitchKnowledge;  // declare the global instance

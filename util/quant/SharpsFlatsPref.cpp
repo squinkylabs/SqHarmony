@@ -6,7 +6,7 @@
 #include <assert.h>
 
 
-#if 1
+
 bool resolveSharpPref(UIPrefSharpsFlats pref, const class Scale& scale ) {
     const auto scalePref = scale.getSharpsFlatsPref();
     bool ret = false;
@@ -31,4 +31,3 @@ bool resolveSharpPref(UIPrefSharpsFlats pref, const class Scale& scale ) {
     }
     return ret;
 }
-#endif

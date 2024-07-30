@@ -44,6 +44,7 @@ class VisualizerWidget : public ModuleWidget {
 public:
     VisualizerWidget(VisualizerModule* module) {
         setModule(module);
+        _module = module;
 
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/phase-patterns.svg")));
         addScore(module);
@@ -101,7 +102,8 @@ public:
         const int root = APP->engine->getParamValue(module, Comp::ROOT_PARAM);
         SqArray<ChordRecognizer::PitchAndIndex, 16> idp;
         ChordRecognizer::ChordInfo info = ChordRecognizer::ChordInfo(type, inversion, root, idp);
-        const auto v = ChordRecognizer::toString(info);
+        const bool useSharps = resolveSharpPref(_module->getSharpsFlatsPref(), *(_module->getScale())); 
+        const auto v = ChordRecognizer::toString(info, useSharps);
         _displayString->getChild()->text = v[0];
         _displayString->setDirty();
         _displayString2->getChild()->text = v[1];
@@ -112,11 +114,11 @@ public:
 
 private:
     unsigned _changeParam = 1000;
+    VisualizerModule* _module = nullptr;
 
     BufferingParent<SqLabel>* _displayString;
     BufferingParent<SqLabel>* _displayString2;
     PopupMenuParamWidget* _keyRootWidget = nullptr;
-  //      PopupMenuParamWidget* _keyRootWidget = nullptr;
     std::shared_ptr<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>> _ksigMonitor;
 
     ScoreChord* _scoreChord = nullptr;

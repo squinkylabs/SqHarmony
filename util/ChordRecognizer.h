@@ -80,7 +80,7 @@ public:
     static ChordInfo recognize(const SqArray<int, 16>& chord);
 
     // Don't call from audio thread!
-    static std::vector<std::string> toString(const ChordInfo&);
+    static std::vector<std::string> toString(const ChordInfo&, bool useSharps);
 
     static unsigned notesInChord(Type);
 

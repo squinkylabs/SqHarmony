@@ -429,8 +429,8 @@ std::tuple<ChordRecognizer::Type, int> ChordRecognizer::recognizeType3WithFifth(
     return std::make_tuple(Type::Unrecognized, 0);
 }
 
-std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
-    std::string s = PitchKnowledge::nameOfShort(info.pitch);
+std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info, bool useSharps) {
+    std::string s = PitchKnowledge::nameOfShort(info.pitch, useSharps);
     std::string sType;
     switch (info.type) {
         case Type::Unrecognized:
@@ -465,7 +465,6 @@ std::vector<std::string> ChordRecognizer::toString(const ChordInfo& info) {
         case Type::MajMajNinth:
             sType = "Major Ninth";
             break;
-
         case Type::MinMinSeventh:
             sType = "minor Seventh";
             break;
