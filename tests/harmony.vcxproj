@@ -163,6 +163,7 @@
     <ClCompile Include="..\notes\ProgressionAnalyzer.cpp" />
     <ClCompile Include="..\notes\RankedChord.cpp" />
     <ClCompile Include="..\notes\ScaleRelativeNote.cpp" />
+    <ClCompile Include="..\notes\ScoreDrawUtils.cpp" />
     <ClCompile Include="..\notes\ScorePitchUtils.cpp" />
     <ClCompile Include="..\notes\Style.cpp" />
     <ClCompile Include="..\util\ArpegPlayer.cpp" />
@@ -244,6 +245,7 @@
     <ClCompile Include="testNotes.cpp" />
     <ClCompile Include="testScaleRelativeNote.cpp" />
     <ClCompile Include="testSchmidtTrigger.cpp" />
+    <ClCompile Include="testScoreDrawUtils.cpp" />
     <ClCompile Include="testScorePitchUtils.cpp" />
     <ClCompile Include="testSeqClock.cpp" />
     <ClCompile Include="testGateDelay.cpp" />

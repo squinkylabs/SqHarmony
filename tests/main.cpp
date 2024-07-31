@@ -89,6 +89,7 @@ extern void testNotationNote();
 extern void testMidiNote();
 extern void testSqArray();
 extern void testSharpsFlatsPref();
+extern void testScoreDrawUtils();
 
 #include "SqLog.h"
 
@@ -111,7 +112,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running only one for temp debug\n");
     //assert(false);
     assert(SqLog::errorCount == 0);
@@ -147,6 +148,7 @@ int main(const char**, int) {
     testPESConverter();
     testSharpFlatMonitor();
     testVisualizer();
+    testScoreDrawUtils();
 
     testClockMult();
     testMultiplier();

@@ -357,6 +357,12 @@
     <ClCompile Include="testSharpsFlatsPref.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="testScoreDrawUtils.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\notes\ScoreDrawUtils.cpp">
+      <Filter>Source Files\notes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">
