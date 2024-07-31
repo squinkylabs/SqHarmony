@@ -339,6 +339,7 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
     SpellingPreferences thePrefs;
 
     // SQINFO("findSpelling, pref=%d", int(pref));
+
     #if 1
         thePrefs.sharpsOrFlats = resolveSharpPref(pref, scale);
     #else
