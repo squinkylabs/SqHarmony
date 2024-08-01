@@ -27,7 +27,7 @@ Algorithm:
     then fixup the accidental spacing.
 */
 
-void ScoreDrawUtils::getDrawInfo(
+const std::map<int, LegerLineInfo>  ScoreDrawUtils::getDrawInfo(
     const DrawPosition&,
     const Scale& scale,
     const SqArray<int, 16>& input,
@@ -73,4 +73,5 @@ void ScoreDrawUtils::getDrawInfo(
 
         info.sort();
     }
+    return _info;
 }

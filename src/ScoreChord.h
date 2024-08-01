@@ -651,10 +651,10 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     SqArray<int, 16> inputNotes(originalPitches, originalPitches + channels);
     UIPrefSharpsFlats pref = _module->getSharpsFlatsPref();
     ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
-    ScoreDrawUtils::DrawPosition drawPostion;
-    scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
+    DrawPosition drawPostion;
+    auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
 
-    for (auto iterator = scoreDrawUtils->_info.begin(); iterator != scoreDrawUtils->_info.end(); iterator++) {
+    for (auto iterator = info.begin(); iterator != info.end(); iterator++) {
         SQINFO("something to draw : %s", iterator->second.toString().c_str());
     }
 }
