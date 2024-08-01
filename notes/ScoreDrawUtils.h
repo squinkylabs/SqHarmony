@@ -22,6 +22,16 @@ public:
         UIPrefSharpsFlats pref);
 
     class LegerLineInfo {
+    public:
+        class SymbolInfo {
+            char glyph[4];
+            float xPosition;
+            float yPosition;
+        };
+
+        SymbolInfo symbols[4];
+        unsigned numSymbols = 0;
+
     };
     std::map<int, LegerLineInfo> _info;
 };

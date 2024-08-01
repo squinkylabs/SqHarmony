@@ -20,8 +20,16 @@ void ScoreDrawUtils::getDrawInfo(
     const auto spelling = ScorePitchUtils::findSpelling(scale, input, bassStaff, pref);
     for (unsigned pitchIterator = 0; pitchIterator < spelling.notes.numValid(); ++pitchIterator) {
         const auto notationNote = spelling.notes.getAt(pitchIterator);
-        const MidiNote &mn = notationNote._midiNote;
+      //  const MidiNote &mn = notationNote._midiNote;
+
+        const int legerLine = notationNote._legerLine;
         LegerLineInfo llinfo;
-        _info.insert( std::make_pair(notationNote._legerLine,  llinfo));
+        const auto iter = _info.find(legerLine);
+        if (iter == _info.end()) {
+            llinfo.numSymbols = 1;
+            _info.insert( std::make_pair(legerLine,  llinfo));
+        } else {
+            iter->second.numSymbols++;
+        }
     }
 }

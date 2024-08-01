@@ -6,14 +6,6 @@
 #include "SharpsFlatsPref.h"
 #include "asserts.h"
 
-#if 0
-getDrawInfo(
-    const Scale& scale,
-    const SqArray<int, 16>& input,
-    bool bassStaff,
-    UIPrefSharpsFlats pref) {
-#endif
-
 static ScoreDrawUtilsPtr testCMajorSub(const SqArray<int, 16>& input) {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
@@ -22,23 +14,44 @@ static ScoreDrawUtilsPtr testCMajorSub(const SqArray<int, 16>& input) {
 }
 
 static void test1() {
-   // Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
-
     SqArray<int, 16> test = {MidiNote::MiddleC};
-  //  ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
-  //  utils->getDrawInfo(scale, test, false, UIPrefSharpsFlats::Sharps);
-   // assertEQ(utils->_info.size(), 1);
     const auto utils = testCMajorSub(test);
     assertEQ(utils->_info.size(), 1);
+    const auto iter = utils->_info.find(-2);
+    assertEQ(iter->second.numSymbols, 1);
+}
+
+static void test2() {
+    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::D };
+    const auto utils = testCMajorSub(test);
+    assertEQ(utils->_info.size(), 2);
+
+    int i = 0;
+    for (auto iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
+        assertEQ(iter->second.numSymbols, 1);
+        ++i;
+    }
+    assertEQ(i, 2);   
+}
+
+static void test2OneLine() {
+    // C and C# are on same leger line
+    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + 1 };
+    const auto utils = testCMajorSub(test);
+    assertEQ(utils->_info.size(), 1);
+
+    const auto iter = utils->_info.find(-2);
+    assertEQ(iter->second.numSymbols, 2);
 }
 
 void testScoreDrawUtils() {
     test1();
+    test2();
+    test2OneLine();
 }
 
 #if 1
 void testFirst() {
     testScoreDrawUtils();
 }
-
 #endif
