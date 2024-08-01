@@ -2,6 +2,7 @@
 
 // #include "SharpsFlatsPref.h"
 #include "NotationNote.h"
+#include "ScoreDrawUtils.h"
 #include "ScorePitchUtils.h"
 #include "VisualizerModule.h"
 
@@ -185,9 +186,8 @@ private:
     const float _barlineHeight = _yBassStaff + (-14 * _zoom);  // 13.5 sticks up  15 gap
 
     float _drawMusicNonNotes(const DrawArgs &args) const;  // returns x pos at end of ksig
-     void _drawNotes(const DrawArgs &args, float xPosition) const;
+    void _drawNotes(const DrawArgs &args, float xPosition) const;
 #ifndef _NEWDRAW
-   
 
     void _drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
     void _drawNotesOnStaffOG(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
@@ -204,7 +204,7 @@ private:
     YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     void _drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
 
-    #ifndef _NEWDRAW
+#ifndef _NEWDRAW
     void _drawOneNote(
         const DrawArgs &args,
         const MidiNote &note,
@@ -219,7 +219,7 @@ private:
         const NotationNote &notationNote2,
         const YInfo &yInfo,
         float xPosition) const;
-    #endif
+#endif
 
     void _drawStaff(const DrawArgs &args, float y) const;
     void _drawBarLine(const DrawArgs &args, float x, float y) const;
@@ -639,10 +639,26 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     if (!_module) {
         return;
     }
-    assert(false);
+
+    const auto pitchesAndChannels = _module->getQuantizedPitchesAndChannels();
+    const unsigned channels = std::get<1>(pitchesAndChannels);
+    const int *originalPitches = std::get<0>(pitchesAndChannels);
+    if (channels <= 0) {
+        return;  // return is nothing to draw
+    }
+
+    ConstScalePtr scale = _module->getScale();
+    SqArray<int, 16> inputNotes(originalPitches, originalPitches + channels);
+    UIPrefSharpsFlats pref = _module->getSharpsFlatsPref();
+    ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
+    ScoreDrawUtils::DrawPosition drawPostion;
+    scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
+
+    for (auto iterator = scoreDrawUtils->_info.begin(); iterator != scoreDrawUtils->_info.end(); iterator++) {
+        SQINFO("something to draw : %s", iterator->second.toString().c_str());
+    }
 }
 #endif
-
 
 #ifndef _NEWDRAW
 inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const {
@@ -749,7 +765,6 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     }
 }
 #endif
-
 
 #ifndef _NEWDRAW
 inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {

@@ -33,7 +33,7 @@ void ScoreDrawUtils::getDrawInfo(
     const SqArray<int, 16>& input,
     UIPrefSharpsFlats pref) {
 
-    const auto info = ChordRecognizer::recognize(input);
+  //  const auto info = ChordRecognizer::recognize(input);
     // Find the spelling for treble cleff
     auto spelling = ScorePitchUtils::findSpelling(scale, input, false, pref);
 

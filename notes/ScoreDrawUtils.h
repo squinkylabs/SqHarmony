@@ -3,6 +3,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <sstream>
 
 #include "ScorePitchUtils.h"
 #include "SharpsFlatsPref.h"
@@ -34,6 +35,12 @@ public:
             float xPosition = 0;
             float yPosition = 0;
             bool isAccidental = false;
+            std::string toString() const {
+                 std::stringstream s;
+                 s << "isAcc=" << isAccidental;
+                 s << " x=" << xPosition << " y=" << yPosition << std::endl;
+                 return s.str();
+            }
         };
 
         SymbolInfo symbols[4];
@@ -52,6 +59,14 @@ public:
                 return first.isAccidental && !second.isAccidental;
 
             });
+        }
+        std::string toString() const {
+            std::stringstream s;
+            s << "there are " << numSymbols << " symbols" << std::endl;
+            for (unsigned i=0; i<numSymbols; ++i) {
+                s << symbols[i].toString() << std::endl;
+            }
+            return s.str();
         }
     };
 

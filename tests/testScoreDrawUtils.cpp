@@ -23,7 +23,7 @@ static void test1() {
 }
 
 static void test2() {
-    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::D };
+    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::D};
     const auto utils = testCMajorSub(test);
     assertEQ(utils->_info.size(), 2);
 
@@ -32,7 +32,7 @@ static void test2() {
         assertEQ(iter->second.numSymbols, 1);
         ++i;
     }
-    assertEQ(i, 2);   
+    assertEQ(i, 2);
 }
 
 static void testAccidental() {
@@ -42,17 +42,26 @@ static void testAccidental() {
     const auto iter = utils->_info.find(-2);
     assertEQ(iter->second.numSymbols, 2);
     assertEQ(iter->second.symbols[0].glyph, ScoreDrawUtils::_sharp);
-     assertEQ(iter->second.symbols[1].glyph, ScoreDrawUtils::_wholeNote);
+    assertEQ(iter->second.symbols[1].glyph, ScoreDrawUtils::_wholeNote);
 }
 
 static void test2OneLine() {
     // C and C# are on same leger line
-    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + 1 };
+    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + 1};
     const auto utils = testCMajorSub(test);
     assertEQ(utils->_info.size(), 1);
 
     const auto iter = utils->_info.find(-2);
-    assertEQ(iter->second.numSymbols, 3);       // expect #, C, C
+    assertEQ(iter->second.numSymbols, 3);  // expect #, C, C
+}
+
+static void testToString() {
+    SqArray<int, 16> test = {MidiNote::MiddleC};
+    const auto utils = testCMajorSub(test);
+    assertEQ(utils->_info.size(), 1);
+    const auto iter = utils->_info.find(-2);
+    //  assertEQ(iter->second.numSymbols, 1);
+    assertGT(iter->second.toString().length(), 0);
 }
 
 void testScoreDrawUtils() {
@@ -60,6 +69,7 @@ void testScoreDrawUtils() {
     test2();
     testAccidental();
     test2OneLine();
+    testToString();
 }
 
 #if 1
