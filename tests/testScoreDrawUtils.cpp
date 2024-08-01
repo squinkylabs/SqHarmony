@@ -35,6 +35,16 @@ static void test2() {
     assertEQ(i, 2);   
 }
 
+static void testAccidental() {
+    SqArray<int, 16> test = {MidiNote::MiddleC + 1};
+    const auto utils = testCMajorSub(test);
+    assertEQ(utils->_info.size(), 1);
+    const auto iter = utils->_info.find(-2);
+    assertEQ(iter->second.numSymbols, 2);
+    assertEQ(iter->second.symbols[0].glyph, ScoreDrawUtils::_sharp);
+     assertEQ(iter->second.symbols[1].glyph, ScoreDrawUtils::_wholeNote);
+}
+
 static void test2OneLine() {
     // C and C# are on same leger line
     SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + 1 };
@@ -48,6 +58,7 @@ static void test2OneLine() {
 void testScoreDrawUtils() {
     test1();
     test2();
+    testAccidental();
     test2OneLine();
 }
 

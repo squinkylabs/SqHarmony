@@ -53,21 +53,24 @@ void ScoreDrawUtils::getDrawInfo(
 
         assert(iter != _info.end());
         LegerLineInfo& info = iter->second;
-        info.addOne(_wholeNote, 0, 0);          // add this glyph for this note.
+        info.addOne(false, _wholeNote, 0, 0);          // add this glyph for this note.
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
-                info.addOne(_sharp, 0, 0);
+                info.addOne(true, _sharp, 0, 0);
+                
                 break;
             case NotationNote::Accidental::natural:
-                info.addOne(_natural, 0, 0);
+                info.addOne(true, _natural, 0, 0);
                 break;
             case NotationNote::Accidental::sharp:
-                info.addOne(_sharp, 0, 0);
+                info.addOne(true, _sharp, 0, 0);
                 break;
             case NotationNote::Accidental::none:
                 break;
             default:
                 assert(false);
         }
+
+        info.sort();
     }
 }
