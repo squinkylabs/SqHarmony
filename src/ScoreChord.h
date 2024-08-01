@@ -90,7 +90,7 @@
  * step 9: make sure speller is good now., can spell C minor correctly.
  * ste0 10: hook new stuff up to the GUI.
  * step n: use it, re-do scoring (?), make new spelling stuff unit testable. (done)
- * 
+ *
  * Open items:
  *      1) notes out of range draw funny. Maybe don't draw.
  *      2) accidentals can overlap. score drawing could be better, visually.
@@ -100,14 +100,14 @@
  *          c) make spelling pay attention to setting
  *      4) make key select UI respond to sharp/flats in key, like harmony2.
  *      5) should enharmonic spelling avoid mixing sharps and flats?
- * 
- * 
- *              ksig name       accidental gfx in cmaj          in cmin     
+ *
+ *
+ *              ksig name       accidental gfx in cmaj          in cmin
  * def+sharp                    sharp                           flat
  * del+flat                     flat                            flat
  * sharp                        sharp                           sharp
  * flat                         flat                            flat
- * 
+ *
  * To fix enh spelling of chord name.
  * make new API ChordRecognizer::toString(const ChordInfo& info, bool useSharps);
  * Make a new conversions function: f(scale, uiPref) -> useSharps)
@@ -118,6 +118,8 @@
  */
 
 // #define _LOG
+
+#define _NEWDRAW
 
 class ScoreChord : public app::LightWidget, public Dirty {
 public:
@@ -143,15 +145,18 @@ private:
     MidiNote _lastScaleBase;
     Scale::Scales _lastScaleMode;
 
-    const std::string _wholeNote = u8"\ue1d2";
-    // const std::string _staffFiveLines = u8"\ue014";
     const std::string _gClef = u8"\ue050";
     const std::string _fClef = u8"\ue062";
+
     //  const std::string _legerLine = u8"\ue022";
     const std::string _legerLineWide = u8"\ue023";
-    const std::string _flat = u8"\ue260";
+
+#ifndef _NEWDRAW
+    const std::string _wholeNote = u8"\ue1d2";
     const std::string _natural = u8"\ue261";
+#endif
     const std::string _sharp = u8"\ue262";
+    const std::string _flat = u8"\ue260";
 
     const float _zoom = 1.6;
 
@@ -180,11 +185,14 @@ private:
     const float _barlineHeight = _yBassStaff + (-14 * _zoom);  // 13.5 sticks up  15 gap
 
     float _drawMusicNonNotes(const DrawArgs &args) const;  // returns x pos at end of ksig
-    void _drawNotes(const DrawArgs &args, float xPosition) const;
+     void _drawNotes(const DrawArgs &args, float xPosition) const;
+#ifndef _NEWDRAW
+   
+
     void _drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
     void _drawNotesOnStaffOG(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
     void _drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
-
+#endif
     // This is limited to white keys. Only used for keysig drawing.
     float _noteY(const MidiNote &note, bool bassStaff) const;
 
@@ -195,6 +203,8 @@ private:
     };
     YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     void _drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
+
+    #ifndef _NEWDRAW
     void _drawOneNote(
         const DrawArgs &args,
         const MidiNote &note,
@@ -209,6 +219,7 @@ private:
         const NotationNote &notationNote2,
         const YInfo &yInfo,
         float xPosition) const;
+    #endif
 
     void _drawStaff(const DrawArgs &args, float y) const;
     void _drawBarLine(const DrawArgs &args, float x, float y) const;
@@ -484,6 +495,7 @@ inline void ScoreChord::_drawLegerLinesForNotes(const DrawArgs &args, const YInf
     }
 }
 
+#ifndef _NEWDRAW
 inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, NotationNote::Accidental accidental) const {
 #ifdef _LOG
     SQINFO("drawAccidental 424  x=%f, acciental=%d (for ref flat=%d )", xPosition, int(accidental), int(NotationNote::Accidental::flat));
@@ -620,7 +632,19 @@ inline void ScoreChord::_drawOneNote(
     nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
     _drawAccidental(args, xPosition + _deltaXAccidental, yInfo.position, notationNote._accidental);
 }
+#endif
 
+#ifdef _NEWDRAW
+inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const {
+    if (!_module) {
+        return;
+    }
+    assert(false);
+}
+#endif
+
+
+#ifndef _NEWDRAW
 inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const {
     if (!_module) {
         return;
@@ -724,7 +748,10 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         _drawNotesOnStaff(args, scale, xPosition, false, firstTrebleNote, lastTrebleNote + 1);
     }
 }
+#endif
 
+
+#ifndef _NEWDRAW
 inline void ScoreChord::_drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const {
     _drawNotesOnStaffV2(args, scale, xPosition, bassStaff, begin, end);
 }
@@ -743,7 +770,7 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
     // now spell
     SqArray<int, 16> inputNotes(begin, end);
     UIPrefSharpsFlats pref = _module->getSharpsFlatsPref();
-    //SQINFO("--- calling find with pref = %d", int(pref));
+    // SQINFO("--- calling find with pref = %d", int(pref));
     const auto results = ScorePitchUtils::findSpelling(*scale.get(), inputNotes, bassStaff, pref);
 
     for (unsigned pitchIterator = 0; pitchIterator < results.notes.numValid(); ++pitchIterator) {
@@ -759,8 +786,8 @@ inline void ScoreChord::_drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr 
         // if there is another note after this one
         NotationNote notationNoteNext;
         if ((pitchIterator + 1) < results.notes.numValid()) {
-          //  MidiNote mnNext(*(pitchIterator + 1));
-            const MidiNote& mnNext = results.notes.getAt(pitchIterator + 1)._midiNote;
+            //  MidiNote mnNext(*(pitchIterator + 1));
+            const MidiNote &mnNext = results.notes.getAt(pitchIterator + 1)._midiNote;
             // SQINFO("will get nn for next, pitch = %d", mnNext.get());
             notationNoteNext = ScorePitchUtils::getNotationNote(*scale, mnNext, bassStaff);
             const auto yInfoNext = _noteYInfo(mnNext, notationNoteNext._legerLine, bassStaff);
@@ -838,3 +865,4 @@ inline void ScoreChord::_drawNotesOnStaffOG(const DrawArgs &args, ConstScalePtr 
         }
     }
 }
+#endif

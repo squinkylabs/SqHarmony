@@ -783,6 +783,10 @@ bool Scale::_validateScaleNote(const ScaleNote& sn) const {
             assert(scalePref != SharpsFlatsPref::Flats);
             return(scalePref != SharpsFlatsPref::Flats);
             break;
+        case ScaleNote::RelativeAdjustment::none:
+            break;
+        default:
+            assert(false);
     }
     //assert(false);
     return true;
