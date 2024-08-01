@@ -12,21 +12,17 @@
 class Scale;
 class ScoreDrawUtils;
 using ScoreDrawUtilsPtr = std::unique_ptr<ScoreDrawUtils>;
-class ScoreDrawUtils {
-public:
-    class DrawPosition {
+
+
+
+namespace sdu {
+  class DrawPosition {
     public:
         std::function<float(const MidiNote& note, int legerLine, bool bassStaff)> noteYPosition;
         float noteXPosition = 0;
     };
-    static ScoreDrawUtilsPtr make();
-    // (scale, input, bassStaff, pref
-    void getDrawInfo(
-        const DrawPosition& pos,
-        const Scale& scale,
-        const SqArray<int, 16>& input,
-        UIPrefSharpsFlats pref);
 
+ 
     class LegerLineInfo {
     public:
         class SymbolInfo {
@@ -70,6 +66,23 @@ public:
         }
     };
 
+}
+
+using namespace sdu;
+
+class ScoreDrawUtils {
+public:
+
+    static ScoreDrawUtilsPtr make();
+
+       // (scale, input, bassStaff, pref
+    void getDrawInfo(
+        const DrawPosition& pos,
+        const Scale& scale,
+        const SqArray<int, 16>& input,
+        UIPrefSharpsFlats pref);
+
+  
     std::map<int, LegerLineInfo> _info;
 
     inline static const std::string _wholeNote = u8"\ue1d2";

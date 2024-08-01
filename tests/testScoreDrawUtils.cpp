@@ -9,7 +9,7 @@
 static ScoreDrawUtilsPtr testCMajorSub(const SqArray<int, 16>& input) {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
-    ScoreDrawUtils::DrawPosition pos;
+    DrawPosition pos;
     utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     return utils;
 }
