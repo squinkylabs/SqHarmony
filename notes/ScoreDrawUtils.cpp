@@ -9,27 +9,65 @@ ScoreDrawUtilsPtr ScoreDrawUtils::make() {
     return std::make_unique<ScoreDrawUtils>();
 }
 
+ void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults&s) {
+
+ }
+
+
+/*
+Algorithm:
+    first find spelling on treble clef
+    then divide between clefs fixing legerLine
+
+    then put into map.
+
+    then add the real glyphs.
+    add the glyphs for the accidentals
+    then fixup the note spacing for doubles.
+    then fixup the accidental spacing.
+*/
+
 void ScoreDrawUtils::getDrawInfo(
+    const DrawPosition&,
     const Scale& scale,
     const SqArray<int, 16>& input,
-    bool bassStaff,
     UIPrefSharpsFlats pref) {
 
     const auto info = ChordRecognizer::recognize(input);
-    // oops - guess we need to split staves first???
-    const auto spelling = ScorePitchUtils::findSpelling(scale, input, bassStaff, pref);
+    // Find the spelling for treble cleff
+    auto spelling = ScorePitchUtils::findSpelling(scale, input, false, pref);
+
+    _divideClefs(spelling);
     for (unsigned pitchIterator = 0; pitchIterator < spelling.notes.numValid(); ++pitchIterator) {
         const auto notationNote = spelling.notes.getAt(pitchIterator);
       //  const MidiNote &mn = notationNote._midiNote;
 
+        // put it into the map
         const int legerLine = notationNote._legerLine;
-        LegerLineInfo llinfo;
-        const auto iter = _info.find(legerLine);
+        auto iter = _info.find(legerLine);
         if (iter == _info.end()) {
-            llinfo.numSymbols = 1;
+            LegerLineInfo llinfo;
             _info.insert( std::make_pair(legerLine,  llinfo));
-        } else {
-            iter->second.numSymbols++;
+        } 
+        iter = _info.find(legerLine);
+
+        assert(iter != _info.end());
+        LegerLineInfo& info = iter->second;
+        info.addOne(_wholeNote, 0, 0);          // add this glyph for this note.
+        switch (notationNote._accidental) {
+            case NotationNote::Accidental::flat:
+                info.addOne(_sharp, 0, 0);
+                break;
+            case NotationNote::Accidental::natural:
+                info.addOne(_natural, 0, 0);
+                break;
+            case NotationNote::Accidental::sharp:
+                info.addOne(_sharp, 0, 0);
+                break;
+            case NotationNote::Accidental::none:
+                break;
+            default:
+                assert(false);
         }
     }
 }

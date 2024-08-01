@@ -9,7 +9,8 @@
 static ScoreDrawUtilsPtr testCMajorSub(const SqArray<int, 16>& input) {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
-    utils->getDrawInfo(scale, input, false, UIPrefSharpsFlats::Sharps);
+    ScoreDrawUtils::DrawPosition pos;
+    utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     return utils;
 }
 
@@ -41,7 +42,7 @@ static void test2OneLine() {
     assertEQ(utils->_info.size(), 1);
 
     const auto iter = utils->_info.find(-2);
-    assertEQ(iter->second.numSymbols, 2);
+    assertEQ(iter->second.numSymbols, 3);       // expect #, C, C
 }
 
 void testScoreDrawUtils() {
