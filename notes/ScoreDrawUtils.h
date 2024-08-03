@@ -18,7 +18,11 @@ using ScoreDrawUtilsPtr = std::unique_ptr<ScoreDrawUtils>;
 namespace sdu {
 class DrawPosition {
 public:
-    std::function<float(const MidiNote& note, int legerLine, bool bassStaff)> noteYPosition;
+    std::function<float(const MidiNote& note, int legerLine, bool bassStaff)> noteYPosition =
+        [](const MidiNote& note, int legerLine, bool bassStaff) {
+            return 0.f;
+        };
+
     float noteXPosition = 0;
 };
 
@@ -76,7 +80,6 @@ public:
         const Scale& scale,
         const SqArray<int, 16>& input,
         UIPrefSharpsFlats pref);
-
 
     inline static const std::string _wholeNote = u8"\ue1d2";
     inline static const std::string _flat = u8"\ue260";

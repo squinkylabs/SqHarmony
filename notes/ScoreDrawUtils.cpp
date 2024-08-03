@@ -53,7 +53,10 @@ const std::map<int, LegerLineInfo>  ScoreDrawUtils::getDrawInfo(
 
         assert(iter != _info.end());
         LegerLineInfo& info = iter->second;
-        info.addOne(false, _wholeNote, drawPos.noteXPosition, 0);          // add this glyph for this note.
+
+        assert(drawPos.noteYPosition);
+        const float yPosition = drawPos.noteYPosition(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
+        info.addOne(false, _wholeNote, drawPos.noteXPosition, yPosition);          // add this glyph for this note.
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
                 info.addOne(true, _sharp, 0, 0);

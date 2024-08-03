@@ -11,7 +11,7 @@ static const std::map<int, LegerLineInfo> testCMajorSub(const SqArray<int, 16>& 
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
     DrawPosition pos;
     return utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
-    //return utils;
+    // return utils;
 }
 
 static void test1() {
@@ -51,7 +51,7 @@ static void test2OneLine() {
     const auto info = testCMajorSub(test);
     assertEQ(info.size(), 1);
 
-    const auto iter =info.find(-2);
+    const auto iter = info.find(-2);
     assertEQ(iter->second.symbols.size(), 3);  // expect #, C, C
 }
 
@@ -64,7 +64,7 @@ static void testToString() {
 }
 
 static void testXPos() {
-    SqArray<int, 16> input = {MidiNote::MiddleC };
+    SqArray<int, 16> input = {MidiNote::MiddleC};
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
     DrawPosition pos;
@@ -75,6 +75,20 @@ static void testXPos() {
     assertEQ(info.begin()->second.symbols[0].xPosition, 11);
 }
 
+static void testYPos() {
+    SqArray<int, 16> input = {MidiNote::MiddleC};
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    DrawPosition pos;
+    pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        return legerLine;
+    };
+    const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
+    assertEQ(info.size(), 1);
+    assertEQ(info.begin()->second.symbols.size(), 1);
+    assertEQ(info.begin()->second.symbols[0].yPosition, -2);
+}
+
 void testScoreDrawUtils() {
     test1();
     test2();
@@ -82,6 +96,7 @@ void testScoreDrawUtils() {
     test2OneLine();
     testToString();
     testXPos();
+    testYPos();
 }
 
 #if 1
