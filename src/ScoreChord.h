@@ -652,10 +652,20 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     UIPrefSharpsFlats pref = _module->getSharpsFlatsPref();
     ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
     DrawPosition drawPostion;
+    drawPostion.noteXPosition = xPosition;
+    //drawPostion.noteYPosition = this->_noteYInfo().position;
+    drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
+        YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
+        return yInfo.position;
+    };
+    //    YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
 
-    for (auto iterator = info.begin(); iterator != info.end(); iterator++) {
-        SQINFO("something to draw : %s", iterator->second.toString().c_str());
+    for (auto mapIterator = info.begin(); mapIterator != info.end(); mapIterator++) {
+        SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
+       // const float xPosition = iterator->second.
+       // nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
+        // NotationNote
     }
 }
 #endif
