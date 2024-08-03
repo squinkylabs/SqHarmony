@@ -6,11 +6,17 @@
 #include "SharpsFlatsPref.h"
 #include "asserts.h"
 
-static const std::map<int, LegerLineInfo> testCMajorSub(const SqArray<int, 16>& input) {
+static const std::map<int, LegerLineInfo> testCMajorSub(const SqArray<int, 16>& input, DrawPosition pos) {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
-    DrawPosition pos;
+  //  DrawPosition pos;
     return utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
+    // return utils;
+}
+
+static const std::map<int, LegerLineInfo> testCMajorSub(const SqArray<int, 16>& input) {
+    DrawPosition pos;
+    return testCMajorSub(input, pos);
     // return utils;
 }
 
@@ -89,18 +95,27 @@ static void testYPos() {
     assertEQ(info.begin()->second.symbols[0].yPosition, -2);
 }
 
-static void testBassClef() {
-    SqArray<int, 16> input = {MidiNote::MiddleC - 12 + MidiNote::A};
-    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
-    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+
+static void testClef(bool bass) {
+    SqArray<int, 16> inputBass =  {MidiNote::MiddleC - 12 + MidiNote::A};
+    SqArray<int, 16> inputTreble = {MidiNote::MiddleC};
     DrawPosition pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
         return bassStaff ? 100 : 200;
     };
-    const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
+    const auto input = bass ? inputBass : inputTreble;
+    const auto info = testCMajorSub(input, pos);
     assertEQ(info.size(), 1);
     assertEQ(info.begin()->second.symbols.size(), 1);
-    assertEQ(info.begin()->second.symbols[0].yPosition, 100);
+    assertEQ(info.begin()->second.symbols[0].yPosition, (bass ? 100.f : 200.f));
+}
+
+static void testBassClef() {
+    testClef(true);
+}
+
+static void testTrebleClef() {
+    testClef(false);
 }
 
 void testScoreDrawUtils() {
@@ -112,11 +127,12 @@ void testScoreDrawUtils() {
     testXPos();
     testYPos();
     testBassClef();
+    testTrebleClef();
 }
 
 #if 1
 void testFirst() {
-    //testScoreDrawUtils();
-     testBassClef();
+    testScoreDrawUtils();
+    // testBassClef();
 }
 #endif
