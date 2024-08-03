@@ -130,12 +130,11 @@ static void testClef2(bool bass) {
     assertEQ(info.size(), 2);
 
     auto iterator = info.begin();
-     assertEQ(iterator->second.symbols.size(), 1);
+    assertEQ(iterator->second.symbols.size(), 1);
     const float y1 = iterator->second.symbols[0].yPosition;
     iterator++;
-      assertEQ(iterator->second.symbols.size(), 1);
+    assertEQ(iterator->second.symbols.size(), 1);
     const float y2 = iterator->second.symbols[0].yPosition;
-  
 
     assertEQ(y1, (bass ? 100.f : 200.f));
     assertEQ(y2, (bass ? 100.f : 200.f));
@@ -169,6 +168,33 @@ static void testBothClefs() {
     assertEQ(y2, 200.f);
 }
 
+static void testCGroup(SqArray<int, 16> input, float expectedY) {
+   // SqArray<int, 16> input = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::G};
+    DrawPosition pos;
+    pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        return bassStaff ? 100 : 200;
+    };
+    // const auto input = bass ? inputBass : inputTreble;
+    const auto info = testCMajorSub(input, pos);
+    assertEQ(info.size(), 2);
+    assertEQ(info.begin()->second.symbols.size(), 1);
+
+    auto iterator = info.begin();
+    const float y1 = iterator->second.symbols[0].yPosition;
+    iterator++;
+    const float y2 = iterator->second.symbols[0].yPosition;
+
+    assertEQ(y1, expectedY);
+    assertEQ(y2, expectedY);
+}
+
+static void testCTreble() {
+    testCGroup( {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::G}, 200);
+}
+
+static void testCBass() {
+    testCGroup( {MidiNote::MiddleC, MidiNote::MiddleC - 12 + MidiNote::G}, 100);
+}
 void testScoreDrawUtils() {
     test1();
     test2();
@@ -182,12 +208,13 @@ void testScoreDrawUtils() {
     testTrebleClef2();
     testBassClef2();
     testBothClefs();
+    testCTreble();
+    testCBass();
 }
 
 #if 1
 void testFirst() {
-      testScoreDrawUtils();
-  // testBothClefs();
- // testTrebleClef2();
+    testScoreDrawUtils();
+   //testCBass();
 }
 #endif

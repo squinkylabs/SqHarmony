@@ -5,7 +5,7 @@
 #include "ChordRecognizer.h"
 #include "ScorePitchUtils.h"
 
-//#define _LOG
+// #define _LOG
 
 ScoreDrawUtilsPtr ScoreDrawUtils::make() {
     return std::make_unique<ScoreDrawUtils>();
@@ -13,12 +13,36 @@ ScoreDrawUtilsPtr ScoreDrawUtils::make() {
 
 void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults& s) {
     const unsigned size = s.notes.numValid();
+    bool areBassNotes = false;
+    bool areTrebleNotes = false;
     for (unsigned i = 0; i < size; ++i) {
         NotationNote& note = s.notes.getAt(i);
         const unsigned pitch = note.pitch();
-        note._bassStaff = pitch < MidiNote::MiddleC;
+        if (pitch > MidiNote::MiddleC) {
+            areTrebleNotes = true;
+        }
+        if (pitch < MidiNote::MiddleC) {
+            areBassNotes = true;
+        }
+    }
+
+    for (unsigned i = 0; i < size; ++i) {
+        NotationNote& note = s.notes.getAt(i);
+        const unsigned pitch = note.pitch();
+        // if (pitch == MidiNote::MiddleC) {
+        //     note._bassStaff = (pitch < MidiNote::MiddleC) && areBassNotes;
+        // } else {
+        //     note._bassStaff = pitch < MidiNote::MiddleC;
+        // }
+        note._bassStaff = (pitch == MidiNote::MiddleC) ? (areBassNotes && !areTrebleNotes) : pitch < MidiNote::MiddleC; 
 #ifdef _LOG
-        SQINFO("_divideClefs pitch=%d bass=%d", pitch, note._bassStaff);
+        SQINFO(
+            "_divideClefs pitch=%d bass=%d areBass=%d areTreb =%d midc=%d", 
+            pitch, 
+            note._bassStaff, 
+            areBassNotes, 
+            areTrebleNotes,
+            MidiNote::MiddleC);
 #endif
     }
 }
