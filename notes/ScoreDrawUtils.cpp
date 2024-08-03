@@ -28,7 +28,7 @@ Algorithm:
 */
 
 const std::map<int, LegerLineInfo>  ScoreDrawUtils::getDrawInfo(
-    const DrawPosition&,
+    const DrawPosition& drawPos,
     const Scale& scale,
     const SqArray<int, 16>& input,
     UIPrefSharpsFlats pref) {
@@ -53,7 +53,7 @@ const std::map<int, LegerLineInfo>  ScoreDrawUtils::getDrawInfo(
 
         assert(iter != _info.end());
         LegerLineInfo& info = iter->second;
-        info.addOne(false, _wholeNote, 0, 0);          // add this glyph for this note.
+        info.addOne(false, _wholeNote, drawPos.noteXPosition, 0);          // add this glyph for this note.
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
                 info.addOne(true, _sharp, 0, 0);

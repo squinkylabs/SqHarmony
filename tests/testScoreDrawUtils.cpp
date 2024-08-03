@@ -63,12 +63,25 @@ static void testToString() {
     assertGT(iter->second.toString().length(), 0);
 }
 
+static void testXPos() {
+    SqArray<int, 16> input = {MidiNote::MiddleC };
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    DrawPosition pos;
+    pos.noteXPosition = 11;
+    const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
+    assertEQ(info.size(), 1);
+    assertEQ(info.begin()->second.symbols.size(), 1);
+    assertEQ(info.begin()->second.symbols[0].xPosition, 11);
+}
+
 void testScoreDrawUtils() {
     test1();
     test2();
     testAccidental();
     test2OneLine();
     testToString();
+    testXPos();
 }
 
 #if 1
