@@ -51,6 +51,7 @@ public:
         si.yPosition = yPosition;
         si.isAccidental = isAccidental;
         symbols.push_back(si);
+        // SQINFO("in LLI.addOne, added %s, now there are %d symbols", si.toString().c_str(), symbols.size());
     }
     void sort() {
         std::sort(symbols.begin(), symbols.end(), [](const SymbolInfo& first, const SymbolInfo& second) {

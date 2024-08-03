@@ -5,20 +5,23 @@
 #include "ChordRecognizer.h"
 #include "ScorePitchUtils.h"
 
+//#define _LOG
+
 ScoreDrawUtilsPtr ScoreDrawUtils::make() {
     return std::make_unique<ScoreDrawUtils>();
 }
 
- void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults&s) {
+void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults& s) {
     const unsigned size = s.notes.numValid();
-     for (unsigned i=0; i<size; ++i) {
+    for (unsigned i = 0; i < size; ++i) {
         NotationNote& note = s.notes.getAt(i);
         const unsigned pitch = note.pitch();
         note._bassStaff = pitch < MidiNote::MiddleC;
-        
+#ifdef _LOG
+        SQINFO("_divideClefs pitch=%d bass=%d", pitch, note._bassStaff);
+#endif
     }
- }
-
+}
 
 /*
 Algorithm:
@@ -33,28 +36,31 @@ Algorithm:
     then fixup the accidental spacing.
 */
 
-const std::map<int, LegerLineInfo>  ScoreDrawUtils::getDrawInfo(
+const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
     const DrawPosition& drawPos,
     const Scale& scale,
     const SqArray<int, 16>& input,
     UIPrefSharpsFlats pref) {
-
-  //  const auto info = ChordRecognizer::recognize(input);
+    //  const auto info = ChordRecognizer::recognize(input);
     // Find the spelling for treble cleff
     auto spelling = ScorePitchUtils::findSpelling(scale, input, false, pref);
 
     _divideClefs(spelling);
     for (unsigned pitchIterator = 0; pitchIterator < spelling.notes.numValid(); ++pitchIterator) {
         const auto notationNote = spelling.notes.getAt(pitchIterator);
-      //  const MidiNote &mn = notationNote._midiNote;
+        //  const MidiNote &mn = notationNote._midiNote;
 
         // put it into the map
         const int legerLine = notationNote._legerLine;
+
+#ifdef _LOG
+        SQINFO("in getDrawInfo pitch=%d ll=%d nn.pitch=%d", pitchIterator, legerLine, notationNote.pitch());
+#endif
         auto iter = _info.find(legerLine);
         if (iter == _info.end()) {
             LegerLineInfo llinfo;
-            _info.insert( std::make_pair(legerLine,  llinfo));
-        } 
+            _info.insert(std::make_pair(legerLine, llinfo));
+        }
         iter = _info.find(legerLine);
 
         assert(iter != _info.end());
@@ -62,11 +68,11 @@ const std::map<int, LegerLineInfo>  ScoreDrawUtils::getDrawInfo(
 
         assert(drawPos.noteYPosition);
         const float yPosition = drawPos.noteYPosition(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
-        info.addOne(false, _wholeNote, drawPos.noteXPosition, yPosition);          // add this glyph for this note.
+        info.addOne(false, _wholeNote, drawPos.noteXPosition, yPosition);  // add this glyph for this note.
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
                 info.addOne(true, _sharp, 0, 0);
-                
+
                 break;
             case NotationNote::Accidental::natural:
                 info.addOne(true, _natural, 0, 0);
@@ -82,5 +88,11 @@ const std::map<int, LegerLineInfo>  ScoreDrawUtils::getDrawInfo(
 
         info.sort();
     }
+
+#ifdef _LOG
+    for (auto iterator = _info.begin(); iterator != _info.end(); ++iterator) {
+        SQINFO("map[%d] = %s", iterator->first, iterator->second.toString().c_str());
+    }
+#endif
     return _info;
 }

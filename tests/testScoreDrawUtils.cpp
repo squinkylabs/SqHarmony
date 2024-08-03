@@ -9,7 +9,7 @@
 static const std::map<int, LegerLineInfo> testCMajorSub(const SqArray<int, 16>& input, DrawPosition pos) {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
-  //  DrawPosition pos;
+    //  DrawPosition pos;
     return utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     // return utils;
 }
@@ -95,9 +95,8 @@ static void testYPos() {
     assertEQ(info.begin()->second.symbols[0].yPosition, -2);
 }
 
-
 static void testClef(bool bass) {
-    SqArray<int, 16> inputBass =  {MidiNote::MiddleC - 12 + MidiNote::A};
+    SqArray<int, 16> inputBass = {MidiNote::MiddleC - 12 + MidiNote::A};
     SqArray<int, 16> inputTreble = {MidiNote::MiddleC};
     DrawPosition pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
@@ -118,6 +117,58 @@ static void testTrebleClef() {
     testClef(false);
 }
 
+static void testClef2(bool bass) {
+    SqArray<int, 16> inputBass = {MidiNote::MiddleC - 12 + MidiNote::A, MidiNote::MiddleC - 12 + MidiNote::G};
+    SqArray<int, 16> inputTreble = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::D};
+    DrawPosition pos;
+    pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        return bassStaff ? 100 : 200;
+    };
+    const auto input = bass ? inputBass : inputTreble;
+    const auto info = testCMajorSub(input, pos);
+
+    assertEQ(info.size(), 2);
+
+    auto iterator = info.begin();
+     assertEQ(iterator->second.symbols.size(), 1);
+    const float y1 = iterator->second.symbols[0].yPosition;
+    iterator++;
+      assertEQ(iterator->second.symbols.size(), 1);
+    const float y2 = iterator->second.symbols[0].yPosition;
+  
+
+    assertEQ(y1, (bass ? 100.f : 200.f));
+    assertEQ(y2, (bass ? 100.f : 200.f));
+}
+
+static void testBassClef2() {
+    testClef2(true);
+}
+
+static void testTrebleClef2() {
+    testClef2(false);
+}
+
+static void testBothClefs() {
+    SqArray<int, 16> input = {MidiNote::MiddleC - 12 + MidiNote::A, MidiNote::MiddleC + MidiNote::G};
+    DrawPosition pos;
+    pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        return bassStaff ? 100 : 200;
+    };
+    // const auto input = bass ? inputBass : inputTreble;
+    const auto info = testCMajorSub(input, pos);
+    assertEQ(info.size(), 2);
+    assertEQ(info.begin()->second.symbols.size(), 1);
+
+    auto iterator = info.begin();
+    const float y1 = iterator->second.symbols[0].yPosition;
+    iterator++;
+    const float y2 = iterator->second.symbols[0].yPosition;
+
+    assertEQ(y1, 100.f);
+    assertEQ(y2, 200.f);
+}
+
 void testScoreDrawUtils() {
     test1();
     test2();
@@ -128,11 +179,15 @@ void testScoreDrawUtils() {
     testYPos();
     testBassClef();
     testTrebleClef();
+    testTrebleClef2();
+    testBassClef2();
+    testBothClefs();
 }
 
 #if 1
 void testFirst() {
-    testScoreDrawUtils();
-    // testBassClef();
+      testScoreDrawUtils();
+  // testBothClefs();
+ // testTrebleClef2();
 }
 #endif
