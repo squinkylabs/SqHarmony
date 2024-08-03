@@ -103,7 +103,7 @@
  *      5) should enharmonic spelling avoid mixing sharps and flats?
  *
  *
- *              ksig name       accidental gfx in cmaj          in cmin
+ * ksig name                    accidental gfx in cmaj          in cmin
  * def+sharp                    sharp                           flat
  * del+flat                     flat                            flat
  * sharp                        sharp                           sharp
@@ -116,6 +116,17 @@
  *      use below
  * add tests for new API.
  * call API from VisualizerModule. use new conversion API.
+ * 
+ * 
+ * For new drawing:
+ *      make single note draw in correct place (done)
+ *      implement bass staff
+ *      draw single accidental in correct place
+ *      two note on one line
+ *      draw leger lines, when needed
+ *      get rid of midi note param in pos callback, if not needed.
+ *      in spelling, discourage to notes on same line.
+ *      make drawing of multiple accidentals look good.
  */
 
 // #define _LOG
@@ -653,7 +664,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
     DrawPosition drawPostion;
     drawPostion.noteXPosition = xPosition;
-    //drawPostion.noteYPosition = this->_noteYInfo().position;
+    // drawPostion.noteYPosition = this->_noteYInfo().position;
     drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
         return yInfo.position;
@@ -663,8 +674,16 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
 
     for (auto mapIterator = info.begin(); mapIterator != info.end(); mapIterator++) {
         SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
-       // const float xPosition = iterator->second.
-       // nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
+        for (
+            auto symbolIterator = mapIterator->second.symbols.begin();
+            symbolIterator != mapIterator->second.symbols.end();
+            ++symbolIterator) {
+            const auto symbol = *symbolIterator;
+            nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
+        }
+
+        // const float xPosition = iterator->second.
+        // nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
         // NotationNote
     }
 }

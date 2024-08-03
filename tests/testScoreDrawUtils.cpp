@@ -89,6 +89,20 @@ static void testYPos() {
     assertEQ(info.begin()->second.symbols[0].yPosition, -2);
 }
 
+static void testBassClef() {
+    SqArray<int, 16> input = {MidiNote::MiddleC - 12 + MidiNote::A};
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    DrawPosition pos;
+    pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        return bassStaff ? 100 : 200;
+    };
+    const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
+    assertEQ(info.size(), 1);
+    assertEQ(info.begin()->second.symbols.size(), 1);
+    assertEQ(info.begin()->second.symbols[0].yPosition, 100);
+}
+
 void testScoreDrawUtils() {
     test1();
     test2();
@@ -97,10 +111,12 @@ void testScoreDrawUtils() {
     testToString();
     testXPos();
     testYPos();
+    testBassClef();
 }
 
 #if 1
 void testFirst() {
-    testScoreDrawUtils();
+    //testScoreDrawUtils();
+     testBassClef();
 }
 #endif

@@ -10,7 +10,13 @@ ScoreDrawUtilsPtr ScoreDrawUtils::make() {
 }
 
  void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults&s) {
-
+    const unsigned size = s.notes.numValid();
+     for (unsigned i=0; i<size; ++i) {
+        NotationNote& note = s.notes.getAt(i);
+        const unsigned pitch = note.pitch();
+        note._bassStaff = pitch < MidiNote::MiddleC;
+        
+    }
  }
 
 
