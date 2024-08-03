@@ -120,7 +120,11 @@
  * 
  * For new drawing:
  *      make single note draw in correct place (done)
- *      implement bass staff
+ *      implement bass staff (in progress)
+ *          bug: notes below middle C draw in crazy place.
+ *              ypos for pitch 70 ll -4 bass 1 is 94.688004 (note right below middle c
+ *              ypos for pitch 72 ll -2 bass 0 is 49.344002 (middle c)
+ *              clearly the ll is whack for bass notes... Where does that come from
  *      draw single accidental in correct place
  *      two note on one line
  *      draw leger lines, when needed
@@ -210,7 +214,7 @@ private:
     class YInfo {
     public:
         float position = 200;
-        float legerPos[3] = {};
+        float legerPos[3] = {0};
     };
     YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     void _drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
@@ -667,7 +671,10 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     // drawPostion.noteYPosition = this->_noteYInfo().position;
     drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
-        return yInfo.position;
+       
+        const float ret = yInfo.position;
+         SQINFO("ypos for pitch %d ll %d bass %d is %f", note.get(), legerLine, bassStaff, ret);
+        return ret;
     };
     //    YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);

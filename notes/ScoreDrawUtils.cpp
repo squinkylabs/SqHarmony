@@ -29,12 +29,12 @@ void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults& s) {
     for (unsigned i = 0; i < size; ++i) {
         NotationNote& note = s.notes.getAt(i);
         const unsigned pitch = note.pitch();
-        // if (pitch == MidiNote::MiddleC) {
-        //     note._bassStaff = (pitch < MidiNote::MiddleC) && areBassNotes;
-        // } else {
-        //     note._bassStaff = pitch < MidiNote::MiddleC;
-        // }
+        // group middle C with other notes, if they are all in bass.
+        const bool wasBassStaff = note._bassStaff;
         note._bassStaff = (pitch == MidiNote::MiddleC) ? (areBassNotes && !areTrebleNotes) : pitch < MidiNote::MiddleC; 
+        if (note._bassStaff && !wasBassStaff) {
+            note._legerLine += 12;
+        }
 #ifdef _LOG
         SQINFO(
             "_divideClefs pitch=%d bass=%d areBass=%d areTreb =%d midc=%d", 
@@ -65,7 +65,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
     const Scale& scale,
     const SqArray<int, 16>& input,
     UIPrefSharpsFlats pref) {
-    //  const auto info = ChordRecognizer::recognize(input);
+
     // Find the spelling for treble cleff
     auto spelling = ScorePitchUtils::findSpelling(scale, input, false, pref);
 

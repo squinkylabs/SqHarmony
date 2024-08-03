@@ -86,8 +86,8 @@ public:
     inline static const std::string _flat = u8"\ue260";
     inline static const std::string _natural = u8"\ue261";
     inline static const std::string _sharp = u8"\ue262";
-
+    void _divideClefs(ScorePitchUtils::SpellingResults& s);
 private:
     std::map<int, LegerLineInfo> _info;
-    void _divideClefs(ScorePitchUtils::SpellingResults& s);
+    
 };

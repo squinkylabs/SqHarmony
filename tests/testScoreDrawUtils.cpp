@@ -169,7 +169,7 @@ static void testBothClefs() {
 }
 
 static void testCGroup(SqArray<int, 16> input, float expectedY) {
-   // SqArray<int, 16> input = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::G};
+    // SqArray<int, 16> input = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::G};
     DrawPosition pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
         return bassStaff ? 100 : 200;
@@ -189,12 +189,52 @@ static void testCGroup(SqArray<int, 16> input, float expectedY) {
 }
 
 static void testCTreble() {
-    testCGroup( {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::G}, 200);
+    testCGroup({MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::G}, 200);
 }
 
 static void testCBass() {
-    testCGroup( {MidiNote::MiddleC, MidiNote::MiddleC - 12 + MidiNote::G}, 100);
+    testCGroup({MidiNote::MiddleC, MidiNote::MiddleC - 12 + MidiNote::G}, 100);
 }
+
+static void testLegerLine(bool bass) {
+    SqArray<int, 16> inputBass = {MidiNote::MiddleC - 12 + MidiNote::B};  // B right below middle C
+    SqArray<int, 16> inputTreble = {MidiNote::MiddleC + MidiNote::D};     // D right below middle C
+
+    const MidiNote D = MidiNote(MidiNote::MiddleC + MidiNote::D);
+    const MidiNote B = MidiNote(MidiNote::MiddleC - 12 + MidiNote::B);
+
+    //  NotationNote(const MidiNote& mn, Accidental ac, int ll, bool bs);
+    NotationNote noteD = NotationNote(D, NotationNote::Accidental::none, -1, false);
+    NotationNote noteB = NotationNote(B, NotationNote::Accidental::none, -1, false);
+
+    ScorePitchUtils::SpellingResults results;
+    results.notes.putAt(0, bass? noteB : noteD);
+
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    utils->_divideClefs(results);
+
+    const NotationNote& final = results.notes.getAt(0);
+    assertEQ(final._bassStaff, bass);
+
+    const int expectedLegerLine = bass ? 11 : -1;
+    assertEQ(final._legerLine, expectedLegerLine);
+
+    //  assertEQ(info.size(), 1);
+
+    //  auto iterator = info.begin();
+
+    //  assertEQ(y1, (bass ? 100.f : 200.f));
+    //  assertEQ(y2, (bass ? 100.f : 200.f));
+}
+
+static void testTrebleLegerLine() {
+    testLegerLine(false);
+}
+
+static void testBassLegerLine() {
+    testLegerLine(true);
+}
+
 void testScoreDrawUtils() {
     test1();
     test2();
@@ -210,11 +250,13 @@ void testScoreDrawUtils() {
     testBothClefs();
     testCTreble();
     testCBass();
+    testTrebleLegerLine();
+    testBassLegerLine();
 }
 
 #if 1
 void testFirst() {
-    testScoreDrawUtils();
-   //testCBass();
+    // testScoreDrawUtils();
+    testBassLegerLine();
 }
 #endif
