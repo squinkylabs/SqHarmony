@@ -70,15 +70,19 @@ static void testToString() {
 }
 
 static void testXPos() {
-    SqArray<int, 16> input = {MidiNote::MiddleC};
+    SqArray<int, 16> input = {MidiNote::MiddleC + 1};
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
     DrawPosition pos;
     pos.noteXPosition = 11;
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 1);
-    assertEQ(info.begin()->second.symbols.size(), 1);
-    assertEQ(info.begin()->second.symbols[0].xPosition, 11);
+    assertEQ(info.begin()->second.symbols.size(), 2);
+    assertEQ(info.begin()->second.symbols[0].xPosition, 10);
+    assertEQ(info.begin()->second.symbols[0].glyph, ScoreDrawUtils::_sharp);
+
+    assertEQ(info.begin()->second.symbols[1].xPosition, 11);
+    assertEQ(info.begin()->second.symbols[1].glyph, ScoreDrawUtils::_wholeNote);
 }
 
 static void testYPos() {
@@ -259,6 +263,6 @@ void testScoreDrawUtils() {
 #if 1
 void testFirst() {
     // testScoreDrawUtils();
-    testYPos();
+    testXPos();
 }
 #endif

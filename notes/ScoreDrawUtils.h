@@ -24,6 +24,7 @@ public:
         };
 
     float noteXPosition = 0;
+    float columnWidth = 1;
 };
 
 class SymbolInfo {
