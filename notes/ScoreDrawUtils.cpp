@@ -95,14 +95,14 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         info.addOne(false, _wholeNote, drawPos.noteXPosition, yPosition);  // add this glyph for this note.
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
-                info.addOne(true, _sharp, 0, 0);
+                info.addOne(true, _sharp, 0, yPosition);
 
                 break;
             case NotationNote::Accidental::natural:
-                info.addOne(true, _natural, 0, 0);
+                info.addOne(true, _natural, 0, yPosition);
                 break;
             case NotationNote::Accidental::sharp:
-                info.addOne(true, _sharp, 0, 0);
+                info.addOne(true, _sharp, 0, yPosition);
                 break;
             case NotationNote::Accidental::none:
                 break;

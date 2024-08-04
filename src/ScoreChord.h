@@ -120,7 +120,7 @@
  * 
  * For new drawing:
  *      make single note draw in correct place (done)
- *      implement bass staff (in progress)
+ *      implement bass staff (done)
  *          bug: notes below middle C draw in crazy place.
  *              ypos for pitch 70 ll -4 bass 1 is 94.688004 (note right below middle c
  *              ypos for pitch 72 ll -2 bass 0 is 49.344002 (middle c)

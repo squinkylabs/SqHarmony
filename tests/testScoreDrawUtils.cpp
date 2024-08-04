@@ -82,7 +82,7 @@ static void testXPos() {
 }
 
 static void testYPos() {
-    SqArray<int, 16> input = {MidiNote::MiddleC};
+    SqArray<int, 16> input = {MidiNote::MiddleC + 1};           // c sharp
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
     DrawPosition pos;
@@ -90,8 +90,10 @@ static void testYPos() {
         return legerLine;
     };
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
-    assertEQ(info.size(), 1);
-    assertEQ(info.begin()->second.symbols.size(), 1);
+    assertEQ(info.size(), 1);       // expect C and sharp on one line
+    assertEQ(info.begin()->second.symbols.size(), 2);
+
+    assertEQ(info.begin()->second.symbols[0].yPosition, -2);
     assertEQ(info.begin()->second.symbols[0].yPosition, -2);
 }
 
@@ -257,6 +259,6 @@ void testScoreDrawUtils() {
 #if 1
 void testFirst() {
     // testScoreDrawUtils();
-    testBassLegerLine();
+    testYPos();
 }
 #endif
