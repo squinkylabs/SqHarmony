@@ -125,12 +125,13 @@
  *              ypos for pitch 70 ll -4 bass 1 is 94.688004 (note right below middle c
  *              ypos for pitch 72 ll -2 bass 0 is 49.344002 (middle c)
  *              clearly the ll is whack for bass notes... Where does that come from
- *      draw single accidental in correct place
- *      two note on one line
+ *      draw single accidental in correct place (done)
+ *      two note on one line (done)
  *      draw leger lines, when needed
  *      get rid of midi note param in pos callback, if not needed.
  *      in spelling, discourage to notes on same line.
  *      make drawing of multiple accidentals look good.
+ *      fix overlap of notes on adjacent leger lines.
  */
 
 // #define _LOG
@@ -193,6 +194,7 @@ private:
     const float _deltaXAccidental = -2.2 * _zoom;  // accidental drawn this far from note, in x di
                                                    // for single note, -8 is way too much, -4 tolerable, -2 just about touching.
                                                    // 0 is on top, as it should be. -2.2 is pretty good for single notes.
+    const float _columnWidth = 4 * _zoom;
 
     const float _noteXIndent = 6;  // Distance from the keysig to the first note, horizontally.
 
@@ -202,8 +204,8 @@ private:
 
     float _drawMusicNonNotes(const DrawArgs &args) const;  // returns x pos at end of ksig
     void _drawNotes(const DrawArgs &args, float xPosition) const;
-#ifndef _NEWDRAW
 
+#ifndef _NEWDRAW
     void _drawNotesOnStaff(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
     void _drawNotesOnStaffOG(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
     void _drawNotesOnStaffV2(const DrawArgs &args, ConstScalePtr scale, float xPosition, bool bassStaff, const int *begin, const int *end) const;
@@ -668,6 +670,8 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
     DrawPosition drawPostion;
     drawPostion.noteXPosition = xPosition;
+  //  _deltaXAccidental
+    drawPostion.columnWidth = _columnWidth;
     // drawPostion.noteYPosition = this->_noteYInfo().position;
     drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);

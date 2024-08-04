@@ -80,24 +80,34 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
 #ifdef _LOG
         SQINFO("in getDrawInfo pitch=%d ll=%d nn.pitch=%d", pitchIterator, legerLine, notationNote.pitch());
 #endif
+        bool isAlreadyNoteOnThisLine = true;
         auto iter = _info.find(legerLine);
+        // If there is no entry already, make one.
         if (iter == _info.end()) {
             LegerLineInfo llinfo;
             _info.insert(std::make_pair(legerLine, llinfo));
+            isAlreadyNoteOnThisLine = false;
         }
         iter = _info.find(legerLine);
-
         assert(iter != _info.end());
+
         LegerLineInfo& info = iter->second;
+        float noteXPosition = drawPos.noteXPosition;
+        if (isAlreadyNoteOnThisLine) {
+            // if there are two notes, put the second one column to the right.
+            noteXPosition += drawPos.columnWidth;
+        }
 
         assert(drawPos.noteYPosition);
         const float yPosition = drawPos.noteYPosition(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
-        info.addOne(false, _wholeNote, drawPos.noteXPosition, yPosition);  // add this glyph for this note.
+        info.addOne(false, _wholeNote, noteXPosition, yPosition);  // add this glyph for this note.
         const float accidentalXPosition = drawPos.noteXPosition - drawPos.columnWidth;
+#ifdef _LOG
+        SQINFO("drawing note at %f, accidental at %f", drawPos.noteXPosition, accidentalXPosition);
+    #endif
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
                 info.addOne(true, _sharp, accidentalXPosition, yPosition);
-
                 break;
             case NotationNote::Accidental::natural:
                 info.addOne(true, _natural, accidentalXPosition, yPosition);

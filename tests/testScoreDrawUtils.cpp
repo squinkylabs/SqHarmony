@@ -224,13 +224,6 @@ static void testLegerLine(bool bass) {
 
     const int expectedLegerLine = bass ? 11 : -1;
     assertEQ(final._legerLine, expectedLegerLine);
-
-    //  assertEQ(info.size(), 1);
-
-    //  auto iterator = info.begin();
-
-    //  assertEQ(y1, (bass ? 100.f : 200.f));
-    //  assertEQ(y2, (bass ? 100.f : 200.f));
 }
 
 static void testTrebleLegerLine() {
@@ -239,6 +232,27 @@ static void testTrebleLegerLine() {
 
 static void testBassLegerLine() {
     testLegerLine(true);
+}
+
+
+static void testTwoNotes() {
+     SqArray<int, 16> input = {MidiNote::MiddleC,  MidiNote::MiddleC + 1};
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    DrawPosition pos;
+    pos.noteXPosition = 11;
+    const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps); 
+    assertEQ(info.size(), 1);
+    const auto legerLineIterator = info.begin();
+
+    // make sure we have two notes
+    assertEQ(legerLineIterator->second.symbols.size(), 3);      // two notes and an accidental
+    assertEQ(legerLineIterator->second.symbols[1].glyph, ScoreDrawUtils::_wholeNote);
+    assertEQ(legerLineIterator->second.symbols[2].glyph, ScoreDrawUtils::_wholeNote);
+
+    // Current desire is for two notes on same line to be spaced like this:
+    const float hSpacing = std::abs(legerLineIterator->second.symbols[1].xPosition - legerLineIterator->second.symbols[2].xPosition);
+    assertClose(hSpacing, pos.columnWidth, .01);
 }
 
 void testScoreDrawUtils() {
@@ -263,6 +277,6 @@ void testScoreDrawUtils() {
 #if 1
 void testFirst() {
     // testScoreDrawUtils();
-    testXPos();
+    testTwoNotes();
 }
 #endif
