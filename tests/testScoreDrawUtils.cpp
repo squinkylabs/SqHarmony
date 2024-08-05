@@ -283,7 +283,10 @@ void testScoreDrawUtils() {
     test1();
     test2();
     testAccidental();
-    test2OneLine();
+
+    SQINFO("!!! Find a new version of test2OneLine !!!");
+    // test2OneLine();
+
     testToString();
     testXPos();
     testYPos();
@@ -302,7 +305,8 @@ void testScoreDrawUtils() {
 
 #if 1
 void testFirst() {
-    testScoreDrawUtils();
+    //testScoreDrawUtils();
     //testLegerLineCTreble();
+    test2OneLine();
 }
 #endif

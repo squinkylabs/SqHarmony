@@ -89,7 +89,7 @@ inline std::string NotationNote::toString() const {
         default:
             assert(false);
     }
-    s << ", ";
+    s << ", ll=";
     s << _legerLine;
     return s.str();
 }

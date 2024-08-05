@@ -243,7 +243,7 @@ static void testFindSpelling(
     assertGT(inputPitches.numValid(), 0);
     const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff, prefs);
 
-    SQINFO("final score = %d", result.score);
+    SQINFO("246 final score = %d", result.score);
 #if 1
     if (inputPitches.numValid() == 4) {
         SQINFO("input notes = %d | %d | %d | %d",
@@ -274,6 +274,9 @@ static void testFindSpelling(
     for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
         const NotationNote n = result.notes.getAt(i);
         const NotationNote expected = expectedOutputNotes.getAt(i);
+        if (n != expected) {
+            SQINFO("in eval, n=%s, expected=%s", n.toString().c_str(), expected.toString().c_str());
+        }
         assert(n == expected);
     }
 }
@@ -637,6 +640,40 @@ static void testMakeCanonical() {
     assert(x == aFlat);
 }
 
+static void testFindSpellingNotSameLine() {
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    // TODO: make this work
+    // SqArray<int, 16> inputPitch = {MidiNote::MiddleC};
+    SqArray<int, 16> inputPitches;
+    inputPitches.putAt(0, MidiNote::MiddleC);
+    inputPitches.putAt(1, MidiNote::MiddleC + 1);
+   
+
+    SqArray<NotationNote, 16> expectedOutputNotes;
+
+    // don't want to see C and C#, want C and D flat
+    expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2, false));
+    expectedOutputNotes.putAt(1, NotationNote(MidiNote(MidiNote::MiddleC + 1), NotationNote::Accidental::flat, -1, false));
+  
+
+    testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
+
+}
+
+static void testLegerLineTracker() {
+    ScorePitchUtils::LegerLineTracker llt;
+    assertEQ(llt.getSawMulti(), 0);
+
+    llt.sawLine(0);
+    llt.sawLine(0);
+    assertEQ(llt.getSawMulti(), 1);
+
+    llt.sawLine(4);
+    llt.sawLine(4);
+    assertEQ(llt.getSawMulti(), 2);
+}
+
 void testScorePitchUtils() {
     test();
     testGetAjustmentForLeger();
@@ -679,18 +716,16 @@ void testScorePitchUtils() {
 
     SQINFO("make testFindSpelling9thNo5 work");
     // testFindSpelling9thNo5();
+
+    testLegerLineTracker();
+    testFindSpellingNotSameLine();
 }
 
 #if 0
 void testFirst() {
-   // testCMajor();
-    // testGetAjustmentForLeger();
-    //  testPitchFromLegerEFlatMinor();
- //   testFindSpelling9thNo5();
-    // testNoteEFlatInEFlatMinor();
+    testLegerLineTracker();
+    testFindSpellingNotSameLine();
 
-     //  testScorePitchUtils();
-testFindSpellingOneNoteDFlatSharpInCMajor();
 }
 
 #endif

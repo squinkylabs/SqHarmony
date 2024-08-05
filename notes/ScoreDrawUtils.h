@@ -43,12 +43,8 @@ public:
     float xPosition = 0;
     float yPosition = 0;
     bool isAccidental = false;
-    std::string toString() const {
-        std::stringstream s;
-        s << "isAcc=" << isAccidental;
-        s << " x=" << xPosition << " y=" << yPosition << std::endl;
-        return s.str();
-    }
+   
+    std::string toString() const;
 };
 
 class LegerLineInfo {
@@ -104,3 +100,26 @@ private:
     std::map<int, LegerLineInfo> _info;
     
 };
+
+inline std::string SymbolInfo::toString() const {
+    std::string g;
+
+    if (glyph == ScoreDrawUtils::_wholeNote) {
+        g = "whole note";
+    } else if (glyph == ScoreDrawUtils::_sharp) {
+        g = "sharp";
+    } else if (glyph == ScoreDrawUtils::_flat) {
+        g = "flat";
+    } else if (glyph == ScoreDrawUtils::_natural) {
+        g = "natural";
+    } else {
+        g = "???";
+    }
+
+
+    std::stringstream s;
+    s << "isAcc=" << isAccidental;
+    s << " glyph=" << g;
+    s << " x=" << xPosition << " y=" << yPosition << std::endl;
+    return s.str();
+}

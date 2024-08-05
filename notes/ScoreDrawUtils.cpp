@@ -108,7 +108,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
     #endif
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
-                info.addOne(true, _sharp, accidentalXPosition, yPosition);
+                info.addOne(true, _flat, accidentalXPosition, yPosition);
                 break;
             case NotationNote::Accidental::natural:
                 info.addOne(true, _natural, accidentalXPosition, yPosition);

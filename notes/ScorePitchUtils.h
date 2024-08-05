@@ -14,6 +14,36 @@ class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
 
+    class LegerLineTracker {
+    public:
+        int getSawMulti() const {
+            SQINFO("getSawMulti ret %d", _count);
+            return _count;
+        }
+
+        // lineSeen will be >= -2, <= 12
+        void sawLine(int lineSeen) {
+            const int index = line2Index(lineSeen);
+            _llCount[index]++;
+            if (_llCount[index] > 1) {
+                ++_count;
+            }
+        }
+    private:
+        // index -2 is zero
+        char _llCount[20] = {0};
+        int _count = 0;
+        const int _minLine = -3;
+
+        int line2Index(int line) {
+
+            assert(line >= _minLine);
+            assert(line <= 12);
+            if (line >= _minLine && line <= 12) return line - _minLine;
+            else return 0;
+        }
+    };
+
     /**
      * requirements:
      *      returns a valid note

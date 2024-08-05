@@ -127,11 +127,14 @@
  *              clearly the ll is whack for bass notes... Where does that come from
  *      draw single accidental in correct place (done)
  *      two note on one line (done)
- *      draw leger lines, when needed
+ *      draw leger lines, when needed (done)
+ *      C and C# draws as C and D# (done)
  *      get rid of midi note param in pos callback, if not needed.
  *      in spelling, discourage to notes on same line.
  *      make drawing of multiple accidentals look good.
  *      fix overlap of notes on adjacent leger lines.
+ * 
+ * 
  */
 
 // #define _LOG
@@ -704,7 +707,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
 
     for (auto mapIterator = info.begin(); mapIterator != info.end(); mapIterator++) {
-        //SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
+        // SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
         const auto llLocInfo = mapIterator->second.legerLinesLocInfo;
         //SQINFO("got info from func %f", llLocInfo.legerPos[0]);
         for (
@@ -712,6 +715,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             symbolIterator != mapIterator->second.symbols.end();
             ++symbolIterator) {
             const auto symbol = *symbolIterator;
+            // SQINFO("drawing symbol %s", symbol.toString().c_str());
             nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
             _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
         }
