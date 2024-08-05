@@ -16,11 +16,21 @@ using ScoreDrawUtilsPtr = std::unique_ptr<ScoreDrawUtils>;
 
 /***************** a bunch of utils used only internally **************************/
 namespace sdu {
+
+class LegerLinesLocInfo {
+public:
+    float legerPos[3] = {0};
+};
+
 class DrawPosition {
 public:
     std::function<float(const MidiNote& note, int legerLine, bool bassStaff)> noteYPosition =
         [](const MidiNote& note, int legerLine, bool bassStaff) {
             return 0.f;
+        };
+    std::function<LegerLinesLocInfo(const MidiNote& note, int legerLine, bool bassStaff)> llDrawInfo =
+        [](const MidiNote& note, int legerLine, bool bassStaff) {
+            return LegerLinesLocInfo();
         };
 
     float noteXPosition = 0;
@@ -44,6 +54,8 @@ public:
 class LegerLineInfo {
 public:
     std::vector<SymbolInfo> symbols;
+    LegerLinesLocInfo legerLinesLocInfo;
+
     void addOne(bool isAccidental, const std::string& glyph, float xPosition, float yPosition) {
         assert(symbols.size() < 4);
         SymbolInfo si;

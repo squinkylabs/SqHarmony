@@ -100,6 +100,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
 
         assert(drawPos.noteYPosition);
         const float yPosition = drawPos.noteYPosition(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
+        info.legerLinesLocInfo = drawPos.llDrawInfo(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
         info.addOne(false, _wholeNote, noteXPosition, yPosition);  // add this glyph for this note.
         const float accidentalXPosition = drawPos.noteXPosition - drawPos.columnWidth;
 #ifdef _LOG

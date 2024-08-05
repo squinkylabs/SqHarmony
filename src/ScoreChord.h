@@ -116,8 +116,8 @@
  *      use below
  * add tests for new API.
  * call API from VisualizerModule. use new conversion API.
- * 
- * 
+ *
+ *
  * For new drawing:
  *      make single note draw in correct place (done)
  *      implement bass staff (done)
@@ -220,6 +220,7 @@ private:
     };
     YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
     void _drawLegerLinesForNotes(const DrawArgs &args, const YInfo &uInfo, float xPos) const;
+    void _drawLegerLinesForNotes2(const DrawArgs &args, const LegerLinesLocInfo &uInfo, float xPos) const;
 
 #ifndef _NEWDRAW
     void _drawOneNote(
@@ -512,6 +513,15 @@ inline void ScoreChord::_drawLegerLinesForNotes(const DrawArgs &args, const YInf
     }
 }
 
+inline void ScoreChord::_drawLegerLinesForNotes2(const DrawArgs &args, const LegerLinesLocInfo &llli, float xPosition) const {
+    for (int i = 0; i < 3; ++i) {
+        if (llli.legerPos[i] != 0) {
+            //SQINFO("drawing a wide leger at %f,%f", xPosition, llli.legerPos[i]);
+            nvgText(args.vg, xPosition, llli.legerPos[i], _legerLineWide.c_str(), NULL);
+        } 
+    }
+}
+
 #ifndef _NEWDRAW
 inline void ScoreChord::_drawAccidental(const DrawArgs &args, float xPosition, float yPosition, NotationNote::Accidental accidental) const {
 #ifdef _LOG
@@ -670,27 +680,40 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
     DrawPosition drawPostion;
     drawPostion.noteXPosition = xPosition;
-  //  _deltaXAccidental
     drawPostion.columnWidth = _columnWidth;
-    // drawPostion.noteYPosition = this->_noteYInfo().position;
     drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
-       
         const float ret = yInfo.position;
-         SQINFO("ypos for pitch %d ll %d bass %d is %f", note.get(), legerLine, bassStaff, ret);
+        // SQINFO("ypos for pitch %d ll %d bass %d is %f", note.get(), legerLine, bassStaff, ret);
         return ret;
     };
-    //    YInfo _noteYInfo(const MidiNote &note, int legerLine, bool bassStaff) const;
+
+    drawPostion.llDrawInfo = [this](const MidiNote &note, int legerLine, bool bassStaff) {
+      
+        YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
+        //  SQINFO("in ll callback, linfo 0 = %f, %f, %f", yInfo.legerPos[0], yInfo.legerPos[1], yInfo.legerPos[2]);
+        LegerLinesLocInfo ret;
+        for (int i = 0; i < 3; ++i) {
+            ret.legerPos[i] = yInfo.legerPos[i];
+           // SQINFO("copied %d to %f", i, )
+        }
+        //SQINFO("callback will ret %f, %f, %f", ret.legerPos[0], ret.legerPos[1], ret.legerPos[2]);
+        return ret;
+    };
+
     auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
 
     for (auto mapIterator = info.begin(); mapIterator != info.end(); mapIterator++) {
-        SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
+        //SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
+        const auto llLocInfo = mapIterator->second.legerLinesLocInfo;
+        //SQINFO("got info from func %f", llLocInfo.legerPos[0]);
         for (
             auto symbolIterator = mapIterator->second.symbols.begin();
             symbolIterator != mapIterator->second.symbols.end();
             ++symbolIterator) {
             const auto symbol = *symbolIterator;
             nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
+            _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
         }
 
         // const float xPosition = iterator->second.

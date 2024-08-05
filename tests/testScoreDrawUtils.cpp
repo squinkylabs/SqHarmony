@@ -255,6 +255,30 @@ static void testTwoNotes() {
     assertClose(hSpacing, pos.columnWidth, .01);
 }
 
+static void testLegerLineCTreble() {
+    SqArray<int, 16> input = {MidiNote::MiddleC};
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    DrawPosition pos;
+    pos.llDrawInfo = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        LegerLinesLocInfo   ret;
+        ret.legerPos[0] = -1;
+        return ret;
+    };
+    pos.noteXPosition = 11;
+    const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps); 
+    assertEQ(info.size(), 1);
+    const auto legerLineIterator = info.begin();
+
+    const auto llInfo = legerLineIterator->second.legerLinesLocInfo;
+    assertEQ(legerLineIterator->second.symbols.size(), 1); 
+    assertEQ(legerLineIterator->second.symbols[0].glyph, ScoreDrawUtils::_wholeNote);
+ 
+    assertClose(llInfo.legerPos[0], -1, .001);
+    assertClose(llInfo.legerPos[1], 0, .001);
+    assertClose(llInfo.legerPos[2], 0, .001);
+}
+
 void testScoreDrawUtils() {
     test1();
     test2();
@@ -272,11 +296,13 @@ void testScoreDrawUtils() {
     testCBass();
     testTrebleLegerLine();
     testBassLegerLine();
+    testTwoNotes();
+    testLegerLineCTreble();
 }
 
 #if 1
 void testFirst() {
-    // testScoreDrawUtils();
-    testTwoNotes();
+    testScoreDrawUtils();
+    //testLegerLineCTreble();
 }
 #endif
