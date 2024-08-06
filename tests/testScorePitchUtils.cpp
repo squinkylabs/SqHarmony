@@ -143,9 +143,6 @@ static void testEVariations() {
     assertEQ(ScorePitchUtils::validate(variations.getAt(0), scale), true);
     assertEQ(ScorePitchUtils::validate(variations.getAt(1), scale), true);
 
-    //  SQINFO("var0 = %s", variations.getAt(0).toString().c_str());
-    //  SQINFO("var1 = %s", variations.getAt(1).toString().c_str());
-
     assertEQ(variations.getAt(0)._midiNote.get(), MidiNote::MiddleC + MidiNote::E);
     assertEQ(variations.getAt(1)._midiNote.get(), MidiNote::MiddleC + MidiNote::E);
     assert(variations.getAt(0)._accidental == NotationNote::Accidental::none);
@@ -154,9 +151,21 @@ static void testEVariations() {
     assertEQ(variations.getAt(1)._legerLine, 1);
 }
 
+static void testFVariationsInG() {
+    Scale scale(MidiNote(MidiNote::G), Scale::Scales::Major);
+    NotationNote nn = NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::F), NotationNote::Accidental::natural, 1, false);
+    // should give E# and F
+    auto variations = ScorePitchUtils::getVariations(nn, scale);
+    assertEQ(variations.numValid(), 2);
+}
+
 static void testValidate() {
     // SQINFO("---- testValidate()");
+
+    // All tests in C Major
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    // Valid middle C
     MidiNote mn(MidiNote::MiddleC);
     NotationNote nn = NotationNote(mn, NotationNote::Accidental::none, -2, false);
     assertEQ(ScorePitchUtils::validate(nn, scale), true);
@@ -217,6 +226,25 @@ static void testValidateCminor() {
     assertEQ(ScorePitchUtils::validate(nn2, scale), false);
 }
 
+static void testValidateGMajor() {
+    // Want F is E Sharp in G
+    Scale scale(MidiNote(MidiNote::G), Scale::Scales::Major);
+    MidiNote mn(MidiNote::MiddleC + MidiNote::F);
+
+    // E sharp should be valid in G Major
+    NotationNote nn = NotationNote(mn, NotationNote::Accidental::sharp, 0, false);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
+
+    // F natural should be valid in G major
+    nn = NotationNote(mn, NotationNote::Accidental::natural, 1, false);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
+
+    // F (nothing def to sharp) should be valid
+    MidiNote mnFS(MidiNote::MiddleC + MidiNote::F + 1);
+    nn = NotationNote(mnFS, NotationNote::Accidental::none, 1, false);
+    assertEQ(ScorePitchUtils::validate(nn, scale), true);
+}
+
 //    static void findSpelling( vlenArray<int, 16> inputPitch, vlenArray<NotationNote, 16> outputNotes, bool bassStaff);
 static void testFindSpelling() {
     SqArray<int, 16> inputPitch;
@@ -234,12 +262,11 @@ static void testFindSpelling() {
 }
 
 static void testFindSpelling(
-    const SqArray<NotationNote, 16>& expectedOutputNotes, 
-    const Scale& scale, 
-    const SqArray<int, 16>& inputPitches, 
+    const SqArray<NotationNote, 16>& expectedOutputNotes,
+    const Scale& scale,
+    const SqArray<int, 16>& inputPitches,
     bool bassStaff,
     UIPrefSharpsFlats prefs = UIPrefSharpsFlats::DefaultPlusSharps) {
-
     assertGT(inputPitches.numValid(), 0);
     const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff, prefs);
 
@@ -433,7 +460,6 @@ static void testFindSpelling9thNo5() {
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
 }
 
-
 static void testFindSpellingOneNoteCSharpInCMajor(bool sharp) {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
@@ -445,20 +471,20 @@ static void testFindSpellingOneNoteCSharpInCMajor(bool sharp) {
     UIPrefSharpsFlats prefs;
     if (sharp) {
         expectedOutputNotes.putAt(0, NotationNote(MidiNote(cSharp), NotationNote::Accidental::sharp, -2, false));
-        prefs = UIPrefSharpsFlats::Sharps; 
+        prefs = UIPrefSharpsFlats::Sharps;
     } else {
         expectedOutputNotes.putAt(0, NotationNote(MidiNote(cSharp), NotationNote::Accidental::flat, -1, false));
         prefs = UIPrefSharpsFlats::Flats;
     }
     SQINFO("will call find with prefs");
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false, prefs);
-} 
+}
 
 static void testFindSpellingOneNoteCSharpInCMajor() {
     testFindSpellingOneNoteCSharpInCMajor(true);
 }
 
-static void testFindSpellingOneNoteDFlatSharpInCMajor()  {
+static void testFindSpellingOneNoteDFlatSharpInCMajor() {
     testFindSpellingOneNoteCSharpInCMajor(false);
 }
 
@@ -643,22 +669,31 @@ static void testMakeCanonical() {
 static void testFindSpellingNotSameLine() {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
-    // TODO: make this work
-    // SqArray<int, 16> inputPitch = {MidiNote::MiddleC};
-    SqArray<int, 16> inputPitches;
-    inputPitches.putAt(0, MidiNote::MiddleC);
-    inputPitches.putAt(1, MidiNote::MiddleC + 1);
-   
-
+    SqArray<int, 16> inputPitches = {MidiNote::MiddleC, MidiNote::MiddleC + 1};
     SqArray<NotationNote, 16> expectedOutputNotes;
 
     // don't want to see C and C#, want C and D flat
     expectedOutputNotes.putAt(0, NotationNote(MidiNote(MidiNote::MiddleC), NotationNote::Accidental::none, -2, false));
     expectedOutputNotes.putAt(1, NotationNote(MidiNote(MidiNote::MiddleC + 1), NotationNote::Accidental::flat, -1, false));
-  
 
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
+}
 
+static void testFindSpellingFFSharpInG() {
+    Scale scale(MidiNote(MidiNote::G), Scale::Scales::Major);
+
+    SqArray<int, 16> inputPitches{
+        MidiNote::MiddleC + MidiNote::F,       // F
+        MidiNote::MiddleC + MidiNote::F + 1};  // F sharp
+
+    SqArray<NotationNote, 16> expectedOutputNotes{
+        // E sharp
+        NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::F), NotationNote::Accidental::sharp, 0, false),
+        // F sharp (F is naturally sharp in G)
+        NotationNote(MidiNote(MidiNote::MiddleC + MidiNote::F + 1), NotationNote::Accidental::none, 1, false),
+    };
+
+    testFindSpelling(expectedOutputNotes, scale, inputPitches, false);
 }
 
 static void testLegerLineTracker() {
@@ -685,21 +720,23 @@ void testScorePitchUtils() {
 
     testMakeCanonical();
 
-    testCMajor();
-    testCMinor();
-
     testValidate();
     testValidate2();
     testValidateCMajor();
     testValidateCminor();
+    testValidateGMajor();
     testNoteEFlatInEFlatMajor();
     testNoteEFlatInEFlatMinor();
+
+    testCMajor();
+    testCMinor();
 
     testReSpellCMajorCSharp();
     testReSpellCMajorDFlat();
     testReSpellCMajorCSharpTwice();
     testCSharpVariations();
     testEVariations();
+    testFVariationsInG();
 
     testFindSpelling();
     testFindSpellingCMajor();
@@ -708,7 +745,7 @@ void testScorePitchUtils() {
     testFindSpellingCminorFirstInversionInCMajorDupesEtc();
 
     SQINFO("make testFindSpellingDFlatMajorInCMajor work");
-   // testFindSpellingDFlatMajorInCMajor();
+    // testFindSpellingDFlatMajorInCMajor();
     testFindSpellingEMajorInCMajor();
 
     testFindSpellingOneNoteCSharpInCMajor();
@@ -719,13 +756,20 @@ void testScorePitchUtils() {
 
     testLegerLineTracker();
     testFindSpellingNotSameLine();
+    testFindSpellingFFSharpInG();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testLegerLineTracker();
-    testFindSpellingNotSameLine();
+    testFindSpellingFFSharpInG();
 
+    // testScorePitchUtils();
+
+    // SQINFO("------ first test");
+    //testValidateGMajor();
+
+    // SQINFO("------ second test");
+    // testFVariationsInG();
 }
 
 #endif

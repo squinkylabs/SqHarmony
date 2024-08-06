@@ -92,10 +92,12 @@ public:
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
      *
+     * @param note - input note, and output note if successful.
      * @param moreSharps - if true will attempt to re-spell at a lower pitch, with more sharps.
      * @return  true if success.
      */
     static bool reSpell(NotationNote& note, bool moreSharps, const Scale&);
+    static bool reSpellOnLegerLine(NotationNote&note, int legerLine, const Scale&);
 
     static bool validate(const NotationNote&, const Scale&);
 
@@ -119,6 +121,9 @@ public:
      * @return int - the adjustment in leger lines to move the note to the correct pitch, based on scale.
      */
     static int _getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine);
+
+
+    // This isn't used any more?
     static NotationNote makeCanonical(const NotationNote&);
 
 private:

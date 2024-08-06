@@ -303,7 +303,7 @@ void testScoreDrawUtils() {
     testLegerLineCTreble();
 }
 
-#if 1
+#if 0
 void testFirst() {
     //testScoreDrawUtils();
     //testLegerLineCTreble();

@@ -76,22 +76,39 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
 }
 
 bool ScorePitchUtils::_makeNoteAtLegerLine(NotationNote& nn, int legerLineTarget, const Scale& scale, bool bassStaff) {
+  //  SQINFO("enter make note at ll %d", legerLineTarget);
     auto newNote = NotationNote(nn._midiNote, NotationNote::Accidental::flat, legerLineTarget, bassStaff);
+  //  SQINFO("about to call validate on flat");
     if (validate(newNote, scale)) {
+    //    SQINFO("will use it");
         nn = newNote;
         return true;
     }
+  //  SQINFO("about to call validate on none");
     newNote = NotationNote(nn._midiNote, NotationNote::Accidental::none, legerLineTarget, bassStaff);
     if (validate(newNote, scale)) {
+     //   SQINFO("will use it");
         nn = newNote;
         return true;
     }
 
+  //  SQINFO("about to call validate on sharp");
     newNote = NotationNote(nn._midiNote, NotationNote::Accidental::sharp, legerLineTarget, bassStaff);
     if (validate(newNote, scale)) {
+   //     SQINFO("will use it");
         nn = newNote;
         return true;
     }
+
+  //  SQINFO("about to call validate on natural");
+    newNote = NotationNote(nn._midiNote, NotationNote::Accidental::natural, legerLineTarget, bassStaff);
+    if (validate(newNote, scale)) {
+    //    SQINFO("will use it");
+        nn = newNote;
+        return true;
+    }
+
+   // SQINFO("falling off end of _makeNoteAtLegerLine");
 
     // If no accidentals work, give up. We can't do it.
     return false;
@@ -101,6 +118,12 @@ bool ScorePitchUtils::reSpell(NotationNote& nn, bool moreSharps, const Scale& sc
     assert(validate(nn, scale));
     const int legerLineTarget = nn._legerLine + ((moreSharps) ? -1 : 1);
     return _makeNoteAtLegerLine(nn, legerLineTarget, scale, nn._bassStaff);
+}
+
+bool ScorePitchUtils::reSpellOnLegerLine(NotationNote& nn, int legerLine, const Scale& scale) {
+    assert(validate(nn, scale));
+  //  const int legerLineTarget = nn._legerLine + ((moreSharps) ? -1 : 1);
+    return _makeNoteAtLegerLine(nn, legerLine, scale, nn._bassStaff);
 }
 
 // Now problem is pitch from leger is wrong for keys that are on "accidentals"
@@ -236,31 +259,105 @@ int ScorePitchUtils::_getAjustmentForLeger(const Scale& scale, bool bassStaff, i
     return 0;
 }
 
+
 bool ScorePitchUtils::validate(const NotationNote& _nn, const Scale& scale) {
-    // SQINFO("validate called");
+ //   SQINFO("validate called on %s", _nn.toString().c_str());
+    const int midiNotePitch = _nn._midiNote.get();
+    const int legerPitch = pitchFromLeger(
+        _nn._bassStaff, 
+        _nn._legerLine, 
+        _nn._accidental, scale);
+
+    // SQINFO("midi pitch = %d, leger pitch = %d leger line=%d", midiNotePitch, legerPitch, _nn._legerLine);
+    // If the note is inconsistent in pitch, it can't be valid
+    if (midiNotePitch != legerPitch) {
+     //   SQINFO("fail on wrong pitch");
+        return false;
+    }
+
+   // const ScaleNote scaleNote = scale.m2s(_nn._midiNote);
+   // SQINFO("scale note oct=%d pitch=%d accid=%d", scaleNote.getOctave(), scaleNote.getDegree(), int(scaleNote.getAdjustment()));
+   // const bool noteInScale = (scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none);
+    if (_nn.isAccidental()) {
+        NotationNote nnStripped = _nn;
+        nnStripped._accidental = NotationNote::Accidental::none;
+        const int strippedLegerPitch = pitchFromLeger(
+            nnStripped._bassStaff, 
+            nnStripped._legerLine, 
+            nnStripped._accidental, 
+            scale);
+        // if a note is accidental, make sure the accidental is affecting the pitch.
+        return (strippedLegerPitch != legerPitch);
+    }
+    else {
+        return true;
+    }
+    assert(false);
+    return false;
+}
+
+SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn, const Scale& scale) {
+    assert(validate(nn, scale));
+    NotationNote temp = nn;
+    SqArray<NotationNote, 16> ret;
+    const int inputLegerLine = nn._legerLine;
+   
+    unsigned index = 0;
+    ret.putAt(index++, temp);
+    if (reSpellOnLegerLine(temp, inputLegerLine + 1, scale)) {
+        ret.putAt(index++, temp);
+    }
+    temp = nn;
+    if (reSpellOnLegerLine(temp, inputLegerLine - 1, scale)) {
+        ret.putAt(index++, temp);
+    }
+    // while (reSpell(temp, true, scale)) {
+    //     ret.putAt(index++, temp);
+    // }
+    // while (reSpell(temp, false, scale)) {
+    //     ret.putAt(index++, temp);
+    // }
+    SQINFO("+++ getVariations on %s found %d", nn.toString().c_str(), ret.numValid());
+    for (unsigned i=0; i<ret.numValid(); ++i) {
+        SQINFO("  [%d] = %s", i, ret.getAt(i).toString().c_str());
+    }
+    SQINFO("+++");
+    return ret;
+}
+
+
+#if 0 // OG way
+bool ScorePitchUtils::validate(const NotationNote& _nn, const Scale& scale) {
+    SQINFO("validate called on %s", _nn.toString().c_str());
     const int midiNotePitch = _nn._midiNote.get();
     const int legerPitch = pitchFromLeger(_nn._bassStaff, _nn._legerLine, _nn._accidental, scale);
 
     // SQINFO("midi pitch = %d, leger pitch = %d leger line=%d", midiNotePitch, legerPitch, _nn._legerLine);
     if (midiNotePitch != legerPitch) {
+        SQINFO("fail on wrong pitch");
         return false;
     }
 
     NotationNote nn = makeCanonical(_nn);
+    SQINFO("made canonical: %s", nn.toString().c_str());
 
     // so if the pitch is in the key, it doesn't need an accidental. Otherwise it does.
     const ScaleNote scaleNote = scale.m2s(nn._midiNote);
+    SQINFO("scale note oct=%d pitch=%d accid=%d", scaleNote.getOctave(), scaleNote.getDegree(), int(scaleNote.getAdjustment()));
     const bool noteInScale = (scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none);
     if (nn._accidental == NotationNote::Accidental::none) {
-        // SQINFO("we are validating a none, returning %d", noteInScale);
+        SQINFO("we are validating a none, returning %d", noteInScale);
+        if (!noteInScale) SQINFO("fail on no accidental in canonical, but note not in scale");
         return noteInScale;
     } else {
-        // SQINFO("we are validating a sn with accid, returning %d", !noteInScale);
+        if (noteInScale) SQINFO("fail on have accidental, but is in scale");
+        SQINFO("we are validating a sn with accid, returning %d", !noteInScale);
         return !noteInScale;
     }
 
     assert(false);
 }
+
 
 SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn, const Scale& scale) {
     assert(validate(nn, scale));
@@ -276,8 +373,13 @@ SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn,
         ret.putAt(index++, temp);
     }
     // SQINFO("getVariations returning %d", ret.numValid());
+    SQINFO("-- getVariations on %s found %d", nn.toString().c_str(), ret.numValid());
+    for (unsigned i=0; i<ret.numValid(); ++i) {
+        SQINFO("  [%d] = %s", i, ret.getAt(i).toString().c_str());
+    }
     return ret;
 }
+#endif
 
 NotationNote ScorePitchUtils::makeCanonical(const NotationNote& note) {
     if (note._accidental == NotationNote::Accidental::sharp) {
@@ -312,9 +414,7 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
         
     }
 
-
     thePrefs.sharpsOrFlats = resolveSharpPref(pref, scale);
-
 
     SqArray<NotationNote, 16> outputNotes;
     const auto info = ChordRecognizer::recognize(inputPitches);
@@ -341,8 +441,6 @@ ScorePitchUtils::SpellingResults ScorePitchUtils::_findSpelling(
     const auto defaultNotationNote = getNotationNote(scale, currentMidiNote, bassStaff);
     const auto currentVariations = getVariations(defaultNotationNote, scale);
 
-    //  SQINFO("will recurse");
-    //  unsigned bestIndex = 0;
     int bestScore = -1000000;
     ScorePitchUtils::SpellingResults bestResult;
 

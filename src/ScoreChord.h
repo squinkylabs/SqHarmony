@@ -129,10 +129,13 @@
  *      two note on one line (done)
  *      draw leger lines, when needed (done)
  *      C and C# draws as C and D# (done)
+ *      F and F# draw both on F in G major
  *      get rid of midi note param in pos callback, if not needed.
- *      in spelling, discourage to notes on same line.
+ *      in spelling, discourage to notes on same line. (done)
  *      make drawing of multiple accidentals look good.
  *      fix overlap of notes on adjacent leger lines.
+ *      get rid of NotationNote::makeCanonical(), if not used.
+ *      get rid of reSpell, it not used.
  * 
  * 
  */
