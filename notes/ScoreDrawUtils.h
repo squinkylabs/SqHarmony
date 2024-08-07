@@ -60,7 +60,6 @@ public:
         si.yPosition = yPosition;
         si.isAccidental = isAccidental;
         symbols.push_back(si);
-        // SQINFO("in LLI.addOne, added %s, now there are %d symbols", si.toString().c_str(), symbols.size());
     }
     void sort() {
         std::sort(symbols.begin(), symbols.end(), [](const SymbolInfo& first, const SymbolInfo& second) {
@@ -96,6 +95,7 @@ public:
     inline static const std::string _natural = u8"\ue261";
     inline static const std::string _sharp = u8"\ue262";
     void _divideClefs(ScorePitchUtils::SpellingResults& s);
+    void _adjustNoteSpacing(const DrawPosition& pos);
 private:
     std::map<int, LegerLineInfo> _info;
     

@@ -709,6 +709,18 @@ static void testLegerLineTracker() {
     assertEQ(llt.getSawMulti(), 2);
 }
 
+static void testLegerLineTracker2() {
+    ScorePitchUtils::LegerLineTracker llt;
+    llt.sawLine(128);
+    llt.sawLine(-128);
+
+    assertEQ(llt.getSawMulti(), 0);
+    llt.sawLine(128);
+    assertEQ(llt.getSawMulti(), 1);
+     llt.sawLine(-128);
+    assertEQ(llt.getSawMulti(), 2);
+}
+
 void testScorePitchUtils() {
     test();
     testGetAjustmentForLeger();
@@ -755,15 +767,17 @@ void testScorePitchUtils() {
     // testFindSpelling9thNo5();
 
     testLegerLineTracker();
+    testLegerLineTracker2();
     testFindSpellingNotSameLine();
     testFindSpellingFFSharpInG();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    testFindSpellingFFSharpInG();
+   // testLegerLineTracker2();
+  //  testFindSpellingFFSharpInG();
 
-    // testScorePitchUtils();
+     testScorePitchUtils();
 
     // SQINFO("------ first test");
     //testValidateGMajor();

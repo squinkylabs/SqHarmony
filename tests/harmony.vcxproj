@@ -252,6 +252,7 @@
     <ClCompile Include="testSharpFlatMonitor.cpp" />
     <ClCompile Include="testSharpsFlatsPref.cpp" />
     <ClCompile Include="testShiftCalc.cpp" />
+    <ClCompile Include="testShiftingArray.cpp" />
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testSqArray.cpp" />

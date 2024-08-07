@@ -17,7 +17,6 @@ public:
     class LegerLineTracker {
     public:
         int getSawMulti() const {
-            SQINFO("getSawMulti ret %d", _count);
             return _count;
         }
 
@@ -31,15 +30,17 @@ public:
         }
     private:
         // index -2 is zero
-        char _llCount[20] = {0};
+        char _llCount[256 + 1] = {0};
         int _count = 0;
-        const int _minLine = -3;
+        const int _minLine = -128;
+        const int _maxLine = 128;
 
         int line2Index(int line) {
+            assert((_maxLine - _minLine) >= 256);
 
             assert(line >= _minLine);
-            assert(line <= 12);
-            if (line >= _minLine && line <= 12) return line - _minLine;
+            assert(line <= _maxLine);
+            if (line >= _minLine && line <= _maxLine) return line - _minLine;
             else return 0;
         }
     };

@@ -88,6 +88,7 @@ extern void testLegerScore();
 extern void testNotationNote();
 extern void testMidiNote();
 extern void testSqArray();
+extern void testShiftingArray();
 extern void testSharpsFlatsPref();
 extern void testScoreDrawUtils();
 
@@ -164,6 +165,7 @@ int main(const char**, int) {
 
   
     testSqArray();
+    testShiftingArray();
     testNotes();
     testLegerScore();
     testScaleNotes();

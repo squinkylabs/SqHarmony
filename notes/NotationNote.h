@@ -89,7 +89,8 @@ inline std::string NotationNote::toString() const {
         default:
             assert(false);
     }
-    s << ", ll=";
+    s << ", legl=";
     s << _legerLine;
+    s << (_bassStaff ? " <bass>" : " <treble>");
     return s.str();
 }

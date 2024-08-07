@@ -31,16 +31,16 @@ void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults& s) {
         const unsigned pitch = note.pitch();
         // group middle C with other notes, if they are all in bass.
         const bool wasBassStaff = note._bassStaff;
-        note._bassStaff = (pitch == MidiNote::MiddleC) ? (areBassNotes && !areTrebleNotes) : pitch < MidiNote::MiddleC; 
+        note._bassStaff = (pitch == MidiNote::MiddleC) ? (areBassNotes && !areTrebleNotes) : pitch < MidiNote::MiddleC;
         if (note._bassStaff && !wasBassStaff) {
             note._legerLine += 12;
         }
 #ifdef _LOG
         SQINFO(
-            "_divideClefs pitch=%d bass=%d areBass=%d areTreb =%d midc=%d", 
-            pitch, 
-            note._bassStaff, 
-            areBassNotes, 
+            "_divideClefs pitch=%d bass=%d areBass=%d areTreb =%d midc=%d",
+            pitch,
+            note._bassStaff,
+            areBassNotes,
             areTrebleNotes,
             MidiNote::MiddleC);
 #endif
@@ -65,20 +65,18 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
     const Scale& scale,
     const SqArray<int, 16>& input,
     UIPrefSharpsFlats pref) {
-
-    // Find the spelling for treble cleff
+    // Find the spelling for treble clef
     auto spelling = ScorePitchUtils::findSpelling(scale, input, false, pref);
 
     _divideClefs(spelling);
     for (unsigned pitchIterator = 0; pitchIterator < spelling.notes.numValid(); ++pitchIterator) {
         const auto notationNote = spelling.notes.getAt(pitchIterator);
-        //  const MidiNote &mn = notationNote._midiNote;
-
         // put it into the map
         const int legerLine = notationNote._legerLine;
 
 #ifdef _LOG
         SQINFO("in getDrawInfo pitch=%d ll=%d nn.pitch=%d", pitchIterator, legerLine, notationNote.pitch());
+        SQINFO("notationNote = %s", notationNote.toString().c_str());
 #endif
         bool isAlreadyNoteOnThisLine = true;
         auto iter = _info.find(legerLine);
@@ -104,8 +102,8 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         info.addOne(false, _wholeNote, noteXPosition, yPosition);  // add this glyph for this note.
         const float accidentalXPosition = drawPos.noteXPosition - drawPos.columnWidth;
 #ifdef _LOG
-        SQINFO("drawing note at %f, accidental at %f", drawPos.noteXPosition, accidentalXPosition);
-    #endif
+        SQINFO("drawing note at %f, accidental at %f y=%f", drawPos.noteXPosition, accidentalXPosition, yPosition);
+#endif
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
                 info.addOne(true, _flat, accidentalXPosition, yPosition);
@@ -130,5 +128,32 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         SQINFO("map[%d] = %s", iterator->first, iterator->second.toString().c_str());
     }
 #endif
+
+    _adjustNoteSpacing(drawPos);
     return _info;
 }
+
+void ScoreDrawUtils::_adjustNoteSpacing(const DrawPosition& pos) {
+    if (_info.size() < 3) {
+        return;
+    }
+#if 0
+    auto line = _info.begin();
+    auto nextLine = line;
+    nextLine++;
+    for (; nextLine != _info.end(); ++line, ++nextLine) {
+        auto lineSymbolIterator= line->second.symbols.begin();
+        auto nextLineSymbolIterator= nextLine->second.symbols.begin();
+        while (lineSymbolIterator->glyph != ScoreDrawUtils::_wholeNote) && (lineSymbolIterator != line->second.symbols.end()) {
+            ++lineSymbolIterator;
+        }
+        while (nextLineSymbolIterator->glyph != ScoreDrawUtils::_wholeNote) && (nextLineSymbolIterator != nextLine->second.symbols.end()) {
+            ++nextLineSymbolIterator;
+        }
+        
+
+
+    }
+#endif
+    assert(false);
+ }

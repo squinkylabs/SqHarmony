@@ -129,7 +129,7 @@
  *      two note on one line (done)
  *      draw leger lines, when needed (done)
  *      C and C# draws as C and D# (done)
- *      F and F# draw both on F in G major
+ *      F and F# draw both on F in G major (done)
  *      get rid of midi note param in pos callback, if not needed.
  *      in spelling, discourage to notes on same line. (done)
  *      make drawing of multiple accidentals look good.
