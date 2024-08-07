@@ -8,6 +8,7 @@
 
 #include "ScorePitchUtils.h"
 #include "SharpsFlatsPref.h"
+#include "ShiftingArray.h"
 #include "SqArray.h"
 
 class Scale;
@@ -49,6 +50,7 @@ public:
 
 class LegerLineInfo {
 public:
+   // ShiftingArray<SymbolInfo> symbols;
     std::vector<SymbolInfo> symbols;
     LegerLinesLocInfo legerLinesLocInfo;
 

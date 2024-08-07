@@ -17,9 +17,26 @@ static void testPush() {
     assertEQ(sa[0], 22);
 }
 
+static void testIterator() {
+    ShiftingArray<int> sa;
+    sa.push_back(22);
+
+    const auto iter = sa.begin();
+    int x = *iter;
+    assertEQ(x, 22);
+
+    int count = 0;
+    for (auto iter = sa.begin(); iter != sa.end(); ++iter) {
+        ++count;
+        assertEQ(*iter, 22);
+    }
+    assertEQ(count, 1);
+}
+
 void testShiftingArray() {
     testInitialConditions();
     testPush();
+    testIterator();
 }
 
 #if 1
