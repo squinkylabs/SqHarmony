@@ -136,8 +136,8 @@
  *      fix overlap of notes on adjacent leger lines.
  *      get rid of NotationNote::makeCanonical(), if not used.
  *      get rid of reSpell, it not used.
- * 
- * 
+ *
+ *
  */
 
 // #define _LOG
@@ -522,9 +522,9 @@ inline void ScoreChord::_drawLegerLinesForNotes(const DrawArgs &args, const YInf
 inline void ScoreChord::_drawLegerLinesForNotes2(const DrawArgs &args, const LegerLinesLocInfo &llli, float xPosition) const {
     for (int i = 0; i < 3; ++i) {
         if (llli.legerPos[i] != 0) {
-            //SQINFO("drawing a wide leger at %f,%f", xPosition, llli.legerPos[i]);
+            // SQINFO("drawing a wide leger at %f,%f", xPosition, llli.legerPos[i]);
             nvgText(args.vg, xPosition, llli.legerPos[i], _legerLineWide.c_str(), NULL);
-        } 
+        }
     }
 }
 
@@ -695,15 +695,14 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     };
 
     drawPostion.llDrawInfo = [this](const MidiNote &note, int legerLine, bool bassStaff) {
-      
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
         //  SQINFO("in ll callback, linfo 0 = %f, %f, %f", yInfo.legerPos[0], yInfo.legerPos[1], yInfo.legerPos[2]);
         LegerLinesLocInfo ret;
         for (int i = 0; i < 3; ++i) {
             ret.legerPos[i] = yInfo.legerPos[i];
-           // SQINFO("copied %d to %f", i, )
+            // SQINFO("copied %d to %f", i, )
         }
-        //SQINFO("callback will ret %f, %f, %f", ret.legerPos[0], ret.legerPos[1], ret.legerPos[2]);
+        // SQINFO("callback will ret %f, %f, %f", ret.legerPos[0], ret.legerPos[1], ret.legerPos[2]);
         return ret;
     };
 
@@ -712,15 +711,25 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     for (auto mapIterator = info.begin(); mapIterator != info.end(); mapIterator++) {
         // SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
         const auto llLocInfo = mapIterator->second.legerLinesLocInfo;
-        //SQINFO("got info from func %f", llLocInfo.legerPos[0]);
+        // SQINFO("got info from func %f", llLocInfo.legerPos[0]);
         for (
-            auto symbolIterator = mapIterator->second.symbols.begin();
-            symbolIterator != mapIterator->second.symbols.end();
+            auto symbolIterator = mapIterator->second.notes.begin();
+            symbolIterator != mapIterator->second.notes.end();
             ++symbolIterator) {
             const auto symbol = *symbolIterator;
             // SQINFO("drawing symbol %s", symbol.toString().c_str());
             nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
             _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
+        }
+
+        for (
+            auto symbolIterator = mapIterator->second.accidentals.begin();
+            symbolIterator != mapIterator->second.accidentals.end();
+            ++symbolIterator) {
+            const auto symbol = *symbolIterator;
+            // SQINFO("drawing symbol %s", symbol.toString().c_str());
+            nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
+           // _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
         }
 
         // const float xPosition = iterator->second.

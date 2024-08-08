@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 #include <algorithm>
 #include <vector>
 
@@ -13,19 +15,11 @@ public:
     bool empty() const;
     unsigned size() const;
     void push_back(const T& t);
-    void shift();
+    void shift(const T& t);  // pushes 't' in the front, if anything in array.
+    void shift(unsigned times, const T& t);
 
     const T& operator[](unsigned index) const;
 
-    // using iterator = const std::vector<T>::iterator;
-
-    //  typedef std::vector<BAR>::iterator bar_iterator;
-    // LegacyRandomAccessIterator
-    //  typedef std::vector<T>::iterator iteratorxx;
-
-    // iterator begin();
-    //  std::vector<T>::iterator begin();
-    //   iterator end();
     using container = std::vector<T>;
     using iterator = typename container::iterator;
 
@@ -37,13 +31,30 @@ private:
 };
 
 template <typename T>
+inline void ShiftingArray<T>::shift(const T& t) {
+    shift(1, t);
+}
+
+template <typename T>
+inline void ShiftingArray<T>::shift(unsigned times, const T& t) {
+    if (_vector.empty()) {
+        return;
+    }
+    for (unsigned i = 0; i < times; ++i) {
+        const auto iterator = _vector.begin();
+        assert(iterator != _vector.end());
+        _vector.insert(iterator, t);
+    }
+}
+
+template <typename T>
 inline bool ShiftingArray<T>::empty() const {
     return _vector.empty();
 }
 
 template <typename T>
 inline unsigned ShiftingArray<T>::size() const {
-    return _vector.size();
+    return unsigned(_vector.size());
 }
 
 template <typename T>

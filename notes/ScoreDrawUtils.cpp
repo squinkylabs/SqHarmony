@@ -61,7 +61,7 @@ Algorithm:
 */
 
 const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
-    const DrawPosition& drawPos,
+    const DrawPositionParams& drawPos,
     const Scale& scale,
     const SqArray<int, 16>& input,
     UIPrefSharpsFlats pref) {
@@ -99,20 +99,21 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         assert(drawPos.noteYPosition);
         const float yPosition = drawPos.noteYPosition(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
         info.legerLinesLocInfo = drawPos.llDrawInfo(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
-        info.addOne(false, _wholeNote, noteXPosition, yPosition);  // add this glyph for this note.
+        info.addNote(_wholeNote, noteXPosition, yPosition);  // add this glyph for this note.
+
         const float accidentalXPosition = drawPos.noteXPosition - drawPos.columnWidth;
 #ifdef _LOG
         SQINFO("drawing note at %f, accidental at %f y=%f", drawPos.noteXPosition, accidentalXPosition, yPosition);
 #endif
         switch (notationNote._accidental) {
             case NotationNote::Accidental::flat:
-                info.addOne(true, _flat, accidentalXPosition, yPosition);
+                info.addAccidental(_flat, accidentalXPosition, yPosition);
                 break;
             case NotationNote::Accidental::natural:
-                info.addOne(true, _natural, accidentalXPosition, yPosition);
+                info.addAccidental(_natural, accidentalXPosition, yPosition);
                 break;
             case NotationNote::Accidental::sharp:
-                info.addOne(true, _sharp, accidentalXPosition, yPosition);
+                info.addAccidental(_sharp, accidentalXPosition, yPosition);
                 break;
             case NotationNote::Accidental::none:
                 break;
@@ -120,7 +121,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
                 assert(false);
         }
 
-        info.sort();
+        // info.sort();
     }
 
 #ifdef _LOG
@@ -133,27 +134,37 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
     return _info;
 }
 
-void ScoreDrawUtils::_adjustNoteSpacing(const DrawPosition& pos) {
-    if (_info.size() < 3) {
+void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
+    if (_info.size() < 2) {
         return;
     }
-#if 0
+
     auto line = _info.begin();
     auto nextLine = line;
     nextLine++;
     for (; nextLine != _info.end(); ++line, ++nextLine) {
-        auto lineSymbolIterator= line->second.symbols.begin();
-        auto nextLineSymbolIterator= nextLine->second.symbols.begin();
-        while (lineSymbolIterator->glyph != ScoreDrawUtils::_wholeNote) && (lineSymbolIterator != line->second.symbols.end()) {
-            ++lineSymbolIterator;
+        const int lineLegerLine = line->first;
+        const int lineNextLine = nextLine->first;
+        SQINFO("ll=%d n=%d", lineLegerLine, lineNextLine);
+        if (lineNextLine == (lineLegerLine + 1)) {
+            _adjustNoteSpacing(nextLine, line, pos);
         }
-        while (nextLineSymbolIterator->glyph != ScoreDrawUtils::_wholeNote) && (nextLineSymbolIterator != nextLine->second.symbols.end()) {
-            ++nextLineSymbolIterator;
-        }
-        
-
-
     }
-#endif
-    assert(false);
- }
+}
+
+void ScoreDrawUtils::_adjustNoteSpacing(
+    iterator nextLine,
+    iterator line,
+    const DrawPositionParams& pos) {
+
+    bool isNoteBelow[4]{false};
+    const auto& refNotes = line->second.notes;
+    for (unsigned i = 0; i < refNotes.size(); ++i) {
+        isNoteBelow[i] = true;
+    }
+
+    const auto& currentNotes = nextLine->second.notes;
+
+    
+    assert(false);// finish me
+}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include <map>
 #include <memory>
@@ -23,7 +24,7 @@ public:
     float legerPos[3] = {0};
 };
 
-class DrawPosition {
+class DrawPositionParams {
 public:
     std::function<float(const MidiNote& note, int legerLine, bool bassStaff)> noteYPosition =
         [](const MidiNote& note, int legerLine, bool bassStaff) {
@@ -43,36 +44,44 @@ public:
     std::string glyph;
     float xPosition = 0;
     float yPosition = 0;
-    bool isAccidental = false;
-   
     std::string toString() const;
 };
 
 class LegerLineInfo {
 public:
-   // ShiftingArray<SymbolInfo> symbols;
-    std::vector<SymbolInfo> symbols;
+    ShiftingArray<SymbolInfo> notes;
+    ShiftingArray<SymbolInfo> accidentals;
     LegerLinesLocInfo legerLinesLocInfo;
 
-    void addOne(bool isAccidental, const std::string& glyph, float xPosition, float yPosition) {
-        assert(symbols.size() < 4);
+    void addNote(const std::string& glyph, float xPosition, float yPosition) {
         SymbolInfo si;
         si.glyph = glyph;
         si.xPosition = xPosition;
         si.yPosition = yPosition;
-        si.isAccidental = isAccidental;
-        symbols.push_back(si);
+        notes.push_back(si);
     }
-    void sort() {
-        std::sort(symbols.begin(), symbols.end(), [](const SymbolInfo& first, const SymbolInfo& second) {
-            return first.isAccidental && !second.isAccidental;
-        });
+    void addAccidental(const std::string& glyph, float xPosition, float yPosition) {
+        SymbolInfo si;
+        si.glyph = glyph;
+        si.xPosition = xPosition;
+        si.yPosition = yPosition;
+        accidentals.push_back(si);
     }
+    // void sort() {
+    //     std::sort(symbols.begin(), symbols.end(), [](const SymbolInfo& first, const SymbolInfo& second) {
+    //         // sort the symbols so accidentals are first.
+    //         return first.isAccidental && !second.isAccidental;
+    //     });
+    // }
     std::string toString() const {
         std::stringstream s;
-        s << "there are " << symbols.size() << " symbols" << std::endl;
-        for (unsigned i = 0; i < symbols.size(); ++i) {
-            s << symbols[i].toString() << std::endl;
+        s << "there are " << notes.size() << " notes" << std::endl;
+        for (unsigned i = 0; i < notes.size(); ++i) {
+            s << notes[i].toString() << std::endl;
+        }
+         s << "there are " << accidentals.size() << " accidentals" << std::endl;
+        for (unsigned i = 0; i < accidentals.size(); ++i) {
+            s << accidentals[i].toString() << std::endl;
         }
         return s.str();
     }
@@ -87,7 +96,7 @@ public:
     static ScoreDrawUtilsPtr make();
 
     const std::map<int, LegerLineInfo> getDrawInfo(
-        const DrawPosition& pos,
+        const DrawPositionParams& pos,
         const Scale& scale,
         const SqArray<int, 16>& input,
         UIPrefSharpsFlats pref);
@@ -97,10 +106,17 @@ public:
     inline static const std::string _natural = u8"\ue261";
     inline static const std::string _sharp = u8"\ue262";
     void _divideClefs(ScorePitchUtils::SpellingResults& s);
-    void _adjustNoteSpacing(const DrawPosition& pos);
+    void _adjustNoteSpacing(const DrawPositionParams& pos);
+   
+
 private:
+    using iterator = std::map<int, LegerLineInfo>::iterator;
     std::map<int, LegerLineInfo> _info;
-    
+
+     void _adjustNoteSpacing(
+        iterator nextLine,
+        iterator line,
+        const DrawPositionParams& pos);
 };
 
 inline std::string SymbolInfo::toString() const {
@@ -118,10 +134,8 @@ inline std::string SymbolInfo::toString() const {
         g = "???";
     }
 
-
     std::stringstream s;
-    s << "isAcc=" << isAccidental;
-    s << " glyph=" << g;
+    s << "glyph=" << g;
     s << " x=" << xPosition << " y=" << yPosition << std::endl;
     return s.str();
 }
