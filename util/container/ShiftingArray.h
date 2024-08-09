@@ -19,6 +19,7 @@ public:
     void shift(unsigned times, const T& t);
 
     const T& operator[](unsigned index) const;
+    T& operator[](unsigned index);
 
     using container = std::vector<T>;
     using iterator = typename container::iterator;
@@ -64,6 +65,11 @@ inline void ShiftingArray<T>::push_back(const T& t) {
 
 template <typename T>
 inline const T& ShiftingArray<T>::operator[](unsigned index) const {
+    return _vector[index];
+}
+
+template <typename T>
+inline T& ShiftingArray<T>::operator[](unsigned index) {
     return _vector[index];
 }
 

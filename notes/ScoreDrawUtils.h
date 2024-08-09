@@ -41,6 +41,8 @@ public:
 
 class SymbolInfo {
 public:
+    SymbolInfo() {}
+    SymbolInfo(const std::string gly) : glyph(gly) {}
     std::string glyph;
     float xPosition = 0;
     float yPosition = 0;
@@ -130,6 +132,8 @@ inline std::string SymbolInfo::toString() const {
         g = "flat";
     } else if (glyph == ScoreDrawUtils::_natural) {
         g = "natural";
+    } else if (glyph.empty()) {
+        g = "-";
     } else {
         g = "???";
     }

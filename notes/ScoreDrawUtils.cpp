@@ -147,6 +147,7 @@ void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
         const int lineNextLine = nextLine->first;
         SQINFO("ll=%d n=%d", lineLegerLine, lineNextLine);
         if (lineNextLine == (lineLegerLine + 1)) {
+            
             _adjustNoteSpacing(nextLine, line, pos);
         }
     }
@@ -160,11 +161,28 @@ void ScoreDrawUtils::_adjustNoteSpacing(
     bool isNoteBelow[4]{false};
     const auto& refNotes = line->second.notes;
     for (unsigned i = 0; i < refNotes.size(); ++i) {
-        isNoteBelow[i] = true;
+        if (!refNotes[i].glyph.empty()) {
+            isNoteBelow[i] = true;
+        }
     }
 
-    const auto& currentNotes = nextLine->second.notes;
+    // now, go through the notes in the line we are adjusting
+     auto& currentNotes = nextLine->second.notes;
+     for (unsigned i = 0; i < currentNotes.size(); ++i) {
+        if (isNoteBelow[i]) {
+            bool haveNoteHere = !currentNotes[i].glyph.empty();  
+            if (haveNoteHere) {
 
-    
-    assert(false);// finish me
+                currentNotes.shift(std::string());
+              //  nextLine->second.notes.shift("");
+            }   
+        }
+    }
+    for (unsigned i = 0; i < currentNotes.size(); ++i) {
+        //bool haveNoteHere = !currentNotes[i].glyph.empty(); 
+       // SymbolInfo& si = currentNotes[i]; 
+        currentNotes[i].xPosition = pos.noteXPosition + i * pos.columnWidth;
+    }
+    SQINFO("leave adj next = %s", nextLine->second.toString().c_str());
+    SQINFO("leave adj ref = %s", line->second.toString().c_str());
 }

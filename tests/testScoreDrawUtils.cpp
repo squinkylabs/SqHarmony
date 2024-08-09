@@ -312,9 +312,15 @@ static void testCD() {
     assertEQ(info.size(), 2);
     auto legerLineIterator = info.begin();
 
+    assertEQ(legerLineIterator->second.notes.size(), 1);
     const float xPosC = legerLineIterator->second.notes[0].xPosition;
     legerLineIterator++;
-    const float xPosD = legerLineIterator->second.notes[0].xPosition;
+
+    // expect a blank due to moving over.
+    assertEQ(legerLineIterator->second.notes.size(), 2);
+    assertEQ(legerLineIterator->second.notes[0].glyph.empty(), true);
+    assertEQ(legerLineIterator->second.notes[1].glyph, ScoreDrawUtils::_wholeNote);
+    const float xPosD = legerLineIterator->second.notes[1].xPosition;
 
     assert(pos.columnWidth > 0);
     assert(xPosD == xPosC + pos.columnWidth);

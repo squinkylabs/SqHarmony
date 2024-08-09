@@ -200,7 +200,7 @@ private:
     const float _deltaXAccidental = -2.2 * _zoom;  // accidental drawn this far from note, in x di
                                                    // for single note, -8 is way too much, -4 tolerable, -2 just about touching.
                                                    // 0 is on top, as it should be. -2.2 is pretty good for single notes.
-    const float _columnWidth = 4 * _zoom;
+    const float _columnWidth = 6 * _zoom;
 
     const float _noteXIndent = 6;  // Distance from the keysig to the first note, horizontally.
 
@@ -684,7 +684,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     SqArray<int, 16> inputNotes(originalPitches, originalPitches + channels);
     UIPrefSharpsFlats pref = _module->getSharpsFlatsPref();
     ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
-    DrawPosition drawPostion;
+    DrawPositionParams drawPostion;
     drawPostion.noteXPosition = xPosition;
     drawPostion.columnWidth = _columnWidth;
     drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
@@ -731,10 +731,6 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
            // _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
         }
-
-        // const float xPosition = iterator->second.
-        // nvgText(args.vg, xPosition + noteXOffset, yInfo.position, notePtr, NULL);
-        // NotationNote
     }
 }
 #endif
