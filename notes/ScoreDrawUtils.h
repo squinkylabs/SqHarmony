@@ -36,7 +36,8 @@ public:
         };
 
     float noteXPosition = 0;
-    float columnWidth = 1;
+    float noteColumnWidth = 1;
+    float accidentalColumnWidth = 3.5f;
 };
 
 class SymbolInfo {
@@ -81,7 +82,7 @@ public:
         for (unsigned i = 0; i < notes.size(); ++i) {
             s << notes[i].toString() << std::endl;
         }
-         s << "there are " << accidentals.size() << " accidentals" << std::endl;
+        s << "there are " << accidentals.size() << " accidentals" << std::endl;
         for (unsigned i = 0; i < accidentals.size(); ++i) {
             s << accidentals[i].toString() << std::endl;
         }
@@ -109,15 +110,21 @@ public:
     inline static const std::string _sharp = u8"\ue262";
     void _divideClefs(ScorePitchUtils::SpellingResults& s);
     void _adjustNoteSpacing(const DrawPositionParams& pos);
-   
+    void _adjustAccidentalSpacing(const DrawPositionParams& pos);
 
 private:
     using iterator = std::map<int, LegerLineInfo>::iterator;
     std::map<int, LegerLineInfo> _info;
 
-     void _adjustNoteSpacing(
+    void _adjustNoteSpacing(
         iterator nextLine,
         iterator line,
+        const DrawPositionParams& pos);
+
+    void _adjustAccidentalSpacing(
+        LegerLineInfo* currentLine,
+        LegerLineInfo* firstRefLine,
+        LegerLineInfo* secondRefLine,
         const DrawPositionParams& pos);
 };
 

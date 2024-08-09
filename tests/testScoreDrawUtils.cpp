@@ -47,7 +47,6 @@ static void testAccidental() {
     assertEQ(info.size(), 1);
     const auto iter = info.find(-2);
 
- 
     assertEQ(iter->second.notes.size(), 1);
     assertEQ(iter->second.accidentals.size(), 1);
 
@@ -62,7 +61,7 @@ static void test2OneLine() {
     assertEQ(info.size(), 1);
 
     const auto iter = info.find(-2);
-  //  assertEQ(iter->second.symbols.size(), 3);  // expect #, C, C
+    //  assertEQ(iter->second.symbols.size(), 3);  // expect #, C, C
     assert(false);
 }
 
@@ -83,7 +82,7 @@ static void testXPos() {
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
 
     assertEQ(info.size(), 1);
-    
+
     assertEQ(info.begin()->second.accidentals.size(), 1);
     assertEQ(info.begin()->second.notes.size(), 1);
     assertEQ(info.begin()->second.accidentals[0].xPosition, 10);
@@ -103,9 +102,9 @@ static void testYPos() {
     };
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 1);  // expect C and sharp on one line
- 
+
     assertEQ(info.begin()->second.notes.size(), 1)
-    assertEQ(info.begin()->second.accidentals.size(), 1);
+        assertEQ(info.begin()->second.accidentals.size(), 1);
 
     assertEQ(info.begin()->second.notes[0].yPosition, -2);
     assertEQ(info.begin()->second.accidentals[0].yPosition, -2);
@@ -307,7 +306,7 @@ static void testCD() {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
     DrawPositionParams pos;
-   
+
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 2);
     auto legerLineIterator = info.begin();
@@ -322,8 +321,33 @@ static void testCD() {
     assertEQ(legerLineIterator->second.notes[1].glyph, ScoreDrawUtils::_wholeNote);
     const float xPosD = legerLineIterator->second.notes[1].xPosition;
 
-    assert(pos.columnWidth > 0);
-    assert(xPosD == xPosC + pos.columnWidth);
+    assert(pos.noteColumnWidth > 0);
+    assert(xPosD == xPosC + pos.noteColumnWidth);
+    // It seems like C and D are in the wrong order. Maybe this test NG??
+}
+
+static void TestCSharpESharp() {
+    SqArray<int, 16> input = {MidiNote::MiddleC + 1, MidiNote::MiddleC + MidiNote::E + 1};
+    Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    DrawPositionParams pos;
+
+    const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
+    assertEQ(info.size(), 2);
+    auto legerLineIterator = info.begin();
+
+    assertEQ(legerLineIterator->second.accidentals.size(), 1);
+    const float xPosCSharp = legerLineIterator->second.accidentals[0].xPosition;
+    legerLineIterator++;
+
+    // expect a blank due to moving over.
+    assertEQ(legerLineIterator->second.accidentals.size(), 2);
+    assertEQ(legerLineIterator->second.accidentals[0].glyph.empty(), true);
+    assertEQ(legerLineIterator->second.accidentals[1].glyph, ScoreDrawUtils::_sharp);
+    const float xPosESharp = legerLineIterator->second.notes[1].xPosition;
+
+    assert(pos.accidentalColumnWidth > 0);
+    assert(xPosESharp == xPosCSharp - pos.accidentalColumnWidth);
     // It seems like C and D are in the wrong order. Maybe this test NG??
 }
 
@@ -353,12 +377,14 @@ void testScoreDrawUtils() {
 
     testLegerLineCTreble();
 
-   testCD();
+    testCD();
+    TestCSharpESharp();
 }
 
 #if 1
 void testFirst() {
-    //testScoreDrawUtils();
-    testCD();
+    // testScoreDrawUtils();
+    // testCD();
+    TestCSharpESharp();
 }
 #endif

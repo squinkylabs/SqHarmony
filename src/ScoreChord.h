@@ -686,7 +686,8 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     ScoreDrawUtilsPtr scoreDrawUtils = ScoreDrawUtils::make();
     DrawPositionParams drawPostion;
     drawPostion.noteXPosition = xPosition;
-    drawPostion.columnWidth = _columnWidth;
+    drawPostion.noteColumnWidth = _columnWidth;
+    drawPostion.accidentalColumnWidth = _columnWidth * .7;
     drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
         const float ret = yInfo.position;

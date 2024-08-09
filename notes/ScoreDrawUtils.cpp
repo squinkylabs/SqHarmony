@@ -93,7 +93,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         float noteXPosition = drawPos.noteXPosition;
         if (isAlreadyNoteOnThisLine) {
             // if there are two notes, put the second one column to the right.
-            noteXPosition += drawPos.columnWidth;
+            noteXPosition += drawPos.noteColumnWidth;
         }
 
         assert(drawPos.noteYPosition);
@@ -101,7 +101,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         info.legerLinesLocInfo = drawPos.llDrawInfo(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
         info.addNote(_wholeNote, noteXPosition, yPosition);  // add this glyph for this note.
 
-        const float accidentalXPosition = drawPos.noteXPosition - drawPos.columnWidth;
+        const float accidentalXPosition = drawPos.noteXPosition - drawPos.accidentalColumnWidth;
 #ifdef _LOG
         SQINFO("drawing note at %f, accidental at %f y=%f", drawPos.noteXPosition, accidentalXPosition, yPosition);
 #endif
@@ -131,6 +131,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
 #endif
 
     _adjustNoteSpacing(drawPos);
+    _adjustAccidentalSpacing(drawPos);
     return _info;
 }
 
@@ -147,17 +148,89 @@ void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
         const int lineNextLine = nextLine->first;
         SQINFO("ll=%d n=%d", lineLegerLine, lineNextLine);
         if (lineNextLine == (lineLegerLine + 1)) {
-            
             _adjustNoteSpacing(nextLine, line, pos);
         }
     }
+}
+
+void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
+    if (_info.size() < 2) {
+        return;
+    }
+    LegerLineInfo* currentLine = nullptr;
+    LegerLineInfo* firstRefLine = nullptr;
+    LegerLineInfo* secondRefLine = nullptr;
+    auto lineIterator = _info.begin();
+    assert(lineIterator != _info.end());
+    currentLine = &lineIterator->second;
+
+    firstRefLine = currentLine;
+    ++lineIterator;
+    assert(lineIterator != _info.end());
+    currentLine = &lineIterator->second;
+
+    SQINFO("--- enter _adjustAccidentalSpacing cur=%p", currentLine);
+    for (bool done = false; !done;) {
+        assert(currentLine != nullptr);
+        assert(firstRefLine != nullptr);
+        _adjustAccidentalSpacing(currentLine, firstRefLine, secondRefLine, pos);
+
+        ++lineIterator;
+        if (lineIterator != _info.end()) {
+            secondRefLine = firstRefLine;
+            firstRefLine = currentLine;
+            currentLine = &lineIterator->second;
+            SQINFO("loop found something cur=");
+        } else {
+            SQINFO("ending");
+            done = true;
+        }
+
+      
+    }
+}
+
+void ScoreDrawUtils::_adjustAccidentalSpacing(
+    LegerLineInfo* currentLine,
+    LegerLineInfo* firstRefLine,
+    LegerLineInfo* secondRefLine,
+    const DrawPositionParams& pos) {
+    SQINFO("enter aas(%p, %p, %p)", currentLine, firstRefLine, secondRefLine);
+    assert(currentLine);
+    assert(firstRefLine);
+
+    // first combine the ref lines to find where accidentals are below us
+    bool isAccidentalBelow[4]{false};
+    for (unsigned i = 0; i < firstRefLine->accidentals.size(); ++i) {
+        if (!firstRefLine->accidentals[i].glyph.empty()) {
+            isAccidentalBelow[i] = true;
+        }
+    }
+    if (secondRefLine) {
+        for (unsigned i = 0; i < secondRefLine->accidentals.size(); ++i) {
+            if (!secondRefLine->accidentals[i].glyph.empty()) {
+                isAccidentalBelow[i] = true;
+            }
+        }
+    }
+
+     for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
+        if (isAccidentalBelow[i]) {
+            currentLine->accidentals.shift(std::string());
+        }
+     }
+
+      for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
+        currentLine->accidentals[i].xPosition = pos.noteXPosition - (i + 1) * pos.accidentalColumnWidth;
+      }
+
+    //  drawPos.noteXPosition - drawPos.columnWidth;
 }
 
 void ScoreDrawUtils::_adjustNoteSpacing(
     iterator nextLine,
     iterator line,
     const DrawPositionParams& pos) {
-
     bool isNoteBelow[4]{false};
     const auto& refNotes = line->second.notes;
     for (unsigned i = 0; i < refNotes.size(); ++i) {
@@ -167,21 +240,19 @@ void ScoreDrawUtils::_adjustNoteSpacing(
     }
 
     // now, go through the notes in the line we are adjusting
-     auto& currentNotes = nextLine->second.notes;
-     for (unsigned i = 0; i < currentNotes.size(); ++i) {
+    auto& currentNotes = nextLine->second.notes;
+    for (unsigned i = 0; i < currentNotes.size(); ++i) {
         if (isNoteBelow[i]) {
-            bool haveNoteHere = !currentNotes[i].glyph.empty();  
+            bool haveNoteHere = !currentNotes[i].glyph.empty();
             if (haveNoteHere) {
-
                 currentNotes.shift(std::string());
-              //  nextLine->second.notes.shift("");
-            }   
+            }
         }
     }
     for (unsigned i = 0; i < currentNotes.size(); ++i) {
-        //bool haveNoteHere = !currentNotes[i].glyph.empty(); 
-       // SymbolInfo& si = currentNotes[i]; 
-        currentNotes[i].xPosition = pos.noteXPosition + i * pos.columnWidth;
+        // bool haveNoteHere = !currentNotes[i].glyph.empty();
+        // SymbolInfo& si = currentNotes[i];
+        currentNotes[i].xPosition = pos.noteXPosition + i * pos.noteColumnWidth;
     }
     SQINFO("leave adj next = %s", nextLine->second.toString().c_str());
     SQINFO("leave adj ref = %s", line->second.toString().c_str());
