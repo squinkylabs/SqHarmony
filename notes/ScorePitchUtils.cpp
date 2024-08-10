@@ -292,61 +292,7 @@ SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn,
     return ret;
 }
 
-#if 0  // OG way
-bool ScorePitchUtils::validate(const NotationNote& _nn, const Scale& scale) {
-    SQINFO("validate called on %s", _nn.toString().c_str());
-    const int midiNotePitch = _nn._midiNote.get();
-    const int legerPitch = pitchFromLeger(_nn._bassStaff, _nn._legerLine, _nn._accidental, scale);
-
-    // SQINFO("midi pitch = %d, leger pitch = %d leger line=%d", midiNotePitch, legerPitch, _nn._legerLine);
-    if (midiNotePitch != legerPitch) {
-        SQINFO("fail on wrong pitch");
-        return false;
-    }
-
-    NotationNote nn = makeCanonical(_nn);
-    SQINFO("made canonical: %s", nn.toString().c_str());
-
-    // so if the pitch is in the key, it doesn't need an accidental. Otherwise it does.
-    const ScaleNote scaleNote = scale.m2s(nn._midiNote);
-    SQINFO("scale note oct=%d pitch=%d accid=%d", scaleNote.getOctave(), scaleNote.getDegree(), int(scaleNote.getAdjustment()));
-    const bool noteInScale = (scaleNote.getAdjustment() == ScaleNote::RelativeAdjustment::none);
-    if (nn._accidental == NotationNote::Accidental::none) {
-        SQINFO("we are validating a none, returning %d", noteInScale);
-        if (!noteInScale) SQINFO("fail on no accidental in canonical, but note not in scale");
-        return noteInScale;
-    } else {
-        if (noteInScale) SQINFO("fail on have accidental, but is in scale");
-        SQINFO("we are validating a sn with accid, returning %d", !noteInScale);
-        return !noteInScale;
-    }
-
-    assert(false);
-}
-
-
-SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn, const Scale& scale) {
-    assert(validate(nn, scale));
-    NotationNote temp = nn;
-    SqArray<NotationNote, 16> ret;
-    // ret._push(temp);
-    unsigned index = 0;
-    ret.putAt(index++, temp);
-    while (reSpell(temp, true, scale)) {
-        ret.putAt(index++, temp);
-    }
-    while (reSpell(temp, false, scale)) {
-        ret.putAt(index++, temp);
-    }
-    // SQINFO("getVariations returning %d", ret.numValid());
-    SQINFO("-- getVariations on %s found %d", nn.toString().c_str(), ret.numValid());
-    for (unsigned i=0; i<ret.numValid(); ++i) {
-        SQINFO("  [%d] = %s", i, ret.getAt(i).toString().c_str());
-    }
-    return ret;
-}
-#endif
-
+#if 0
 NotationNote ScorePitchUtils::makeCanonical(const NotationNote& note) {
     if (note._accidental == NotationNote::Accidental::sharp) {
         // If the notation note has a sharp, but the pitch is a white key pitch
@@ -366,6 +312,7 @@ NotationNote ScorePitchUtils::makeCanonical(const NotationNote& note) {
     // If note is already canonical, can just return as is.
     return note;
 }
+#endif
 
 ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
     const Scale& scale,
@@ -461,7 +408,7 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(const SpellingPreferences& pr
     int numAccidentals = 0;
     int numBadThirds = 0;
     int numBadAccidentals = 0;
-    int numMultiNotesOnLeger = 0;
+  //  int numMultiNotesOnLeger = 0;
 
     LegerLineTracker llTracker;
 
@@ -531,7 +478,7 @@ int ScorePitchUtils::_evaluateSpellingThirdAttempt(const SpellingPreferences& pr
     // first penalize all the accidentals
 
     // assert(false);      // leger stuff
-    SQINFO("third attempt needs leger stuff, or at least an assert");
+    // SQINFO("third attempt needs leger stuff, or at least an assert");
 
     for (unsigned i = 0; i < notes.numValid(); ++i) {
         const NotationNote& note = notes.getAt(i);

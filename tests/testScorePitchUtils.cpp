@@ -29,7 +29,6 @@ static void testCMajor() {
 }
 
 static void testNoteEFlatInEFlatMinor() {
-    SQINFO("---- testNoteEFlatInEFlatMinor ---");
     Scale sc;
     MidiNote mnEFlat3(MidiNote::MiddleC + MidiNote::E - 1);
     MidiNote mnEFlat(MidiNote::E - 1);
@@ -38,7 +37,6 @@ static void testNoteEFlatInEFlatMinor() {
     // I think originally this test was supposed to be in C minor...
     // I think the test passes in E flat major!
     sc.set(mnEFlat, Scale::Scales::Minor);
-    SQINFO("set keysig root to %d (+72 = %d)", mnEFlat.get(), mnEFlat.get() + 72);
 
     // In E flat (minor), E flat notated needs no accidental
     auto x = ScorePitchUtils::getNotationNote(sc, mnEFlat3, false);
@@ -47,7 +45,6 @@ static void testNoteEFlatInEFlatMinor() {
 }
 
 static void testNoteEFlatInEFlatMajor() {
-    SQINFO("---- testNoteEFlatInEFlatMajor ---");
     Scale sc;
     MidiNote mnEFlat3(MidiNote::MiddleC + MidiNote::E - 1);
     MidiNote mnEFlat(MidiNote::E - 1);
@@ -270,8 +267,8 @@ static void testFindSpelling(
     assertGT(inputPitches.numValid(), 0);
     const auto result = ScorePitchUtils::findSpelling(scale, inputPitches, bassStaff, prefs);
 
-    SQINFO("246 final score = %d", result.score);
-#if 1
+    // SQINFO("246 final score = %d", result.score);
+#if 0
     if (inputPitches.numValid() == 4) {
         SQINFO("input notes = %d | %d | %d | %d",
                inputPitches.getAt(0),
@@ -301,9 +298,9 @@ static void testFindSpelling(
     for (unsigned i = 0; i < inputPitches.numValid(); ++i) {
         const NotationNote n = result.notes.getAt(i);
         const NotationNote expected = expectedOutputNotes.getAt(i);
-        if (n != expected) {
-            SQINFO("in eval, n=%s, expected=%s", n.toString().c_str(), expected.toString().c_str());
-        }
+        // if (n != expected) {
+        //     SQINFO("in eval, n=%s, expected=%s", n.toString().c_str(), expected.toString().c_str());
+        // }
         assert(n == expected);
     }
 }
@@ -476,7 +473,6 @@ static void testFindSpellingOneNoteCSharpInCMajor(bool sharp) {
         expectedOutputNotes.putAt(0, NotationNote(MidiNote(cSharp), NotationNote::Accidental::flat, -1, false));
         prefs = UIPrefSharpsFlats::Flats;
     }
-    SQINFO("will call find with prefs");
     testFindSpelling(expectedOutputNotes, scale, inputPitches, false, prefs);
 }
 
@@ -630,9 +626,9 @@ static void testGetAjustmentForLeger() {
         assertEQ(ScorePitchUtils::_getAjustmentForLeger(scale, false, 8), 1);  // F#
     }
     // assert(false);  // need e flat major, maybe an easier one, too.
-    SQINFO("need more unit tests for get adjustment");
 }
 
+#if 0
 static void testMakeCanonical() {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
 
@@ -665,6 +661,7 @@ static void testMakeCanonical() {
     x = ScorePitchUtils::makeCanonical(aFlat);
     assert(x == aFlat);
 }
+#endif
 
 static void testFindSpellingNotSameLine() {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
@@ -730,7 +727,7 @@ void testScorePitchUtils() {
     testPitchFromLegerCminor();
     testPitchFromLegerEFlatMinor();
 
-    testMakeCanonical();
+   // testMakeCanonical();
 
     testValidate();
     testValidate2();

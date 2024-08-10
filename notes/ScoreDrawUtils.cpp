@@ -5,7 +5,7 @@
 #include "ChordRecognizer.h"
 #include "ScorePitchUtils.h"
 
-#define _LOG
+// #define _LOG
 
 ScoreDrawUtilsPtr ScoreDrawUtils::make() {
     return std::make_unique<ScoreDrawUtils>();
@@ -146,7 +146,7 @@ void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
     for (; nextLine != _info.end(); ++line, ++nextLine) {
         const int lineLegerLine = line->first;
         const int lineNextLine = nextLine->first;
-        SQINFO("ll=%d n=%d", lineLegerLine, lineNextLine);
+        // SQINFO("ll=%d n=%d", lineLegerLine, lineNextLine);
         if (lineNextLine == (lineLegerLine + 1)) {
             _adjustNoteSpacing(nextLine, line, pos);
         }
@@ -169,7 +169,6 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
     assert(lineIterator != _info.end());
     currentLine = &lineIterator->second;
 
-    SQINFO("--- enter _adjustAccidentalSpacing cur=%p", currentLine);
     for (bool done = false; !done;) {
         assert(currentLine != nullptr);
         assert(firstRefLine != nullptr);
@@ -180,13 +179,9 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
             secondRefLine = firstRefLine;
             firstRefLine = currentLine;
             currentLine = &lineIterator->second;
-            SQINFO("loop found something cur=");
         } else {
-            SQINFO("ending");
             done = true;
         }
-
-      
     }
 }
 
@@ -195,7 +190,6 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
     LegerLineInfo* firstRefLine,
     LegerLineInfo* secondRefLine,
     const DrawPositionParams& pos) {
-    SQINFO("enter aas(%p, %p, %p)", currentLine, firstRefLine, secondRefLine);
     assert(currentLine);
     assert(firstRefLine);
 
@@ -214,18 +208,15 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
         }
     }
 
-     for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
+    for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
         if (isAccidentalBelow[i]) {
             currentLine->accidentals.shift(std::string());
         }
-     }
+    }
 
-      for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
+    for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
         currentLine->accidentals[i].xPosition = pos.noteXPosition - (i + 1) * pos.accidentalColumnWidth;
-        SQINFO("set acc xpos %d to %f", i, currentLine->accidentals[i].xPosition);
-      }
-
-    //  drawPos.noteXPosition - drawPos.columnWidth;
+    }
 }
 
 void ScoreDrawUtils::_adjustNoteSpacing(

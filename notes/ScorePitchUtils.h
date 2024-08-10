@@ -125,7 +125,7 @@ public:
 
 
     // This isn't used any more?
-    static NotationNote makeCanonical(const NotationNote&);
+    //static NotationNote makeCanonical(const NotationNote&);
 
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&, bool bassStaff);
