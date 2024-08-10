@@ -49,8 +49,8 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/visualizer.svg")));
         addScore(module);
 #if 1  // def _LAB
-        addLabel(Vec(27, 6), "Visualizer", 20);
-        addLabel(Vec(32.5, 356), "Squinktronix", 16);
+        addLabel(Vec(33.5, 6), "Visualizer", 20);
+        addLabel(Vec(35, 356), "Squinktronix", 17);
 #endif
         addRow2();
         addRow1();
@@ -214,19 +214,24 @@ private:
 
     const float x0 = 11;
     const float x1 = 66;
+    const float x2 = 100;
     void addRow2() {
         const float y = 317;
 
         RoundedRect* r = new RoundedRect(Vec(x1 - 7, y - 18), Vec(39.5, 54));
         addChild(r);
-        addInputL(Vec(x0, y), Comp::CV_INPUT, "V/Oct", 3);
-        addOutputL(Vec(x1, y), Comp::PES_OUTPUT, "PES", -1);
+       // addInputL(Vec(x0, y), Comp::CV_INPUT, "V/Oct", 3);
+        addOutputL(Vec(x2, y), Comp::PES_OUTPUT, "PES", -1);
+        addOutputL(Vec(x0, y), Comp::ROOT_OUTPUT, "PES", -1);
+        addOutputL(Vec(x1, y), Comp::RECOGNIZED_OUTPUT, "PES", -1);
+
     }
 
     void addRow1() {
         float y = 270;
         addInputL(Vec(x0, y), Comp::GATE_INPUT, "[Gate]", 6.5f);
         addInputL(Vec(x1, y), Comp::PES_INPUT, "PES", -1);
+        addInputL(Vec(x2, y), Comp::CV_INPUT, "V/Oct", 3);
 
         y = 258;
         addChild(createLight<SmallLight<RedLight>>(

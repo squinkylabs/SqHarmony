@@ -40,6 +40,8 @@ public:
 
     enum OutputIds {
         PES_OUTPUT,
+        ROOT_OUTPUT,
+        RECOGNIZED_OUTPUT,
         NUM_OUTPUTS
     };
 
