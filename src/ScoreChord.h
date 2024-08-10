@@ -190,7 +190,7 @@ private:
     const float _leftMargin = 4.5f;
     const float _xStaff = _leftMargin;
     const float _xClef = _xStaff + 2;
-    const float _xBarlineEnd = 83.5;
+    const float _xBarlineEnd = 109.5;                // 105.5 a little small
     const float _xBarlineFirst = _leftMargin;
     const float _xKeysig = 16 * _zoom;             // x position of the first accidental in the key signature.
     const float _deltaXAccidental = -2.2 * _zoom;  // accidental drawn this far from note, in x di
@@ -272,7 +272,9 @@ void ScoreChord::drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, flo
 }
 
 void ScoreChord::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const {
-    w = std::min(w, 88.f);  //  clip with to 80, temp (TODO: do we need this?)
+    //SQINFO("filled rect w = %f", w);
+  //  w = std::min(w, 88.f);  //  clip with to 80, temp (TODO: do we need this?)
+
     nvgFillColor(vg, color);
     nvgBeginPath(vg);
     nvgRoundedRect(vg, x, y, w, h, rounding);
@@ -297,7 +299,10 @@ inline void ScoreChord::draw(const DrawArgs &args) {
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const float left = _drawMusicNonNotes(args);
     const float right = _xBarlineEnd;
-    const float xPosition = ((left + right) / 2.f) - _zoom * 5;
+  //  const float xPosition = ((left + right) / 2.f) - _zoom * 5;
+ //  const float xPosition = ((left + right) / 2.f) + _columnWidth;
+ const float xPosition = ((left + right) / 2.f);
+    SQINFO("draw. l=%f, r=%f col=%f xPos=%f", left, right, _columnWidth, xPosition);
 
     _drawNotes(args, xPosition);
     _scoreIsDirty = false;
