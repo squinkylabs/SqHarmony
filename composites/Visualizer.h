@@ -185,34 +185,18 @@ inline void Visualizer<TBase>::_processInput() {
     if (TBase::params[CHANGE_PARAM].value >= 100) {
         TBase::params[CHANGE_PARAM].value = 0;
     }
-#if 0
-    {
-        SQINFO("was change, type =%d ", int(chord.type));
-        if (chord.type == ChordRecognizer::Type::Unrecognized) {
-            SQINFO("not recognized");
-        } else {
-            for (unsigned i = 0; i < chord.identifiedPitches.numValid(); ++i) {
-                ChordRecognizer::PitchAndIndex x = chord.identifiedPitches.getAt(i);
-                SQINFO("data[%d] = %d p, %d idx", i, x.pitch, x.index);
-            }
-        }
-
-        for (unsigned i = 0; i < _quantizedInputPitches.numValid(); ++i) {
-            const int ip = _quantizedInputPitches.getAt(i);
-            SQINFO("input [%d] = %d", i, ip);
-        }
-    }
-#endif
 
     if (chord.type == ChordRecognizer::Type::Unrecognized) {
-        SQINFO("not recognized");
+        TBase::outputs[RECOGNIZED_OUTPUT].value = 0.f;
     } else {
+        // this works - the index is into the inputs...
         const int rootIndex = chord.identifiedPitches.getAt(0).index;
         const int rootMIDIPitch = _quantizedInputPitches.getAt(rootIndex);
         FloatNote fn;
         MidiNote mn(rootMIDIPitch);
         NoteConvert::m2f(fn, mn);
         TBase::outputs[ROOT_OUTPUT].value = fn.get();
+        TBase::outputs[RECOGNIZED_OUTPUT].value = 10.f;
     }
 }
 

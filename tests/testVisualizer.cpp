@@ -108,13 +108,26 @@ static void testRootOut() {
         octaveOffset + 6 * semi,
         octaveOffset + 9 * semi };   // D Major, out of order with doubling
 
-
     run(v, cv);
 
-    SQINFO("c = %f, D = %f", float(MidiNote::C), float(MidiNote::D));
     assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::MajorTriad));
     assertEQ(v.params[Comp::ROOT_PARAM].value, float(MidiNote::D));
     assertEQ(v.outputs[Comp::ROOT_OUTPUT].value, octaveOffset + 2 * semi);
+}
+
+static void testRecognizedOut(bool bTestCase) {
+    Comp v;
+    const float semi = 1.f / 12.f;
+    const std::vector<float> cmajor = {0, 4 * semi, 7 * semi};
+    const std::vector<float> other = {0, 1 * semi, 7 * semi};
+    run(v, bTestCase ? cmajor : other);
+    const bool bRecognized = v.outputs[Comp::RECOGNIZED_OUTPUT].value > 5;
+    assertEQ(bRecognized, bTestCase);
+}
+
+static void testRecognizedOut() {
+    testRecognizedOut(true);
+    testRecognizedOut(false);
 }
 
 void testVisualizer() {
@@ -127,14 +140,16 @@ void testVisualizer() {
     testWithGate();
     testCanGetOutput();
     testRootOut();
+    testRecognizedOut();
     assertEQ(SqLog::errorCount, 0);
 }
 
-#if 1
+#if 0
 void testFirst() {
     // testVisualizer();
     // testCanClockInEMinor();
    // testWithGate();
-   testRootOut();
+  // testRootOut();
+   testRecognizedOut();
 }
 #endif
