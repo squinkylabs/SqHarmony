@@ -213,29 +213,30 @@ private:
     }
 
     const float x0 = 11;
-    const float x1 = 66;
+    const float x1 = 54.5;            // 50 too far left
     const float x2 = 100;
+    const float xPes = x2;
     void addRow2() {
         const float y = 317;
 
-        RoundedRect* r = new RoundedRect(Vec(x1 - 7, y - 18), Vec(39.5, 54));
+        RoundedRect* r = new RoundedRect(Vec(x0 - 7, y - 18), Vec(124.5, 54));        // 120 too narrow
         addChild(r);
        // addInputL(Vec(x0, y), Comp::CV_INPUT, "V/Oct", 3);
-        addOutputL(Vec(x2, y), Comp::PES_OUTPUT, "PES", -1);
-        addOutputL(Vec(x0, y), Comp::ROOT_OUTPUT, "PES", -1);
-        addOutputL(Vec(x1, y), Comp::RECOGNIZED_OUTPUT, "PES", -1);
+        addOutputL(Vec(xPes, y), Comp::PES_OUTPUT, "PES", -1);
+        addOutputL(Vec(x0, y), Comp::ROOT_OUTPUT, "Root", -1);
+        addOutputL(Vec(x1, y), Comp::RECOGNIZED_OUTPUT, "VLD", -1);
 
     }
 
     void addRow1() {
         float y = 270;
-        addInputL(Vec(x0, y), Comp::GATE_INPUT, "[Gate]", 6.5f);
-        addInputL(Vec(x1, y), Comp::PES_INPUT, "PES", -1);
-        addInputL(Vec(x2, y), Comp::CV_INPUT, "V/Oct", 3);
+        addInputL(Vec(x1, y), Comp::GATE_INPUT, "[Gate]", 6.5f);
+        addInputL(Vec(xPes, y), Comp::PES_INPUT, "PES", -1);
+        addInputL(Vec(x0, y), Comp::CV_INPUT, "V/Oct", 3);
 
         y = 258;
         addChild(createLight<SmallLight<RedLight>>(
-            Vec(x1 - 8, y),
+            Vec(xPes - 8, y),
             module,
             Comp::PES_INVALID_LIGHT));
     }
