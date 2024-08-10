@@ -246,6 +246,4 @@ void ScoreDrawUtils::_adjustNoteSpacing(
         // SymbolInfo& si = currentNotes[i];
         currentNotes[i].xPosition = pos.noteXPosition + i * pos.noteColumnWidth;
     }
-    SQINFO("leave adj next = %s", nextLine->second.toString().c_str());
-    SQINFO("leave adj ref = %s", line->second.toString().c_str());
 }

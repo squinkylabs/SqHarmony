@@ -214,14 +214,12 @@ static void testDMajorValidNotInScale() {
 }
 
 static void testCMinor47() {
-     Scale scale;
+    Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
 
-      MidiNote mn(47);
-     auto sn = scale.m2s(mn);
+    MidiNote mn(47);
+    auto sn = scale.m2s(mn);
     assertEQ(sn.getDegree(), 0);
-  //  assert(sn.getAdjustment() == ScaleNote::RelativeAdjustment::sharp);
-  //  assertEQ(sn.getOctave(), 4);
     assertEQ(scale._validateScaleNote(sn), true);
 }
 
@@ -230,7 +228,7 @@ static void testAll() {
         for (int mode = int(Scale::Scales::Major); mode <= int(Scale::Scales::Locrian); mode++) {
             Scale scale;
             scale.set(MidiNote(pitch), Scale::Scales(mode));
-            for (int testPitch=0; testPitch < 12; ++testPitch) {
+            for (int testPitch = 0; testPitch < 12; ++testPitch) {
                 auto sn = scale.m2s(MidiNote(testPitch));
                 assertEQ(scale._validateScaleNote(sn), true);
             }
