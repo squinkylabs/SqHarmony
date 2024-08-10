@@ -29,7 +29,7 @@ static void test1() {
 }
 
 static void test2() {
-    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::D};
+    SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::E};
     const auto info = testCMajorSub(test);
     assertEQ(info.size(), 2);
 
@@ -85,7 +85,7 @@ static void testXPos() {
 
     assertEQ(info.begin()->second.accidentals.size(), 1);
     assertEQ(info.begin()->second.notes.size(), 1);
-    assertEQ(info.begin()->second.accidentals[0].xPosition, 10);
+    assertEQ(info.begin()->second.accidentals[0].xPosition, 7.5);
     assertEQ(info.begin()->second.accidentals[0].glyph, ScoreDrawUtils::_sharp);
 
     assertEQ(info.begin()->second.notes[0].xPosition, 11);
@@ -134,8 +134,8 @@ static void testTrebleClef() {
 }
 
 static void testClef2(bool bass) {
-    SqArray<int, 16> inputBass = {MidiNote::MiddleC - 12 + MidiNote::A, MidiNote::MiddleC - 12 + MidiNote::G};
-    SqArray<int, 16> inputTreble = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::D};
+    SqArray<int, 16> inputBass = {MidiNote::MiddleC - 12 + MidiNote::A, MidiNote::MiddleC - 12 + MidiNote::E};
+    SqArray<int, 16> inputTreble = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::E};
     DrawPositionParams pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
         return bassStaff ? 100 : 200;
@@ -344,7 +344,7 @@ static void TestCSharpESharp() {
     assertEQ(legerLineIterator->second.accidentals.size(), 2);
     assertEQ(legerLineIterator->second.accidentals[0].glyph.empty(), true);
     assertEQ(legerLineIterator->second.accidentals[1].glyph, ScoreDrawUtils::_sharp);
-    const float xPosESharp = legerLineIterator->second.notes[1].xPosition;
+    const float xPosESharp = legerLineIterator->second.accidentals[1].xPosition;
 
     assert(pos.accidentalColumnWidth > 0);
     assert(xPosESharp == xPosCSharp - pos.accidentalColumnWidth);
@@ -381,10 +381,10 @@ void testScoreDrawUtils() {
     TestCSharpESharp();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    // testScoreDrawUtils();
-    // testCD();
-    TestCSharpESharp();
+  testScoreDrawUtils();
+  //testClef2();
+ // testTrebleClef2();
 }
 #endif

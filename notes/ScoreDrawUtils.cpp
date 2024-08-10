@@ -5,7 +5,7 @@
 #include "ChordRecognizer.h"
 #include "ScorePitchUtils.h"
 
-// #define _LOG
+#define _LOG
 
 ScoreDrawUtilsPtr ScoreDrawUtils::make() {
     return std::make_unique<ScoreDrawUtils>();
@@ -222,6 +222,7 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
 
       for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
         currentLine->accidentals[i].xPosition = pos.noteXPosition - (i + 1) * pos.accidentalColumnWidth;
+        SQINFO("set acc xpos %d to %f", i, currentLine->accidentals[i].xPosition);
       }
 
     //  drawPos.noteXPosition - drawPos.columnWidth;
