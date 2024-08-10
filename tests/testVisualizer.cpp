@@ -97,6 +97,26 @@ static void testWithGate() {
     assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::MajorTriad));
 }
 
+static void testRootOut() {
+    Comp v;
+    const float semi = 1.f / 12.f;
+    const float octaveOffset = 2.f;
+    const std::vector<float> cv = {
+        octaveOffset + 6 * semi,
+        octaveOffset + 2 * semi,
+        octaveOffset + 6 * semi,
+        octaveOffset + 6 * semi,
+        octaveOffset + 9 * semi };   // D Major, out of order with doubling
+
+
+    run(v, cv);
+
+    SQINFO("c = %f, D = %f", float(MidiNote::C), float(MidiNote::D));
+    assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::MajorTriad));
+    assertEQ(v.params[Comp::ROOT_PARAM].value, float(MidiNote::D));
+    assertEQ(v.outputs[Comp::ROOT_OUTPUT].value, octaveOffset + 2 * semi);
+}
+
 void testVisualizer() {
     assertEQ(SqLog::errorCount, 0);
     testCanCall();
@@ -106,13 +126,15 @@ void testVisualizer() {
     testWrongNumberNotRecognized();
     testWithGate();
     testCanGetOutput();
+    testRootOut();
     assertEQ(SqLog::errorCount, 0);
 }
 
-#if 0
+#if 1
 void testFirst() {
     // testVisualizer();
     // testCanClockInEMinor();
-    testWithGate();
+   // testWithGate();
+   testRootOut();
 }
 #endif
