@@ -10,6 +10,22 @@ When identifying chords, Visualizer doesn't care what octave a chord is in, or w
 
 While some of the name of the chords may come more from the classical world, it's useful for lots of tonal music. Some people may call chords by different names, but usually the translation isn't too bad. An example: we call (G C E) "C Major, second inversion" - others might call it "C over G". But most people know it's the same thing.
 
+Well, Visualizer actually does two things. It can output the root of the recognized chord as a CV.
+
+## Latest test release
+
+The current test release has much improved enharmonic spelling, but it's still not perfect. A know issue is that it can sometimes mis-spell a perfect fifth. The current "rules" are documented below.
+
+The display of overlapping notes and accidentals is much improved. While the placement of accidentals is not always "correct", any cases that are illegible due to overlapping accidentals is a bug.
+
+The root and "root valid" outputs are new. There is currently a delay of up to 32 samples for this output. We might want to come up with something better.
+
+The context menu entry for Sharps&Flats is new.
+
+The panel is wider now.
+
+Bugs with unplugging cables, and enharmonic spelling of the identified chord are fixed.
+
 ## Notes for testers
 
 It would definitely be a bug it a chord is mis-characterized. If it say something is a C Major it should be that. Also if an inversion is displayed it would be a definite bug to be fixed if the information is incorrect.
@@ -18,11 +34,9 @@ Some things about chord identification and spelling are more ambiguous, and subj
 
 The "transcription" of the input to standard music notation. Even though it's just "eye candy" it's supposed to be legal. So in any case that's remotely tricky, like clusters of notes, the resulting display should always be legal, and correspond to the pitches coming in. In a lot of cases it won't look nearly as good as you could expect a hand-written score to look. But it's a fixable bug if it's just plain wrong.
 
-It is definitely possible to get notes and accidentals to pile up in certain keys and with certain combinations of input notes. I may be able to improve some of these, others maybe not. But worth noting.
-
-In any case where the recognized chord is bad, or the score is bad, it's best if you can take a screen capture of the issue, and write down what the input pitches are.
-
 ## Using Visualizer
+
+It can be as easy a patching a CV into the V/Oct input. If recognized, the input chord is identified in text in the middle of the panel. And the chord will be displayed in standard music notation. The CV input must be polyphonic to be able to carry a chord.
 
 ## Reference
 
@@ -49,6 +63,8 @@ Ninth chords are recognized with the fifth present, or not:
 - C minor Ninth : C, E flat, [G], B flat, D
 - C mM Ninth : C, E flat, [G], B, D
 
+Note that all recognized chords have a perfect fifth, and ninth chords are only recognized if the 9th is a major second.
+
 ### CV I/O
 
 V/Oct: Polyphonic pitch input that follows the VCV standards. This is the main input.
@@ -57,9 +73,39 @@ V/Oct: Polyphonic pitch input that follows the VCV standards. This is the main i
 
 PES Input, and PES output. Useful when used with other modules that support PES. Any signal coming into the PES input will control Visualizer's key signature. And Visualizers key signature will be sent to the PES output. You can find more on PES [here](./pes.md)
 
+Root: Outputs the pitch of the root of an identified chord. If the chord is not identified, it will continue to output the last voltage output.
+
+VLD: a gate output that is high when the root output is "valid", i.e. when the chords coming in is recognized. Output is 10v when true, 0v when false.
+
 ### Controls
 
-Key Root, Diatonic Mode: this control only affect the music notation displayed at the top. They do not affect chord recognition at all. They do set the key signature for the transcription.
+Key Root, Diatonic Mode: this control mainly affect the music notation displayed at the top. They do not affect chord recognition at all. They do set the key signature for the transcription. They also can have an effect on enharmonic spelling of the name of the recognized chord.
+
+### Context Menu
+
+Sharps&Flats: controls whether a sharp or a flat is used (by default) for a note or a key signature name. There are four setting:
+
+- Default + sharps: In a key that is a "sharp key", like G Major, sharps are used. In a flat key, like C Minor, flats are used. If there is a tie (only possible in C Major), then sharps are used.
+- Default + flats: follows the key, as described above. If there is a tie or ambiguity, flats are used.
+- Sharps: sharps are always preferred.
+- Flats: flats are always preferred.
+
+## More about enharmonic spelling
+
+As noted above, enharmonic spelling is mainly an issue with the displayed music notation. It also can affect the naming of identified chords. For example C sharp Major and D flat major are the same chord, but the spelling of the name is different.
+
+In general, the enharmonic spelling will tend to follow the Sharps/Flats preference. So in a "sharps" key note will tend to be spelled with a sharp. But there are many cases when this would give terrible results. So visualizer followed the following rules:
+
+- It knowns that F is E sharp, for example.
+- It does not know how to use double sharps or double flats.
+- It prefers to avoid two notes on the same leger line (so it prefers C, D flat to C C sharp, even in a "sharp" key).
+- It strongly prefers that major and minor thirds be two lines apart.
+- It prefers notes that are in the key to accidentals.
+- It prefers "matching" accidentals (sharps in a sharp key, flats in a flat key).
+
+### More about accidental placement
+
+Visualizer tries to draw accidentals and notes so they don't touch each other, which is very difficult to read. But Visualizer does not try to place things perfectly - so the results should be legible, but may not be "engraving quality".
 
 ## Visualizer block diagram
 
