@@ -462,24 +462,93 @@ static void testAdjustSpacingCSharpESharp() {
     testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
 }
 
-static void testAdjustSpacingBigStack() {
+static void testAdjustSpacing3Stack() {
     DrawPositionParams pos;
     MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
     SqArray<NotationNote, 16> notes{
         {mnC, NotationNote::Accidental::sharp, -2, false},  // C#
-        {mnC, NotationNote::Accidental::sharp, -1, false},   // D#
+        {mnC, NotationNote::Accidental::sharp, -1, false},  // D#
         {mnC, NotationNote::Accidental::sharp, 0, false},   // E#
     };
     SqArray<float, 16> expectedNotePositions{
         pos.noteXPosition,
         pos.noteXPosition + pos.noteColumnWidth,
-        pos.noteXPosition
-        };
+        pos.noteXPosition};
     SqArray<float, 16> expectedAccidentalPositions{
         pos.noteXPosition - pos.accidentalColumnWidth,
         pos.noteXPosition - 2 * pos.accidentalColumnWidth,
-        pos.noteXPosition - 3 * pos.accidentalColumnWidth
-        };
+        pos.noteXPosition - 3 * pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+// fails currently
+static void testAdjustSpacing4Stack() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+    SqArray<NotationNote, 16> notes{
+        {mnC, NotationNote::Accidental::sharp, -2, false},  // C#
+        {mnC, NotationNote::Accidental::sharp, -1, false},  // D#
+        {mnC, NotationNote::Accidental::sharp, 0, false},   // E#
+        {mnC, NotationNote::Accidental::sharp, 1, false},   // F#
+    };
+    SqArray<float, 16> expectedNotePositions{
+        pos.noteXPosition,
+        pos.noteXPosition + pos.noteColumnWidth,
+        pos.noteXPosition,
+        pos.noteXPosition + pos.noteColumnWidth};
+    SqArray<float, 16> expectedAccidentalPositions{
+        pos.noteXPosition - pos.accidentalColumnWidth,
+        pos.noteXPosition - 2 * pos.accidentalColumnWidth,
+        pos.noteXPosition - 3 * pos.accidentalColumnWidth,
+        pos.noteXPosition - 4 * pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjustSpacingCA() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+    SqArray<NotationNote, 16> notes{
+        {mnC, NotationNote::Accidental::sharp, -2, false},  // C#
+        {mnC, NotationNote::Accidental::sharp, 3, false}    // A#
+    };
+    SqArray<float, 16> expectedNotePositions{
+        pos.noteXPosition,
+        pos.noteXPosition};
+    SqArray<float, 16> expectedAccidentalPositions{
+        pos.noteXPosition - pos.accidentalColumnWidth,
+        pos.noteXPosition - 2 * pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjustSpacingCB() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+    SqArray<NotationNote, 16> notes{
+        {mnC, NotationNote::Accidental::sharp, -2, false},  // C#
+        {mnC, NotationNote::Accidental::sharp, 4, false}    // B#
+    };
+    SqArray<float, 16> expectedNotePositions{
+        pos.noteXPosition,
+        pos.noteXPosition};
+    SqArray<float, 16> expectedAccidentalPositions{
+        pos.noteXPosition - pos.accidentalColumnWidth,
+        pos.noteXPosition - pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjustSpacingOctave() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+    SqArray<NotationNote, 16> notes{
+        {mnC, NotationNote::Accidental::sharp, -2, false},  // C#
+        {mnC, NotationNote::Accidental::sharp, 5, false}    // C#
+    };
+    SqArray<float, 16> expectedNotePositions{
+        pos.noteXPosition,
+        pos.noteXPosition };
+    SqArray<float, 16> expectedAccidentalPositions{
+        pos.noteXPosition - pos.accidentalColumnWidth,
+        pos.noteXPosition - pos.accidentalColumnWidth };
     testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
 }
 
@@ -487,7 +556,13 @@ static void testAdjustSpacing() {
     testAdjustSpacingMiddleC();
     testAdjustSpacingMiddleCAndD();
     testAdjustSpacingCSharpESharp();
-    testAdjustSpacingBigStack();
+    testAdjustSpacing3Stack();
+    // testAdjustSpacing4Stack();
+    SQINFO("make 4 stack work");
+    testAdjustSpacingCA();
+    //testAdjustSpacingCB();
+    SQINFO("make testAdjustSpacingCB work");
+    testAdjustSpacingOctave();
 }
 
 void testScoreDrawUtils() {
@@ -528,6 +603,6 @@ void testScoreDrawUtils() {
 void testFirst() {
     //  testAdjustSpacing();
     // testAdjustSpacingCSharpESharp();
-    testAdjustSpacingBigStack();
+    testAdjustSpacingOctave();
 }
 #endif
