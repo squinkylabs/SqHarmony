@@ -47,19 +47,6 @@ void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults& s) {
     }
 }
 
-/*
-Algorithm:
-    first find spelling on treble clef
-    then divide between clefs fixing legerLine
-
-    then put into map.
-
-    then add the real glyphs.
-    add the glyphs for the accidentals
-    then fixup the note spacing for doubles.
-    then fixup the accidental spacing.
-*/
-
 const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
     const DrawPositionParams& drawPos,
     const Scale& scale,
@@ -244,6 +231,7 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
 
     for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
         currentLine->accidentals[i].xPosition = pos.noteXPosition - (i + 1) * pos.accidentalColumnWidth;
+        // SQINFO("setting accidental [%d] xpos to %f", i, currentLine->accidentals[i].xPosition);
     }
 }
 

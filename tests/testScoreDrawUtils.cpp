@@ -399,6 +399,8 @@ static void testAdjustSpacingFunc(
     for (ScoreDrawUtils::iterator iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
         const LegerLineInfo& lineInfo = iter->second;
 
+        SQINFO("eval test restuls, ll=%d", iter->first);
+
         // Find the note glyphs that has the actual note.
         unsigned noteGlyphIndex = 100;
         ;
@@ -409,15 +411,14 @@ static void testAdjustSpacingFunc(
         }
         assert(noteGlyphIndex < 100);
 
-         // Find the accidental glyphs that has the actual accidental.
+        // Find the accidental glyphs that has the actual accidental.
         unsigned accidentalGlyphIndex = 100;
-        ;
         for (unsigned i = 0; i < lineInfo.accidentals.size(); ++i) {
             if (!lineInfo.accidentals[i].glyph.empty()) {
                 accidentalGlyphIndex = i;
             }
         }
-        assert (lineInfo.accidentals.empty() || (accidentalGlyphIndex >= 100));
+        assert(lineInfo.accidentals.empty() || (accidentalGlyphIndex < 100));
 
         assertEQ(lineInfo.notes[noteGlyphIndex].xPosition, expectedNotePositions.getAt(index));
         if (!lineInfo.accidentals.empty()) {
@@ -453,12 +454,32 @@ static void testAdjustSpacingCSharpESharp() {
     MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
     SqArray<NotationNote, 16> notes{
         {mnC, NotationNote::Accidental::sharp, -2, false},
-        {mnC, NotationNote::Accidental::sharp, 0, false}
-    };
+        {mnC, NotationNote::Accidental::sharp, 0, false}};
     SqArray<float, 16> expectedNotePositions{pos.noteXPosition, pos.noteXPosition};
     SqArray<float, 16> expectedAccidentalPositions{
-        pos.noteXPosition - pos.accidentalColumnWidth, 
+        pos.noteXPosition - pos.accidentalColumnWidth,
         pos.noteXPosition - 2 * pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjustSpacingBigStack() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+    SqArray<NotationNote, 16> notes{
+        {mnC, NotationNote::Accidental::sharp, -2, false},  // C#
+        {mnC, NotationNote::Accidental::sharp, -1, false},   // D#
+        {mnC, NotationNote::Accidental::sharp, 0, false},   // E#
+    };
+    SqArray<float, 16> expectedNotePositions{
+        pos.noteXPosition,
+        pos.noteXPosition + pos.noteColumnWidth,
+        pos.noteXPosition
+        };
+    SqArray<float, 16> expectedAccidentalPositions{
+        pos.noteXPosition - pos.accidentalColumnWidth,
+        pos.noteXPosition - 2 * pos.accidentalColumnWidth,
+        pos.noteXPosition - 3 * pos.accidentalColumnWidth
+        };
     testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
 }
 
@@ -466,6 +487,7 @@ static void testAdjustSpacing() {
     testAdjustSpacingMiddleC();
     testAdjustSpacingMiddleCAndD();
     testAdjustSpacingCSharpESharp();
+    testAdjustSpacingBigStack();
 }
 
 void testScoreDrawUtils() {
@@ -504,7 +526,8 @@ void testScoreDrawUtils() {
 
 #if 1
 void testFirst() {
-    testAdjustSpacing();
-   // testAdjustSpacingCSharpESharp();
+    //  testAdjustSpacing();
+    // testAdjustSpacingCSharpESharp();
+    testAdjustSpacingBigStack();
 }
 #endif
