@@ -351,7 +351,7 @@ static void TestCSharpESharp() {
     // It seems like C and D are in the wrong order. Maybe this test NG??
 }
 
-static void testFunc(
+static void testAdjustSpacingFunc(
     SqArray<NotationNote, 16> notes,
     SqArray<float, 16> expectedNotePositions,
     SqArray<float, 16> expectedAccidentalPositions) {
@@ -362,7 +362,7 @@ static void testFunc(
     DrawPositionParams pos;
     const float xPosition = pos.noteXPosition;
 
-               ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
     for (unsigned i = 0; i < notes.numValid(); ++i) {
         const auto& notationNote = notes.getAt(i);
         const float yPosition = pos.noteYPosition(notationNote._midiNote, notationNote._legerLine, false);
@@ -392,60 +392,80 @@ static void testFunc(
     assertEQ(utils->_info.size(), notes.numValid());
 
     utils->_adjustNoteSpacing(pos);
-
+    utils->_adjustAccidentalSpacing(pos);
 
     // Loop over every leger line
     unsigned index = 0;
     for (ScoreDrawUtils::iterator iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
-
         const LegerLineInfo& lineInfo = iter->second;
 
-        // Validate the note info
-       // assertEQ(lineInfo.notes.size(), 1);  // one note on this leger line, and no shifts
-        unsigned glyphIndex = 100;;
+        // Find the note glyphs that has the actual note.
+        unsigned noteGlyphIndex = 100;
+        ;
         for (unsigned i = 0; i < lineInfo.notes.size(); ++i) {
             if (lineInfo.notes[i].glyph == ScoreDrawUtils::_wholeNote) {
-                glyphIndex = i;
+                noteGlyphIndex = i;
             }
         }
-        assert(glyphIndex < 100);
+        assert(noteGlyphIndex < 100);
 
-
-        assertEQ(lineInfo.notes[glyphIndex].xPosition, expectedNotePositions.getAt(index));
-        if (!lineInfo.accidentals.empty()) {
-            assertEQ(lineInfo.accidentals[0].xPosition, expectedAccidentalPositions.getAt(index));
+         // Find the accidental glyphs that has the actual accidental.
+        unsigned accidentalGlyphIndex = 100;
+        ;
+        for (unsigned i = 0; i < lineInfo.accidentals.size(); ++i) {
+            if (!lineInfo.accidentals[i].glyph.empty()) {
+                accidentalGlyphIndex = i;
+            }
         }
+        assert (lineInfo.accidentals.empty() || (accidentalGlyphIndex >= 100));
 
+        assertEQ(lineInfo.notes[noteGlyphIndex].xPosition, expectedNotePositions.getAt(index));
+        if (!lineInfo.accidentals.empty()) {
+            assertEQ(lineInfo.accidentals[accidentalGlyphIndex].xPosition, expectedAccidentalPositions.getAt(index));
+        }
         ++index;
     }
-
 }
 
-static void testAdjustMiddleC() {
+static void testAdjustSpacingMiddleC() {
     DrawPositionParams pos;
     MidiNote mn = MidiNote(MidiNote::MiddleC);
-    NotationNote x{mn, NotationNote::Accidental::sharp, 72, false};
+    NotationNote x{mn, NotationNote::Accidental::sharp, -2, false};
     SqArray<NotationNote, 16> notes{x};
     SqArray<float, 16> expectedNotePositions{pos.noteXPosition};
-    SqArray<float, 16> expectedAccidentalPositions {pos.noteXPosition - pos.accidentalColumnWidth};
-    testFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+    SqArray<float, 16> expectedAccidentalPositions{pos.noteXPosition - pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
 }
 
-static void testAdjustMiddleCAndD() {
+static void testAdjustSpacingMiddleCAndD() {
     DrawPositionParams pos;
-    MidiNote mnC = MidiNote(MidiNote::MiddleC);
-    MidiNote mnD = MidiNote(MidiNote::MiddleC + MidiNote::D);
-    NotationNote c{ mnC, NotationNote::Accidental::none, 72, false };
-    NotationNote d{ mnD, NotationNote::Accidental::none, 73, false };
-    SqArray<NotationNote, 16> notes{ c, d };
-    SqArray<float, 16> expectedNotePositions{ pos.noteXPosition, pos.noteXPosition + pos.noteColumnWidth };
-    SqArray<float, 16> expectedAccidentalPositions{ 0, 0 };     // doesn't matter
-    testFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+    NotationNote c{mnC, NotationNote::Accidental::none, -2, false};
+    NotationNote d{mnC, NotationNote::Accidental::none, -1, false};
+    SqArray<NotationNote, 16> notes{c, d};
+    SqArray<float, 16> expectedNotePositions{pos.noteXPosition, pos.noteXPosition + pos.noteColumnWidth};
+    SqArray<float, 16> expectedAccidentalPositions{0, 0};  // doesn't matter
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
 }
 
-static void testAdjust() {
-    testAdjustMiddleC();
-    testAdjustMiddleCAndD();
+static void testAdjustSpacingCSharpESharp() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+    SqArray<NotationNote, 16> notes{
+        {mnC, NotationNote::Accidental::sharp, -2, false},
+        {mnC, NotationNote::Accidental::sharp, 0, false}
+    };
+    SqArray<float, 16> expectedNotePositions{pos.noteXPosition, pos.noteXPosition};
+    SqArray<float, 16> expectedAccidentalPositions{
+        pos.noteXPosition - pos.accidentalColumnWidth, 
+        pos.noteXPosition - 2 * pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjustSpacing() {
+    testAdjustSpacingMiddleC();
+    testAdjustSpacingMiddleCAndD();
+    testAdjustSpacingCSharpESharp();
 }
 
 void testScoreDrawUtils() {
@@ -469,7 +489,7 @@ void testScoreDrawUtils() {
     testTrebleLegerLine();
     testBassLegerLine();
 
-    testAdjust();
+    testAdjustSpacing();
 
     SQINFO("get new test for multi notes on a line");
     //   testTwoNotes();
@@ -484,11 +504,7 @@ void testScoreDrawUtils() {
 
 #if 1
 void testFirst() {
-    // testScoreDrawUtils();
-    // testClef2();
-    // testTrebleClef2();
-    // testNoAdjustCandE();
-    testAdjust();
-   // testAdjustMiddleCAndD();
+    testAdjustSpacing();
+   // testAdjustSpacingCSharpESharp();
 }
 #endif
