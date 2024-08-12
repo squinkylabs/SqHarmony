@@ -357,6 +357,7 @@ static void testFunc(
     SqArray<float, 16> expectedAccidentalPositions) {
     assertGT(notes.numValid(), 0);
     assertEQ(notes.numValid(), expectedNotePositions.numValid());
+    assertEQ(notes.numValid(), expectedAccidentalPositions.numValid());
 
     DrawPositionParams pos;
     const float xPosition = pos.noteXPosition;
@@ -392,30 +393,59 @@ static void testFunc(
 
     utils->_adjustNoteSpacing(pos);
 
+
+    // Loop over every leger line
     unsigned index = 0;
     for (ScoreDrawUtils::iterator iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
+
         const LegerLineInfo& lineInfo = iter->second;
-        assertEQ(lineInfo.notes.size(), 1);  // one not on this leger line
-        assertEQ(lineInfo.notes[0].xPosition, expectedNotePositions.getAt(index));
+
+        // Validate the note info
+       // assertEQ(lineInfo.notes.size(), 1);  // one note on this leger line, and no shifts
+        unsigned glyphIndex = 100;;
+        for (unsigned i = 0; i < lineInfo.notes.size(); ++i) {
+            if (lineInfo.notes[i].glyph == ScoreDrawUtils::_wholeNote) {
+                glyphIndex = i;
+            }
+        }
+        assert(glyphIndex < 100);
+
+
+        assertEQ(lineInfo.notes[glyphIndex].xPosition, expectedNotePositions.getAt(index));
+        if (!lineInfo.accidentals.empty()) {
+            assertEQ(lineInfo.accidentals[0].xPosition, expectedAccidentalPositions.getAt(index));
+        }
 
         ++index;
-        // assertEQ()
     }
 
-    // for (unsigned i = 0; i < expectedNotePositions.numValid(); ++i) {
-    //     assertEQ(expectedNotePositions.getAt(i),
-    // }
-
-    assert(false);
 }
 
 static void testAdjustMiddleC() {
+    DrawPositionParams pos;
     MidiNote mn = MidiNote(MidiNote::MiddleC);
     NotationNote x{mn, NotationNote::Accidental::sharp, 72, false};
     SqArray<NotationNote, 16> notes{x};
-    SqArray<float, 16> expectedNotePositions{13};
-    SqArray<float, 16> expectedAccidentalPositions;
+    SqArray<float, 16> expectedNotePositions{pos.noteXPosition};
+    SqArray<float, 16> expectedAccidentalPositions {pos.noteXPosition - pos.accidentalColumnWidth};
     testFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjustMiddleCAndD() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);
+    MidiNote mnD = MidiNote(MidiNote::MiddleC + MidiNote::D);
+    NotationNote c{ mnC, NotationNote::Accidental::none, 72, false };
+    NotationNote d{ mnD, NotationNote::Accidental::none, 73, false };
+    SqArray<NotationNote, 16> notes{ c, d };
+    SqArray<float, 16> expectedNotePositions{ pos.noteXPosition, pos.noteXPosition + pos.noteColumnWidth };
+    SqArray<float, 16> expectedAccidentalPositions{ 0, 0 };     // doesn't matter
+    testFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjust() {
+    testAdjustMiddleC();
+    testAdjustMiddleCAndD();
 }
 
 void testScoreDrawUtils() {
@@ -439,6 +469,8 @@ void testScoreDrawUtils() {
     testTrebleLegerLine();
     testBassLegerLine();
 
+    testAdjust();
+
     SQINFO("get new test for multi notes on a line");
     //   testTwoNotes();
 
@@ -456,6 +488,7 @@ void testFirst() {
     // testClef2();
     // testTrebleClef2();
     // testNoAdjustCandE();
-    testAdjustMiddleC();
+    testAdjust();
+   // testAdjustMiddleCAndD();
 }
 #endif
