@@ -75,7 +75,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         const int legerLine = notationNote._legerLine;
 
 #ifdef _LOG
-        SQINFO("in getDrawInfo pitch=%d ll=%d nn.pitch=%d", pitchIterator, legerLine, notationNote.pitch());
+        SQINFO("!! in getDrawInfo pitch=%d ll=%d nn.pitch=%d bassClef=%d", pitchIterator, legerLine, notationNote.pitch(), notationNote._bassStaff);
         SQINFO("notationNote = %s", notationNote.toString().c_str());
 #endif
         bool isAlreadyNoteOnThisLine = true;
@@ -136,6 +136,9 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
 }
 
 void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
+#ifdef _LOG
+    SQINFO("-- enter _adjustNoteSpacing");
+#endif
     if (_info.size() < 2) {
         return;
     }
@@ -146,17 +149,24 @@ void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
     for (; nextLine != _info.end(); ++line, ++nextLine) {
         const int lineLegerLine = line->first;
         const int lineNextLine = nextLine->first;
-        // SQINFO("ll=%d n=%d", lineLegerLine, lineNextLine);
+
+        // Call adjust any time we see the adjacent leger lines.
         if (lineNextLine == (lineLegerLine + 1)) {
             _adjustNoteSpacing(nextLine, line, pos);
         }
     }
+#ifdef _LOG
+    SQINFO("-- exit _adjustNoteSpacing");
+#endif
 }
 
 void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
     if (_info.size() < 2) {
         return;
     }
+#ifdef _LOG
+    SQINFO("-- enter _adjustAccidentalSpacing");
+#endif
     LegerLineInfo* currentLine = nullptr;
     LegerLineInfo* firstRefLine = nullptr;
     LegerLineInfo* secondRefLine = nullptr;
@@ -183,6 +193,9 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
             done = true;
         }
     }
+#ifdef _LOG
+    SQINFO("-- exit _adjustAccidentalSpacing");
+#endif
 }
 
 void ScoreDrawUtils::_adjustAccidentalSpacing(
@@ -192,6 +205,12 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
     const DrawPositionParams& pos) {
     assert(currentLine);
     assert(firstRefLine);
+
+#ifdef _LOG
+    SQINFO("-- enter _adjustAccidentalSpacing for line %s", currentLine->toString().c_str());
+    SQINFO(" first ref %s", firstRefLine->toString().c_str());
+    if (secondRefLine) SQINFO(" second ref %s", secondRefLine->toString().c_str());
+#endif
 
     // first combine the ref lines to find where accidentals are below us
     bool isAccidentalBelow[4]{false};
@@ -208,9 +227,18 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
         }
     }
 
+#ifdef _LOG
+    for (unsigned i = 0; i < 3; ++i) {
+        SQINFO("index %d isBelow=%d", i, isAccidentalBelow[i]);
+    }
+#endif
+
     for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
         if (isAccidentalBelow[i]) {
             currentLine->accidentals.shift(std::string());
+#ifdef _LOG
+            SQINFO("shift current line");
+#endif
         }
     }
 
@@ -223,6 +251,11 @@ void ScoreDrawUtils::_adjustNoteSpacing(
     iterator nextLine,
     iterator line,
     const DrawPositionParams& pos) {
+#ifdef _LOG
+    SQINFO("-- enter _adjustNoteSpacing for line %s", nextLine->second.toString().c_str());
+    SQINFO(" first ref %s", line->second.toString().c_str());
+#endif
+
     bool isNoteBelow[4]{false};
     const auto& refNotes = line->second.notes;
     for (unsigned i = 0; i < refNotes.size(); ++i) {
@@ -231,6 +264,12 @@ void ScoreDrawUtils::_adjustNoteSpacing(
         }
     }
 
+#ifdef _LOG
+    for (unsigned i = 0; i < 3; ++i) {
+        SQINFO("index %d isBelow=%d", i, isNoteBelow[i]);
+    }
+#endif
+
     // now, go through the notes in the line we are adjusting
     auto& currentNotes = nextLine->second.notes;
     for (unsigned i = 0; i < currentNotes.size(); ++i) {
@@ -238,6 +277,9 @@ void ScoreDrawUtils::_adjustNoteSpacing(
             bool haveNoteHere = !currentNotes[i].glyph.empty();
             if (haveNoteHere) {
                 currentNotes.shift(std::string());
+#ifdef _LOG
+                SQINFO("shift current line");
+#endif
             }
         }
     }

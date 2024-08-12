@@ -11,7 +11,7 @@
 #include "ScaleNote.h"
 #include "SqLog.h"
 
-// #define _LOG
+//#define _LOG
 
 NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
     // SQINFO("getNotationNote, midi pitch = %d, bassStaff = %d", midiNote.get(), bassStaff);

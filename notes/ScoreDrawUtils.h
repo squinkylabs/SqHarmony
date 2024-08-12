@@ -52,6 +52,7 @@ public:
 
 class LegerLineInfo {
 public:
+    // LegerLineInfo() = delete;
     ShiftingArray<SymbolInfo> notes;
     ShiftingArray<SymbolInfo> accidentals;
     LegerLinesLocInfo legerLinesLocInfo;
@@ -70,6 +71,7 @@ public:
         si.yPosition = yPosition;
         accidentals.push_back(si);
     }
+
     // void sort() {
     //     std::sort(symbols.begin(), symbols.end(), [](const SymbolInfo& first, const SymbolInfo& second) {
     //         // sort the symbols so accidentals are first.
@@ -88,6 +90,7 @@ public:
         }
         return s.str();
     }
+
 };
 
 }  // namespace sdu
@@ -112,10 +115,10 @@ public:
     void _adjustNoteSpacing(const DrawPositionParams& pos);
     void _adjustAccidentalSpacing(const DrawPositionParams& pos);
 
-private:
-    using iterator = std::map<int, LegerLineInfo>::iterator;
     std::map<int, LegerLineInfo> _info;
-
+     using iterator = std::map<int, LegerLineInfo>::iterator;
+     
+private:
     void _adjustNoteSpacing(
         iterator nextLine,
         iterator line,
@@ -147,6 +150,6 @@ inline std::string SymbolInfo::toString() const {
 
     std::stringstream s;
     s << "glyph=" << g;
-    s << " x=" << xPosition << " y=" << yPosition << std::endl;
+    s << " x=" << xPosition << " y=" << yPosition;
     return s.str();
 }

@@ -351,6 +351,73 @@ static void TestCSharpESharp() {
     // It seems like C and D are in the wrong order. Maybe this test NG??
 }
 
+static void testFunc(
+    SqArray<NotationNote, 16> notes,
+    SqArray<float, 16> expectedNotePositions,
+    SqArray<float, 16> expectedAccidentalPositions) {
+    assertGT(notes.numValid(), 0);
+    assertEQ(notes.numValid(), expectedNotePositions.numValid());
+
+    DrawPositionParams pos;
+    const float xPosition = pos.noteXPosition;
+
+               ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
+    for (unsigned i = 0; i < notes.numValid(); ++i) {
+        const auto& notationNote = notes.getAt(i);
+        const float yPosition = pos.noteYPosition(notationNote._midiNote, notationNote._legerLine, false);
+        LegerLineInfo ll;
+        ll.addNote(ScoreDrawUtils::_wholeNote, xPosition, yPosition);
+        const float accidentalXPosition = pos.noteXPosition - pos.accidentalColumnWidth;
+        if (notationNote.isAccidental()) {
+            switch (notationNote._accidental) {
+                case NotationNote::Accidental::flat:
+                    ll.addAccidental(ScoreDrawUtils::_flat, accidentalXPosition, yPosition);
+                    break;
+                case NotationNote::Accidental::natural:
+                    ll.addAccidental(ScoreDrawUtils::_natural, accidentalXPosition, yPosition);
+                    break;
+                case NotationNote::Accidental::sharp:
+                    ll.addAccidental(ScoreDrawUtils::_sharp, accidentalXPosition, yPosition);
+                    break;
+                case NotationNote::Accidental::none:
+                    break;
+                default:
+                    assert(false);
+            }
+        }
+        utils->_info.insert(std::make_pair(notationNote._legerLine, ll));
+    }
+
+    assertEQ(utils->_info.size(), notes.numValid());
+
+    utils->_adjustNoteSpacing(pos);
+
+    unsigned index = 0;
+    for (ScoreDrawUtils::iterator iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
+        const LegerLineInfo& lineInfo = iter->second;
+        assertEQ(lineInfo.notes.size(), 1);  // one not on this leger line
+        assertEQ(lineInfo.notes[0].xPosition, expectedNotePositions.getAt(index));
+
+        ++index;
+        // assertEQ()
+    }
+
+    // for (unsigned i = 0; i < expectedNotePositions.numValid(); ++i) {
+    //     assertEQ(expectedNotePositions.getAt(i),
+    // }
+
+    assert(false);
+}
+
+static void testAdjustMiddleC() {
+    MidiNote mn = MidiNote(MidiNote::MiddleC);
+    NotationNote x{mn, NotationNote::Accidental::sharp, 72, false};
+    SqArray<NotationNote, 16> notes{x};
+    SqArray<float, 16> expectedNotePositions{13};
+    SqArray<float, 16> expectedAccidentalPositions;
+    testFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
 void testScoreDrawUtils() {
     test1();
     test2();
@@ -379,12 +446,16 @@ void testScoreDrawUtils() {
 
     testCD();
     TestCSharpESharp();
+
+    //  testNoAdjustCandE();
 }
 
-#if 0
+#if 1
 void testFirst() {
-  testScoreDrawUtils();
-  //testClef2();
- // testTrebleClef2();
+    // testScoreDrawUtils();
+    // testClef2();
+    // testTrebleClef2();
+    // testNoAdjustCandE();
+    testAdjustMiddleC();
 }
 #endif
