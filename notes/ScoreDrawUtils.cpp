@@ -153,12 +153,15 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
     }
 #ifdef _LOG
     SQINFO("-- enter _adjustAccidentalSpacing");
+    for (iterator lineIterator = _info.begin(); lineIterator != _info.end(); ++lineIterator) {
+        SQINFO("ll %d info=%s", lineIterator->first, lineIterator->second.toString().c_str());
+    }
 #endif
     // lineIterator
     for (iterator lineIterator = _info.begin(); lineIterator != _info.end(); ++lineIterator) {
         // assert(false);
 
-       // LegerLineInfo* currentLine = &lineIterator->second;
+        // LegerLineInfo* currentLine = &lineIterator->second;
         _adjustAccidentalSpacing(pos, lineIterator);
     }
     // assert(false);
@@ -167,17 +170,15 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
 void ScoreDrawUtils::_adjustAccidentalSpacing(
     const DrawPositionParams& pos,
     iterator lineToAdjust) {
-
     std::vector<const LegerLineInfo*> refLines;
 
- //   const LegerLineInfo& lineToAdjustInfo = lineToAdjust->second;
+    //   const LegerLineInfo& lineToAdjustInfo = lineToAdjust->second;
     for (const_iterator iterator = _info.begin(); iterator != lineToAdjust; ++iterator) {
         if (_linesCouldOverlap(pos, iterator->second, lineToAdjust->second)) {
-            //assert(false);
+            // assert(false);
             const LegerLineInfo* p = &iterator->second;
             refLines.push_back(p);
         }
-        
     }
     return _adjustAccidentalSpacing(pos, lineToAdjust, refLines);
 }
@@ -186,12 +187,15 @@ bool ScoreDrawUtils::_linesCouldOverlap(const DrawPositionParams& drawPos, const
     const float aPos = _getYPosition(a);
     const float bPos = _getYPosition(b);
     const float dif = std::abs(aPos - bPos);
-    return dif < drawPos.accidentalHeight;
-
+    const auto ret = dif < drawPos.accidentalHeight;
+#ifdef _LOG
+    SQINFO("_linesCouldOverlap %f, %f will ret %d, diff=%f, h=%f", aPos, bPos, ret, dif, drawPos.accidentalHeight);
+#endif
+    return ret;
 }
 
 float ScoreDrawUtils::_getYPosition(const LegerLineInfo& lli) {
-  //  ShiftingArray<SymbolInfo>::const_iterator iter = lli.notes.begin();
+    //  ShiftingArray<SymbolInfo>::const_iterator iter = lli.notes.begin();
     for (auto iter = lli.notes.begin(); iter != lli.notes.end(); ++iter) {
         if (!iter->glyph.empty()) {
             return iter->yPosition;
@@ -205,7 +209,36 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
     const DrawPositionParams& pos,
     iterator currentLine,
     const std::vector<const LegerLineInfo*>& refLines) {
-    assert(false);
+    const float yPos = _getYPosition(currentLine->second);
+#define MAX_COLLISION 5
+    bool isAccidentalBelow[MAX_COLLISION]{false};
+
+    // Loop through all the lines that are close to us,
+    // building up isNoteBelow.
+    for (auto lineIter : refLines) {
+        const LegerLineInfo& info = *lineIter;
+        for (unsigned i = 0; i < info.accidentals.size(); ++i) {
+            if (!info.accidentals[i].glyph.empty()) {
+                isAccidentalBelow[i] = true;
+            }
+        }
+    }
+
+    for (unsigned i = 0; i < currentLine->second.accidentals.size(); ++i) {
+        if (isAccidentalBelow[i]) {
+            currentLine->second.accidentals.shift(std::string());
+#ifdef _LOG
+            SQINFO("shift current line");
+#endif
+        }
+    }
+
+    for (unsigned i = 0; i < currentLine->second.accidentals.size(); ++i) {
+        currentLine->second.accidentals[i].xPosition = pos.noteXPosition - (i + 1) * pos.accidentalColumnWidth;
+#ifdef _LOG
+        SQINFO("setting accidental [%d] xpos to %f", i, currentLine->second.accidentals[i].xPosition);
+#endif
+    }
 }
 
 #if 0

@@ -360,6 +360,14 @@ static void testAdjustSpacingFunc(
     assertEQ(notes.numValid(), expectedAccidentalPositions.numValid());
 
     DrawPositionParams pos;
+    pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        if (bassStaff) {
+            legerLine -= 8;        // this isn't quite right...
+        }
+        return legerLine * 10;
+    };
+    pos.accidentalHeight = 55;      // make this work with my yPos function.
+                                    // 55 makes CA work as expected.
     const float xPosition = pos.noteXPosition;
 
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
@@ -369,6 +377,7 @@ static void testAdjustSpacingFunc(
         LegerLineInfo ll;
         ll.addNote(ScoreDrawUtils::_wholeNote, xPosition, yPosition);
         const float accidentalXPosition = pos.noteXPosition - pos.accidentalColumnWidth;
+        SQINFO("In test, adding accidental at y=%f ", yPosition);
         if (notationNote.isAccidental()) {
             switch (notationNote._accidental) {
                 case NotationNote::Accidental::flat:
@@ -601,8 +610,7 @@ void testScoreDrawUtils() {
 
 #if 1
 void testFirst() {
-     testAdjustSpacing();
-    // testAdjustSpacingCSharpESharp();
-   // testAdjustSpacingOctave();
+    testAdjustSpacing();
+    //testAdjustSpacingCA();
 }
 #endif
