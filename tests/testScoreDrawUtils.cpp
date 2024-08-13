@@ -566,11 +566,9 @@ static void testAdjustSpacing() {
     testAdjustSpacingMiddleCAndD();
     testAdjustSpacingCSharpESharp();
     testAdjustSpacing3Stack();
-    // testAdjustSpacing4Stack();
-    SQINFO("make 4 stack work");
+    testAdjustSpacing4Stack();
     testAdjustSpacingCA();
-    //testAdjustSpacingCB();
-    SQINFO("make testAdjustSpacingCB work");
+    testAdjustSpacingCB();
     testAdjustSpacingOctave();
 }
 
@@ -612,5 +610,7 @@ void testScoreDrawUtils() {
 void testFirst() {
     testAdjustSpacing();
     //testAdjustSpacingCA();
+   // testAdjustSpacing4Stack();
+  //  testAdjustSpacingCB();
 }
 #endif
