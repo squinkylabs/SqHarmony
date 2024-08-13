@@ -23,9 +23,12 @@ public:
 
     using container = std::vector<T>;
     using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
 
     iterator begin();
+    const_iterator begin() const;
     iterator end();
+    const_iterator end() const;
 
 private:
     container _vector;
@@ -80,5 +83,15 @@ typename ShiftingArray<T>::iterator ShiftingArray<T>::begin() {
 
 template <typename T>
 typename ShiftingArray<T>::iterator ShiftingArray<T>::end() {
+    return _vector.end();
+}
+
+template <typename T>
+typename ShiftingArray<T>::const_iterator ShiftingArray<T>::begin() const {
+    return _vector.begin();
+}
+
+template <typename T>
+typename ShiftingArray<T>::const_iterator ShiftingArray<T>::end() const {
     return _vector.end();
 }

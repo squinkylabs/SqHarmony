@@ -601,8 +601,8 @@ void testScoreDrawUtils() {
 
 #if 1
 void testFirst() {
-    //  testAdjustSpacing();
+     testAdjustSpacing();
     // testAdjustSpacingCSharpESharp();
-    testAdjustSpacingOctave();
+   // testAdjustSpacingOctave();
 }
 #endif

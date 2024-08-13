@@ -38,6 +38,7 @@ public:
     float noteXPosition = 0;
     float noteColumnWidth = 1;
     float accidentalColumnWidth = 3.5f;
+    float accidentalHeight = 30;
 };
 
 class SymbolInfo {
@@ -90,7 +91,6 @@ public:
         }
         return s.str();
     }
-
 };
 
 }  // namespace sdu
@@ -116,19 +116,28 @@ public:
     void _adjustAccidentalSpacing(const DrawPositionParams& pos);
 
     std::map<int, LegerLineInfo> _info;
-     using iterator = std::map<int, LegerLineInfo>::iterator;
-     
+    using iterator = std::map<int, LegerLineInfo>::iterator;
+    using const_iterator = std::map<int, LegerLineInfo>::const_iterator;
+
 private:
     void _adjustNoteSpacing(
         iterator nextLine,
         iterator line,
         const DrawPositionParams& pos);
+    
+    
+    static void _adjustAccidentalSpacing(
+        const DrawPositionParams& pos,
+        iterator currentLine,
+        const std::vector<const LegerLineInfo*>& refLines);
 
     void _adjustAccidentalSpacing(
-        LegerLineInfo* currentLine,
-        LegerLineInfo* firstRefLine,
-        LegerLineInfo* secondRefLine,
-        const DrawPositionParams& pos);
+        const DrawPositionParams& pos,
+        iterator  currentLine);
+
+    static bool _linesCouldOverlap(const DrawPositionParams& pos, const LegerLineInfo& a, const LegerLineInfo& b);
+
+    static float _getYPosition(const LegerLineInfo&);
 };
 
 inline std::string SymbolInfo::toString() const {
