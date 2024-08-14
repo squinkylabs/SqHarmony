@@ -11,7 +11,7 @@
 #include "ScaleNote.h"
 #include "SqLog.h"
 
-//#define _LOG
+// #define _LOG
 
 NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote& midiNote, bool bassStaff) {
     // SQINFO("getNotationNote, midi pitch = %d, bassStaff = %d", midiNote.get(), bassStaff);
@@ -292,28 +292,6 @@ SqArray<NotationNote, 16> ScorePitchUtils::getVariations(const NotationNote& nn,
     return ret;
 }
 
-#if 0
-NotationNote ScorePitchUtils::makeCanonical(const NotationNote& note) {
-    if (note._accidental == NotationNote::Accidental::sharp) {
-        // If the notation note has a sharp, but the pitch is a white key pitch
-        if (!note._midiNote.isBlackKey()) {
-            // Then we can re-spell it as a natural, in key, note one line up.
-            // For example, in all keys B sharp is C natural
-            return NotationNote(note._midiNote, NotationNote::Accidental::none, note._legerLine + 1, note._bassStaff);
-        }
-    } else if (note._accidental == NotationNote::Accidental::flat) {
-        // If the notation note has a flat, but the pitch is a white key pitch
-        if (!note._midiNote.isBlackKey()) {
-            // Then we can re-spell it as a natural, in key, note one line down.
-            // For example, in all keys F flat is E natural
-            return NotationNote(note._midiNote, NotationNote::Accidental::none, note._legerLine - 1, note._bassStaff);
-        }
-    }
-    // If note is already canonical, can just return as is.
-    return note;
-}
-#endif
-
 ScorePitchUtils::SpellingResults ScorePitchUtils::findSpelling(
     const Scale& scale,
     const SqArray<int, 16>& inputPitches,
@@ -408,7 +386,6 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(const SpellingPreferences& pr
     int numAccidentals = 0;
     int numBadThirds = 0;
     int numBadAccidentals = 0;
-  //  int numMultiNotesOnLeger = 0;
 
     LegerLineTracker llTracker;
 
@@ -443,6 +420,7 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(const SpellingPreferences& pr
                 const int distanceLegerLine = pn1->_legerLine - pn2->_legerLine;
                 // SQINFO("ll dist = %d", distanceLegerLine);
                 if (distanceLegerLine != 2) {
+                    // SQINFO("found bad third between %s and %s", pn1->toString().c_str(), pn2->toString().c_str());
                     numBadThirds++;
                 }
             }
@@ -450,7 +428,10 @@ int ScorePitchUtils::_evaluateSpellingFirstAttempt(const SpellingPreferences& pr
     }
     const int score = -(numBadAccidentals + numAccidentals + penaltyForBadThird * numBadThirds + penaltyForMultiNotesOnLeger * llTracker.getSawMulti());
 #ifdef _LOG
-    SQINFO("final score 436 = %d badAcc=%d, numacc=%d bad3rd=%d, multi=%d", score, numBadAccidentals, numAccidentals, numBadThirds, llTracker.getSawMulti());
+    SQINFO("@@@@@ final score 436 = %d badAcc=%d, numacc=%d bad3rd=%d, multi=%d", score, numBadAccidentals, numAccidentals, numBadThirds, llTracker.getSawMulti());
+    for (unsigned i=0; i<notes.numValid(); ++i) {
+        SQINFO("  %s", notes.getAt(i).toString().c_str());
+    }
     SQINFO("\n");
 #endif
     return score;

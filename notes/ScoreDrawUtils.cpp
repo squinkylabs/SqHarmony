@@ -5,7 +5,7 @@
 #include "ChordRecognizer.h"
 #include "ScorePitchUtils.h"
 
-#define _LOG
+// #define _LOG
 
 ScoreDrawUtilsPtr ScoreDrawUtils::make() {
     return std::make_unique<ScoreDrawUtils>();
