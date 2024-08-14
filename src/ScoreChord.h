@@ -190,7 +190,7 @@ private:
     const float _leftMargin = 4.5f;
     const float _xStaff = _leftMargin;
     const float _xClef = _xStaff + 2;
-    const float _xBarlineEnd = 109.5;                // 105.5 a little small
+    const float _xBarlineEnd = 109.5;  // 105.5 a little small
     const float _xBarlineFirst = _leftMargin;
     const float _xKeysig = 16 * _zoom;             // x position of the first accidental in the key signature.
     const float _deltaXAccidental = -2.2 * _zoom;  // accidental drawn this far from note, in x di
@@ -272,8 +272,8 @@ void ScoreChord::drawHLine(NVGcontext *vg, NVGcolor color, float x, float y, flo
 }
 
 void ScoreChord::filledRect(NVGcontext *vg, NVGcolor color, float x, float y, float w, float h, float rounding) const {
-    //SQINFO("filled rect w = %f", w);
-  //  w = std::min(w, 88.f);  //  clip with to 80, temp (TODO: do we need this?)
+    // SQINFO("filled rect w = %f", w);
+    //  w = std::min(w, 88.f);  //  clip with to 80, temp (TODO: do we need this?)
 
     nvgFillColor(vg, color);
     nvgBeginPath(vg);
@@ -299,10 +299,9 @@ inline void ScoreChord::draw(const DrawArgs &args) {
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
     const float left = _drawMusicNonNotes(args);
     const float right = _xBarlineEnd;
-  //  const float xPosition = ((left + right) / 2.f) - _zoom * 5;
- //  const float xPosition = ((left + right) / 2.f) + _columnWidth;
- const float xPosition = ((left + right) / 2.f);
-    SQINFO("draw. l=%f, r=%f col=%f xPos=%f", left, right, _columnWidth, xPosition);
+
+    const float xPosition = ((left + right) / 2.f);
+   // SQINFO("draw. l=%f, r=%f col=%f xPos=%f", left, right, _columnWidth, xPosition);
 
     _drawNotes(args, xPosition);
     _scoreIsDirty = false;
@@ -526,6 +525,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
     drawPostion.noteXPosition = xPosition;
     drawPostion.noteColumnWidth = _columnWidth;
     drawPostion.accidentalColumnWidth = _columnWidth * .7;
+    drawPostion.accidentalHeight = 15;
     drawPostion.noteYPosition = [this](const MidiNote &note, int legerLine, bool bassStaff) {
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
         const float ret = yInfo.position;
@@ -568,7 +568,7 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             const auto symbol = *symbolIterator;
             // SQINFO("drawing symbol %s", symbol.toString().c_str());
             nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
-           // _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
+            // _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
         }
     }
 }

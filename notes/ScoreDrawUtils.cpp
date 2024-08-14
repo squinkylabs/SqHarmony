@@ -209,8 +209,8 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
     const DrawPositionParams& pos,
     iterator currentLine,
     const std::vector<const LegerLineInfo*>& refLines) {
-    const float yPos = _getYPosition(currentLine->second);
-#define MAX_COLLISION 5
+    //const float yPos = _getYPosition(currentLine->second);
+    #define MAX_COLLISION 5
     bool isAccidentalBelow[MAX_COLLISION]{false};
 
     // Loop through all the lines that are close to us,

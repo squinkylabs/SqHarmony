@@ -377,7 +377,7 @@ static void testAdjustSpacingFunc(
         LegerLineInfo ll;
         ll.addNote(ScoreDrawUtils::_wholeNote, xPosition, yPosition);
         const float accidentalXPosition = pos.noteXPosition - pos.accidentalColumnWidth;
-        SQINFO("In test, adding accidental at y=%f ", yPosition);
+        //SQINFO("In test, adding accidental at y=%f ", yPosition);
         if (notationNote.isAccidental()) {
             switch (notationNote._accidental) {
                 case NotationNote::Accidental::flat:
@@ -408,7 +408,7 @@ static void testAdjustSpacingFunc(
     for (ScoreDrawUtils::iterator iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
         const LegerLineInfo& lineInfo = iter->second;
 
-        SQINFO("eval test restuls, ll=%d", iter->first);
+        //SQINFO("eval test restuls, ll=%d", iter->first);
 
         // Find the note glyphs that has the actual note.
         unsigned noteGlyphIndex = 100;
@@ -606,7 +606,7 @@ void testScoreDrawUtils() {
     //  testNoAdjustCandE();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testAdjustSpacing();
     //testAdjustSpacingCA();
