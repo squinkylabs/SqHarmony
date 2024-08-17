@@ -87,7 +87,10 @@ extern void testScorePitchUtils();
 extern void testLegerScore();
 extern void testNotationNote();
 extern void testMidiNote();
-extern void  testSqArray();
+extern void testSqArray();
+extern void testShiftingArray();
+extern void testSharpsFlatsPref();
+extern void testScoreDrawUtils();
 
 #include "SqLog.h"
 
@@ -137,6 +140,7 @@ int main(const char**, int) {
     testShiftCalc();
 
     testDifferenticalClockCounter();
+    testSharpsFlatsPref();
     testNotationNote();
     testScorePitchUtils();
     testChordRecognizer3();
@@ -145,6 +149,7 @@ int main(const char**, int) {
     testPESConverter();
     testSharpFlatMonitor();
     testVisualizer();
+    testScoreDrawUtils();
 
     testClockMult();
     testMultiplier();
@@ -160,6 +165,7 @@ int main(const char**, int) {
 
   
     testSqArray();
+    testShiftingArray();
     testNotes();
     testLegerScore();
     testScaleNotes();

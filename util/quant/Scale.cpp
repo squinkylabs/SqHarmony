@@ -82,7 +82,7 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
     {
         static bool b = true;
         if (b) {
-            SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
+            //SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
             b = false;
         }
     }
@@ -783,6 +783,10 @@ bool Scale::_validateScaleNote(const ScaleNote& sn) const {
             assert(scalePref != SharpsFlatsPref::Flats);
             return(scalePref != SharpsFlatsPref::Flats);
             break;
+        case ScaleNote::RelativeAdjustment::none:
+            break;
+        default:
+            assert(false);
     }
     //assert(false);
     return true;

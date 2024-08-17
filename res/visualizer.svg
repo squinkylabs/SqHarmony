@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="135" height="380" viewBox="0 0 105 380">
+  <defs>
+    <linearGradient id="linear-gradient" x1="50%" x2="50%" y1="100%" y2="0%" gradientUnits="objectBoundingBox">
+      <stop offset="100" stop-color="#500050"/>
+      <stop offset="0" stop-color="#200020"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="50%" x2="50%" y1="100%" y2="0%" gradientUnits="objectBoundingBox">
+      <stop offset="100" stop-color="#200020"/>
+      <stop offset="0" stop-color="#500050"/>
+    </linearGradient>
+    <clipPath id="clip-harmony">
+      <rect width="135" height="380"/>
+    </clipPath>
+  </defs>
+  <g id="harmony" clip-path="url(#clip-harmony)">
+    <g id="background" transform="translate(0 -3)">
+      <rect id="Rectangle_1" data-name="Rectangle 1" width="135" height="176" transform="translate(0 3)" fill="url(#linear-gradient)"/>
+      <rect id="Rectangle_2" data-name="Rectangle 2" width="135" height="80" transform="translate(0 178)" fill="#200020"/>
+      <rect id="Rectangle_20" data-name="Rectangle 20" width="135" height="138" transform="translate(0 245)" fill="url(#linear-gradient-2)"/>
+    </g>
+  </g>
+</svg>

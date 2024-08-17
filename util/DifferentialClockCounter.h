@@ -77,9 +77,9 @@ inline void DifferentialClockCounter::_processDifferentialClock(float refInput, 
         _difference = 0;
         trigger = true;
     }
-    const int diff = _count - _lastMeasurement;
+   // const int diff = _count - _lastMeasurement;
     if (trigger) {
-        SQINFO("diff: %d, delta=%d", _difference, diff);
+   //     SQINFO("diff: %d, delta=%d", _difference, diff);
         _lastMeasurement = _count;
     }
 }

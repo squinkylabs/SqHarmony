@@ -14,6 +14,37 @@ class ScorePitchUtils {
 public:
     ScorePitchUtils() = delete;
 
+    class LegerLineTracker {
+    public:
+        int getSawMulti() const {
+            return _count;
+        }
+
+        // lineSeen will be >= -2, <= 12
+        void sawLine(int lineSeen) {
+            const int index = line2Index(lineSeen);
+            _llCount[index]++;
+            if (_llCount[index] > 1) {
+                ++_count;
+            }
+        }
+    private:
+        // index -2 is zero
+        char _llCount[256 + 1] = {0};
+        int _count = 0;
+        const int _minLine = -128;
+        const int _maxLine = 128;
+
+        int line2Index(int line) {
+            assert((_maxLine - _minLine) >= 256);
+
+            assert(line >= _minLine);
+            assert(line <= _maxLine);
+            if (line >= _minLine && line <= _maxLine) return line - _minLine;
+            else return 0;
+        }
+    };
+
     /**
      * requirements:
      *      returns a valid note
@@ -62,10 +93,12 @@ public:
     /**
      * @brief  change accidental and leger line for an alternate enharmonic spelling
      *
+     * @param note - input note, and output note if successful.
      * @param moreSharps - if true will attempt to re-spell at a lower pitch, with more sharps.
      * @return  true if success.
      */
     static bool reSpell(NotationNote& note, bool moreSharps, const Scale&);
+    static bool reSpellOnLegerLine(NotationNote&note, int legerLine, const Scale&);
 
     static bool validate(const NotationNote&, const Scale&);
 
@@ -89,7 +122,10 @@ public:
      * @return int - the adjustment in leger lines to move the note to the correct pitch, based on scale.
      */
     static int _getAjustmentForLeger(const Scale& scale, bool bassStaff, int legerLine);
-    static NotationNote makeCanonical(const NotationNote&);
+
+
+    // This isn't used any more?
+    //static NotationNote makeCanonical(const NotationNote&);
 
 private:
     static bool _makeNoteAtLegerLine(NotationNote& nn, int legerLine, const Scale&, bool bassStaff);

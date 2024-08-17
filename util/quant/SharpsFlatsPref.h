@@ -1,5 +1,9 @@
 
 #pragma once
+
+//#include "Scale.h"
+
+
 enum class SharpsFlatsPref {
     Sharps,
     Flats,
@@ -32,23 +36,4 @@ inline UIPrefSharpsFlats float2Pref(float x) {
 }
 
 
-#if 0
-class AccidentalResolver {
-public:
-    AccidentalResolver() = delete;
-    static ResolvedSharpsFlatsPref getPref() { return ResolvedSharpsFlatsPref::Sharps; }
-    static ResolvedSharpsFlatsPref resolve(SharpsFlatsPref input) {
-        switch(input) {
-            case SharpsFlatsPref::Sharps:
-                return ResolvedSharpsFlatsPref::Sharps;
-            case SharpsFlatsPref::Flats:
-                return ResolvedSharpsFlatsPref::Flats;
-            case SharpsFlatsPref::DontCare:
-                return getPref();
-            default:
-                assert(false);
-                return getPref();
-        }
-    }
-};
-#endif
+extern bool resolveSharpPref(UIPrefSharpsFlats pref, const class Scale& scale );

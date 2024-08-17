@@ -2,7 +2,9 @@
 
 #include "ChordRecognizer.h"
 #include "Divider.h"
+#include "FloatNote.h"
 #include "KeysigOld.h"
+#include "NoteConvert.h"
 #include "Options.h"
 #include "PESConverter.h"
 #include "Scale.h"
@@ -40,6 +42,8 @@ public:
 
     enum OutputIds {
         PES_OUTPUT,
+        ROOT_OUTPUT,
+        RECOGNIZED_OUTPUT,
         NUM_OUTPUTS
     };
 
@@ -125,7 +129,7 @@ inline void Visualizer<TBase>::_processInput() {
     unsigned outputChannel = 0;
 
     if (cvChannels != _quantizedInputPitches.numValid()) {
-        _quantizedInputPitches.clear(); // clear them all out
+        _quantizedInputPitches.clear();  // clear them all out
     }
     // Loop through all the input CV that are valid, building up a list of quantized pitches.
     for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
@@ -148,10 +152,9 @@ inline void Visualizer<TBase>::_processInput() {
             if ((outputChannel == _quantizedInputPitches.numValid()) ||
                 ((_quantizedInputPitches.numValid() > outputChannel) &&
                  (_quantizedInputPitches.getAt(outputChannel) != iNote))) {
-
                 _quantizedInputPitches.putAt(outputChannel, iNote);
                 wasChange = true;
-            } 
+            }
             outputChannel++;
         }
     }
@@ -169,7 +172,7 @@ inline void Visualizer<TBase>::_processInput() {
     if (!wasChange) {
         return;
     }
-    assert(_outputChannels >=_quantizedInputPitches.numValid());
+    assert(_outputChannels >= _quantizedInputPitches.numValid());
 
     // Now put the new chord into the params.
     const auto chord = ChordRecognizer::recognize(_quantizedInputPitches);
@@ -181,6 +184,19 @@ inline void Visualizer<TBase>::_processInput() {
     TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
         TBase::params[CHANGE_PARAM].value = 0;
+    }
+
+    if (chord.type == ChordRecognizer::Type::Unrecognized) {
+        TBase::outputs[RECOGNIZED_OUTPUT].value = 0.f;
+    } else {
+        // this works - the index is into the inputs...
+        const int rootIndex = chord.identifiedPitches.getAt(0).index;
+        const int rootMIDIPitch = _quantizedInputPitches.getAt(rootIndex);
+        FloatNote fn;
+        MidiNote mn(rootMIDIPitch);
+        NoteConvert::m2f(fn, mn);
+        TBase::outputs[ROOT_OUTPUT].value = fn.get();
+        TBase::outputs[RECOGNIZED_OUTPUT].value = 10.f;
     }
 }
 
@@ -209,11 +225,7 @@ inline void Visualizer<TBase>::_servicePES() {
         TBase::params[KEY_PARAM].value = pes.keyRoot;
         TBase::params[MODE_PARAM].value = int(pes.mode);
     }
-
-    // SQINFO("service pes 199");
-    // Write out valid PES.
     PESConverter::outputPES(TBase::outputs[PES_OUTPUT], pes);
-    //  SQINFO("service pes 202");
 }
 
 template <class TBase>
@@ -224,10 +236,6 @@ inline void Visualizer<TBase>::_lookForKeysigChange() {
     const auto current = _chordOptions->keysig->get();
     const int currentPitch = current.first.get();
     if ((current.second != mode) || (currentPitch != basePitch)) {
-        // this form Hramony for efficiency
-        //  _mustUpdate = true;
-        // SQINFO("in look for change, see new mode = %d", int(mode));
         _chordOptions->keysig->set(MidiNote(basePitch), mode);
-        //  quantizerOptions->scale->set(MidiNote(basePitch), mode);
     }
 }

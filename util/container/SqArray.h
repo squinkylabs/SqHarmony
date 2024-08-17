@@ -35,6 +35,11 @@ public:
         return _data[i];
     }
 
+    T& getAt(unsigned i) {
+        assert(i < (_allowRandomAccess ? capacity : _numValid));
+        return _data[i];
+    }
+
     void putAt(unsigned i, const T& data) {
         assert(i <= (_allowRandomAccess ? capacity : _numValid));  // only allow put at end, or overwrite old one
         _data[i] = data;
