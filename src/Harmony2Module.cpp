@@ -15,8 +15,8 @@
 #include "SqMenuItem.h"
 #include "WidgetComposite.h"
 
-template <>
-int BufferingParent<SqLabel>::_refCount = 0;
+//template <>
+//int BufferingParent<SqLabel>::_refCount = 0;
 
 #define _LAB
 

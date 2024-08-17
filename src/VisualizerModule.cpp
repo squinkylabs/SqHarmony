@@ -17,8 +17,8 @@
 
 #define _LAB
 
-template <>
-int BufferingParent<ScoreChord>::_refCount = 0;
+//template <>
+//int BufferingParent<ScoreChord>::_refCount = 0;
 
 /**
  * TODO:

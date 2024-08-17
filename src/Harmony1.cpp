@@ -10,8 +10,8 @@
 #include "WidgetComposite.h"
 #include "plugin.hpp"
 
-template <>
-int BufferingParent<Score>::_refCount = 0;
+//template <>
+//int BufferingParent<Score>::_refCount = 0;
 
 struct Harmony1Widget : ModuleWidget {
     const float vlx = 10;

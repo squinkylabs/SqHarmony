@@ -26,7 +26,7 @@ private:
     void _processDifferentialClock(float v1, float v2);
     void _processMeasureRefInput(float v1);
 
-    mutable int _lastDifference = -100;
+    //mutable int _lastDifference = -100;
     mutable int _lastMeasurement = 0;
     mutable int _count = 0;
     mutable int _min = 100000;
