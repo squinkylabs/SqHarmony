@@ -31,7 +31,7 @@ NotationNote ScorePitchUtils::getNotationNote(const Scale& scale, const MidiNote
         accidental = (sn.getAdjustment() == ScaleNote::RelativeAdjustment::flat) ? NotationNote::Accidental::flat : NotationNote::Accidental::sharp;
     }
 
-    ResolvedSharpsFlatsPref pref;
+    ResolvedSharpsFlatsPref pref = ResolvedSharpsFlatsPref::Sharps; // provide initial value to make compiler happy.
     switch (scale.getSharpsFlatsPref()) {
         case SharpsFlatsPref::Sharps:
             pref = ResolvedSharpsFlatsPref::Sharps;

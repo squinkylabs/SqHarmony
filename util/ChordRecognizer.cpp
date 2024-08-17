@@ -169,7 +169,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
 #ifdef _LOG
         _show(":: in inv search, post norm", possibleInversionCanonical);
 #endif
+#ifdef _DEBUG
         const unsigned l = possibleInversionCanonical.numValid();
+#endif
 
 #ifdef _LOG
         if (l != finalLength) {
