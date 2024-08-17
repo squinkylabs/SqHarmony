@@ -701,6 +701,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         rotatedRoles[destIndex] = r;
     }
 
+#ifdef _DEBUG
     {
         // a little sanity check.
         int roleCount = 0;
@@ -711,6 +712,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         }
         assert(roleCount == 12);
     }
+    #endif
 
     int roleIndex = 0;
     int pitchIndex = 0;
