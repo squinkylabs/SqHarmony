@@ -184,7 +184,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
 #endif
 
         // make this not an error - we might have errored out of _makeCanonical
+#ifdef _DEBUG
         assert(l == finalLength);  // should not have changed length due to this
+#endif
         const auto t = recognizeType(possibleInversionCanonical);
         const auto recognizedType = std::get<0>(t);
         if (recognizedType != Type::Unrecognized) {

@@ -27,7 +27,7 @@ public:
     KsigSharpFlatMonitor(const TComp* comp, TWidget* rootWidget) : _comp(comp), _keyRootWidget(rootWidget) {
         assert(rootWidget);
     }
-    void poll() {
+    bool poll() {
         assert(_comp);
         const int basePitch = int(std::round(_comp->params[TComp::KEY_PARAM].value));
         assert(basePitch < 12 && basePitch >= 0);
@@ -51,27 +51,27 @@ public:
         // we don't really need this case...
         if (defaultIsOkWithComposite && (scaleSharpFlatPref != SharpsFlatsPref::DontCare) &&
             (scalePrefersSharps == isSharps)) {
-            return;
+            return false;
         }
         // If we are cool with defaults, and ksig has a default, and we are NOT set to it, set to it.
         if (defaultIsOkWithComposite && (scaleSharpFlatPref != SharpsFlatsPref::DontCare) &&
             (scalePrefersSharps != isSharps)) {
             // then set to default, and return.
             _keyRootWidget->setLabels(Scale::getRootLabels(!scalePrefersSharps));
-            return;
+            return true;
         }
         // If it's a don't care scale, but we aren't set to pref then set to user pref.
         if (defaultIsOkWithComposite && (scaleSharpFlatPref == SharpsFlatsPref::DontCare) &&
             (compositeTieBreakerIsSharps != isSharps)) {
             _keyRootWidget->setLabels(Scale::getRootLabels(!compositeTieBreakerIsSharps));
-            return;
+            return true;
         }
         // if use has a hard pref for sharps or flats, and we are not on it, set it
         if (!defaultIsOkWithComposite && (compositeTieBreakerIsSharps != isSharps)) {
             _keyRootWidget->setLabels(Scale::getRootLabels(!compositeTieBreakerIsSharps));
-            return;
+            return true;
         }
 
-        return;
+        return false;
     }
 };

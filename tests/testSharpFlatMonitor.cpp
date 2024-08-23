@@ -28,7 +28,7 @@ public:
         if (useSharps) {
             return {"#"};
         }
-        return {"-"};
+        return {"b"};
     }
 
     void setLabels(std::vector<std::string> l) {
@@ -42,7 +42,7 @@ public:
               //  SQINFO("last update sharps");
                 return;
             }
-            if (x.find('-') != std::string::npos) {
+            if (x.find('b') != std::string::npos) {
                 lastUpdateFlats = true;
                // SQINFO("last update Flats");
                 return;
@@ -206,7 +206,7 @@ static void testMockWidget() {
     w.init(false);
     assertEQ(w.lastUpdateSharps, false);
     assertEQ(w.lastUpdateFlats, false);
-    assertEQ(w.getShortLabel(1), "-");
+    assertEQ(w.getShortLabel(1), "b");
 }
 
 void testSharpFlatMonitor() {
