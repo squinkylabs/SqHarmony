@@ -410,9 +410,9 @@ static void  testToStringSharpFlat(bool useSharps) {
     auto ss = ChordRecognizer::toString(info, useSharps);
     const std::string s = ss[0];
     const auto npos = std::string::npos;
-    auto pos = s.find(useSharps ? "#" : "-");
+    auto pos = s.find(useSharps ? "#" : "b");
     assert(pos != npos);
-    pos = s.find(useSharps ? "-" : "#");
+    pos = s.find(useSharps ? "b" : "#");
     assert(pos == npos);
 }
 

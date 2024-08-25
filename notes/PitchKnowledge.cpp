@@ -98,16 +98,16 @@ char const* const PitchKnowledge::namesSharps[] = {
 char const* const PitchKnowledge::namesFlats[] = {
     "X",  // no pitch zero in our world
     "C",
-    "D-",
+    "Db",
     "D",
-    "E-",
+    "Eb",
     "E",
     "F",
-    "G-",
+    "Gb",
     "G",
-    "A-",
+    "Ab",
     "A",
-    "B-",
+    "Bb",
     "B"};
 
 PitchKnowledge ThePitchKnowledge;  // declare the global instance

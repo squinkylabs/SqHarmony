@@ -190,7 +190,7 @@ std::vector<std::string> Scale::getRootLabels(bool useFlats) {
         return {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     } else {
         // SQINFO("returning the flats labels");
-        return {"C", "D-", "D", "E-", "E", "F", "G-", "G", "A-", "A", "B-", "B"};
+        return {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
     }
 }
 

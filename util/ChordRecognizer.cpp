@@ -107,6 +107,7 @@ ChordRecognizer::ChordInfo ChordRecognizer::recognize(const SqArray<int, 16>& in
 }
 
 ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndIndex, 16>& inputChord) {
+   // assert(inputChord.numValid() > 0);
 #if defined(_LOG)
     SQINFO("----------------- enter recognize ------------------");
     _show("input chord ", inputChord);
@@ -134,7 +135,8 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
     const auto nonInvertedRecognizedType = std::get<0>(nonInvertedRecognize);
     if (nonInvertedRecognizedType != Type::Unrecognized) {
         const int finalRecognizedPitch = (baseNonInverted + std::get<1>(nonInvertedRecognize)) % 12;
-        assert(finalRecognizedPitch >= 0);
+       // assert(finalRecognizedPitch >= 0);
+
         // return std::make_tuple(nonInvertedRecognizedType, Inversion::Root, finalRecognizedPitch);
         // assert(false);
         // SQINFO("return from 142");
@@ -184,7 +186,9 @@ ChordRecognizer::ChordInfo ChordRecognizer::_recognize(const SqArray<PitchAndInd
 #endif
 
         // make this not an error - we might have errored out of _makeCanonical
+#ifdef _DEBUG
         assert(l == finalLength);  // should not have changed length due to this
+#endif
         const auto t = recognizeType(possibleInversionCanonical);
         const auto recognizedType = std::get<0>(t);
         if (recognizedType != Type::Unrecognized) {

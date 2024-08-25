@@ -75,11 +75,19 @@ public:
         return unsigned(APP->engine->getParamValue(module, Comp::CHANGE_PARAM));
     }
 
-     void _stepForKeysig()  {
+     bool _stepForKeysig()  {
         ModuleWidget::step();
+        bool ret = false;
         if (module && _ksigMonitor) {
-            _ksigMonitor->poll();
+            const bool bChange =_ksigMonitor->poll();
+            if (bChange) {
+                vu->setDirty();
+                _displayString->setDirty();
+                _displayString2->setDirty();
+                ret = true;
+            }
         }
+        return ret;
     }
 
     void step() override {
@@ -87,11 +95,11 @@ public:
             Widget::step();
             return;
         }
-        _stepForKeysig();
+        const bool bChange = _stepForKeysig();
         _displayString->step();
         _displayString2->step();
         const float changeParam = getChangeParam();
-        if (changeParam == _changeParam) {
+        if ((changeParam == _changeParam) && !bChange) {
             Widget::step();
             return;
         }
@@ -122,10 +130,12 @@ private:
     std::shared_ptr<KsigSharpFlatMonitor<Comp, PopupMenuParamWidget>> _ksigMonitor;
 
     ScoreChord* _scoreChord = nullptr;
+
+    BufferingParent<ScoreChord>* vu = nullptr;
     void addScore(VisualizerModule* module) {
         _scoreChord = new ScoreChord(module);
         auto size = Vec(116, 100);
-        auto vu = new BufferingParent<ScoreChord>(_scoreChord, size, _scoreChord);
+        vu = new BufferingParent<ScoreChord>(_scoreChord, size, _scoreChord);
 
         vu->box.pos = Vec(8, 40.0f);
         addChild(vu);

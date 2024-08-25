@@ -67,9 +67,13 @@ static void testCanGetOutput() {
         semi * MidiNote::B};
 
     run(v, foo);
-    const auto x = v.getQuantizedPitchesAndChannels();
-    const unsigned size = std::get<1>(x);
-    const int* note = std::get<0>(x);
+    // const auto x = v.getQuantizedPitchesAndChannels();
+    // const unsigned size = std::get<1>(x);
+    // const int* note = std::get<0>(x);
+
+    const auto x = v.getQuantizedPitches();
+    const unsigned size = x.numValid();
+    const int* note = x.getDirectPtrAt(0);
 
     assertEQ(size, 3);
     const int n0 = note[0];
@@ -97,6 +101,26 @@ static void testWithGate() {
     assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::MajorTriad));
 }
 
+static void testWithGate2() {
+    Comp v;
+    const float semi = 1.f / 12.f;
+    const std::vector<float> cv = {0, 4 * semi, 7 * semi, 8 * semi};
+    std::vector<float> gate = {0, 0, 0, 0};
+    run(v, cv, gate);
+    assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::Unrecognized));
+    // std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
+    auto x = v.getQuantizedPitches();
+    assertEQ(x.numValid(), 0);
+
+    gate[0] = 10;
+    run(v, cv, gate);
+    assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::Unrecognized));
+    x = v.getQuantizedPitches();
+    assertEQ(x.numValid(), 1);
+
+    assert(false);
+}
+
 static void testRootOut() {
     Comp v;
     const float semi = 1.f / 12.f;
@@ -106,7 +130,7 @@ static void testRootOut() {
         octaveOffset + 2 * semi,
         octaveOffset + 6 * semi,
         octaveOffset + 6 * semi,
-        octaveOffset + 9 * semi };   // D Major, out of order with doubling
+        octaveOffset + 9 * semi};  // D Major, out of order with doubling
 
     run(v, cv);
 
@@ -146,10 +170,7 @@ void testVisualizer() {
 
 #if 0
 void testFirst() {
-    // testVisualizer();
-    // testCanClockInEMinor();
-   // testWithGate();
-  // testRootOut();
-   testRecognizedOut();
+    testVisualizer();
+    testWithGate2();
 }
 #endif
