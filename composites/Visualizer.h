@@ -64,15 +64,10 @@ public:
     static int getSubSampleFactor() { return 32; }
 
     ConstScalePtr getScale() const {
-        //  SQINFO("in get scale co = %p", _chordOptions.get());
-        //   SQINFO("in get scale ks = %p", _chordOptions->keysig.get());
-
         return _chordOptions->keysig->getUnderlyingScale();
     }
 
-    // std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
     const SqArray<int, 16>& getQuantizedPitches() const {
-        // return std::make_tuple(_quantizedInputPitches.getDirectPtrAt(0), _outputChannels);
         return _activeQuantizedPitches;
     }
 
@@ -86,17 +81,13 @@ private:
 
     Divider _divn;
 
-    // quantized pitches and number of valid entries.
-    //  SqArray<int, 16> _quantizedInputPitches;
     SqArray<int, 16> _activeQuantizedPitches;
-    //  unsigned _outputChannels = 0;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
 };
 
 template <class TBase>
 inline void Visualizer<TBase>::_init() {
-    //   _quantizedInputPitches.allowRandomAccess();         // so we remain compatible with the stuff from before SqArray.
     _divn.setup(getSubSampleFactor(), [this]() {
         this->_stepn();
     });
@@ -107,7 +98,7 @@ inline void Visualizer<TBase>::_init() {
     _quantizerOptions->scale->set(MidiNote(MidiNote::C), Scale::Scales::Chromatic);
     _quantizer = std::make_shared<ScaleQuantizer>(_quantizerOptions);
 
-    // Chord options get cmag
+    // Chord options get cmaj
     auto keysig = std::make_shared<KeysigOld>(Roots::C);
     auto style = std::make_shared<Style>();
     _chordOptions = std::make_shared<Options>(keysig, style);
@@ -129,11 +120,9 @@ inline void Visualizer<TBase>::_getCurrentInput(SqArray<int, 16>& out) {
 
     for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
         const float f = inputPort.getVoltage(inputChannel);
-
-        //
         bool gate;
         if (!gatePort.isConnected()) {
-            gate = true;  // if the port isn't connected, the all gates assumed "on"
+            gate = true;  // If the port isn't connected, the all gates assumed "on".
         } else {
             gate = (inputChannel > gateChannels) ? false : gatePort.getVoltage(inputChannel) > 5;
         }
@@ -155,12 +144,10 @@ inline void Visualizer<TBase>::_processInput() {
     bool changed = false;
     if (_newQuantizedPitches.numValid() != _activeQuantizedPitches.numValid()) {
         changed = true;
-        //SQINFO("changed on num changed active=%d new=%d", _activeQuantizedPitches.numValid(), _newQuantizedPitches.numValid());
     } else {
         for (unsigned i = 0; i < _newQuantizedPitches.numValid(); ++i) {
             if (_newQuantizedPitches.getAt(i) != _activeQuantizedPitches.getAt(i)) {
                 changed = true;
-                //SQINFO("changed on entry pitch");
             }
         }
     }
@@ -170,7 +157,7 @@ inline void Visualizer<TBase>::_processInput() {
     }
 
     _activeQuantizedPitches.clear();
-    // copy over the new ones
+    // Copy over the new ones.
     for (unsigned i = 0; i < _newQuantizedPitches.numValid(); ++i) {
         _activeQuantizedPitches.putAt(i, _newQuantizedPitches.getAt(i));
     }
@@ -181,7 +168,6 @@ inline void Visualizer<TBase>::_processInput() {
     TBase::params[ROOT_PARAM].value = chord.pitch;
 
     // And signal a change.
-    //SQINFO("signal change. now %f", TBase::params[CHANGE_PARAM].value);
     TBase::params[INVERSION_PARAM].value = int(chord.inversion);
     TBase::params[CHANGE_PARAM].value += 1;
     if (TBase::params[CHANGE_PARAM].value >= 100) {
@@ -202,93 +188,6 @@ inline void Visualizer<TBase>::_processInput() {
     }
 }
 
-#if 0  // old wa
-template <class TBase>
-inline void Visualizer<TBase>::_processInput() {
-    // Read in the CV from the input port.
-    //  bool gates[16] = {0};
-    bool wasChange = false;
-    auto& inputPort = TBase::inputs[CV_INPUT];
-    auto& gatePort = TBase::inputs[GATE_INPUT];
-
-    const unsigned gateChannels = gatePort.isConnected() ? gatePort.getChannels() : 0;
-    const unsigned cvChannels = inputPort.getChannels();
-    unsigned outputChannel = 0;
-
-    if (cvChannels != _quantizedInputPitches.numValid()) {
-        _quantizedInputPitches.clear();  // clear them all out
-    }
-    // Loop through all the input CV that are valid, building up a list of quantized pitches.
-    for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
-        const float f = inputPort.getVoltage(inputChannel);
-
-        //
-        bool gate;
-        if (!gatePort.isConnected()) {
-            gate = true;  // if the port isn't connected, the all gates assumed "on"
-        } else {
-            gate = (inputChannel > gateChannels) ? false : gatePort.getVoltage(inputChannel) > 5;
-        }
-
-        if (gate) {
-            const MidiNote mn = _quantizer->run(f);
-            const int iNote = mn.get();
-            // SQINFO("will try to gate in a pitch on channel %d, numvalid=%d", outputChannel, _quantizedInputPitches.numValid());
-            // If we are adding one past the last valid one.
-            // OR we are changing one already valid
-            if ((outputChannel == _quantizedInputPitches.numValid()) ||
-                ((_quantizedInputPitches.numValid() > outputChannel) &&
-                 (_quantizedInputPitches.getAt(outputChannel) != iNote))) {
-                    
-                _quantizedInputPitches.putAt(outputChannel, iNote);
-                wasChange = true;
-            }
-            outputChannel++;
-        }
-    }
-    if (outputChannel != _outputChannels) {
-        wasChange = true;
-        _outputChannels = cvChannels;
-    }
-
-    // Zero out all the pitches above our range.
-    // for (int i = outputChannel; i < 16; ++i) {
-    for (unsigned i = outputChannel; i < _quantizedInputPitches.numValid(); ++i) {
-        _quantizedInputPitches.putAt(i, 0);
-    }
-
-    if (!wasChange) {
-        return;
-    }
-    assert(_outputChannels >= _quantizedInputPitches.numValid());
-
-    // Now put the new chord into the params.
-    const auto chord = ChordRecognizer::recognize(_quantizedInputPitches);
-    TBase::params[TYPE_PARAM].value = int(chord.type);
-    TBase::params[ROOT_PARAM].value = chord.pitch;
-
-    // And signal a change.
-    TBase::params[INVERSION_PARAM].value = int(chord.inversion);
-    TBase::params[CHANGE_PARAM].value += 1;
-    if (TBase::params[CHANGE_PARAM].value >= 100) {
-        TBase::params[CHANGE_PARAM].value = 0;
-    }
-
-    if (chord.type == ChordRecognizer::Type::Unrecognized) {
-        TBase::outputs[RECOGNIZED_OUTPUT].value = 0.f;
-    } else {
-        // this works - the index is into the inputs...
-        const int rootIndex = chord.identifiedPitches.getAt(0).index;
-        const int rootMIDIPitch = _quantizedInputPitches.getAt(rootIndex);
-        FloatNote fn;
-        MidiNote mn(rootMIDIPitch);
-        NoteConvert::m2f(fn, mn);
-        TBase::outputs[ROOT_OUTPUT].value = fn.get();
-        TBase::outputs[RECOGNIZED_OUTPUT].value = 10.f;
-    }
-}
-#endif
-
 template <class TBase>
 inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) {
     _divn.step();
@@ -296,20 +195,16 @@ inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) 
 
 template <class TBase>
 inline void Visualizer<TBase>::_servicePES() {
-    // SQINFO("service pes 180");
     //  Parse out the incoming PES.
     auto pesInput = TBase::inputs[PES_INPUT];
     auto pes = PESConverter::convertToPES(pesInput, false);
-    // SQINFO("service pes 183");
     if (!pes.valid) {
         TBase::lights[PES_INVALID_LIGHT].value = pesInput.isConnected() ? 8 : 0;
         pes.valid = true;
-        // ok, get valid pes now so we can send it out.
+        // Ok, get valid pes now so we can send it out.
         pes.keyRoot = MidiNote::C + int(std::round(TBase::params[KEY_PARAM].value));
         pes.mode = Scale::Scales(int(std::round(TBase::params[MODE_PARAM].value)));
-        // SQINFO("service pes 184");
     } else {
-        // Just
         TBase::lights[PES_INVALID_LIGHT].value = 0;
         TBase::params[KEY_PARAM].value = pes.keyRoot;
         TBase::params[MODE_PARAM].value = int(pes.mode);
