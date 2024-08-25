@@ -70,8 +70,10 @@ public:
         return _chordOptions->keysig->getUnderlyingScale();
     }
 
-    std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
-        return std::make_tuple(_quantizedInputPitches.getDirectPtrAt(0), _outputChannels);
+    // std::tuple<const int*, unsigned> getQuantizedPitchesAndChannels() const {
+    const SqArray<int, 16>& getQuantizedPitches() const {
+        // return std::make_tuple(_quantizedInputPitches.getDirectPtrAt(0), _outputChannels);
+        return _activeQuantizedPitches;
     }
 
 private:
@@ -80,12 +82,14 @@ private:
     void _processInput();
     void _lookForKeysigChange();
     void _servicePES();
+    void _getCurrentInput(SqArray<int, 16>&);
 
     Divider _divn;
 
     // quantized pitches and number of valid entries.
-    SqArray<int, 16> _quantizedInputPitches;
-    unsigned _outputChannels = 0;
+    //  SqArray<int, 16> _quantizedInputPitches;
+    SqArray<int, 16> _activeQuantizedPitches;
+    //  unsigned _outputChannels = 0;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
 };
@@ -116,6 +120,89 @@ inline void Visualizer<TBase>::_stepn() {
     _servicePES();
 }
 
+template <class TBase>
+inline void Visualizer<TBase>::_getCurrentInput(SqArray<int, 16>& out) {
+    auto& inputPort = TBase::inputs[CV_INPUT];
+    auto& gatePort = TBase::inputs[GATE_INPUT];
+    const unsigned gateChannels = gatePort.isConnected() ? gatePort.getChannels() : 0;
+    const unsigned cvChannels = inputPort.getChannels();
+
+    for (unsigned inputChannel = 0; inputChannel < cvChannels; ++inputChannel) {
+        const float f = inputPort.getVoltage(inputChannel);
+
+        //
+        bool gate;
+        if (!gatePort.isConnected()) {
+            gate = true;  // if the port isn't connected, the all gates assumed "on"
+        } else {
+            gate = (inputChannel > gateChannels) ? false : gatePort.getVoltage(inputChannel) > 5;
+        }
+
+        if (gate) {
+            const MidiNote mn = _quantizer->run(f);
+            const int iNote = mn.get();
+
+            // add the quantized note
+            out.putAt(out.numValid(), iNote);
+        }
+    }
+}
+
+template <class TBase>
+inline void Visualizer<TBase>::_processInput() {
+    SqArray<int, 16> _newQuantizedPitches;
+    _getCurrentInput(_newQuantizedPitches);
+    bool changed = false;
+    if (_newQuantizedPitches.numValid() != _activeQuantizedPitches.numValid()) {
+        changed = true;
+        //SQINFO("changed on num changed active=%d new=%d", _activeQuantizedPitches.numValid(), _newQuantizedPitches.numValid());
+    } else {
+        for (unsigned i = 0; i < _newQuantizedPitches.numValid(); ++i) {
+            if (_newQuantizedPitches.getAt(i) != _activeQuantizedPitches.getAt(i)) {
+                changed = true;
+                //SQINFO("changed on entry pitch");
+            }
+        }
+    }
+
+    if (!changed) {
+        return;
+    }
+
+    _activeQuantizedPitches.clear();
+    // copy over the new ones
+    for (unsigned i = 0; i < _newQuantizedPitches.numValid(); ++i) {
+        _activeQuantizedPitches.putAt(i, _newQuantizedPitches.getAt(i));
+    }
+
+    // Now put the new chord into the params.
+    const auto chord = ChordRecognizer::recognize(_activeQuantizedPitches);
+    TBase::params[TYPE_PARAM].value = int(chord.type);
+    TBase::params[ROOT_PARAM].value = chord.pitch;
+
+    // And signal a change.
+    //SQINFO("signal change. now %f", TBase::params[CHANGE_PARAM].value);
+    TBase::params[INVERSION_PARAM].value = int(chord.inversion);
+    TBase::params[CHANGE_PARAM].value += 1;
+    if (TBase::params[CHANGE_PARAM].value >= 100) {
+        TBase::params[CHANGE_PARAM].value = 0;
+    }
+
+    if (chord.type == ChordRecognizer::Type::Unrecognized) {
+        TBase::outputs[RECOGNIZED_OUTPUT].value = 0.f;
+    } else {
+        // this works - the index is into the inputs...
+        const int rootIndex = chord.identifiedPitches.getAt(0).index;
+        const int rootMIDIPitch = _activeQuantizedPitches.getAt(rootIndex);
+        FloatNote fn;
+        MidiNote mn(rootMIDIPitch);
+        NoteConvert::m2f(fn, mn);
+        TBase::outputs[ROOT_OUTPUT].value = fn.get();
+        TBase::outputs[RECOGNIZED_OUTPUT].value = 10.f;
+    }
+}
+
+#if 0  // old wa
 template <class TBase>
 inline void Visualizer<TBase>::_processInput() {
     // Read in the CV from the input port.
@@ -152,6 +239,7 @@ inline void Visualizer<TBase>::_processInput() {
             if ((outputChannel == _quantizedInputPitches.numValid()) ||
                 ((_quantizedInputPitches.numValid() > outputChannel) &&
                  (_quantizedInputPitches.getAt(outputChannel) != iNote))) {
+                    
                 _quantizedInputPitches.putAt(outputChannel, iNote);
                 wasChange = true;
             }
@@ -199,6 +287,7 @@ inline void Visualizer<TBase>::_processInput() {
         TBase::outputs[RECOGNIZED_OUTPUT].value = 10.f;
     }
 }
+#endif
 
 template <class TBase>
 inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) {

@@ -510,9 +510,9 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return;
     }
 
-    const auto pitchesAndChannels = _module->getQuantizedPitchesAndChannels();
-    const unsigned channels = std::get<1>(pitchesAndChannels);
-    const int *originalPitches = std::get<0>(pitchesAndChannels);
+    const auto pitches = _module->getQuantizedPitches();
+    const unsigned channels = pitches.numValid();
+    const int *originalPitches = pitches.getDirectPtrAt(0);
     if (channels <= 0) {
         return;  // return is nothing to draw
     }
