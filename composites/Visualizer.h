@@ -77,6 +77,7 @@ private:
     void _processInput();
     void _lookForKeysigChange();
     void _servicePES();
+    void _checkOutputConnections();
     void _getCurrentInput(SqArray<int, 16>&);
 
     Divider _divn;
@@ -84,6 +85,8 @@ private:
     SqArray<int, 16> _activeQuantizedPitches;
     ScaleQuantizerPtr _quantizer;
     OptionsPtr _chordOptions;
+
+    bool _amUsingOutputs = false;
 };
 
 template <class TBase>
@@ -106,9 +109,16 @@ inline void Visualizer<TBase>::_init() {
 
 template <class TBase>
 inline void Visualizer<TBase>::_stepn() {
+    _checkOutputConnections();
     _lookForKeysigChange();
     _processInput();
     _servicePES();
+}
+
+template <class TBase>
+inline void Visualizer<TBase>::_checkOutputConnections() {
+    _amUsingOutputs = ((TBase::outputs[RECOGNIZED_OUTPUT].channels != 0) &&    
+        (TBase::outputs[ROOT_OUTPUT].channels != 0));
 }
 
 template <class TBase>
@@ -190,7 +200,11 @@ inline void Visualizer<TBase>::_processInput() {
 
 template <class TBase>
 inline void Visualizer<TBase>::process(const typename TBase::ProcessArgs& args) {
-    _divn.step();
+    if (_amUsingOutputs) {
+        _stepn();
+    } else {
+        _divn.step();
+    }
 }
 
 template <class TBase>

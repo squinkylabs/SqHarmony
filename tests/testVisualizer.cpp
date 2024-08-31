@@ -138,7 +138,7 @@ static void testRootOut() {
 }
 
 static std::shared_ptr<Comp> testRecognizedOut(bool bTestCase) {
-  //  Comp v;
+    //  Comp v;
     std::shared_ptr<Comp> comp = std::make_shared<Comp>();
     const float semi = 1.f / 12.f;
     const std::vector<float> cmajor = {0, 4 * semi, 7 * semi};
@@ -155,25 +155,30 @@ static void testRecognizedOut() {
 }
 
 static void testRecognizedOutSpeed(bool fast) {
-    auto comp =  testRecognizedOut(true); 
+    auto comp = testRecognizedOut(true);
     assert(comp->params[Comp::TYPE_PARAM].value == float(ChordRecognizer::Type::MajorTriad));
-    if (!fast) {
-        comp->outputs[Comp::RECOGNIZED_OUTPUT].channels = 0;        // disconnect recognizer outputs.
-        comp->outputs[Comp::ROOT_OUTPUT].channels = 0;
-    }
-    // now change CV 0 so it's not a C Major anymore
+
+    const bool shouldConnectOutput = fast;
+    const int channels = shouldConnectOutput ? 1 : 0;
+
+    comp->outputs[Comp::RECOGNIZED_OUTPUT].channels = channels;  // disconnect recognizer outputs.
+    comp->outputs[Comp::ROOT_OUTPUT].channels = channels;
+
+    // Process once so we are not on an even boundary
+    const auto args = TestComposite::ProcessArgs();
+    comp->process(args);
+
+    // Now change CV 0 so it's not a C Major anymore
     //   comp.inputs[input].setVoltage(cVin[i], i);
     comp->inputs[Comp::CV_INPUT].setVoltage(.5f, 0);
 
-    // process just once
-    const auto args = TestComposite::ProcessArgs();
+    // Process just once to see if we see that change in input CV.
     comp->process(args);
 
     float type = comp->params[Comp::TYPE_PARAM].value;
     const float expectedType = float(
         fast ? ChordRecognizer::Type::Unrecognized : ChordRecognizer::Type::MajorTriad);
     assertEQ(type, expectedType);
-
 }
 
 static void testRecognizedOutSpeed() {
