@@ -117,8 +117,6 @@ static void testWithGate2() {
     assertEQ(v.params[Comp::TYPE_PARAM].value, float(ChordRecognizer::Type::Unrecognized));
     x = v.getQuantizedPitches();
     assertEQ(x.numValid(), 1);
-
-    assert(false);
 }
 
 static void testRootOut() {
@@ -139,19 +137,48 @@ static void testRootOut() {
     assertEQ(v.outputs[Comp::ROOT_OUTPUT].value, octaveOffset + 2 * semi);
 }
 
-static void testRecognizedOut(bool bTestCase) {
-    Comp v;
+static std::shared_ptr<Comp> testRecognizedOut(bool bTestCase) {
+  //  Comp v;
+    std::shared_ptr<Comp> comp = std::make_shared<Comp>();
     const float semi = 1.f / 12.f;
     const std::vector<float> cmajor = {0, 4 * semi, 7 * semi};
     const std::vector<float> other = {0, 1 * semi, 7 * semi};
-    run(v, bTestCase ? cmajor : other);
-    const bool bRecognized = v.outputs[Comp::RECOGNIZED_OUTPUT].value > 5;
+    run(*comp, bTestCase ? cmajor : other);
+    const bool bRecognized = comp->outputs[Comp::RECOGNIZED_OUTPUT].value > 5;
     assertEQ(bRecognized, bTestCase);
+    return comp;
 }
 
 static void testRecognizedOut() {
     testRecognizedOut(true);
     testRecognizedOut(false);
+}
+
+static void testRecognizedOutSpeed(bool fast) {
+    auto comp =  testRecognizedOut(true); 
+    assert(comp->params[Comp::TYPE_PARAM].value == float(ChordRecognizer::Type::MajorTriad));
+    if (!fast) {
+        comp->outputs[Comp::RECOGNIZED_OUTPUT].channels = 0;        // disconnect recognizer outputs.
+        comp->outputs[Comp::ROOT_OUTPUT].channels = 0;
+    }
+    // now change CV 0 so it's not a C Major anymore
+    //   comp.inputs[input].setVoltage(cVin[i], i);
+    comp->inputs[Comp::CV_INPUT].setVoltage(.5f, 0);
+
+    // process just once
+    const auto args = TestComposite::ProcessArgs();
+    comp->process(args);
+
+    float type = comp->params[Comp::TYPE_PARAM].value;
+    const float expectedType = float(
+        fast ? ChordRecognizer::Type::Unrecognized : ChordRecognizer::Type::MajorTriad);
+    assertEQ(type, expectedType);
+
+}
+
+static void testRecognizedOutSpeed() {
+    testRecognizedOutSpeed(false);
+    testRecognizedOutSpeed(true);
 }
 
 void testVisualizer() {
@@ -165,12 +192,12 @@ void testVisualizer() {
     testCanGetOutput();
     testRootOut();
     testRecognizedOut();
+    testRecognizedOutSpeed();
     assertEQ(SqLog::errorCount, 0);
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testVisualizer();
-    testWithGate2();
+    testRecognizedOutSpeed();
 }
 #endif
