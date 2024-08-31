@@ -117,7 +117,7 @@ inline void Visualizer<TBase>::_stepn() {
 
 template <class TBase>
 inline void Visualizer<TBase>::_checkOutputConnections() {
-    _amUsingOutputs = ((TBase::outputs[RECOGNIZED_OUTPUT].channels != 0) &&    
+    _amUsingOutputs = ((TBase::outputs[RECOGNIZED_OUTPUT].channels != 0) ||    
         (TBase::outputs[ROOT_OUTPUT].channels != 0));
 }
 

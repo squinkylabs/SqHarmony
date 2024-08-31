@@ -1,5 +1,13 @@
 # Changelog for Squinktronix plugins
 
+## 2.2.5
+
+New module, "Visualizer".
+
+Changed where "-" was used to indicate flat to "b".
+
+Fixed some typos is older manuals.
+
 ## 2.2.4
 
 Fixed small bug in Harmony II where module would not update immediately after Insert.
