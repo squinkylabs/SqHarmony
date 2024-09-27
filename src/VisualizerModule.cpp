@@ -57,8 +57,8 @@ public:
 
         const float y = 144.5;
         const float x = 8.5;
-        _displayString = addLabel(Vec(x, y), "chord");
-        _displayString2 = addLabel(Vec(x, y+18.5), "chord");
+        _displayString = addLabel(Vec(x, y), "");
+        _displayString2 = addLabel(Vec(x, y+18.5), "");
 
         addKeysig();
 
@@ -165,6 +165,7 @@ private:
 
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
+        p->text = "Major";
         addParam(p);
     }
 
