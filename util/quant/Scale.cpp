@@ -198,6 +198,7 @@ int Scale::quantize(int offset) const {
     assert(_wasSet);
     assert(offset >= 0 && offset <= 11);
     int x = _quantizeInScale(offset);
+    SQINFO("SC#201 x=%d", x);
     if (x >= 0) {
         return x;
     }
