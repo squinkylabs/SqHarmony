@@ -284,16 +284,23 @@ int Scale::_quantizeInScale(int offset) const {
     assert(offset >= 0);
     assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
-   // SQINFO("pitches in scale = %d, %d, %d, %d...", pitches[0], pitches[1], pitches[2], pitches[3]);
+    SQINFO("_quantizeInScale %d", offset);
+    SQINFO("pitches in scale = %d, %d, %d, %d, %d, %d, %d, %d...", 
+        pitches[0], pitches[1], pitches[2], pitches[3],
+        pitches[4], pitches[5], pitches[6], pitches[7]
+        );
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
+            SQINFO("SC#295 end");
             // reached end of list
             degreeIndex = -1;  // not in scale
             done = true;
         } else if (pitches[degreeIndex] == offset) {
             done = true;
+            SQINFO("SC#301 accepted at index %d", degreeIndex);
         } else {
+            SQINFO("SC#302 rejected pitch %d index %d", pitches[degreeIndex], degreeIndex);
             ++degreeIndex;
         }
     }

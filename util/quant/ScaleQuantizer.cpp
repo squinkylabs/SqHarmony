@@ -47,6 +47,7 @@ MidiNote ScaleQuantizer::run(float voltage) {
     assert(options);
     assert(options->scale);
 
+    SQINFO(" ");
     SQINFO("SQ#50 v=%f rp=%d o=%d", voltage, relativeMidiPitch, octave);
 
     const int quantizedDegree = options->scale->quantize(relativeMidiPitch);
