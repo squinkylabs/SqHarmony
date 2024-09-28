@@ -19,7 +19,6 @@ std::pair<const MidiNote, Scale::Scales> Scale::get() const {
 }
 
 ScaleNote Scale::m2s(const MidiNote& mn) const {
-
     int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
@@ -61,7 +60,13 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     }
     MidiNote scaleBase = this->base();
     assert(scaleBase.get() < 12 && scaleBase.get() >= 0);
+    SQINFO("SC#64 ao=%d sb=%d semi = %d, occ = %d",
+           accidentalOffset,
+           scaleBase.get(),
+           semitones,
+           (scaleNote.getOctave() + 2) * 12);
     const int midiPitch = accidentalOffset + scaleBase.get() + semitones + (scaleNote.getOctave() + 2) * 12;  // 60 = c3 in midi;
+    SQINFO("SC#69 p=%d", midiPitch);
     return MidiNote(midiPitch);
 }
 
@@ -73,16 +78,16 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         _validateScaleNote(ret);
         return ret;
     }
- //   const bool preferSharps = getSharpsFlatsPrefForScoring();
-  //  const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
-   
+    //   const bool preferSharps = getSharpsFlatsPrefForScoring();
+    //  const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
+
     // here we let "don't care" go to sharps. Perhaps this should be a pref?
 
     const bool preferSharps = getSharpsFlatsPref() != SharpsFlatsPref::Flats;
     {
         static bool b = true;
         if (b) {
-            //SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
+            // SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
             b = false;
         }
     }
@@ -104,12 +109,11 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         return ret;
     }
 
-
     assert(false);  // now we are down where we need more code
     return ScaleNote(0, 0);
 }
 
-#if 0 // old one
+#if 0  // old one
 ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
     assert(offset >= 0 && offset < 12);
     int degree = _quantizeInScale(offset, printDebug);
@@ -285,10 +289,9 @@ int Scale::_quantizeInScale(int offset) const {
     assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
     SQINFO("_quantizeInScale %d", offset);
-    SQINFO("pitches in scale = %d, %d, %d, %d, %d, %d, %d, %d...", 
-        pitches[0], pitches[1], pitches[2], pitches[3],
-        pitches[4], pitches[5], pitches[6], pitches[7]
-        );
+    SQINFO("pitches in scale = %d, %d, %d, %d, %d, %d, %d, %d...",
+           pitches[0], pitches[1], pitches[2], pitches[3],
+           pitches[4], pitches[5], pitches[6], pitches[7]);
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
@@ -720,7 +723,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         }
         assert(roleCount == 12);
     }
-    #endif
+#endif
 
     int roleIndex = 0;
     int pitchIndex = 0;
@@ -791,13 +794,13 @@ bool Scale::_validateScaleNote(const ScaleNote& sn) const {
             break;
         case ScaleNote::RelativeAdjustment::sharp:
             assert(scalePref != SharpsFlatsPref::Flats);
-            return(scalePref != SharpsFlatsPref::Flats);
+            return (scalePref != SharpsFlatsPref::Flats);
             break;
         case ScaleNote::RelativeAdjustment::none:
             break;
         default:
             assert(false);
     }
-    //assert(false);
+    // assert(false);
     return true;
 }
