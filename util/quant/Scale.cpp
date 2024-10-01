@@ -312,24 +312,24 @@ int Scale::_quantizeInScale(int offset) const {
 }
 
 int Scale::degreeToSemitone(int degree) const {
-    SQINFO("SC#315 degreeToSemitone(%d)", degree);
+  //  SQINFO("SC#315 degreeToSemitone(%d)", degree);
     const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (*pitches < 0) {
             // reached end of list
-            SQINFO("SC#321 went past end");
+       //     SQINFO("SC#321 went past end");
             done = true;
             assert(false);
         } else if (degreeIndex == degree) {
-            SQINFO("SC#325 found");
+       //     SQINFO("SC#325 found");
             done = true;
         } else {
             ++degreeIndex;
-            SQINFO("SC#329 try next degree index. will try %d", degreeIndex);
+       //     SQINFO("SC#329 try next degree index. will try %d", degreeIndex);
         }
     }
-    SQINFO("SC#332 found index %d will ret pitch %d", degreeIndex, pitches[degreeIndex]);
+  //  SQINFO("SC#332 found index %d will ret pitch %d", degreeIndex, pitches[degreeIndex]);
     return pitches[degreeIndex];
 }
 
