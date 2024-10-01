@@ -390,8 +390,8 @@ const int* Scale::_getNormalizedScalePitches() const {
             return ret;
         } break;
         case Scales::Chromatic: {
-            static const int ret[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, -1};
-            return ret;
+            static const int retChromatic[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, -1};
+            return retChromatic;
         }
         default: {
             assert(false);
