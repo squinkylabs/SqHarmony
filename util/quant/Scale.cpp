@@ -42,7 +42,6 @@ ScaleNote Scale::m2s(const MidiNote& mn) const {
 
 MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     const int semitones = degreeToSemitone(scaleNote.getDegree());
-    SQINFO("SC#45 semitones=%d", semitones);
     _validateScaleNote(scaleNote);
 
     int accidentalOffset = 0;
@@ -61,13 +60,7 @@ MidiNote Scale::s2m(const ScaleNote& scaleNote) const {
     }
     MidiNote scaleBase = this->base();
     assert(scaleBase.get() < 12 && scaleBase.get() >= 0);
-    SQINFO("SC#64 ao=%d sb=%d semi = %d, occ = %d",
-           accidentalOffset,
-           scaleBase.get(),
-           semitones,
-           (scaleNote.getOctave() + 2) * 12);
     const int midiPitch = accidentalOffset + scaleBase.get() + semitones + (scaleNote.getOctave() + 2) * 12;  // 60 = c3 in midi;
-    SQINFO("SC#69 p=%d", midiPitch);
     return MidiNote(midiPitch);
 }
 
@@ -113,41 +106,6 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
     assert(false);  // now we are down where we need more code
     return ScaleNote(0, 0);
 }
-
-#if 0  // old one
-ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
-    assert(offset >= 0 && offset < 12);
-    int degree = _quantizeInScale(offset, printDebug);
-    if (degree >= 0) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 78 (found)", offset, degree);
-        }
-        const auto ret = ScaleNote(degree, 0);
-        _validateScaleNote(ret);
-        return ret;
-    }
-    degree = _quantizeInScale(offset - 1, printDebug);
-    if (degree >= 0) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 86 (found one under)", offset, degree);
-        }
-        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
-        _validateScaleNote(ret);
-        return ret;
-    }
-    degree = _quantizeInScale(offset + 1, printDebug);
-    if (degree >= 0) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
-        }
-        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
-        _validateScaleNote(ret);
-        return ret;
-    }
-    assert(false);
-    return ScaleNote();
-}
-#endif
 
 std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
     if (justDiatonic) {
@@ -203,7 +161,6 @@ int Scale::quantize(int offset) const {
     assert(_wasSet);
     assert(offset >= 0 && offset <= 11);
     int x = _quantizeInScale(offset);
-    SQINFO("SC#201 x=%d", x);
     if (x >= 0) {
         return x;
     }
@@ -289,22 +246,15 @@ int Scale::_quantizeInScale(int offset) const {
     assert(offset >= 0);
     assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
-    SQINFO("_quantizeInScale %d", offset);
-    SQINFO("pitches in scale = %d, %d, %d, %d, %d, %d, %d, %d...",
-           pitches[0], pitches[1], pitches[2], pitches[3],
-           pitches[4], pitches[5], pitches[6], pitches[7]);
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
-            SQINFO("SC#295 end");
             // reached end of list
             degreeIndex = -1;  // not in scale
             done = true;
         } else if (pitches[degreeIndex] == offset) {
             done = true;
-            SQINFO("SC#301 accepted at index %d", degreeIndex);
         } else {
-            SQINFO("SC#302 rejected pitch %d index %d", pitches[degreeIndex], degreeIndex);
             ++degreeIndex;
         }
     }
@@ -312,25 +262,23 @@ int Scale::_quantizeInScale(int offset) const {
 }
 
 int Scale::degreeToSemitone(int degree) const {
-  //  SQINFO("SC#315 degreeToSemitone(%d)", degree);
     const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
-    for (bool done = false; !done;) {
+    while(true) {
         if (*pitches < 0) {
             // reached end of list
-       //     SQINFO("SC#321 went past end");
-            done = true;
+            SQFATAL("can't convert degree to semi %d", degree);
             assert(false);
+            return 0;
         } else if (degreeIndex == degree) {
-       //     SQINFO("SC#325 found");
-            done = true;
+            // If this is the index we are looking for, return the semitone pitch.
+            return *pitches;
         } else {
+            // If still more, advance both and continue.
             ++degreeIndex;
-       //     SQINFO("SC#329 try next degree index. will try %d", degreeIndex);
+            ++pitches;
         }
     }
-  //  SQINFO("SC#332 found index %d will ret pitch %d", degreeIndex, pitches[degreeIndex]);
-    return pitches[degreeIndex];
 }
 
 const int* Scale::_getNormalizedScalePitches() const {

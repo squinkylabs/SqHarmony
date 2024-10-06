@@ -240,17 +240,6 @@ inline void Harmony<TBase>::stepn() {
         mustUpdate = true;
     }
 
-#if 0   // old stuff?
-    static bool didIt = false;
-    if (!didIt) {
-        // SQINFO("sop = %d to %d", style->minSop(), style->maxSop());
-        // SQINFO("alto = %d to %d", style->minAlto(), style->maxAlto());
-        // SQINFO("tenor = %d to %d", style->minTenor(), style->maxTenor());
-        // SQINFO("bass = %d to %d", style->minBass(), style->maxBass());
-        didIt = true;
-    }
-    #endif
-
     const Style::InversionPreference ip = Style::InversionPreference(int(std::round(Harmony<TBase>::params[INVERSION_PREFERENCE_PARAM].value)));
     style->setInversionPreference(ip);
 

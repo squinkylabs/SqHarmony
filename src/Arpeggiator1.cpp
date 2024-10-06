@@ -98,19 +98,6 @@ inline void Arpeggiator1Module::addParams() {
     // this->configOutput(Comp::EOC_OUTPUT, "End of pattern");
 }
 
-#if 0
-class Logo : public SvgWidget {
-public:
-    Logo() {
-     //   auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/scope.svg"));
-        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern.svg"));
-        setSvg(svg);
-    }
-
-private:
-};
-#endif
-
 struct NKK2 : SvgSwitch {
     NKK2() {
         addFrame(APP->window->loadSvg(
@@ -145,13 +132,6 @@ struct Arpeggiator1Widget : ModuleWidget {
     Arpeggiator1Widget(Arpeggiator1Module* module) {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/arpeggiator.svg")));
-
-#if 0
-        auto svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/pattern-four.svg"));
-        SvgWidget* logo = new SvgWidget();
-        logo->setSvg(svg);
-        addChild(logo);
-#endif
 
 #ifdef _LAB
         addLabel(Vec(28, 5), "Arpeggiator");

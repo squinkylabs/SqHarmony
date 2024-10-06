@@ -47,23 +47,11 @@ MidiNote ScaleQuantizer::run(float voltage) {
     assert(options);
     assert(options->scale);
 
-    SQINFO(" ");
-    SQINFO("SQ#50 v=%f rp=%d o=%d", voltage, relativeMidiPitch, octave);
-
     const int quantizedDegree = options->scale->quantize(relativeMidiPitch);
-    SQINFO("SQ#54 qd=%d", quantizedDegree);
     octave += (mn.get() / 12);
     octave -= 2;                    // not sure where this 2 octaves comes from, but middle C.get /12 is 5, so...
     ScaleNote quantizedScaleNote(quantizedDegree, octave);
-    SQINFO("SQ#57 sn oct=%d deg=%d adj=%d", 
-        quantizedScaleNote.getOctave(),
-        quantizedScaleNote.getDegree(),
-        int(quantizedScaleNote.getAdjustment())
-        );
     MidiNote quantizedMn;
     NoteConvert::s2m(quantizedMn, *options->scale, quantizedScaleNote);
-
-    SQINFO("SQ#59qn=%d, sqn=%d", quantizedMn.get(),quantizedScaleNote.getDegree());
-
     return quantizedMn;
 }

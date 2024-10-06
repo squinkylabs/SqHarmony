@@ -201,7 +201,7 @@ void testVisualizer() {
     assertEQ(SqLog::errorCount, 0);
 }
 
-#if 1
+#if 0
 void testFirst() {
     testRecognizedOutSpeed();
 }

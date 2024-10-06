@@ -177,12 +177,6 @@ struct alignas(32) Port {
 
     void process(float deltaTime);
 
-    /** Use getNormalVoltage() instead. */
-#if 0
-	DEPRECATED float normalize(float normalVoltage) {
-		return getNormalVoltage(normalVoltage);
-	}
-#endif
 };
 
 struct Input : Port {
