@@ -510,6 +510,8 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return;
     }
 
+    SQINFO("-------- enter _drawNotes");
+
     const auto pitches = _module->getQuantizedPitches();
     const unsigned channels = pitches.numValid();
     const int *originalPitches = pitches.getDirectPtrAt(0);
@@ -533,9 +535,13 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return ret;
     };
 
+    SQINFO("at 538");
+
     drawPostion.llDrawInfo = [this](const MidiNote &note, int legerLine, bool bassStaff) {
+
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
-        //  SQINFO("in ll callback, linfo 0 = %f, %f, %f", yInfo.legerPos[0], yInfo.legerPos[1], yInfo.legerPos[2]);
+        SQINFO("in ll callback, linfo 0 = %f, %f, %f", yInfo.legerPos[0], yInfo.legerPos[1], yInfo.legerPos[2]);
+        SQINFO("  baseStaff=%d", bassStaff);
         LegerLinesLocInfo ret;
         for (int i = 0; i < 3; ++i) {
             ret.legerPos[i] = yInfo.legerPos[i];
@@ -544,6 +550,8 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         // SQINFO("callback will ret %f, %f, %f", ret.legerPos[0], ret.legerPos[1], ret.legerPos[2]);
         return ret;
     };
+
+     SQINFO("at 554");
 
     auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
 
@@ -571,4 +579,5 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             // _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
         }
     }
+    SQINFO("-------- leave draw notes");
 }

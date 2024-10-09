@@ -5,7 +5,7 @@
 #include "ChordRecognizer.h"
 #include "ScorePitchUtils.h"
 
-// #define _LOG
+ #define _LOG
 
 ScoreDrawUtilsPtr ScoreDrawUtils::make() {
     return std::make_unique<ScoreDrawUtils>();
@@ -47,7 +47,7 @@ void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults& s) {
     }
 }
 
-const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
+const ScoreDrawUtils::DrawInfo ScoreDrawUtils::getDrawInfo(
     const DrawPositionParams& drawPos,
     const Scale& scale,
     const SqArray<int, 16>& input,
@@ -66,6 +66,9 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         SQINFO("notationNote = %s", notationNote.toString().c_str());
 #endif
         bool isAlreadyNoteOnThisLine = true;
+
+        // TODO: rename this
+        std::map<int, LegerLineInfo>& _info = notationNote._bassStaff ? _infoBassClef : _infoTrebleClef;
         auto iter = _info.find(legerLine);
         // If there is no entry already, make one.
         if (iter == _info.end()) {
@@ -111,7 +114,7 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         // info.sort();
     }
 
-#ifdef _LOG
+#if 0 // def _LOG
     for (auto iterator = _info.begin(); iterator != _info.end(); ++iterator) {
         SQINFO("map[%d] = %s", iterator->first, iterator->second.toString().c_str());
     }
@@ -119,10 +122,26 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
 
     _adjustNoteSpacing(drawPos);
     _adjustAccidentalSpacing(drawPos);
-    return _info;
+
+    ScoreDrawUtils::DrawInfo retValues;
+    for (auto iter : _infoBassClef) {
+      //  retValues.push_back(iter.second);
+        retValues.push_back(std::make_tuple(iter.first, true, iter.second));
+    }
+    for (auto iter : _infoTrebleClef) {
+       // retValues.push_back(iter.second);
+        retValues.push_back(std::make_tuple(iter.first, false, iter.second));
+    }
+
+    return retValues;
 }
 
 void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
+    _adjustNoteSpacing(pos, _infoBassClef);
+    _adjustNoteSpacing(pos, _infoTrebleClef);
+}
+
+void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos, ScoreDrawUtils::infoMap& _info) {
 #ifdef _LOG
     SQINFO("-- enter _adjustNoteSpacing");
 #endif
@@ -147,7 +166,13 @@ void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
 #endif
 }
 
+
 void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
+    _adjustAccidentalSpacing(pos, _infoBassClef);
+    _adjustAccidentalSpacing(pos, _infoTrebleClef);
+}
+
+void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos,  ScoreDrawUtils::infoMap& _info) {
     if (_info.size() < 2) {
         return;
     }
@@ -162,13 +187,14 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
         // assert(false);
 
         // LegerLineInfo* currentLine = &lineIterator->second;
-        _adjustAccidentalSpacing(pos, lineIterator);
+        _adjustAccidentalSpacing(pos, _info, lineIterator);
     }
     // assert(false);
 }
 
 void ScoreDrawUtils::_adjustAccidentalSpacing(
     const DrawPositionParams& pos,
+    const infoMap& _info,
     iterator lineToAdjust) {
     std::vector<const LegerLineInfo*> refLines;
 
