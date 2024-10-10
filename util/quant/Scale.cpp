@@ -72,16 +72,12 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         _validateScaleNote(ret);
         return ret;
     }
-    //   const bool preferSharps = getSharpsFlatsPrefForScoring();
-    //  const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
 
     // here we let "don't care" go to sharps. Perhaps this should be a pref?
-
     const bool preferSharps = getSharpsFlatsPref() != SharpsFlatsPref::Flats;
     {
         static bool b = true;
         if (b) {
-            // SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
             b = false;
         }
     }
@@ -147,12 +143,9 @@ Scale::getScaleLabels(bool justDiatonic) {
 }
 
 std::vector<std::string> Scale::getRootLabels(bool useFlats) {
-    // SQINFO("getting root labels useF=%d", useFlats);
     if (!useFlats) {
-        // SQINFO("returning the shrp labels");
         return {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     } else {
-        // SQINFO("returning the flats labels");
         return {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
     }
 }
@@ -171,7 +164,6 @@ int Scale::quantize(int offset) const {
     const int qDnOne = _quantizeInScale(offset - 1);
 
     if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
-        //  SQINFO("In bad case. offset == 11");
         qUpOne = 12;  // special case - we know we can go to octave here.
                       // seems to only happen with Major Pentatonic
     }
@@ -488,13 +480,6 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     return ret;
 }
 
-#if 0
-ResolvedSharpsFlatsPref Scale::getSharpsFlatsPrefResolved() const {
-    const auto p = getSharpsFlatsPref();
-    return AccidentalResolver::resolve(p);
-}
-#endif
-
 SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
@@ -538,11 +523,6 @@ SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     assert(false);
     return SharpsFlatsPref::DontCare;
 }
-
-// bool Scale::getSharpsFlatsPrefForScoring() const {
-//     const auto pref = getSharpsFlatsPref();
-//     return pref != SharpsFlatsPref::Flats;
-// }
 
 int Scale::numNotesInScale(Scales scale) {
     int ret = 0;
@@ -619,7 +599,6 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
         }
     }
 
-    //  const int lastValidScale = diatonicOnly ? Scale:: :
     const int numScales = Scale::numScales(diatonicOnly);
     for (int mode = Scale::firstScale; mode < numScales; ++mode) {
         const auto smode = Scale::Scales(mode);
@@ -754,6 +733,5 @@ bool Scale::_validateScaleNote(const ScaleNote& sn) const {
         default:
             assert(false);
     }
-    // assert(false);
     return true;
 }

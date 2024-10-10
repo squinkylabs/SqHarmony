@@ -53,22 +53,18 @@ public:
 
 class LegerLineInfo {
 public:
-    // LegerLineInfo() = delete;
     ShiftingArray<SymbolInfo> notes;
     ShiftingArray<SymbolInfo> accidentals;
     LegerLinesLocInfo legerLinesLocInfo;
 
     void addNote(const std::string& glyph, float xPosition, float yPosition) {
-        SQINFO("LLI.addNote called with x=%f y=%f", xPosition, yPosition);
         SymbolInfo si;
         si.glyph = glyph;
         si.xPosition = xPosition;
         si.yPosition = yPosition;
         notes.push_back(si);
-       SQINFO("after add note there are %d", notes.size());
     }
     void addAccidental(const std::string& glyph, float xPosition, float yPosition) {
-     //   SQINFO("LLI.addAccidental called at %f", xPosition);
         SymbolInfo si;
         si.glyph = glyph;
         si.xPosition = xPosition;
@@ -106,12 +102,6 @@ public:
         const Scale& scale,
         const SqArray<int, 16>& input,
         UIPrefSharpsFlats pref);
-
-    //  const std::map<int, LegerLineInfo> getDrawInfo(
-    //     const DrawPositionParams& pos,
-    //     const Scale& scale,
-    //     const SqArray<int, 16>& input,
-    //     UIPrefSharpsFlats pref);
 
     inline static const std::string _wholeNote = u8"\ue1d2";
     inline static const std::string _flat = u8"\ue260";
