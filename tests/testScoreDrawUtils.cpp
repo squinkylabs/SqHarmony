@@ -441,10 +441,11 @@ static void testAdjustSpacingFunc(
                     assert(false);
             }
         }
-        utils->_infoTrebleClef.insert(std::make_pair(notationNote._legerLine, ll));
+        auto& info = notationNote._bassStaff ? utils->_infoBassClef : utils->_infoTrebleClef;
+        info.insert(std::make_pair(notationNote._legerLine, ll));
     }
 
-    assertEQ(utils->_infoTrebleClef.size(), notes.numValid());
+    assertEQ(utils->_infoTrebleClef.size() + utils->_infoBassClef.size(), notes.numValid());
 
     utils->_adjustNoteSpacing(pos);
     utils->_adjustAccidentalSpacing(pos);
@@ -613,8 +614,8 @@ static void testAdjustSpacingTwoStaves() {
 
     // two notes, same pos on two staves
     SqArray<NotationNote, 16> notes{
-        {mnC, NotationNote::Accidental::sharp, 2, false}, 
-        {mnC, NotationNote::Accidental::sharp, 2, true}   
+        {mnC, NotationNote::Accidental::none, 2, false}, 
+        {mnC, NotationNote::Accidental::none, 2, true}   
     };
     SqArray<float, 16> expectedNotePositions{
         pos.noteXPosition,
@@ -636,8 +637,8 @@ static void testAdjustSpacing() {
     testAdjustSpacingCB();
     testAdjustSpacingOctave();
 
-    SQINFO("make a good test for the two pitches!");
-   // testAdjustSpacingTwoStaves();       // new test 
+   // SQINFO("make a good test for the two pitches!");
+   testAdjustSpacingTwoStaves();       // new test 
 }
 
 
@@ -682,10 +683,11 @@ void testScoreDrawUtils() {
 
 }
 
-#if 1
+#if 0
 void testFirst() {
 
-  testScoreDrawUtils();
+  // testScoreDrawUtils();
   //  testBothClefs();
+  testAdjustSpacingTwoStaves();
 }
 #endif
