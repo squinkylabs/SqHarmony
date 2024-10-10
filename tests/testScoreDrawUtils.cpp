@@ -255,7 +255,7 @@ static void testCBass() {
     testCGroup({MidiNote::MiddleC, MidiNote::MiddleC - 12 + MidiNote::G}, 100);
 }
 
-#if 0
+
 
 static void testLegerLine(bool bass) {
     SqArray<int, 16> inputBass = {MidiNote::MiddleC - 12 + MidiNote::B};  // B right below middle C
@@ -288,6 +288,7 @@ static void testTrebleLegerLine() {
 static void testBassLegerLine() {
     testLegerLine(true);
 }
+
 
 // This test used to find two notes on one leger line, but it doesn't any more
 static void testTwoNotes() {
@@ -324,16 +325,16 @@ static void testLegerLineCTreble() {
     pos.noteXPosition = 11;
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 1);
-    const auto legerLineIterator = info.begin();
+  
+    const auto lli = info[0];
+    const auto llInfo = std::get<2>(lli);
 
-    const auto llInfo = legerLineIterator->second.legerLinesLocInfo;
+    assertEQ(llInfo.notes.size(), 1);
+    assertEQ(llInfo.notes[0].glyph, ScoreDrawUtils::_wholeNote);
 
-    assertEQ(legerLineIterator->second.notes.size(), 1);
-    assertEQ(legerLineIterator->second.notes[0].glyph, ScoreDrawUtils::_wholeNote);
-
-    assertClose(llInfo.legerPos[0], -1, .001);
-    assertClose(llInfo.legerPos[1], 0, .001);
-    assertClose(llInfo.legerPos[2], 0, .001);
+    assertClose(llInfo.legerLinesLocInfo.legerPos[0], -1, .001);
+    assertClose(llInfo.legerLinesLocInfo.legerPos[1], 0, .001);
+    assertClose(llInfo.legerLinesLocInfo.legerPos[2], 0, .001);
 }
 
 static void testCD() {
@@ -344,17 +345,23 @@ static void testCD() {
 
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 2);
-    auto legerLineIterator = info.begin();
+   // auto legerLineIterator = info.begin();
 
-    assertEQ(legerLineIterator->second.notes.size(), 1);
-    const float xPosC = legerLineIterator->second.notes[0].xPosition;
-    legerLineIterator++;
+    const auto firstTuple = info[0];
+    const auto firstInfo = std::get<2>(firstTuple);
+
+    assertEQ(firstInfo.notes.size(), 1);
+    const float xPosC = firstInfo.notes[0].xPosition;
+ //   legerLineIterator++;
+
+    const auto secondTuple = info[1];
+    const auto secondInfo = std::get<2>(secondTuple);
 
     // expect a blank due to moving over.
-    assertEQ(legerLineIterator->second.notes.size(), 2);
-    assertEQ(legerLineIterator->second.notes[0].glyph.empty(), true);
-    assertEQ(legerLineIterator->second.notes[1].glyph, ScoreDrawUtils::_wholeNote);
-    const float xPosD = legerLineIterator->second.notes[1].xPosition;
+    assertEQ(secondInfo.notes.size(), 2);
+    assertEQ(secondInfo.notes[0].glyph.empty(), true);
+    assertEQ(secondInfo.notes[1].glyph, ScoreDrawUtils::_wholeNote);
+    const float xPosD = secondInfo.notes[1].xPosition;
 
     assert(pos.noteColumnWidth > 0);
     assert(xPosD == xPosC + pos.noteColumnWidth);
@@ -369,17 +376,21 @@ static void TestCSharpESharp() {
 
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 2);
-    auto legerLineIterator = info.begin();
+   // auto legerLineIterator = info.begin();
+    const auto firstTuple = info[0];
+    const auto firstInfo = std::get<2>(firstTuple);
 
-    assertEQ(legerLineIterator->second.accidentals.size(), 1);
-    const float xPosCSharp = legerLineIterator->second.accidentals[0].xPosition;
-    legerLineIterator++;
+    assertEQ(firstInfo.accidentals.size(), 1);
+    const float xPosCSharp = firstInfo.accidentals[0].xPosition;
+
+    const auto secondTuple = info[1];
+    const auto secondInfo = std::get<2>(secondTuple);
 
     // expect a blank due to moving over.
-    assertEQ(legerLineIterator->second.accidentals.size(), 2);
-    assertEQ(legerLineIterator->second.accidentals[0].glyph.empty(), true);
-    assertEQ(legerLineIterator->second.accidentals[1].glyph, ScoreDrawUtils::_sharp);
-    const float xPosESharp = legerLineIterator->second.accidentals[1].xPosition;
+    assertEQ(secondInfo.accidentals.size(), 2);
+    assertEQ(secondInfo.accidentals[0].glyph.empty(), true);
+    assertEQ(secondInfo.accidentals[1].glyph, ScoreDrawUtils::_sharp);
+    const float xPosESharp = secondInfo.accidentals[1].xPosition;
 
     assert(pos.accidentalColumnWidth > 0);
     assert(xPosESharp == xPosCSharp - pos.accidentalColumnWidth);
@@ -430,17 +441,17 @@ static void testAdjustSpacingFunc(
                     assert(false);
             }
         }
-        utils->_info.insert(std::make_pair(notationNote._legerLine, ll));
+        utils->_infoTrebleClef.insert(std::make_pair(notationNote._legerLine, ll));
     }
 
-    assertEQ(utils->_info.size(), notes.numValid());
+    assertEQ(utils->_infoTrebleClef.size(), notes.numValid());
 
     utils->_adjustNoteSpacing(pos);
     utils->_adjustAccidentalSpacing(pos);
 
     // Loop over every leger line
     unsigned index = 0;
-    for (ScoreDrawUtils::iterator iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
+    for (ScoreDrawUtils::iterator iter = utils->_infoTrebleClef.begin(); iter != utils->_infoTrebleClef.end(); ++iter) {
         const LegerLineInfo& lineInfo = iter->second;
 
         //SQINFO("eval test restuls, ll=%d", iter->first);
@@ -624,10 +635,11 @@ static void testAdjustSpacing() {
     testAdjustSpacingCA();
     testAdjustSpacingCB();
     testAdjustSpacingOctave();
-    testAdjustSpacingTwoStaves();
+
+    SQINFO("make a good test for the two pitches!");
+   // testAdjustSpacingTwoStaves();       // new test 
 }
 
-#endif
 
 void testScoreDrawUtils() {
     test1();
@@ -650,11 +662,13 @@ void testScoreDrawUtils() {
     testBothClefs();
     testCTreble();
     testCBass();
-    #if 0
+
     testTrebleLegerLine();
     testBassLegerLine();
 
+      
     testAdjustSpacing();
+
 
     SQINFO("get new test for multi notes on a line");
     //   testTwoNotes();
@@ -665,13 +679,13 @@ void testScoreDrawUtils() {
     TestCSharpESharp();
 
     //  testNoAdjustCandE();
-#endif
+
 }
 
 #if 1
 void testFirst() {
 
- //  testScoreDrawUtils();
-    testBothClefs();
+  testScoreDrawUtils();
+  //  testBothClefs();
 }
 #endif
