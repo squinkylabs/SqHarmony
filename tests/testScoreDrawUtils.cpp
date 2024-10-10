@@ -164,6 +164,7 @@ static void testClef2(bool bass) {
     SqArray<int, 16> inputTreble = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::E};
     DrawPositionParams pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        SQINFO("In test, getting callback with bass staff=%d", bassStaff);
         return bassStaff ? 100 : 200;
     };
     const auto input = bass ? inputBass : inputTreble;
@@ -199,6 +200,7 @@ static void testBothClefs() {
     SqArray<int, 16> input = {MidiNote::MiddleC - 12 + MidiNote::A, MidiNote::MiddleC + MidiNote::G};
     DrawPositionParams pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        SQINFO("ttt in test callback with bass cleff=%d", bassStaff);
         const float ret = bassStaff ? 100 : 200;
         return ret;
     };
@@ -209,21 +211,18 @@ static void testBothClefs() {
     // get back two notes
     assertEQ(info.size(), 2);
 
-    const auto lli = std::get<2>(*info.begin());
-    // look at first note
+    // look at the first note
+    const auto lli = std::get<2>(info[0]);
     assertEQ(lli.notes.size(), 1);
-
-    // look at first symbol of first note
-   // auto iterator = info.begin();
-
     const float y1 = lli.notes[0].yPosition;
-   // iterator++;
-    const auto lli2 = std::get<2>(*(info.begin()++));
+
+    // now the second note
+    const auto lli2 = std::get<2>(info[1]);
+    assertEQ(lli2.notes.size(), 1);
     const float y2 = lli2.notes[0].yPosition;
 
     // These are no longer sorted, but as long as one is 100 and the other is 200...
-    assertEQ(y1, 200.f);
-    assertEQ(y2, 100.f);
+    assert((y1 == 100.f && y2==200.f) || (y1 == 200.f && y2==100.f));
 }
 
 static void testCGroup(SqArray<int, 16> input, float expectedY) {

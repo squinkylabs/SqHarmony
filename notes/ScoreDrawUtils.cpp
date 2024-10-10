@@ -58,6 +58,7 @@ const ScoreDrawUtils::DrawInfo ScoreDrawUtils::getDrawInfo(
     _divideClefs(spelling);
     for (unsigned pitchIterator = 0; pitchIterator < spelling.notes.numValid(); ++pitchIterator) {
         const auto notationNote = spelling.notes.getAt(pitchIterator);
+        SQINFO("after divide bassStaff=%d", notationNote._bassStaff);
         // put it into the map
         const int legerLine = notationNote._legerLine;
 
@@ -88,6 +89,7 @@ const ScoreDrawUtils::DrawInfo ScoreDrawUtils::getDrawInfo(
 
         assert(drawPos.noteYPosition);
         const float yPosition = drawPos.noteYPosition(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
+        SQINFO("calling into draw pos with bass staff = %d", notationNote._bassStaff);
         info.legerLinesLocInfo = drawPos.llDrawInfo(notationNote._midiNote, notationNote._legerLine, notationNote._bassStaff);
         info.addNote(_wholeNote, noteXPosition, yPosition);  // add this glyph for this note.
 
