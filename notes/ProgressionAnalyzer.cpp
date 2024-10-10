@@ -61,11 +61,6 @@ private:
 };
 
 int ProgressionAnalyzer::getPenalty(const Options& options, int upperBound) const {
-#if 0  // let's get rid of this fake rule
-    if (!FakeRuleForDesc(options)) {
-        return false;
-    }
-#endif
     assert(&options);
     assert(this);
     DebugStringAccumulator ds(_show);

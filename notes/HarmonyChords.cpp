@@ -3,17 +3,6 @@
 #include "Chord4Manager.h"
 #include "ProgressionAnalyzer.h"
 
-#if 0
-const Chord4* HarmonyChords::findChord(
-    bool show,
-    const Options& options,
-    const Chord4Manager& manager,
-    int root,
-    PAStats* stats) {
-    return find(show, options, manager, nullptr, nullptr, root, nullptr, stats);
-}
-#endif
-
 #if 1
 const Chord4* HarmonyChords::findChord(
     bool show,
@@ -91,21 +80,6 @@ const Chord4* HarmonyChords::find(
     }
 
     //  SQINFO("\n---------------------- find pp=%p p=%p r = %d", prevPrev, prev, root);
-
-#if 0
-    if (prev && prevPrev) {
-        printf("find called with prevOrev %s (root %d)\n", prevPrev->toString().c_str(), prevPrev->fetchRoot());
-        printf("  .. prev %s (root %d)\n",
-               prev->toString().c_str(),
-               prev->fetchRoot());
-        printf(" .. and cur root % d\n", root);
-    } else if (prev) {
-        printf("find called with prev %s (root %d) and cur root %d\n",
-               prev->toString().c_str(),
-               prev->fetchRoot(),
-               root);
-    }
-#endif
     assert(manager.isValid());
     if (prev) assert(prev->isValid());
     if (prevPrev) assert(prevPrev->isValid());

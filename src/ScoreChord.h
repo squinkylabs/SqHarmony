@@ -510,6 +510,8 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return;
     }
 
+    SQINFO("-------- enter _drawNotes");
+
     const auto pitches = _module->getQuantizedPitches();
     const unsigned channels = pitches.numValid();
     const int *originalPitches = pitches.getDirectPtrAt(0);
@@ -533,9 +535,13 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return ret;
     };
 
+    SQINFO("at 538");
+
     drawPostion.llDrawInfo = [this](const MidiNote &note, int legerLine, bool bassStaff) {
+
         YInfo yInfo = this->_noteYInfo(note, legerLine, bassStaff);
-        //  SQINFO("in ll callback, linfo 0 = %f, %f, %f", yInfo.legerPos[0], yInfo.legerPos[1], yInfo.legerPos[2]);
+        SQINFO("in ll callback, linfo 0 = %f, %f, %f", yInfo.legerPos[0], yInfo.legerPos[1], yInfo.legerPos[2]);
+        SQINFO("  baseStaff=%d", bassStaff);
         LegerLinesLocInfo ret;
         for (int i = 0; i < 3; ++i) {
             ret.legerPos[i] = yInfo.legerPos[i];
@@ -545,25 +551,29 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
         return ret;
     };
 
+     SQINFO("at 554");
+
     auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
 
-    for (auto mapIterator = info.begin(); mapIterator != info.end(); mapIterator++) {
+    for (auto infoIterator = info.begin(); infoIterator != info.end(); infoIterator++) {
         // SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
-        const auto llLocInfo = mapIterator->second.legerLinesLocInfo;
+        const auto& llocInfo = std::get<2>(*infoIterator);
+       // const auto llLocInfo =
+     //   const auto llLocInfo = mapIterator->second.legerLinesLocInfo;
         // SQINFO("got info from func %f", llLocInfo.legerPos[0]);
         for (
-            auto symbolIterator = mapIterator->second.notes.begin();
-            symbolIterator != mapIterator->second.notes.end();
+            auto symbolIterator = llocInfo.notes.begin();
+            symbolIterator != llocInfo.notes.end();
             ++symbolIterator) {
             const auto symbol = *symbolIterator;
             // SQINFO("drawing symbol %s", symbol.toString().c_str());
             nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
-            _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
+            _drawLegerLinesForNotes2(args, llocInfo.legerLinesLocInfo, symbol.xPosition);
         }
 
         for (
-            auto symbolIterator = mapIterator->second.accidentals.begin();
-            symbolIterator != mapIterator->second.accidentals.end();
+            auto symbolIterator = llocInfo.accidentals.begin();
+            symbolIterator != llocInfo.accidentals.end();
             ++symbolIterator) {
             const auto symbol = *symbolIterator;
             // SQINFO("drawing symbol %s", symbol.toString().c_str());
@@ -571,4 +581,5 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
             // _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
         }
     }
+    SQINFO("-------- leave draw notes");
 }
