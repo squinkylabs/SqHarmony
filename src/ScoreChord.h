@@ -555,23 +555,25 @@ inline void ScoreChord::_drawNotes(const DrawArgs &args, float xPosition) const 
 
     auto info = scoreDrawUtils->getDrawInfo(drawPostion, *scale, inputNotes, pref);
 
-    for (auto mapIterator = info.begin(); mapIterator != info.end(); mapIterator++) {
+    for (auto infoIterator = info.begin(); infoIterator != info.end(); infoIterator++) {
         // SQINFO("something to draw : %s", mapIterator->second.toString().c_str());
-        const auto llLocInfo = mapIterator->second.legerLinesLocInfo;
+        const auto& llocInfo = std::get<2>(*infoIterator);
+       // const auto llLocInfo =
+     //   const auto llLocInfo = mapIterator->second.legerLinesLocInfo;
         // SQINFO("got info from func %f", llLocInfo.legerPos[0]);
         for (
-            auto symbolIterator = mapIterator->second.notes.begin();
-            symbolIterator != mapIterator->second.notes.end();
+            auto symbolIterator = llocInfo.notes.begin();
+            symbolIterator != llocInfo.notes.end();
             ++symbolIterator) {
             const auto symbol = *symbolIterator;
             // SQINFO("drawing symbol %s", symbol.toString().c_str());
             nvgText(args.vg, symbol.xPosition, symbol.yPosition, symbol.glyph.c_str(), NULL);
-            _drawLegerLinesForNotes2(args, llLocInfo, symbol.xPosition);
+            _drawLegerLinesForNotes2(args, llocInfo.legerLinesLocInfo, symbol.xPosition);
         }
 
         for (
-            auto symbolIterator = mapIterator->second.accidentals.begin();
-            symbolIterator != mapIterator->second.accidentals.end();
+            auto symbolIterator = llocInfo.accidentals.begin();
+            symbolIterator != llocInfo.accidentals.end();
             ++symbolIterator) {
             const auto symbol = *symbolIterator;
             // SQINFO("drawing symbol %s", symbol.toString().c_str());
