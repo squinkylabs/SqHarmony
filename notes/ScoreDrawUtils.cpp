@@ -47,7 +47,7 @@ void ScoreDrawUtils::_divideClefs(ScorePitchUtils::SpellingResults& s) {
     }
 }
 
-const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
+const ScoreDrawUtils::DrawInfo ScoreDrawUtils::getDrawInfo(
     const DrawPositionParams& drawPos,
     const Scale& scale,
     const SqArray<int, 16>& input,
@@ -66,6 +66,9 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         SQINFO("notationNote = %s", notationNote.toString().c_str());
 #endif
         bool isAlreadyNoteOnThisLine = true;
+
+        // TODO: rename this
+        std::map<int, LegerLineInfo>& _info = notationNote._bassStaff ? _infoBassClef : _infoTrebleClef;
         auto iter = _info.find(legerLine);
         // If there is no entry already, make one.
         if (iter == _info.end()) {
@@ -111,18 +114,26 @@ const std::map<int, LegerLineInfo> ScoreDrawUtils::getDrawInfo(
         // info.sort();
     }
 
-#ifdef _LOG
-    for (auto iterator = _info.begin(); iterator != _info.end(); ++iterator) {
-        SQINFO("map[%d] = %s", iterator->first, iterator->second.toString().c_str());
-    }
-#endif
-
     _adjustNoteSpacing(drawPos);
     _adjustAccidentalSpacing(drawPos);
-    return _info;
+
+    ScoreDrawUtils::DrawInfo retValues;
+    for (auto iter : _infoBassClef) {
+        retValues.push_back(std::make_tuple(iter.first, true, iter.second));
+    }
+    for (auto iter : _infoTrebleClef) {
+        retValues.push_back(std::make_tuple(iter.first, false, iter.second));
+    }
+
+    return retValues;
 }
 
 void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
+    _adjustNoteSpacing(pos, _infoBassClef);
+    _adjustNoteSpacing(pos, _infoTrebleClef);
+}
+
+void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos, ScoreDrawUtils::infoMap& _info) {
 #ifdef _LOG
     SQINFO("-- enter _adjustNoteSpacing");
 #endif
@@ -147,7 +158,13 @@ void ScoreDrawUtils::_adjustNoteSpacing(const DrawPositionParams& pos) {
 #endif
 }
 
+
 void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
+    _adjustAccidentalSpacing(pos, _infoBassClef);
+    _adjustAccidentalSpacing(pos, _infoTrebleClef);
+}
+
+void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos,  ScoreDrawUtils::infoMap& _info) {
     if (_info.size() < 2) {
         return;
     }
@@ -162,13 +179,14 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
         // assert(false);
 
         // LegerLineInfo* currentLine = &lineIterator->second;
-        _adjustAccidentalSpacing(pos, lineIterator);
+        _adjustAccidentalSpacing(pos, _info, lineIterator);
     }
     // assert(false);
 }
 
 void ScoreDrawUtils::_adjustAccidentalSpacing(
     const DrawPositionParams& pos,
+    const infoMap& _info,
     iterator lineToAdjust) {
     std::vector<const LegerLineInfo*> refLines;
 
@@ -241,97 +259,6 @@ void ScoreDrawUtils::_adjustAccidentalSpacing(
     }
 }
 
-#if 0
-void ScoreDrawUtils::_adjustAccidentalSpacing(const DrawPositionParams& pos) {
-    if (_info.size() < 2) {
-        return;
-    }
-#ifdef _LOG
-    SQINFO("-- enter _adjustAccidentalSpacing");
-#endif
-    LegerLineInfo* currentLine = nullptr;
-    LegerLineInfo* firstRefLine = nullptr;
-    LegerLineInfo* secondRefLine = nullptr;
-    auto lineIterator = _info.begin();
-    assert(lineIterator != _info.end());
-    currentLine = &lineIterator->second;
-
-    firstRefLine = currentLine;
-    ++lineIterator;
-    assert(lineIterator != _info.end());
-    currentLine = &lineIterator->second;
-
-    for (bool done = false; !done;) {
-        assert(currentLine != nullptr);
-        assert(firstRefLine != nullptr);
-        _adjustAccidentalSpacing(currentLine, firstRefLine, secondRefLine, pos);
-
-        ++lineIterator;
-        if (lineIterator != _info.end()) {
-            secondRefLine = firstRefLine;
-            firstRefLine = currentLine;
-            currentLine = &lineIterator->second;
-        } else {
-            done = true;
-        }
-    }
-#ifdef _LOG
-    SQINFO("-- exit _adjustAccidentalSpacing");
-#endif
-}
-#endif
-
-#if 0
-void ScoreDrawUtils::_adjustAccidentalSpacing(
-    LegerLineInfo* currentLine,
-    LegerLineInfo* firstRefLine,
-    LegerLineInfo* secondRefLine,
-    const DrawPositionParams& pos) {
-    assert(currentLine);
-    assert(firstRefLine);
-
-#ifdef _LOG
-    SQINFO("-- enter _adjustAccidentalSpacing for line %s", currentLine->toString().c_str());
-    SQINFO(" first ref %s", firstRefLine->toString().c_str());
-    if (secondRefLine) SQINFO(" second ref %s", secondRefLine->toString().c_str());
-#endif
-
-    // first combine the ref lines to find where accidentals are below us
-    bool isAccidentalBelow[4]{false};
-    for (unsigned i = 0; i < firstRefLine->accidentals.size(); ++i) {
-        if (!firstRefLine->accidentals[i].glyph.empty()) {
-            isAccidentalBelow[i] = true;
-        }
-    }
-    if (secondRefLine) {
-        for (unsigned i = 0; i < secondRefLine->accidentals.size(); ++i) {
-            if (!secondRefLine->accidentals[i].glyph.empty()) {
-                isAccidentalBelow[i] = true;
-            }
-        }
-    }
-
-#ifdef _LOG
-    for (unsigned i = 0; i < 3; ++i) {
-        SQINFO("index %d isBelow=%d", i, isAccidentalBelow[i]);
-    }
-#endif
-
-    for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
-        if (isAccidentalBelow[i]) {
-            currentLine->accidentals.shift(std::string());
-#ifdef _LOG
-            SQINFO("shift current line");
-#endif
-        }
-    }
-
-    for (unsigned i = 0; i < currentLine->accidentals.size(); ++i) {
-        currentLine->accidentals[i].xPosition = pos.noteXPosition - (i + 1) * pos.accidentalColumnWidth;
-        // SQINFO("setting accidental [%d] xpos to %f", i, currentLine->accidentals[i].xPosition);
-    }
-}
-#endif
 
 void ScoreDrawUtils::_adjustNoteSpacing(
     iterator nextLine,

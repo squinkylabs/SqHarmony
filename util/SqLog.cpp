@@ -8,15 +8,6 @@ namespace SqLog {
 
 #ifdef __PLUGIN
 
-#if 0
-#include "logger.hpp"
-
-    void
-    log(Level level, const char* filename, int line, const char* format, ...) {
-    rack::logger::log(level, filename, line, format, ...);
-}
-#endif
-
 #else
 
 static const int levelColors[] = {

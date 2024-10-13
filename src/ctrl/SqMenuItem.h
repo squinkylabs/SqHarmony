@@ -50,15 +50,6 @@ private:
     std::function<void()> _onActionFn;
 };
 
-#if 0  // don't need this any more
-struct ManualMenuItem : SqMenuItem {
-    ManualMenuItem(const char* menuText, const char* url) : SqMenuItem(
-                                                                []() { return false; },
-                                                                [url]() { SqHelper::openBrowser(url); }) {
-        this->text = menuText;
-    }
-};
-#endif
 
 /**
  * menu item that toggles a boolean param.

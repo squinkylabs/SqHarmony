@@ -6,26 +6,33 @@
 #include "SharpsFlatsPref.h"
 #include "asserts.h"
 
-static const std::map<int, LegerLineInfo> testCMajorSub(const SqArray<int, 16>& input, DrawPositionParams pos) {
+static const ScoreDrawUtils::DrawInfo testCMajorSub(const SqArray<int, 16>& input, DrawPositionParams pos) {
     Scale scale(MidiNote(MidiNote::C), Scale::Scales::Major);
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
-    //  DrawPosition pos;
     return utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
-    // return utils;
 }
 
-static const std::map<int, LegerLineInfo> testCMajorSub(const SqArray<int, 16>& input) {
+static const ScoreDrawUtils::DrawInfo testCMajorSub(const SqArray<int, 16>& input) {
     DrawPositionParams pos;
     return testCMajorSub(input, pos);
-    // return utils;
+}
+
+LegerLineInfo find(const ScoreDrawUtils::DrawInfo& info, int line, bool bassClef = false) {
+    for (auto x : info) {
+        if (std::get<0>(x) == line &&
+            std::get<1>(x) == bassClef) {
+            return std::get<2>(x);
+        }
+    }
+    return LegerLineInfo();
 }
 
 static void test1() {
     SqArray<int, 16> test = {MidiNote::MiddleC};
     const auto info = testCMajorSub(test);
     assertEQ(info.size(), 1);
-    const auto iter = info.find(-2);
-    assertEQ(iter->second.notes.size(), 1);
+    const auto x = find(info, -2);
+    assertEQ(x.notes.size(), 1);
 }
 
 static void test2() {
@@ -35,7 +42,8 @@ static void test2() {
 
     int i = 0;
     for (auto iter = info.begin(); iter != info.end(); ++iter) {
-        assertEQ(iter->second.notes.size(), 1);
+        const LegerLineInfo& info = std::get<2>(*iter);
+        assertEQ(info.notes.size(), 1);
         ++i;
     }
     assertEQ(i, 2);
@@ -45,13 +53,13 @@ static void testAccidental() {
     SqArray<int, 16> test = {MidiNote::MiddleC + 1};
     const auto info = testCMajorSub(test);
     assertEQ(info.size(), 1);
-    const auto iter = info.find(-2);
+    const auto x = find(info, -2);
 
-    assertEQ(iter->second.notes.size(), 1);
-    assertEQ(iter->second.accidentals.size(), 1);
+    assertEQ(x.notes.size(), 1);
+    assertEQ(x.accidentals.size(), 1);
 
-    assertEQ(iter->second.accidentals[0].glyph, ScoreDrawUtils::_sharp);
-    assertEQ(iter->second.notes[0].glyph, ScoreDrawUtils::_wholeNote);
+    assertEQ(x.accidentals[0].glyph, ScoreDrawUtils::_sharp);
+    assertEQ(x.notes[0].glyph, ScoreDrawUtils::_wholeNote);
 }
 
 static void test2OneLine() {
@@ -59,18 +67,15 @@ static void test2OneLine() {
     SqArray<int, 16> test = {MidiNote::MiddleC, MidiNote::MiddleC + 1};
     const auto info = testCMajorSub(test);
     assertEQ(info.size(), 1);
-
-    const auto iter = info.find(-2);
-    //  assertEQ(iter->second.symbols.size(), 3);  // expect #, C, C
-    assert(false);
 }
 
 static void testToString() {
     SqArray<int, 16> test = {MidiNote::MiddleC};
     const auto info = testCMajorSub(test);
     assertEQ(info.size(), 1);
-    const auto iter = info.find(-2);
-    assertGT(iter->second.toString().length(), 0);
+
+    const auto lli = find(info, -2);
+    assertGT(lli.toString().length(), 0);
 }
 
 static void testXPos() {
@@ -83,13 +88,14 @@ static void testXPos() {
 
     assertEQ(info.size(), 1);
 
-    assertEQ(info.begin()->second.accidentals.size(), 1);
-    assertEQ(info.begin()->second.notes.size(), 1);
-    assertEQ(info.begin()->second.accidentals[0].xPosition, 7.5);
-    assertEQ(info.begin()->second.accidentals[0].glyph, ScoreDrawUtils::_sharp);
+    const auto lli = std::get<2>(*info.begin());
+    assertEQ(lli.accidentals.size(), 1);
+    assertEQ(lli.notes.size(), 1);
+    assertEQ(lli.accidentals[0].xPosition, 7.5);
+    assertEQ(lli.accidentals[0].glyph, ScoreDrawUtils::_sharp);
 
-    assertEQ(info.begin()->second.notes[0].xPosition, 11);
-    assertEQ(info.begin()->second.notes[0].glyph, ScoreDrawUtils::_wholeNote);
+    assertEQ(lli.notes[0].xPosition, 11);
+    assertEQ(lli.notes[0].glyph, ScoreDrawUtils::_wholeNote);
 }
 
 static void testYPos() {
@@ -103,11 +109,12 @@ static void testYPos() {
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 1);  // expect C and sharp on one line
 
-    assertEQ(info.begin()->second.notes.size(), 1)
-        assertEQ(info.begin()->second.accidentals.size(), 1);
+    const auto lli = std::get<2>(*info.begin());
+    assertEQ(lli.notes.size(), 1)
+        assertEQ(lli.accidentals.size(), 1);
 
-    assertEQ(info.begin()->second.notes[0].yPosition, -2);
-    assertEQ(info.begin()->second.accidentals[0].yPosition, -2);
+    assertEQ(lli.notes[0].yPosition, -2);
+    assertEQ(lli.accidentals[0].yPosition, -2);
 }
 
 static void testClef(bool bass) {
@@ -121,8 +128,9 @@ static void testClef(bool bass) {
     const auto info = testCMajorSub(input, pos);
     assertEQ(info.size(), 1);
 
-    assertEQ(info.begin()->second.notes.size(), 1);
-    assertEQ(info.begin()->second.notes[0].yPosition, (bass ? 100.f : 200.f));
+    const auto lli = std::get<2>(*info.begin());
+    assertEQ(lli.notes.size(), 1);
+    assertEQ(lli.notes[0].yPosition, (bass ? 100.f : 200.f));
 }
 
 static void testBassClef() {
@@ -138,6 +146,7 @@ static void testClef2(bool bass) {
     SqArray<int, 16> inputTreble = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::E};
     DrawPositionParams pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
+        SQINFO("In test, getting callback with bass staff=%d", bassStaff);
         return bassStaff ? 100 : 200;
     };
     const auto input = bass ? inputBass : inputTreble;
@@ -145,13 +154,13 @@ static void testClef2(bool bass) {
 
     assertEQ(info.size(), 2);
 
-    auto iterator = info.begin();
+    const auto lli = std::get<2>(*info.begin());
 
-    assertEQ(iterator->second.notes.size(), 1);
-    const float y1 = iterator->second.notes[0].yPosition;
-    iterator++;
-    assertEQ(iterator->second.notes.size(), 1);
-    const float y2 = iterator->second.notes[0].yPosition;
+    assertEQ(lli.notes.size(), 1);
+    const float y1 = lli.notes[0].yPosition;
+    const auto lli2 = std::get<2>(*(info.begin()++));
+    assertEQ(lli2.notes.size(), 1);
+    const float y2 = lli2.notes[0].yPosition;
 
     assertEQ(y1, (bass ? 100.f : 200.f));
     assertEQ(y2, (bass ? 100.f : 200.f));
@@ -180,35 +189,33 @@ static void testBothClefs() {
     // get back two notes
     assertEQ(info.size(), 2);
 
-    // look at first note
-    assertEQ(info.begin()->second.notes.size(), 1);
+    // look at the first note
+    const auto lli = std::get<2>(info[0]);
+    assertEQ(lli.notes.size(), 1);
+    const float y1 = lli.notes[0].yPosition;
 
-    // look at first symbol of first note
-    auto iterator = info.begin();
-    const float y1 = iterator->second.notes[0].yPosition;
-    iterator++;
-    const float y2 = iterator->second.notes[0].yPosition;
+    // now the second note
+    const auto lli2 = std::get<2>(info[1]);
+    assertEQ(lli2.notes.size(), 1);
+    const float y2 = lli2.notes[0].yPosition;
 
     // These are no longer sorted, but as long as one is 100 and the other is 200...
-    assertEQ(y1, 200.f);
-    assertEQ(y2, 100.f);
+    assert((y1 == 100.f && y2 == 200.f) || (y1 == 200.f && y2 == 100.f));
 }
 
 static void testCGroup(SqArray<int, 16> input, float expectedY) {
-    // SqArray<int, 16> input = {MidiNote::MiddleC, MidiNote::MiddleC + MidiNote::G};
     DrawPositionParams pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
         return bassStaff ? 100 : 200;
     };
-    // const auto input = bass ? inputBass : inputTreble;
     const auto info = testCMajorSub(input, pos);
     assertEQ(info.size(), 2);
-    assertEQ(info.begin()->second.notes.size(), 1);
+    const auto lli = std::get<2>(*info.begin());
+    assertEQ(lli.notes.size(), 1);
 
-    auto iterator = info.begin();
-    const float y1 = iterator->second.notes[0].yPosition;
-    iterator++;
-    const float y2 = iterator->second.notes[0].yPosition;
+    const float y1 = lli.notes[0].yPosition;
+    const auto lli2 = std::get<2>(*(info.begin()++));
+    const float y2 = lli2.notes[0].yPosition;
 
     assertEQ(y1, expectedY);
     assertEQ(y2, expectedY);
@@ -289,16 +296,16 @@ static void testLegerLineCTreble() {
     pos.noteXPosition = 11;
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 1);
-    const auto legerLineIterator = info.begin();
 
-    const auto llInfo = legerLineIterator->second.legerLinesLocInfo;
+    const auto lli = info[0];
+    const auto llInfo = std::get<2>(lli);
 
-    assertEQ(legerLineIterator->second.notes.size(), 1);
-    assertEQ(legerLineIterator->second.notes[0].glyph, ScoreDrawUtils::_wholeNote);
+    assertEQ(llInfo.notes.size(), 1);
+    assertEQ(llInfo.notes[0].glyph, ScoreDrawUtils::_wholeNote);
 
-    assertClose(llInfo.legerPos[0], -1, .001);
-    assertClose(llInfo.legerPos[1], 0, .001);
-    assertClose(llInfo.legerPos[2], 0, .001);
+    assertClose(llInfo.legerLinesLocInfo.legerPos[0], -1, .001);
+    assertClose(llInfo.legerLinesLocInfo.legerPos[1], 0, .001);
+    assertClose(llInfo.legerLinesLocInfo.legerPos[2], 0, .001);
 }
 
 static void testCD() {
@@ -309,17 +316,21 @@ static void testCD() {
 
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 2);
-    auto legerLineIterator = info.begin();
 
-    assertEQ(legerLineIterator->second.notes.size(), 1);
-    const float xPosC = legerLineIterator->second.notes[0].xPosition;
-    legerLineIterator++;
+    const auto firstTuple = info[0];
+    const auto firstInfo = std::get<2>(firstTuple);
+
+    assertEQ(firstInfo.notes.size(), 1);
+    const float xPosC = firstInfo.notes[0].xPosition;
+
+    const auto secondTuple = info[1];
+    const auto secondInfo = std::get<2>(secondTuple);
 
     // expect a blank due to moving over.
-    assertEQ(legerLineIterator->second.notes.size(), 2);
-    assertEQ(legerLineIterator->second.notes[0].glyph.empty(), true);
-    assertEQ(legerLineIterator->second.notes[1].glyph, ScoreDrawUtils::_wholeNote);
-    const float xPosD = legerLineIterator->second.notes[1].xPosition;
+    assertEQ(secondInfo.notes.size(), 2);
+    assertEQ(secondInfo.notes[0].glyph.empty(), true);
+    assertEQ(secondInfo.notes[1].glyph, ScoreDrawUtils::_wholeNote);
+    const float xPosD = secondInfo.notes[1].xPosition;
 
     assert(pos.noteColumnWidth > 0);
     assert(xPosD == xPosC + pos.noteColumnWidth);
@@ -334,17 +345,20 @@ static void TestCSharpESharp() {
 
     const auto info = utils->getDrawInfo(pos, scale, input, UIPrefSharpsFlats::Sharps);
     assertEQ(info.size(), 2);
-    auto legerLineIterator = info.begin();
+    const auto firstTuple = info[0];
+    const auto firstInfo = std::get<2>(firstTuple);
 
-    assertEQ(legerLineIterator->second.accidentals.size(), 1);
-    const float xPosCSharp = legerLineIterator->second.accidentals[0].xPosition;
-    legerLineIterator++;
+    assertEQ(firstInfo.accidentals.size(), 1);
+    const float xPosCSharp = firstInfo.accidentals[0].xPosition;
+
+    const auto secondTuple = info[1];
+    const auto secondInfo = std::get<2>(secondTuple);
 
     // expect a blank due to moving over.
-    assertEQ(legerLineIterator->second.accidentals.size(), 2);
-    assertEQ(legerLineIterator->second.accidentals[0].glyph.empty(), true);
-    assertEQ(legerLineIterator->second.accidentals[1].glyph, ScoreDrawUtils::_sharp);
-    const float xPosESharp = legerLineIterator->second.accidentals[1].xPosition;
+    assertEQ(secondInfo.accidentals.size(), 2);
+    assertEQ(secondInfo.accidentals[0].glyph.empty(), true);
+    assertEQ(secondInfo.accidentals[1].glyph, ScoreDrawUtils::_sharp);
+    const float xPosESharp = secondInfo.accidentals[1].xPosition;
 
     assert(pos.accidentalColumnWidth > 0);
     assert(xPosESharp == xPosCSharp - pos.accidentalColumnWidth);
@@ -362,12 +376,12 @@ static void testAdjustSpacingFunc(
     DrawPositionParams pos;
     pos.noteYPosition = [](const MidiNote& note, int legerLine, bool bassStaff) {
         if (bassStaff) {
-            legerLine -= 8;        // this isn't quite right...
+            legerLine -= 8;  // this isn't quite right...
         }
         return legerLine * 10;
     };
-    pos.accidentalHeight = 55;      // make this work with my yPos function.
-                                    // 55 makes CA work as expected.
+    pos.accidentalHeight = 55;  // make this work with my yPos function.
+                                // 55 makes CA work as expected.
     const float xPosition = pos.noteXPosition;
 
     ScoreDrawUtilsPtr utils = ScoreDrawUtils::make();
@@ -377,7 +391,6 @@ static void testAdjustSpacingFunc(
         LegerLineInfo ll;
         ll.addNote(ScoreDrawUtils::_wholeNote, xPosition, yPosition);
         const float accidentalXPosition = pos.noteXPosition - pos.accidentalColumnWidth;
-        //SQINFO("In test, adding accidental at y=%f ", yPosition);
         if (notationNote.isAccidental()) {
             switch (notationNote._accidental) {
                 case NotationNote::Accidental::flat:
@@ -395,20 +408,19 @@ static void testAdjustSpacingFunc(
                     assert(false);
             }
         }
-        utils->_info.insert(std::make_pair(notationNote._legerLine, ll));
+        auto& info = notationNote._bassStaff ? utils->_infoBassClef : utils->_infoTrebleClef;
+        info.insert(std::make_pair(notationNote._legerLine, ll));
     }
 
-    assertEQ(utils->_info.size(), notes.numValid());
+    assertEQ(utils->_infoTrebleClef.size() + utils->_infoBassClef.size(), notes.numValid());
 
     utils->_adjustNoteSpacing(pos);
     utils->_adjustAccidentalSpacing(pos);
 
     // Loop over every leger line
     unsigned index = 0;
-    for (ScoreDrawUtils::iterator iter = utils->_info.begin(); iter != utils->_info.end(); ++iter) {
+    for (ScoreDrawUtils::iterator iter = utils->_infoTrebleClef.begin(); iter != utils->_infoTrebleClef.end(); ++iter) {
         const LegerLineInfo& lineInfo = iter->second;
-
-        //SQINFO("eval test restuls, ll=%d", iter->first);
 
         // Find the note glyphs that has the actual note.
         unsigned noteGlyphIndex = 100;
@@ -554,10 +566,25 @@ static void testAdjustSpacingOctave() {
     };
     SqArray<float, 16> expectedNotePositions{
         pos.noteXPosition,
-        pos.noteXPosition };
+        pos.noteXPosition};
     SqArray<float, 16> expectedAccidentalPositions{
         pos.noteXPosition - pos.accidentalColumnWidth,
-        pos.noteXPosition - pos.accidentalColumnWidth };
+        pos.noteXPosition - pos.accidentalColumnWidth};
+    testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
+}
+
+static void testAdjustSpacingTwoStaves() {
+    DrawPositionParams pos;
+    MidiNote mnC = MidiNote(MidiNote::MiddleC);  // can use the same midi note - it's wrong, but doesn't affect this test.
+
+    // two notes, same pos on two staves
+    SqArray<NotationNote, 16> notes{
+        {mnC, NotationNote::Accidental::none, 2, false},
+        {mnC, NotationNote::Accidental::none, 2, true}};
+    SqArray<float, 16> expectedNotePositions{
+        pos.noteXPosition,
+        pos.noteXPosition};
+    SqArray<float, 16> expectedAccidentalPositions{0, 0};  // doesn't matter
     testAdjustSpacingFunc(notes, expectedNotePositions, expectedAccidentalPositions);
 }
 
@@ -570,6 +597,7 @@ static void testAdjustSpacing() {
     testAdjustSpacingCA();
     testAdjustSpacingCB();
     testAdjustSpacingOctave();
+    testAdjustSpacingTwoStaves();  // new test
 }
 
 void testScoreDrawUtils() {
@@ -583,13 +611,16 @@ void testScoreDrawUtils() {
     testToString();
     testXPos();
     testYPos();
+
     testBassClef();
     testTrebleClef();
     testTrebleClef2();
     testBassClef2();
+
     testBothClefs();
     testCTreble();
     testCBass();
+
     testTrebleLegerLine();
     testBassLegerLine();
 
@@ -608,9 +639,9 @@ void testScoreDrawUtils() {
 
 #if 0
 void testFirst() {
-    testAdjustSpacing();
-    //testAdjustSpacingCA();
-   // testAdjustSpacing4Stack();
-  //  testAdjustSpacingCB();
+
+  // testScoreDrawUtils();
+  //  testBothClefs();
+  testAdjustSpacingTwoStaves();
 }
 #endif

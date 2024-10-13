@@ -53,7 +53,6 @@ public:
 
 class LegerLineInfo {
 public:
-    // LegerLineInfo() = delete;
     ShiftingArray<SymbolInfo> notes;
     ShiftingArray<SymbolInfo> accidentals;
     LegerLinesLocInfo legerLinesLocInfo;
@@ -73,12 +72,6 @@ public:
         accidentals.push_back(si);
     }
 
-    // void sort() {
-    //     std::sort(symbols.begin(), symbols.end(), [](const SymbolInfo& first, const SymbolInfo& second) {
-    //         // sort the symbols so accidentals are first.
-    //         return first.isAccidental && !second.isAccidental;
-    //     });
-    // }
     std::string toString() const {
         std::stringstream s;
         s << "there are " << notes.size() << " notes" << std::endl;
@@ -97,11 +90,14 @@ public:
 
 using namespace sdu;
 
+
 class ScoreDrawUtils {
 public:
     static ScoreDrawUtilsPtr make();
 
-    const std::map<int, LegerLineInfo> getDrawInfo(
+    // The first thing is the line number, the second is bass clef
+   using DrawInfo = std::vector< std::tuple<int, bool, LegerLineInfo>>;
+    const DrawInfo getDrawInfo(
         const DrawPositionParams& pos,
         const Scale& scale,
         const SqArray<int, 16>& input,
@@ -115,17 +111,22 @@ public:
     void _adjustNoteSpacing(const DrawPositionParams& pos);
     void _adjustAccidentalSpacing(const DrawPositionParams& pos);
 
-    std::map<int, LegerLineInfo> _info;
-    using iterator = std::map<int, LegerLineInfo>::iterator;
-    using const_iterator = std::map<int, LegerLineInfo>::const_iterator;
+    using infoMap = std::map<int, LegerLineInfo>;
+    using iterator = infoMap::iterator;
+    using const_iterator = infoMap::const_iterator;
+
+    infoMap _infoTrebleClef;
+    infoMap _infoBassClef;
+   
 
 private:
+    void _adjustNoteSpacing(const DrawPositionParams& pos, infoMap&);
     void _adjustNoteSpacing(
         iterator nextLine,
         iterator line,
-        const DrawPositionParams& pos);
+        const DrawPositionParams& pos);    
     
-    
+    void _adjustAccidentalSpacing(const DrawPositionParams& pos, infoMap&);
     static void _adjustAccidentalSpacing(
         const DrawPositionParams& pos,
         iterator currentLine,
@@ -133,6 +134,7 @@ private:
 
     void _adjustAccidentalSpacing(
         const DrawPositionParams& pos,
+        const infoMap& info,
         iterator  currentLine);
 
     static bool _linesCouldOverlap(const DrawPositionParams& pos, const LegerLineInfo& a, const LegerLineInfo& b);

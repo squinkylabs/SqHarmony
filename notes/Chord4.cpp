@@ -568,68 +568,6 @@ bool Chord4::isCorrectDoublingBass(const Options& options) const {
     return ret;
 }
 
-#if 0
-bool Chord4::isStdDoubling(const Options& options) {
-    bool ret;
-    int nVoice;
-    int nRoots, nThirds, nFifths;
-    int nDoubled;
-
-#if 1
-    if (this->toStringShort() == "E2G2C3E3") {
-        printf("here it is\n");
-    }
-#endif
-
-    assert(_notes.size() == CHORD_SIZE);
-
-    for (nVoice = nRoots = nThirds = nFifths = 0; nVoice < CHORD_SIZE; nVoice++)  // loop over all notes in chord
-    {
-        switch (chordInterval(options, _notes[nVoice])) {
-            case 1:
-                nRoots++;
-                if (nRoots > 1) nDoubled = nVoice;
-                break;
-            case 3:
-                nThirds++;
-                if (nThirds > 1) nDoubled = nVoice;
-                break;
-            case 5:
-                nFifths++;
-                if (nFifths > 1) nDoubled = nVoice;
-                break;
-        }
-    }
-
-    switch (inversion(options)) {
-        case ROOT_POS_INVERSION:
-            ret = (nRoots == 2) && (nThirds == 1) && (nFifths == 1);
-            // double root
-            // Note: some people say it's ok to double the root or the fifth
-            break;
-        case FIRST_INVERSION:
-            makeSrnNotes(options);           // fill up the srnNotes array with valid stuff
-            if (srnNotes[BASS].isTonal()) {  // if the bass is tonal
-                ret = (nRoots == 1) && (nThirds == 2) && (nFifths == 1);
-                // then double the bass (3rd)
-            } else {                                   // if bass not tonal...
-                ret = srnNotes[nDoubled].isTonal() &&  // double tonal
-                      (nRoots > 0) && (nThirds > 0) && (nFifths > 0);
-                // make sure at least one of everything
-            }
-            break;
-        default:
-            static bool shown = false;
-            if (!shown) {
-                printf("no rule for doubling this inversion. will assume ok\n");
-                shown = true;
-            }
-            ret = true;
-    }
-    return ret;
-}
-#endif
-
 /* ChordRelativeNote Chord4::ChordInterval(Note note)
  */
 ChordRelativeNote Chord4::chordInterval(const Options& options, HarmonyNote note) const {
@@ -690,18 +628,6 @@ INVERSION Chord4::inversion(const Options& options) const {
 
     return ret;
 }
-
-/* bool Chord4::CanFollowThisGuy(const Chord4 * const ThisGuy) const;
- */
-#if 0
-bool Chord4::canFollowThisGuy(const Options& options, const Chord4& thisGuy) const {
-    ProgressionAnalyzer analyzer(thisGuy, *this, false);
-
-    assert(false);
-    return false;
-   // return analyzer.isLegal(options);
-}
-#endif
 
 int Chord4::penaltForFollowingThisGuy(const Options& options, int lowestPenaltySoFar, const Chord4* thisGuy, bool show, class PAStats* stats) const {
     assert(valid);

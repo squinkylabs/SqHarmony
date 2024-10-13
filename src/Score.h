@@ -276,24 +276,6 @@ inline float Score::noteXPos(int noteNumber, std::pair<float, float> _keysigLayo
     return x;
 }
 
-#if 0  // original version
-inline float Score::noteXPos(int noteNumber, float keysigWidth) const {
-    // Squeeze notes together a bit to accommodate keysig.
-    const float inset = (keysigWidth >= 2) ? std::max(keysigWidth - 4, 2.f) : 0;
-    SQINFO("ksig w = %f, inset = %f, delta mod=%f", keysigWidth, inset, (1.f - (inset / 70.f)));
-
-    // What is this inset / 70? a heuristic?
-    const float delta = deltaXNote * (1.f - (inset / 70.f));
-  //  const float delta = deltaXNote;
-    float x = xNote0 + inset + noteNumber * delta;
-    if (noteNumber > 3) {
-        // little bump into the next bar. Used to be a while delta, the /2 is new.
-        x += (delta / 2.f);
-    }
-    return x;
-}
-#endif
-
 float Score::noteY(const MidiNote &note, bool bassStaff) const {
     float y = 0;
     const float staffBasePos = bassStaff ? yBassStaff : yTrebleStaff;
@@ -339,18 +321,6 @@ inline Score::YInfo Score::noteYInfo(const MidiNote &note, bool bassStaff) const
     ret.position = y;
     return ret;
 }
-
-#if 0
-// experiment to make notes glow
-inline void Score::drawLayer(const DrawArgs &args, int layer) {
-    if (layer == 1) {
-        prepareFontMusic(args);
-        drawNotes(args);
-        INFO("draw layer 1");
-    }
-    Widget::drawLayer(args, layer);
-}
-#endif
 
 inline void Score::draw(const DrawArgs &args) {
     nvgScissor(args.vg, RECT_ARGS(args.clipBox));
@@ -548,22 +518,6 @@ inline void Score::drawChordInversion(const DrawArgs &args, float x, const Comp:
     }
 }
 
-#if 0  // this is the old way
-inline void Score::drawChordInfo(const DrawArgs &args, float x, const Comp::Chord &chord) const {
-    {
-        std::stringstream s;
-        s << chord.root;
-        nvgText(args.vg, x, yNoteInfo, s.str().c_str(), NULL);
-        // SQINFO("draw %s at x=%f y=%f", s.str().c_str(), x, yNoteInfo);
-    }
-    {
-        std::stringstream s;
-        s << chord.inversion;
-        nvgText(args.vg, x, yNoteInfo + 8, s.str().c_str(), NULL);
-    }
-}
-#endif
-
 inline void Score::drawStaff(const DrawArgs &args, float yBase) const {
     const float x = xStaff;
     const float length = args.clipBox.size.x - 2 * leftMargin;
@@ -644,9 +598,3 @@ void Score::prepareFontText2(const DrawArgs &args) const {
     nvgFontSize(args.vg, 5);
 }
 
-#if 0  // old version
-void Score::prepareFontText(const DrawArgs &args) const {
-   nvgFontFaceId(args.vg, APP->window->uiFont->handle);
-    nvgFontSize(args.vg, 7);
-}
-#endif

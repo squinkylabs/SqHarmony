@@ -11,12 +11,14 @@ public:
     std::shared_ptr<Comp> comp = std::make_shared<Comp>(this);
     VisualizerModule() {
         config(Comp::NUM_PARAMS, Comp::NUM_INPUTS, Comp::NUM_OUTPUTS, Comp::NUM_LIGHTS);
-        // addParams();
+
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key Root");
         this->configParam(Comp::MODE_PARAM, 0, 6, 0, "Diatonic Mode");
         this->configParam(Comp::SHARPS_FLATS_PARAM, 0, 3, 0, "Sharps/Flats");
 
         this->configOutput(Comp::PES_OUTPUT, "Scale (PES)");
+        this->configOutput(Comp::ROOT_OUTPUT, "Chord Root");
+        this->configOutput(Comp::RECOGNIZED_OUTPUT, "Chord Valid (Recognized)");
 
         this->configInput(Comp::CV_INPUT, "Visualizer Pitch");
         this->configInput(Comp::GATE_INPUT, "Optional Gate");

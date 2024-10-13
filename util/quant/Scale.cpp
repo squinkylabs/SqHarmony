@@ -19,7 +19,6 @@ std::pair<const MidiNote, Scale::Scales> Scale::get() const {
 }
 
 ScaleNote Scale::m2s(const MidiNote& mn) const {
-
     int scaleBasePitch = _baseNote.get() % 12;  // now C == 4;
     int inputBasePitch = mn.get() % 12;
     int offset = inputBasePitch - scaleBasePitch;
@@ -73,16 +72,12 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         _validateScaleNote(ret);
         return ret;
     }
- //   const bool preferSharps = getSharpsFlatsPrefForScoring();
-  //  const bool preferSharps = getSharpsFlatsPrefResolved() == ResolvedSharpsFlatsPref::Sharps;
-   
-    // here we let "don't care" go to sharps. Perhaps this should be a pref?
 
+    // here we let "don't care" go to sharps. Perhaps this should be a pref?
     const bool preferSharps = getSharpsFlatsPref() != SharpsFlatsPref::Flats;
     {
         static bool b = true;
         if (b) {
-            //SQINFO("accidental hack Scale.cpp 78 using preferSharps=%d", preferSharps);
             b = false;
         }
     }
@@ -104,45 +99,9 @@ ScaleNote Scale::_makeScaleNote(int offset) const {
         return ret;
     }
 
-
     assert(false);  // now we are down where we need more code
     return ScaleNote(0, 0);
 }
-
-#if 0 // old one
-ScaleNote Scale::_makeScaleNote(int offset, bool printDebug) const {
-    assert(offset >= 0 && offset < 12);
-    int degree = _quantizeInScale(offset, printDebug);
-    if (degree >= 0) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 78 (found)", offset, degree);
-        }
-        const auto ret = ScaleNote(degree, 0);
-        _validateScaleNote(ret);
-        return ret;
-    }
-    degree = _quantizeInScale(offset - 1, printDebug);
-    if (degree >= 0) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 86 (found one under)", offset, degree);
-        }
-        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::sharp);
-        _validateScaleNote(ret);
-        return ret;
-    }
-    degree = _quantizeInScale(offset + 1, printDebug);
-    if (degree >= 0) {
-        if (printDebug) {
-            SQINFO("_makeScaleNote(%d) will returns degree %d from 93 (found one over)", offset, degree);
-        }
-        const auto ret = ScaleNote(degree, 0, ScaleNote::RelativeAdjustment::flat);
-        _validateScaleNote(ret);
-        return ret;
-    }
-    assert(false);
-    return ScaleNote();
-}
-#endif
 
 std::vector<std::string> Scale::getShortScaleLabels(bool justDiatonic) {
     if (justDiatonic) {
@@ -184,12 +143,9 @@ Scale::getScaleLabels(bool justDiatonic) {
 }
 
 std::vector<std::string> Scale::getRootLabels(bool useFlats) {
-    // SQINFO("getting root labels useF=%d", useFlats);
     if (!useFlats) {
-        // SQINFO("returning the shrp labels");
         return {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     } else {
-        // SQINFO("returning the flats labels");
         return {"C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"};
     }
 }
@@ -208,7 +164,6 @@ int Scale::quantize(int offset) const {
     const int qDnOne = _quantizeInScale(offset - 1);
 
     if (offset == 11 && qUpOne < 0 && qDnOne < 0) {
-        //  SQINFO("In bad case. offset == 11");
         qUpOne = 12;  // special case - we know we can go to octave here.
                       // seems to only happen with Major Pentatonic
     }
@@ -283,7 +238,6 @@ int Scale::_quantizeInScale(int offset) const {
     assert(offset >= 0);
     assert(offset < 12);
     const int* pitches = _getNormalizedScalePitches();
-   // SQINFO("pitches in scale = %d, %d, %d, %d...", pitches[0], pitches[1], pitches[2], pitches[3]);
     int degreeIndex = 0;
     for (bool done = false; !done;) {
         if (pitches[degreeIndex] < 0) {
@@ -302,19 +256,21 @@ int Scale::_quantizeInScale(int offset) const {
 int Scale::degreeToSemitone(int degree) const {
     const int* pitches = _getNormalizedScalePitches();
     int degreeIndex = 0;
-    for (bool done = false; !done;) {
+    while(true) {
         if (*pitches < 0) {
             // reached end of list
-
-            done = true;
+            SQFATAL("can't convert degree to semi %d", degree);
             assert(false);
+            return 0;
         } else if (degreeIndex == degree) {
-            done = true;
+            // If this is the index we are looking for, return the semitone pitch.
+            return *pitches;
         } else {
+            // If still more, advance both and continue.
             ++degreeIndex;
+            ++pitches;
         }
     }
-    return pitches[degreeIndex];
 }
 
 const int* Scale::_getNormalizedScalePitches() const {
@@ -374,8 +330,8 @@ const int* Scale::_getNormalizedScalePitches() const {
             return ret;
         } break;
         case Scales::Chromatic: {
-            static const int ret[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, -1};
-            return ret;
+            static const int retChromatic[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, -1};
+            return retChromatic;
         }
         default: {
             assert(false);
@@ -524,13 +480,6 @@ Scale::ScoreInfo Scale::getScoreInfo() const {
     return ret;
 }
 
-#if 0
-ResolvedSharpsFlatsPref Scale::getSharpsFlatsPrefResolved() const {
-    const auto p = getSharpsFlatsPref();
-    return AccidentalResolver::resolve(p);
-}
-#endif
-
 SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     if (int(_scale) <= int(Scales::Locrian)) {
         const int basePitch = getRelativeMajor().get();
@@ -574,11 +523,6 @@ SharpsFlatsPref Scale::getSharpsFlatsPref() const {
     assert(false);
     return SharpsFlatsPref::DontCare;
 }
-
-// bool Scale::getSharpsFlatsPrefForScoring() const {
-//     const auto pref = getSharpsFlatsPref();
-//     return pref != SharpsFlatsPref::Flats;
-// }
 
 int Scale::numNotesInScale(Scales scale) {
     int ret = 0;
@@ -655,7 +599,6 @@ std::tuple<bool, MidiNote, Scale::Scales> Scale::convert(const Role* const noteR
         }
     }
 
-    //  const int lastValidScale = diatonicOnly ? Scale:: :
     const int numScales = Scale::numScales(diatonicOnly);
     for (int mode = Scale::firstScale; mode < numScales; ++mode) {
         const auto smode = Scale::Scales(mode);
@@ -712,7 +655,7 @@ bool Scale::_doesScaleMatch(const Role* const rawRoles, Scales scale, MidiNote r
         }
         assert(roleCount == 12);
     }
-    #endif
+#endif
 
     int roleIndex = 0;
     int pitchIndex = 0;
@@ -783,13 +726,12 @@ bool Scale::_validateScaleNote(const ScaleNote& sn) const {
             break;
         case ScaleNote::RelativeAdjustment::sharp:
             assert(scalePref != SharpsFlatsPref::Flats);
-            return(scalePref != SharpsFlatsPref::Flats);
+            return (scalePref != SharpsFlatsPref::Flats);
             break;
         case ScaleNote::RelativeAdjustment::none:
             break;
         default:
             assert(false);
     }
-    //assert(false);
     return true;
 }

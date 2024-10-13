@@ -30,6 +30,7 @@ MidiNote ScaleQuantizer::run(float voltage) {
     MidiNote mn;
     NoteConvert::f2m(mn, fn);
 
+
     assert(options->scale->getWasSet());
     MidiNote baseMidiNote = options->scale->base();
   
@@ -45,12 +46,12 @@ MidiNote ScaleQuantizer::run(float voltage) {
     assert(relativeMidiPitch >= 0 && relativeMidiPitch < 12);
     assert(options);
     assert(options->scale);
+
     const int quantizedDegree = options->scale->quantize(relativeMidiPitch);
     octave += (mn.get() / 12);
     octave -= 2;                    // not sure where this 2 octaves comes from, but middle C.get /12 is 5, so...
     ScaleNote quantizedScaleNote(quantizedDegree, octave);
     MidiNote quantizedMn;
     NoteConvert::s2m(quantizedMn, *options->scale, quantizedScaleNote);
-
     return quantizedMn;
 }
