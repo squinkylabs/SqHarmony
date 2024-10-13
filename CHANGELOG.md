@@ -1,5 +1,13 @@
 # Changelog for Squinktronix plugins
 
+## 2.2.6
+
+Bug fix: Visualizer could display wrong chord roots on arm mac.
+
+Bug fix: Visualizer could display really ugly notation when spanning two staves.
+
+Minor bug fix: Visualizer did not have good tooltips on some outputs.
+
 ## 2.2.5
 
 New module, "Visualizer".
