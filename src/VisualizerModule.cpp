@@ -235,7 +235,9 @@ private:
        // addInputL(Vec(x0, y), Comp::CV_INPUT, "V/Oct", 3);
         addOutputL(Vec(xPes, y), Comp::PES_OUTPUT, "PES", -1);
         addOutputL(Vec(x0, y), Comp::ROOT_OUTPUT, "Root", -1);
-        addOutputL(Vec(x1, y), Comp::RECOGNIZED_OUTPUT, "VLD", -1);
+      
+      //  addOutputL(Vec(x1, y), Comp::RECOGNIZED_OUTPUT, "VLD", -1);
+       addOutputL(Vec(x1, y), Comp::RECOGNIZED_OUTPUT, "Valid", 4);
 
     }
 
