@@ -214,6 +214,7 @@
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
     <ClCompile Include="testLegerScore.cpp" />
     <ClCompile Include="testLFNDsp.cpp" />
+    <ClCompile Include="testMelodyGenerator.cpp" />
     <ClCompile Include="testMidiNote.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
     <ClCompile Include="testNoiseGen.cpp" />

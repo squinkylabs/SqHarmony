@@ -1,0 +1,10 @@
+
+
+class MelodyRow {
+
+};
+
+
+class MelodyGenerator {
+
+};

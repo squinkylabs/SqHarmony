@@ -42,6 +42,11 @@ public:
 
     void putAt(unsigned i, const T& data) {
         assert(i <= (_allowRandomAccess ? capacity : _numValid));  // only allow put at end, or overwrite old one
+        if (i > (_allowRandomAccess ? capacity : _numValid)) {
+            // added this to make ms compiler happy.
+            assert(false);
+            return;
+        }
         _data[i] = data;
         _numValid = std::max(i + 1, _numValid);
     }

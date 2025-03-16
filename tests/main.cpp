@@ -91,6 +91,7 @@ extern void testSqArray();
 extern void testShiftingArray();
 extern void testSharpsFlatsPref();
 extern void testScoreDrawUtils();
+extern void testMelodyGenerator();
 
 #include "SqLog.h"
 
@@ -113,7 +114,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running only one for temp debug\n");
     //assert(false);
     assert(SqLog::errorCount == 0);
@@ -220,6 +221,7 @@ int main(const char**, int) {
     // printf("put back test progression?\n");
 
 #endif
+    testMelodyGenerator();
 }
 
 #include <nanovg.h>
