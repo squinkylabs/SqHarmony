@@ -169,6 +169,7 @@
     <ClCompile Include="..\util\ArpegPlayer.cpp" />
     <ClCompile Include="..\util\AudioMath.cpp" />
     <ClCompile Include="..\util\ChordRecognizer.cpp" />
+    <ClCompile Include="..\util\MelodyGenerator.cpp" />
     <ClCompile Include="..\util\quant\NoteConvert.cpp" />
     <ClCompile Include="..\util\quant\Scale.cpp" />
     <ClCompile Include="..\util\quant\ScaleQuantizer.cpp" />

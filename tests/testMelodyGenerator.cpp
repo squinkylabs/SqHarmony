@@ -6,6 +6,14 @@
 #include "NoteConvert.h"
 #include "Scale.h"
 
+
+static Scale scaleCMaj() {
+    Scale scale;
+    MidiNote base(MidiNote::C);
+    scale.set(base, Scale::Scales::Major);
+    return scale;
+}
+
 static void testMelodyRowSize() {
     MelodyRow r;
     r.setSize(2);
@@ -15,19 +23,9 @@ static void testMelodyRowSize() {
 static void testMelodyRowInit() {
     MelodyRow r;
     size_t size = 7;
-    Scale scale;
+    Scale scale = scaleCMaj();
 
-    // test in c major
-    MidiNote base(MidiNote::C);
-    scale.set(base, Scale::Scales::Major);
-
-    {
-        // sanity check
-        ScaleNote scaleNote;
-        NoteConvert::m2s(scaleNote, scale, base);
-        assertEQ(scaleNote.getDegree(), 0);
-    }
-
+  
     r.init(size, scale);
 
     assertEQ(r._getSize(), size);
@@ -80,12 +78,41 @@ static void testMelodyRow() {
     testMelodyRowEqual();
 }
 
+////////////////////////////////////////
+
+static void testMelodyGeneratorCanCall() {
+    //  static void mutate(MelodyRow& row, MelodyMutateState& state, MelodyMutateStyle& style);
+
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+    r.init(1, scale);
+    MelodyGenerator::mutate(r, scale, state, style);
+}
+
+static void testMelodyGeneratorWillMutate() {
+    MelodyRow r;
+    const MelodyRow rOrig(r);
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+    r.init(1, scale);
+
+    MelodyGenerator::mutate(r, scale, state, style);
+    assert(r != rOrig);
+}
+
+static void testMelodyGenerator2() {
+    testMelodyGeneratorCanCall();
+    testMelodyGeneratorWillMutate();
+
+}
 void testMelodyGenerator() {
     testMelodyRow();
+    testMelodyGenerator2();
 }
 
 void testFirst() {
    testMelodyGenerator();
-   //testMelodyRowInit();
-
 }
