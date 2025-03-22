@@ -4,12 +4,14 @@
 
 void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.
+    assert(style.roundRobin);
 
-    changeOneNoteInMode(row, scale, 0, 1);
+    changeOneNoteInMode(row, scale, state.nextToMutate ,1);
+    state.nextToMutate = MelodyRow::nextNote(state.nextToMutate, row.getSize());
 }
 
 void MelodyGenerator::changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange) {
-    assert(index <= row._getSize());
+    assert(index <= row.getSize());
 
     assert(stepsToChange == 1);  // only think I know how to do.
 

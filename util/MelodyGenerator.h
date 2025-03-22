@@ -17,13 +17,19 @@ public:
     bool operator!=(const MelodyRow& other) const { return !(*this == other); }
 
     void setSize(unsigned);
-    size_t _getSize() const { return notes.size(); }
+    size_t getSize() const { return notes.size(); }
 
     MidiNote& getNote(size_t index) { return notes[index]; }
 
+    static size_t nextNote(size_t index, size_t size);
 private:
     std::vector<MidiNote> notes;
 };
+
+inline size_t MelodyRow::nextNote(size_t index, size_t size) {
+    assert(size >= 0);
+    return (index >= (size -1)) ? 0 : index+1;
+}
 
 inline void MelodyRow::init(unsigned size, const Scale& scale) {
     setSize(size);
@@ -49,6 +55,7 @@ inline bool MelodyRow::operator==(const MelodyRow& other) const {
 class MelodyMutateStyle {
 public:
     bool keepInScale = true;
+    bool roundRobin = true;
     Scale scale;
 
 };
@@ -56,7 +63,8 @@ public:
 class MelodyMutateState {
 public:
     MelodyMutateState() {}
-    std::set<size_t> alreadyMutated;
+   // std::set<size_t> alreadyMutated;
+   size_t nextToMutate = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
