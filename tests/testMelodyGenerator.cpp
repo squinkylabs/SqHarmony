@@ -82,12 +82,37 @@ static void testMelodyRowNextWraps() {
     assertEQ(next, 0);
 } 
 
+static void testMelodyRowCanPrint()
+{
+    MelodyRow r;
+    size_t size = 3;
+    Scale scale;
+
+    // test in E phrygian
+    MidiNote base(MidiNote::E);
+    scale.set(base, Scale::Scales::Phrygian);
+
+    r.init(size, scale);
+    const std::string s = r.print();
+    SQINFO("here is s");
+    SQINFO(s.c_str());
+
+    assert(!s.empty());
+
+    assert(s.find(',') != std::string::npos);
+    assert(s.find(' ') != std::string::npos);
+    assert(s.back() != ',');
+    assert(s.back() != ' ');
+}
+
 static void testMelodyRow() {
     testMelodyRowSize();
     testMelodyRowInit();
     testMelodyRowEqual();
     testMelodyRowNext();
     testMelodyRowNextWraps();
+
+    testMelodyRowCanPrint();
 }
 
 ////////////////////////////////////////

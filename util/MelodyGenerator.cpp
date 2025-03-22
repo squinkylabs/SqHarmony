@@ -1,6 +1,26 @@
 #include "MelodyGenerator.h"
 
 #include "NoteConvert.h"
+#include "PitchKnowledge.h"
+
+std::string MelodyRow::print() const {
+    std::string ret;
+    if (getSize() == 0) {
+        return "";
+    }
+    for (int i = 0; i < getSize(); ++i) {
+        const MidiNote& note = notes[i];
+        const std::string s = PitchKnowledge::nameOfAbs(note.get());
+        ret += s;
+
+        
+        const bool isLast = i == getSize() -1;
+        if (!isLast) {
+            ret += ", ";
+        }
+    }
+    return ret;
+}
 
 void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.

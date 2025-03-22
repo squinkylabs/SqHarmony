@@ -20,6 +20,7 @@ public:
     size_t getSize() const { return notes.size(); }
 
     MidiNote& getNote(size_t index) { return notes[index]; }
+    std::string print() const;
 
     static size_t nextNote(size_t index, size_t size);
 private:
