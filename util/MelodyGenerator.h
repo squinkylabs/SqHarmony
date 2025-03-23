@@ -4,6 +4,9 @@
 #include "MidiNote.h"
 #include "Scale.h"
 
+#include "sq_rack.h"
+//#include "rack.hpp"
+
 class MelodyRow {
 public:
     /**
@@ -21,6 +24,7 @@ public:
 
     MidiNote& getNote(size_t index) { return notes[index]; }
     std::string print() const;
+    MidiNote getAveragePitch() const;
 
     static size_t nextNote(size_t index, size_t size);
 private:
@@ -63,9 +67,13 @@ public:
 
 class MelodyMutateState {
 public:
-    MelodyMutateState() {}
+    MelodyMutateState() {
+        random.seed(1234,5678);
+    }
    // std::set<size_t> alreadyMutated;
    size_t nextToMutate = 0;
+
+   rack::random::Xoroshiro128Plus random;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +81,6 @@ class MelodyGenerator {
 public:
    
     static void mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, MelodyMutateStyle& style);
-private:
-    static void changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange);
+    static void _changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange);
 
 };

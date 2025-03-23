@@ -94,8 +94,8 @@ static void testMelodyRowCanPrint()
 
     r.init(size, scale);
     const std::string s = r.print();
-    SQINFO("here is s");
-    SQINFO(s.c_str());
+    //SQINFO("here is s");
+    //SQINFO(s.c_str());
 
     assert(!s.empty());
 
@@ -105,14 +105,41 @@ static void testMelodyRowCanPrint()
     assert(s.back() != ' ');
 }
 
+static void testAveragePitch() {
+    MelodyRow r;
+    size_t size = 3;
+    Scale scale;
+
+   
+    MidiNote base(MidiNote::A);
+    scale.set(base, Scale::Scales::Mixolydian);
+    r.init(size, scale);
+
+    const MidiNote average = r.getAveragePitch();
+    assertEQ(average.get(), MidiNote::A + MidiNote::MiddleC);
+}
+
 static void testMelodyRow() {
     testMelodyRowSize();
     testMelodyRowInit();
     testMelodyRowEqual();
     testMelodyRowNext();
     testMelodyRowNextWraps();
-
     testMelodyRowCanPrint();
+    testAveragePitch();
+}
+
+////////////////////////////////////////
+
+static void testMelodyGeneratorMutateStateRandomSeed() {
+
+ MelodyMutateState state;
+  const auto x1 = state.random();
+  assertNE(x1, 0);
+}
+
+static void testMelodyGeneratorMutateState() {
+    testMelodyGeneratorMutateStateRandomSeed();
 }
 
 ////////////////////////////////////////
@@ -186,15 +213,101 @@ static void testMelodyGeneratorWillMutateSecondNote() {
     assert(note == noteOrig);
 }
 
+// not a real test
+static void foo() {
+    SQINFO("-- enter foo --");
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+    r.init(4, scale);
+    SQINFO("here is starting row");
+    SQINFO(r.print().c_str());
+    for (int i = 0; i < 5; ++i) {
+        MelodyGenerator::mutate(r, scale, state, style);
+        SQINFO("here is next row");
+        SQINFO(r.print().c_str());
+    }
+
+
+    SQINFO("-- exit foo --");
+}
+
+static void testMelodyGeneratorMutateDrift() {
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+    r.init(5, scale);
+
+   // SQINFO(("orig row = " + r.print()).c_str());
+
+    assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
+    for (int i = 0; i < 50; ++i) {
+        MelodyGenerator::mutate(r, scale, state, style);
+    }
+
+  //  SQINFO(("mutated row = " + r.print()).c_str());
+
+    // expect won't have moved a ton.
+    assertLE(r.getAveragePitch().get(), MidiNote::MiddleC + 2);
+    assertGE(r.getAveragePitch().get(), MidiNote::MiddleC - 2);
+}
+
+
+static void testMelodyGeneratorCanShift(int amount) {
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+    r.init(1, scale);
+
+    int expectedPitch = -1;
+    switch(amount) {
+        case 0:
+            expectedPitch = MidiNote::MiddleC;
+            break;
+        case 1:
+            expectedPitch = MidiNote::MiddleC + MidiNote::D;
+            break;
+        case 2:
+            expectedPitch = MidiNote::MiddleC + MidiNote::E;
+            break;
+        case -1:
+            expectedPitch = MidiNote::MiddleC + MidiNote::B - 12;
+            break;
+        default:
+            assert(false);
+    }
+
+    MelodyGenerator::_changeOneNoteInMode(r, scale, 0, amount);
+
+    // should have changed note 0
+    MidiNote& note = r.getNote(0); 
+    assertEQ(note.get(), expectedPitch);
+}
+
+static void testMelodyGeneratorCanShift() {
+    testMelodyGeneratorCanShift(0);
+    testMelodyGeneratorCanShift(1);
+    testMelodyGeneratorCanShift(-1);
+    testMelodyGeneratorCanShift(2);
+   
+   
+}
+
 static void testMelodyGenerator2() {
     testMelodyGeneratorCanCall();
+    testMelodyGeneratorCanShift();
     testMelodyGeneratorWillMutate();
     testMelodyGeneratorWillMutateFirstNoteByDefault();
     testMelodyGeneratorWillMutateSecondNote();
+   testMelodyGeneratorMutateDrift();
 }
 
 void testMelodyGenerator() {
     testMelodyRow();
+    testMelodyGeneratorMutateState();
     testMelodyGenerator2();
 }
 
