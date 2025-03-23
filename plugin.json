@@ -37,6 +37,13 @@
 			"disabled": false,
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/visualizer.md",
 			"tags": ["Utility", "Polyphonic"]
+		},
+		{
+			"slug": "sqh-mutator",
+			"name": "Mutator",
+			"disabled": false,
+			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/mutator.md",
+			"tags": ["Polyphonic"]
 		}
     ]
 }

@@ -70,9 +70,7 @@ public:
     MelodyMutateState() {
         random.seed(1234,5678);
     }
-   // std::set<size_t> alreadyMutated;
    size_t nextToMutate = 0;
-
    rack::random::Xoroshiro128Plus random;
 };
 

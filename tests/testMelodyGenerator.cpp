@@ -1,11 +1,8 @@
 
-#include "asserts.h"
-
 #include "MelodyGenerator.h"
-
 #include "NoteConvert.h"
 #include "Scale.h"
-
+#include "asserts.h"
 
 static Scale scaleCMaj() {
     Scale scale;
@@ -18,14 +15,13 @@ static void testMelodyRowSize() {
     MelodyRow r;
     r.setSize(2);
     assertEQ(r.getSize(), 2);
-} 
+}
 
 static void testMelodyRowInit() {
     MelodyRow r;
     size_t size = 7;
     Scale scale = scaleCMaj();
 
-  
     r.init(size, scale);
 
     assertEQ(r.getSize(), size);
@@ -33,7 +29,7 @@ static void testMelodyRowInit() {
     for (unsigned i = 0; i < size; ++i) {
         ScaleNote scaleNote;
         const MidiNote midiNote = r.getNote(i);
-        NoteConvert::m2s(scaleNote, scale, midiNote);       
+        NoteConvert::m2s(scaleNote, scale, midiNote);
         assertEQ(scaleNote.getDegree(), 0);
         assertEQ(scaleNote.getOctave(), 4);
     }
@@ -59,7 +55,6 @@ static void testMelodyRowEqual() {
     MelodyRow r2 = r;
     assert(r == r2);
 
-
     Scale scale2;
     MidiNote base2(MidiNote::F);
     scale2.set(base2, Scale::Scales::Phrygian);
@@ -69,21 +64,19 @@ static void testMelodyRowEqual() {
     r2 = r;
     r2.setSize(size + 1);
     assert(r != r2);
-
 }
 
 static void testMelodyRowNext() {
     const size_t next = MelodyRow::nextNote(0, 2);
     assertEQ(next, 1);
-} 
+}
 
 static void testMelodyRowNextWraps() {
     const size_t next = MelodyRow::nextNote(1, 2);
     assertEQ(next, 0);
-} 
+}
 
-static void testMelodyRowCanPrint()
-{
+static void testMelodyRowCanPrint() {
     MelodyRow r;
     size_t size = 3;
     Scale scale;
@@ -94,8 +87,8 @@ static void testMelodyRowCanPrint()
 
     r.init(size, scale);
     const std::string s = r.print();
-    //SQINFO("here is s");
-    //SQINFO(s.c_str());
+    // SQINFO("here is s");
+    // SQINFO(s.c_str());
 
     assert(!s.empty());
 
@@ -110,7 +103,6 @@ static void testAveragePitch() {
     size_t size = 3;
     Scale scale;
 
-   
     MidiNote base(MidiNote::A);
     scale.set(base, Scale::Scales::Mixolydian);
     r.init(size, scale);
@@ -132,10 +124,9 @@ static void testMelodyRow() {
 ////////////////////////////////////////
 
 static void testMelodyGeneratorMutateStateRandomSeed() {
-
- MelodyMutateState state;
-  const auto x1 = state.random();
-  assertNE(x1, 0);
+    MelodyMutateState state;
+    const auto x1 = state.random();
+    assertNE(x1, 0);
 }
 
 static void testMelodyGeneratorMutateState() {
@@ -181,12 +172,12 @@ static void testMelodyGeneratorWillMutateFirstNoteByDefault() {
     MelodyGenerator::mutate(r, scale, state, style);
 
     // should have changed note 0
-    MidiNote& note = r.getNote(0); 
-    MidiNote& noteOrig = rOrig.getNote(0); 
+    MidiNote& note = r.getNote(0);
+    MidiNote& noteOrig = rOrig.getNote(0);
     assert(!(note == noteOrig));
     // should not have changed note 1
-    note = r.getNote(1); 
-    noteOrig = rOrig.getNote(1); 
+    note = r.getNote(1);
+    noteOrig = rOrig.getNote(1);
     assert(note == noteOrig);
 }
 
@@ -229,7 +220,6 @@ static void foo() {
         SQINFO(r.print().c_str());
     }
 
-
     SQINFO("-- exit foo --");
 }
 
@@ -240,20 +230,19 @@ static void testMelodyGeneratorMutateDrift() {
     Scale scale = scaleCMaj();
     r.init(5, scale);
 
-   // SQINFO(("orig row = " + r.print()).c_str());
+    SQINFO(("orig row = " + r.print()).c_str());
 
     assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
     for (int i = 0; i < 50; ++i) {
         MelodyGenerator::mutate(r, scale, state, style);
     }
 
-  //  SQINFO(("mutated row = " + r.print()).c_str());
+    SQINFO(("mutated row = " + r.print()).c_str());
 
     // expect won't have moved a ton.
     assertLE(r.getAveragePitch().get(), MidiNote::MiddleC + 2);
     assertGE(r.getAveragePitch().get(), MidiNote::MiddleC - 2);
 }
-
 
 static void testMelodyGeneratorCanShift(int amount) {
     MelodyRow r;
@@ -263,7 +252,7 @@ static void testMelodyGeneratorCanShift(int amount) {
     r.init(1, scale);
 
     int expectedPitch = -1;
-    switch(amount) {
+    switch (amount) {
         case 0:
             expectedPitch = MidiNote::MiddleC;
             break;
@@ -283,7 +272,7 @@ static void testMelodyGeneratorCanShift(int amount) {
     MelodyGenerator::_changeOneNoteInMode(r, scale, 0, amount);
 
     // should have changed note 0
-    MidiNote& note = r.getNote(0); 
+    MidiNote& note = r.getNote(0);
     assertEQ(note.get(), expectedPitch);
 }
 
@@ -292,8 +281,6 @@ static void testMelodyGeneratorCanShift() {
     testMelodyGeneratorCanShift(1);
     testMelodyGeneratorCanShift(-1);
     testMelodyGeneratorCanShift(2);
-   
-   
 }
 
 static void testMelodyGenerator2() {
@@ -302,7 +289,7 @@ static void testMelodyGenerator2() {
     testMelodyGeneratorWillMutate();
     testMelodyGeneratorWillMutateFirstNoteByDefault();
     testMelodyGeneratorWillMutateSecondNote();
-   testMelodyGeneratorMutateDrift();
+    testMelodyGeneratorMutateDrift();
 }
 
 void testMelodyGenerator() {
@@ -312,5 +299,5 @@ void testMelodyGenerator() {
 }
 
 void testFirst() {
-   testMelodyGenerator();
+    testMelodyGenerator();
 }
