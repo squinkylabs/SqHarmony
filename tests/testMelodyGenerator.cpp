@@ -35,6 +35,8 @@ static void testMelodyRowInit() {
     }
 }
 
+
+
 static void testMelodyRowEqual() {
     MelodyRow r;
     size_t size = 3;
@@ -172,8 +174,8 @@ static void testMelodyGeneratorWillMutateFirstNoteByDefault() {
     MelodyGenerator::mutate(r, scale, state, style);
 
     // should have changed note 0
-    MidiNote& note = r.getNote(0);
-    MidiNote& noteOrig = rOrig.getNote(0);
+    MidiNote note = r.getNote(0);
+    MidiNote noteOrig = rOrig.getNote(0);
     assert(!(note == noteOrig));
     // should not have changed note 1
     note = r.getNote(1);
@@ -195,8 +197,8 @@ static void testMelodyGeneratorWillMutateSecondNote() {
     MelodyGenerator::mutate(r, scale, state, style);
 
     // should have changed note 1
-    MidiNote& note = r.getNote(1);
-    MidiNote& noteOrig = rOrig.getNote(1);
+    MidiNote note = r.getNote(1);
+    MidiNote noteOrig = rOrig.getNote(1);
     assert(!(note == noteOrig));
     // should not have changed note 0
     note = r.getNote(0);
@@ -272,7 +274,7 @@ static void testMelodyGeneratorCanShift(int amount) {
     MelodyGenerator::_changeOneNoteInMode(r, scale, 0, amount);
 
     // should have changed note 0
-    MidiNote& note = r.getNote(0);
+    const MidiNote& note = r.getNote(0);
     assertEQ(note.get(), expectedPitch);
 }
 

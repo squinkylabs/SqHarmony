@@ -9,7 +9,7 @@ std::string MelodyRow::print() const {
         return "";
     }
     for (size_t i = 0; i < getSize(); ++i) {
-        const MidiNote& note = notes[i];
+        const MidiNote& note = this->getNote(i);
         const std::string s = PitchKnowledge::nameOfAbs(note.get());
         ret += s;
 
@@ -23,10 +23,11 @@ std::string MelodyRow::print() const {
 }
 
 MidiNote MelodyRow::getAveragePitch() const {
-    assert(!notes.empty());
+    assert(!empty());
     int total = 0;
     int number = 0;
-    for (auto note : notes) {
+    for (size_t i = 0; i < getSize(); ++i) {
+        const MidiNote& note = this->getNote(i);
         total += note.get();
         number++;
     }
@@ -57,5 +58,6 @@ void MelodyGenerator::_changeOneNoteInMode(MelodyRow& row, const Scale& scale, s
     MidiNote midiNote;
     NoteConvert::s2m(midiNote, scale, scaleNote);
 
-    row.getNote(index) = midiNote;
+  //  row.getNote(index) = midiNote;
+    row.setNote(index, midiNote);
 }
