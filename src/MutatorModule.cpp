@@ -33,7 +33,7 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/visualizer.svg")));
       //  addScore(module);
 #if 1  // def _LAB
-        addLabel(Vec(33.5, 6), "Visualizer", 20);
+        addLabel(Vec(38, 6), "Mutator", 20);
         addLabel(Vec(35, 356), "Squinktronix", 17);
 #endif
       //  addRow2();

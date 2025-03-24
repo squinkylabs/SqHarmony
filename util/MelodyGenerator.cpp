@@ -8,7 +8,7 @@ std::string MelodyRow::print() const {
     if (getSize() == 0) {
         return "";
     }
-    for (int i = 0; i < getSize(); ++i) {
+    for (size_t i = 0; i < getSize(); ++i) {
         const MidiNote& note = notes[i];
         const std::string s = PitchKnowledge::nameOfAbs(note.get());
         ret += s;
