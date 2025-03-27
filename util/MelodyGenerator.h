@@ -47,8 +47,8 @@ inline void MelodyRow::setSize(size_t size) {
 }
 
 inline const MidiNote& MelodyRow::getNote(size_t index) const {
-    assert(index < _size);
-    return notes[index];
+    assert(index <= _size);
+    return (index == _size) ? notes[0] : notes[index];
 }
 
 inline void MelodyRow::setNote(size_t index, const MidiNote& note) {
@@ -111,9 +111,15 @@ public:
     rack::random::Xoroshiro128Plus random;
 };
 
+class MelodyEvaluator {
+public:
+    static float getPenalty(const MelodyRow&);
+    static float leapsPenalty(const MelodyRow&);
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class MelodyGenerator {
 public:
-    static void mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, MelodyMutateStyle& style);
+    static void mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style);
     static void _changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange);
 };

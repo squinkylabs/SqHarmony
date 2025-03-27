@@ -35,8 +35,6 @@ static void testMelodyRowInit() {
     }
 }
 
-
-
 static void testMelodyRowEqual() {
     MelodyRow r;
     size_t size = 3;
@@ -113,6 +111,45 @@ static void testAveragePitch() {
     assertEQ(average.get(), MidiNote::A + MidiNote::MiddleC);
 }
 
+static void testMelodyRowSetNote() {
+    MelodyRow r;
+    size_t size = 3;
+    Scale scale;
+    MidiNote base(MidiNote::A);
+    scale.set(base, Scale::Scales::Mixolydian);
+    r.init(size, scale);
+
+    MidiNote t(21);
+    const MidiNote& t2 = r.getNote(1);
+    assert(!(t == t2));
+
+    r.setNote(1, t);
+    const MidiNote& t3 = r.getNote(1);
+    // t2 = r.getNote(1);
+    assert(t == t3);
+}
+
+static void testMelodyRowWrapNote() {
+    MelodyRow r;
+    size_t size = 3;
+    Scale scale;
+    MidiNote base(MidiNote::A);
+    scale.set(base, Scale::Scales::Mixolydian);
+    r.init(size, scale);
+
+    MidiNote t(21);
+    const MidiNote& t2 = r.getNote(0);
+    assert(!(t == t2));
+
+    r.setNote(0, t);  // set first one
+    const MidiNote& t3 = r.getNote(size);
+    // it should show up past the end, too.
+    assert(t == t3);
+
+    const MidiNote& t4 = r.getNote(0);
+    assert(t == t4);
+}
+
 static void testMelodyRow() {
     testMelodyRowSize();
     testMelodyRowInit();
@@ -121,9 +158,11 @@ static void testMelodyRow() {
     testMelodyRowNextWraps();
     testMelodyRowCanPrint();
     testAveragePitch();
+    testMelodyRowSetNote();
+    testMelodyRowWrapNote();
 }
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////
 
 static void testMelodyGeneratorMutateStateRandomSeed() {
     MelodyMutateState state;
@@ -133,6 +172,18 @@ static void testMelodyGeneratorMutateStateRandomSeed() {
 
 static void testMelodyGeneratorMutateState() {
     testMelodyGeneratorMutateStateRandomSeed();
+}
+
+//////////////////////////////////////////////////////////
+
+static void testMelodyGeneratorEvaluatorCanCall() {
+    MelodyRow r;
+    const int a = MelodyEvaluator::getPenalty(r);
+    const int b = MelodyEvaluator::leapsPenalty(r);
+}
+
+static void testMelodyGeneratorEvaluator() {
+    testMelodyGeneratorEvaluatorCanCall();
 }
 
 ////////////////////////////////////////
@@ -213,13 +264,15 @@ static void foo() {
     MelodyMutateState state;
     MelodyMutateStyle style;
     Scale scale = scaleCMaj();
-    r.init(4, scale);
+
+    const int size = 8;
+    r.init(size, scale);
     SQINFO("here is starting row");
     SQINFO(r.print().c_str());
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 50; ++i) {
+        SQINFO("\n\n---------------- about to mutate %s at index %d", r.print().c_str(), state.nextToMutate);
         MelodyGenerator::mutate(r, scale, state, style);
-        SQINFO("here is next row");
-        SQINFO(r.print().c_str());
+        SQINFO("here is generated row %s penalty=%f", r.print().c_str(), MelodyEvaluator::getPenalty(r));
     }
 
     SQINFO("-- exit foo --");
@@ -278,6 +331,38 @@ static void testMelodyGeneratorCanShift(int amount) {
     assertEQ(note.get(), expectedPitch);
 }
 
+/////////////////////////////////////////////////////
+
+
+static MelodyRow getRow(int notes) {
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+    r.init(notes, scale);
+    return r;
+}
+
+static void testMelodyEvaluatorLeaps() {
+    MelodyRow r = getRow(1);
+    assertEQ(MelodyEvaluator::leapsPenalty(r), 0);
+}
+
+static void testMelodyEvaluatorLeaps2() {
+    MelodyRow r = getRow(2);
+    assert(r.getNote(0).get() == 72);
+    assert(r.getNote(1).get() == 72);
+    assertEQ(MelodyEvaluator::leapsPenalty(r), 0);
+
+    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));    // huge leap
+    assertGT(MelodyEvaluator::leapsPenalty(r), 0);
+}
+
+static void testMelodyEvaluator() {
+    testMelodyEvaluatorLeaps();
+    testMelodyEvaluatorLeaps2();
+}
+
 static void testMelodyGeneratorCanShift() {
     testMelodyGeneratorCanShift(0);
     testMelodyGeneratorCanShift(1);
@@ -297,9 +382,12 @@ static void testMelodyGenerator2() {
 void testMelodyGenerator() {
     testMelodyRow();
     testMelodyGeneratorMutateState();
+    testMelodyGeneratorEvaluator();
     testMelodyGenerator2();
+    testMelodyEvaluator();
 }
 
 void testFirst() {
-    testMelodyGenerator();
+    foo();
+   // testMelodyGenerator();
 }
