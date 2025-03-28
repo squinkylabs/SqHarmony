@@ -1,5 +1,9 @@
 # Changelog for Squinktronix plugins
 
+## 2.2.7
+
+Make SVG panels compatible with VCV 2.6.x. Linear gradients were not displaying correctly.
+
 ## 2.2.6
 
 Bug fix: Visualizer could display wrong chord roots on arm mac.
