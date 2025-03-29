@@ -65,7 +65,6 @@ inline const MelodyRow& MelodyRow::operator=(const MelodyRow& other) {
 }
 
 inline size_t MelodyRow::nextNote(size_t index, size_t size) {
-    assert(size >= 0);
     return (index >= (size - 1)) ? 0 : index + 1;
 }
 

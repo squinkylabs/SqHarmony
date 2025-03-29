@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="105" height="380" viewBox="0 0 105 380">
   <defs>
     <linearGradient id="linear-gradient" x1="50%" x2="50%" y1="100%" y2="0%" gradientUnits="objectBoundingBox">
-      <stop offset="100" stop-color="#500050"/>
       <stop offset="0" stop-color="#200020"/>
+      <stop offset="1" stop-color="#500050"/>
     </linearGradient>
     <linearGradient id="linear-gradient-2" x1="50%" x2="50%" y1="100%" y2="0%" gradientUnits="objectBoundingBox">
-      <stop offset="100" stop-color="#200020"/>
       <stop offset="0" stop-color="#500050"/>
+      <stop offset="1" stop-color="#200020"/>
     </linearGradient>
     <clipPath id="clip-harmony">
       <rect width="105" height="380"/>

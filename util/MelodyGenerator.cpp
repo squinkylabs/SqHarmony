@@ -47,7 +47,7 @@ float MelodyEvaluator::getPenalty(const MelodyRow& r) {
 
 float MelodyEvaluator::leapsPenalty(const MelodyRow& r) {
     int bigLeaps = 0;
-    for (int i=0; i < r.getSize(); ++i) {
+    for (size_t i=0; i < r.getSize(); ++i) {
         const MidiNote& note1 = r.getNote(i);
         const MidiNote& note2 = r.getNote(i + 1);
         const int jump = std::abs( note1.get() - note2.get());
@@ -109,7 +109,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
         }
     }
    
-    SQINFO("found num=%d  0=%d 1=%1 2=%d 3=%d", index, bestCandidates[0], bestCandidates[1], bestCandidates[2], bestCandidates[3]);
+    SQINFO("found num=%d  0=%d 1=%d 2=%d 3=%d", index, bestCandidates[0], bestCandidates[1], bestCandidates[2], bestCandidates[3]);
 
     // Randomly pick one of the best
     const int theRow = pickOne(index, bestCandidates, state);
