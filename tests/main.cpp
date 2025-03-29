@@ -92,6 +92,8 @@ extern void testShiftingArray();
 extern void testSharpsFlatsPref();
 extern void testScoreDrawUtils();
 extern void testMelodyGenerator();
+extern void testMelodyEvaluator();
+
 
 #include "SqLog.h"
 
@@ -184,6 +186,8 @@ int main(const char**, int) {
     printf("XX: leaving early for clock stuff");
     std::exit(0);
 #endif
+    testMelodyGenerator();
+    testMelodyEvaluator();
 
     testAdditiveModLogic();
     testAdditivePitchLogic();
@@ -221,7 +225,7 @@ int main(const char**, int) {
     // printf("put back test progression?\n");
 
 #endif
-    testMelodyGenerator();
+   
 }
 
 #include <nanovg.h>

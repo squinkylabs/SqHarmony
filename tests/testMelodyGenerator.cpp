@@ -174,17 +174,6 @@ static void testMelodyGeneratorMutateState() {
     testMelodyGeneratorMutateStateRandomSeed();
 }
 
-//////////////////////////////////////////////////////////
-
-static void testMelodyGeneratorEvaluatorCanCall() {
-    MelodyRow r;
-    const int a = MelodyEvaluator::getPenalty(r);
-    const int b = MelodyEvaluator::leapsPenalty(r);
-}
-
-static void testMelodyGeneratorEvaluator() {
-    testMelodyGeneratorEvaluatorCanCall();
-}
 
 ////////////////////////////////////////
 
@@ -382,12 +371,12 @@ static void testMelodyGenerator2() {
 void testMelodyGenerator() {
     testMelodyRow();
     testMelodyGeneratorMutateState();
-    testMelodyGeneratorEvaluator();
     testMelodyGenerator2();
-    testMelodyEvaluator();
 }
 
+#if 0
 void testFirst() {
     foo();
    // testMelodyGenerator();
 }
+#endif
