@@ -9,8 +9,16 @@
 #include "SqLog.h"
 
 #include "MutatorModule.h"
+#include "PopupMenuParamWidget.h"
 
 #define _LAB
+
+struct RoundBigBlackSnapKnob : RoundBigBlackKnob {
+    RoundBigBlackSnapKnob() {
+        snap = true;
+        smooth = false;
+    }
+};
 
 /**
  */
@@ -28,6 +36,12 @@ public:
 #endif
         addInputL(Vec(40, 40), Comp::MUTATE_INPUT, "Mut");
         addOutputL(Vec(40, 150), Comp::NOTES_OUTPUT, "Notes");
+
+        addKeysig(module);
+
+        auto param = createParam<RoundBigBlackSnapKnob>(Vec(86, 131), module, Comp::ROW_LENGTH_PARAM);
+        addParam(param);
+
     }
 
  
@@ -91,7 +105,38 @@ private:
     const float x1 = 54.5;            // 50 too far left
     const float x2 = 100;
     const float xPes = x2;
+
+    void addKeysig(MutatorModule* xmodule) {
+        const float yScale = 216;
+        const float yMode = yScale;
+
+        PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
+            Vec(8, yScale),
+            module,
+            Comp::KEY_PARAM);
+        p->setLabels(Scale::getRootLabels(false));
+        p->box.size.x = 40;  // width
+        p->box.size.y = 22;
+        p->text = "C";
+        addParam(p);
+   //     _keyRootWidget = p;  // remember this so we can poll it.
+
+        p = createParam<PopupMenuParamWidget>(
+            Vec(60, yMode),
+            module,
+            Comp::MODE_PARAM);
+        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
+        // Let user select whatever whey want
+        p->setShortLabels(Scale::getShortScaleLabels(false));
+        p->setLabels(Scale::getScaleLabels(false));
+        p->box.size.x = 70;  // width
+        p->box.size.y = 22;
+        p->text = "Maj";
+        addParam(p);
+    }
  };
+
+ 
 
 Model* modelMutator = createModel<MutatorModule, MutatorWidget>("sqh-mutator");
 #endif

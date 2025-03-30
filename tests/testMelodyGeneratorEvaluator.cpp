@@ -69,9 +69,30 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorUnison2();
 }
 
-#if 0
+// not a real test
+static void runABit(int numTimes, int rowSize) {
+    SQINFO("-- enter runABit(%d, %d) --", numTimes, rowSize);
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+
+   // const int size = 8;
+    r.init(rowSize, scale);
+    SQINFO("here is starting row");
+    SQINFO(r.print().c_str());
+    for (int i = 0; i < numTimes; ++i) {
+        SQINFO("\n\n---------------- about to mutate %s at index %d", r.print().c_str(), state.nextToMutate);
+        MelodyGenerator::mutate(r, scale, state, style);
+        SQINFO("here is generated row %s penalty=%f", r.print().c_str(), MelodyEvaluator::getPenalty(r));
+    }
+
+    SQINFO("-- exit foo --");
+}
+
+#if 1
 void testFirst() {
-    //foo();
-   testMelodyEvaluator();
+    runABit(50, 8);
+   //testMelodyEvaluator();
 }
 #endif

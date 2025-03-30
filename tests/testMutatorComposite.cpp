@@ -15,7 +15,9 @@ void testMutatorComposite() {
     testCanCall();
 }
 
+#if 0
 void testFirst() {
     //foo();
     testMutatorComposite();
 }
+#endif

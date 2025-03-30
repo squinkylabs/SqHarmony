@@ -14,6 +14,11 @@ public:
 
         this->configOutput(Comp::NOTES_OUTPUT, "Pitches");
         this->configInput(Comp::MUTATE_INPUT, "Mutate trigger");
+
+        this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
+        // TODO: what is the real number of modes?
+        this->configParam(Comp::MODE_PARAM, 0, (int) Scale::Scales::Chromatic, 0, "Key signature mode");
+        this->configParam(Comp::ROW_LENGTH_PARAM, 2, 32, 8, "Length");
     }
 
     void process(const ProcessArgs& args) override {

@@ -21,6 +21,9 @@ public:
     }
 
     enum ParamIds {
+        ROW_LENGTH_PARAM,
+        KEY_PARAM,
+        MODE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

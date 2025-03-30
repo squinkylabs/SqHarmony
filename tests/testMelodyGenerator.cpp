@@ -246,27 +246,6 @@ static void testMelodyGeneratorWillMutateSecondNote() {
     assert(note == noteOrig);
 }
 
-// not a real test
-static void foo() {
-    SQINFO("-- enter foo --");
-    MelodyRow r;
-    MelodyMutateState state;
-    MelodyMutateStyle style;
-    Scale scale = scaleCMaj();
-
-    const int size = 8;
-    r.init(size, scale);
-    SQINFO("here is starting row");
-    SQINFO(r.print().c_str());
-    for (int i = 0; i < 50; ++i) {
-        SQINFO("\n\n---------------- about to mutate %s at index %d", r.print().c_str(), state.nextToMutate);
-        MelodyGenerator::mutate(r, scale, state, style);
-        SQINFO("here is generated row %s penalty=%f", r.print().c_str(), MelodyEvaluator::getPenalty(r));
-    }
-
-    SQINFO("-- exit foo --");
-}
-
 static void testMelodyGeneratorMutateDrift() {
     MelodyRow r;
     MelodyMutateState state;
