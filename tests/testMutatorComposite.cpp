@@ -1,5 +1,6 @@
 #include "asserts.h"
 
+#include "TestComposite.h"
 #include "Mutator.h"
 
 using Comp = Mutator<TestComposite>;

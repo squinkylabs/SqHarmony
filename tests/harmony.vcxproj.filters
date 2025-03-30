@@ -375,7 +375,7 @@
     <ClCompile Include="testMelodyGeneratorEvaluator.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="testMustatorComposite.cpp">
+    <ClCompile Include="testMutatorComposite.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>

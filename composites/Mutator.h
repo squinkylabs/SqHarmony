@@ -2,7 +2,6 @@
 #include "GateTrigger.h"
 #include "MelodyGenerator.h"
 #include "NoteConvert.h"
-#include "TestComposite.h"
 
 namespace rack {
 namespace engine {
@@ -85,4 +84,5 @@ template <class TBase>
 inline void Mutator<TBase>::_processTrigger() {
     SQINFO("process trigger");
     MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
+    SQINFO("notes: %s", _theNoteData.print().c_str());
 }

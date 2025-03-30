@@ -219,7 +219,7 @@
     <ClCompile Include="testMelodyGeneratorEvaluator.cpp" />
     <ClCompile Include="testMidiNote.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
-    <ClCompile Include="testMustatorComposite.cpp" />
+    <ClCompile Include="testMutatorComposite.cpp" />
     <ClCompile Include="testNoiseGen.cpp" />
     <ClCompile Include="testNotationNote.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />
