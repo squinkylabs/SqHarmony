@@ -114,6 +114,7 @@ class MelodyEvaluator {
 public:
     static float getPenalty(const MelodyRow&);
     static float leapsPenalty(const MelodyRow&);
+    static float unisonsPenalty(const MelodyRow&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

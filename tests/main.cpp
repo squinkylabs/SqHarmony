@@ -93,6 +93,7 @@ extern void testSharpsFlatsPref();
 extern void testScoreDrawUtils();
 extern void testMelodyGenerator();
 extern void testMelodyEvaluator();
+extern void testMutatorComposite();
 
 
 #include "SqLog.h"
@@ -188,6 +189,7 @@ int main(const char**, int) {
 #endif
     testMelodyGenerator();
     testMelodyEvaluator();
+    testMutatorComposite();
 
     testAdditiveModLogic();
     testAdditivePitchLogic();

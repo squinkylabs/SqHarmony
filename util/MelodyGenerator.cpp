@@ -39,6 +39,8 @@ MidiNote MelodyRow::getAveragePitch() const {
 float MelodyEvaluator::getPenalty(const MelodyRow& r) {
     float totalPenalty = 0;
     totalPenalty += leapsPenalty(r);
+    totalPenalty += unisonsPenalty(r);
+
 
     SQINFO("returning penalty %f for row %s", totalPenalty, r.print().c_str());
 
@@ -58,6 +60,23 @@ float MelodyEvaluator::leapsPenalty(const MelodyRow& r) {
         //SQINFO("i=%d jump=%d big leaps=%d", i, jump, bigLeaps);
     }
     return float(bigLeaps) / float(r.getSize());
+}
+
+float MelodyEvaluator::unisonsPenalty(const MelodyRow& r) {
+    int unisons = 0;
+    for (size_t i=0; i < r.getSize(); ++i) {
+        const MidiNote& note1 = r.getNote(i);
+        const MidiNote& note2 = r.getNote(i + 1);
+       if (note1.get() == note2.get()) {
+        unisons++;
+       } 
+    }
+
+    // a single unison doesn't count.
+    if (unisons <= 1) {
+        return 0;
+    }
+    return float(unisons) / float(r.getSize());
 }
 
 ////////////////////////////

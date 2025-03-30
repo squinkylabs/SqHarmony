@@ -322,7 +322,7 @@ static void testMelodyGeneratorCanShift(int amount) {
 
 /////////////////////////////////////////////////////
 
-
+#if 0
 static MelodyRow getRow(int notes) {
     MelodyRow r;
     MelodyMutateState state;
@@ -332,25 +332,12 @@ static MelodyRow getRow(int notes) {
     return r;
 }
 
-static void testMelodyEvaluatorLeaps() {
-    MelodyRow r = getRow(1);
-    assertEQ(MelodyEvaluator::leapsPenalty(r), 0);
-}
-
-static void testMelodyEvaluatorLeaps2() {
-    MelodyRow r = getRow(2);
-    assert(r.getNote(0).get() == 72);
-    assert(r.getNote(1).get() == 72);
-    assertEQ(MelodyEvaluator::leapsPenalty(r), 0);
-
-    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));    // huge leap
-    assertGT(MelodyEvaluator::leapsPenalty(r), 0);
-}
 
 static void testMelodyEvaluator() {
     testMelodyEvaluatorLeaps();
     testMelodyEvaluatorLeaps2();
 }
+#endif
 
 static void testMelodyGeneratorCanShift() {
     testMelodyGeneratorCanShift(0);
