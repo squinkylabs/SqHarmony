@@ -2,6 +2,7 @@
 #include "asserts.h"
 
 #include "MelodyGenerator.h"
+#include "NoteConvert.h"
 
 ///////////////////////////////////////////////
 
@@ -60,6 +61,26 @@ static void testMelodyEvaluatorUnison2() {
     assertGT(MelodyEvaluator::unisonsPenalty(r), 0);
 }
 
+static void testMelodyEvaluatorCentered() {
+    // test should be centered
+    MelodyRow r = getRow(4);
+    assertEQ(MelodyEvaluator::nonCenteredPenalty(r), 0);
+}
+
+static void testMelodyEvaluatorCentered2() {
+    // test should be centered
+    MelodyRow r = getRow(4);
+    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C + 1));    // tiny fluctuation
+    assertGT(MelodyEvaluator::nonCenteredPenalty(r), 0);
+}
+
+
+static void testMelodyEvaluatorCentered3() {
+    // test should be centered
+    MelodyRow r = getRow(4);
+    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C - 1));    // tiny fluctuation
+    assertGT(MelodyEvaluator::nonCenteredPenalty(r), 0);
+}
 
 void testMelodyEvaluator() {
     testMelodyEvaluatorCanCall();
@@ -67,6 +88,10 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorLeaps2();
     testMelodyEvaluatorUnison();
     testMelodyEvaluatorUnison2();
+    testMelodyEvaluatorCentered();
+    testMelodyEvaluatorCentered2();
+    testMelodyEvaluatorCentered3();
+
 }
 
 // not a real test
@@ -90,9 +115,38 @@ static void runABit(int numTimes, int rowSize) {
     SQINFO("-- exit foo --");
 }
 
+
+#if 0
+static void showBias() {
+    Scale scale;
+
+    // error = 3 for major
+    // -1 for minor
+    // -1 for minor penta
+    // - 11 for major penta
+    // 2 for diminished
+    // -2 for dominant diminished.
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::DominantDiminished);
+    int totalError = 0;
+    for (int semi=0; semi < 12; ++semi) {
+        const int x = scale.quantize(semi);      
+        ScaleNote scaleNote(x, 0);
+        MidiNote quantizedMidiNote;
+        NoteConvert::s2m(quantizedMidiNote, scale, scaleNote);
+
+        const int finalPitch = quantizedMidiNote.get() - 24;
+        const int error = finalPitch - semi;
+        SQINFO("quantize(%d) = %d back to midi = %d error = %d", semi, x, finalPitch, error);
+        totalError += error;
+    }
+    SQINFO("at end, total error = %d", totalError);
+}
+#endif
+
 #if 1
 void testFirst() {
-    runABit(50, 8);
-   //testMelodyEvaluator();
+   // runABit(50, 8);
+   testMelodyEvaluator();
+   //showBias();
 }
 #endif

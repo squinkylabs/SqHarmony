@@ -40,9 +40,10 @@ float MelodyEvaluator::getPenalty(const MelodyRow& r) {
     float totalPenalty = 0;
     totalPenalty += leapsPenalty(r);
     totalPenalty += unisonsPenalty(r);
+    totalPenalty += nonCenteredPenalty(r);
 
 
-    SQINFO("returning penalty %f for row %s", totalPenalty, r.print().c_str());
+    //SQINFO("returning penalty %f for row %s", totalPenalty, r.print().c_str());
 
     return totalPenalty;
 }
@@ -79,6 +80,32 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r) {
     return float(unisons) / float(r.getSize());
 }
 
+float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r) {
+    SQINFO("enter eval non cent, row=%s", r.print().c_str());
+    int totalDeviation = 0;
+    for (size_t i=0; i < r.getSize(); ++i) {
+        const MidiNote& note = r.getNote(i);
+      
+
+        totalDeviation += std::abs(note.get() - MidiNote::MiddleC);
+        SQINFO("in loop, note=%d total dev = %d ", note.get(), totalDeviation);
+    }
+
+    const float penalty = float(totalDeviation) / r.getSize();
+
+    SQINFO("nonCenetered, PENALTY=%f total dev = %d", penalty, totalDeviation);
+
+    // maj and minor centered with 1
+    // and with .1
+    // and with .01
+    // and .0001
+    // and .0000001
+    // and .000000001
+    // ng with  .00000000001
+    // .0000000001 is good for now
+    return penalty * .0000000001;
+};
+
 ////////////////////////////
 
 int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
@@ -90,11 +117,11 @@ int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
     assert(randIndex >= 0);
     const int selectedCandidate = bestCandidates[randIndex];
 
-    SQINFO("pickOne(%d) rand=%f randIndex=%d", numBest, rand, randIndex);
-    for (int i=0; i<numBest; ++i) {
-        SQINFO("  bestCandidates[%d] = %d", i, bestCandidates[i]);
-    }
-    SQINFO("pickOne returned %d", selectedCandidate);
+    // SQINFO("pickOne(%d) rand=%f randIndex=%d", numBest, rand, randIndex);
+    // for (int i=0; i<numBest; ++i) {
+    //     SQINFO("  bestCandidates[%d] = %d", i, bestCandidates[i]);
+    // }
+    // SQINFO("pickOne returned %d", selectedCandidate);
     return selectedCandidate;
 }
 
@@ -115,7 +142,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
         penalties[i] = penalty;
         lowestPenalty = std::min(penalty, lowestPenalty);
 
-        SQINFO("i=%d, penalty=%f lowest=%f", i, penalty, lowestPenalty);
+      ///  SQINFO("i=%d, penalty=%f lowest=%f", i, penalty, lowestPenalty);
     }
 
     // Next find which candidates are best.
@@ -128,7 +155,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
         }
     }
    
-    SQINFO("found num=%d  0=%d 1=%d 2=%d 3=%d", index, bestCandidates[0], bestCandidates[1], bestCandidates[2], bestCandidates[3]);
+  //  SQINFO("found num=%d  0=%d 1=%d 2=%d 3=%d", index, bestCandidates[0], bestCandidates[1], bestCandidates[2], bestCandidates[3]);
 
     // Randomly pick one of the best
     const int theRow = pickOne(index, bestCandidates, state);

@@ -1,3 +1,4 @@
+#include "Divider.h"
 #include "FloatNote.h"
 #include "GateTrigger.h"
 #include "MelodyGenerator.h"
@@ -44,7 +45,10 @@ public:
 
 private:
     void _init();
+    void _stepn();
     void _processTrigger();
+
+    Divider _divn;
 
     GateTrigger _mutateTrigger;
 
@@ -59,10 +63,28 @@ inline void Mutator<TBase>::_init() {
     MidiNote base(MidiNote::C);
     _theScale.set(base, Scale::Scales::Major);
     _theNoteData.init(8, _theScale);
+
+    SQINFO("BGF: init");
+    _divn.setup(4, [this]() {
+        this->_stepn();
+    });
+}
+
+template <class TBase>
+inline void Mutator<TBase>::_stepn() {
+ 
+    //currentRoot = currrentScale
+    MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);
+   _theScale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
+   SQINFO("root = %d  param=%f scale param=%f", root.get(), TBase::params[KEY_PARAM].value, TBase::params[MODE_PARAM].value);
+
+   std::pair<const MidiNote, Scale::Scales> currentScale = _theScale.get();
+   SQINFO("scale = %d %d", currentScale.first.get(), int(currentScale.second));
 }
 
 template <class TBase>
 inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
+    _divn.step();
     const float mutateInput = TBase::inputs[MUTATE_INPUT].getVoltage(0);
     _mutateTrigger.go(mutateInput);
     if (_mutateTrigger.trigger()) {
@@ -85,7 +107,7 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
 
 template <class TBase>
 inline void Mutator<TBase>::_processTrigger() {
-    SQINFO("process trigger");
+ //   SQINFO("process trigger");
     MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
-    SQINFO("notes: %s", _theNoteData.print().c_str());
+ //  SQINFO("notes: %s", _theNoteData.print().c_str());
 }
