@@ -14,6 +14,7 @@ public:
 
         this->configOutput(Comp::NOTES_OUTPUT, "Pitches");
         this->configInput(Comp::MUTATE_INPUT, "Mutate trigger");
+        this->configInput(Comp::CENTER_VOLTAGE_INPUT, "Center voltage");
 
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
         // TODO: what is the real number of modes?

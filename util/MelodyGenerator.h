@@ -98,6 +98,7 @@ class MelodyMutateStyle {
 public:
     bool keepInScale = true;
     bool roundRobin = true;
+    float centerVoltage = 0;
     Scale scale;
 };
 
@@ -112,10 +113,10 @@ public:
 
 class MelodyEvaluator {
 public:
-    static float getPenalty(const MelodyRow&);
+    static float getPenalty(const MelodyRow&, const MelodyMutateStyle&);
     static float leapsPenalty(const MelodyRow&);
     static float unisonsPenalty(const MelodyRow&);
-    static float nonCenteredPenalty(const MelodyRow&);
+    static float nonCenteredPenalty(const MelodyRow&, const MelodyMutateStyle&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

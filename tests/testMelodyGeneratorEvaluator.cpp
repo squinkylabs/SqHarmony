@@ -1,6 +1,7 @@
 
 #include "asserts.h"
 
+#include "FloatNote.h"
 #include "MelodyGenerator.h"
 #include "NoteConvert.h"
 
@@ -27,7 +28,9 @@ static MelodyRow getRow(int notes) {
 
 static void testMelodyEvaluatorCanCall() {
     MelodyRow r;
-    const int a = MelodyEvaluator::getPenalty(r);
+    r.setSize(1);
+    MelodyMutateStyle style;
+    const int a = MelodyEvaluator::getPenalty(r, style);
     const int b = MelodyEvaluator::leapsPenalty(r);
 }
 
@@ -63,23 +66,43 @@ static void testMelodyEvaluatorUnison2() {
 
 static void testMelodyEvaluatorCentered() {
     // test should be centered
+    MelodyMutateStyle style;
     MelodyRow r = getRow(4);
-    assertEQ(MelodyEvaluator::nonCenteredPenalty(r), 0);
+    assertEQ(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorCentered2() {
     // test should be centered
     MelodyRow r = getRow(4);
+    MelodyMutateStyle style;
     r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C + 1));    // tiny fluctuation
-    assertGT(MelodyEvaluator::nonCenteredPenalty(r), 0);
+    assertGT(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
-
 
 static void testMelodyEvaluatorCentered3() {
     // test should be centered
     MelodyRow r = getRow(4);
+    MelodyMutateStyle style;
     r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C - 1));    // tiny fluctuation
-    assertGT(MelodyEvaluator::nonCenteredPenalty(r), 0);
+    assertGT(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
+}
+
+static void testMelodyEvaluatorCentered4() {
+    //SQINFO("enter testMelodyEvaluatorCentered4");
+    const int midiPitch = 94;
+    // test should be centered
+    MelodyRow r = getRow(4);
+    MelodyMutateStyle style;
+    FloatNote floatNote;
+    NoteConvert::m2f(floatNote, MidiNote(midiPitch));
+    style.centerVoltage = floatNote.get();
+
+    for (int i=0; i<4; ++i) {
+
+        r.setNote(i, MidiNote(midiPitch)); 
+    }
+    //SQINFO("row after init = %s", r.print().c_str());
+    assertEQ(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
 
 void testMelodyEvaluator() {
@@ -91,6 +114,7 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorCentered();
     testMelodyEvaluatorCentered2();
     testMelodyEvaluatorCentered3();
+    testMelodyEvaluatorCentered4();
 
 }
 
@@ -109,7 +133,7 @@ static void runABit(int numTimes, int rowSize) {
     for (int i = 0; i < numTimes; ++i) {
         SQINFO("\n\n---------------- about to mutate %s at index %d", r.print().c_str(), state.nextToMutate);
         MelodyGenerator::mutate(r, scale, state, style);
-        SQINFO("here is generated row %s penalty=%f", r.print().c_str(), MelodyEvaluator::getPenalty(r));
+        SQINFO("here is generated row %s penalty=%f", r.print().c_str(), MelodyEvaluator::getPenalty(r, style));
     }
 
     SQINFO("-- exit foo --");
@@ -148,5 +172,6 @@ void testFirst() {
    // runABit(50, 8);
    testMelodyEvaluator();
    //showBias();
+   //testMelodyEvaluatorCentered4();
 }
 #endif

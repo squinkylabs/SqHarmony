@@ -35,6 +35,7 @@ public:
         addLabel(Vec(35, 356), "Squinktronix", 17);
 #endif
         addInputL(Vec(40, 40), Comp::MUTATE_INPUT, "Mut");
+        addInputL(Vec(40, 300), Comp::CENTER_VOLTAGE_INPUT, "Ctr");
         addOutputL(Vec(40, 150), Comp::NOTES_OUTPUT, "Notes");
 
         addKeysig(module);

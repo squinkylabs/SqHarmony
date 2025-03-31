@@ -1,5 +1,6 @@
 #include "MelodyGenerator.h"
 
+#include "FloatNote.h"
 #include "NoteConvert.h"
 #include "PitchKnowledge.h"
 
@@ -36,11 +37,11 @@ MidiNote MelodyRow::getAveragePitch() const {
 }
 ///////////////////////////////
 
-float MelodyEvaluator::getPenalty(const MelodyRow& r) {
+float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     float totalPenalty = 0;
     totalPenalty += leapsPenalty(r);
     totalPenalty += unisonsPenalty(r);
-    totalPenalty += nonCenteredPenalty(r);
+    totalPenalty += nonCenteredPenalty(r, style);
 
 
     //SQINFO("returning penalty %f for row %s", totalPenalty, r.print().c_str());
@@ -80,20 +81,25 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r) {
     return float(unisons) / float(r.getSize());
 }
 
-float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r) {
-    SQINFO("enter eval non cent, row=%s", r.print().c_str());
-    int totalDeviation = 0;
+float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
+   // SQINFO("enter eval non cent, row=%s", r.print().c_str());
+    assert(r.getSize() > 0);
+    float totalDeviation = 0;
+    FloatNote floatTarget(style.centerVoltage);
     for (size_t i=0; i < r.getSize(); ++i) {
         const MidiNote& note = r.getNote(i);
+        FloatNote floatNote;
+        NoteConvert::m2f(floatNote, note);
       
 
-        totalDeviation += std::abs(note.get() - MidiNote::MiddleC);
-        SQINFO("in loop, note=%d total dev = %d ", note.get(), totalDeviation);
+       // totalDeviation += std::abs(note.get() - MidiNote::MiddleC);
+        totalDeviation += std::abs(floatNote.get() - floatTarget.get());
+       // SQINFO("in loop, note=%d total dev = %f", note.get(), totalDeviation);
     }
 
-    const float penalty = float(totalDeviation) / r.getSize();
+    const float penalty = totalDeviation / r.getSize();
 
-    SQINFO("nonCenetered, PENALTY=%f total dev = %d", penalty, totalDeviation);
+  //  SQINFO("nonCenetered, PENALTY=%f total dev = %d", penalty, totalDeviation);
 
     // maj and minor centered with 1
     // and with .1
@@ -103,6 +109,7 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r) {
     // and .000000001
     // ng with  .00000000001
     // .0000000001 is good for now
+    //assert(false);      // re-do this
     return penalty * .0000000001;
 };
 
@@ -138,7 +145,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     for (int i=0; 0 != candidateShifts[i]; ++i) {
         mutatedCandidates[i] = row;
         _changeOneNoteInMode(mutatedCandidates[i], scale, state.nextToMutate, candidateShifts[i]);
-        const float penalty = MelodyEvaluator::getPenalty(mutatedCandidates[i]); 
+        const float penalty = MelodyEvaluator::getPenalty(mutatedCandidates[i], style); 
         penalties[i] = penalty;
         lowestPenalty = std::min(penalty, lowestPenalty);
 

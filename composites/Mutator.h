@@ -29,6 +29,7 @@ public:
     };
     enum InputIds {
         MUTATE_INPUT,
+        CENTER_VOLTAGE_INPUT,
         NUM_INPUTS
     };
 
@@ -64,7 +65,7 @@ inline void Mutator<TBase>::_init() {
     _theScale.set(base, Scale::Scales::Major);
     _theNoteData.init(8, _theScale);
 
-    SQINFO("BGF: init");
+   //SQINFO("BGF: init");
     _divn.setup(4, [this]() {
         this->_stepn();
     });
@@ -76,10 +77,14 @@ inline void Mutator<TBase>::_stepn() {
     //currentRoot = currrentScale
     MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);
    _theScale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
-   SQINFO("root = %d  param=%f scale param=%f", root.get(), TBase::params[KEY_PARAM].value, TBase::params[MODE_PARAM].value);
+   //SQINFO("root = %d  param=%f scale param=%f", root.get(), TBase::params[KEY_PARAM].value, TBase::params[MODE_PARAM].value);
 
-   std::pair<const MidiNote, Scale::Scales> currentScale = _theScale.get();
-   SQINFO("scale = %d %d", currentScale.first.get(), int(currentScale.second));
+ //  std::pair<const MidiNote, Scale::Scales> currentScale = _theScale.get();
+  // SQINFO("scale = %d %d", currentScale.first.get(), int(currentScale.second));
+
+   auto centerPort = TBase::inputs[CENTER_VOLTAGE_INPUT];
+   float centerV = centerPort.isConnected() ?   centerPort.value : 0;
+   _theStyle.centerVoltage = centerV;
 }
 
 template <class TBase>
