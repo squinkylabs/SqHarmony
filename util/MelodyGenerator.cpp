@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-std::string MelodyRow::print() const {
+std::string MelodyRow::toString() const {
     std::string ret;
     if (getSize() == 0) {
         return "";
@@ -93,6 +93,9 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     row = mutatedCandidates[theRow];
 
     state.nextToMutate = MelodyRow::nextNote(state.nextToMutate, row.getSize());
+
+   SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
+
 }
 
 

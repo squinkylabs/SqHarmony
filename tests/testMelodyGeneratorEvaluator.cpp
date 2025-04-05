@@ -106,6 +106,26 @@ static void testMelodyEvaluatorCentered4() {
     assertEQ(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
 
+static void testMelodyEvaluatorPitchRange() {
+    const size_t size = 8;
+    MelodyRow r = getRow(size);
+    MelodyMutateStyle style;
+
+    const float f = MelodyEvaluator::pitchRangePenalty(r, style);
+    assertEQ(f, 2 * style.pitchRangeWeight);
+}
+
+static void testMelodyEvaluatorPitchRange2() {
+    const size_t size = 3;
+    MelodyRow r = getRow(size);
+    MelodyMutateStyle style;
+
+    // make the range two octaves (should we use style?)
+    r.setNote(0,  MidiNote(r.getNote(0).get() + 24));
+    const float f = MelodyEvaluator::pitchRangePenalty(r, style);
+    assertEQ(f, 0);
+}
+
 void testMelodyEvaluator() {
     testMelodyEvaluatorCanCall();
     testMelodyEvaluatorLeaps();
@@ -116,6 +136,9 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorCentered2();
     testMelodyEvaluatorCentered3();
     testMelodyEvaluatorCentered4();
+
+    testMelodyEvaluatorPitchRange();
+    testMelodyEvaluatorPitchRange2();
 
 }
 
@@ -130,11 +153,11 @@ static void runABit(int numTimes, int rowSize) {
    // const int size = 8;
     r.init(rowSize, scale);
     SQINFO("here is starting row");
-    SQINFO(r.print().c_str());
+    SQINFO(r.toString().c_str());
     for (int i = 0; i < numTimes; ++i) {
-        SQINFO("\n\n---------------- about to mutate %s at index %d", r.print().c_str(), state.nextToMutate);
+        SQINFO("\n\n---------------- about to mutate %s at index %d", r.toString().c_str(), state.nextToMutate);
         MelodyGenerator::mutate(r, scale, state, style);
-        SQINFO("here is generated row %s penalty=%f", r.print().c_str(), MelodyEvaluator::getPenalty(r, style));
+        SQINFO("here is generated row %s penalty=%f", r.toString().c_str(), MelodyEvaluator::getPenalty(r, style));
     }
 
     SQINFO("-- exit foo --");
@@ -168,11 +191,12 @@ static void showBias() {
 }
 #endif
 
-#if 0
+#if 1
 void testFirst() {
    // runABit(50, 8);
-   testMelodyEvaluator();
+  // testMelodyEvaluator();
    //showBias();
    //testMelodyEvaluatorCentered4();
+   testMelodyEvaluatorPitchRange2();
 }
 #endif

@@ -88,7 +88,7 @@ static void testMelodyRowCanPrint() {
     scale.set(base, Scale::Scales::Phrygian);
 
     r.init(size, scale);
-    const std::string s = r.print();
+    const std::string s = r.toString();
     // SQINFO("here is s");
     // SQINFO(s.c_str());
 
@@ -258,7 +258,7 @@ static void testMelodyGeneratorMutateDrift() {
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     r.init(5, scale);
 
-    SQINFO(("orig row = " + r.print()).c_str());
+    SQINFO(("orig row = " + r.toString()).c_str());
 
     assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
     const int iterations = 500;
@@ -266,7 +266,7 @@ static void testMelodyGeneratorMutateDrift() {
         MelodyGenerator::mutate(r, scale, state, style);
     }
 
-    SQINFO(("mutated row = " + r.print()).c_str());
+    SQINFO(("mutated row = " + r.toString()).c_str());
 
     // expect won't have moved a ton.
     assertLE(r.getAveragePitch().get(), MidiNote::MiddleC + 2);
@@ -346,7 +346,7 @@ void testMelodyGenerator() {
     testMelodyGenerator2();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testMelodyGeneratorMutateDrift();
   // testMelodyGenerator();

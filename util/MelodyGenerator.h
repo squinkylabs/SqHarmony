@@ -29,7 +29,7 @@ public:
     void setNote(size_t index, const MidiNote& note);
     bool empty() const { return _size == 0; }
 
-    std::string print() const;
+    std::string toString() const;
     MidiNote getAveragePitch() const;
 
     // Gets the index of the next note
