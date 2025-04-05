@@ -1,5 +1,7 @@
 
 #include "MelodyGenerator.h"
+#include "MelodyEvaluator.h"
+
 #include "NoteConvert.h"
 #include "Scale.h"
 #include "asserts.h"
@@ -250,13 +252,17 @@ static void testMelodyGeneratorMutateDrift() {
     MelodyRow r;
     MelodyMutateState state;
     MelodyMutateStyle style;
-    Scale scale = scaleCMaj();
+  //  style.nonCenteredWeight = 0;
+    //Scale scale = scaleCMaj();
+    Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     r.init(5, scale);
 
     SQINFO(("orig row = " + r.print()).c_str());
 
     assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
-    for (int i = 0; i < 50; ++i) {
+    const int iterations = 500;
+    for (int i = 0; i < iterations; ++i) {
         MelodyGenerator::mutate(r, scale, state, style);
     }
 
@@ -340,9 +346,9 @@ void testMelodyGenerator() {
     testMelodyGenerator2();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    foo();
-   // testMelodyGenerator();
+    testMelodyGeneratorMutateDrift();
+  // testMelodyGenerator();
 }
 #endif

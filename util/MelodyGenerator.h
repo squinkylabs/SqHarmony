@@ -4,7 +4,8 @@
 #include "MidiNote.h"
 #include "Scale.h"
 #include "sq_rack.h"
-// #include "rack.hpp"
+
+class MelodyMutateStyle;
 
 class MelodyRow {
 public:
@@ -94,14 +95,6 @@ inline bool MelodyRow::operator==(const MelodyRow& other) const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class MelodyMutateStyle {
-public:
-    bool keepInScale = true;
-    bool roundRobin = true;
-    float centerVoltage = 0;
-    Scale scale;
-};
-
 class MelodyMutateState {
 public:
     MelodyMutateState() {
@@ -109,14 +102,6 @@ public:
     }
     size_t nextToMutate = 0;
     rack::random::Xoroshiro128Plus random;
-};
-
-class MelodyEvaluator {
-public:
-    static float getPenalty(const MelodyRow&, const MelodyMutateStyle&);
-    static float leapsPenalty(const MelodyRow&);
-    static float unisonsPenalty(const MelodyRow&);
-    static float nonCenteredPenalty(const MelodyRow&, const MelodyMutateStyle&);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

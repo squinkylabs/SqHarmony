@@ -2,6 +2,7 @@
 #include "FloatNote.h"
 #include "GateTrigger.h"
 #include "MelodyGenerator.h"
+#include "MelodyEvaluator.h"
 #include "NoteConvert.h"
 
 namespace rack {
