@@ -26,6 +26,11 @@ public:
         ROW_LENGTH_PARAM,
         KEY_PARAM,
         MODE_PARAM,
+
+        STYLE1_PARAM,
+        STYLE2_PARAM,
+        STYLE3_PARAM,
+        STYLE4_PARAM,
         NUM_PARAMS
     };
     enum InputIds {

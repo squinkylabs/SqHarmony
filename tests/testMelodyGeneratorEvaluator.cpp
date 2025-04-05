@@ -191,7 +191,7 @@ static void showBias() {
 }
 #endif
 
-#if 1
+#if 0
 void testFirst() {
    // runABit(50, 8);
   // testMelodyEvaluator();

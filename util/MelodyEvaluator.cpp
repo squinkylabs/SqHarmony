@@ -11,10 +11,6 @@ float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& s
     totalPenalty += unisonsPenalty(r);
     totalPenalty += nonCenteredPenalty(r, style);
     totalPenalty += pitchRangePenalty(r, style);
-
-
-    //SQINFO("returning penalty %f for row %s", totalPenalty, r.print().c_str());
-
     return totalPenalty;
 }
 

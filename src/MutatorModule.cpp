@@ -34,14 +34,18 @@ public:
         addLabel(Vec(38, 6), "Mutator", 20);
         addLabel(Vec(35, 356), "Squinktronix", 17);
 #endif
-        addInputL(Vec(40, 40), Comp::MUTATE_INPUT, "Mut");
-        addInputL(Vec(40, 300), Comp::CENTER_VOLTAGE_INPUT, "Ctr");
-        addOutputL(Vec(40, 150), Comp::NOTES_OUTPUT, "Notes");
+        const float yJax = 340;
+        addInputL(Vec(10, yJax), Comp::MUTATE_INPUT, "Mut");
+        addInputL(Vec(50, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr");
+        addOutputL(Vec(90, yJax), Comp::NOTES_OUTPUT, "Notes");
 
         addKeysig(module);
 
-        auto param = createParam<RoundBigBlackSnapKnob>(Vec(86, 131), module, Comp::ROW_LENGTH_PARAM);
-        addParam(param);
+
+        addParamL<RoundBigBlackSnapKnob>(Vec(40, 50), module, Comp::ROW_LENGTH_PARAM, "Steps", 14);
+     //   addParam(param);
+
+        addStyle(module);
 
     }
 
@@ -76,6 +80,30 @@ private:
         return parent;
     }
 
+    void addStyle(Module* module) {
+        const float styleRow1 = 200;
+
+        addParamL<RoundBlackKnob>(Vec(20, styleRow1), module, Comp::STYLE1_PARAM, "s1");
+
+    }
+
+  //  void addParam(ParamWidget* param);
+    template <typename T>
+    ParamWidget* addParamL(const Vec& vec, Module* module, int paramNum, const std::string& text, float label_dx = 0) {
+#ifdef _LAB
+        Vec vlabel(vec.x, vec.y);
+        vlabel.y -= 20;
+        vlabel.x += 4;
+        vlabel.x += label_dx;
+        const float xOffset = -2 + text.size() * 2.5;  // crude attempt to center text.
+        vlabel.x -= xOffset;
+        addLabel(vlabel, text);
+#endif
+        const auto foo =  createParam<T>(vec, module, paramNum);
+        addParam(foo);
+        return foo;
+    }
+
     void addOutputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
         addOutput(createOutput<PJ301MPort>(vec, module, outputNumber));
 #ifdef _LAB
@@ -108,7 +136,7 @@ private:
     const float xPes = x2;
 
     void addKeysig(MutatorModule* xmodule) {
-        const float yScale = 216;
+        const float yScale = 280;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
