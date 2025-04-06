@@ -81,9 +81,17 @@ private:
     }
 
     void addStyle(Module* module) {
-        const float styleRow1 = 200;
+        const float styleRow1 = 160;
+        const float styleRow2 = 210;
+        const float x0 = 10;
+        const float x1 = 50;
+        const float x2 = 90;
 
-        addParamL<RoundBlackKnob>(Vec(20, styleRow1), module, Comp::STYLE1_PARAM, "s1");
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::STYLE1_PARAM, "s1");
+        addParamL<RoundBlackKnob>(Vec(x1, styleRow1), module, Comp::STYLE2_PARAM, "s2");
+        addParamL<RoundBlackKnob>(Vec(x2, styleRow1), module, Comp::STYLE3_PARAM, "s3");
+
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::STYLE4_PARAM, "s4");
 
     }
 

@@ -20,6 +20,11 @@ public:
         // TODO: what is the real number of modes?
         this->configParam(Comp::MODE_PARAM, 0, (int) Scale::Scales::Chromatic, 0, "Key signature mode");
         this->configParam(Comp::ROW_LENGTH_PARAM, 2, 32, 8, "Length");
+
+        this->configParam(Comp::STYLE1_PARAM, 0, 1, .5, "style 1");
+        this->configParam(Comp::STYLE2_PARAM, 0, 1, .5, "style 2");
+        this->configParam(Comp::STYLE3_PARAM, 0, 1, .5, "style 3");
+        this->configParam(Comp::STYLE4_PARAM, 0, 1, .5, "style 4");
     }
 
     void process(const ProcessArgs& args) override {
