@@ -7,8 +7,8 @@
 
 float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     float totalPenalty = 0;
-    totalPenalty += leapsPenalty(r);
-    totalPenalty += unisonsPenalty(r);
+    totalPenalty += leapsPenalty(r, style);
+    totalPenalty += unisonsPenalty(r, style);
     totalPenalty += nonCenteredPenalty(r, style);
     totalPenalty += pitchRangePenalty(r, style);
     return totalPenalty;
@@ -19,15 +19,15 @@ std::string MelodyEvaluator::toString(const MelodyRow& row, const MelodyMutateSt
     s << row.toString();
     s << " penalty =";
    s <<  getPenalty(row, style);
-   s << " leap: " << leapsPenalty(row);
-   s << " uni: " << unisonsPenalty(row);
+   s << " leap: " << leapsPenalty(row, style);
+   s << " uni: " << unisonsPenalty(row, style);
    s << " nonc: " << float((nonCenteredPenalty(row, style) * style.nonCenteredWeight));
    s << " range: " << pitchRangePenalty(row, style);
 
    return s.str();
 }
 
-float MelodyEvaluator::leapsPenalty(const MelodyRow& r) {
+float MelodyEvaluator::leapsPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     int bigLeaps = 0;
     for (size_t i=0; i < r.getSize(); ++i) {
         const MidiNote& note1 = r.getNote(i);
@@ -42,7 +42,7 @@ float MelodyEvaluator::leapsPenalty(const MelodyRow& r) {
     return float(bigLeaps) / float(r.getSize());
 }
 
-float MelodyEvaluator::unisonsPenalty(const MelodyRow& r) {
+float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     int unisons = 0;
     for (size_t i=0; i < r.getSize(); ++i) {
         const MidiNote& note1 = r.getNote(i);
@@ -101,7 +101,7 @@ float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateS
         max = std::max(max, note.get());
     }
     const int range = max - min;
-    SQINFO("range=%d min=%d max=%d", range, min, max);
+    //SQINFO("range=%d min=%d max=%d", range, min, max);
 
     const int diff = std::abs(style.idealPitchRange - range);
 

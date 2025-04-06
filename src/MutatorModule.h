@@ -21,10 +21,12 @@ public:
         this->configParam(Comp::MODE_PARAM, 0, (int) Scale::Scales::Chromatic, 0, "Key signature mode");
         this->configParam(Comp::ROW_LENGTH_PARAM, 2, 32, 8, "Length");
 
-        this->configParam(Comp::STYLE1_PARAM, 0, 1, .5, "style 1");
-        this->configParam(Comp::STYLE2_PARAM, 0, 1, .5, "style 2");
-        this->configParam(Comp::STYLE3_PARAM, 0, 1, .5, "style 3");
-        this->configParam(Comp::STYLE4_PARAM, 0, 1, .5, "style 4");
+        this->configParam(Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, 0, 1, .5, "force pitches to desired center");
+        this->configParam(Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, 0, 1, .5, "spread pitches across desired range");
+        this->configParam(Comp::LEAPS_WEIGHT_STYLE_PARAM, 0, 1, .5, "avoid melodic leaps");
+        this->configParam(Comp::UNISON_WEIGHT_STYLE_PARAM, 0, 1, .5, "avoid repeating pitches");
+
+        
     }
 
     void process(const ProcessArgs& args) override {

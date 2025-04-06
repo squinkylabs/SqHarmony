@@ -31,8 +31,10 @@ static void testMelodyEvaluatorCanCall() {
     MelodyRow r;
     r.setSize(1);
     MelodyMutateStyle style;
-    const int a = MelodyEvaluator::getPenalty(r, style);
-    const int b = MelodyEvaluator::leapsPenalty(r);
+    const float a = MelodyEvaluator::getPenalty(r, style);
+    const float b = MelodyEvaluator::leapsPenalty(r, style);
+    const float c = MelodyEvaluator::unisonsPenalty(r, style);
+    const float d = MelodyEvaluator::pitchRangePenalty(r, style);
 }
 
 //static void testMelodyGeneratorEvaluator() {
@@ -41,28 +43,33 @@ static void testMelodyEvaluatorCanCall() {
 
 static void testMelodyEvaluatorLeaps() {
     MelodyRow r = getRow(1);
-    assertEQ(MelodyEvaluator::leapsPenalty(r), 0);
+    MelodyMutateStyle style;
+    assertEQ(MelodyEvaluator::leapsPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorLeaps2() {
     MelodyRow r = getRow(2);
+    MelodyMutateStyle style;
+
     assert(r.getNote(0).get() == 72);
     assert(r.getNote(1).get() == 72);
-    assertEQ(MelodyEvaluator::leapsPenalty(r), 0);
+    assertEQ(MelodyEvaluator::leapsPenalty(r, style), 0);
 
     r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));    // huge leap
-    assertGT(MelodyEvaluator::leapsPenalty(r), 0);
+    assertGT(MelodyEvaluator::leapsPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorUnison() {
     MelodyRow r = getRow(2);
+    MelodyMutateStyle style;
     r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));    // huge leap
-    assertEQ(MelodyEvaluator::unisonsPenalty(r), 0);
+    assertEQ(MelodyEvaluator::unisonsPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorUnison2() {
     MelodyRow r = getRow(4);
-    assertGT(MelodyEvaluator::unisonsPenalty(r), 0);
+    MelodyMutateStyle style;
+    assertGT(MelodyEvaluator::unisonsPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorCentered() {

@@ -553,8 +553,45 @@ void testAudioMath() {
 }
 
 #if 0
+static double func(double a, double b, double c, double x) {
+    return std::exp(a * x) * std::exp(b) + c;
+}
+
+static void show(double a, double b, double c) {
+  
+    for (int casex = 0; casex <=2; casex++ ) {
+        float x = 0;
+        switch(casex) {
+            case 0:
+                x = .25;
+                break;
+            case 1:
+                x = .5;
+                break;
+            case 2:
+                x = 1;
+                break;
+            default:
+                assert(false);
+        }
+        float f = func(a, b, c, x);
+
+        SQINFO("x=%f a=%f b=%f c=%f func=%f db=%f", x, a, b,c, f, AudioMath::db(f));
+    }
+}
+static void foo() {
+    AudioMath::makeFunc_Exp(.25, 1, 1.0 / 6.0, 1);
+    auto f = AudioMath::makeFunc_AudioTaper(-18);
+    SQINFO("audio at .25=%f, .5=%f, 1=%f", f(.25), f(.5), f(1));
+
+    show(2.763, -2.763, 0);
+}
+#endif
+
+#if 0
 void testFirst() {
-    testFloat2intScale();
+    foo();
+   // testFloat2intScale();
     // makeFunc_QuantizeAndWrap
   //  testModBipolar();
   //  testMakeFunc_QuantizeAndWrap();

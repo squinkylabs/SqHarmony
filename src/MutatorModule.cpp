@@ -87,11 +87,11 @@ private:
         const float x1 = 50;
         const float x2 = 90;
 
-        addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::STYLE1_PARAM, "s1");
-        addParamL<RoundBlackKnob>(Vec(x1, styleRow1), module, Comp::STYLE2_PARAM, "s2");
-        addParamL<RoundBlackKnob>(Vec(x2, styleRow1), module, Comp::STYLE3_PARAM, "s3");
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, "center", 8);
+        addParamL<RoundBlackKnob>(Vec(x1, styleRow1), module, Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, "p rng", 8);
+        addParamL<RoundBlackKnob>(Vec(x2, styleRow1), module, Comp::LEAPS_WEIGHT_STYLE_PARAM, "leaps", 8);
 
-        addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::STYLE4_PARAM, "s4");
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::UNISON_WEIGHT_STYLE_PARAM, "unsn", 6);
 
     }
 

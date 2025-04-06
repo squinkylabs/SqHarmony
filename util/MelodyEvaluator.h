@@ -10,14 +10,16 @@ public:
     double nonCenteredWeight = .1; // was .0000000001
     float idealPitchRange = 24;     // two octaves
     float pitchRangeWeight = 1;
+    float leapsWeight = 1;
+    float unisonWeight = 1;
 };
 
 class MelodyEvaluator {
 public:
     static float getPenalty(const class MelodyRow&, const MelodyMutateStyle&);
 
-    static float leapsPenalty(const MelodyRow&);
-    static float unisonsPenalty(const MelodyRow&);
+    static float leapsPenalty(const MelodyRow&, const MelodyMutateStyle&);
+    static float unisonsPenalty(const MelodyRow&, const MelodyMutateStyle&);
     static float nonCenteredPenalty(const MelodyRow&, const MelodyMutateStyle&);
     static float pitchRangePenalty(const MelodyRow&, const MelodyMutateStyle&);
 

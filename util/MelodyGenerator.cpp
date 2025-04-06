@@ -94,7 +94,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
 
     state.nextToMutate = MelodyRow::nextNote(state.nextToMutate, row.getSize());
 
-   SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
+   //SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
 
 }
 

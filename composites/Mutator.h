@@ -27,10 +27,10 @@ public:
         KEY_PARAM,
         MODE_PARAM,
 
-        STYLE1_PARAM,
-        STYLE2_PARAM,
-        STYLE3_PARAM,
-        STYLE4_PARAM,
+        NON_CENTERED_WEIGHT_STYLE_PARAM,
+        PITCH_RANGE_WEIGHT_STYLE_PARAM,
+        LEAPS_WEIGHT_STYLE_PARAM,
+        UNISON_WEIGHT_STYLE_PARAM,
         NUM_PARAMS
     };
     enum InputIds {
@@ -63,6 +63,8 @@ private:
     Scale _theScale;
     MelodyMutateState _theState;
     MelodyMutateStyle _theStyle;
+
+    std::function<double(double)> _audioCurve;
 };
 
 template <class TBase>
@@ -70,6 +72,8 @@ inline void Mutator<TBase>::_init() {
     MidiNote base(MidiNote::C);
     _theScale.set(base, Scale::Scales::Major);
     _theNoteData.init(8, _theScale);
+
+    _audioCurve = AudioMath::makeFunc_AudioTaper(-18);
 
    //SQINFO("BGF: init");
     _divn.setup(4, [this]() {
@@ -118,7 +122,20 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
 
 template <class TBase>
 inline void Mutator<TBase>::_processTrigger() {
- //   SQINFO("process trigger");
+   SQINFO("process trigger");
+   SQINFO("stye params are %f, %f, %f, %f", 
+        TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value,
+        TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value,
+        TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value,
+        TBase::params[UNISON_WEIGHT_STYLE_PARAM].value
+    );
+   SQINFO("after proc %f %f %f %f",
+       _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value),
+       _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value),
+       _audioCurve(TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value),
+       _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value)
+   );
+   SQINFO("for .5 is %f", _audioCurve(.5));
     MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
  //  SQINFO("notes: %s", _theNoteData.print().c_str());
 }
