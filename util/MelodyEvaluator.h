@@ -7,7 +7,8 @@ public:
     bool roundRobin = true;
     float centerVoltage = 0;
     Scale scale;
-    double nonCenteredWeight = .1; // was .0000000001
+   // double nonCenteredWeight = .1; // was .0000000001
+    float nonCenteredWeight = 1;
     float idealPitchRange = 24;     // two octaves
     float pitchRangeWeight = 1;
     float leapsWeight = 1;

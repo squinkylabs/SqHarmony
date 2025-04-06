@@ -136,6 +136,12 @@ inline void Mutator<TBase>::_processTrigger() {
        _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value)
    );
    SQINFO("for .5 is %f", _audioCurve(.5));
+
+   _theStyle.leapsWeight = _audioCurve(TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value);
+   _theStyle.unisonWeight = _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value);
+   _theStyle.pitchRangeWeight = _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
+   _theStyle.nonCenteredWeight = _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
+
     MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
  //  SQINFO("notes: %s", _theNoteData.print().c_str());
 }

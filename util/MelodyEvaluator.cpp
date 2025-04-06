@@ -89,7 +89,7 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutate
     // .0000000001 is good for now
     //assert(false);      // re-do this
   //  return penalty * .0000000001;
-    return penalty * style.nonCenteredWeight;
+    return penalty * style.nonCenteredWeight * .001;
 };
 
 float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
