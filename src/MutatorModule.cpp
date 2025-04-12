@@ -5,11 +5,10 @@
 #include <string>
 
 #include "BufferingParent.h"
-#include "SqLabel.h"
-#include "SqLog.h"
-
 #include "MutatorModule.h"
 #include "PopupMenuParamWidget.h"
+#include "SqLabel.h"
+#include "SqLog.h"
 
 #define _LAB
 
@@ -41,15 +40,13 @@ public:
 
         addKeysig(module);
 
-
         addParamL<RoundBigBlackSnapKnob>(Vec(40, 50), module, Comp::ROW_LENGTH_PARAM, "Steps", 14);
-     //   addParam(param);
+        //   addParam(param);
 
         addStyle(module);
-
+        addStyle2(module);
     }
 
- 
 private:
     MutatorModule* _module = nullptr;
     /**
@@ -80,6 +77,7 @@ private:
         return parent;
     }
 
+ 
     void addStyle(Module* module) {
         const float styleRow1 = 160;
         const float styleRow2 = 210;
@@ -93,7 +91,7 @@ private:
         addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::UNISON_WEIGHT_STYLE_PARAM, "unsn", 6);
     }
 
-  //  void addParam(ParamWidget* param);
+    //  void addParam(ParamWidget* param);
     template <typename T>
     ParamWidget* addParamL(const Vec& vec, Module* module, int paramNum, const std::string& text, float label_dx = 0) {
 #ifdef _LAB
@@ -105,7 +103,7 @@ private:
         vlabel.x -= xOffset;
         addLabel(vlabel, text);
 #endif
-        const auto foo =  createParam<T>(vec, module, paramNum);
+        const auto foo = createParam<T>(vec, module, paramNum);
         addParam(foo);
         return foo;
     }
@@ -137,7 +135,7 @@ private:
     }
 
     const float x0 = 11;
-    const float x1 = 54.5;            // 50 too far left
+    const float x1 = 54.5;  // 50 too far left
     const float x2 = 100;
     const float xPes = x2;
 
@@ -152,9 +150,9 @@ private:
         p->setLabels(Scale::getRootLabels(false));
         p->box.size.x = 40;  // width
         p->box.size.y = 22;
-        p->text = "C";
+     //   p->text = "C";
         addParam(p);
-   //     _keyRootWidget = p;  // remember this so we can poll it.
+        //     _keyRootWidget = p;  // remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
             Vec(60, yMode),
@@ -166,12 +164,25 @@ private:
         p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
-        p->text = "Maj";
+      //  p->text = "Maj";
         addParam(p);
     }
- };
 
- 
+    void addStyle2(Module* module) {
+        const float y = 100;
+        PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
+            Vec(8, y),
+            module,
+            Comp::SLOTS_TO_CHANGE_PARAM);
+        p->setLabels({"all", "1", "2", "3", "4"});
+        p->box.size.x = 40;  // width
+        p->box.size.y = 22;
+     //   p->text = "C";
+        addParam(p);
+
+        addParam(createParam<CKSS>(Vec(80, y), module, Comp::ADJACENT_SLOTS_PARAM));
+    }
+};
 
 Model* modelMutator = createModel<MutatorModule, MutatorWidget>("sqh-mutator");
 #endif

@@ -31,6 +31,9 @@ public:
         PITCH_RANGE_WEIGHT_STYLE_PARAM,
         LEAPS_WEIGHT_STYLE_PARAM,
         UNISON_WEIGHT_STYLE_PARAM,
+
+        SLOTS_TO_CHANGE_PARAM,  // 0 == all of them
+        ADJACENT_SLOTS_PARAM,   // 0 = spread out, 1 = adjacent
         NUM_PARAMS
     };
     enum InputIds {
@@ -123,24 +126,27 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
 template <class TBase>
 inline void Mutator<TBase>::_processTrigger() {
    SQINFO("process trigger");
-   SQINFO("stye params are %f, %f, %f, %f", 
-        TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value,
-        TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value,
-        TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value,
-        TBase::params[UNISON_WEIGHT_STYLE_PARAM].value
-    );
-   SQINFO("after proc %f %f %f %f",
-       _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value),
-       _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value),
-       _audioCurve(TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value),
-       _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value)
-   );
-   SQINFO("for .5 is %f", _audioCurve(.5));
+//    SQINFO("style params are %s", 
+//         TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value,
+//         TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value,
+//         TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value,
+//         TBase::params[UNISON_WEIGHT_STYLE_PARAM].value
+//     );
+//    SQINFO("after proc %f %f %f %f",
+//        _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value),
+//        _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value),
+//        _audioCurve(TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value),
+//        _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value)
+//    );
+//    SQINFO("for .5 is %f", _audioCurve(.5));
 
-   _theStyle.leapsWeight = _audioCurve(TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value);
-   _theStyle.unisonWeight = _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value);
-   _theStyle.pitchRangeWeight = _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
-   _theStyle.nonCenteredWeight = _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
+
+   _theStyle.leapsWeight = 4 * _audioCurve(TBase::params[LEAPS_WEIGHT_STYLE_PARAM].value);
+   _theStyle.unisonWeight = 4 * _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value);
+   _theStyle.pitchRangeWeight = 4 * _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
+   _theStyle.nonCenteredWeight = 4 * _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
+   SQINFO("style params = %s", _theStyle.toString().c_str());
+ //   SQINFO("%s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
 
     MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
  //  SQINFO("notes: %s", _theNoteData.print().c_str());

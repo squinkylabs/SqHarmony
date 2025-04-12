@@ -26,7 +26,9 @@ public:
         this->configParam(Comp::LEAPS_WEIGHT_STYLE_PARAM, 0, 1, .5, "avoid melodic leaps");
         this->configParam(Comp::UNISON_WEIGHT_STYLE_PARAM, 0, 1, .5, "avoid repeating pitches");
 
-        
+        // 0 == all of them
+        this->configParam(Comp::SLOTS_TO_CHANGE_PARAM, 0, 4, 1, "how many notes to change each time");
+        this->configParam(Comp::ADJACENT_SLOTS_PARAM, 0, 1, 1, "when changing more than one note, should they be adjacent");        
     }
 
     void process(const ProcessArgs& args) override {

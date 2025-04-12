@@ -273,6 +273,56 @@ static void testMelodyGeneratorMutateDrift() {
     assertGE(r.getAveragePitch().get(), MidiNote::MiddleC - 2);
 }
 
+static void testMelodyGeneratorMutateDrift2() {
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    style.nonCenteredWeight = 0;
+    //Scale scale = scaleCMaj();
+    Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
+    r.init(5, scale);
+
+    SQINFO(("orig row = " + r.toString()).c_str());
+
+    assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
+    const int iterations = 5000;
+    for (int i = 0; i < iterations; ++i) {
+        MelodyGenerator::mutate(r, scale, state, style);
+    }
+
+    SQINFO(("mutated row = " + r.toString()).c_str());
+    SQINFO("avg pitch = %d", r.getAveragePitch().get());
+
+    // expect we drifter higher in this key
+    assertGT(r.getAveragePitch().get(), MidiNote::MiddleC + 12);
+}
+
+static void testMelodyGeneratorMutateDrift3() {
+    MelodyRow r;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    style.nonCenteredWeight = 0;
+    //Scale scale = scaleCMaj();
+    Scale scale;
+    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
+    r.init(5, scale);
+
+    SQINFO(("orig row = " + r.toString()).c_str());
+
+    assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
+    const int iterations = 5000;
+    for (int i = 0; i < iterations; ++i) {
+        MelodyGenerator::mutate(r, scale, state, style);
+    }
+
+   // SQINFO(("mutated row = " + r.toString()).c_str());
+  //  SQINFO("avg pitch = %d", r.getAveragePitch().get());
+
+    // expect we drifter higher in this key
+    assertLT(r.getAveragePitch().get(), 0);
+}
+
 static void testMelodyGeneratorCanShift(int amount) {
     MelodyRow r;
     MelodyMutateState state;
@@ -338,6 +388,8 @@ static void testMelodyGenerator2() {
     testMelodyGeneratorWillMutateFirstNoteByDefault();
     testMelodyGeneratorWillMutateSecondNote();
     testMelodyGeneratorMutateDrift();
+    testMelodyGeneratorMutateDrift2();
+    testMelodyGeneratorMutateDrift3();
 }
 
 void testMelodyGenerator() {
@@ -348,7 +400,7 @@ void testMelodyGenerator() {
 
 #if 0
 void testFirst() {
-    testMelodyGeneratorMutateDrift();
+    testMelodyGeneratorMutateDrift3();
   // testMelodyGenerator();
 }
 #endif

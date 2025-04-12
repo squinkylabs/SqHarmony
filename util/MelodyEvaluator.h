@@ -13,6 +13,8 @@ public:
     float pitchRangeWeight = 1;
     float leapsWeight = 1;
     float unisonWeight = 1;
+
+    std::string toString() const;
 };
 
 class MelodyEvaluator {
