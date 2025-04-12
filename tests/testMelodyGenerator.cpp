@@ -204,6 +204,29 @@ static void testMelodyGeneratorWillMutate() {
     assert(r != rOrig);
 }
 
+static void testMelodyGeneratorMutateMulti() {
+    MelodyRow r;
+    MelodyRow rOrig(r);
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    style.numToMutate = 2;
+    Scale scale = scaleCMaj();
+    const size_t size = 3;
+    r.init(size, scale);
+    rOrig.init(3, scale);
+
+    assert(r == rOrig);
+    MelodyGenerator::mutate(r, scale, state, style);
+    int numChanged = 0;
+    for (size_t i=0; i< size; ++i) {
+        if (r.getNote(i).get() != rOrig.getNote(i).get()) {
+            ++numChanged;
+        }
+    }
+    assertEQ(numChanged, 2);
+   // assert(r != rOrig);
+}
+
 static void testMelodyGeneratorWillMutateFirstNoteByDefault() {
     MelodyRow r;
     MelodyRow rOrig(r);
@@ -357,23 +380,6 @@ static void testMelodyGeneratorCanShift(int amount) {
 
 /////////////////////////////////////////////////////
 
-#if 0
-static MelodyRow getRow(int notes) {
-    MelodyRow r;
-    MelodyMutateState state;
-    MelodyMutateStyle style;
-    Scale scale = scaleCMaj();
-    r.init(notes, scale);
-    return r;
-}
-
-
-static void testMelodyEvaluator() {
-    testMelodyEvaluatorLeaps();
-    testMelodyEvaluatorLeaps2();
-}
-#endif
-
 static void testMelodyGeneratorCanShift() {
     testMelodyGeneratorCanShift(0);
     testMelodyGeneratorCanShift(1);
@@ -390,6 +396,7 @@ static void testMelodyGenerator2() {
     testMelodyGeneratorMutateDrift();
     testMelodyGeneratorMutateDrift2();
     testMelodyGeneratorMutateDrift3();
+    testMelodyGeneratorMutateMulti();
 }
 
 void testMelodyGenerator() {
@@ -398,9 +405,10 @@ void testMelodyGenerator() {
     testMelodyGenerator2();
 }
 
-#if 0
+#if 1
 void testFirst() {
-    testMelodyGeneratorMutateDrift3();
+    //testMelodyGeneratorMutateDrift3();
+    testMelodyGeneratorMutateMulti();
   // testMelodyGenerator();
 }
 #endif
