@@ -61,7 +61,8 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
         const size_t noteIndex = state.nextToMutate;
         assert(style.numToMutate == 1);
         _mutateOne(row, noteIndex, scale, state, style);
-        state.nextToMutate = MelodyRow::nextNote(state.nextToMutate, row.getSize());
+       // state.nextToMutate = MelodyRow::nextNote(state.nextToMutate, row.getSize());
+        state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);
         return;
     }
     assert(style.roundRobin == true);
@@ -73,9 +74,10 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
     for (int i = 0; i < numThisTime; ++i) {
         int x = state.nextToMutate + i;
-        if (x >= row.getSize()) {           // make this a method on row?
-            x -= row.getSize();
-        }
+        // if (x >= row.getSize()) {           // make this a method on row?
+        //     x -= row.getSize();
+        // }
+        x = row.wrapIndex(x);
         assert(x < row.getSize());
         toMutate[index++] = x;
     }

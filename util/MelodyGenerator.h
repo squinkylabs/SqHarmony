@@ -33,7 +33,8 @@ public:
     MidiNote getAveragePitch() const;
 
     // Gets the index of the next note
-    static size_t nextNote(size_t index, size_t size);
+   // static size_t nextNote(size_t index, size_t size);
+   size_t wrapIndex(size_t index) const;
 
 private:
     MidiNote notes[maxNotes + 1];
@@ -45,6 +46,14 @@ inline void MelodyRow::setSize(size_t size) {
     if (size <= maxNotes) {
         this->_size = size;
     }
+}
+
+inline size_t MelodyRow::wrapIndex(size_t index) const {
+    if (index >= getSize()) {
+        index -= getSize();
+    }
+    assert(index < getSize());
+    return index;
 }
 
 inline const MidiNote& MelodyRow::getNote(size_t index) const {
@@ -65,9 +74,9 @@ inline const MelodyRow& MelodyRow::operator=(const MelodyRow& other) {
     return (*this);
 }
 
-inline size_t MelodyRow::nextNote(size_t index, size_t size) {
-    return (index >= (size - 1)) ? 0 : index + 1;
-}
+//inline size_t MelodyRow::nextNote(size_t index, size_t size) {
+//    return (index >= (size - 1)) ? 0 : index + 1;
+//}
 
 inline void MelodyRow::init(unsigned size, const Scale& scale) {
     setSize(size);
