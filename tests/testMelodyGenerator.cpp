@@ -408,6 +408,39 @@ static void testMelodyGeneratorCanShift(int amount) {
     assertEQ(note.get(), expectedPitch);
 }
 
+static void testMelodyGeneratorMutate_getIndiciesToMutate(bool adjacent, size_t rowLength, size_t curIndex, int numToMutate, const int* expected) {
+    MelodyRow row;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+
+    state.nextToMutate = curIndex;
+    style.mutateAdjacent = adjacent;
+    style.numToMutate = numToMutate;
+
+    Scale scale = scaleCMaj();
+    row.init(rowLength, scale);
+    int indiciesToMutate[MelodyRow::maxNotes + 1];
+    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+
+    for (size_t i = 0; i < numToMutate; ++i) {
+        SQINFO("in compare loop, i=%lld epxected=%d actual=%d", i, expected[i], indiciesToMutate[i]);
+        assertEQ(indiciesToMutate[i], expected[i]);
+    }
+    assertEQ(indiciesToMutate[numToMutate], -1);
+}
+
+static void testMelodyGeneratorMutate_getIndiciesToMutate() {
+    int expectedIndiciesToMutate[MelodyRow::maxNotes + 1] = {0, -1};
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 1, 0, 1, expectedIndiciesToMutate);
+
+    int expectedIndiciesToMutate2[MelodyRow::maxNotes + 1] = {3, -1};
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 1, expectedIndiciesToMutate2);
+
+    int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = { 0, 1, 2, -1 };
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 3, expectedIndiciesToMutate3);
+
+}
+
 /////////////////////////////////////////////////////
 
 static void testMelodyGeneratorCanShift() {
@@ -429,6 +462,8 @@ static void testMelodyGenerator2() {
     testMelodyGeneratorMutateMulti();
     testMelodyGeneratorMutateMultiWrap();
     testMelodyGeneratorMutateTooMany();
+
+    testMelodyGeneratorMutate_getIndiciesToMutate();
 }
 
 void testMelodyGenerator() {
@@ -440,7 +475,8 @@ void testMelodyGenerator() {
 #if 1
 void testFirst() {
     // testMelodyGeneratorMutateDrift3();
-    testMelodyGeneratorMutateTooMany();
-    testMelodyGenerator();
+    testMelodyGeneratorMutate_getIndiciesToMutate();
+    // testMelodyGeneratorMutateTooMany();
+    // testMelodyGenerator();
 }
 #endif

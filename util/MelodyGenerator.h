@@ -74,10 +74,6 @@ inline const MelodyRow& MelodyRow::operator=(const MelodyRow& other) {
     return (*this);
 }
 
-//inline size_t MelodyRow::nextNote(size_t index, size_t size) {
-//    return (index >= (size - 1)) ? 0 : index + 1;
-//}
-
 inline void MelodyRow::init(unsigned size, const Scale& scale) {
     setSize(size);
     ScaleNote scaleNote(0, 4);           // root, middle octave
@@ -117,6 +113,7 @@ public:
 class MelodyGenerator {
 public:
     static void mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style);
+    static void getIndiciesToMutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int * indiciesToMutate);
 
     static void _mutateOne(MelodyRow& row, size_t index, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style);
     static void _mutateSome(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int * indiciesToMutate);

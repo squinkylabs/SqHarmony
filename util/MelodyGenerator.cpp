@@ -86,6 +86,19 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
 
 }
 
+void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int * indiciesToMutate) {
+    assert(style.mutateAdjacent);
+    const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
+    int index = 0;
+    for (int i = 0; i < numThisTime; ++i) {
+        int x = state.nextToMutate + i;
+        x = row.wrapIndex(x);
+        assert(x < row.getSize());
+        indiciesToMutate[index++] = x;
+    }
+    indiciesToMutate[index] = -1;
+}
+
 void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
     for (int i=0; indiciesToMutate[i] >= 0; ++i) {
         _mutateOne(row, i, scale, state, style);
