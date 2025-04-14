@@ -408,7 +408,13 @@ static void testMelodyGeneratorCanShift(int amount) {
     assertEQ(note.get(), expectedPitch);
 }
 
-static void testMelodyGeneratorMutate_getIndiciesToMutate(bool adjacent, size_t rowLength, size_t curIndex, int numToMutate, const int* expected) {
+static void testMelodyGeneratorMutate_getIndiciesToMutate(
+    bool adjacent, 
+    size_t rowLength, 
+    size_t curIndex, 
+    int numToMutate, 
+    const int* expected,
+    int expectedNext = -1) {
     MelodyRow row;
     MelodyMutateState state;
     MelodyMutateStyle style;
@@ -427,9 +433,14 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(bool adjacent, size_t 
         assertEQ(indiciesToMutate[i], expected[i]);
     }
     assertEQ(indiciesToMutate[numToMutate], -1);
+
+    if (expectedNext >= 0) {
+        assertEQ(state.nextToMutate, expectedNext);
+    }
 }
 
-static void testMelodyGeneratorMutate_getIndiciesToMutate() {
+// various combinations, only call once.
+static void testMelodyGeneratorMutate_getIndiciesToMutate1() {
     int expectedIndiciesToMutate[MelodyRow::maxNotes + 1] = {0, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(true, 1, 0, 1, expectedIndiciesToMutate);
 
@@ -442,7 +453,27 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = { 0, 4, -1 };
     testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4);
 
+    int expectedIndiciesToMutate5[MelodyRow::maxNotes + 1] = { 0, 3, 6, -1 };
+    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 3, expectedIndiciesToMutate5);
+}
 
+// call twice to see it increment
+static void testMelodyGeneratorMutate_getIndiciesToMutate2() {
+    int expectedIndiciesToMutate[MelodyRow::maxNotes + 1] = {3, -1};
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 1, expectedIndiciesToMutate, 4);
+
+    // two adjacent
+    int expectedIndiciesToMutate2[MelodyRow::maxNotes + 1] = {0, 1, -1};
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 2, expectedIndiciesToMutate2, 2);
+
+    // one, wrap
+    int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {3, -1};
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 4, 3, 1, expectedIndiciesToMutate3, 0);  
+}
+
+static void testMelodyGeneratorMutate_getIndiciesToMutate() {
+    testMelodyGeneratorMutate_getIndiciesToMutate1();
+    testMelodyGeneratorMutate_getIndiciesToMutate2();
 }
 
 /////////////////////////////////////////////////////
