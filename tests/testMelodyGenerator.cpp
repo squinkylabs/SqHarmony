@@ -439,6 +439,10 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = { 0, 1, 2, -1 };
     testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 3, expectedIndiciesToMutate3);
 
+    int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = { 0, 4, -1 };
+    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4);
+
+
 }
 
 /////////////////////////////////////////////////////

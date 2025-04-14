@@ -61,7 +61,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
         const size_t noteIndex = state.nextToMutate;
         assert(style.numToMutate == 1);
         _mutateOne(row, noteIndex, scale, state, style);
-       // state.nextToMutate = MelodyRow::nextNote(state.nextToMutate, row.getSize());
+        // state.nextToMutate = MelodyRow::nextNote(state.nextToMutate, row.getSize());
         state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);
         return;
     }
@@ -69,7 +69,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     assert(style.mutateAdjacent == true);
     assert(row.getSize() <= 16);
 
-    int toMutate[16+1];
+    int toMutate[16 + 1];
     int index = 0;
     const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
     for (int i = 0; i < numThisTime; ++i) {
@@ -83,26 +83,45 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     }
     toMutate[index] = -1;
     _mutateSome(row, scale, state, style, toMutate);
-
 }
 
-void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int * indiciesToMutate) {
-    assert(style.mutateAdjacent);
+void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
     const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
     int index = 0;
-    for (int i = 0; i < numThisTime; ++i) {
-        int x = state.nextToMutate + i;
-        x = row.wrapIndex(x);
-        assert(x < row.getSize());
-        indiciesToMutate[index++] = x;
+    if (style.mutateAdjacent) {
+        for (int i = 0; i < numThisTime; ++i) {
+            int x = state.nextToMutate + i;
+            x = row.wrapIndex(x);
+            assert(x < row.getSize());
+            indiciesToMutate[index++] = x;
+        }
+        indiciesToMutate[index] = -1;
+        return;
+    }
+    const double quota = double(row.getSize()) / double(numThisTime);
+    double floatingAcc = 0;
+   // int integerAcc = 0;
+
+    SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota); 
+    indiciesToMutate[index++] = 0;        // always mutate the current one
+    for (size_t i = 1; i < row.getSize(); ++i) {
+
+        floatingAcc += 1.0;
+
+        SQINFO("i=%lld facc=%f", i, floatingAcc);
+        if (floatingAcc >= quota) {
+            indiciesToMutate[index++] = i;
+            floatingAcc -= std::floor(floatingAcc);
+        }
+
     }
     indiciesToMutate[index] = -1;
 }
 
 void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
-    for (int i=0; indiciesToMutate[i] >= 0; ++i) {
+    for (int i = 0; indiciesToMutate[i] >= 0; ++i) {
         _mutateOne(row, i, scale, state, style);
-    }    
+    }
 }
 
 void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
