@@ -455,6 +455,9 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate1() {
 
     int expectedIndiciesToMutate5[MelodyRow::maxNotes + 1] = { 0, 3, 6, -1 };
     testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 3, expectedIndiciesToMutate5);
+
+    int expectedIndiciesToMutate6[MelodyRow::maxNotes + 1] = { 1, 5, -1 };
+    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 1, 2, expectedIndiciesToMutate6);
 }
 
 // call twice to see it increment
@@ -469,11 +472,23 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate2() {
     // one, wrap
     int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {3, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(true, 4, 3, 1, expectedIndiciesToMutate3, 0);  
+
+     // three adjacent, wrap
+     SQINFO("  3 w ");
+     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {3, 4, 0, -1};
+     testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 3, expectedIndiciesToMutate4, 1);
+}
+
+// non adjacent more complex
+static void testMelodyGeneratorMutate_getIndiciesToMutate3() {
+    int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = { 0, 4, -1 };
+    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4, 1);
 }
 
 static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     testMelodyGeneratorMutate_getIndiciesToMutate1();
     testMelodyGeneratorMutate_getIndiciesToMutate2();
+    testMelodyGeneratorMutate_getIndiciesToMutate3();
 }
 
 /////////////////////////////////////////////////////

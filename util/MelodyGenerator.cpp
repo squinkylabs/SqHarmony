@@ -95,6 +95,7 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
             assert(x < row.getSize());
             indiciesToMutate[index++] = x;
         }
+        state.nextToMutate = row.wrapIndex(state.nextToMutate + numThisTime);  // advance to next one
       
     } else {
         const double quota = double(row.getSize()) / double(numThisTime);
@@ -102,18 +103,21 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
         // int integerAcc = 0;
 
         SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
-        indiciesToMutate[index++] = 0;  // always mutate the current one
+        indiciesToMutate[index++] = state.nextToMutate;  // always mutate the current one
         for (size_t i = 1; i < row.getSize(); ++i) {
+
             floatingAcc += 1.0;
 
             SQINFO("i=%lld facc=%f", i, floatingAcc);
             if (floatingAcc >= quota) {
-                indiciesToMutate[index++] = i;
+                const int x = row.wrapIndex(i + state.nextToMutate);
+                indiciesToMutate[index++] = x ;
                 floatingAcc -= std::floor(floatingAcc);
             }
         }
+        state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
     }
-    state.nextToMutate = row.wrapIndex(state.nextToMutate + numThisTime);  // advance to next one
+   
     indiciesToMutate[index] = -1;
 }
 
