@@ -36,9 +36,11 @@ public:
         ADJACENT_SLOTS_PARAM,   // 0 = spread out, 1 = adjacent
         NUM_PARAMS
     };
+
     enum InputIds {
         MUTATE_INPUT,
         CENTER_VOLTAGE_INPUT,
+        INITIAL_VOLTAGE_INPUT,
         NUM_INPUTS
     };
 
@@ -68,6 +70,7 @@ private:
     MelodyMutateStyle _theStyle;
 
     std::function<double(double)> _audioCurve;
+    bool _initialized = false;
 };
 
 template <class TBase>
@@ -86,6 +89,17 @@ inline void Mutator<TBase>::_init() {
 
 template <class TBase>
 inline void Mutator<TBase>::_stepn() {
+
+    if (!_initialized) {
+        for (int i = 0; i < TBase::inputs[INITIAL_VOLTAGE_INPUT].channels; ++i) {
+            const float v = TBase::inputs[INITIAL_VOLTAGE_INPUT].getVoltage(i);
+            FloatNote fn(v);
+            MidiNote midiNote;
+            NoteConvert::f2m(midiNote, fn);
+            _theNoteData.setNote(i, midiNote);
+        }
+        _initialized = true;
+    }
  
     //currentRoot = currrentScale
     MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);
@@ -98,6 +112,10 @@ inline void Mutator<TBase>::_stepn() {
    auto centerPort = TBase::inputs[CENTER_VOLTAGE_INPUT];
    float centerV = centerPort.isConnected() ?   centerPort.value : 0;
    _theStyle.centerVoltage = centerV;
+
+   _theStyle.numToMutate = int(std::round(TBase::params[SLOTS_TO_CHANGE_PARAM].value));
+   _theStyle.mutateAdjacent= bool( std::round(TBase::params[ADJACENT_SLOTS_PARAM].value));
+   
 }
 
 template <class TBase>
@@ -120,12 +138,16 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
         FloatNote floatNote;
         NoteConvert::m2f(floatNote, _theNoteData.getNote(i));
         TBase::outputs[NOTES_OUTPUT].setVoltage(floatNote.get(), i);
+        
+        //const float q =TBase::outputs[NOTES_OUTPUT].getVoltage(i);
+        // SQINFO("proc: just set output %llu to %f, is %f", i, floatNote.get(), q);
+        // SQINFO("addr of port = %p", &TBase::outputs[NOTES_OUTPUT]);
     }
 }
 
 template <class TBase>
 inline void Mutator<TBase>::_processTrigger() {
-   SQINFO("process trigger");
+//   SQINFO("process trigger");
 //    SQINFO("style params are %s", 
 //         TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value,
 //         TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value,
@@ -145,7 +167,7 @@ inline void Mutator<TBase>::_processTrigger() {
    _theStyle.unisonWeight = 4 * _audioCurve(TBase::params[UNISON_WEIGHT_STYLE_PARAM].value);
    _theStyle.pitchRangeWeight = 4 * _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
    _theStyle.nonCenteredWeight = 4 * _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
-   SQINFO("style params = %s", _theStyle.toString().c_str());
+//   SQINFO("style params = %s", _theStyle.toString().c_str());
  //   SQINFO("%s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
 
     MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);

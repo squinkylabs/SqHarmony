@@ -361,7 +361,7 @@ static void testMelodyGeneratorMutateDrift3() {
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     r.init(5, scale);
 
-    SQINFO(("orig row = " + r.toString()).c_str());
+   // SQINFO(("orig row = " + r.toString()).c_str());
 
     assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
     const int iterations = 5000;
@@ -429,7 +429,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(
     MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
 
     for (size_t i = 0; i < numToMutate; ++i) {
-        SQINFO("in compare loop, i=%lld epxected=%d actual=%d", i, expected[i], indiciesToMutate[i]);
+        // SQINFO("in compare loop, i=%lld epxected=%d actual=%d", i, expected[i], indiciesToMutate[i]);
         assertEQ(indiciesToMutate[i], expected[i]);
     }
     assertEQ(indiciesToMutate[numToMutate], -1);
@@ -474,7 +474,6 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate2() {
     testMelodyGeneratorMutate_getIndiciesToMutate(true, 4, 3, 1, expectedIndiciesToMutate3, 0);  
 
      // three adjacent, wrap
-     SQINFO("  3 w ");
      int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {3, 4, 0, -1};
      testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 3, expectedIndiciesToMutate4, 1);
 }
@@ -485,10 +484,33 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate3() {
     testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4, 1);
 }
 
+// mutate all
+static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
+    MelodyRow row;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+    Scale scale = scaleCMaj();
+
+    const int rowLength = 5;
+    style.mutateAdjacent = true;
+    style.numToMutate = 0;
+
+    row.init(rowLength, scale);
+    int indiciesToMutate[MelodyRow::maxNotes + 1];
+    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+    assertEQ(indiciesToMutate[0], 0);
+    assertEQ(indiciesToMutate[1], 1);
+    assertEQ(indiciesToMutate[2], 2);
+    assertEQ(indiciesToMutate[3], 3);
+    assertEQ(indiciesToMutate[4], 4);
+    assertEQ(indiciesToMutate[5], -1);
+}
+
 static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     testMelodyGeneratorMutate_getIndiciesToMutate1();
     testMelodyGeneratorMutate_getIndiciesToMutate2();
     testMelodyGeneratorMutate_getIndiciesToMutate3();
+    testMelodyGeneratorMutate_getIndiciesToMutate4();
 }
 
 /////////////////////////////////////////////////////
@@ -522,11 +544,12 @@ void testMelodyGenerator() {
     testMelodyGenerator2();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // testMelodyGeneratorMutateDrift3();
-    testMelodyGeneratorMutate_getIndiciesToMutate();
+   // testMelodyGeneratorMutate_getIndiciesToMutate();
+  //  testMelodyGeneratorMutate_getIndiciesToMutate4();
     // testMelodyGeneratorMutateTooMany();
-    // testMelodyGenerator();
+    testMelodyGenerator();
 }
 #endif

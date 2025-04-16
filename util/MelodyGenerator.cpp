@@ -70,25 +70,21 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     assert(row.getSize() <= 16);
 
     int toMutate[16 + 1];
-    int index = 0;
-    const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
-    for (int i = 0; i < numThisTime; ++i) {
-        int x = state.nextToMutate + i;
-        // if (x >= row.getSize()) {           // make this a method on row?
-        //     x -= row.getSize();
-        // }
-        x = row.wrapIndex(x);
-        assert(x < row.getSize());
-        toMutate[index++] = x;
-    }
-    toMutate[index] = -1;
+    getIndiciesToMutate(row, scale, state, style, toMutate);
     _mutateSome(row, scale, state, style, toMutate);
 }
 
 void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
     const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
     int index = 0;
-    if (style.mutateAdjacent) {
+    if (style.numToMutate == 0) {
+        size_t i;
+        for (i = 0; i < row.getSize(); ++i) {
+            indiciesToMutate[i] = i;
+        }
+        index = i;      // so that at the end we can terminate
+
+    } else if (style.mutateAdjacent) {
         for (int i = 0; i < numThisTime; ++i) {
             int x = state.nextToMutate + i;
             x = row.wrapIndex(x);
@@ -102,13 +98,13 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
         double floatingAcc = 0;
         // int integerAcc = 0;
 
-        SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
+        //SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
         indiciesToMutate[index++] = state.nextToMutate;  // always mutate the current one
         for (size_t i = 1; i < row.getSize(); ++i) {
 
             floatingAcc += 1.0;
 
-            SQINFO("i=%lld facc=%f", i, floatingAcc);
+            //SQINFO("i=%lld facc=%f", i, floatingAcc);
             if (floatingAcc >= quota) {
                 const int x = row.wrapIndex(i + state.nextToMutate);
                 indiciesToMutate[index++] = x ;

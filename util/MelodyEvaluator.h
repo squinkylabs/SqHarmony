@@ -5,7 +5,7 @@ class MelodyMutateStyle {
 public:
     bool keepInScale = true;
     bool roundRobin = true;         
-    int numToMutate = 1;
+    int numToMutate = 1;            // if zero, mutate all.
     bool mutateAdjacent = true;
 
     float centerVoltage = 0;

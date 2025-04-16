@@ -33,10 +33,13 @@ public:
         addLabel(Vec(38, 6), "Mutator", 20);
         addLabel(Vec(35, 356), "Squinktronix", 17);
 #endif
-        const float yJax = 340;
-        addInputL(Vec(10, yJax), Comp::MUTATE_INPUT, "Mut");
-        addInputL(Vec(50, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr");
-        addOutputL(Vec(90, yJax), Comp::NOTES_OUTPUT, "Notes");
+        const float yJax = 320;
+        const float dx = 30;
+        const float d0 = 10;
+        addInputL(Vec(d0, yJax), Comp::MUTATE_INPUT, "Mut", 1);
+        addInputL(Vec(d0 + dx, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr", 2);
+        addOutputL(Vec(d0 + 2 * dx, yJax), Comp::NOTES_OUTPUT, "Notes", 2);
+        addOutputL(Vec(d0 + 3 * dx, yJax), Comp::INITIAL_VOLTAGE_INPUT, "Init", 6);
 
         addKeysig(module);
 
@@ -140,7 +143,7 @@ private:
     const float xPes = x2;
 
     void addKeysig(MutatorModule* xmodule) {
-        const float yScale = 280;
+        const float yScale = 270;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
