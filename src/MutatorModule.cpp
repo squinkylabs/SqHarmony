@@ -30,8 +30,10 @@ public:
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/visualizer.svg")));
 
 #if 1  // def _LAB
-        addLabel(Vec(38, 6), "Mutator", 20);
-        addLabel(Vec(35, 356), "Squinktronix", 17);
+        addLabel(Vec(40, 6), "Mutator", 20);
+
+        // 35 x was too far left
+        addLabel(Vec(38, 356), "Squinktronix", 17);
 #endif
         const float yJax = 320;
         const float dx = 30;
@@ -39,15 +41,15 @@ public:
         addInputL(Vec(d0, yJax), Comp::MUTATE_INPUT, "Mut", 1);
         addInputL(Vec(d0 + dx, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr", 2);
         addOutputL(Vec(d0 + 2 * dx, yJax), Comp::NOTES_OUTPUT, "Notes", 2);
-        addOutputL(Vec(d0 + 3 * dx, yJax), Comp::INITIAL_VOLTAGE_INPUT, "Init", 6);
+        addInputL(Vec(d0 + 3 * dx, yJax), Comp::INITIAL_VOLTAGE_INPUT, "Init", 6);
 
         addKeysig(module);
 
         addParamL<RoundBigBlackSnapKnob>(Vec(40, 50), module, Comp::ROW_LENGTH_PARAM, "Steps", 14);
-        //   addParam(param);
 
         addStyle(module);
         addStyle2(module);
+        addDebug(module);
     }
 
 private:
@@ -184,6 +186,13 @@ private:
         addParam(p);
 
         addParam(createParam<CKSS>(Vec(80, y), module, Comp::ADJACENT_SLOTS_PARAM));
+    }
+
+    void addDebug(Module* module) {
+        const float y = 360;        // 350 too high
+      //  void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
+      addInputL( Vec(0, y), Comp::DEBUG_REINIT_INPUT, "re ini", 9);
+      addInputL( Vec(110, y), Comp::DEBUG_EVAL_INPUT, "eval", 3);
     }
 };
 

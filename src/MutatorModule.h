@@ -16,6 +16,8 @@ public:
         this->configInput(Comp::MUTATE_INPUT, "Mutate trigger");
         this->configInput(Comp::CENTER_VOLTAGE_INPUT, "Center voltage");
         this->configInput(Comp::INITIAL_VOLTAGE_INPUT, "Initial pitches");
+        this->configInput(Comp::DEBUG_EVAL_INPUT, "Evaluate for debug");
+        this->configInput(Comp::DEBUG_REINIT_INPUT, "Re-initialize pitch for debug");
         
 
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");

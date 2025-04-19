@@ -22,7 +22,7 @@ public:
 
 class MelodyEvaluator {
 public:
-    static float getPenalty(const class MelodyRow&, const MelodyMutateStyle&);
+    static float getPenalty(const class MelodyRow&, const MelodyMutateStyle&, bool show = false);
 
     static float leapsPenalty(const MelodyRow&, const MelodyMutateStyle&);
     static float unisonsPenalty(const MelodyRow&, const MelodyMutateStyle&);

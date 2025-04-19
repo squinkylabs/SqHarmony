@@ -14,13 +14,19 @@ std::string MelodyMutateStyle::toString() const {
     return s.str();
 }
 
-float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
-    float totalPenalty = 0;
-    totalPenalty += leapsPenalty(r, style);
-    totalPenalty += unisonsPenalty(r, style);
-    totalPenalty += nonCenteredPenalty(r, style);
-    totalPenalty += pitchRangePenalty(r, style);
-    return totalPenalty;
+float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style, bool show) {
+    const float lp = leapsPenalty(r, style);   
+    const float up = unisonsPenalty(r, style);
+    const float cp = nonCenteredPenalty(r, style);
+    const float prp = pitchRangePenalty(r, style);
+
+    const float total = lp + up + cp + prp;
+    if (show) {
+        SQINFO("lp = %f up=%f cp=%f prp=%f", lp, up, cp, prp);
+        SQINFO("total = %f", total);
+    }
+    return total;
+   
 }
 
 std::string MelodyEvaluator::toString(const MelodyRow& row, const MelodyMutateStyle& style) {

@@ -41,6 +41,8 @@ public:
         MUTATE_INPUT,
         CENTER_VOLTAGE_INPUT,
         INITIAL_VOLTAGE_INPUT,
+        DEBUG_REINIT_INPUT,
+        DEBUG_EVAL_INPUT,
         NUM_INPUTS
     };
 
@@ -71,6 +73,11 @@ private:
 
     std::function<double(double)> _audioCurve;
     bool _initialized = false;
+
+    void _pollDebug();
+    void _evalDebug();
+    GateTrigger _debugReinitProc;
+    GateTrigger _debugEvalProc;
 };
 
 template <class TBase>
@@ -86,6 +93,28 @@ inline void Mutator<TBase>::_init() {
         this->_stepn();
     });
 }
+
+template <class TBase>
+inline void Mutator<TBase>::_pollDebug() {
+    _debugReinitProc.go( TBase::inputs[DEBUG_REINIT_INPUT].getVoltage(0));
+    if (_debugReinitProc.trigger()) {
+        SQINFO("re-init");
+        _initialized = false;
+    }
+
+    _debugEvalProc.go( TBase::inputs[DEBUG_EVAL_INPUT].getVoltage(0));
+    if (_debugEvalProc.trigger()) {
+        SQINFO("eval");
+        _evalDebug();
+    }
+}
+
+template <class TBase>
+inline void Mutator<TBase>::_evalDebug() {
+    MelodyEvaluator::getPenalty(_theNoteData, _theStyle, true);
+    SQINFO("eval debug");
+}
+
 
 template <class TBase>
 inline void Mutator<TBase>::_stepn() {
@@ -105,6 +134,7 @@ inline void Mutator<TBase>::_stepn() {
     MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);
    _theScale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
    //SQINFO("root = %d  param=%f scale param=%f", root.get(), TBase::params[KEY_PARAM].value, TBase::params[MODE_PARAM].value);
+   _pollDebug();
 
  //  std::pair<const MidiNote, Scale::Scales> currentScale = _theScale.get();
   // SQINFO("scale = %d %d", currentScale.first.get(), int(currentScale.second));
