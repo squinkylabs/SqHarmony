@@ -132,7 +132,21 @@ inline void Mutator<TBase>::_stepn() {
             NoteConvert::f2m(midiNote, fn);
             _theNoteData.setNote(i, midiNote);
         }
+
+        TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
         _initialized = true;
+    }
+
+    int desiredLen = TBase::params[ROW_LENGTH_PARAM].value;
+    desiredLen = std::min(desiredLen, 16);
+    desiredLen = std::max(desiredLen, 1);
+
+    assert(desiredLen > 0);
+    assert(desiredLen < 17);
+    if (desiredLen != _theNoteData.getSize()) {
+        _theNoteData.setSize(desiredLen);
+        SQINFO("setting length to %d", desiredLen);
+        TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
     }
 
     // currentRoot = currrentScale
@@ -164,8 +178,6 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
 
     // SQINFO("x %llu", _theNoteData.getSize());
 
-    // This could be done only on change, if desired.
-    TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
     for (size_t i = 0; i < _theNoteData.getSize(); ++i) {
         //  SQINFO("set volt(1.3, %llu)", i);
 

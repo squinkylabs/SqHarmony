@@ -23,7 +23,7 @@ public:
         this->configParam(Comp::KEY_PARAM, 0, 11, 0, "Key signature root");
         // TODO: what is the real number of modes?
         this->configParam(Comp::MODE_PARAM, 0, (int) Scale::Scales::Chromatic, 0, "Key signature mode");
-        this->configParam(Comp::ROW_LENGTH_PARAM, 2, 32, 8, "Length");
+        this->configParam(Comp::ROW_LENGTH_PARAM, 1, 16, 8, "Length");
 
         this->configParam(Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, 0, 1, .5, "force pitches to desired center weight");
         this->configParam(Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, 0, 1, .5, "spread pitches across desired range weight");
