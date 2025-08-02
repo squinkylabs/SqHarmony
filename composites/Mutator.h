@@ -120,13 +120,26 @@ inline void Mutator<TBase>::_evalDebug() {
 
 template <class TBase>
 inline void Mutator<TBase>::_stepn() {
+    int desiredLen = TBase::params[ROW_LENGTH_PARAM].value;
+    desiredLen = std::min(desiredLen, 16);
+    desiredLen = std::max(desiredLen, 1);
+
+    assert(desiredLen > 0);
+    assert(desiredLen < 17);
+    if (desiredLen != _theNoteData.getSize()) {
+        _theNoteData.setSize(desiredLen);
+        SQINFO("setting length to %d raw=%f", desiredLen, TBase::params[ROW_LENGTH_PARAM].value);
+        TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
+    }
+
     if (!_initialized) {
         const int channels = TBase::inputs[INITIAL_VOLTAGE_INPUT].channels;
 
-        SQINFO("r-init chan=%d", TBase::inputs[INITIAL_VOLTAGE_INPUT].channels);
+        SQINFO("r-init chan count=%d", TBase::inputs[INITIAL_VOLTAGE_INPUT].channels);
+     //   assert(_theNoteData.getSize() == channels);
         for (int i = 0; i < int(_theNoteData.getSize()); ++i) {
             const float v = (i < channels) ? TBase::inputs[INITIAL_VOLTAGE_INPUT].getVoltage(i) : 0;
-            SQINFO("re-init ch %d to %f", i, v);
+            SQINFO("re-init output ch %d to %f based on note data len %d", i, v, (unsigned) _theNoteData.getSize());
             FloatNote fn(v);
             MidiNote midiNote;
             NoteConvert::f2m(midiNote, fn);
@@ -137,17 +150,7 @@ inline void Mutator<TBase>::_stepn() {
         _initialized = true;
     }
 
-    int desiredLen = TBase::params[ROW_LENGTH_PARAM].value;
-    desiredLen = std::min(desiredLen, 16);
-    desiredLen = std::max(desiredLen, 1);
 
-    assert(desiredLen > 0);
-    assert(desiredLen < 17);
-    if (desiredLen != _theNoteData.getSize()) {
-        _theNoteData.setSize(desiredLen);
-        SQINFO("setting length to %d", desiredLen);
-        TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
-    }
 
     // currentRoot = currrentScale
     MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);

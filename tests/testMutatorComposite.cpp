@@ -11,28 +11,49 @@ static void testCanCall() {
 }
 
 // tests that initial voltage doesn't come through immediately
-static void testInitial1() {
+static void testInitial1x(unsigned int voices) {
     Comp c;
-    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].channels = 8;
-    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].setVoltage(1.f, 0);
+    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].channels = voices - 1;
 
-    const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(0);
-    assertEQ(v, 0.f)
+    for (unsigned int i = 0; i < voices; ++i) {
+        c.inputs[Comp::INITIAL_VOLTAGE_INPUT].setVoltage(1.f, 1);
+        const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(1);
+        assertEQ(v, 0.f)
+    }
+}
+
+static void testInitial1() {
+    testInitial1x(1);
+    testInitial1x(16);
 }
 
 // tests that initial voltage comes through after process
-static void testInitial2() {
+static void testInitial2x(unsigned int voices) {
+    SQINFO("testInitial2x %d", voices);
+    assert(voices > 0);
+    assert(voices <= 16);
     Comp c;
     const auto args = TestComposite::ProcessArgs();
-
-    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].channels = 8;
     const float testV = 3.f + 7.f / 12.f;  // pick a quantized pitch
-    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].setVoltage(testV, 0);
+    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].channels = voices;
+    c.params[Comp::ROW_LENGTH_PARAM].value = voices;
+  //  TBase::params[ROW_LENGTH_PARAM].value;
+
+    for (unsigned int i = 0; i < voices; ++i) {
+        c.inputs[Comp::INITIAL_VOLTAGE_INPUT].setVoltage(testV, i);
+    }
 
     c.process(args);
 
-    const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(0);
-    assertEQ(v, testV);
+    for (unsigned int i = 0; i < voices; ++i) {
+        const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
+        assertEQ(v, testV);
+    }
+}
+
+static void testInitial2() {
+    testInitial2x(1);
+    testInitial2x(16);
 }
 
 static void testInitialQuantize() {
@@ -110,18 +131,35 @@ static void testInitialSteps() {
     assertEQ(x, 8);
 }
 
-static void testStepsX(int steps) {
+static void testStepsX(int stepsToSet, int stepsExpected) {
     Comp c;
     init(c);
-    c.params[Comp::ROW_LENGTH_PARAM].value = steps;
+    c.params[Comp::ROW_LENGTH_PARAM].value = stepsToSet;
     clockIt(c, 1);
     const int x = c.outputs[Comp::NOTES_OUTPUT].channels;
-    assertEQ(x, steps);
+    assertEQ(x, stepsExpected);
 }
 
 static void testSteps() {
-    for (int i=1; i<=16; ++i) {
-        testStepsX(i);
+    for (int i = 1; i <= 16; ++i) {
+        testStepsX(i, i);
+    }
+    testStepsX(0, 1);
+    testStepsX(-5, 1);
+    testStepsX(17, 16);
+    testStepsX(1000, 16);
+}
+
+static void testStepMove() {
+    Comp c;
+    init(c);
+    c.params[Comp::ROW_LENGTH_PARAM].value = 4;
+    clockIt(c, 1);
+    float voltages[4];
+    for (int i = 0; i < 4; ++i) {
+        voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
+        assertGT(voltages[i], 0);
+        SQINFO("volt %d is %f", i, voltages[i]);
     }
 }
 
@@ -140,7 +178,9 @@ void testMutatorComposite() {
 #if 1
 void testFirst() {
     testMutatorComposite();
-   // testInitial2();
-   // testSteps();
+    // testInitial1();
+  //  testInitial2();
+    //  testSteps();
+    // testStepMove();
 }
 #endif
