@@ -68,7 +68,7 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyl
     if (unisons <= 1) {
         return 0;
     }
-    SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
+   // SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
     return float(unisons) / float(r.getSize());
 }
 
@@ -103,10 +103,10 @@ float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateS
     
 
     const int diff = std::abs(style.idealPitchRange2 - range);
-    SQINFO("range=%d min=%d max=%d diff=%d", range, min, max, diff);
-    SQINFO("diff / 12=%f weight=%f", (diff / 12.), style.pitchRangeWeight);
+    //SQINFO("range=%d min=%d max=%d diff=%d", range, min, max, diff);
+    //SQINFO("diff / 12=%f weight=%f", (diff / 12.), style.pitchRangeWeight);
 
     const float ret = (diff / 12.) * style.pitchRangeWeight;
-    SQINFO("pitchRangePenalty will ret %f", ret);
+    //SQINFO("pitchRangePenalty will ret %f", ret);
     return ret;
 };

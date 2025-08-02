@@ -104,6 +104,7 @@ class MelodyMutateState {
 public:
     MelodyMutateState() {
         random.seed(1234, 5678);
+         SQINFO("ctor to %d", nextToMutate);
     }
     size_t nextToMutate = 0;
     rack::random::Xoroshiro128Plus random;
@@ -118,4 +119,6 @@ public:
     static void _mutateOne(MelodyRow& row, size_t index, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style);
     static void _mutateSome(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int * indiciesToMutate);
     static void _changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange);
+
+    static void makeStateLegal(MelodyMutateState& state, const MelodyRow& row);
 };

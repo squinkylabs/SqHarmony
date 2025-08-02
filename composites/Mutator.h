@@ -99,7 +99,7 @@ template <class TBase>
 inline void Mutator<TBase>::_pollDebug() {
     _debugReinitProc.go(TBase::inputs[DEBUG_REINIT_INPUT].getVoltage(0));
     if (_debugReinitProc.trigger()) {
-        SQINFO("re-init");
+        //SQINFO("re-init");
         _initialized = false;
     }
 
@@ -135,11 +135,11 @@ inline void Mutator<TBase>::_stepn() {
     if (!_initialized) {
         const int channels = TBase::inputs[INITIAL_VOLTAGE_INPUT].channels;
 
-        SQINFO("r-init chan count=%d", TBase::inputs[INITIAL_VOLTAGE_INPUT].channels);
+      //  SQINFO("r-init chan count=%d", TBase::inputs[INITIAL_VOLTAGE_INPUT].channels);
      //   assert(_theNoteData.getSize() == channels);
         for (int i = 0; i < int(_theNoteData.getSize()); ++i) {
             const float v = (i < channels) ? TBase::inputs[INITIAL_VOLTAGE_INPUT].getVoltage(i) : 0;
-            SQINFO("re-init output ch %d to %f based on note data len %d", i, v, (unsigned) _theNoteData.getSize());
+            //SQINFO("re-init output ch %d to %f based on note data len %d", i, v, (unsigned) _theNoteData.getSize());
             FloatNote fn(v);
             MidiNote midiNote;
             NoteConvert::f2m(midiNote, fn);
@@ -175,7 +175,7 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
     const float mutateInput = TBase::inputs[MUTATE_INPUT].getVoltage(0);
     _mutateTrigger.go(mutateInput);
     if (_mutateTrigger.trigger()) {
-        // SQINFO("trigger");
+        SQINFO("composite::_processtrigger input=%f", mutateInput);
         _processTrigger();
     }
 
@@ -218,6 +218,7 @@ inline void Mutator<TBase>::_processTrigger() {
     _theStyle.pitchRangeWeight = 4 * _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
     _theStyle.idealPitchRange2 = TBase::params[PITCH_RANGE_STYLE_PARAM].value;
     _theStyle.nonCenteredWeight = 4 * _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
+  #if 0
     SQINFO("process trgger set to %f %f %f %f",
            _theStyle.leapsWeight,
            _theStyle.unisonWeight,
@@ -227,9 +228,9 @@ inline void Mutator<TBase>::_processTrigger() {
     SQINFO("process trigger set weight %s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
     //   SQINFO("style params = %s", _theStyle.toString().c_str());
     //   SQINFO("%s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
-
+#endif
     MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
     //  SQINFO("notes: %s", _theNoteData.print().c_str());
 
-    SQINFO("exit process trigger----");
+    //SQINFO("exit process trigger----");
 }
