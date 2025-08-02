@@ -29,7 +29,7 @@ static void testInitial1() {
 
 // tests that initial voltage comes through after process
 static void testInitial2x(unsigned int voices) {
-    SQINFO("testInitial2x %d", voices);
+    // SQINFO("testInitial2x %d", voices);
     assert(voices > 0);
     assert(voices <= 16);
     Comp c;
@@ -109,16 +109,16 @@ static void clockIt(Comp& c, unsigned int count) {
     assertGT(count, 0);
     // Comp c;
 
-     SQINFO("--- clockit 112 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+    //   SQINFO("--- clockit 112 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
     const auto args = TestComposite::ProcessArgs();
 
     // make sure it's zero
     c.inputs[Comp::MUTATE_INPUT].setVoltage(0, 0);
 
-     SQINFO("--- clockit 118 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+    //  SQINFO("--- clockit 118 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
     c.process(args);
 
-     SQINFO("--- clockit 121 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+    // SQINFO("--- clockit 121 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
     // clock it
     for (unsigned int i = 0; i < count; ++i) {
         c.inputs[Comp::MUTATE_INPUT].setVoltage(10, 0);
@@ -156,40 +156,50 @@ static void testSteps() {
 }
 
 // Tests that the expected step moves when clocked.
-static void testStepMove() {
+static void testStepMove(Comp& c, int expectedMove) {
     float voltages[4];
-    Comp c;
-     const auto args = TestComposite::ProcessArgs();
-    SQINFO("--- testStepMove 155 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
-   
-    init(c);
-    c.params[Comp::ROW_LENGTH_PARAM].value = 4;
-#if 1
-     SQINFO("--- testStepMove 159 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
-    //clockIt(c, 1);
-     c.process(args);
-      SQINFO("--- testStepMove 160  %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
-   
+    // Comp c;
+    const auto args = TestComposite::ProcessArgs();
+    //  SQINFO("--- testStepMove(%d) 155 %f", expectedMove, c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+
+    // SQINFO("--- testStepMove 159 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+    // clockIt(c, 1);
+    c.process(args);
+    // SQINFO("--- testStepMove 160  %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+
     for (int i = 0; i < 4; ++i) {
         voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
-        SQINFO("volt %d is %f", i, voltages[i]);
+        //  SQINFO("volt %d is %f", i, voltages[i]);
     }
-    #endif
 
-      SQINFO("--- testStepMove 167");
+    //  SQINFO("--- testStepMove 167");
     c.inputs[Comp::MUTATE_INPUT].value = 10;
     clockIt(c, 1);
-      SQINFO("--- testStepMove 170");
+    // SQINFO("--- testStepMove 170");
     for (int i = 0; i < 4; ++i) {
         const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
-        SQINFO("volt after %f", v);
-        if (i == 0) {
+        // SQINFO("volt after %f", v);
+        if (i == expectedMove) {
             assertNE(v, voltages[i]);
         } else {
             assertEQ(v, voltages[i]);
         }
-        
     }
+}
+
+static void testStepMove() {
+    Comp c;
+    const auto args = TestComposite::ProcessArgs();
+    // SQINFO("--- testStepMove 155 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+
+    init(c);
+    c.params[Comp::ROW_LENGTH_PARAM].value = 4;
+
+    testStepMove(c, 0);
+    testStepMove(c, 1);
+    testStepMove(c, 2);
+    testStepMove(c, 3);
+    testStepMove(c, 0);
 }
 
 void testMutatorComposite() {
@@ -202,6 +212,7 @@ void testMutatorComposite() {
 
     testInitialSteps();
     testSteps();
+    testStepMove();
 }
 
 #if 1
@@ -210,6 +221,6 @@ void testFirst() {
     // testInitial1();
     //  testInitial2();
     //  testSteps();
-    //testStepMove();
+    // testStepMove();
 }
 #endif

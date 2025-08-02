@@ -66,7 +66,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     assert(style.numToMutate == 1);
 
     makeStateLegal(state, row);
-   
+
     assert(style.roundRobin == true);
     assert(style.mutateAdjacent == true);
     assert(row.getSize() <= 16);
@@ -77,7 +77,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
         assert(style.numToMutate == 1);
         _mutateOne(row, noteIndex, scale, state, style);
         state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);
-        SQINFO("in mutate: advance next 65 to %d", state.nextToMutate);
+        // SQINFO("in mutate: advance next 65 to %d", state.nextToMutate);
         return;
     }
 
@@ -94,7 +94,7 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
         for (i = 0; i < row.getSize(); ++i) {
             indiciesToMutate[i] = i;
         }
-        index = i;      // so that at the end we can terminate
+        index = i;  // so that at the end we can terminate
 
     } else if (style.mutateAdjacent) {
         for (int i = 0; i < numThisTime; ++i) {
@@ -105,30 +105,29 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
             indiciesToMutate[index++] = x;
         }
         state.nextToMutate = row.wrapIndex(state.nextToMutate + numThisTime);  // advance to next one
-         SQINFO("advance next 96 to %d", state.nextToMutate);
-      
+        SQINFO("advance next 96 to %d", state.nextToMutate);
+
     } else {
         const double quota = double(row.getSize()) / double(numThisTime);
         double floatingAcc = 0;
         // int integerAcc = 0;
 
-        //SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
+        // SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
         indiciesToMutate[index++] = state.nextToMutate;  // always mutate the current one
         for (size_t i = 1; i < row.getSize(); ++i) {
-
             floatingAcc += 1.0;
 
-            //SQINFO("i=%lld facc=%f", i, floatingAcc);
+            // SQINFO("i=%lld facc=%f", i, floatingAcc);
             if (floatingAcc >= quota) {
                 const int x = row.wrapIndex(i + state.nextToMutate);
-                indiciesToMutate[index++] = x ;
+                indiciesToMutate[index++] = x;
                 floatingAcc -= std::floor(floatingAcc);
             }
         }
         state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
-         SQINFO("advance next 117 to %d", state.nextToMutate);
+        SQINFO("advance next 117 to %d", state.nextToMutate);
     }
-   
+
     indiciesToMutate[index] = -1;
 }
 
