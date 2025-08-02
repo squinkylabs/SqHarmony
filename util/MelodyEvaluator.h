@@ -12,7 +12,7 @@ public:
     Scale scale;
    // double nonCenteredWeight = .1; // was .0000000001
     float nonCenteredWeight = 1;
-    float idealPitchRange = 24;     // two octaves
+    float idealPitchRange2 = 2 * 12;     // two octaves
     float pitchRangeWeight = 1;
     float leapsWeight = 1;
     float unisonWeight = 1;
@@ -22,7 +22,7 @@ public:
 
 class MelodyEvaluator {
 public:
-    static float getPenalty(const class MelodyRow&, const MelodyMutateStyle&, bool show = false);
+    static float getPenalty(const class MelodyRow&, const MelodyMutateStyle&);
 
     static float leapsPenalty(const MelodyRow&, const MelodyMutateStyle&);
     static float unisonsPenalty(const MelodyRow&, const MelodyMutateStyle&);

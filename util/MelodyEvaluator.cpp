@@ -14,30 +14,27 @@ std::string MelodyMutateStyle::toString() const {
     return s.str();
 }
 
-float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style, bool show) {
+float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     const float lp = leapsPenalty(r, style);   
     const float up = unisonsPenalty(r, style);
     const float cp = nonCenteredPenalty(r, style);
     const float prp = pitchRangePenalty(r, style);
 
     const float total = lp + up + cp + prp;
-    if (show) {
-        SQINFO("lp = %f up=%f cp=%f prp=%f", lp, up, cp, prp);
-        SQINFO("total = %f", total);
-    }
     return total;
-   
 }
 
 std::string MelodyEvaluator::toString(const MelodyRow& row, const MelodyMutateStyle& style) {
     std::stringstream s;
     s << row.toString();
-    s << " penalty =";
+    s << " penalty=";
     s << getPenalty(row, style);
-    s << " leap: " << leapsPenalty(row, style);
-    s << " uni: " << unisonsPenalty(row, style);
-    s << " nonc: " << float((nonCenteredPenalty(row, style) * style.nonCenteredWeight));
-    s << " range: " << pitchRangePenalty(row, style);
+    s << " leap=" << leapsPenalty(row, style);
+    s << " uni=" << unisonsPenalty(row, style);
+    s << " non-cent=" << float((nonCenteredPenalty(row, style) * style.nonCenteredWeight));
+    s << " range=" << pitchRangePenalty(row, style);
+
+    SQINFO("weights = %f, %f, %f, %f", style.nonCenteredWeight, style.pitchRangeWeight, style.unisonWeight, style.leapsWeight);
 
     return s.str();
 }
@@ -71,6 +68,7 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyl
     if (unisons <= 1) {
         return 0;
     }
+    SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
     return float(unisons) / float(r.getSize());
 }
 
@@ -102,9 +100,13 @@ float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateS
         max = std::max(max, note.get());
     }
     const int range = max - min;
-    // SQINFO("range=%d min=%d max=%d", range, min, max);
+    
 
-    const int diff = std::abs(style.idealPitchRange - range);
+    const int diff = std::abs(style.idealPitchRange2 - range);
+    SQINFO("range=%d min=%d max=%d diff=%d", range, min, max, diff);
+    SQINFO("diff / 12=%f weight=%f", (diff / 12.), style.pitchRangeWeight);
 
-    return (diff / 12.) * style.pitchRangeWeight;
+    const float ret = (diff / 12.) * style.pitchRangeWeight;
+    SQINFO("pitchRangePenalty will ret %f", ret);
+    return ret;
 };
