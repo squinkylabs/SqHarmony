@@ -126,7 +126,7 @@ inline void Mutator<TBase>::_stepn() {
 
     assert(desiredLen > 0);
     assert(desiredLen < 17);
-    if (desiredLen != _theNoteData.getSize()) {
+    if (desiredLen != (int) _theNoteData.getSize()) {
         _theNoteData.setSize(desiredLen);
         // SQINFO("setting length to %d raw=%f", desiredLen, TBase::params[ROW_LENGTH_PARAM].value);
         TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());

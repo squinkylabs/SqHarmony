@@ -63,7 +63,7 @@ void MelodyGenerator::makeStateLegal(MelodyMutateState& state, const MelodyRow& 
 }
 
 void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
-    assert(style.numToMutate == 1);
+ //   assert(style.numToMutate == 1);
 
     makeStateLegal(state, row);
 
@@ -83,6 +83,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
 
     int toMutate[16 + 1];
     getIndiciesToMutate(row, scale, state, style, toMutate);
+    SQINFO("to mutate = %d %d %d %d %d", toMutate[0], toMutate[1], toMutate[2], toMutate[3], toMutate[4]);
     _mutateSome(row, scale, state, style, toMutate);
 }
 
@@ -99,13 +100,13 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
     } else if (style.mutateAdjacent) {
         for (int i = 0; i < numThisTime; ++i) {
             int x = state.nextToMutate + i;
-            SQINFO("use at 90  %d", state.nextToMutate);
+            // SQINFO("use at 90  %d", state.nextToMutate);
             x = row.wrapIndex(x);
-            assert(x < row.getSize());
+            assert(x < (int) row.getSize());
             indiciesToMutate[index++] = x;
         }
         state.nextToMutate = row.wrapIndex(state.nextToMutate + numThisTime);  // advance to next one
-        SQINFO("advance next 96 to %d", state.nextToMutate);
+        // SQINFO("advance next 96 to %d", state.nextToMutate);
 
     } else {
         const double quota = double(row.getSize()) / double(numThisTime);
@@ -125,7 +126,7 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
             }
         }
         state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
-        SQINFO("advance next 117 to %d", state.nextToMutate);
+        // SQINFO("advance next 117 to %d", state.nextToMutate);
     }
 
     indiciesToMutate[index] = -1;
@@ -133,7 +134,8 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
 
 void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
     for (int i = 0; indiciesToMutate[i] >= 0; ++i) {
-        _mutateOne(row, i, scale, state, style);
+        const int index = indiciesToMutate[i];
+        _mutateOne(row, index, scale, state, style);
     }
 }
 
@@ -141,6 +143,8 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
     assert(style.keepInScale);  // don't know how to do other.
     assert(style.roundRobin);
     assert(noteIndex < row.getSize());
+
+    SQINFO("mutateOne %d", (int)noteIndex);
 
     int candidateShifts[] = {-2, -1, 1, 2, 0};
     MelodyRow mutatedCandidates[4];

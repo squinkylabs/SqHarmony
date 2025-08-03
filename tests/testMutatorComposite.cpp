@@ -160,25 +160,17 @@ static void testStepMove(Comp& c, int expectedMove) {
     float voltages[4];
     // Comp c;
     const auto args = TestComposite::ProcessArgs();
-    //  SQINFO("--- testStepMove(%d) 155 %f", expectedMove, c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
-
-    // SQINFO("--- testStepMove 159 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
-    // clockIt(c, 1);
     c.process(args);
-    // SQINFO("--- testStepMove 160  %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+
 
     for (int i = 0; i < 4; ++i) {
         voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
-        //  SQINFO("volt %d is %f", i, voltages[i]);
     }
 
-    //  SQINFO("--- testStepMove 167");
     c.inputs[Comp::MUTATE_INPUT].value = 10;
     clockIt(c, 1);
-    // SQINFO("--- testStepMove 170");
     for (int i = 0; i < 4; ++i) {
         const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
-        // SQINFO("volt after %f", v);
         if (i == expectedMove) {
             assertNE(v, voltages[i]);
         } else {
@@ -189,7 +181,7 @@ static void testStepMove(Comp& c, int expectedMove) {
 
 static void testStepMove() {
     Comp c;
-    const auto args = TestComposite::ProcessArgs();
+   // const auto args = TestComposite::ProcessArgs();
     // SQINFO("--- testStepMove 155 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
 
     init(c);
@@ -200,6 +192,48 @@ static void testStepMove() {
     testStepMove(c, 2);
     testStepMove(c, 3);
     testStepMove(c, 0);
+}
+
+static void testTwoAdjacent(Comp& c, int iteration)  {
+   float voltages[4];
+    // Comp c;
+    const auto args = TestComposite::ProcessArgs();
+    c.process(args);
+
+
+    for (int i = 0; i < 4; ++i) {
+        voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
+    }
+
+    c.inputs[Comp::MUTATE_INPUT].value = 10;
+    clockIt(c, 1);
+
+    int expectedChange1 = (iteration * 2) % 4;
+    int expectedChange2 = (expectedChange1 + 1) %4;
+   
+
+    for (int i = 0; i < 4; ++i) {
+        const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
+        if ((i == expectedChange1) || (i == expectedChange2)) {
+            assertNE(v, voltages[i]);
+        } else {
+            assertEQ(v, voltages[i]);
+        }
+    }
+}
+
+static void testTwoAdjacent() {
+      Comp c;
+   // const auto args = TestComposite::ProcessArgs();
+    // SQINFO("--- testStepMove 155 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
+
+    init(c);
+    c.params[Comp::ROW_LENGTH_PARAM].value = 4;
+    c.params[Comp::SLOTS_TO_CHANGE_PARAM].value = 2;
+
+    testTwoAdjacent(c, 0);
+    testTwoAdjacent(c, 1);
+    testTwoAdjacent(c, 2);
 }
 
 void testMutatorComposite() {
@@ -217,10 +251,11 @@ void testMutatorComposite() {
 
 #if 1
 void testFirst() {
-    testMutatorComposite();
+    //testMutatorComposite();
     // testInitial1();
     //  testInitial2();
     //  testSteps();
     // testStepMove();
+    testTwoAdjacent();
 }
 #endif
