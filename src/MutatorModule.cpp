@@ -156,7 +156,7 @@ private:
         p->setLabels(Scale::getRootLabels(false));
         p->box.size.x = 40;  // width
         p->box.size.y = 22;
-     //   p->text = "C";
+        p->text = "C";
         addParam(p);
         //     _keyRootWidget = p;  // remember this so we can poll it.
 
@@ -170,7 +170,7 @@ private:
         p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
-      //  p->text = "Maj";
+        p->text = "Maj";
         addParam(p);
     }
 
@@ -183,11 +183,10 @@ private:
         p->setLabels({"all", "1", "2", "3", "4"});
         p->box.size.x = 40;  // width
         p->box.size.y = 22;
-     //   p->text = "C";
+        p->text = "1";
         addParam(p);
 
-        // TODO: this is a three way, actually.
-        addParam(createParam<CKSS>(Vec(80, y), module, Comp::ADJACENCY_STYLE_PARAM));
+        addParam(createParam<CKSSThree>(Vec(80, y), module, Comp::ADJACENCY_STYLE_PARAM));
     }
 
     void addDebug(Module* module) {
