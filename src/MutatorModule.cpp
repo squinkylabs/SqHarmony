@@ -186,7 +186,8 @@ private:
      //   p->text = "C";
         addParam(p);
 
-        addParam(createParam<CKSS>(Vec(80, y), module, Comp::ADJACENT_SLOTS_PARAM));
+        // TODO: this is a three way, actually.
+        addParam(createParam<CKSS>(Vec(80, y), module, Comp::ADJACENCY_STYLE_PARAM));
     }
 
     void addDebug(Module* module) {

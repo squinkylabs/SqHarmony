@@ -241,15 +241,18 @@ static void testTwoAdjacent() {
     testTwoAdjacent(3);
 }
 
-static void testRandomMove() {
+
+
+// tests single change, random
+static int testRandomMoveSub() {
     Comp c;
     init(c);
     const int length = 8;
     c.params[Comp::ROW_LENGTH_PARAM].value = length;
-    c.params[Comp::ADJACENCY_STYLE_PARAM].value = 2;
+    c.params[Comp::ADJACENCY_STYLE_PARAM].value = 2;        // totally random
 
     float voltages[length];
-    // Comp c;
+
     const auto args = TestComposite::ProcessArgs();
     c.process(args);
 
@@ -260,16 +263,27 @@ static void testRandomMove() {
 
     c.inputs[Comp::MUTATE_INPUT].value = 10;
     clockIt(c, 1);
+    int changed = -1;
     for (int i = 0; i < length; ++i) {
         const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
-        if (i == 0) {
-            assertNE(v, voltages[i]);
-        } else {
-            assertEQ(v, voltages[i]);
+        if (v != voltages[i]) {
+            assertLT(changed, 0);
+            changed = i;
         }
     }
+    SQINFO("changed = %d", changed);
+    return changed;
 
 }
+
+static void testRandomMove() {
+    const int i = testRandomMoveSub();
+    const int j = testRandomMoveSub();
+
+    assertNE(i, 0);
+    assertNE(j, i);
+}
+
 
 void testMutatorComposite() {
     testCanCall();
@@ -282,16 +296,17 @@ void testMutatorComposite() {
     testInitialSteps();
     testSteps();
     testStepMove();
+    testTwoAdjacent();
 }
 
 #if 0
 void testFirst() {
-    testMutatorComposite();
+   // testMutatorComposite();
     // testInitial1();
     //  testInitial2();
     //  testSteps();
     // testStepMove();
    // testTwoAdjacent();
-  //  testRandomMove();
+    testRandomMove();
 }
 #endif

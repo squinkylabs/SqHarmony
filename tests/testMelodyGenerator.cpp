@@ -361,7 +361,7 @@ static void testMelodyGeneratorMutateDrift3() {
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
     r.init(5, scale);
 
-   // SQINFO(("orig row = " + r.toString()).c_str());
+    // SQINFO(("orig row = " + r.toString()).c_str());
 
     assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
     const int iterations = 5000;
@@ -409,11 +409,11 @@ static void testMelodyGeneratorCanShift(int amount) {
 }
 
 static void testMelodyGeneratorMutate_getIndiciesToMutate(
- //   bool adjacent, 
+    //   bool adjacent,
     bool adjacency_style,
-    size_t rowLength, 
-    size_t curIndex, 
-    int numToMutate, 
+    size_t rowLength,
+    size_t curIndex,
+    int numToMutate,
     const int* expected,
     int expectedNext = -1) {
     MelodyRow row;
@@ -448,16 +448,16 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate1() {
     int expectedIndiciesToMutate2[MelodyRow::maxNotes + 1] = {3, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 1, expectedIndiciesToMutate2);
 
-    int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = { 0, 1, 2, -1 };
+    int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {0, 1, 2, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 3, expectedIndiciesToMutate3);
 
-    int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = { 0, 4, -1 };
+    int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {0, 4, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4);
 
-    int expectedIndiciesToMutate5[MelodyRow::maxNotes + 1] = { 0, 3, 6, -1 };
+    int expectedIndiciesToMutate5[MelodyRow::maxNotes + 1] = {0, 3, 6, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 3, expectedIndiciesToMutate5);
 
-    int expectedIndiciesToMutate6[MelodyRow::maxNotes + 1] = { 1, 5, -1 };
+    int expectedIndiciesToMutate6[MelodyRow::maxNotes + 1] = {1, 5, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 1, 2, expectedIndiciesToMutate6);
 }
 
@@ -472,16 +472,16 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate2() {
 
     // one, wrap
     int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {3, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 4, 3, 1, expectedIndiciesToMutate3, 0);  
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 4, 3, 1, expectedIndiciesToMutate3, 0);
 
-     // three adjacent, wrap
-     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {3, 4, 0, -1};
-     testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 3, expectedIndiciesToMutate4, 1);
+    // three adjacent, wrap
+    int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {3, 4, 0, -1};
+    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 3, expectedIndiciesToMutate4, 1);
 }
 
 // non adjacent more complex
 static void testMelodyGeneratorMutate_getIndiciesToMutate3() {
-    int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = { 0, 4, -1 };
+    int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {0, 4, -1};
     testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4, 1);
 }
 
@@ -507,11 +507,36 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
     assertEQ(indiciesToMutate[5], -1);
 }
 
+// random one
+static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
+    //   bool adjacent,
+    bool adjacency_style = 2;
+    size_t rowLength = 4;
+    //    size_t curIndex,
+    //    int numToMutate,
+    //     const int* expected,
+    //     int expectedNext = -1) {
+    MelodyRow row;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+
+    state.nextToMutate = 0;
+    style.adjacentStyle = adjacency_style;
+    style.numToMutate = 1;
+
+    Scale scale = scaleCMaj();
+    row.init(rowLength, scale);
+    int indiciesToMutate[MelodyRow::maxNotes + 1];
+    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+    assert(false);
+}
+
 static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     testMelodyGeneratorMutate_getIndiciesToMutate1();
     testMelodyGeneratorMutate_getIndiciesToMutate2();
     testMelodyGeneratorMutate_getIndiciesToMutate3();
     testMelodyGeneratorMutate_getIndiciesToMutate4();
+    testMelodyGeneratorMutate_getIndiciesToMutate5();
 }
 
 /////////////////////////////////////////////////////
@@ -545,11 +570,11 @@ void testMelodyGenerator() {
     testMelodyGenerator2();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // testMelodyGeneratorMutateDrift3();
-   // testMelodyGeneratorMutate_getIndiciesToMutate();
-  //  testMelodyGeneratorMutate_getIndiciesToMutate4();
+    // testMelodyGeneratorMutate_getIndiciesToMutate();
+    testMelodyGeneratorMutate_getIndiciesToMutate5();
     // testMelodyGeneratorMutateTooMany();
     testMelodyGenerator();
 }

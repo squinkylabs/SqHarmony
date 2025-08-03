@@ -33,7 +33,9 @@ public:
 
         // 0 == all of them
         this->configParam(Comp::SLOTS_TO_CHANGE_PARAM, 0, 4, 1, "how many notes to change each time");
-        this->configParam(Comp::ADJACENT_SLOTS_PARAM, 0, 1, 1, "when changing more than one note, should they be adjacent");        
+        this->configParam(Comp::ADJACENCY_STYLE_PARAM, 0, 2, 0, "when changing notes, style. 0=round robin, adjacent. 1=round robin + random 2=totally random");        
+    
+       this->configParam(Comp::SCHEMA_PARAM, 0, 1, 0, "hidden schema");
     }
 
     void process(const ProcessArgs& args) override {

@@ -39,6 +39,7 @@ public:
                                  // 1 = round robin, not adjacent
                                  // 2 = all random
         PITCH_RANGE_STYLE_PARAM,
+        SCHEMA_PARAM,
         NUM_PARAMS
     };
 
