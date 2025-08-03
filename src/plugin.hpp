@@ -6,9 +6,10 @@ using namespace rack;
 //#define _PM
 // #define _MULT
 //#define _LFN
+
 #define _H2
 #define _VISUALIZER
-#define _MUTATOR
+//#define _MUTATOR
 
 extern Plugin* pluginInstance;
 
