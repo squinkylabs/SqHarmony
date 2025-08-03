@@ -6,6 +6,7 @@
 
 #include "plugin.hpp"
 #include "BufferingParent.h"
+#include "SqLog.h"
 
 class SqLabel : public widget::Widget, public Dirty {
 public:

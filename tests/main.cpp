@@ -91,6 +91,10 @@ extern void testSqArray();
 extern void testShiftingArray();
 extern void testSharpsFlatsPref();
 extern void testScoreDrawUtils();
+extern void testMelodyGenerator();
+extern void testMelodyEvaluator();
+extern void testMutatorComposite();
+
 
 #include "SqLog.h"
 
@@ -113,7 +117,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 0
+#if 1
     printf("running only one for temp debug\n");
     //assert(false);
     assert(SqLog::errorCount == 0);
@@ -183,6 +187,9 @@ int main(const char**, int) {
     printf("XX: leaving early for clock stuff");
     std::exit(0);
 #endif
+    testMelodyGenerator();
+    testMelodyEvaluator();
+    testMutatorComposite();
 
     testAdditiveModLogic();
     testAdditivePitchLogic();
@@ -220,6 +227,7 @@ int main(const char**, int) {
     // printf("put back test progression?\n");
 
 #endif
+   
 }
 
 #include <nanovg.h>

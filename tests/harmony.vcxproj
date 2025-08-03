@@ -169,6 +169,8 @@
     <ClCompile Include="..\util\ArpegPlayer.cpp" />
     <ClCompile Include="..\util\AudioMath.cpp" />
     <ClCompile Include="..\util\ChordRecognizer.cpp" />
+    <ClCompile Include="..\util\MelodyEvaluator.cpp" />
+    <ClCompile Include="..\util\MelodyGenerator.cpp" />
     <ClCompile Include="..\util\quant\NoteConvert.cpp" />
     <ClCompile Include="..\util\quant\Scale.cpp" />
     <ClCompile Include="..\util\quant\ScaleQuantizer.cpp" />
@@ -214,8 +216,11 @@
     <ClCompile Include="testHarmonyChordsRandom.cpp" />
     <ClCompile Include="testLegerScore.cpp" />
     <ClCompile Include="testLFNDsp.cpp" />
+    <ClCompile Include="testMelodyGenerator.cpp" />
+    <ClCompile Include="testMelodyGeneratorEvaluator.cpp" />
     <ClCompile Include="testMidiNote.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
+    <ClCompile Include="testMutatorComposite.cpp" />
     <ClCompile Include="testNoiseGen.cpp" />
     <ClCompile Include="testNotationNote.cpp" />
     <ClCompile Include="testNoteBuffer.cpp" />

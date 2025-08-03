@@ -77,7 +77,8 @@ public:
     static const RoleArray convert(MidiNote, Scales);
 
     /**
-     * @brief convert a scale relative degree to an absolute pitch
+     * @brief convert a scale relative degree to an absolute pitch. but not really absolute - it's really root
+     * relative
      *
      * @param degree is scale degree, 0=root, 1=2nd...
      *      must be >= 0 and not wrap above

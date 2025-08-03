@@ -25,4 +25,8 @@ void init(rack::Plugin* p) {
 #ifdef _VISUALIZER
     p->addModel(modelVisualizer);
 #endif
+#ifdef _MUTATOR
+    p->addModel(modelMutator);
+#endif
 }
+
