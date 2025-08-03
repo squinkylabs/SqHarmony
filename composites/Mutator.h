@@ -33,7 +33,11 @@ public:
         UNISON_WEIGHT_STYLE_PARAM,
 
         SLOTS_TO_CHANGE_PARAM,  // 0 == all of them
-        ADJACENT_SLOTS_PARAM,   // 0 = spread out, 1 = adjacent
+      //  ADJACENT_SLOTS_PARAM,   // 0 = spread out, 1 = adjacent
+
+        ADJACENCY_STYLE_PARAM,    // 0 = round robin, adjacent
+                                 // 1 = round robin, not adjacent
+                                 // 2 = all random
         PITCH_RANGE_STYLE_PARAM,
         NUM_PARAMS
     };
@@ -164,7 +168,8 @@ inline void Mutator<TBase>::_stepn() {
     _theStyle.centerVoltage = centerV;
 
     _theStyle.numToMutate = int(std::round(TBase::params[SLOTS_TO_CHANGE_PARAM].value));
-    _theStyle.mutateAdjacent = bool(std::round(TBase::params[ADJACENT_SLOTS_PARAM].value));
+ //   _theStyle.mutateAdjacent = bool(std::round(TBase::params[ADJACENT_SLOTS_PARAM].value));
+    _theStyle.adjacentStyle = int (std::round(TBase::params[ADJACENCY_STYLE_PARAM].value));
 }
 
 template <class TBase>

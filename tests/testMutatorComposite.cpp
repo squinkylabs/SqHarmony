@@ -102,7 +102,7 @@ static void init(Comp& c) {
     c.params[Comp::LEAPS_WEIGHT_STYLE_PARAM].value = .5;
     c.params[Comp::UNISON_WEIGHT_STYLE_PARAM].value = .5;
     c.params[Comp::SLOTS_TO_CHANGE_PARAM].value = 1;
-    c.params[Comp::ADJACENT_SLOTS_PARAM].value = 1;
+    c.params[Comp::ADJACENCY_STYLE_PARAM].value = 0;
 }
 
 static void clockIt(Comp& c, unsigned int count) {
@@ -194,25 +194,25 @@ static void testStepMove() {
     testStepMove(c, 0);
 }
 
-static void testTwoAdjacent(Comp& c, int iteration)  {
+static void testTwoAdjacent(Comp& c, int iteration, int len)  {
    float voltages[4];
     // Comp c;
     const auto args = TestComposite::ProcessArgs();
     c.process(args);
 
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < len; ++i) {
         voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
     }
 
     c.inputs[Comp::MUTATE_INPUT].value = 10;
     clockIt(c, 1);
 
-    int expectedChange1 = (iteration * 2) % 4;
-    int expectedChange2 = (expectedChange1 + 1) %4;
+    int expectedChange1 = (iteration * 2) % len;
+    int expectedChange2 = (expectedChange1 + 1) %len;
    
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < len; ++i) {
         const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
         if ((i == expectedChange1) || (i == expectedChange2)) {
             assertNE(v, voltages[i]);
@@ -222,18 +222,53 @@ static void testTwoAdjacent(Comp& c, int iteration)  {
     }
 }
 
-static void testTwoAdjacent() {
+static void testTwoAdjacent(int len) {
       Comp c;
    // const auto args = TestComposite::ProcessArgs();
     // SQINFO("--- testStepMove 155 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
 
     init(c);
-    c.params[Comp::ROW_LENGTH_PARAM].value = 4;
+    c.params[Comp::ROW_LENGTH_PARAM].value = len;
     c.params[Comp::SLOTS_TO_CHANGE_PARAM].value = 2;
 
-    testTwoAdjacent(c, 0);
-    testTwoAdjacent(c, 1);
-    testTwoAdjacent(c, 2);
+    testTwoAdjacent(c, 0, len);
+    testTwoAdjacent(c, 1, len);
+    testTwoAdjacent(c, 2, len);
+}
+
+static void testTwoAdjacent() {
+    testTwoAdjacent(4);
+    testTwoAdjacent(3);
+}
+
+static void testRandomMove() {
+    Comp c;
+    init(c);
+    const int length = 8;
+    c.params[Comp::ROW_LENGTH_PARAM].value = length;
+    c.params[Comp::ADJACENCY_STYLE_PARAM].value = 2;
+
+    float voltages[length];
+    // Comp c;
+    const auto args = TestComposite::ProcessArgs();
+    c.process(args);
+
+
+    for (int i = 0; i < length; ++i) {
+        voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
+    }
+
+    c.inputs[Comp::MUTATE_INPUT].value = 10;
+    clockIt(c, 1);
+    for (int i = 0; i < length; ++i) {
+        const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
+        if (i == 0) {
+            assertNE(v, voltages[i]);
+        } else {
+            assertEQ(v, voltages[i]);
+        }
+    }
+
 }
 
 void testMutatorComposite() {
@@ -249,13 +284,14 @@ void testMutatorComposite() {
     testStepMove();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    //testMutatorComposite();
+    testMutatorComposite();
     // testInitial1();
     //  testInitial2();
     //  testSteps();
     // testStepMove();
-    testTwoAdjacent();
+   // testTwoAdjacent();
+  //  testRandomMove();
 }
 #endif

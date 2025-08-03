@@ -4,9 +4,12 @@
 class MelodyMutateStyle {
 public:
     bool keepInScale = true;
-    bool roundRobin = true;         
+  //  bool roundRobin = true;         
     int numToMutate = 1;            // if zero, mutate all.
-    bool mutateAdjacent = true;
+   // bool mutateAdjacent = true;
+    int adjacentStyle = 0;          // 0 = round robin, adjacent
+                                    // 1 = round robin, not adjacent
+                                    // 2 = all random
 
     float centerVoltage = 0;
     Scale scale;

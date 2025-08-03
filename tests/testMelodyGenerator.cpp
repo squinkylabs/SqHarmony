@@ -409,7 +409,8 @@ static void testMelodyGeneratorCanShift(int amount) {
 }
 
 static void testMelodyGeneratorMutate_getIndiciesToMutate(
-    bool adjacent, 
+ //   bool adjacent, 
+    bool adjacency_style,
     size_t rowLength, 
     size_t curIndex, 
     int numToMutate, 
@@ -420,7 +421,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(
     MelodyMutateStyle style;
 
     state.nextToMutate = curIndex;
-    style.mutateAdjacent = adjacent;
+    style.adjacentStyle = adjacency_style;
     style.numToMutate = numToMutate;
 
     Scale scale = scaleCMaj();
@@ -492,7 +493,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
     Scale scale = scaleCMaj();
 
     const int rowLength = 5;
-    style.mutateAdjacent = true;
+    style.adjacentStyle = true;
     style.numToMutate = 0;
 
     row.init(rowLength, scale);
