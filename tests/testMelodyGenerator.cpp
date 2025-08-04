@@ -509,8 +509,8 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
 
 // random one
 static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
-    int adjacency_style = 2;  // fully randome
-    size_t rowLength = 4;
+    int adjacency_style = 2;  // fully random
+    size_t rowLength = 9;
     MelodyRow row;
     MelodyMutateState state;
     MelodyMutateStyle style;
@@ -528,17 +528,18 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
     // note that "5" is a heuristic here - depends on random stuff.
     int expectedRR = 0;
     int seenExpectedRR = 0;
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < rowLength * 3; ++i) {
         MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
         assertEQ(indiciesToMutate[1], -1);
         haveSeen.insert(indiciesToMutate[0]);
-        SQINFO("just added %d", indiciesToMutate[0]);
+      //  SQINFO("just added %d", indiciesToMutate[0]);
         if (indiciesToMutate[0] == expectedRR) {
             seenExpectedRR++;
         }
         expectedRR++;
     }
-    assertEQ(haveSeen.size(), 4);  // we should have seen every possible index...
+   // size_t rowLength = 9;
+    assertEQ(haveSeen.size(), rowLength);  // we should have seen every possible index...
     assertEQ(seenExpectedRR, 0);   // but never in round robin order
 }
 
@@ -547,7 +548,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     testMelodyGeneratorMutate_getIndiciesToMutate2();
     testMelodyGeneratorMutate_getIndiciesToMutate3();
     testMelodyGeneratorMutate_getIndiciesToMutate4();
-    //  testMelodyGeneratorMutate_getIndiciesToMutate5();
+    testMelodyGeneratorMutate_getIndiciesToMutate5();
 }
 
 static void testMelodyGenerator_toMutateIncludes() {
@@ -567,15 +568,22 @@ static void testMelodyGenerator_random2() {
     BasicRandom _random(1234, 5678);
 
     int numAbove = 0;
-    const int tries = 100;
+    int numMax = 0;
+    const int tries = 200;
     for (int i = 0; i < tries; ++i) {
         const int x = _random.generateInteger(123);
         //SQINFO("rand=%f", x);
+        assert(x >= 0);
+        assert(x < 123);
         if (x > 61) {
             numAbove++;
         }
+        if (x == 122) {
+            numMax++;
+        }
     }
-    assertEQ(numAbove, tries/2);            // this doesn't need to be exact... bit it's passing now...
+    assertClose(numAbove, tries / 2, 4);            // this doesn't need to be exact... bit it's passing now...
+    assertEQ(numMax, 1);                            // we should have hit this.
 }
 
 static void testMelodyGenerator_random() {
@@ -631,10 +639,10 @@ void testFirst() {
     // testMelodyGeneratorMutateDrift3();
     // testMelodyGeneratorMutate_getIndiciesToMutate();
     // testMelodyGenerator_toMutateIncludes();
-    //testMelodyGeneratorMutate_getIndiciesToMutate5();
+ //   testMelodyGeneratorMutate_getIndiciesToMutate5();
     // testMelodyGeneratorMutateTooMany();
-    // testMelodyGenerator();
+    testMelodyGenerator();
     //testMelodyGenerator_random();
-    testMelodyGenerator_random2();
+    //testMelodyGenerator_random2();
 }
 #endif

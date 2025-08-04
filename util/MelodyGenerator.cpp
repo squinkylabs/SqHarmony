@@ -42,10 +42,19 @@ MidiNote MelodyRow::getAveragePitch() const {
 int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
     assert(numBest > 0);
 
+    if (numBest == 1) {
+        return bestCandidates[0];
+    }
+
    // const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
-    assert(false);
-    const int randIndex = 0;
-    // const int randIndex = std::round(rand);
+  //  const float rand = state.random.generateInteger(numBest);
+    //assert(false);
+    //const int randIndex = 0;
+    const int randIndex = state.random.generateInteger(numBest);
+
+    if (numBest == 2) {
+        SQINFO("with 2, rand=%d", randIndex);
+    }
 
 
     assert(randIndex < numBest);
@@ -130,13 +139,8 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
         for (int i = 0; i < numThisTime; ++i) {
             for (int tries = 0; tries < 50; ++tries) {
                 assert(tries < 48);
-                //   const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
-
-                // generate a new random index
-              //  const int candidateIndex = double(state.random()) * double(row.getSize() - 1) / (std::numeric_limits<uint64_t>::max());
-                const int candidateIndex = 123456;
+                const int candidateIndex = state.random.generateInteger(row.getSize());
                 
-          SQINFO("generated rand for rowsize %d = %d",(int) row.getSize(), candidateIndex );
                 // but don't let it duplicate one we have
                 if (!toMutateIncludes(indiciesToMutate, candidateIndex)) {
                     indiciesToMutate[index++] = candidateIndex;  // add it if it's good

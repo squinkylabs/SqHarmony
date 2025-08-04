@@ -124,7 +124,8 @@ public:
     }
     // generates random between 0..num-1
     int generateInteger(int num) {
-        return std::round(generate() * num);
+        assert(num > 1);
+        return std::round(generate() * (num-1));
     }
 
 private:
