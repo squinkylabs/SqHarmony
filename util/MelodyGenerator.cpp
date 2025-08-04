@@ -46,16 +46,15 @@ int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
         return bestCandidates[0];
     }
 
-   // const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
-  //  const float rand = state.random.generateInteger(numBest);
-    //assert(false);
-    //const int randIndex = 0;
+    // const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
+    //  const float rand = state.random.generateInteger(numBest);
+    // assert(false);
+    // const int randIndex = 0;
     const int randIndex = state.random.generateInteger(numBest);
 
-    if (numBest == 2) {
-        SQINFO("with 2, rand=%d", randIndex);
-    }
-
+    // if (numBest == 2) {
+    //     SQINFO("with 2, rand=%d", randIndex);
+    // }
 
     assert(randIndex < numBest);
     assert(randIndex >= 0);
@@ -102,7 +101,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
 
 bool MelodyGenerator::toMutateIncludes(const int* indiciesToMutate, int candidateIndex) {
     assert(candidateIndex >= 0);
-    for(const int* p = indiciesToMutate; ; ++p) {
+    for (const int* p = indiciesToMutate;; ++p) {
         const int x = *p;
         if (x < 0) {
             return false;
@@ -140,12 +139,12 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
             for (int tries = 0; tries < 50; ++tries) {
                 assert(tries < 48);
                 const int candidateIndex = state.random.generateInteger(row.getSize());
-                
+
                 // but don't let it duplicate one we have
                 if (!toMutateIncludes(indiciesToMutate, candidateIndex)) {
                     indiciesToMutate[index++] = candidateIndex;  // add it if it's good
-                    indiciesToMutate[index] = -1;        // and keep the terminator up to date
-                    break;                                  // and leave this inner loop
+                    indiciesToMutate[index] = -1;                // and keep the terminator up to date
+                    break;                                       // and leave this inner loop
                 }
             }
         }
