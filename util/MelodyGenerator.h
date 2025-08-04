@@ -100,14 +100,45 @@ inline bool MelodyRow::operator==(const MelodyRow& other) const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class myxoro {
+public:
+    using result_type = uint64_t;
+    void seed(result_type s1, result_type s2) { _random.seed(s1, s2); }
+    result_type min() { return _random.min(); }
+    result_type max() { return _random.max(); }
+    result_type operator()() { return _random(); }
+
+private:
+    rack::random::Xoroshiro128Plus _random;
+};
+
+class BasicRandom {
+public:
+    BasicRandom(uint64_t seed1, uint64_t seed2) : _uniform(0, 1) {
+        _random.seed(seed1, seed2);
+    }
+    // returns 0...1
+    double generate() {
+        const auto x = _uniform(_random);
+        return x;
+    }
+    // generates random between 0..num-1
+    int generateInteger(int num) {
+        return std::round(generate() * num);
+    }
+
+private:
+    myxoro _random;
+    std::uniform_real_distribution<double> _uniform;
+};
+
 class MelodyMutateState {
 public:
-    MelodyMutateState() {
-        random.seed(1234, 5678);
-        // SQINFO("ctor to %d", nextToMutate);
+    MelodyMutateState() : random(1234, 5678)  {
     }
     size_t nextToMutate = 0;
-    rack::random::Xoroshiro128Plus random;
+   // myxoro _generator;
+   BasicRandom random;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,4 +152,5 @@ public:
     static void _changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange);
 
     static void makeStateLegal(MelodyMutateState& state, const MelodyRow& row);
+    static bool toMutateIncludes(const int* indiciesToMutate, int candidateIndex);
 };

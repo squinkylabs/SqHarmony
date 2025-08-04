@@ -42,8 +42,12 @@ MidiNote MelodyRow::getAveragePitch() const {
 int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
     assert(numBest > 0);
 
-    const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
-    const int randIndex = std::round(rand);
+   // const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
+    assert(false);
+    const int randIndex = 0;
+    // const int randIndex = std::round(rand);
+
+
     assert(randIndex < numBest);
     assert(randIndex >= 0);
     const int selectedCandidate = bestCandidates[randIndex];
@@ -63,11 +67,11 @@ void MelodyGenerator::makeStateLegal(MelodyMutateState& state, const MelodyRow& 
 }
 
 void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
- //   assert(style.numToMutate == 1);
+    //   assert(style.numToMutate == 1);
 
     makeStateLegal(state, row);
 
-   // assert(style.roundRobin == true);
+    // assert(style.roundRobin == true);
     assert(style.adjacentStyle == 0);
     assert(row.getSize() <= 16);
 
@@ -87,9 +91,23 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     _mutateSome(row, scale, state, style, toMutate);
 }
 
+bool MelodyGenerator::toMutateIncludes(const int* indiciesToMutate, int candidateIndex) {
+    assert(candidateIndex >= 0);
+    for(const int* p = indiciesToMutate; ; ++p) {
+        const int x = *p;
+        if (x < 0) {
+            return false;
+        }
+        if (x == candidateIndex) {
+            return true;
+        }
+    }
+}
+
 void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
     const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
     int index = 0;
+    indiciesToMutate[0] = -1;  // init to zero length.
     if (style.numToMutate == 0) {
         size_t i;
         for (i = 0; i < row.getSize(); ++i) {
@@ -98,17 +116,37 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
         index = i;  // so that at the end we can terminate
 
     } else if (style.adjacentStyle == 1) {
+        assert(false);
         for (int i = 0; i < numThisTime; ++i) {
             int x = state.nextToMutate + i;
             // SQINFO("use at 90  %d", state.nextToMutate);
             x = row.wrapIndex(x);
-            assert(x < (int) row.getSize());
+            assert(x < (int)row.getSize());
             indiciesToMutate[index++] = x;
         }
         state.nextToMutate = row.wrapIndex(state.nextToMutate + numThisTime);  // advance to next one
-        // SQINFO("advance next 96 to %d", state.nextToMutate);
+    } else if (style.adjacentStyle == 2) {
+        // assert(false);
+        for (int i = 0; i < numThisTime; ++i) {
+            for (int tries = 0; tries < 50; ++tries) {
+                assert(tries < 48);
+                //   const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
 
+                // generate a new random index
+              //  const int candidateIndex = double(state.random()) * double(row.getSize() - 1) / (std::numeric_limits<uint64_t>::max());
+                const int candidateIndex = 123456;
+                
+          SQINFO("generated rand for rowsize %d = %d",(int) row.getSize(), candidateIndex );
+                // but don't let it duplicate one we have
+                if (!toMutateIncludes(indiciesToMutate, candidateIndex)) {
+                    indiciesToMutate[index++] = candidateIndex;  // add it if it's good
+                    indiciesToMutate[index] = -1;        // and keep the terminator up to date
+                    break;                                  // and leave this inner loop
+                }
+            }
+        }
     } else {
+        assert(style.adjacentStyle == 0);
         const double quota = double(row.getSize()) / double(numThisTime);
         double floatingAcc = 0;
         // int integerAcc = 0;
@@ -141,11 +179,11 @@ void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMuta
 
 void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.
-    //assert(style.roundRobin);
+    // assert(style.roundRobin);
     assert(style.adjacentStyle == 0);
     assert(noteIndex < row.getSize());
 
-    //SQINFO("mutateOne %d", (int)noteIndex);
+    // SQINFO("mutateOne %d", (int)noteIndex);
 
     int candidateShifts[] = {-2, -1, 1, 2, 0};
     MelodyRow mutatedCandidates[4];
