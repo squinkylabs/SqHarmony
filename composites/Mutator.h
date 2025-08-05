@@ -170,7 +170,9 @@ inline void Mutator<TBase>::_stepn() {
 
     _theStyle.numToMutate = int(std::round(TBase::params[SLOTS_TO_CHANGE_PARAM].value));
  //   _theStyle.mutateAdjacent = bool(std::round(TBase::params[ADJACENT_SLOTS_PARAM].value));
-    _theStyle.adjacentStyle = int (std::round(TBase::params[ADJACENCY_STYLE_PARAM].value));
+
+    const int slotSelectionMethodInt = int(std::round(TBase::params[ADJACENCY_STYLE_PARAM].value));
+    _theStyle.slotSelectionMethod = SlotSelectionMethod(slotSelectionMethodInt);
 }
 
 template <class TBase>

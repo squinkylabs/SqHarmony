@@ -1,16 +1,23 @@
 
 #include "Scale.h"
 
+enum SlotSelectionMethod {
+    ROUND_ROBIN_ADJACENT,
+    ROUND_ROBIN_DISTRIBUTED,
+    RANDOM_RANDOM,            // selection of all slots is random.
+};
+
 class MelodyMutateStyle {
 public:
     bool keepInScale = true;
   //  bool roundRobin = true;         
     int numToMutate = 1;            // if zero, mutate all.
    // bool mutateAdjacent = true;
-    int adjacentStyle = 0;          // 0 = round robin, adjacent
+   // int adjacentStyle = 0;          // 0 = round robin, adjacent
                                     // 1 = round robin, not adjacent
                                     // 2 = all random
 
+  SlotSelectionMethod slotSelectionMethod = ROUND_ROBIN_ADJACENT;
     float centerVoltage = 0;
     Scale scale;
    // double nonCenteredWeight = .1; // was .0000000001

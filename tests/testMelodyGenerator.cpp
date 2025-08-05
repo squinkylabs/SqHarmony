@@ -410,7 +410,7 @@ static void testMelodyGeneratorCanShift(int amount) {
 
 static void testMelodyGeneratorMutate_getIndiciesToMutate(
     //   bool adjacent,
-    int adjacency_style,
+    SlotSelectionMethod slotSelectionMethod,
     size_t rowLength,
     size_t curIndex,
     int numToMutate,
@@ -421,7 +421,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(
     MelodyMutateStyle style;
 
     state.nextToMutate = curIndex;
-    style.adjacentStyle = adjacency_style;
+    style.slotSelectionMethod = slotSelectionMethod;
     style.numToMutate = numToMutate;
 
     Scale scale = scaleCMaj();
@@ -443,46 +443,46 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(
 // various combinations, only call once.
 static void testMelodyGeneratorMutate_getIndiciesToMutate1() {
     int expectedIndiciesToMutate[MelodyRow::maxNotes + 1] = {0, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 1, 0, 1, expectedIndiciesToMutate);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 1, 0, 1, expectedIndiciesToMutate);
 
     int expectedIndiciesToMutate2[MelodyRow::maxNotes + 1] = {3, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 1, expectedIndiciesToMutate2);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 3, 1, expectedIndiciesToMutate2);
 
     int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {0, 1, 2, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 3, expectedIndiciesToMutate3);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 0, 3, expectedIndiciesToMutate3);
 
     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {0, 4, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 0, 2, expectedIndiciesToMutate4);
 
     int expectedIndiciesToMutate5[MelodyRow::maxNotes + 1] = {0, 3, 6, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 3, expectedIndiciesToMutate5);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 0, 3, expectedIndiciesToMutate5);
 
     int expectedIndiciesToMutate6[MelodyRow::maxNotes + 1] = {1, 5, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 1, 2, expectedIndiciesToMutate6);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 1, 2, expectedIndiciesToMutate6);
 }
 
 // call twice to see it increment
 static void testMelodyGeneratorMutate_getIndiciesToMutate2() {
     int expectedIndiciesToMutate[MelodyRow::maxNotes + 1] = {3, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 1, expectedIndiciesToMutate, 4);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 3, 1, expectedIndiciesToMutate, 4);
 
     // two adjacent
     int expectedIndiciesToMutate2[MelodyRow::maxNotes + 1] = {0, 1, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 2, expectedIndiciesToMutate2, 2);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 0, 2, expectedIndiciesToMutate2, 2);
 
     // one, wrap
     int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {3, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 4, 3, 1, expectedIndiciesToMutate3, 0);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 4, 3, 1, expectedIndiciesToMutate3, 0);
 
     // three adjacent, wrap
     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {3, 4, 0, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 3, expectedIndiciesToMutate4, 1);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 3, 3, expectedIndiciesToMutate4, 1);
 }
 
 // non adjacent more complex
 static void testMelodyGeneratorMutate_getIndiciesToMutate3() {
     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {0, 4, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4, 1);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 0, 2, expectedIndiciesToMutate4, 1);
 }
 
 // mutate all
@@ -493,7 +493,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
     Scale scale = scaleCMaj();
 
     const int rowLength = 5;
-    style.adjacentStyle = true;
+    style.slotSelectionMethod = SlotSelectionMethod::ROUND_ROBIN_ADJACENT;
     style.numToMutate = 0;
 
     row.init(rowLength, scale);
@@ -509,14 +509,14 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
 
 // random one
 static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
-    int adjacency_style = 2;  // fully random
+    SlotSelectionMethod slotSelectionMethod = SlotSelectionMethod::RANDOM_RANDOM;  // fully random
     size_t rowLength = 9;
     MelodyRow row;
     MelodyMutateState state;
     MelodyMutateStyle style;
 
     state.nextToMutate = 0;
-    style.adjacentStyle = adjacency_style;
+    style.slotSelectionMethod = slotSelectionMethod;
     style.numToMutate = 1;
 
     Scale scale = scaleCMaj();

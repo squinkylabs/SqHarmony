@@ -80,7 +80,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     makeStateLegal(state, row);
 
     // assert(style.roundRobin == true);
-    assert(style.adjacentStyle == 0);
+    assert(style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_ADJACENT);
     assert(row.getSize() <= 16);
 
     // special case for only one. It's a common case, and faster/
@@ -123,8 +123,8 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
         }
         index = i;  // so that at the end we can terminate
 
-    } else if (style.adjacentStyle == 1) {
-        assert(false);
+    } else if (style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_ADJACENT) {
+
         for (int i = 0; i < numThisTime; ++i) {
             int x = state.nextToMutate + i;
             // SQINFO("use at 90  %d", state.nextToMutate);
@@ -133,7 +133,7 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
             indiciesToMutate[index++] = x;
         }
         state.nextToMutate = row.wrapIndex(state.nextToMutate + numThisTime);  // advance to next one
-    } else if (style.adjacentStyle == 2) {
+    } else if (style.slotSelectionMethod == SlotSelectionMethod::RANDOM_RANDOM) {
         // assert(false);
         for (int i = 0; i < numThisTime; ++i) {
             for (int tries = 0; tries < 50; ++tries) {
@@ -149,7 +149,7 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
             }
         }
     } else {
-        assert(style.adjacentStyle == 0);
+        assert(style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED);
         const double quota = double(row.getSize()) / double(numThisTime);
         double floatingAcc = 0;
         // int integerAcc = 0;
@@ -183,7 +183,7 @@ void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMuta
 void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.
     // assert(style.roundRobin);
-    assert(style.adjacentStyle == 0);
+    assert(style.slotSelectionMethod == 0);
     assert(noteIndex < row.getSize());
 
     // SQINFO("mutateOne %d", (int)noteIndex);
