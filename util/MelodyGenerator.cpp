@@ -94,7 +94,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     }
 
     int toMutate[16 + 1];
-    getIndiciesToMutate(row, scale, state, style, toMutate);
+    getIndiciesToMutate(row, state, style, toMutate);
     SQINFO("to mutate = %d %d %d %d %d", toMutate[0], toMutate[1], toMutate[2], toMutate[3], toMutate[4]);
     _mutateSome(row, scale, state, style, toMutate);
 }
@@ -112,7 +112,31 @@ bool MelodyGenerator::toMutateIncludes(const int* indiciesToMutate, int candidat
     }
 }
 
-void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
+/**
+ * perform the "distribute" part of determining indicies to mutate.
+ * parameter list is a little weird since this was removed from another function
+ */
+static void distribute(MelodyRow& row, int numThisTime, int* indiciesToMutate, int& index, int startingIndex) {
+      const double quota = double(row.getSize() / double(numThisTime));
+        double floatingAcc = 0;
+        // int integerAcc = 0;
+
+        // SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
+        indiciesToMutate[index++] = startingIndex; // state.nextToMutate;  // always mutate the current one
+        for (size_t i = 1; i < row.getSize(); ++i) {
+            floatingAcc += 1.0;
+
+            // SQINFO("i=%lld facc=%f", i, floatingAcc);
+            if (floatingAcc >= quota) {
+                const int x = row.wrapIndex(i + startingIndex);
+                indiciesToMutate[index++] = x;
+                floatingAcc -= std::floor(floatingAcc);
+            }
+        }
+      //  state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
+}
+
+void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
     const int numThisTime = std::min(row.getSize(), size_t(style.numToMutate));
     int index = 0;
     indiciesToMutate[0] = -1;  // init to zero length.
@@ -122,7 +146,6 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
             indiciesToMutate[i] = i;
         }
         index = i;  // so that at the end we can terminate
-
     } else if (style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_ADJACENT) {
 
         for (int i = 0; i < numThisTime; ++i) {
@@ -148,26 +171,24 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, const Scale& scale, Me
                 }
             }
         }
-    } else {
-        assert(style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED);
-        const double quota = double(row.getSize()) / double(numThisTime);
-        double floatingAcc = 0;
-        // int integerAcc = 0;
-
-        // SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
-        indiciesToMutate[index++] = state.nextToMutate;  // always mutate the current one
-        for (size_t i = 1; i < row.getSize(); ++i) {
-            floatingAcc += 1.0;
-
-            // SQINFO("i=%lld facc=%f", i, floatingAcc);
-            if (floatingAcc >= quota) {
-                const int x = row.wrapIndex(i + state.nextToMutate);
-                indiciesToMutate[index++] = x;
-                floatingAcc -= std::floor(floatingAcc);
-            }
+    }
+    else if (style.slotSelectionMethod == SlotSelectionMethod::RANDOM_ADJACENT) {
+        int x = state.random.generateInteger(row.getSize());
+        indiciesToMutate[index++] = x;
+        for (int i = 1; i < numThisTime; ++i) {
+            ++x;
+            x = row.wrapIndex(x);
+            indiciesToMutate[index++] = x;
         }
+    } else if (style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED) {
+        distribute(row, numThisTime, indiciesToMutate, index,  state.nextToMutate);
         state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
-        // SQINFO("advance next 117 to %d", state.nextToMutate);
+    }  else if (style.slotSelectionMethod == SlotSelectionMethod::RANDOM_DISTRIBUTED) {
+        const int nextToMutate =  state.random.generateInteger(row.getSize());
+        distribute(row, numThisTime, indiciesToMutate, index,  nextToMutate);
+    }
+    else {
+        assert(false);
     }
 
     indiciesToMutate[index] = -1;

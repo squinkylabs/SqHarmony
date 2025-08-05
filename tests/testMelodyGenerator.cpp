@@ -427,7 +427,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(
     Scale scale = scaleCMaj();
     row.init(rowLength, scale);
     int indiciesToMutate[MelodyRow::maxNotes + 1];
-    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+    MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
 
     for (size_t i = 0; i < numToMutate; ++i) {
         // SQINFO("in compare loop, i=%lld epxected=%d actual=%d", i, expected[i], indiciesToMutate[i]);
@@ -498,7 +498,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
 
     row.init(rowLength, scale);
     int indiciesToMutate[MelodyRow::maxNotes + 1];
-    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+    MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
     assertEQ(indiciesToMutate[0], 0);
     assertEQ(indiciesToMutate[1], 1);
     assertEQ(indiciesToMutate[2], 2);
@@ -507,7 +507,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
     assertEQ(indiciesToMutate[5], -1);
 }
 
-// random one
+// random, random one
 static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
     SlotSelectionMethod slotSelectionMethod = SlotSelectionMethod::RANDOM_RANDOM;  // fully random
     size_t rowLength = 9;
@@ -529,7 +529,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
     int expectedRR = 0;
     int seenExpectedRR = 0;
     for (int i = 0; i < rowLength * 3; ++i) {
-        MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+        MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
         assertEQ(indiciesToMutate[1], -1);
         haveSeen.insert(indiciesToMutate[0]);
         //  SQINFO("just added %d", indiciesToMutate[0]);
@@ -543,12 +543,84 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
     assertEQ(seenExpectedRR, 0);           // but never in round robin order
 }
 
+
+// random, adjacent one
+static void testMelodyGeneratorMutate_getIndiciesToMutate6() {
+    SlotSelectionMethod slotSelectionMethod = SlotSelectionMethod::RANDOM_ADJACENT; 
+    size_t rowLength = 11;
+    MelodyRow row;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+
+    state.nextToMutate = 0;
+    style.slotSelectionMethod = slotSelectionMethod;
+    style.numToMutate = 2;
+
+    Scale scale = scaleCMaj();
+    row.init(rowLength, scale);
+    int indiciesToMutate[MelodyRow::maxNotes + 1];
+
+    std::set<int> haveSeen;
+
+    for (int i = 0; i < rowLength * 3; ++i) {
+        MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
+        assertEQ(indiciesToMutate[2], -1);      // there should be two
+        haveSeen.insert(indiciesToMutate[0]);
+
+        int expectedNext = indiciesToMutate[0] + 1;
+        if (expectedNext >= rowLength) {
+            expectedNext -= rowLength;
+        }
+
+        assertEQ(indiciesToMutate[1], expectedNext);
+    }
+    assertEQ(haveSeen.size(), rowLength);  // we should have seen every possible index...
+}
+
+// random, distributed one
+static void testMelodyGeneratorMutate_getIndiciesToMutate7() {
+    SlotSelectionMethod slotSelectionMethod = SlotSelectionMethod::RANDOM_DISTRIBUTED; 
+    size_t rowLength = 12;
+    MelodyRow row;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+
+    state.nextToMutate = 0;
+    style.slotSelectionMethod = slotSelectionMethod;
+    style.numToMutate = 2;
+
+    Scale scale = scaleCMaj();
+    row.init(rowLength, scale);
+    int indiciesToMutate[MelodyRow::maxNotes + 1];
+
+    std::set<int> haveSeen;
+    SQINFO("row len = %lld", rowLength);
+    for (int i = 0; i < rowLength * 4; ++i) {
+       
+        MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
+        assertEQ(indiciesToMutate[2], -1);      // there should be two
+        haveSeen.insert(indiciesToMutate[0]);
+      
+        int expectedNext = indiciesToMutate[0] + (rowLength / 2);
+        if (expectedNext >= rowLength) {
+            expectedNext -= rowLength;
+        }
+        SQINFO("in loop i=%d, tomutate= %d %d", i, indiciesToMutate[0], expectedNext);
+
+        assertEQ(indiciesToMutate[1], expectedNext);
+    }
+    assertEQ(haveSeen.size(), rowLength);  // we should have seen every possible index...
+}
+
 static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     testMelodyGeneratorMutate_getIndiciesToMutate1();
     testMelodyGeneratorMutate_getIndiciesToMutate2();
     testMelodyGeneratorMutate_getIndiciesToMutate3();
     testMelodyGeneratorMutate_getIndiciesToMutate4();
     testMelodyGeneratorMutate_getIndiciesToMutate5();
+    testMelodyGeneratorMutate_getIndiciesToMutate6();
+    testMelodyGeneratorMutate_getIndiciesToMutate7();
+
 }
 
 static void testMelodyGenerator_toMutateIncludes() {
@@ -636,14 +708,15 @@ void testMelodyGenerator() {
     testMelodyGenerator2();
 }
 
-#if 0
+#if 1
 void testFirst() {
     // testMelodyGeneratorMutateDrift3();
     // testMelodyGeneratorMutate_getIndiciesToMutate();
     // testMelodyGenerator_toMutateIncludes();
  //   testMelodyGeneratorMutate_getIndiciesToMutate5();
+  testMelodyGeneratorMutate_getIndiciesToMutate7();
     // testMelodyGeneratorMutateTooMany();
-    testMelodyGenerator();
+   // testMelodyGenerator();
     //testMelodyGenerator_random();
     //testMelodyGenerator_random2();
 }

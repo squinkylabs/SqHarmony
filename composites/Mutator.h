@@ -35,9 +35,8 @@ public:
         SLOTS_TO_CHANGE_PARAM,  // 0 == all of them
       //  ADJACENT_SLOTS_PARAM,   // 0 = spread out, 1 = adjacent
 
-        ADJACENCY_STYLE_PARAM,    // 0 = round robin, adjacent
-                                 // 1 = round robin, not adjacent
-                                 // 2 = all random
+
+        ADJACENCY_STYLE_PARAM,  // See enum SlotSelectionMethod 
         PITCH_RANGE_STYLE_PARAM,
         SCHEMA_PARAM,
         NUM_PARAMS

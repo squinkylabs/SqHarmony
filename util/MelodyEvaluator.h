@@ -4,6 +4,8 @@
 enum SlotSelectionMethod {
     ROUND_ROBIN_ADJACENT,
     ROUND_ROBIN_DISTRIBUTED,
+    RANDOM_ADJACENT,
+    RANDOM_DISTRIBUTED,
     RANDOM_RANDOM,            // selection of all slots is random.
 };
 
