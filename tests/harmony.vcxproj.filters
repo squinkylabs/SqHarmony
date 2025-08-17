@@ -381,6 +381,9 @@
     <ClCompile Include="..\util\MelodyEvaluator.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="testSqRandom.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\notes\HarmonyNote.h">

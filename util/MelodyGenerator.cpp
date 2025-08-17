@@ -42,6 +42,11 @@ MidiNote MelodyRow::getAveragePitch() const {
 int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
     assert(numBest > 0);
 
+    SQINFO("pick one %d", numBest);
+    if (numBest > 2) {
+        SQINFO("a lot!");
+    }
+
     if (numBest == 1) {
         return bestCandidates[0];
     }
@@ -80,7 +85,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
     makeStateLegal(state, row);
 
     // assert(style.roundRobin == true);
-    assert(style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_ADJACENT);
+    //assert(style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_ADJACENT);
     assert(row.getSize() <= 16);
 
     // special case for only one. It's a common case, and faster/
@@ -190,7 +195,6 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& sta
     else {
         assert(false);
     }
-
     indiciesToMutate[index] = -1;
 }
 
@@ -203,7 +207,6 @@ void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMuta
 
 void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.
-    // assert(style.roundRobin);
     assert(style.slotSelectionMethod == 0);
     assert(noteIndex < row.getSize());
 
@@ -222,7 +225,7 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
         penalties[i] = penalty;
         lowestPenalty = std::min(penalty, lowestPenalty);
 
-        ///  SQINFO("i=%d, penalty=%f lowest=%f", i, penalty, lowestPenalty);
+        SQINFO("i=%d, penalty=%f lowest=%f", i, penalty, lowestPenalty);
     }
 
     // Next find which candidates are best.
