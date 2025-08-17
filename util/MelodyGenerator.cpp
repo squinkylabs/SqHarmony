@@ -44,10 +44,11 @@ int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
 
     SQINFO("pick one %d", numBest);
     if (numBest > 2) {
-        SQINFO("a lot!");
+        SQINFO("a lot of candidates to pick from!");
     }
 
     if (numBest == 1) {
+        SQINFO("only one candidate to pick");
         return bestCandidates[0];
     }
 
@@ -225,7 +226,7 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
         penalties[i] = penalty;
         lowestPenalty = std::min(penalty, lowestPenalty);
 
-        SQINFO("i=%d, penalty=%f lowest=%f", i, penalty, lowestPenalty);
+        SQINFO("candidate[%d], penalty=%f lowest=%f", i, penalty, lowestPenalty);
     }
 
     // Next find which candidates are best.
