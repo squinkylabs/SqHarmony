@@ -39,7 +39,8 @@ MidiNote MelodyRow::getAveragePitch() const {
 
 ////////////////////////////
 
-int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
+#if 0  // old way
+static int _pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
     assert(numBest > 0);
 
     SQINFO("pick one %d", numBest);
@@ -52,27 +53,15 @@ int pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
         return bestCandidates[0];
     }
 
-    // const float rand = double(state.random()) * double(numBest - 1) / (std::numeric_limits<uint64_t>::max());
-    //  const float rand = state.random.generateInteger(numBest);
-    // assert(false);
-    // const int randIndex = 0;
     const int randIndex = state.random.generateInteger(numBest);
-
-    // if (numBest == 2) {
-    //     SQINFO("with 2, rand=%d", randIndex);
-    // }
 
     assert(randIndex < numBest);
     assert(randIndex >= 0);
     const int selectedCandidate = bestCandidates[randIndex];
 
-    // SQINFO("pickOne(%d) rand=%f randIndex=%d", numBest, rand, randIndex);
-    // for (int i=0; i<numBest; ++i) {
-    //     SQINFO("  bestCandidates[%d] = %d", i, bestCandidates[i]);
-    // }
-    // SQINFO("pickOne returned %d", selectedCandidate);
     return selectedCandidate;
 }
+#endif
 
 void MelodyGenerator::makeStateLegal(MelodyMutateState& state, const MelodyRow& row) {
     if (state.nextToMutate >= row.getSize()) {
@@ -81,15 +70,11 @@ void MelodyGenerator::makeStateLegal(MelodyMutateState& state, const MelodyRow& 
 }
 
 void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
-    //   assert(style.numToMutate == 1);
-
     makeStateLegal(state, row);
 
-    // assert(style.roundRobin == true);
-    //assert(style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_ADJACENT);
     assert(row.getSize() <= 16);
 
-    // special case for only one. It's a common case, and faster/
+    // special case for only one. It's a common case, and faster.
     if (style.numToMutate == 1) {
         const size_t noteIndex = state.nextToMutate;
         assert(style.numToMutate == 1);
@@ -123,23 +108,23 @@ bool MelodyGenerator::toMutateIncludes(const int* indiciesToMutate, int candidat
  * parameter list is a little weird since this was removed from another function
  */
 static void distribute(MelodyRow& row, int numThisTime, int* indiciesToMutate, int& index, int startingIndex) {
-      const double quota = double(row.getSize() / double(numThisTime));
-        double floatingAcc = 0;
-        // int integerAcc = 0;
+    const double quota = double(row.getSize() / double(numThisTime));
+    double floatingAcc = 0;
+    // int integerAcc = 0;
 
-        // SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
-        indiciesToMutate[index++] = startingIndex; // state.nextToMutate;  // always mutate the current one
-        for (size_t i = 1; i < row.getSize(); ++i) {
-            floatingAcc += 1.0;
+    // SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
+    indiciesToMutate[index++] = startingIndex;  // state.nextToMutate;  // always mutate the current one
+    for (size_t i = 1; i < row.getSize(); ++i) {
+        floatingAcc += 1.0;
 
-            // SQINFO("i=%lld facc=%f", i, floatingAcc);
-            if (floatingAcc >= quota) {
-                const int x = row.wrapIndex(i + startingIndex);
-                indiciesToMutate[index++] = x;
-                floatingAcc -= std::floor(floatingAcc);
-            }
+        // SQINFO("i=%lld facc=%f", i, floatingAcc);
+        if (floatingAcc >= quota) {
+            const int x = row.wrapIndex(i + startingIndex);
+            indiciesToMutate[index++] = x;
+            floatingAcc -= std::floor(floatingAcc);
         }
-      //  state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
+    }
+    //  state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
 }
 
 void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
@@ -153,7 +138,6 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& sta
         }
         index = i;  // so that at the end we can terminate
     } else if (style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_ADJACENT) {
-
         for (int i = 0; i < numThisTime; ++i) {
             int x = state.nextToMutate + i;
             // SQINFO("use at 90  %d", state.nextToMutate);
@@ -177,8 +161,7 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& sta
                 }
             }
         }
-    }
-    else if (style.slotSelectionMethod == SlotSelectionMethod::RANDOM_ADJACENT) {
+    } else if (style.slotSelectionMethod == SlotSelectionMethod::RANDOM_ADJACENT) {
         int x = state.random.generateInteger(row.getSize());
         indiciesToMutate[index++] = x;
         for (int i = 1; i < numThisTime; ++i) {
@@ -187,13 +170,12 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& sta
             indiciesToMutate[index++] = x;
         }
     } else if (style.slotSelectionMethod == SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED) {
-        distribute(row, numThisTime, indiciesToMutate, index,  state.nextToMutate);
+        distribute(row, numThisTime, indiciesToMutate, index, state.nextToMutate);
         state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);  // advance to next one
-    }  else if (style.slotSelectionMethod == SlotSelectionMethod::RANDOM_DISTRIBUTED) {
-        const int nextToMutate =  state.random.generateInteger(row.getSize());
-        distribute(row, numThisTime, indiciesToMutate, index,  nextToMutate);
-    }
-    else {
+    } else if (style.slotSelectionMethod == SlotSelectionMethod::RANDOM_DISTRIBUTED) {
+        const int nextToMutate = state.random.generateInteger(row.getSize());
+        distribute(row, numThisTime, indiciesToMutate, index, nextToMutate);
+    } else {
         assert(false);
     }
     indiciesToMutate[index] = -1;
@@ -214,11 +196,82 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
     // SQINFO("mutateOne %d", (int)noteIndex);
 
     int candidateShifts[] = {-2, -1, 1, 2, 0};
+    int numCandidates = 0;
+    for (int i = 0; 0 != candidateShifts[i]; ++i) {
+        ++numCandidates;
+    }
     MelodyRow mutatedCandidates[4];
     float penalties[4];
     float lowestPenalty = 1000;  // insanely high penalty
 
-    // First, make all the mutation candidates
+    // First, make all the mutation candidates.
+    for (int i = 0; 0 != candidateShifts[i]; ++i) {
+        mutatedCandidates[i] = row;
+        _changeOneNoteInMode(mutatedCandidates[i], scale, noteIndex, candidateShifts[i]);
+        const float penalty = MelodyEvaluator::getPenalty(mutatedCandidates[i], style);
+        penalties[i] = penalty;
+        lowestPenalty = std::min(penalty, lowestPenalty);
+
+        SQINFO("candidate[%d], penalty=%f lowest=%f", i, penalty, lowestPenalty);
+    }
+
+    // Next find which candidates are best.
+#if 0
+    int bestCandidates[5];
+    int index = 0;
+    for (int i = 0; i < 4; ++i) {
+        const bool isLowest = (penalties[i] == lowestPenalty);
+        if (isLowest) {
+            bestCandidates[index++] = i;
+        }
+    }
+#endif
+
+    assert(numCandidates == 4);
+
+    // now prepare all the probabilities
+    float probabilies[4];
+    for (int i = 0; i < 4; ++i) {
+        probabilies[i] = 1.0 / 4.0;
+    }
+
+    for (int i = 1; i < 4; ++i) {
+        probabilies[i] += probabilies[i - 1];
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        SQINFO("adjusted prob = %f", probabilies[i]);
+    }
+
+    const float rand = state.random.generateDouble();
+    SQINFO("rand = %f\n", rand);
+    int chosenIndex = 0;
+    for (int i = 0; i < 4; ++i) {
+        if (probabilies[i] >= rand) {
+            SQINFO("prob %d can fire\n", i);
+            chosenIndex = i;
+            break;
+        }
+    }
+    SQINFO("chosen index = %d", chosenIndex);
+    row = mutatedCandidates[chosenIndex];
+    // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
+}
+
+#if 0  // old way
+void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
+    assert(style.keepInScale);  // don't know how to do other.
+    assert(style.slotSelectionMethod == 0);
+    assert(noteIndex < row.getSize());
+
+    // SQINFO("mutateOne %d", (int)noteIndex);
+
+    int candidateShifts[] = {-2, -1, 1, 2, 0};
+    MelodyRow mutatedCandidates[4];
+    float penalties[4];
+    float lowestPenalty = 1000;  // insanely high penalty
+
+    // First, make all the mutation candidates.
     for (int i = 0; 0 != candidateShifts[i]; ++i) {
         mutatedCandidates[i] = row;
         _changeOneNoteInMode(mutatedCandidates[i], scale, noteIndex, candidateShifts[i]);
@@ -242,11 +295,12 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
     //  SQINFO("found num=%d  0=%d 1=%d 2=%d 3=%d", index, bestCandidates[0], bestCandidates[1], bestCandidates[2], bestCandidates[3]);
 
     // Randomly pick one of the best
-    const int theRow = pickOne(index, bestCandidates, state);
+    const int theRow = _pickOne(index, bestCandidates, state);
     row = mutatedCandidates[theRow];
 
     // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
 }
+#endif
 
 void MelodyGenerator::_changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange) {
     assert(index <= row.getSize());

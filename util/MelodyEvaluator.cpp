@@ -14,6 +14,13 @@ std::string MelodyMutateStyle::toString() const {
     return s.str();
 }
 
+void MelodyMutateStyle::disable() {
+    nonCenteredWeight = 0;
+    pitchRangeWeight = 0;
+    leapsWeight = 0;
+    unisonWeight = 0;
+}
+
 float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     const float lp = leapsPenalty(r, style);   
     const float up = unisonsPenalty(r, style);

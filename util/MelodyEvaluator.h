@@ -6,30 +6,25 @@ enum SlotSelectionMethod {
     ROUND_ROBIN_DISTRIBUTED,
     RANDOM_ADJACENT,
     RANDOM_DISTRIBUTED,
-    RANDOM_RANDOM,            // selection of all slots is random.
+    RANDOM_RANDOM,  // selection of all slots is random.
 };
 
 class MelodyMutateStyle {
 public:
     bool keepInScale = true;
-  //  bool roundRobin = true;         
-    int numToMutate = 1;            // if zero, mutate all.
-   // bool mutateAdjacent = true;
-   // int adjacentStyle = 0;          // 0 = round robin, adjacent
-                                    // 1 = round robin, not adjacent
-                                    // 2 = all random
+    int numToMutate = 1;  // if zero, mutate all.
 
-  SlotSelectionMethod slotSelectionMethod = ROUND_ROBIN_ADJACENT;
+    SlotSelectionMethod slotSelectionMethod = ROUND_ROBIN_ADJACENT;
     float centerVoltage = 0;
     Scale scale;
-   // double nonCenteredWeight = .1; // was .0000000001
     float nonCenteredWeight = 1;
-    float idealPitchRange2 = 2 * 12;     // two octaves
+    float idealPitchRange2 = 2 * 12;  // two octaves
     float pitchRangeWeight = 1;
     float leapsWeight = 1;
     float unisonWeight = 1;
 
     std::string toString() const;
+    void disable();  // set to all rules off
 };
 
 class MelodyEvaluator {
