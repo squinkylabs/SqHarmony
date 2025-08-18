@@ -45,10 +45,37 @@ static void testGenerateRandom() {
     const auto row1 = testGenerate(std::optional<int>());
     const auto row2 = testGenerate(std::optional<int>(1));
 
-    // note that since the random numbers are deterministic, we will get the same result every time.
-    // but the fact that only one extra call was required to pass this test is just luck.
+    // Note that since the random numbers are deterministic, we will get the same result every time.
+    // But the fact that only one extra call was required to pass this test is just luck.
     // May need to adapt if it starts for fail in the future.
     assert(row1 != row2);
+}
+
+
+static void testPenalties2ProbabilitiesSub(unsigned num,  const float * penalties, const float * expectedProbabilities) {
+
+    assert(num < 10);
+    float temp[10];
+    MelodyGenerator::_penalties2Probabilities(num, penalties, temp);
+
+    float sum = 0;
+    for (unsigned i = 0; i < num; ++i) {
+        const auto x = temp[i];
+        assertGE(x, 0.f);
+        assertLE(x, 1.f);
+
+        assertClose(x, expectedProbabilities[i], .001f);
+        sum += x;
+    }
+
+    assertClose(sum, 1.f, .0001f)
+}
+
+
+static void testPenalties2Probabilities() {
+    const float p[] = {1.f,1.f,1.f};
+    const float e[] = { .3333f,.3333f,.3333f };
+    testPenalties2ProbabilitiesSub(3, p, e);
 }
 
 
@@ -60,6 +87,7 @@ void testMelodyGenerator2() {
 #if 1
 void testFirst() {
     //testMelodyGenerator2();
-    testGenerateRandom();
+   // testGenerateRandom();
+    testPenalties2Probabilities();
 }
 #endif

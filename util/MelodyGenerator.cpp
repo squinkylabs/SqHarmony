@@ -188,6 +188,24 @@ void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMuta
     }
 }
 
+void MelodyGenerator::_penalties2Probabilities(unsigned num, const float * penalties, float * probabilities) {
+   float sum = 0;
+    for (unsigned i = 0; i < num; ++i) {
+        float x = 1. / (1 + penalties[i]);
+        x = std::max(x, .21f);           // clip the min probabilities (.21 is arbitrary) (put in style???)
+        assert(x > 0);
+        probabilities[i] = x;
+        sum += probabilities[i];
+    }
+    SQINFO("sum=%f", sum);
+    assert(sum > 0);
+
+    for (unsigned i = 0; i < num; ++i) {
+        probabilities[i] *= (1.f / sum);
+        SQINFO("initial prob = %f", probabilities[i]);
+    }
+}
+
 void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.
     assert(style.slotSelectionMethod == 0);
@@ -202,52 +220,54 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
     }
     MelodyRow mutatedCandidates[4];
     float penalties[4];
-    float lowestPenalty = 1000;  // insanely high penalty
+   // float lowestPenalty = 1000;  // insanely high penalty
 
-    // First, make all the mutation candidates.
+    // First, make all the mutation candidates and get their penalties
     for (int i = 0; 0 != candidateShifts[i]; ++i) {
         mutatedCandidates[i] = row;
         _changeOneNoteInMode(mutatedCandidates[i], scale, noteIndex, candidateShifts[i]);
         const float penalty = MelodyEvaluator::getPenalty(mutatedCandidates[i], style);
         penalties[i] = penalty;
-        lowestPenalty = std::min(penalty, lowestPenalty);
+      //  lowestPenalty = std::min(penalty, lowestPenalty);
 
-        SQINFO("candidate[%d], penalty=%f lowest=%f", i, penalty, lowestPenalty);
+        SQINFO("candidate[%d], penalty=%f", i, penalty);
     }
-
-    // Next find which candidates are best.
-#if 0
-    int bestCandidates[5];
-    int index = 0;
-    for (int i = 0; i < 4; ++i) {
-        const bool isLowest = (penalties[i] == lowestPenalty);
-        if (isLowest) {
-            bestCandidates[index++] = i;
-        }
-    }
-#endif
 
     assert(numCandidates == 4);
-
+    float probabilities[4];
+#if 0
     // now prepare all the probabilities
-    float probabilies[4];
+    
+    float sum = 0;
     for (int i = 0; i < 4; ++i) {
-        probabilies[i] = 1.0 / 4.0;
+        float x = 1. / (1 + penalties[i]);
+        x = std::max(x, .21f);           // clip the min probabilities (.21 is arbitrary)
+        assert(x > 0);
+        probabilies[i] = x;
+        sum += probabilies[i];
     }
+    SQINFO("sum=%f", sum);
+    assert(sum > 0);
+#endif
+    _penalties2Probabilities(numCandidates, penalties, probabilities);
 
+   
+
+
+    // Stack the probabilities so we can evaluate.
     for (int i = 1; i < 4; ++i) {
-        probabilies[i] += probabilies[i - 1];
+        probabilities[i] += probabilities[i - 1];
     }
 
     for (int i = 0; i < 4; ++i) {
-        SQINFO("adjusted prob = %f", probabilies[i]);
+        SQINFO("adjusted prob = %f", probabilities[i]);
     }
 
     const float rand = state.random.generateDouble();
     SQINFO("rand = %f\n", rand);
     int chosenIndex = 0;
     for (int i = 0; i < 4; ++i) {
-        if (probabilies[i] >= rand) {
+        if (probabilities[i] >= rand) {
             SQINFO("prob %d can fire\n", i);
             chosenIndex = i;
             break;

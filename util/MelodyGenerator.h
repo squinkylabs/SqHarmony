@@ -120,4 +120,5 @@ public:
 
     static void makeStateLegal(MelodyMutateState& state, const MelodyRow& row);
     static bool toMutateIncludes(const int* indiciesToMutate, int candidateIndex);
+    static void _penalties2Probabilities(unsigned num, const float* penalties, float* probabilities);
 };
