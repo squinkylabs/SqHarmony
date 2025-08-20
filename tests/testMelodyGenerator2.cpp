@@ -1,37 +1,46 @@
 
 #include <optional>
 
+#include "FloatNote.h"
 #include "MelodyEvaluator.h"
 #include "MelodyGenerator.h"
+#include "NoteConvert.h"
+#include "PitchKnowledge.h"
 #include "asserts.h"
 
-//  static void _mutateOne(MelodyRow& row, size_t index, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style);
-static MelodyRow testGenerate(std::optional<int> primeRandomCount) {
+/**
+ * @brief
+ *
+ * @param primeRandomCount - the number of times to run the prime number generator first
+ * @return MelodyRow
+ */
+static void testGenerate(MelodyRow& row, unsigned iterations, unsigned primeRandomCount, MelodyMutateStyle style) {
     Scale scale;
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
 
-    MelodyRow row;
+    ;
     row.setSize(2);
 
     MelodyMutateState state;
-    MelodyMutateStyle style;
 
-    if (primeRandomCount.has_value()) {
-        const int count = primeRandomCount.value();
-        for (int i = 0; i < count; ++i) {
-            state.random.generateDouble();
-        }
+    for (unsigned i = 0; i < primeRandomCount; ++i) {
+        state.random.generateDouble();
     }
 
-    style.disable();  // need a test for this!
-
-    MelodyGenerator::_mutateOne(row, 0, scale, state, style);
-    return row;
+    while (iterations--) {
+        SQINFO("----- iteratrion row=%s",
+               row.toString().c_str());
+        SQINFO(" evaluation = %s",
+               MelodyEvaluator::toString(row, style).c_str());
+        MelodyGenerator::_mutateOne(row, 0, scale, state, style);
+    }
 }
 
 static void testGenerateRandomSanityCheck() {
-    const auto row1 = testGenerate(std::optional<int>());
-    const auto row2 = testGenerate(std::optional<int>());
+    MelodyMutateStyle style;  // default style
+    MelodyRow row1, row2;
+    testGenerate(row1, 1, 0, style);
+    testGenerate(row2, 1, 0, style);
 
     assert(row1 == row2);
 }
@@ -39,13 +48,50 @@ static void testGenerateRandomSanityCheck() {
 static void testGenerateRandom() {
     testGenerateRandomSanityCheck();
 
-    const auto row1 = testGenerate(std::optional<int>());
-    const auto row2 = testGenerate(std::optional<int>(1));
+    MelodyMutateStyle style;  // default style
+    MelodyRow row1, row2;
+
+    testGenerate(row1, 1, 0, style);
+    testGenerate(row2, 1, 1, style);
 
     // Note that since the random numbers are deterministic, we will get the same result every time.
     // But the fact that only one extra call was required to pass this test is just luck.
     // May need to adapt if it starts for fail in the future.
     assert(row1 != row2);
+}
+
+static void testDriftRate(unsigned iterations) {
+    MelodyMutateStyle style;
+    SQINFO("default style = %s", style.toString().c_str());
+    style.setStyles(Styles::OnlySeekCenter);
+
+    SQINFO("style= %s", style.toString().c_str());
+
+    MidiNote note(MidiNote::C3 + 5 * 12);
+
+    const std::string s = PitchKnowledge::nameOfAbs(note.get());
+    SQINFO("orig target = %s", s.c_str());
+    FloatNote fNote;
+    NoteConvert::m2f(fNote, note);
+    style.centerVoltage = fNote.get();
+
+    //    const unsigned iteration = 10;
+    MelodyRow row;
+    row.setSize(2);
+    row.setNote(0, note);
+    testGenerate(
+        row,
+        iterations,
+        0,
+        style);
+
+    SQINFO("iter = %d row: %s", iterations, row.toString().c_str());
+}
+
+static void testDriftRate() {
+    //  testDriftRate(1);
+    testDriftRate(10);
+    //  testDriftRate(100);
 }
 
 static void testPenalties2ProbabilitiesSub(unsigned num, const float* penalties, const float* expectedProbabilities) {
@@ -106,12 +152,14 @@ void testMelodyGenerator2() {
     testGenerateRandom();
     testPenalties2ProbabilitiesSame();
     testPenalties2Probabilities();
+    testDriftRate();
 }
 
-#if 0
+#if 1
 void testFirst() {
+    testDriftRate();
     // testMelodyGenerator2();
-    // testGenerateRandom();
-    testPenalties2Probabilities();
+    //  testGenerateRandom();
+    // testPenalties2Probabilities();
 }
 #endif

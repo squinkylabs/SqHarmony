@@ -14,15 +14,34 @@ std::string MelodyMutateStyle::toString() const {
     return s.str();
 }
 
+#if 0
 void MelodyMutateStyle::disable() {
     nonCenteredWeight = 0;
     pitchRangeWeight = 0;
     leapsWeight = 0;
     unisonWeight = 0;
 }
+#endif
+
+void MelodyMutateStyle::setStyles(Styles theStyle) {
+    // first, disable everything
+    nonCenteredWeight = 0;
+    pitchRangeWeight = 0;
+    leapsWeight = 0;
+    unisonWeight = 0;
+    switch (theStyle) {
+        case Styles::OnlySeekCenter:
+            nonCenteredWeight = 1;
+            break;
+        case Styles::Disabled:
+            break;
+        default:
+            assert(false);
+    }
+}
 
 float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
-    const float lp = leapsPenalty(r, style);   
+    const float lp = leapsPenalty(r, style);
     const float up = unisonsPenalty(r, style);
     const float cp = nonCenteredPenalty(r, style);
     const float prp = pitchRangePenalty(r, style);
@@ -41,7 +60,7 @@ std::string MelodyEvaluator::toString(const MelodyRow& row, const MelodyMutateSt
     s << " non-cent=" << float((nonCenteredPenalty(row, style) * style.nonCenteredWeight));
     s << " range=" << pitchRangePenalty(row, style);
 
-    //SQINFO("weights = %f, %f, %f, %f", style.nonCenteredWeight, style.pitchRangeWeight, style.unisonWeight, style.leapsWeight);
+    // SQINFO("weights = %f, %f, %f, %f", style.nonCenteredWeight, style.pitchRangeWeight, style.unisonWeight, style.leapsWeight);
 
     return s.str();
 }
@@ -75,12 +94,12 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyl
     if (unisons <= 1) {
         return 0;
     }
-   // SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
+    // SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
     return float(unisons) / float(r.getSize());
 }
 
 float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
-    //SQINFO("enter eval non cent, row=%s", r.toString().c_str());
+    // SQINFO("enter eval non cent, row=%s", r.toString().c_str());
     assert(r.getSize() > 0);
     float totalDeviation = 0;
     FloatNote floatTarget(style.centerVoltage);
@@ -91,20 +110,19 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutate
 
         // totalDeviation += std::abs(note.get() - MidiNote::MiddleC);
         totalDeviation += std::abs(floatNote.get() - floatTarget.get());
-        //SQINFO("in loop, i=%d note=%d total dev = %f", i, note.get(), totalDeviation);
-       // SQINFO("  target=%f v=%f", floatTarget.get(), floatNote.get());
+        // SQINFO("in loop, i=%d note=%d total dev = %f", i, note.get(), totalDeviation);
+        // SQINFO("  target=%f v=%f", floatTarget.get(), floatNote.get());
     }
 
     const float penalty = totalDeviation / r.getSize();
 
     // for a long time was mult by .001 * .01 * .04 . Now with new probability stuff drift tests are failing
-    
-    
-    double k = .000001;    // 10 too high
-                    // passes at .000001
-                    //  .0000001 too low
 
-    //SQINFO("final penalty = %f", penalty * style.nonCenteredWeight * k);
+    double k = .000001;  // 10 too high
+                         // passes at .000001
+                         //  .0000001 too low
+
+    // SQINFO("final penalty = %f", penalty * style.nonCenteredWeight * k);
     return penalty * style.nonCenteredWeight * k;
 };
 
@@ -117,13 +135,12 @@ float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateS
         max = std::max(max, note.get());
     }
     const int range = max - min;
-    
 
     const int diff = std::abs(style.idealPitchRange2 - range);
-    //SQINFO("range=%d min=%d max=%d diff=%d", range, min, max, diff);
-    //SQINFO("diff / 12=%f weight=%f", (diff / 12.), style.pitchRangeWeight);
+    // SQINFO("range=%d min=%d max=%d diff=%d", range, min, max, diff);
+    // SQINFO("diff / 12=%f weight=%f", (diff / 12.), style.pitchRangeWeight);
 
     const float ret = (diff / 12.) * style.pitchRangeWeight;
-    //SQINFO("pitchRangePenalty will ret %f", ret);
+    // SQINFO("pitchRangePenalty will ret %f", ret);
     return ret;
 };

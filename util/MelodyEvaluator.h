@@ -9,8 +9,18 @@ enum SlotSelectionMethod {
     RANDOM_RANDOM,  // selection of all slots is random.
 };
 
+
+enum class Styles {
+    OnlySeekCenter,
+    OnlySeekRange,
+    OnlyDiscorageLeaps,
+    Disabled,
+    Default
+};
+
 class MelodyMutateStyle {
 public:
+
     bool keepInScale = true;
     int numToMutate = 1;  // if zero, mutate all.
 
@@ -24,8 +34,11 @@ public:
     float unisonWeight = 1;
 
     std::string toString() const;
-    void disable();  // set to all rules off
+  //  void disable();  // set to all rules off
+    void setStyles(Styles);
 };
+
+
 
 class MelodyEvaluator {
 public:

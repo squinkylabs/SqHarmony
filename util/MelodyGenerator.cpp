@@ -39,30 +39,6 @@ MidiNote MelodyRow::getAveragePitch() const {
 
 ////////////////////////////
 
-#if 0  // old way
-static int _pickOne(int numBest, int bestCandidates[], MelodyMutateState& state) {
-    assert(numBest > 0);
-
-    SQINFO("pick one %d", numBest);
-    if (numBest > 2) {
-        SQINFO("a lot of candidates to pick from!");
-    }
-
-    if (numBest == 1) {
-        SQINFO("only one candidate to pick");
-        return bestCandidates[0];
-    }
-
-    const int randIndex = state.random.generateInteger(numBest);
-
-    assert(randIndex < numBest);
-    assert(randIndex >= 0);
-    const int selectedCandidate = bestCandidates[randIndex];
-
-    return selectedCandidate;
-}
-#endif
-
 void MelodyGenerator::makeStateLegal(MelodyMutateState& state, const MelodyRow& row) {
     if (state.nextToMutate >= row.getSize()) {
         state.nextToMutate = 0;
@@ -86,7 +62,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
 
     int toMutate[16 + 1];
     getIndiciesToMutate(row, state, style, toMutate);
-   // SQINFO("to mutate = %d %d %d %d %d", toMutate[0], toMutate[1], toMutate[2], toMutate[3], toMutate[4]);
+    // SQINFO("to mutate = %d %d %d %d %d", toMutate[0], toMutate[1], toMutate[2], toMutate[3], toMutate[4]);
     _mutateSome(row, scale, state, style, toMutate);
 }
 
@@ -109,10 +85,9 @@ bool MelodyGenerator::toMutateIncludes(const int* indiciesToMutate, int candidat
  */
 static void distribute(MelodyRow& row, int numThisTime, int* indiciesToMutate, int& index, int startingIndex) {
     const double quota = double(row.getSize() / double(numThisTime));
-    double floatingAcc = 0;
-    // int integerAcc = 0;
 
     // SQINFO("non adj. size=%lld num=%d q=%f", row.getSize(), numThisTime, quota);
+    double floatingAcc = 0;
     indiciesToMutate[index++] = startingIndex;  // state.nextToMutate;  // always mutate the current one
     for (size_t i = 1; i < row.getSize(); ++i) {
         floatingAcc += 1.0;
@@ -192,15 +167,15 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
     float sum = 0;
     float maxPenalty = 0;
     for (unsigned i = 0; i < num; ++i) {
-       //SQINFO("penalty[%d] = %f", i, penalties[i]);
+        SQINFO("penalty[%d] = %f", i, penalties[i]);
         maxPenalty = std::max(maxPenalty, penalties[i]);
     }
 
     // now map from penalties to goodness
-     for (unsigned i = 0; i < num; ++i) {
+    for (unsigned i = 0; i < num; ++i) {
         probabilities[i] = maxPenalty - penalties[i];
-         sum += probabilities[i];
-        //SQINFO("prob[%d] = %f", i, probabilities[i]);
+        sum += probabilities[i];
+        SQINFO("prob[%d] = %f", i, probabilities[i]);
     }
 
     // special case for all the same
@@ -212,14 +187,12 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
         return;
     }
 
-
-
-    //SQINFO("sum=%f", sum);
+    // SQINFO("sum=%f", sum);
     assert(sum > 0);
 
     for (unsigned i = 0; i < num; ++i) {
         probabilities[i] *= (1.f / sum);
-       // SQINFO("initial prob = %f", probabilities[i]);
+        SQINFO("initial prob = %f", probabilities[i]);
     }
 }
 
@@ -264,18 +237,18 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
     // }
 
     const float rand = state.random.generateDouble();
-  //  SQINFO("rand = %f\n", rand);
+    //  SQINFO("rand = %f\n", rand);
     int chosenIndex = 0;
     for (int i = 0; i < 4; ++i) {
         if (probabilities[i] >= rand) {
-          //  SQINFO("prob %d can fire\n", i);
+            //  SQINFO("prob %d can fire\n", i);
             chosenIndex = i;
             break;
         }
     }
-//    SQINFO("chosen index = %d", chosenIndex);
+    //    SQINFO("chosen index = %d", chosenIndex);
     row = mutatedCandidates[chosenIndex];
-   // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
+    // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
 }
 
 #if 0  // old way
