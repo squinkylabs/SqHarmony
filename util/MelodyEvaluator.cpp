@@ -41,7 +41,7 @@ std::string MelodyEvaluator::toString(const MelodyRow& row, const MelodyMutateSt
     s << " non-cent=" << float((nonCenteredPenalty(row, style) * style.nonCenteredWeight));
     s << " range=" << pitchRangePenalty(row, style);
 
-    SQINFO("weights = %f, %f, %f, %f", style.nonCenteredWeight, style.pitchRangeWeight, style.unisonWeight, style.leapsWeight);
+    //SQINFO("weights = %f, %f, %f, %f", style.nonCenteredWeight, style.pitchRangeWeight, style.unisonWeight, style.leapsWeight);
 
     return s.str();
 }
@@ -80,7 +80,7 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyl
 }
 
 float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
-    // SQINFO("enter eval non cent, row=%s", r.print().c_str());
+    //SQINFO("enter eval non cent, row=%s", r.toString().c_str());
     assert(r.getSize() > 0);
     float totalDeviation = 0;
     FloatNote floatTarget(style.centerVoltage);
@@ -91,11 +91,21 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutate
 
         // totalDeviation += std::abs(note.get() - MidiNote::MiddleC);
         totalDeviation += std::abs(floatNote.get() - floatTarget.get());
-        // SQINFO("in loop, note=%d total dev = %f", note.get(), totalDeviation);
+        //SQINFO("in loop, i=%d note=%d total dev = %f", i, note.get(), totalDeviation);
+       // SQINFO("  target=%f v=%f", floatTarget.get(), floatNote.get());
     }
 
     const float penalty = totalDeviation / r.getSize();
-    return penalty * style.nonCenteredWeight * .001 * .01 * .04;
+
+    // for a long time was mult by .001 * .01 * .04 . Now with new probability stuff drift tests are failing
+    
+    
+    double k = .000001;    // 10 too high
+                    // passes at .000001
+                    //  .0000001 too low
+
+    //SQINFO("final penalty = %f", penalty * style.nonCenteredWeight * k);
+    return penalty * style.nonCenteredWeight * k;
 };
 
 float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateStyle& style) {

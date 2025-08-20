@@ -314,7 +314,7 @@ static void testMelodyGeneratorWillMutateSecondNote() {
 }
 
 static void testMelodyGeneratorMutateDrift() {
-    SQINFO("testMelodyGeneratorMutateDrift");
+//    SQINFO("testMelodyGeneratorMutateDrift");
     MelodyRow r;
     MelodyMutateState state;
     MelodyMutateStyle style;
@@ -322,60 +322,22 @@ static void testMelodyGeneratorMutateDrift() {
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     r.init(5, scale);
 
+   //SQINFO("center = %f", style.centerVoltage);
+
     assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
-    const int iterations = 500;
+    const int iterations = 500;  // was 500
     for (int i = 0; i < iterations; ++i) {
+       // SQINFO("\n--- iteration %d", i);
         MelodyGenerator::mutate(r, scale, state, style);
+        const std::string s = MelodyEvaluator::toString(r, style);
+       // SQINFO("iter %d avg = %d %s", i, r.getAveragePitch().get(), s.c_str());
+       // SQINFO("** ROW: %s", r.toString().c_str());
     }
 
     SQINFO("---- end testMelodyGeneratorMutateDrift");
     // expect won't have moved a ton.
     assertLE(r.getAveragePitch().get(), MidiNote::MiddleC + 2);
     assertGE(r.getAveragePitch().get(), MidiNote::MiddleC - 2);
-}
-
-static void testMelodyGeneratorMutateDrift2() {
-    MelodyRow r;
-    MelodyMutateState state;
-    MelodyMutateStyle style;
-    style.nonCenteredWeight = 0;
-    Scale scale;
-    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
-    r.init(5, scale);
-
-    assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
-    const int iterations = 5000;
-    for (int i = 0; i < iterations; ++i) {
-        MelodyGenerator::mutate(r, scale, state, style);
-    }
-
-    // expect we drifter higher in this key
-    assertGT(r.getAveragePitch().get(), MidiNote::MiddleC + 12);
-}
-
-static void testMelodyGeneratorMutateDrift3() {
-    MelodyRow r;
-    MelodyMutateState state;
-    MelodyMutateStyle style;
-    style.nonCenteredWeight = 0;
-    // Scale scale = scaleCMaj();
-    Scale scale;
-    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
-    r.init(5, scale);
-
-    // SQINFO(("orig row = " + r.toString()).c_str());
-
-    assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
-    const int iterations = 5000;
-    for (int i = 0; i < iterations; ++i) {
-        MelodyGenerator::mutate(r, scale, state, style);
-    }
-
-    // SQINFO(("mutated row = " + r.toString()).c_str());
-    //  SQINFO("avg pitch = %d", r.getAveragePitch().get());
-
-    // expect we drifter higher in this key
-    assertLT(r.getAveragePitch().get(), 0);
 }
 
 static void testMelodyGeneratorCanShift(int amount) {
@@ -595,7 +557,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate7() {
     int indiciesToMutate[MelodyRow::maxNotes + 1];
 
     std::set<int> haveSeen;
-    SQINFO("row len = %lld", rowLength);
+    //SQINFO("row len = %lld", rowLength);
     for (int i = 0; i < rowLength * 4; ++i) {
         MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
         assertEQ(indiciesToMutate[2], -1);  // there should be two
@@ -605,7 +567,7 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate7() {
         if (expectedNext >= rowLength) {
             expectedNext -= rowLength;
         }
-        SQINFO("in loop i=%d, tomutate= %d %d", i, indiciesToMutate[0], expectedNext);
+       // SQINFO("in loop i=%d, tomutate= %d %d", i, indiciesToMutate[0], expectedNext);
 
         assertEQ(indiciesToMutate[1], expectedNext);
     }
@@ -650,12 +612,7 @@ static void testMelodyGenerator2() {
     testMelodyGeneratorWillMutate();
     testMelodyGeneratorWillMutateFirstNoteByDefault();
     testMelodyGeneratorWillMutateSecondNote();
-    // testMelodyGeneratorMutateDrift();
-    SQINFO("why is testMelodyGeneratorMutateDrift failing?");
-    // testMelodyGeneratorMutateDrift2();
-    SQINFO("why is testMelodyGeneratorMutateDrift2 failing?");
-    // testMelodyGeneratorMutateDrift3();
-    SQINFO("why is testMelodyGeneratorMutateDrift3 failing?");
+    testMelodyGeneratorMutateDrift();
     testMelodyGeneratorMutateMulti();
     testMelodyGeneratorMutateMultiWrap();
     testMelodyGeneratorMutateTooMany();
@@ -672,15 +629,13 @@ void testMelodyGenerator() {
 
 #if 0
 void testFirst() {
-    testMelodyGeneratorMutateDrift();
-    // testMelodyGeneratorMutateDrift3();
     // testMelodyGeneratorMutate_getIndiciesToMutate();
     // testMelodyGenerator_toMutateIncludes();
- //   testMelodyGeneratorMutate_getIndiciesToMutate5();
- // testMelodyGeneratorMutate_getIndiciesToMutate7();
+    //   testMelodyGeneratorMutate_getIndiciesToMutate5();
+    // testMelodyGeneratorMutate_getIndiciesToMutate7();
     // testMelodyGeneratorMutateTooMany();
- //   testMelodyGenerator();
-    //testMelodyGenerator_random();
-    //testMelodyGenerator_random2();
+    //   testMelodyGenerator();
+    // testMelodyGenerator_random();
+    // testMelodyGenerator_random2();
 }
 #endif

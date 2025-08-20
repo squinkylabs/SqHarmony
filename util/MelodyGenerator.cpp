@@ -86,7 +86,7 @@ void MelodyGenerator::mutate(MelodyRow& row, const Scale& scale, MelodyMutateSta
 
     int toMutate[16 + 1];
     getIndiciesToMutate(row, state, style, toMutate);
-    SQINFO("to mutate = %d %d %d %d %d", toMutate[0], toMutate[1], toMutate[2], toMutate[3], toMutate[4]);
+   // SQINFO("to mutate = %d %d %d %d %d", toMutate[0], toMutate[1], toMutate[2], toMutate[3], toMutate[4]);
     _mutateSome(row, scale, state, style, toMutate);
 }
 
@@ -188,21 +188,38 @@ void MelodyGenerator::_mutateSome(MelodyRow& row, const Scale& scale, MelodyMuta
     }
 }
 
-void MelodyGenerator::_penalties2Probabilities(unsigned num, const float * penalties, float * probabilities) {
-   float sum = 0;
+void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalties, float* probabilities) {
+    float sum = 0;
+    float maxPenalty = 0;
     for (unsigned i = 0; i < num; ++i) {
-        float x = 1. / (1 + penalties[i]);
-        x = std::max(x, .21f);           // clip the min probabilities (.21 is arbitrary) (put in style???)
-        assert(x > 0);
-        probabilities[i] = x;
-        sum += probabilities[i];
+       //SQINFO("penalty[%d] = %f", i, penalties[i]);
+        maxPenalty = std::max(maxPenalty, penalties[i]);
     }
-    SQINFO("sum=%f", sum);
+
+    // now map from penalties to goodness
+     for (unsigned i = 0; i < num; ++i) {
+        probabilities[i] = maxPenalty - penalties[i];
+         sum += probabilities[i];
+        //SQINFO("prob[%d] = %f", i, probabilities[i]);
+    }
+
+    // special case for all the same
+    if (sum == 0) {
+        float p = 1.f / float(num);
+        for (unsigned i = 0; i < num; ++i) {
+            probabilities[i] = p;
+        }
+        return;
+    }
+
+
+
+    //SQINFO("sum=%f", sum);
     assert(sum > 0);
 
     for (unsigned i = 0; i < num; ++i) {
         probabilities[i] *= (1.f / sum);
-        SQINFO("initial prob = %f", probabilities[i]);
+       // SQINFO("initial prob = %f", probabilities[i]);
     }
 }
 
@@ -220,7 +237,7 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
     }
     MelodyRow mutatedCandidates[4];
     float penalties[4];
-   // float lowestPenalty = 1000;  // insanely high penalty
+    // float lowestPenalty = 1000;  // insanely high penalty
 
     // First, make all the mutation candidates and get their penalties
     for (int i = 0; 0 != candidateShifts[i]; ++i) {
@@ -228,54 +245,37 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
         _changeOneNoteInMode(mutatedCandidates[i], scale, noteIndex, candidateShifts[i]);
         const float penalty = MelodyEvaluator::getPenalty(mutatedCandidates[i], style);
         penalties[i] = penalty;
-      //  lowestPenalty = std::min(penalty, lowestPenalty);
+        //  lowestPenalty = std::min(penalty, lowestPenalty);
 
-        SQINFO("candidate[%d], penalty=%f", i, penalty);
+        // SQINFO("candidate[%d], penalty=%f", i, penalty);
     }
 
     assert(numCandidates == 4);
     float probabilities[4];
-#if 0
-    // now prepare all the probabilities
-    
-    float sum = 0;
-    for (int i = 0; i < 4; ++i) {
-        float x = 1. / (1 + penalties[i]);
-        x = std::max(x, .21f);           // clip the min probabilities (.21 is arbitrary)
-        assert(x > 0);
-        probabilies[i] = x;
-        sum += probabilies[i];
-    }
-    SQINFO("sum=%f", sum);
-    assert(sum > 0);
-#endif
     _penalties2Probabilities(numCandidates, penalties, probabilities);
-
-   
-
 
     // Stack the probabilities so we can evaluate.
     for (int i = 1; i < 4; ++i) {
         probabilities[i] += probabilities[i - 1];
     }
 
-    for (int i = 0; i < 4; ++i) {
-        SQINFO("adjusted prob = %f", probabilities[i]);
-    }
+    // for (int i = 0; i < 4; ++i) {
+    //     SQINFO("adjusted prob = %f", probabilities[i]);
+    // }
 
     const float rand = state.random.generateDouble();
-    SQINFO("rand = %f\n", rand);
+  //  SQINFO("rand = %f\n", rand);
     int chosenIndex = 0;
     for (int i = 0; i < 4; ++i) {
         if (probabilities[i] >= rand) {
-            SQINFO("prob %d can fire\n", i);
+          //  SQINFO("prob %d can fire\n", i);
             chosenIndex = i;
             break;
         }
     }
-    SQINFO("chosen index = %d", chosenIndex);
+//    SQINFO("chosen index = %d", chosenIndex);
     row = mutatedCandidates[chosenIndex];
-    // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
+   // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
 }
 
 #if 0  // old way
