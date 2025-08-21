@@ -6,6 +6,8 @@
 #include "NoteConvert.h"
 #include "PitchKnowledge.h"
 
+bool verboseProbability = false;
+
 std::string MelodyRow::toString() const {
     std::string ret;
     if (getSize() == 0) {
@@ -167,7 +169,7 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
     float sum = 0;
     float maxPenalty = 0;
     for (unsigned i = 0; i < num; ++i) {
-        SQINFO("penalty[%d] = %f", i, penalties[i]);
+        if (verboseProbability) SQINFO("penalty[%d] = %f", i, penalties[i]);
         maxPenalty = std::max(maxPenalty, penalties[i]);
     }
 
@@ -175,7 +177,7 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
     for (unsigned i = 0; i < num; ++i) {
         probabilities[i] = maxPenalty - penalties[i];
         sum += probabilities[i];
-        SQINFO("prob[%d] = %f", i, probabilities[i]);
+        if (verboseProbability) SQINFO("prob[%d] = %f", i, probabilities[i]);
     }
 
     // special case for all the same
@@ -192,13 +194,12 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
 
     for (unsigned i = 0; i < num; ++i) {
         probabilities[i] *= (1.f / sum);
-        SQINFO("initial prob = %f", probabilities[i]);
+        if (verboseProbability) SQINFO("initial prob = %f", probabilities[i]);
     }
 }
 
 void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.
-    assert(style.slotSelectionMethod == 0);
     assert(noteIndex < row.getSize());
 
     // SQINFO("mutateOne %d", (int)noteIndex);
@@ -220,7 +221,7 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, const Scale& 
         penalties[i] = penalty;
         //  lowestPenalty = std::min(penalty, lowestPenalty);
 
-        // SQINFO("candidate[%d], penalty=%f", i, penalty);
+        if (verboseProbability) SQINFO("candidate[%d], penalty=%f data=%s", i, penalty, mutatedCandidates[i].toString().c_str());
     }
 
     assert(numCandidates == 4);

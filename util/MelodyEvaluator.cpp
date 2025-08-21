@@ -10,7 +10,9 @@ std::string MelodyMutateStyle::toString() const {
     s << "non ctr " << this->nonCenteredWeight;
     s << " range " << this->pitchRangeWeight;
     s << " leaps " << this->leapsWeight;
-    s << " unis: " << this->unisonWeight << std::endl;
+    s << " unis: " << this->unisonWeight;
+    s << " center-v=" << this->centerVoltage;
+    s << std::endl;
     return s.str();
 }
 
@@ -59,7 +61,6 @@ std::string MelodyEvaluator::toString(const MelodyRow& row, const MelodyMutateSt
     s << " uni=" << unisonsPenalty(row, style);
     s << " non-cent=" << float((nonCenteredPenalty(row, style) * style.nonCenteredWeight));
     s << " range=" << pitchRangePenalty(row, style);
-
     // SQINFO("weights = %f, %f, %f, %f", style.nonCenteredWeight, style.pitchRangeWeight, style.unisonWeight, style.leapsWeight);
 
     return s.str();
@@ -77,7 +78,7 @@ float MelodyEvaluator::leapsPenalty(const MelodyRow& r, const MelodyMutateStyle&
         }
         // SQINFO("i=%d jump=%d big leaps=%d", i, jump, bigLeaps);
     }
-    return float(bigLeaps) / float(r.getSize());
+    return style.leapsWeight * float(bigLeaps) / float(r.getSize());
 }
 
 float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
@@ -95,11 +96,12 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyl
         return 0;
     }
     // SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
-    return float(unisons) / float(r.getSize());
+    return  style.unisonWeight * (unisons) / float(r.getSize());
 }
 
 float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
-    // SQINFO("enter eval non cent, row=%s", r.toString().c_str());
+
+    //SQINFO("enter nonCenteredPenalty, target vs=%f", style.centerVoltage);
     assert(r.getSize() > 0);
     float totalDeviation = 0;
     FloatNote floatTarget(style.centerVoltage);
@@ -110,17 +112,18 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutate
 
         // totalDeviation += std::abs(note.get() - MidiNote::MiddleC);
         totalDeviation += std::abs(floatNote.get() - floatTarget.get());
-        // SQINFO("in loop, i=%d note=%d total dev = %f", i, note.get(), totalDeviation);
-        // SQINFO("  target=%f v=%f", floatTarget.get(), floatNote.get());
+        //SQINFO("in loop, i=%d note=%d,%f total dev = %f", i, note.get(), floatNote.get(), totalDeviation);
     }
 
     const float penalty = totalDeviation / r.getSize();
 
+    // results of tuning to make long term drift pass
     // for a long time was mult by .001 * .01 * .04 . Now with new probability stuff drift tests are failing
-
-    double k = .000001;  // 10 too high
+    //double k = .000001;  // 10 too high
                          // passes at .000001
                          //  .0000001 too low
+
+    double k = .00001;       // 1 is very high .1 is pretty snappy
 
     // SQINFO("final penalty = %f", penalty * style.nonCenteredWeight * k);
     return penalty * style.nonCenteredWeight * k;

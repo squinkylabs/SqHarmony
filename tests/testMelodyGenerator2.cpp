@@ -8,6 +8,7 @@
 #include "PitchKnowledge.h"
 #include "asserts.h"
 
+extern bool verboseProbability;
 /**
  * @brief
  *
@@ -28,10 +29,8 @@ static void testGenerate(MelodyRow& row, unsigned iterations, unsigned primeRand
     }
 
     while (iterations--) {
-        SQINFO("----- iteratrion row=%s",
-               row.toString().c_str());
-        SQINFO(" evaluation = %s",
-               MelodyEvaluator::toString(row, style).c_str());
+        SQINFO("----- iteratrion row=%s", row.toString().c_str());
+        SQINFO(" evaluation = %s", MelodyEvaluator::toString(row, style).c_str());
         MelodyGenerator::_mutateOne(row, 0, scale, state, style);
     }
 }
@@ -68,12 +67,14 @@ static void testDriftRate(unsigned iterations) {
     SQINFO("style= %s", style.toString().c_str());
 
     MidiNote note(MidiNote::C3 + 5 * 12);
-
     const std::string s = PitchKnowledge::nameOfAbs(note.get());
     SQINFO("orig target = %s", s.c_str());
-    FloatNote fNote;
-    NoteConvert::m2f(fNote, note);
-    style.centerVoltage = fNote.get();
+  //  FloatNote fNote;
+  //  NoteConvert::m2f(fNote, note);
+
+    style.centerVoltage = 0;
+    //style.centerVoltage = fNote.get();
+   // assert(false);  // the above sets center to 4 v
 
     //    const unsigned iteration = 10;
     MelodyRow row;
@@ -89,9 +90,11 @@ static void testDriftRate(unsigned iterations) {
 }
 
 static void testDriftRate() {
-    //  testDriftRate(1);
-    testDriftRate(10);
-    //  testDriftRate(100);
+    verboseProbability = false;
+  //  testDriftRate(1);
+
+  //  testDriftRate(10);
+       testDriftRate(100);
 }
 
 static void testPenalties2ProbabilitiesSub(unsigned num, const float* penalties, const float* expectedProbabilities) {
@@ -155,7 +158,7 @@ void testMelodyGenerator2() {
     testDriftRate();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testDriftRate();
     // testMelodyGenerator2();

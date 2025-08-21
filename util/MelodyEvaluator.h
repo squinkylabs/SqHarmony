@@ -34,7 +34,6 @@ public:
     float unisonWeight = 1;
 
     std::string toString() const;
-  //  void disable();  // set to all rules off
     void setStyles(Styles);
 };
 
