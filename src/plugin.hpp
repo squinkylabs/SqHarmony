@@ -9,7 +9,7 @@ using namespace rack;
 
 #define _H2
 #define _VISUALIZER
-#define _MUTATOR
+//#define _MUTATOR
 
 extern Plugin* pluginInstance;
 
