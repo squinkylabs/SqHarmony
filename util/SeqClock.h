@@ -36,7 +36,7 @@ public:
     ClockResults updateOnce(float externalClock, bool runStop, float reset);
 
     // sample time is seconds for one sample
-    void setup(float sampleTime);
+    void setupReset(float sampleTime);
 
     /**
      * @param mode - if true, use nord trigger, if false use Impromptu;
@@ -133,7 +133,7 @@ inline SeqClock::ClockResults SeqClock::updateOnce(float externalClock, bool run
     return results;
 }
 
-inline void SeqClock::setup(float sampleTime) {
+inline void SeqClock::setupReset(float sampleTime) {
     // sampleTime = sampleTime;
     resetLockout.setSampleTime(sampleTime);
 }

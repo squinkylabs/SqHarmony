@@ -225,7 +225,7 @@ private:
     void addDebug(Module* module) {
         const float y = 360;  // 350 too high
         //  void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
-        addInputL(Vec(0, y), Comp::DEBUG_REINIT_INPUT, "re ini", 9);
+        addInputL(Vec(0, y), Comp::REINIT_INPUT, "re ini", 9);
         addInputL(Vec(110, y), Comp::DEBUG_EVAL_INPUT, "eval", 3);
     }
 };

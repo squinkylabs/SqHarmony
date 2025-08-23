@@ -162,7 +162,6 @@ static void testStepMove(Comp& c, int expectedMove) {
     const auto args = TestComposite::ProcessArgs();
     c.process(args);
 
-
     for (int i = 0; i < 4; ++i) {
         voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
     }
@@ -181,7 +180,7 @@ static void testStepMove(Comp& c, int expectedMove) {
 
 static void testStepMove() {
     Comp c;
-   // const auto args = TestComposite::ProcessArgs();
+    // const auto args = TestComposite::ProcessArgs();
     // SQINFO("--- testStepMove 155 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
 
     init(c);
@@ -194,12 +193,11 @@ static void testStepMove() {
     testStepMove(c, 0);
 }
 
-static void testTwoAdjacent(Comp& c, int iteration, int len)  {
-   float voltages[4];
+static void testTwoAdjacent(Comp& c, int iteration, int len) {
+    float voltages[4];
     // Comp c;
     const auto args = TestComposite::ProcessArgs();
     c.process(args);
-
 
     for (int i = 0; i < len; ++i) {
         voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
@@ -209,8 +207,7 @@ static void testTwoAdjacent(Comp& c, int iteration, int len)  {
     clockIt(c, 1);
 
     int expectedChange1 = (iteration * 2) % len;
-    int expectedChange2 = (expectedChange1 + 1) %len;
-   
+    int expectedChange2 = (expectedChange1 + 1) % len;
 
     for (int i = 0; i < len; ++i) {
         const float v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
@@ -223,8 +220,8 @@ static void testTwoAdjacent(Comp& c, int iteration, int len)  {
 }
 
 static void testTwoAdjacent(int len) {
-      Comp c;
-   // const auto args = TestComposite::ProcessArgs();
+    Comp c;
+    // const auto args = TestComposite::ProcessArgs();
     // SQINFO("--- testStepMove 155 %f", c.inputs[Comp::MUTATE_INPUT].getVoltage(0));
 
     init(c);
@@ -241,21 +238,18 @@ static void testTwoAdjacent() {
     testTwoAdjacent(3);
 }
 
-
-
 // tests single change, random
 static int testRandomMoveSub() {
     Comp c;
     init(c);
     const int length = 8;
     c.params[Comp::ROW_LENGTH_PARAM].value = length;
-    c.params[Comp::ADJACENCY_STYLE_PARAM].value = 2;        // totally random
+    c.params[Comp::ADJACENCY_STYLE_PARAM].value = 2;  // totally random
 
     float voltages[length];
 
     const auto args = TestComposite::ProcessArgs();
     c.process(args);
-
 
     for (int i = 0; i < length; ++i) {
         voltages[i] = c.outputs[Comp::NOTES_OUTPUT].getVoltage(i);
@@ -273,7 +267,6 @@ static int testRandomMoveSub() {
     }
     SQINFO("changed = %d", changed);
     return changed;
-
 }
 
 static void testRandomMove() {
@@ -284,6 +277,39 @@ static void testRandomMove() {
     assertNE(j, i);
 }
 
+static void testReInit() {
+    Comp c;
+    const auto args = TestComposite::ProcessArgs();
+    init(c);
+
+    const float testV = 4;
+
+    // first initialize with 0 v
+    c.inputs[Comp::REINIT_INPUT].channels = 1;  // hook up re-init input
+    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].channels = 1;  // hook up cv in
+    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].setChannels(5);
+    c.inputs[Comp::INITIAL_VOLTAGE_INPUT].setVoltage(0.f, 2);
+    const auto numChannels = c.inputs[Comp::INITIAL_VOLTAGE_INPUT].getChannels();
+    assertEQ(numChannels, 5);  // sanity check
+
+    //  clockIt(c, 1);
+    c.process(args);
+    auto v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(2);
+    assertEQ(v, 0);
+
+
+    // Then set the v to test voltage, re init
+     c.inputs[Comp::INITIAL_VOLTAGE_INPUT].setVoltage(testV, 2);
+
+
+    c.inputs[Comp::REINIT_INPUT].setVoltage(10, 0);
+    c.process(args);
+
+
+    v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(2);
+    assertEQ(v, testV);
+    //  assert(false);
+}
 
 void testMutatorComposite() {
     testCanCall();
@@ -297,16 +323,19 @@ void testMutatorComposite() {
     testSteps();
     testStepMove();
     testTwoAdjacent();
+    testRandomMove();
+    testReInit();
 }
 
-#if 0
+#if 1
 void testFirst() {
-   // testMutatorComposite();
+    // testMutatorComposite();
     // testInitial1();
     //  testInitial2();
     //  testSteps();
     // testStepMove();
-   // testTwoAdjacent();
-    testRandomMove();
+    // testTwoAdjacent();
+    // testRandomMove();
+    testReInit();
 }
 #endif

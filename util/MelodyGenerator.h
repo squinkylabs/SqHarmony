@@ -1,7 +1,7 @@
 #include "MidiNote.h"
 #include "Scale.h"
-#include "sq_rack.h"
 #include "SqRandom.hpp"
+#include "sq_rack.h"
 
 class MelodyMutateStyle;
 
@@ -31,7 +31,6 @@ public:
     MidiNote getAveragePitch() const;
 
     // Gets the index of the next note
-    // static size_t nextNote(size_t index, size_t size);
     size_t wrapIndex(size_t index) const;
 
 private:
@@ -98,14 +97,12 @@ inline bool MelodyRow::operator==(const MelodyRow& other) const {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 class MelodyMutateState {
 public:
-    MelodyMutateState() : random(1234, 5678)  {
+    MelodyMutateState() : random(1234, 5678) {
     }
     size_t nextToMutate = 0;
-   // myxoro _generator;
-   SqRandom random;
+    SqRandom random;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

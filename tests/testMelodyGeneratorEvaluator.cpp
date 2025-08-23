@@ -209,14 +209,14 @@ static void showBias() {
 }
 #endif
 
-#if 1
+#if 0
 void testFirst() {
     // runABit(50, 8);
     // testMelodyEvaluator();
     // showBias();
     // testMelodyEvaluatorCentered4();
     // testMelodyEvaluatorPitchRange2();
-    // testMelodyEvaluator();
+// testMelodyEvaluator();
     testMelodyEvaluatorCenteredWeight();
 }
 #endif

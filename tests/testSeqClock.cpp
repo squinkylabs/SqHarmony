@@ -50,7 +50,7 @@ static void testClockExtEdge() {
     const double metricTimePerClock = 1;
     TClock ck;
     typename TClock::ClockResults results;
-    ck.setup(100);  // internal clock
+    ck.setupReset(100);  // internal clock
 
     // send one clock (first low)
     for (int i = 0; i < 10; ++i) {
@@ -104,7 +104,7 @@ static void testClockChangeWhileStopped() {
     const float sampleTime = 1.f / sampleRate;
 
     TClock ck;
-    ck.setup(sampleTime);  // external clock
+    ck.setupReset(sampleTime);  // external clock
 
     // call with clock low,high,low whole running
     // to get to time zero, ready for first
@@ -191,7 +191,7 @@ static void testResetIgnoreClock(bool holdClockHigh) {
 
     TClock ck;
     typename TClock::ClockResults results;
-    ck.setup(sampleTime);  // external clock = quarter
+    ck.setupReset(sampleTime);  // external clock = quarter
 
     // run external clock high
     results = ck.updateMulti(sampleRateI, 10, true, 0);
@@ -255,7 +255,7 @@ static void testNoNoteAfterReset() {
 
     TClock ck;
     typename TClock::ClockResults results;
-    ck.setup(sampleTime);
+    ck.setupReset(sampleTime);
 
     // clock it a bit
     for (int j = 0; j < 10; ++j) {
@@ -303,7 +303,7 @@ static void testRunGeneratesClock() {
 
     TClock ck;  // freq new clock
     typename TClock::ClockResults results;
-    ck.setup(sampleTime);  // external clock = quarter
+    ck.setupReset(sampleTime);  // external clock = quarter
 
     // clock with run off, clock high. Nothing happens
     for (int j = 0; j < 10; ++j) {
@@ -371,7 +371,7 @@ static void testResetNord() {
 
     SeqClock ck;
     SeqClock::ClockResults results;
-    ck.setup(sampleTime);  // external clock = quarter
+    ck.setupReset(sampleTime);  // external clock = quarter
     ck.setResetMode(true);
 
     // run clock high to get rid of spurious clock
@@ -408,7 +408,7 @@ static void testGet(bool resetMode) {
 
     SeqClock ck;
     SeqClock::ClockResults results;
-    ck.setup(sampleTime);  // external clock = quarter
+    ck.setupReset(sampleTime);  // external clock = quarter
     ck.setResetMode(resetMode);
 
     auto x = ck.updateOnce(0, true, 0);
@@ -436,7 +436,7 @@ static void testHysteresis() {
 
     SeqClock ck;
     SeqClock::ClockResults results;
-    ck.setup(sampleTime);  // external clock = quarter
+    ck.setupReset(sampleTime);  // external clock = quarter
 
     const float indeterminateClock = .5f * (cGateLow + cGateHi);
 
@@ -472,7 +472,7 @@ static void testResetGoesAway(bool nordMode) {
 
     SeqClock ck;
     SeqClock::ClockResults results;
-    ck.setup(sampleTime);  // external clock = quarter
+    ck.setupReset(sampleTime);  // external clock = quarter
     ck.setResetMode(nordMode);
 
     // run clock high to get rid of spurious clock
