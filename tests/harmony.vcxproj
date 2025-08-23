@@ -217,6 +217,7 @@
     <ClCompile Include="testLegerScore.cpp" />
     <ClCompile Include="testLFNDsp.cpp" />
     <ClCompile Include="testMelodyGenerator.cpp" />
+    <ClCompile Include="testMelodyGenerator2.cpp" />
     <ClCompile Include="testMelodyGeneratorEvaluator.cpp" />
     <ClCompile Include="testMidiNote.cpp" />
     <ClCompile Include="testMultiplier.cpp" />
@@ -261,6 +262,7 @@
     <ClCompile Include="testShiftMath.cpp" />
     <ClCompile Include="testSines.cpp" />
     <ClCompile Include="testSqArray.cpp" />
+    <ClCompile Include="testSqRandom.cpp" />
     <ClCompile Include="testTempo.cpp" />
     <ClCompile Include="testTestLFO.cpp" />
     <ClCompile Include="testTwister.cpp" />

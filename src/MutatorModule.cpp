@@ -82,7 +82,6 @@ private:
         return parent;
     }
 
- 
     void addStyle(Module* module) {
         const float styleRow1 = 160;
         const float styleRow2 = 210;
@@ -156,7 +155,7 @@ private:
         p->setLabels(Scale::getRootLabels(false));
         p->box.size.x = 40;  // width
         p->box.size.y = 22;
-     //   p->text = "C";
+        p->text = "C";
         addParam(p);
         //     _keyRootWidget = p;  // remember this so we can poll it.
 
@@ -170,7 +169,7 @@ private:
         p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
-      //  p->text = "Maj";
+        p->text = "Maj";
         addParam(p);
     }
 
@@ -183,18 +182,51 @@ private:
         p->setLabels({"all", "1", "2", "3", "4"});
         p->box.size.x = 40;  // width
         p->box.size.y = 22;
-     //   p->text = "C";
+        p->text = "1";
         addParam(p);
 
-        // TODO: this is a three way, actually.
-        addParam(createParam<CKSS>(Vec(80, y), module, Comp::ADJACENCY_STYLE_PARAM));
+        //  addParam(createParam<CKSSThree>(Vec(80, y), module, Comp::ADJACENCY_STYLE_PARAM));
+        /*
+        enum SlotSelectionMethod {
+      ROUND_ROBIN_ADJACENT,
+      ROUND_ROBIN_DISTRIBUTED,
+      RANDOM_ADJACENT,
+      RANDOM_DISTRIBUTED,
+      RANDOM_RANDOM,            // selection of all slots is random.
+  };
+  */
+        p = createParam<PopupMenuParamWidget>(
+            Vec(60, y),
+            module,
+            Comp::ADJACENCY_STYLE_PARAM);
+        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
+        // Let user select whatever whey want
+        p->setShortLabels({
+            "rr, adj",
+            "rr, dst",
+            "rnd, adj",
+            "rnd, dst",
+            "rnd, rnd"
+        });
+     
+        p->setLabels({
+            "round robin, adjacent",
+            "round robin, distributed",
+            "random, adjacent",
+            "random, distributed",
+            "random, random"
+        });
+        p->box.size.x = 70;  // width
+        p->box.size.y = 22;
+        p->text = "Maj";
+        addParam(p);
     }
 
     void addDebug(Module* module) {
-        const float y = 360;        // 350 too high
-      //  void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
-      addInputL( Vec(0, y), Comp::DEBUG_REINIT_INPUT, "re ini", 9);
-      addInputL( Vec(110, y), Comp::DEBUG_EVAL_INPUT, "eval", 3);
+        const float y = 360;  // 350 too high
+        //  void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
+        addInputL(Vec(0, y), Comp::REINIT_INPUT, "re ini", 9);
+        addInputL(Vec(110, y), Comp::DEBUG_EVAL_INPUT, "eval", 3);
     }
 };
 

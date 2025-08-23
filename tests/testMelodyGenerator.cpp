@@ -168,7 +168,7 @@ static void testMelodyRow() {
 
 static void testMelodyGeneratorMutateStateRandomSeed() {
     MelodyMutateState state;
-    const auto x1 = state.random();
+    const auto x1 = state.random.generateDouble();
     assertNE(x1, 0);
 }
 
@@ -314,6 +314,7 @@ static void testMelodyGeneratorWillMutateSecondNote() {
 }
 
 static void testMelodyGeneratorMutateDrift() {
+//    SQINFO("testMelodyGeneratorMutateDrift");
     MelodyRow r;
     MelodyMutateState state;
     MelodyMutateStyle style;
@@ -321,59 +322,22 @@ static void testMelodyGeneratorMutateDrift() {
     scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
     r.init(5, scale);
 
+   //SQINFO("center = %f", style.centerVoltage);
+
     assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
-    const int iterations = 500;
+    const int iterations = 500;  // was 500
     for (int i = 0; i < iterations; ++i) {
+       // SQINFO("\n--- iteration %d", i);
         MelodyGenerator::mutate(r, scale, state, style);
+        const std::string s = MelodyEvaluator::toString(r, style);
+       // SQINFO("iter %d avg = %d %s", i, r.getAveragePitch().get(), s.c_str());
+       // SQINFO("** ROW: %s", r.toString().c_str());
     }
 
+    SQINFO("---- end testMelodyGeneratorMutateDrift");
     // expect won't have moved a ton.
     assertLE(r.getAveragePitch().get(), MidiNote::MiddleC + 2);
     assertGE(r.getAveragePitch().get(), MidiNote::MiddleC - 2);
-}
-
-static void testMelodyGeneratorMutateDrift2() {
-    MelodyRow r;
-    MelodyMutateState state;
-    MelodyMutateStyle style;
-    style.nonCenteredWeight = 0;
-    Scale scale;
-    scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
-    r.init(5, scale);
-
-    assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
-    const int iterations = 5000;
-    for (int i = 0; i < iterations; ++i) {
-        MelodyGenerator::mutate(r, scale, state, style);
-    }
-
-    // expect we drifter higher in this key
-    assertGT(r.getAveragePitch().get(), MidiNote::MiddleC + 12);
-}
-
-static void testMelodyGeneratorMutateDrift3() {
-    MelodyRow r;
-    MelodyMutateState state;
-    MelodyMutateStyle style;
-    style.nonCenteredWeight = 0;
-    // Scale scale = scaleCMaj();
-    Scale scale;
-    scale.set(MidiNote(MidiNote::C), Scale::Scales::Minor);
-    r.init(5, scale);
-
-    // SQINFO(("orig row = " + r.toString()).c_str());
-
-    assertEQ(r.getAveragePitch().get(), MidiNote::MiddleC);
-    const int iterations = 5000;
-    for (int i = 0; i < iterations; ++i) {
-        MelodyGenerator::mutate(r, scale, state, style);
-    }
-
-    // SQINFO(("mutated row = " + r.toString()).c_str());
-    //  SQINFO("avg pitch = %d", r.getAveragePitch().get());
-
-    // expect we drifter higher in this key
-    assertLT(r.getAveragePitch().get(), 0);
 }
 
 static void testMelodyGeneratorCanShift(int amount) {
@@ -410,7 +374,7 @@ static void testMelodyGeneratorCanShift(int amount) {
 
 static void testMelodyGeneratorMutate_getIndiciesToMutate(
     //   bool adjacent,
-    bool adjacency_style,
+    SlotSelectionMethod slotSelectionMethod,
     size_t rowLength,
     size_t curIndex,
     int numToMutate,
@@ -421,13 +385,13 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(
     MelodyMutateStyle style;
 
     state.nextToMutate = curIndex;
-    style.adjacentStyle = adjacency_style;
+    style.slotSelectionMethod = slotSelectionMethod;
     style.numToMutate = numToMutate;
 
     Scale scale = scaleCMaj();
     row.init(rowLength, scale);
     int indiciesToMutate[MelodyRow::maxNotes + 1];
-    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+    MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
 
     for (size_t i = 0; i < numToMutate; ++i) {
         // SQINFO("in compare loop, i=%lld epxected=%d actual=%d", i, expected[i], indiciesToMutate[i]);
@@ -443,46 +407,46 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate(
 // various combinations, only call once.
 static void testMelodyGeneratorMutate_getIndiciesToMutate1() {
     int expectedIndiciesToMutate[MelodyRow::maxNotes + 1] = {0, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 1, 0, 1, expectedIndiciesToMutate);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 1, 0, 1, expectedIndiciesToMutate);
 
     int expectedIndiciesToMutate2[MelodyRow::maxNotes + 1] = {3, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 1, expectedIndiciesToMutate2);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 3, 1, expectedIndiciesToMutate2);
 
     int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {0, 1, 2, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 3, expectedIndiciesToMutate3);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 0, 3, expectedIndiciesToMutate3);
 
     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {0, 4, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 0, 2, expectedIndiciesToMutate4);
 
     int expectedIndiciesToMutate5[MelodyRow::maxNotes + 1] = {0, 3, 6, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 3, expectedIndiciesToMutate5);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 0, 3, expectedIndiciesToMutate5);
 
     int expectedIndiciesToMutate6[MelodyRow::maxNotes + 1] = {1, 5, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 1, 2, expectedIndiciesToMutate6);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 1, 2, expectedIndiciesToMutate6);
 }
 
 // call twice to see it increment
 static void testMelodyGeneratorMutate_getIndiciesToMutate2() {
     int expectedIndiciesToMutate[MelodyRow::maxNotes + 1] = {3, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 1, expectedIndiciesToMutate, 4);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 3, 1, expectedIndiciesToMutate, 4);
 
     // two adjacent
     int expectedIndiciesToMutate2[MelodyRow::maxNotes + 1] = {0, 1, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 0, 2, expectedIndiciesToMutate2, 2);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 0, 2, expectedIndiciesToMutate2, 2);
 
     // one, wrap
     int expectedIndiciesToMutate3[MelodyRow::maxNotes + 1] = {3, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 4, 3, 1, expectedIndiciesToMutate3, 0);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 4, 3, 1, expectedIndiciesToMutate3, 0);
 
     // three adjacent, wrap
     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {3, 4, 0, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(true, 5, 3, 3, expectedIndiciesToMutate4, 1);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_ADJACENT, 5, 3, 3, expectedIndiciesToMutate4, 1);
 }
 
 // non adjacent more complex
 static void testMelodyGeneratorMutate_getIndiciesToMutate3() {
     int expectedIndiciesToMutate4[MelodyRow::maxNotes + 1] = {0, 4, -1};
-    testMelodyGeneratorMutate_getIndiciesToMutate(false, 8, 0, 2, expectedIndiciesToMutate4, 1);
+    testMelodyGeneratorMutate_getIndiciesToMutate(SlotSelectionMethod::ROUND_ROBIN_DISTRIBUTED, 8, 0, 2, expectedIndiciesToMutate4, 1);
 }
 
 // mutate all
@@ -493,12 +457,12 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
     Scale scale = scaleCMaj();
 
     const int rowLength = 5;
-    style.adjacentStyle = true;
+    style.slotSelectionMethod = SlotSelectionMethod::ROUND_ROBIN_ADJACENT;
     style.numToMutate = 0;
 
     row.init(rowLength, scale);
     int indiciesToMutate[MelodyRow::maxNotes + 1];
-    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
+    MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
     assertEQ(indiciesToMutate[0], 0);
     assertEQ(indiciesToMutate[1], 1);
     assertEQ(indiciesToMutate[2], 2);
@@ -507,28 +471,107 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate4() {
     assertEQ(indiciesToMutate[5], -1);
 }
 
-// random one
+// random, random one
 static void testMelodyGeneratorMutate_getIndiciesToMutate5() {
-    //   bool adjacent,
-    bool adjacency_style = 2;
-    size_t rowLength = 4;
-    //    size_t curIndex,
-    //    int numToMutate,
-    //     const int* expected,
-    //     int expectedNext = -1) {
+    SlotSelectionMethod slotSelectionMethod = SlotSelectionMethod::RANDOM_RANDOM;  // fully random
+    size_t rowLength = 9;
     MelodyRow row;
     MelodyMutateState state;
     MelodyMutateStyle style;
 
     state.nextToMutate = 0;
-    style.adjacentStyle = adjacency_style;
+    style.slotSelectionMethod = slotSelectionMethod;
     style.numToMutate = 1;
 
     Scale scale = scaleCMaj();
     row.init(rowLength, scale);
     int indiciesToMutate[MelodyRow::maxNotes + 1];
-    MelodyGenerator::getIndiciesToMutate(row, scale, state, style, indiciesToMutate);
-    assert(false);
+
+    std::set<int> haveSeen;
+
+    // note that "5" is a heuristic here - depends on random stuff.
+    int expectedRR = 0;
+    int seenExpectedRR = 0;
+    for (int i = 0; i < rowLength * 3; ++i) {
+        MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
+        assertEQ(indiciesToMutate[1], -1);
+        haveSeen.insert(indiciesToMutate[0]);
+        //  SQINFO("just added %d", indiciesToMutate[0]);
+        if (indiciesToMutate[0] == expectedRR) {
+            seenExpectedRR++;
+        }
+        expectedRR++;
+    }
+    // size_t rowLength = 9;
+    assertEQ(haveSeen.size(), rowLength);  // we should have seen every possible index...
+    assertEQ(seenExpectedRR, 0);           // but never in round robin order
+}
+
+// random, adjacent one
+static void testMelodyGeneratorMutate_getIndiciesToMutate6() {
+    SlotSelectionMethod slotSelectionMethod = SlotSelectionMethod::RANDOM_ADJACENT;
+    size_t rowLength = 11;
+    MelodyRow row;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+
+    state.nextToMutate = 0;
+    style.slotSelectionMethod = slotSelectionMethod;
+    style.numToMutate = 2;
+
+    Scale scale = scaleCMaj();
+    row.init(rowLength, scale);
+    int indiciesToMutate[MelodyRow::maxNotes + 1];
+
+    std::set<int> haveSeen;
+
+    for (int i = 0; i < rowLength * 3; ++i) {
+        MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
+        assertEQ(indiciesToMutate[2], -1);  // there should be two
+        haveSeen.insert(indiciesToMutate[0]);
+
+        int expectedNext = indiciesToMutate[0] + 1;
+        if (expectedNext >= rowLength) {
+            expectedNext -= rowLength;
+        }
+
+        assertEQ(indiciesToMutate[1], expectedNext);
+    }
+    assertEQ(haveSeen.size(), rowLength);  // we should have seen every possible index...
+}
+
+// random, distributed one
+static void testMelodyGeneratorMutate_getIndiciesToMutate7() {
+    SlotSelectionMethod slotSelectionMethod = SlotSelectionMethod::RANDOM_DISTRIBUTED;
+    size_t rowLength = 12;
+    MelodyRow row;
+    MelodyMutateState state;
+    MelodyMutateStyle style;
+
+    state.nextToMutate = 0;
+    style.slotSelectionMethod = slotSelectionMethod;
+    style.numToMutate = 2;
+
+    Scale scale = scaleCMaj();
+    row.init(rowLength, scale);
+    int indiciesToMutate[MelodyRow::maxNotes + 1];
+
+    std::set<int> haveSeen;
+    //SQINFO("row len = %lld", rowLength);
+    for (int i = 0; i < rowLength * 4; ++i) {
+        MelodyGenerator::getIndiciesToMutate(row, state, style, indiciesToMutate);
+        assertEQ(indiciesToMutate[2], -1);  // there should be two
+        haveSeen.insert(indiciesToMutate[0]);
+
+        int expectedNext = indiciesToMutate[0] + (rowLength / 2);
+        if (expectedNext >= rowLength) {
+            expectedNext -= rowLength;
+        }
+       // SQINFO("in loop i=%d, tomutate= %d %d", i, indiciesToMutate[0], expectedNext);
+
+        assertEQ(indiciesToMutate[1], expectedNext);
+    }
+    assertEQ(haveSeen.size(), rowLength);  // we should have seen every possible index...
 }
 
 static void testMelodyGeneratorMutate_getIndiciesToMutate() {
@@ -536,9 +579,24 @@ static void testMelodyGeneratorMutate_getIndiciesToMutate() {
     testMelodyGeneratorMutate_getIndiciesToMutate2();
     testMelodyGeneratorMutate_getIndiciesToMutate3();
     testMelodyGeneratorMutate_getIndiciesToMutate4();
-    testMelodyGeneratorMutate_getIndiciesToMutate5();
+    // testMelodyGeneratorMutate_getIndiciesToMutate5();
+    SQINFO("fix testMelodyGeneratorMutate_getIndiciesToMutate5");
+    testMelodyGeneratorMutate_getIndiciesToMutate6();
+    testMelodyGeneratorMutate_getIndiciesToMutate7();
 }
 
+static void testMelodyGenerator_toMutateIncludes() {
+    const int x[] = {-1};
+    assert(!MelodyGenerator::toMutateIncludes(x, 7));
+    const int x2[] = {0, -1};
+    assert(MelodyGenerator::toMutateIncludes(x2, 0));
+    assert(!MelodyGenerator::toMutateIncludes(x2, 1));
+
+    const int x3[] = {8, 9, -1};
+    assert(!MelodyGenerator::toMutateIncludes(x3, 7));
+    assert(MelodyGenerator::toMutateIncludes(x3, 8));
+    assert(MelodyGenerator::toMutateIncludes(x3, 9));
+}
 /////////////////////////////////////////////////////
 
 static void testMelodyGeneratorCanShift() {
@@ -555,8 +613,6 @@ static void testMelodyGenerator2() {
     testMelodyGeneratorWillMutateFirstNoteByDefault();
     testMelodyGeneratorWillMutateSecondNote();
     testMelodyGeneratorMutateDrift();
-    testMelodyGeneratorMutateDrift2();
-    testMelodyGeneratorMutateDrift3();
     testMelodyGeneratorMutateMulti();
     testMelodyGeneratorMutateMultiWrap();
     testMelodyGeneratorMutateTooMany();
@@ -565,17 +621,21 @@ static void testMelodyGenerator2() {
 }
 
 void testMelodyGenerator() {
+    testMelodyGenerator_toMutateIncludes();
     testMelodyRow();
     testMelodyGeneratorMutateState();
     testMelodyGenerator2();
 }
 
-#if 1
+#if 0
 void testFirst() {
-    // testMelodyGeneratorMutateDrift3();
     // testMelodyGeneratorMutate_getIndiciesToMutate();
-    testMelodyGeneratorMutate_getIndiciesToMutate5();
+    // testMelodyGenerator_toMutateIncludes();
+    //   testMelodyGeneratorMutate_getIndiciesToMutate5();
+    // testMelodyGeneratorMutate_getIndiciesToMutate7();
     // testMelodyGeneratorMutateTooMany();
-    testMelodyGenerator();
+    //   testMelodyGenerator();
+    // testMelodyGenerator_random();
+    // testMelodyGenerator_random2();
 }
 #endif

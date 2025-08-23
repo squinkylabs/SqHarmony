@@ -94,6 +94,8 @@ extern void testScoreDrawUtils();
 extern void testMelodyGenerator();
 extern void testMelodyEvaluator();
 extern void testMutatorComposite();
+extern void testSqRandom();
+extern void testMelodyGenerator2();
 
 
 #include "SqLog.h"
@@ -187,7 +189,9 @@ int main(const char**, int) {
     printf("XX: leaving early for clock stuff");
     std::exit(0);
 #endif
+    testSqRandom();
     testMelodyGenerator();
+    testMelodyGenerator2();
     testMelodyEvaluator();
     testMutatorComposite();
 

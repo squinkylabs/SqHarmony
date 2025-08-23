@@ -1,10 +1,9 @@
 
-#include "asserts.h"
-
 #include "FloatNote.h"
-#include "MelodyGenerator.h"
 #include "MelodyEvaluator.h"
+#include "MelodyGenerator.h"
 #include "NoteConvert.h"
+#include "asserts.h"
 
 ///////////////////////////////////////////////
 
@@ -24,7 +23,6 @@ static MelodyRow getRow(int notes) {
     return r;
 }
 
-
 //////////////////////////////////////////////////////////
 
 static void testMelodyEvaluatorCanCall() {
@@ -37,9 +35,9 @@ static void testMelodyEvaluatorCanCall() {
     const float d = MelodyEvaluator::pitchRangePenalty(r, style);
 }
 
-//static void testMelodyGeneratorEvaluator() {
-//    testMelodyGeneratorEvaluatorCanCall();
-//}
+// static void testMelodyGeneratorEvaluator() {
+//     testMelodyGeneratorEvaluatorCanCall();
+// }
 
 static void testMelodyEvaluatorLeaps() {
     MelodyRow r = getRow(1);
@@ -55,14 +53,14 @@ static void testMelodyEvaluatorLeaps2() {
     assert(r.getNote(1).get() == 72);
     assertEQ(MelodyEvaluator::leapsPenalty(r, style), 0);
 
-    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));    // huge leap
+    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));  // huge leap
     assertGT(MelodyEvaluator::leapsPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorUnison() {
     MelodyRow r = getRow(2);
     MelodyMutateStyle style;
-    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));    // huge leap
+    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::A));  // huge leap
     assertEQ(MelodyEvaluator::unisonsPenalty(r, style), 0);
 }
 
@@ -83,7 +81,7 @@ static void testMelodyEvaluatorCentered2() {
     // test should be centered
     MelodyRow r = getRow(4);
     MelodyMutateStyle style;
-    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C + 1));    // tiny fluctuation
+    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C + 1));  // tiny fluctuation
     assertGT(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
 
@@ -91,12 +89,12 @@ static void testMelodyEvaluatorCentered3() {
     // test should be centered
     MelodyRow r = getRow(4);
     MelodyMutateStyle style;
-    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C - 1));    // tiny fluctuation
+    r.setNote(1, MidiNote(MidiNote::MiddleC + MidiNote::C - 1));  // tiny fluctuation
     assertGT(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorCentered4() {
-    //SQINFO("enter testMelodyEvaluatorCentered4");
+    // SQINFO("enter testMelodyEvaluatorCentered4");
     const int midiPitch = 94;
     // test should be centered
     MelodyRow r = getRow(4);
@@ -105,11 +103,25 @@ static void testMelodyEvaluatorCentered4() {
     NoteConvert::m2f(floatNote, MidiNote(midiPitch));
     style.centerVoltage = floatNote.get();
 
-    for (int i=0; i<4; ++i) {
-
-        r.setNote(i, MidiNote(midiPitch)); 
+    for (int i = 0; i < 4; ++i) {
+        r.setNote(i, MidiNote(midiPitch));
     }
-    //SQINFO("row after init = %s", r.print().c_str());
+    // SQINFO("row after init = %s", r.print().c_str());
+    assertEQ(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
+}
+
+static void testMelodyEvaluatorCenteredWeight() {
+    MelodyRow r = getRow(2);
+    const auto note = r.getNote(0);
+    const MidiNote note2(note.get() + 12);
+    r.setNote(0, note2);
+    SQINFO("init row %s", r.toString().c_str());
+
+    MelodyMutateStyle style;
+    style.setStyles(Styles::OnlySeekCenter);
+
+    assertGT(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
+    style.nonCenteredWeight = 0;
     assertEQ(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
 
@@ -128,7 +140,7 @@ static void testMelodyEvaluatorPitchRange2() {
     MelodyMutateStyle style;
 
     // make the range two octaves (should we use style?)
-    r.setNote(0,  MidiNote(r.getNote(0).get() + 24));
+    r.setNote(0, MidiNote(r.getNote(0).get() + 24));
     const float f = MelodyEvaluator::pitchRangePenalty(r, style);
     assertEQ(f, 0);
 }
@@ -143,10 +155,10 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorCentered2();
     testMelodyEvaluatorCentered3();
     testMelodyEvaluatorCentered4();
+    testMelodyEvaluatorCenteredWeight();
 
     testMelodyEvaluatorPitchRange();
     testMelodyEvaluatorPitchRange2();
-
 }
 
 // not a real test
@@ -157,7 +169,7 @@ static void runABit(int numTimes, int rowSize) {
     MelodyMutateStyle style;
     Scale scale = scaleCMaj();
 
-   // const int size = 8;
+    // const int size = 8;
     r.init(rowSize, scale);
     SQINFO("here is starting row");
     SQINFO(r.toString().c_str());
@@ -169,7 +181,6 @@ static void runABit(int numTimes, int rowSize) {
 
     SQINFO("-- exit foo --");
 }
-
 
 #if 0
 static void showBias() {
@@ -200,10 +211,12 @@ static void showBias() {
 
 #if 0
 void testFirst() {
-   // runABit(50, 8);
-  // testMelodyEvaluator();
-   //showBias();
-   //testMelodyEvaluatorCentered4();
-   testMelodyEvaluatorPitchRange2();
+    // runABit(50, 8);
+    // testMelodyEvaluator();
+    // showBias();
+    // testMelodyEvaluatorCentered4();
+    // testMelodyEvaluatorPitchRange2();
+// testMelodyEvaluator();
+    testMelodyEvaluatorCenteredWeight();
 }
 #endif
