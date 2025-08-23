@@ -41,7 +41,7 @@
 		{
 			"slug": "sqh-mutator",
 			"name": "Mutator",
-			"disabled": true,
+			"disabled": false,
 			"manualUrl": "https://github.com/squinkylabs/SqHarmony/blob/main/docs/mutator.md",
 			"tags": ["Polyphonic"]
 		}
