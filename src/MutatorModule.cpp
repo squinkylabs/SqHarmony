@@ -12,14 +12,9 @@
 
 #define _LAB
 
-#if 0
-struct RoundBigBlackSnapKnob : RoundBigBlackKnob {
-    RoundBigBlackSnapKnob() {
-        snap = true;
-        smooth = false;
-    }
-};
-#endif
+
+const float xCol2 = 80;
+const float xCol1 = 12;
 
 /**
  */
@@ -46,15 +41,15 @@ public:
         addInputL(Vec(d0 + 3 * dx, yJax), Comp::INITIAL_VOLTAGE_INPUT, "Init", 6);
 
         // move this up here, rename
-        addInputL(Vec(d0 + 4 * dx, yJax), Comp::REINIT_INPUT, "RST", 9);
+        addInputL(Vec(d0 + 4 * dx, yJax), Comp::REINIT_INPUT, "RST", 0);
 
         addKeysig(module);
 
-        const float yLen = 60;
+        const float yLen = 40;
         const auto p = createParam<RoundBlackSnapKnob>(Vec(120, yLen), module, Comp::ROW_LENGTH_PARAM);
         addParam(p);
-        Vec vlabel(10, yLen);
-        addLabel(vlabel, "num notes");
+        Vec vlabel(60, yLen);
+        addLabel(vlabel, "Num notes:");
 
         addStyle(module);
         addStyle2(module);
@@ -148,17 +143,14 @@ private:
 #endif
     }
 
-    const float x0 = 11;
-    const float x1 = 54.5;  // 50 too far left
-    const float x2 = 100;
-    const float xPes = x2;
+ 
 
     void addKeysig(MutatorModule* xmodule) {
-        const float yScale = 70;
+        const float yScale = 80;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(8, yScale),
+            Vec(xCol1, yScale),
             module,
             Comp::KEY_PARAM);
         p->setLabels(Scale::getRootLabels(false));
@@ -168,7 +160,7 @@ private:
         addParam(p);
 
         p = createParam<PopupMenuParamWidget>(
-            Vec(60, yMode),
+            Vec(xCol2, yMode),
             module,
             Comp::MODE_PARAM);
         p->setShortLabels(Scale::getShortScaleLabels(false));
@@ -180,9 +172,9 @@ private:
     }
 
     void addStyle2(Module* module) {
-        const float y = 100;
+        const float y = 130;
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(8, y),
+            Vec(xCol1, y),
             module,
             Comp::SLOTS_TO_CHANGE_PARAM);
         p->setLabels({"all", "1", "2", "3", "4"});
@@ -191,18 +183,15 @@ private:
         p->text = "1";
         addParam(p);
 
-        //  addParam(createParam<CKSSThree>(Vec(80, y), module, Comp::ADJACENCY_STYLE_PARAM));
-        /*
-        enum SlotSelectionMethod {
-      ROUND_ROBIN_ADJACENT,
-      ROUND_ROBIN_DISTRIBUTED,
-      RANDOM_ADJACENT,
-      RANDOM_DISTRIBUTED,
-      RANDOM_RANDOM,            // selection of all slots is random.
-  };
-  */
+        const float labelDY = -23;
+        Vec vlabel(xCol1 + 4, y + labelDY);
+        addLabel(vlabel, "# mutate");
+
+         Vec vlabel2(xCol2 + 14,  y + labelDY);
+        addLabel(vlabel2, "Selection mode");
+
         p = createParam<PopupMenuParamWidget>(
-            Vec(60, y),
+            Vec(xCol2, y),
             module,
             Comp::ADJACENCY_STYLE_PARAM);
         //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
