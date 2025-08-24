@@ -102,23 +102,6 @@ inline void Mutator<TBase>::_init() {
     });
 }
 
-#if 0
-template <class TBase>
-inline void Mutator<TBase>::_pollDebug() {
-    //_debugReinitProc.go(TBase::inputs[DEBUG_REINIT_INPUT].getVoltage(0));
-    //if (_debugReinitProc.trigger()) {
-    //    // SQINFO("re-init");
-    //    _initialized = false;
-    //}
-
-    _debugEvalProc.go(TBase::inputs[DEBUG_EVAL_INPUT].getVoltage(0));
-    if (_debugEvalProc.trigger()) {
-        SQINFO("eval");
-        _evalDebug();
-    }
-}
-#endif
-
 template <class TBase>
 inline void Mutator<TBase>::_evalDebug() {
     SQINFO("enter debug eval ------");

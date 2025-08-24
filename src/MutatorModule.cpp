@@ -12,7 +12,6 @@
 
 #define _LAB
 
-
 const float xCol2 = 80;
 const float xCol1 = 12;
 
@@ -28,20 +27,16 @@ public:
 
 #if 1  // def _LAB
         addLabel(Vec(40 + 22, 6), "Mutator", 20);
-
-        // 35 x was too far left
         addLabel(Vec(38 + 22, 356), "Squinktronix", 17);
 #endif
         const float yJax = 320;
-        const float dx = 30;
+        const float dx = 32;
         const float d0 = 10;
-        addInputL(Vec(d0, yJax), Comp::MUTATE_INPUT, "Mut", 1);
-        addInputL(Vec(d0 + dx, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr", 2);
-        addOutputL(Vec(d0 + 2 * dx, yJax), Comp::NOTES_OUTPUT, "Notes", 2);
+        addInputL(Vec(d0, yJax), Comp::MUTATE_INPUT, "Mut");
+        addInputL(Vec(d0 + 1 * dx, yJax), Comp::REINIT_INPUT, "RST", 0);
+        addInputL(Vec(d0 + 2 * dx, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr", 2);
         addInputL(Vec(d0 + 3 * dx, yJax), Comp::INITIAL_VOLTAGE_INPUT, "Init", 6);
-
-        // move this up here, rename
-        addInputL(Vec(d0 + 4 * dx, yJax), Comp::REINIT_INPUT, "RST", 0);
+        addOutputL(Vec(d0 + 4 * dx + 10, yJax), Comp::NOTES_OUTPUT, "Notes", 2);
 
         addKeysig(module);
 
@@ -53,7 +48,6 @@ public:
 
         addStyle(module);
         addStyle2(module);
-        //  addDebug(module);
     }
 
 private:
@@ -87,20 +81,25 @@ private:
     }
 
     void addStyle(Module* module) {
-        const float styleRow1 = 160;
-        const float styleRow2 = 210;
-        const float x0 = 10;
-        const float x1 = 50;
-        const float x2 = 90;
+        const float styleRow1 = 210;
+        const float styleRow2 = styleRow1 + 50;
 
-        addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, "center", 8);
-        addParamL<RoundBlackKnob>(Vec(x1, styleRow1), module, Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, "prng w", 8);
-        addParamL<RoundBlackKnob>(Vec(x1, styleRow2), module, Comp::PITCH_RANGE_STYLE_PARAM, "p rng", 8);
+        const float dx = 40;
+        const float x0 = 10;
+        const float x1 = x0 + dx + 10;
+        const float x2 = x1 + dx;
+        const float x3 = x2 + dx;
+
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::DESIRED_CENTER_PARAM, "center", 8);
+        addParamL<RoundBlackKnob>(Vec(x1, styleRow1), module, Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, "ctr w", 8);
         addParamL<RoundBlackKnob>(Vec(x2, styleRow1), module, Comp::LEAPS_WEIGHT_STYLE_PARAM, "leaps", 8);
-        addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::UNISON_WEIGHT_STYLE_PARAM, "unsn", 6);
+        addParamL<RoundBlackKnob>(Vec(x3, styleRow1), module, Comp::CONSONANT_WEIGHT_PARAM, "cnsnnt", 8);
+
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::PITCH_RANGE_STYLE_PARAM, "range", 8);
+        addParamL<RoundBlackKnob>(Vec(x1, styleRow2), module, Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, "rng w", 8);
+        addParamL<RoundBlackKnob>(Vec(x2, styleRow2), module, Comp::UNISON_WEIGHT_STYLE_PARAM, "unsn", 6);
     }
 
-    //  void addParam(ParamWidget* param);
     template <typename T>
     ParamWidget* addParamL(const Vec& vec, Module* module, int paramNum, const std::string& text, float label_dx = 0) {
 #ifdef _LAB
@@ -143,8 +142,6 @@ private:
 #endif
     }
 
- 
-
     void addKeysig(MutatorModule* xmodule) {
         const float yScale = 80;
         const float yMode = yScale;
@@ -172,7 +169,7 @@ private:
     }
 
     void addStyle2(Module* module) {
-        const float y = 130;
+        const float y = 140;
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
             Vec(xCol1, y),
             module,
@@ -194,8 +191,6 @@ private:
             Vec(xCol2, y),
             module,
             Comp::ADJACENCY_STYLE_PARAM);
-        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
-        // Let user select whatever whey want
         p->setShortLabels({"rr, adj",
                            "rr, dst",
                            "rnd, adj",
@@ -207,7 +202,7 @@ private:
                       "random, adjacent",
                       "random, distributed",
                       "random, random"});
-        p->box.size.x = 70;  // width
+        p->box.size.x = 70;
         p->box.size.y = 22;
         p->text = "Maj";
         addParam(p);

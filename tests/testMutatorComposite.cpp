@@ -308,7 +308,6 @@ static void testReInit() {
 
     v = c.outputs[Comp::NOTES_OUTPUT].getVoltage(2);
     assertEQ(v, testV);
-    //  assert(false);
 }
 
 void testMutatorComposite() {
