@@ -39,6 +39,8 @@ public:
         ADJACENCY_STYLE_PARAM,  // See enum SlotSelectionMethod
         PITCH_RANGE_STYLE_PARAM,
         SCHEMA_PARAM,
+        CONSONANT_WEIGHT_PARAM,
+        DESIRED_CENTER_PARAM,
         NUM_PARAMS
     };
 
@@ -47,7 +49,7 @@ public:
         CENTER_VOLTAGE_INPUT,
         INITIAL_VOLTAGE_INPUT,
         REINIT_INPUT,
-        DEBUG_EVAL_INPUT,
+        xDEBUG_EVAL_INPUT,
         NUM_INPUTS
     };
 
@@ -80,7 +82,7 @@ private:
     std::function<double(double)> _audioCurve;
     bool _initialized = false;
 
-    void _pollDebug();
+   // void _pollDebug();
     void _evalDebug();
     void _reInitRow();
     GateTrigger _debugEvalProc;
@@ -100,6 +102,7 @@ inline void Mutator<TBase>::_init() {
     });
 }
 
+#if 0
 template <class TBase>
 inline void Mutator<TBase>::_pollDebug() {
     //_debugReinitProc.go(TBase::inputs[DEBUG_REINIT_INPUT].getVoltage(0));
@@ -114,6 +117,7 @@ inline void Mutator<TBase>::_pollDebug() {
         _evalDebug();
     }
 }
+#endif
 
 template <class TBase>
 inline void Mutator<TBase>::_evalDebug() {
@@ -161,7 +165,7 @@ inline void Mutator<TBase>::_stepn() {
 
     MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);
     _theScale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
-    _pollDebug();
+    //_pollDebug();
 
     auto centerPort = TBase::inputs[CENTER_VOLTAGE_INPUT];
     float centerV = centerPort.isConnected() ? centerPort.value : 0;
@@ -175,7 +179,8 @@ inline void Mutator<TBase>::_stepn() {
 template <class TBase>
 inline void Mutator<TBase>::_reInitRow() {
 
-     TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
+    TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
+    SQINFO("set num output channels to %d %d ", (int)_theNoteData.getSize(), (int)TBase::outputs[NOTES_OUTPUT].channels );
     const unsigned inputChannels =  unsigned(TBase::inputs[INITIAL_VOLTAGE_INPUT].getChannels());
     const unsigned rowSize = _theNoteData.getSize();
 
@@ -247,12 +252,15 @@ inline void Mutator<TBase>::_processTrigger() {
     _theStyle.pitchRangeWeight = 4 * _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
     _theStyle.idealPitchRange2 = TBase::params[PITCH_RANGE_STYLE_PARAM].value;
     _theStyle.nonCenteredWeight = 4 * _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
-#if 0
+#if 1
     SQINFO("process trgger set to %f %f %f %f",
            _theStyle.leapsWeight,
            _theStyle.unisonWeight,
            _theStyle.pitchRangeWeight,
            _theStyle.nonCenteredWeight);
+    SQINFO("from %f", TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
+#endif
+#if 0
 
     SQINFO("process trigger set weight %s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
     //   SQINFO("style params = %s", _theStyle.toString().c_str());

@@ -12,12 +12,14 @@
 
 #define _LAB
 
+#if 0
 struct RoundBigBlackSnapKnob : RoundBigBlackKnob {
     RoundBigBlackSnapKnob() {
         snap = true;
         smooth = false;
     }
 };
+#endif
 
 /**
  */
@@ -27,13 +29,13 @@ public:
         setModule(module);
         _module = module;
 
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/visualizer.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/mutator.svg")));
 
 #if 1  // def _LAB
-        addLabel(Vec(40, 6), "Mutator", 20);
+        addLabel(Vec(40 + 22, 6), "Mutator", 20);
 
         // 35 x was too far left
-        addLabel(Vec(38, 356), "Squinktronix", 17);
+        addLabel(Vec(38 + 22, 356), "Squinktronix", 17);
 #endif
         const float yJax = 320;
         const float dx = 30;
@@ -43,13 +45,20 @@ public:
         addOutputL(Vec(d0 + 2 * dx, yJax), Comp::NOTES_OUTPUT, "Notes", 2);
         addInputL(Vec(d0 + 3 * dx, yJax), Comp::INITIAL_VOLTAGE_INPUT, "Init", 6);
 
+        // move this up here, rename
+        addInputL(Vec(d0 + 4 * dx, yJax), Comp::REINIT_INPUT, "RST", 9);
+
         addKeysig(module);
 
-        addParamL<RoundBigBlackSnapKnob>(Vec(40, 50), module, Comp::ROW_LENGTH_PARAM, "Steps", 14);
+        const float yLen = 60;
+        const auto p = createParam<RoundBlackSnapKnob>(Vec(120, yLen), module, Comp::ROW_LENGTH_PARAM);
+        addParam(p);
+        Vec vlabel(10, yLen);
+        addLabel(vlabel, "num notes");
 
         addStyle(module);
         addStyle2(module);
-        addDebug(module);
+        //  addDebug(module);
     }
 
 private:
@@ -145,7 +154,7 @@ private:
     const float xPes = x2;
 
     void addKeysig(MutatorModule* xmodule) {
-        const float yScale = 270;
+        const float yScale = 70;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
@@ -157,14 +166,11 @@ private:
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
-        //     _keyRootWidget = p;  // remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
             Vec(60, yMode),
             module,
             Comp::MODE_PARAM);
-        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
-        // Let user select whatever whey want
         p->setShortLabels(Scale::getShortScaleLabels(false));
         p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
@@ -201,32 +207,21 @@ private:
             Comp::ADJACENCY_STYLE_PARAM);
         //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
         // Let user select whatever whey want
-        p->setShortLabels({
-            "rr, adj",
-            "rr, dst",
-            "rnd, adj",
-            "rnd, dst",
-            "rnd, rnd"
-        });
-     
-        p->setLabels({
-            "round robin, adjacent",
-            "round robin, distributed",
-            "random, adjacent",
-            "random, distributed",
-            "random, random"
-        });
+        p->setShortLabels({"rr, adj",
+                           "rr, dst",
+                           "rnd, adj",
+                           "rnd, dst",
+                           "rnd, rnd"});
+
+        p->setLabels({"round robin, adjacent",
+                      "round robin, distributed",
+                      "random, adjacent",
+                      "random, distributed",
+                      "random, random"});
         p->box.size.x = 70;  // width
         p->box.size.y = 22;
         p->text = "Maj";
         addParam(p);
-    }
-
-    void addDebug(Module* module) {
-        const float y = 360;  // 350 too high
-        //  void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
-        addInputL(Vec(0, y), Comp::REINIT_INPUT, "re ini", 9);
-        addInputL(Vec(110, y), Comp::DEBUG_EVAL_INPUT, "eval", 3);
     }
 };
 
