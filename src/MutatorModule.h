@@ -29,6 +29,7 @@ public:
          this->configParam(Comp::PITCH_RANGE_STYLE_PARAM, 2, 32, 24, "desired pitch range in semis");
         this->configParam(Comp::LEAPS_WEIGHT_STYLE_PARAM, 0, 1, .5, "avoid melodic leaps weight");
         this->configParam(Comp::UNISON_WEIGHT_STYLE_PARAM, 0, 1, .5, "avoid repeating pitches weight");
+        this->configParam(Comp::CONSONANT_WEIGHT_PARAM, 0, 1, .5, "prefer consonant notes");
 
         // 0 == all of them
         this->configParam(Comp::SLOTS_TO_CHANGE_PARAM, 0, 4, 1, "how many notes to change each time");

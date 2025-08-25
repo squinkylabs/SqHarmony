@@ -31,11 +31,15 @@ void MelodyMutateStyle::setStyles(Styles theStyle) {
     pitchRangeWeight = 0;
     leapsWeight = 0;
     unisonWeight = 0;
+    dissonantWeight = 0;
     switch (theStyle) {
         case Styles::OnlySeekCenter:
             nonCenteredWeight = 1;
             break;
         case Styles::Disabled:
+            break;
+        case Styles::OnlyDissonant:
+            dissonantWeight = 1;
             break;
         default:
             assert(false);
@@ -96,12 +100,11 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyl
         return 0;
     }
     // SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
-    return  style.unisonWeight * (unisons) / float(r.getSize());
+    return style.unisonWeight * (unisons) / float(r.getSize());
 }
 
 float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
-
-    //SQINFO("enter nonCenteredPenalty, target vs=%f", style.centerVoltage);
+    // SQINFO("enter nonCenteredPenalty, target vs=%f", style.centerVoltage);
     assert(r.getSize() > 0);
     float totalDeviation = 0;
     FloatNote floatTarget(style.centerVoltage);
@@ -112,22 +115,31 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutate
 
         // totalDeviation += std::abs(note.get() - MidiNote::MiddleC);
         totalDeviation += std::abs(floatNote.get() - floatTarget.get());
-        //SQINFO("in loop, i=%d note=%d,%f total dev = %f", i, note.get(), floatNote.get(), totalDeviation);
+        // SQINFO("in loop, i=%d note=%d,%f total dev = %f", i, note.get(), floatNote.get(), totalDeviation);
     }
 
     const float penalty = totalDeviation / r.getSize();
 
     // results of tuning to make long term drift pass
     // for a long time was mult by .001 * .01 * .04 . Now with new probability stuff drift tests are failing
-    //double k = .000001;  // 10 too high
-                         // passes at .000001
-                         //  .0000001 too low
+    // double k = .000001;  // 10 too high
+    // passes at .000001
+    //  .0000001 too low
 
-    double k = .00001;       // 1 is very high .1 is pretty snappy
+    double k = .00001;  // 1 is very high .1 is pretty snappy
 
     // SQINFO("final penalty = %f", penalty * style.nonCenteredWeight * k);
     return penalty * style.nonCenteredWeight * k;
 };
+
+float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateStyle&) {
+    for (size_t i = 0; i < r.getSize(); ++i) {
+        const MidiNote& note = r.getNote(i);
+        assert(false);
+    }
+    assert(false);
+    return 0;
+}
 
 float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     int min = 200;

@@ -326,7 +326,7 @@ void testMutatorComposite() {
     testReInit();
 }
 
-#if 1
+#if 0
 void testFirst() {
     // testMutatorComposite();
     // testInitial1();

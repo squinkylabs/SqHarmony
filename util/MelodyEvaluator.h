@@ -14,6 +14,7 @@ enum class Styles {
     OnlySeekCenter,
     OnlySeekRange,
     OnlyDiscorageLeaps,
+    OnlyDissonant,
     Disabled,
     Default
 };
@@ -32,6 +33,7 @@ public:
     float pitchRangeWeight = 1;
     float leapsWeight = 1;
     float unisonWeight = 1;
+    float dissonantWeight = 1;
 
     std::string toString() const;
     void setStyles(Styles);
@@ -47,6 +49,7 @@ public:
     static float unisonsPenalty(const MelodyRow&, const MelodyMutateStyle&);
     static float nonCenteredPenalty(const MelodyRow&, const MelodyMutateStyle&);
     static float pitchRangePenalty(const MelodyRow&, const MelodyMutateStyle&);
+    static float disonnantPenalty(const MelodyRow&, const MelodyMutateStyle&);
 
     static std::string toString(const MelodyRow&, const MelodyMutateStyle&);
 };

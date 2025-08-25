@@ -125,6 +125,21 @@ static void testMelodyEvaluatorCenteredWeight() {
     assertEQ(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
 }
 
+static void testMelodyEvaluatorConsonantWeight() {
+    MelodyRow r = getRow(1);
+    const auto note = r.getNote(0);
+    const MidiNote note2(note.get() + 12);
+    r.setNote(0, note2);
+    SQINFO("init row %s", r.toString().c_str());
+
+    MelodyMutateStyle style;
+    style.setStyles(Styles::OnlyDissonant);
+
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    style.nonCenteredWeight = 0;
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+}
+
 static void testMelodyEvaluatorPitchRange() {
     const size_t size = 8;
     MelodyRow r = getRow(size);
@@ -156,6 +171,7 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorCentered3();
     testMelodyEvaluatorCentered4();
     testMelodyEvaluatorCenteredWeight();
+    testMelodyEvaluatorConsonantWeight();
 
     testMelodyEvaluatorPitchRange();
     testMelodyEvaluatorPitchRange2();
@@ -209,7 +225,7 @@ static void showBias() {
 }
 #endif
 
-#if 0
+#if 1
 void testFirst() {
     // runABit(50, 8);
     // testMelodyEvaluator();
@@ -217,6 +233,7 @@ void testFirst() {
     // testMelodyEvaluatorCentered4();
     // testMelodyEvaluatorPitchRange2();
 // testMelodyEvaluator();
-    testMelodyEvaluatorCenteredWeight();
+   // testMelodyEvaluatorCenteredWeight();
+    testMelodyEvaluatorConsonantWeight();
 }
 #endif
