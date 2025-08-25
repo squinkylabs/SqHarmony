@@ -132,14 +132,44 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutate
     return penalty * style.nonCenteredWeight * k;
 };
 
-float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateStyle&) {
-    for (size_t i = 0; i < r.getSize(); ++i) {
-        const MidiNote& note = r.getNote(i);
-        assert(false);
-    }
+#if 0
+float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
+    const Scale& scale = style.scale;
+    ScaleNote scaleRoot(0, 0);
+    MidiNote midiRoot;
+    NoteConvert::s2m(midiRoot, scale, scaleRoot);
     assert(false);
     return 0;
 }
+#endif
+
+#if 1
+float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
+    const Scale& scale = style.scale;
+  //  const MidiNote base = scale.base();
+  //  const MidiNote fifth = MidiNote( base.get() + 7);
+    const int basePitch = scale.base().get() % 12;
+    const int fifthPitch = (basePitch + 7) % 12;
+    const int fourthPitch = (basePitch + 5) % 12;
+    
+
+    int disonnances = 0;
+    for (size_t i = 0; i < r.getSize(); ++i) {
+        const MidiNote& note = r.getNote(i);
+        const int notePitch = note.get() % 12;
+        if (
+            (notePitch != basePitch) &&
+            (notePitch != fifthPitch) &&
+            (notePitch != fourthPitch)
+            ) {
+            ++disonnances;
+        }
+        
+    }
+   
+    return style.dissonantWeight * disonnances / r.getSize();
+}
+#endif
 
 float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     int min = 200;

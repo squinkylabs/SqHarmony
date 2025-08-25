@@ -7,6 +7,7 @@
 
 ///////////////////////////////////////////////
 
+
 static Scale scaleCMaj() {
     Scale scale;
     MidiNote base(MidiNote::C);
@@ -70,6 +71,25 @@ static void testMelodyEvaluatorUnison2() {
     assertGT(MelodyEvaluator::unisonsPenalty(r, style), 0);
 }
 
+
+ static void testMelodyEvaluatorConsonant() {
+     MelodyRow r = getRow(1);
+     MelodyMutateStyle style;
+     style.scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+     assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+     r.setNote(0, MidiNote(MidiNote::F));
+     assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+     r.setNote(0, MidiNote(MidiNote::G));
+     assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+     r.setNote(0, MidiNote(MidiNote::C + 1));
+     assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+ }
+
 static void testMelodyEvaluatorCentered() {
     // test should be centered
     MelodyMutateStyle style;
@@ -115,7 +135,7 @@ static void testMelodyEvaluatorCenteredWeight() {
     const auto note = r.getNote(0);
     const MidiNote note2(note.get() + 12);
     r.setNote(0, note2);
-    SQINFO("init row %s", r.toString().c_str());
+    //SQINFO("init row %s", r.toString().c_str());
 
     MelodyMutateStyle style;
     style.setStyles(Styles::OnlySeekCenter);
@@ -130,13 +150,13 @@ static void testMelodyEvaluatorConsonantWeight() {
     const auto note = r.getNote(0);
     const MidiNote note2(note.get() + 12);
     r.setNote(0, note2);
-    SQINFO("init row %s", r.toString().c_str());
+    //SQINFO("init row %s", r.toString().c_str());
 
     MelodyMutateStyle style;
     style.setStyles(Styles::OnlyDissonant);
 
     assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
-    style.nonCenteredWeight = 0;
+    style.dissonantWeight = 0;
     assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
 }
 
@@ -166,6 +186,8 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorLeaps2();
     testMelodyEvaluatorUnison();
     testMelodyEvaluatorUnison2();
+   // testMelodyEvaluatorUnison3();
+    testMelodyEvaluatorConsonant();
     testMelodyEvaluatorCentered();
     testMelodyEvaluatorCentered2();
     testMelodyEvaluatorCentered3();
@@ -228,12 +250,12 @@ static void showBias() {
 #if 1
 void testFirst() {
     // runABit(50, 8);
-    // testMelodyEvaluator();
+    testMelodyEvaluator();
     // showBias();
     // testMelodyEvaluatorCentered4();
     // testMelodyEvaluatorPitchRange2();
 // testMelodyEvaluator();
    // testMelodyEvaluatorCenteredWeight();
-    testMelodyEvaluatorConsonantWeight();
+  //  testMelodyEvaluatorConsonantWeight();
 }
 #endif

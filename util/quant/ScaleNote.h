@@ -20,6 +20,7 @@ public:
     ScaleNote(int degree, int oct, RelativeAdjustment a) : _scaleDegree(degree), _octave(oct), _relativeAdjustment(a) {}
     ScaleNote(int degree, int oct) : _scaleDegree(degree), _octave(oct) {}
     ScaleNote() {}
+    
     int getDegree() const { return _scaleDegree; }
     int getOctave() const { return _octave; }
     bool isAccidental() const { return _relativeAdjustment != RelativeAdjustment::none; }
