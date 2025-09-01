@@ -59,6 +59,11 @@ public:
     };
 
     enum LightIds {
+        NON_CENTERED_WEIGHT_STYLE_LIGHT,
+        PITCH_RANGE_WEIGHT_STYLE_LIGHT,
+        LEAPS_WEIGHT_STYLE_LIGHT,
+        UNISON_WEIGHT_STYLE_LIGHT,
+        CONSONANT_WEIGHT_LIGHT,
         NUM_LIGHTS
     };
 

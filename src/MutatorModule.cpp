@@ -80,6 +80,16 @@ private:
         return parent;
     }
 
+    void addWeightKnob(Module* module, float x, float y, int paramNum, int lightNum,
+                       const std::string& text, float label_dx = 0) {
+        addParamL<RoundBlackKnob>(Vec(x, y), module, paramNum,
+                                  text, label_dx);
+        addChild(createLight<SmallLight<RedLight>>(
+            Vec(x + 26, y),
+            module,
+            lightNum));
+    }
+
     void addStyle(Module* module) {
         const float styleRow1 = 210;
         const float styleRow2 = styleRow1 + 50;
@@ -91,13 +101,15 @@ private:
         const float x3 = x2 + dx;
 
         addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::DESIRED_CENTER_PARAM, "center", 8);
-        addParamL<RoundBlackKnob>(Vec(x1, styleRow1), module, Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, "ctr w", 8);
-        addParamL<RoundBlackKnob>(Vec(x2, styleRow1), module, Comp::LEAPS_WEIGHT_STYLE_PARAM, "leaps", 8);
-        addParamL<RoundBlackKnob>(Vec(x3, styleRow1), module, Comp::CONSONANT_WEIGHT_PARAM, "cnsnnt", 8);
+
+        addWeightKnob(module, x1, styleRow1, Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, Comp::NON_CENTERED_WEIGHT_STYLE_LIGHT, "ctr w", 8);
+        addWeightKnob(module, x2, styleRow1, Comp::LEAPS_WEIGHT_STYLE_PARAM, Comp::LEAPS_WEIGHT_STYLE_LIGHT, "leaps", 8);
+        addWeightKnob(module, x3, styleRow1, Comp::CONSONANT_WEIGHT_PARAM, Comp::CONSONANT_WEIGHT_LIGHT, "cnsnnt", 8);
 
         addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::PITCH_RANGE_STYLE_PARAM, "range", 8);
-        addParamL<RoundBlackKnob>(Vec(x1, styleRow2), module, Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, "rng w", 8);
-        addParamL<RoundBlackKnob>(Vec(x2, styleRow2), module, Comp::UNISON_WEIGHT_STYLE_PARAM, "unsn", 6);
+
+        addWeightKnob(module, x1, styleRow2, Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, Comp::PITCH_RANGE_WEIGHT_STYLE_LIGHT, "rng w", 8);
+        addWeightKnob(module, x2, styleRow2, Comp::UNISON_WEIGHT_STYLE_PARAM, Comp::UNISON_WEIGHT_STYLE_LIGHT, "unsn", 6);
     }
 
     template <typename T>
@@ -184,7 +196,7 @@ private:
         Vec vlabel(xCol1 + 4, y + labelDY);
         addLabel(vlabel, "# mutate");
 
-         Vec vlabel2(xCol2 + 14,  y + labelDY);
+        Vec vlabel2(xCol2 + 14, y + labelDY);
         addLabel(vlabel2, "Selection mode");
 
         p = createParam<PopupMenuParamWidget>(
