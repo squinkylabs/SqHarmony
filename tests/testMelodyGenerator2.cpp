@@ -28,10 +28,10 @@ static void testGenerate(MelodyRow& row, unsigned iterations, unsigned primeRand
         state.random.generateDouble();
     }
 
-    while (iterations--) {
-        SQINFO("----- iteratrion row=%s", row.toString().c_str());
+    for (unsigned int i = 0; i < iterations; ++i) {
+        SQINFO("----- iteratrion %d row=%s", i, row.toString().c_str());
         SQINFO(" evaluation = %s", MelodyEvaluator::toString(row, style).c_str());
-        MelodyGenerator::_mutateOne(row, 0, scale, state, style);
+        MelodyGenerator::_mutateOne(row, 0, state, style);
     }
 }
 
@@ -69,12 +69,12 @@ static void testDriftRate(unsigned iterations) {
     MidiNote note(MidiNote::C3 + 5 * 12);
     const std::string s = PitchKnowledge::nameOfAbs(note.get());
     SQINFO("orig target = %s", s.c_str());
-  //  FloatNote fNote;
-  //  NoteConvert::m2f(fNote, note);
+    //  FloatNote fNote;
+    //  NoteConvert::m2f(fNote, note);
 
     style.centerVoltage = 0;
-    //style.centerVoltage = fNote.get();
-   // assert(false);  // the above sets center to 4 v
+    // style.centerVoltage = fNote.get();
+    // assert(false);  // the above sets center to 4 v
 
     //    const unsigned iteration = 10;
     MelodyRow row;
@@ -91,10 +91,10 @@ static void testDriftRate(unsigned iterations) {
 
 static void testDriftRate() {
     verboseProbability = false;
-  //  testDriftRate(1);
+    //  testDriftRate(1);
 
-  //  testDriftRate(10);
-       testDriftRate(100);
+    testDriftRate(20);
+    //  testDriftRate(100);
 }
 
 static void testPenalties2ProbabilitiesSub(unsigned num, const float* penalties, const float* expectedProbabilities) {
@@ -105,11 +105,22 @@ static void testPenalties2ProbabilitiesSub(unsigned num, const float* penalties,
     float sum = 0;
     for (unsigned i = 0; i < num; ++i) {
         const auto x = temp[i];
+        //  assertGE(x, MelodyEvaluator::minProbability);
         assertGE(x, 0.f);
         assertLE(x, 1.f);
 
-        assertClose(x, expectedProbabilities[i], .001f);
+        if (expectedProbabilities != nullptr) {
+            assertClose(x, expectedProbabilities[i], .001f);
+        }
         sum += x;
+    }
+
+    float maxP = 0;
+    for (unsigned i = 0; i < num; ++i) {
+        maxP = std::max(maxP, temp[i]);
+    }
+    for (unsigned i = 0; i < num; ++i) {
+        assertGE(temp[i], maxP * MelodyEvaluator::probabilityDynamicRange);
     }
 
     assertClose(sum, 1.f, .0001f)
@@ -146,8 +157,19 @@ static void testPenalties2Probabilities() {
     }
     {
         const float p[] = {1.f, 2.f, 3.f};
-        const float e[] = {.6666f, .3333f, 0};
+        const float e[] = {.546f, .273, .180};
         testPenalties2ProbabilitiesSub(3, p, e);
+    }
+    {
+        const float p[] = {1.f, 1.f, 1.f};
+        const float e[] = {.3333f, .3333f, .3333f};
+        testPenalties2ProbabilitiesSub(3, p, e);
+    }
+
+    {
+        const float p[] = {1.f, 1.f, 1.f, 1.f};
+        const float e[] = {.25f, .25f, .25f, .25f};
+        testPenalties2ProbabilitiesSub(4, p, e);
     }
 }
 
@@ -160,9 +182,21 @@ void testMelodyGenerator2() {
 
 #if 0
 void testFirst() {
-    testDriftRate();
+    //  testDriftRate();
     // testMelodyGenerator2();
     //  testGenerateRandom();
-    // testPenalties2Probabilities();
+       testPenalties2Probabilities();
+    //    const float p[] = {1, -1};
+
+  //  verboseProbability = true;
+    //  const float p[] = { 1, 1, .9 };
+    //  const float e[] = {1.f, 1, 2};
+    //  testPenalties2ProbabilitiesSub(3, p, nullptr);
+
+    // {
+    //     const float p[] = {1.f, 2.f, 3.f};
+    //     const float e[] = {.546f, .273, .180};
+    //     testPenalties2ProbabilitiesSub(3, p, e);
+    // }
 }
 #endif

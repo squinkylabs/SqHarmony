@@ -16,15 +16,6 @@ std::string MelodyMutateStyle::toString() const {
     return s.str();
 }
 
-#if 0
-void MelodyMutateStyle::disable() {
-    nonCenteredWeight = 0;
-    pitchRangeWeight = 0;
-    leapsWeight = 0;
-    unisonWeight = 0;
-}
-#endif
-
 void MelodyMutateStyle::setStyles(Styles theStyle) {
     // first, disable everything
     nonCenteredWeight = 0;
@@ -51,8 +42,9 @@ float MelodyEvaluator::getPenalty(const MelodyRow& r, const MelodyMutateStyle& s
     const float up = unisonsPenalty(r, style);
     const float cp = nonCenteredPenalty(r, style);
     const float prp = pitchRangePenalty(r, style);
+    const float disp = disonnantPenalty(r, style);
 
-    const float total = lp + up + cp + prp;
+    const float total = lp + up + cp + prp + disp;
     return total;
 }
 
@@ -65,6 +57,7 @@ std::string MelodyEvaluator::toString(const MelodyRow& row, const MelodyMutateSt
     s << " uni=" << unisonsPenalty(row, style);
     s << " non-cent=" << float((nonCenteredPenalty(row, style) * style.nonCenteredWeight));
     s << " range=" << pitchRangePenalty(row, style);
+    s << " disson=" << disonnantPenalty(row, style);
     // SQINFO("weights = %f, %f, %f, %f", style.nonCenteredWeight, style.pitchRangeWeight, style.unisonWeight, style.leapsWeight);
 
     return s.str();
@@ -126,37 +119,37 @@ float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutate
     // passes at .000001
     //  .0000001 too low
 
-    double k = .00001;  // 1 is very high .1 is pretty snappy
+  //  double k = .00001;  // .00001 worked ok
+    double k = .1;
 
-    // SQINFO("final penalty = %f", penalty * style.nonCenteredWeight * k);
+
+
+   // SQINFO("final penalty = %f", penalty * style.nonCenteredWeight * k);
     return penalty * style.nonCenteredWeight * k;
 };
 
-#if 0
-float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
-    const Scale& scale = style.scale;
-    ScaleNote scaleRoot(0, 0);
-    MidiNote midiRoot;
-    NoteConvert::s2m(midiRoot, scale, scaleRoot);
-    assert(false);
-    return 0;
-}
-#endif
 
-#if 1
 float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     const Scale& scale = style.scale;
-  //  const MidiNote base = scale.base();
-  //  const MidiNote fifth = MidiNote( base.get() + 7);
+    
     const int basePitch = scale.base().get() % 12;
     const int fifthPitch = (basePitch + 7) % 12;
     const int fourthPitch = (basePitch + 5) % 12;
+   // SQINFO("base pitch=%d fifth=%d fourth%d", basePitch, fifthPitch, fourthPitch);
+  //  SQINFO(" scale base=%d scale=%d wasSet=%d", scale.base().get() , scale.get().first.get(), scale.getWasSet());
     
-
+  //  bool gotBase = false;
+    int bases = 0;
     int disonnances = 0;
     for (size_t i = 0; i < r.getSize(); ++i) {
         const MidiNote& note = r.getNote(i);
         const int notePitch = note.get() % 12;
+      //  SQINFO("note pitch = %d", notePitch);
+
+        if (notePitch == basePitch) {
+           // SQINFO("!!! Match !!!");
+           bases++;
+        }
         if (
             (notePitch != basePitch) &&
             (notePitch != fifthPitch) &&
@@ -164,12 +157,12 @@ float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateSt
             ) {
             ++disonnances;
         }
-        
     }
-   
-    return style.dissonantWeight * disonnances / r.getSize();
+    // if (bases > 1) {
+    //     SQINFO("got base, row = %s diss=%d bases=%d", r.toString().c_str(), disonnances, bases);
+    // }
+    return style.dissonantWeight * float(disonnances - bases) / float(r.getSize());
 }
-#endif
 
 float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
     int min = 200;
@@ -180,12 +173,7 @@ float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateS
         max = std::max(max, note.get());
     }
     const int range = max - min;
-
     const int diff = std::abs(style.idealPitchRange2 - range);
-    // SQINFO("range=%d min=%d max=%d diff=%d", range, min, max, diff);
-    // SQINFO("diff / 12=%f weight=%f", (diff / 12.), style.pitchRangeWeight);
-
     const float ret = (diff / 12.) * style.pitchRangeWeight;
-    // SQINFO("pitchRangePenalty will ret %f", ret);
     return ret;
 };

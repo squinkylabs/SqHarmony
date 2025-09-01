@@ -75,14 +75,14 @@ private:
     SeqClock _seqClock;
 
     MelodyRow _theNoteData;
-    Scale _theScale;
+    //  Scale _theScale;
     MelodyMutateState _theState;
     MelodyMutateStyle _theStyle;
 
     std::function<double(double)> _audioCurve;
     bool _initialized = false;
 
-   // void _pollDebug();
+    // void _pollDebug();
     void _evalDebug();
     void _reInitRow();
     GateTrigger _debugEvalProc;
@@ -91,8 +91,12 @@ private:
 template <class TBase>
 inline void Mutator<TBase>::_init() {
     MidiNote base(MidiNote::C);
-    _theScale.set(base, Scale::Scales::Major);
-    _theNoteData.init(8, _theScale);
+    _theStyle.scale.set(base, Scale::Scales::Major);
+    //  _theScale.set(base, Scale::Scales::Major);
+    // SQINFO("init, base=%d wasSet = %d", _theScale.base().get(), _theScale.getWasSet());
+    //  assert(false);
+
+    _theNoteData.init(8, _theStyle.scale);
 
     _audioCurve = AudioMath::makeFunc_AudioTaper(-18);
 
@@ -127,7 +131,7 @@ inline void Mutator<TBase>::_stepn() {
     if (!_initialized) {
         _reInitRow();
 
-        #if 0
+#if 0
         const int channels = TBase::inputs[INITIAL_VOLTAGE_INPUT].channels;
 
         //  SQINFO("r-init chan count=%d", TBase::inputs[INITIAL_VOLTAGE_INPUT].channels);
@@ -140,19 +144,20 @@ inline void Mutator<TBase>::_stepn() {
             NoteConvert::f2m(midiNote, fn);
             _theNoteData.setNote(i, midiNote);
         }
-        #endif
+#endif
 
-       
         _initialized = true;
     }
 
     MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);
-    _theScale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
+    _theStyle.scale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
     //_pollDebug();
 
     auto centerPort = TBase::inputs[CENTER_VOLTAGE_INPUT];
     float centerV = centerPort.isConnected() ? centerPort.value : 0;
+    centerV += TBase::params[DESIRED_CENTER_PARAM].value;
     _theStyle.centerVoltage = centerV;
+    // SQINFO("CenterV = %f", centerV);
 
     _theStyle.numToMutate = int(std::round(TBase::params[SLOTS_TO_CHANGE_PARAM].value));
     const int slotSelectionMethodInt = int(std::round(TBase::params[ADJACENCY_STYLE_PARAM].value));
@@ -161,23 +166,22 @@ inline void Mutator<TBase>::_stepn() {
 
 template <class TBase>
 inline void Mutator<TBase>::_reInitRow() {
-
     TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
-    SQINFO("set num output channels to %d %d ", (int)_theNoteData.getSize(), (int)TBase::outputs[NOTES_OUTPUT].channels );
-    const unsigned inputChannels =  unsigned(TBase::inputs[INITIAL_VOLTAGE_INPUT].getChannels());
+    SQINFO("set num output channels to %d %d ", (int)_theNoteData.getSize(), (int)TBase::outputs[NOTES_OUTPUT].channels);
+    const unsigned inputChannels = unsigned(TBase::inputs[INITIAL_VOLTAGE_INPUT].getChannels());
     const unsigned rowSize = _theNoteData.getSize();
 
-    for (unsigned int i=0; i< rowSize; ++i) {
-            const float v = (i < inputChannels) ? TBase::inputs[INITIAL_VOLTAGE_INPUT].getVoltage(i) : 0;
-            // SQINFO("re-init output ch %d to %f based on note data len %d", i, v, (unsigned) _theNoteData.getSize());
-            FloatNote fn(v);
-            MidiNote midiNote;
-            NoteConvert::f2m(midiNote, fn);
-            _theNoteData.setNote(i, midiNote);
-         //   SQINFO("write output %d = %f", i, v);
-            TBase::outputs[NOTES_OUTPUT].setVoltage(v, i);
-         //   SQINFO("read output = %f", TBase::outputs[NOTES_OUTPUT].getVoltage(i));
-    }    
+    for (unsigned int i = 0; i < rowSize; ++i) {
+        const float v = (i < inputChannels) ? TBase::inputs[INITIAL_VOLTAGE_INPUT].getVoltage(i) : 0;
+        // SQINFO("re-init output ch %d to %f based on note data len %d", i, v, (unsigned) _theNoteData.getSize());
+        FloatNote fn(v);
+        MidiNote midiNote;
+        NoteConvert::f2m(midiNote, fn);
+        _theNoteData.setNote(i, midiNote);
+        //   SQINFO("write output %d = %f", i, v);
+        TBase::outputs[NOTES_OUTPUT].setVoltage(v, i);
+        //   SQINFO("read output = %f", TBase::outputs[NOTES_OUTPUT].getVoltage(i));
+    }
 }
 
 template <class TBase>
@@ -195,13 +199,13 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
         _processTrigger();
     }
 
-   //   SQINFO("at M214 %f", TBase::outputs[NOTES_OUTPUT].getVoltage(2));
+    //   SQINFO("at M214 %f", TBase::outputs[NOTES_OUTPUT].getVoltage(2));
     for (size_t i = 0; i < _theNoteData.getSize(); ++i) {
         //  SQINFO("set volt(1.3, %llu)", i);
 
         FloatNote floatNote;
         NoteConvert::m2f(floatNote, _theNoteData.getNote(i));
-     ///   SQINFO("M220 set note %d to %f", i, floatNote.get());
+        ///   SQINFO("M220 set note %d to %f", i, floatNote.get());
         TBase::outputs[NOTES_OUTPUT].setVoltage(floatNote.get(), i);
 
         // const float q =TBase::outputs[NOTES_OUTPUT].getVoltage(i);
@@ -235,7 +239,8 @@ inline void Mutator<TBase>::_processTrigger() {
     _theStyle.pitchRangeWeight = 4 * _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
     _theStyle.idealPitchRange2 = TBase::params[PITCH_RANGE_STYLE_PARAM].value;
     _theStyle.nonCenteredWeight = 4 * _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
-#if 1
+    _theStyle.dissonantWeight = 4 * _audioCurve(TBase::params[CONSONANT_WEIGHT_PARAM].value);
+#if 0
     SQINFO("process trgger set to %f %f %f %f",
            _theStyle.leapsWeight,
            _theStyle.unisonWeight,
@@ -249,7 +254,7 @@ inline void Mutator<TBase>::_processTrigger() {
     //   SQINFO("style params = %s", _theStyle.toString().c_str());
     //   SQINFO("%s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
 #endif
-    MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
+    MelodyGenerator::mutate(_theNoteData, _theState, _theStyle);
     //  SQINFO("notes: %s", _theNoteData.print().c_str());
 
     // SQINFO("exit process trigger----");

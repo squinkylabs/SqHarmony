@@ -108,11 +108,11 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 class MelodyGenerator {
 public:
-    static void mutate(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style);
+    static void mutate(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style);
     static void getIndiciesToMutate(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate);
 
-    static void _mutateOne(MelodyRow& row, size_t index, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style);
-    static void _mutateSome(MelodyRow& row, const Scale& scale, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate);
+    static void _mutateOne(MelodyRow& row, size_t index, MelodyMutateState& state, const MelodyMutateStyle& style);
+    static void _mutateSome(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate);
     static void _changeOneNoteInMode(MelodyRow& row, const Scale& scale, size_t index, int stepsToChange);
 
     static void makeStateLegal(MelodyMutateState& state, const MelodyRow& row);

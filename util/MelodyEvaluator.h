@@ -43,6 +43,11 @@ public:
 
 class MelodyEvaluator {
 public:
+    // lowest probability = highest Probability * probabilityDynamicRange 
+    // must be between 0 and 1
+
+    // drift test passed at .22 (with +-4 semis, 500 iter)
+    inline const static float probabilityDynamicRange = .33f;
     static float getPenalty(const class MelodyRow&, const MelodyMutateStyle&);
 
     static float leapsPenalty(const MelodyRow&, const MelodyMutateStyle&);
