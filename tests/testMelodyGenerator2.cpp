@@ -1,6 +1,7 @@
 
 #include <optional>
 
+#include "EvaluationSummary.h"
 #include "FloatNote.h"
 #include "MelodyEvaluator.h"
 #include "MelodyGenerator.h"

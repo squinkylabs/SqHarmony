@@ -1,4 +1,5 @@
 #include "Divider.h"
+#include  "EvaluationSummary.h"
 #include "FloatNote.h"
 // #include "GateTrigger.h"
 #include "MelodyEvaluator.h"

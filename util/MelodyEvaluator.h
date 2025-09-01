@@ -1,4 +1,4 @@
-
+#pragma once
 #include "Scale.h"
 
 enum SlotSelectionMethod {
@@ -19,11 +19,13 @@ enum class Styles {
     Default
 };
 
+const int numStyles = int(Styles::Default);
+
 class MelodyMutateStyle {
 public:
 
     bool keepInScale = true;
-    int numToMutate = 1;  // if zero, mutate all.
+    unsigned int numToMutate = 1;  // if zero, mutate all.
 
     SlotSelectionMethod slotSelectionMethod = ROUND_ROBIN_ADJACENT;
     float centerVoltage = 0;
@@ -39,13 +41,10 @@ public:
     void setStyles(Styles);
 };
 
-
-
 class MelodyEvaluator {
 public:
     // lowest probability = highest Probability * probabilityDynamicRange 
     // must be between 0 and 1
-
     // drift test passed at .22 (with +-4 semis, 500 iter)
     inline const static float probabilityDynamicRange = .33f;
     static float getPenalty(const class MelodyRow&, const MelodyMutateStyle&);

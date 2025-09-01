@@ -5,6 +5,7 @@
 #include "MelodyEvaluator.h"
 #include "NoteConvert.h"
 #include "PitchKnowledge.h"
+#include "EvaluationSummary.h"
 
 bool verboseProbability = false;
 
@@ -47,9 +48,8 @@ void MelodyGenerator::makeStateLegal(MelodyMutateState& state, const MelodyRow& 
     }
 }
 
-void MelodyGenerator::mutate(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style) {
+EvaluationSummary MelodyGenerator::mutate(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style) {
     makeStateLegal(state, row);
-
     assert(row.getSize() <= 16);
 
     // special case for only one. It's a common case, and faster.
@@ -59,13 +59,13 @@ void MelodyGenerator::mutate(MelodyRow& row, MelodyMutateState& state, const Mel
         _mutateOne(row, noteIndex, state, style);
         state.nextToMutate = row.wrapIndex(state.nextToMutate + 1);
         // SQINFO("in mutate: advance next 65 to %d", state.nextToMutate);
-        return;
+        return EvaluationSummary();
     }
 
     int toMutate[16 + 1];
     getIndiciesToMutate(row, state, style, toMutate);
     // SQINFO("to mutate = %d %d %d %d %d", toMutate[0], toMutate[1], toMutate[2], toMutate[3], toMutate[4]);
-    _mutateSome(row, state, style, toMutate);
+    return _mutateSome(row, state, style, toMutate);
 }
 
 bool MelodyGenerator::toMutateIncludes(const int* indiciesToMutate, int candidateIndex) {
@@ -158,11 +158,14 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& sta
     indiciesToMutate[index] = -1;
 }
 
-void MelodyGenerator::_mutateSome(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
+EvaluationSummary MelodyGenerator::_mutateSome(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
     for (int i = 0; indiciesToMutate[i] >= 0; ++i) {
         const int index = indiciesToMutate[i];
         _mutateOne(row, index, state, style);
     }
+
+    assert(false);
+    return EvaluationSummary();
 }
 
 void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalties, float* probabilities) {
@@ -219,7 +222,7 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
 
 }
 
-void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, MelodyMutateState& state, const MelodyMutateStyle& style) {
+EvaluationSummary MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, MelodyMutateState& state, const MelodyMutateStyle& style) {
     assert(style.keepInScale);  // don't know how to do other.
     assert(noteIndex < row.getSize());
 
@@ -281,6 +284,9 @@ void MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, MelodyMutateS
     //    SQINFO("chosen index = %d", chosenIndex);
     row = mutatedCandidates[chosenIndex];
     SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
+
+    assert(false);
+    return EvaluationSummary();
 }
 
 #if 0  // old way
