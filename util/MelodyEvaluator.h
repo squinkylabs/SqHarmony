@@ -19,7 +19,7 @@ enum class Styles {
     Default
 };
 
-const int numStyles = int(Styles::Default);
+const int numStyles = int(Styles::Disabled);
 
 class MelodyMutateStyle {
 public:

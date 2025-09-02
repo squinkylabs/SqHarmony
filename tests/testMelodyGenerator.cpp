@@ -642,7 +642,7 @@ void testMelodyGenerator() {
     testMelodyGenerator2();
 }
 
-#if 1
+#if 0
 void testFirst() {
     //   verboseProbability = true;
     testMelodyGeneratorMutateDrift();

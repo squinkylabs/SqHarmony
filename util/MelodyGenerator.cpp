@@ -285,8 +285,10 @@ EvaluationSummary MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, 
     row = mutatedCandidates[chosenIndex];
     SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
 
-    assert(false);
-    return EvaluationSummary();
+    return EvaluationSummary::fromRows(mutatedCandidates, 4, style);
+
+   // assert(false);
+   // return EvaluationSummary();
 }
 
 #if 0  // old way

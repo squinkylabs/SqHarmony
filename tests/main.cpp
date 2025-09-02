@@ -96,6 +96,7 @@ extern void testMelodyEvaluator();
 extern void testMutatorComposite();
 extern void testSqRandom();
 extern void testMelodyGenerator2();
+extern void testEvaluationSummary();
 
 
 #include "SqLog.h"
@@ -190,6 +191,7 @@ int main(const char**, int) {
     std::exit(0);
 #endif
     testSqRandom();
+    testEvaluationSummary();
     testMelodyGenerator();
     testMelodyGenerator2();
     testMelodyEvaluator();

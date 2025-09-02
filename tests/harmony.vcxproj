@@ -169,6 +169,7 @@
     <ClCompile Include="..\util\ArpegPlayer.cpp" />
     <ClCompile Include="..\util\AudioMath.cpp" />
     <ClCompile Include="..\util\ChordRecognizer.cpp" />
+    <ClCompile Include="..\util\EvaluationSummary.cpp" />
     <ClCompile Include="..\util\MelodyEvaluator.cpp" />
     <ClCompile Include="..\util\MelodyGenerator.cpp" />
     <ClCompile Include="..\util\quant\NoteConvert.cpp" />
@@ -205,6 +206,7 @@
     <ClCompile Include="testClockShifter6d.cpp" />
     <ClCompile Include="testDeGlitch.cpp" />
     <ClCompile Include="testDifferentialClockCounter.cpp" />
+    <ClCompile Include="testEvaluationSummary.cpp" />
     <ClCompile Include="testFreqMeasure.cpp" />
     <ClCompile Include="testFreqMeasure2.cpp" />
     <ClCompile Include="testGrayCode.cpp" />
