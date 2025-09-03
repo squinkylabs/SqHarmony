@@ -189,11 +189,8 @@ static void testMelodyEvaluatorCenteredWeight() {
 
 static void testMelodyEvaluatorConsonantWeight() {
     MelodyRow r = getRow(1);
-    const auto note = r.getNote(0);
-    const MidiNote note2(note.get() + 12);
-    r.setNote(0, note2);
-    // SQINFO("init row %s", r.toString().c_str());
 
+    r.setNote(0, MidiNote(MidiNote::D));        // D is dissonant in C Maj
     MelodyMutateStyle style;
     style.setStyles(Styles::OnlyDissonant);
 

@@ -2,10 +2,10 @@
 
 #include <algorithm>
 
+#include "EvaluationSummary.h"
 #include "MelodyEvaluator.h"
 #include "NoteConvert.h"
 #include "PitchKnowledge.h"
-#include "EvaluationSummary.h"
 
 bool verboseProbability = false;
 
@@ -159,13 +159,14 @@ void MelodyGenerator::getIndiciesToMutate(MelodyRow& row, MelodyMutateState& sta
 }
 
 EvaluationSummary MelodyGenerator::_mutateSome(MelodyRow& row, MelodyMutateState& state, const MelodyMutateStyle& style, int* indiciesToMutate) {
+    EvaluationSummary ret;
     for (int i = 0; indiciesToMutate[i] >= 0; ++i) {
         const int index = indiciesToMutate[i];
-        _mutateOne(row, index, state, style);
+        const auto summary = _mutateOne(row, index, state, style);
+        EvaluationSummary::combine(ret, summary);
     }
 
-    assert(false);
-    return EvaluationSummary();
+    return ret;
 }
 
 void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalties, float* probabilities) {
@@ -204,7 +205,7 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
     }
 
     float minP = biggestP * MelodyEvaluator::probabilityDynamicRange;
-    //SQINFO("biggest = %f minP = %f", biggestP, minP);
+    // SQINFO("biggest = %f minP = %f", biggestP, minP);
 
     // Apply probability dynamic range
     sum = 0;
@@ -213,13 +214,12 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
         sum += probabilities[i];
         if (verboseProbability) SQINFO("prob c = %f", probabilities[i]);
     }
-      // Scale sum to one again
+    // Scale sum to one again
     assert(sum > 0);
     for (unsigned i = 0; i < num; ++i) {
         probabilities[i] *= (1.f / sum);
         if (verboseProbability) SQINFO("prob d = %f", probabilities[i]);
     }
-
 }
 
 EvaluationSummary MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, MelodyMutateState& state, const MelodyMutateStyle& style) {
@@ -246,6 +246,15 @@ EvaluationSummary MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, 
         //  lowestPenalty = std::min(penalty, lowestPenalty);
 
         if (verboseProbability) SQINFO("candidate[%d], penalty=%f data=%s", i, penalty, mutatedCandidates[i].toString().c_str());
+    }
+
+    int worstIndex = 0;
+    float worstPenalty = 0;
+    for (int i = 0; i < 4; ++i) {
+        if (penalties[i] > worstPenalty) {
+            worstPenalty = penalties[i];
+            worstIndex = i;
+        }
     }
 
     assert(numCandidates == 4);
@@ -283,12 +292,12 @@ EvaluationSummary MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, 
     }
     //    SQINFO("chosen index = %d", chosenIndex);
     row = mutatedCandidates[chosenIndex];
-    SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
+    // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
 
-    return EvaluationSummary::fromRows(mutatedCandidates, 4, style);
+    return EvaluationSummary::fromRows(mutatedCandidates, 4, style, worstIndex);
 
-   // assert(false);
-   // return EvaluationSummary();
+    // assert(false);
+    // return EvaluationSummary();
 }
 
 #if 0  // old way

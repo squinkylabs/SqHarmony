@@ -24,6 +24,9 @@ const int numStyles = int(Styles::Disabled);
 class MelodyMutateStyle {
 public:
 
+    MelodyMutateStyle() {
+        scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
+    }
     bool keepInScale = true;
     unsigned int numToMutate = 1;  // if zero, mutate all.
 

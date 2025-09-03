@@ -161,7 +161,8 @@ float MelodyEvaluator::disonnantPenalty(const MelodyRow& r, const MelodyMutateSt
     // if (bases > 1) {
     //     SQINFO("got base, row = %s diss=%d bases=%d", r.toString().c_str(), disonnances, bases);
     // }
-    return style.dissonantWeight * float(disonnances - bases) / float(r.getSize());
+    const float ret =  style.dissonantWeight * float(disonnances - bases) / float(r.getSize());
+    return std::max(ret, 0.f);
 }
 
 float MelodyEvaluator::pitchRangePenalty(const MelodyRow& r, const MelodyMutateStyle& style) {

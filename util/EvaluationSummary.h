@@ -19,6 +19,8 @@ public:
      */
     EvaluatorResult results[numStyles];
 
-    static EvaluationSummary fromRows(const MelodyRow*, unsigned numRows, const MelodyMutateStyle&);
+    static EvaluationSummary fromRows(const MelodyRow*, unsigned numRows, const MelodyMutateStyle&, unsigned worstRow);
     static EvaluationSummary fromRow(const MelodyRow&, const MelodyMutateStyle&);
+
+    static void combine(EvaluationSummary& inOut, const EvaluationSummary& in);
 };

@@ -33,7 +33,7 @@ static void testCanCall() {
     const auto row = makeRow(1);
     MelodyMutateStyle style;
 
-    EvaluationSummary::fromRows(&row, 1, style);
+    EvaluationSummary::fromRows(&row, 1, style, 0);
 }
 
 static void checkValid(const EvaluationSummary& summary) {
@@ -70,7 +70,7 @@ static void testOctave(unsigned numRows) {
     rows[1].setNote(1, MidiNote(MidiNote::MiddleC + 12));
     MelodyMutateStyle style;
 
-    const auto summary = EvaluationSummary::fromRows(rows, numRows, style);
+    const auto summary = EvaluationSummary::fromRows(rows, numRows, style, 0);
     checkValid(summary);
     const auto topResult = summary.results[0];
     assert(topResult.rule != Styles::Disabled);
@@ -91,7 +91,7 @@ void testEvaluationSummary() {
      testOctave2();
 }
 
-#if 1
+#if 0
 void testFirst() {
     testEvaluationSummary();
 }

@@ -74,6 +74,7 @@ private:
     void _init();
     void _stepn();
     void _processTrigger();
+    void _updateLEDs(EvaluationSummary& summary);
 
     Divider _divn;
 
@@ -260,8 +261,14 @@ inline void Mutator<TBase>::_processTrigger() {
     //   SQINFO("style params = %s", _theStyle.toString().c_str());
     //   SQINFO("%s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
 #endif
-    MelodyGenerator::mutate(_theNoteData, _theState, _theStyle);
+    
+    EvaluationSummary summary = MelodyGenerator::mutate(_theNoteData, _theState, _theStyle);
+    _updateLEDs(summary);
     //  SQINFO("notes: %s", _theNoteData.print().c_str());
 
     // SQINFO("exit process trigger----");
+}
+
+template <class TBase>
+inline void Mutator<TBase>::_updateLEDs(EvaluationSummary& summary) {
 }

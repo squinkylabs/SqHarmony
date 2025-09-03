@@ -5,15 +5,18 @@
 #include "MelodyEvaluator.h"
 #include "MelodyGenerator.h"
 
-EvaluationSummary EvaluationSummary::fromRows(const MelodyRow* pRows, unsigned numRows, const MelodyMutateStyle& style) {
+EvaluationSummary EvaluationSummary::fromRows(const MelodyRow* pRows, unsigned numRows, const MelodyMutateStyle& style, unsigned worstRow) {
+    assert(worstRow < numRows);
     EvaluationSummary ret;
-    for (unsigned i = 0; i < numRows; ++i) {
-        const MelodyRow& row = pRows[i];
+    // for (unsigned i = 0; i < numRows; ++i) {
+    //     const MelodyRow& row = pRows[i];
 
-        // TODO: we should really combine this... need a new test.
-        // Actually: don't we just return the summary from the worst row?
-        ret = fromRow(row, style);
-    }
+    //     // TODO: we should really combine this... need a new test.
+    //     // Actually: don't we just return the summary from the worst row?
+    //     ret = fromRow(row, style);
+    // }
+    const MelodyRow& worst = pRows[worstRow];
+    ret = fromRow(worst, style);
     return ret;
 }
 
@@ -45,4 +48,11 @@ EvaluationSummary EvaluationSummary::fromRow(const MelodyRow& row, const MelodyM
     };
     std::sort(ret.results, ret.results + int(Styles::OnlyDissonant) + 1, f);
     return ret;
+}
+
+void EvaluationSummary::combine(EvaluationSummary& inOut, const EvaluationSummary& in) {
+    for (int i=0; i< numStyles; ++i) {
+        // TODO: this is usually wrong
+        inOut.results[i].score = std::max(inOut.results[i].score, in.results[i].score);
+    }
 }
