@@ -165,6 +165,8 @@ EvaluationSummary MelodyGenerator::_mutateSome(MelodyRow& row, MelodyMutateState
         const auto summary = _mutateOne(row, index, state, style);
         EvaluationSummary::combine(ret, summary);
     }
+    //SQINFO("_ms will ret %s", ret.toString().c_str());
+    ret.assertValid();
 
     return ret;
 }
@@ -194,7 +196,7 @@ void MelodyGenerator::_penalties2Probabilities(unsigned num, const float* penalt
         for (unsigned i = 0; i < num; ++i) {
             probabilities[i] = p;
         }
-        SQINFO("special case all the same");
+        //SQINFO("special case all the same");
         return;
     }
 
@@ -294,7 +296,9 @@ EvaluationSummary MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, 
     row = mutatedCandidates[chosenIndex];
     // SQINFO("%s", MelodyEvaluator::toString(row, style).c_str());
 
-    return EvaluationSummary::fromRows(mutatedCandidates, 4, style, worstIndex);
+    const auto ret = EvaluationSummary::fromRows(mutatedCandidates, 4, style, worstIndex);
+   // SQINFO("mut1 %s", ret.toString().c_str());
+    return ret;
 
     // assert(false);
     // return EvaluationSummary();

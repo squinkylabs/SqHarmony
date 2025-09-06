@@ -1,5 +1,5 @@
 #include "Divider.h"
-#include  "EvaluationSummary.h"
+#include "EvaluationSummary.h"
 #include "FloatNote.h"
 // #include "GateTrigger.h"
 #include "MelodyEvaluator.h"
@@ -223,6 +223,42 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
 }
 
 template <class TBase>
+inline void Mutator<TBase>::_updateLEDs(EvaluationSummary& summary) {
+    SQINFO("update leds summary= %s", summary.toString().c_str());
+    float ledValue[NUM_LIGHTS];
+    for (int i = 0; i < NUM_LIGHTS; ++i) {
+        ledValue[i] = 0;
+    }
+
+    auto result = summary.results[0];  
+    if (result.rule != Styles::Disabled && result.score > 0) {
+        const int index = int(result.rule);
+        ledValue[index] = 10;
+    }
+
+    // .2 too dim
+    result = summary.results[1];
+    if (result.rule != Styles::Disabled && result.score > 0) {
+        const int index2 = int(result.rule);
+        ledValue[index2] = .4;
+    }
+
+    // .15 too dim
+    result = summary.results[2];
+    if (result.rule != Styles::Disabled && result.score > 0) {
+        const int index3 = int(result.rule);
+        ledValue[index3] = .2;
+    }
+
+  //  SQINFO("led index = %d %d %d", index, index2, index3);
+
+    for (int i = 0; i < NUM_LIGHTS; ++i) {
+        SQINFO("led %d value=%f", i, ledValue[i]);
+        TBase::lights[i].value = ledValue[i];
+    }
+}
+
+template <class TBase>
 inline void Mutator<TBase>::_processTrigger() {
     //   SQINFO("process trigger");
     //    SQINFO("style params are %s",
@@ -261,7 +297,7 @@ inline void Mutator<TBase>::_processTrigger() {
     //   SQINFO("style params = %s", _theStyle.toString().c_str());
     //   SQINFO("%s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
 #endif
-    
+
     EvaluationSummary summary = MelodyGenerator::mutate(_theNoteData, _theState, _theStyle);
     _updateLEDs(summary);
     //  SQINFO("notes: %s", _theNoteData.print().c_str());
@@ -269,6 +305,13 @@ inline void Mutator<TBase>::_processTrigger() {
     // SQINFO("exit process trigger----");
 }
 
-template <class TBase>
-inline void Mutator<TBase>::_updateLEDs(EvaluationSummary& summary) {
-}
+/*
+  enum LightIds {
+        NON_CENTERED_WEIGHT_STYLE_LIGHT,
+        PITCH_RANGE_WEIGHT_STYLE_LIGHT,
+        LEAPS_WEIGHT_STYLE_LIGHT,
+        UNISON_WEIGHT_STYLE_LIGHT,
+        CONSONANT_WEIGHT_LIGHT,
+        NUM_LIGHTS
+    };
+    */
