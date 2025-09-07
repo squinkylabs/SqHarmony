@@ -72,10 +72,16 @@ float MelodyEvaluator::leapsPenalty(const MelodyRow& r, const MelodyMutateStyle&
 
         if (jump > 4) {
             bigLeaps++;
+            // if (bigLeaps > 2) {
+            //     SQINFO("found bit leap between note %d and %d. row=%s", int(i), int(i+1), r.toString().c_str());
+            //     SQINFO("MidiNotes are %d and %d jump=%d", note1.get(), note2.get(), jump);
+            // }
         }
         // SQINFO("i=%d jump=%d big leaps=%d", i, jump, bigLeaps);
     }
-    return style.leapsWeight * float(bigLeaps) / float(r.getSize());
+    const auto ret =  style.leapsWeight * float(bigLeaps) / float(r.getSize());
+    //SQINFO("leaps penalty = %f", ret);
+    return ret;
 }
 
 float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {
@@ -85,15 +91,20 @@ float MelodyEvaluator::unisonsPenalty(const MelodyRow& r, const MelodyMutateStyl
         const MidiNote& note2 = r.getNote(i + 1);
         if (note1.get() == note2.get()) {
             unisons++;
+            SQINFO("saw a unison %d", unisons);
         }
     }
 
     // a single unison doesn't count.
-    if (unisons <= 1) {
-        return 0;
-    }
+    // if (unisons <= 1) {
+    //     return 0;
+    // }
     // SQINFO("unisons = %d, size=%lld", unisons, r.getSize());
-    return style.unisonWeight * (unisons) / float(r.getSize());
+    const float ret = style.unisonWeight * (unisons) / float(r.getSize());
+    if (unisons) {
+    SQINFO("unisons = %d score = %f", unisons, ret );
+    }
+    return ret;
 }
 
 float MelodyEvaluator::nonCenteredPenalty(const MelodyRow& r, const MelodyMutateStyle& style) {

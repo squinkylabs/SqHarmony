@@ -16,7 +16,7 @@ std::string EvaluatorResult::toString() const {
 }
 
 std::string EvaluationSummary::toString() const {
-    std::string ret;
+    std::string ret = "(rule, score): ";
     for (int i = 0; i < numStyles; ++i) {
         ret += this->results[i].toString();
     }
@@ -59,11 +59,17 @@ EvaluationSummary EvaluationSummary::fromRow(const MelodyRow& row, const MelodyM
     ret.results[index].rule = Styles::OnlyDissonant;
     ret.results[index].score = MelodyEvaluator::disonnantPenalty(row, style);
 
-    assert(int(Styles::OnlyDissonant) == (int(Styles::Disabled) - 1));
+    index = (unsigned int)(Styles::OnlyUnison);
+    ret.results[index].rule = Styles::OnlyUnison;
+    ret.results[index].score = MelodyEvaluator::unisonsPenalty(row, style);
+
+    assert(int(Styles::OnlyUnison) == (int(Styles::Disabled) - 1));
 
   
     //std::sort(ret.results, ret.results + int(Styles::OnlyDissonant) + 1, f);
+    SQINFO("from row, before sort: %s", ret.toString().c_str());
     ret.sort();
+    SQINFO("from row, after  sort: %s", ret.toString().c_str());
     ret.assertValid();
     return ret;
 }
@@ -72,7 +78,7 @@ void EvaluationSummary::sort() {
       std::function<bool(const EvaluatorResult&, const EvaluatorResult&)> f = [](const EvaluatorResult& a, const EvaluatorResult& b) {
         return a.score > b.score;
     };
-    std::sort(results, results + int(Styles::OnlyDissonant) + 1, f);
+    std::sort(results, results + numStyles, f);
 }
 void EvaluationSummary::combine(EvaluationSummary& inOut, const EvaluationSummary& in) {
     inOut.assertValid();
@@ -138,7 +144,10 @@ void EvaluationSummary::combine(EvaluationSummary& inOut, const EvaluationSummar
 #endif
 
 void EvaluationSummary::assertValid() const {
-    _checkValid(true);
+    if (!_checkValid(false)) {
+        SQINFO("bad summary: %s", this->toString().c_str());
+        _checkValid(true);
+    }
 }
 bool EvaluationSummary::isValid() const {
     return _checkValid(false);

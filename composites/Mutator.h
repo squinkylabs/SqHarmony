@@ -60,11 +60,12 @@ public:
     };
 
     enum LightIds {
+        // These should be declared in the same order as Styles
         NON_CENTERED_WEIGHT_STYLE_LIGHT,
         PITCH_RANGE_WEIGHT_STYLE_LIGHT,
         LEAPS_WEIGHT_STYLE_LIGHT,
-        UNISON_WEIGHT_STYLE_LIGHT,
-        CONSONANT_WEIGHT_LIGHT,
+         CONSONANT_WEIGHT_LIGHT,
+        UNISON_WEIGHT_STYLE_LIGHT,      
         NUM_LIGHTS
     };
 
@@ -224,7 +225,7 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
 
 template <class TBase>
 inline void Mutator<TBase>::_updateLEDs(EvaluationSummary& summary) {
-    SQINFO("update leds summary= %s", summary.toString().c_str());
+    //SQINFO("update leds summary= %s", summary.toString().c_str());
     float ledValue[NUM_LIGHTS];
     for (int i = 0; i < NUM_LIGHTS; ++i) {
         ledValue[i] = 0;
@@ -253,7 +254,7 @@ inline void Mutator<TBase>::_updateLEDs(EvaluationSummary& summary) {
   //  SQINFO("led index = %d %d %d", index, index2, index3);
 
     for (int i = 0; i < NUM_LIGHTS; ++i) {
-        SQINFO("led %d value=%f", i, ledValue[i]);
+        // SQINFO("led %d value=%f", i, ledValue[i]);
         TBase::lights[i].value = ledValue[i];
     }
 }

@@ -15,7 +15,8 @@ enum class Styles {
     OnlySeekRange,
     OnlyDiscorageLeaps,
     OnlyDissonant,
-    Disabled,
+    OnlyUnison, 
+    Disabled,           // 5
     Default
 };
 

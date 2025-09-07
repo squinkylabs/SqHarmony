@@ -235,6 +235,7 @@ EvaluationSummary MelodyGenerator::_mutateOne(MelodyRow& row, size_t noteIndex, 
     for (int i = 0; 0 != candidateShifts[i]; ++i) {
         ++numCandidates;
     }
+    assert(numCandidates == 4);
     MelodyRow mutatedCandidates[4];
     float penalties[4];
     // float lowestPenalty = 1000;  // insanely high penalty
