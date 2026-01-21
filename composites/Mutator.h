@@ -1,4 +1,5 @@
 #include "Divider.h"
+#include "EvaluationSummary.h"
 #include "FloatNote.h"
 // #include "GateTrigger.h"
 #include "MelodyEvaluator.h"
@@ -39,6 +40,8 @@ public:
         ADJACENCY_STYLE_PARAM,  // See enum SlotSelectionMethod
         PITCH_RANGE_STYLE_PARAM,
         SCHEMA_PARAM,
+        CONSONANT_WEIGHT_PARAM,
+        DESIRED_CENTER_PARAM,
         NUM_PARAMS
     };
 
@@ -47,7 +50,7 @@ public:
         CENTER_VOLTAGE_INPUT,
         INITIAL_VOLTAGE_INPUT,
         REINIT_INPUT,
-        DEBUG_EVAL_INPUT,
+        xDEBUG_EVAL_INPUT,
         NUM_INPUTS
     };
 
@@ -57,6 +60,12 @@ public:
     };
 
     enum LightIds {
+        // These should be declared in the same order as Styles
+        NON_CENTERED_WEIGHT_STYLE_LIGHT,
+        PITCH_RANGE_WEIGHT_STYLE_LIGHT,
+        LEAPS_WEIGHT_STYLE_LIGHT,
+         CONSONANT_WEIGHT_LIGHT,
+        UNISON_WEIGHT_STYLE_LIGHT,      
         NUM_LIGHTS
     };
 
@@ -66,6 +75,7 @@ private:
     void _init();
     void _stepn();
     void _processTrigger();
+    void _updateLEDs(EvaluationSummary& summary);
 
     Divider _divn;
 
@@ -73,14 +83,14 @@ private:
     SeqClock _seqClock;
 
     MelodyRow _theNoteData;
-    Scale _theScale;
+    //  Scale _theScale;
     MelodyMutateState _theState;
     MelodyMutateStyle _theStyle;
 
     std::function<double(double)> _audioCurve;
     bool _initialized = false;
 
-    void _pollDebug();
+    // void _pollDebug();
     void _evalDebug();
     void _reInitRow();
     GateTrigger _debugEvalProc;
@@ -89,8 +99,12 @@ private:
 template <class TBase>
 inline void Mutator<TBase>::_init() {
     MidiNote base(MidiNote::C);
-    _theScale.set(base, Scale::Scales::Major);
-    _theNoteData.init(8, _theScale);
+    _theStyle.scale.set(base, Scale::Scales::Major);
+    //  _theScale.set(base, Scale::Scales::Major);
+    // SQINFO("init, base=%d wasSet = %d", _theScale.base().get(), _theScale.getWasSet());
+    //  assert(false);
+
+    _theNoteData.init(8, _theStyle.scale);
 
     _audioCurve = AudioMath::makeFunc_AudioTaper(-18);
 
@@ -98,21 +112,6 @@ inline void Mutator<TBase>::_init() {
     _divn.setup(4, [this]() {
         this->_stepn();
     });
-}
-
-template <class TBase>
-inline void Mutator<TBase>::_pollDebug() {
-    //_debugReinitProc.go(TBase::inputs[DEBUG_REINIT_INPUT].getVoltage(0));
-    //if (_debugReinitProc.trigger()) {
-    //    // SQINFO("re-init");
-    //    _initialized = false;
-    //}
-
-    _debugEvalProc.go(TBase::inputs[DEBUG_EVAL_INPUT].getVoltage(0));
-    if (_debugEvalProc.trigger()) {
-        SQINFO("eval");
-        _evalDebug();
-    }
 }
 
 template <class TBase>
@@ -140,7 +139,7 @@ inline void Mutator<TBase>::_stepn() {
     if (!_initialized) {
         _reInitRow();
 
-        #if 0
+#if 0
         const int channels = TBase::inputs[INITIAL_VOLTAGE_INPUT].channels;
 
         //  SQINFO("r-init chan count=%d", TBase::inputs[INITIAL_VOLTAGE_INPUT].channels);
@@ -153,19 +152,20 @@ inline void Mutator<TBase>::_stepn() {
             NoteConvert::f2m(midiNote, fn);
             _theNoteData.setNote(i, midiNote);
         }
-        #endif
+#endif
 
-       
         _initialized = true;
     }
 
     MidiNote root(MidiNote::C + TBase::params[KEY_PARAM].value);
-    _theScale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
-    _pollDebug();
+    _theStyle.scale.set(root, Scale::Scales(TBase::params[MODE_PARAM].value));
+    //_pollDebug();
 
     auto centerPort = TBase::inputs[CENTER_VOLTAGE_INPUT];
     float centerV = centerPort.isConnected() ? centerPort.value : 0;
+    centerV += TBase::params[DESIRED_CENTER_PARAM].value;
     _theStyle.centerVoltage = centerV;
+    // SQINFO("CenterV = %f", centerV);
 
     _theStyle.numToMutate = int(std::round(TBase::params[SLOTS_TO_CHANGE_PARAM].value));
     const int slotSelectionMethodInt = int(std::round(TBase::params[ADJACENCY_STYLE_PARAM].value));
@@ -174,22 +174,22 @@ inline void Mutator<TBase>::_stepn() {
 
 template <class TBase>
 inline void Mutator<TBase>::_reInitRow() {
-
-     TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
-    const unsigned inputChannels =  unsigned(TBase::inputs[INITIAL_VOLTAGE_INPUT].getChannels());
+    TBase::outputs[NOTES_OUTPUT].setChannels(_theNoteData.getSize());
+    SQINFO("set num output channels to %d %d ", (int)_theNoteData.getSize(), (int)TBase::outputs[NOTES_OUTPUT].channels);
+    const unsigned inputChannels = unsigned(TBase::inputs[INITIAL_VOLTAGE_INPUT].getChannels());
     const unsigned rowSize = _theNoteData.getSize();
 
-    for (unsigned int i=0; i< rowSize; ++i) {
-            const float v = (i < inputChannels) ? TBase::inputs[INITIAL_VOLTAGE_INPUT].getVoltage(i) : 0;
-            // SQINFO("re-init output ch %d to %f based on note data len %d", i, v, (unsigned) _theNoteData.getSize());
-            FloatNote fn(v);
-            MidiNote midiNote;
-            NoteConvert::f2m(midiNote, fn);
-            _theNoteData.setNote(i, midiNote);
-         //   SQINFO("write output %d = %f", i, v);
-            TBase::outputs[NOTES_OUTPUT].setVoltage(v, i);
-         //   SQINFO("read output = %f", TBase::outputs[NOTES_OUTPUT].getVoltage(i));
-    }    
+    for (unsigned int i = 0; i < rowSize; ++i) {
+        const float v = (i < inputChannels) ? TBase::inputs[INITIAL_VOLTAGE_INPUT].getVoltage(i) : 0;
+        // SQINFO("re-init output ch %d to %f based on note data len %d", i, v, (unsigned) _theNoteData.getSize());
+        FloatNote fn(v);
+        MidiNote midiNote;
+        NoteConvert::f2m(midiNote, fn);
+        _theNoteData.setNote(i, midiNote);
+        //   SQINFO("write output %d = %f", i, v);
+        TBase::outputs[NOTES_OUTPUT].setVoltage(v, i);
+        //   SQINFO("read output = %f", TBase::outputs[NOTES_OUTPUT].getVoltage(i));
+    }
 }
 
 template <class TBase>
@@ -207,13 +207,13 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
         _processTrigger();
     }
 
-   //   SQINFO("at M214 %f", TBase::outputs[NOTES_OUTPUT].getVoltage(2));
+    //   SQINFO("at M214 %f", TBase::outputs[NOTES_OUTPUT].getVoltage(2));
     for (size_t i = 0; i < _theNoteData.getSize(); ++i) {
         //  SQINFO("set volt(1.3, %llu)", i);
 
         FloatNote floatNote;
         NoteConvert::m2f(floatNote, _theNoteData.getNote(i));
-     ///   SQINFO("M220 set note %d to %f", i, floatNote.get());
+        ///   SQINFO("M220 set note %d to %f", i, floatNote.get());
         TBase::outputs[NOTES_OUTPUT].setVoltage(floatNote.get(), i);
 
         // const float q =TBase::outputs[NOTES_OUTPUT].getVoltage(i);
@@ -221,6 +221,42 @@ inline void Mutator<TBase>::process(const typename TBase::ProcessArgs& args) {
         //  SQINFO("addr of port = %p", &TBase::outputs[NOTES_OUTPUT]);
     }
     //  SQINFO("at M226 %f", TBase::outputs[NOTES_OUTPUT].getVoltage(2));
+}
+
+template <class TBase>
+inline void Mutator<TBase>::_updateLEDs(EvaluationSummary& summary) {
+    //SQINFO("update leds summary= %s", summary.toString().c_str());
+    float ledValue[NUM_LIGHTS];
+    for (int i = 0; i < NUM_LIGHTS; ++i) {
+        ledValue[i] = 0;
+    }
+
+    auto result = summary.results[0];  
+    if (result.rule != Styles::Disabled && result.score > 0) {
+        const int index = int(result.rule);
+        ledValue[index] = 10;
+    }
+
+    // .2 too dim
+    result = summary.results[1];
+    if (result.rule != Styles::Disabled && result.score > 0) {
+        const int index2 = int(result.rule);
+        ledValue[index2] = .4;
+    }
+
+    // .15 too dim
+    result = summary.results[2];
+    if (result.rule != Styles::Disabled && result.score > 0) {
+        const int index3 = int(result.rule);
+        ledValue[index3] = .2;
+    }
+
+  //  SQINFO("led index = %d %d %d", index, index2, index3);
+
+    for (int i = 0; i < NUM_LIGHTS; ++i) {
+        // SQINFO("led %d value=%f", i, ledValue[i]);
+        TBase::lights[i].value = ledValue[i];
+    }
 }
 
 template <class TBase>
@@ -247,19 +283,36 @@ inline void Mutator<TBase>::_processTrigger() {
     _theStyle.pitchRangeWeight = 4 * _audioCurve(TBase::params[PITCH_RANGE_WEIGHT_STYLE_PARAM].value);
     _theStyle.idealPitchRange2 = TBase::params[PITCH_RANGE_STYLE_PARAM].value;
     _theStyle.nonCenteredWeight = 4 * _audioCurve(TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
+    _theStyle.dissonantWeight = 4 * _audioCurve(TBase::params[CONSONANT_WEIGHT_PARAM].value);
 #if 0
     SQINFO("process trgger set to %f %f %f %f",
            _theStyle.leapsWeight,
            _theStyle.unisonWeight,
            _theStyle.pitchRangeWeight,
            _theStyle.nonCenteredWeight);
+    SQINFO("from %f", TBase::params[NON_CENTERED_WEIGHT_STYLE_PARAM].value);
+#endif
+#if 0
 
     SQINFO("process trigger set weight %s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
     //   SQINFO("style params = %s", _theStyle.toString().c_str());
     //   SQINFO("%s", MelodyEvaluator::toString(_theNoteData, _theStyle).c_str());
 #endif
-    MelodyGenerator::mutate(_theNoteData, _theScale, _theState, _theStyle);
+
+    EvaluationSummary summary = MelodyGenerator::mutate(_theNoteData, _theState, _theStyle);
+    _updateLEDs(summary);
     //  SQINFO("notes: %s", _theNoteData.print().c_str());
 
     // SQINFO("exit process trigger----");
 }
+
+/*
+  enum LightIds {
+        NON_CENTERED_WEIGHT_STYLE_LIGHT,
+        PITCH_RANGE_WEIGHT_STYLE_LIGHT,
+        LEAPS_WEIGHT_STYLE_LIGHT,
+        UNISON_WEIGHT_STYLE_LIGHT,
+        CONSONANT_WEIGHT_LIGHT,
+        NUM_LIGHTS
+    };
+    */

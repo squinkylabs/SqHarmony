@@ -96,6 +96,7 @@ extern void testMelodyEvaluator();
 extern void testMutatorComposite();
 extern void testSqRandom();
 extern void testMelodyGenerator2();
+extern void testEvaluationSummary();
 
 
 #include "SqLog.h"
@@ -119,7 +120,7 @@ int main(const char**, int) {
         SQINFO("doing special long run");
     }
 
-#if 1
+#if 0
     printf("running only one for temp debug\n");
     //assert(false);
     assert(SqLog::errorCount == 0);
@@ -190,6 +191,7 @@ int main(const char**, int) {
     std::exit(0);
 #endif
     testSqRandom();
+    testEvaluationSummary();
     testMelodyGenerator();
     testMelodyGenerator2();
     testMelodyEvaluator();

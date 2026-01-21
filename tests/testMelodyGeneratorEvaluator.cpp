@@ -1,4 +1,5 @@
 
+#include "EvaluationSummary.h"
 #include "FloatNote.h"
 #include "MelodyEvaluator.h"
 #include "MelodyGenerator.h"
@@ -70,6 +71,67 @@ static void testMelodyEvaluatorUnison2() {
     assertGT(MelodyEvaluator::unisonsPenalty(r, style), 0);
 }
 
+static void testMelodyEvaluatorConsonantCMajor() {
+    MelodyRow r = getRow(1);
+    MelodyMutateStyle style;
+    style.scale.set(MidiNote(MidiNote::C), Scale::Scales::Major);
+
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::F));
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::G));
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::C + 1));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::D));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::D + 1));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::E));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::F + 1));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+}
+
+static void testMelodyEvaluatorConsonantBMinor() {
+    MelodyRow r = getRow(1);
+    MelodyMutateStyle style;
+    style.scale.set(MidiNote(MidiNote::B), Scale::Scales::Minor);
+
+    r.setNote(0, MidiNote(MidiNote::B));
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::E));
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::F + 1));
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::C));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::C + 1));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::D));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::D + 1));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::F));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+
+    r.setNote(0, MidiNote(MidiNote::G));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::G + 1));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::A));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    r.setNote(0, MidiNote(MidiNote::A + 1));
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+}
+
 static void testMelodyEvaluatorCentered() {
     // test should be centered
     MelodyMutateStyle style;
@@ -115,7 +177,7 @@ static void testMelodyEvaluatorCenteredWeight() {
     const auto note = r.getNote(0);
     const MidiNote note2(note.get() + 12);
     r.setNote(0, note2);
-    SQINFO("init row %s", r.toString().c_str());
+    // SQINFO("init row %s", r.toString().c_str());
 
     MelodyMutateStyle style;
     style.setStyles(Styles::OnlySeekCenter);
@@ -123,6 +185,18 @@ static void testMelodyEvaluatorCenteredWeight() {
     assertGT(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
     style.nonCenteredWeight = 0;
     assertEQ(MelodyEvaluator::nonCenteredPenalty(r, style), 0);
+}
+
+static void testMelodyEvaluatorConsonantWeight() {
+    MelodyRow r = getRow(1);
+
+    r.setNote(0, MidiNote(MidiNote::D));        // D is dissonant in C Maj
+    MelodyMutateStyle style;
+    style.setStyles(Styles::OnlyDissonant);
+
+    assertGT(MelodyEvaluator::disonnantPenalty(r, style), 0);
+    style.dissonantWeight = 0;
+    assertEQ(MelodyEvaluator::disonnantPenalty(r, style), 0);
 }
 
 static void testMelodyEvaluatorPitchRange() {
@@ -151,11 +225,15 @@ void testMelodyEvaluator() {
     testMelodyEvaluatorLeaps2();
     testMelodyEvaluatorUnison();
     testMelodyEvaluatorUnison2();
+    // testMelodyEvaluatorUnison3();
+    testMelodyEvaluatorConsonantCMajor();
+    testMelodyEvaluatorConsonantBMinor();
     testMelodyEvaluatorCentered();
     testMelodyEvaluatorCentered2();
     testMelodyEvaluatorCentered3();
     testMelodyEvaluatorCentered4();
     testMelodyEvaluatorCenteredWeight();
+    testMelodyEvaluatorConsonantWeight();
 
     testMelodyEvaluatorPitchRange();
     testMelodyEvaluatorPitchRange2();
@@ -167,15 +245,15 @@ static void runABit(int numTimes, int rowSize) {
     MelodyRow r;
     MelodyMutateState state;
     MelodyMutateStyle style;
-    Scale scale = scaleCMaj();
+    style.scale = scaleCMaj();
 
     // const int size = 8;
-    r.init(rowSize, scale);
+    r.init(rowSize, style.scale);
     SQINFO("here is starting row");
     SQINFO(r.toString().c_str());
     for (int i = 0; i < numTimes; ++i) {
         SQINFO("\n\n---------------- about to mutate %s at index %d", r.toString().c_str(), state.nextToMutate);
-        MelodyGenerator::mutate(r, scale, state, style);
+        MelodyGenerator::mutate(r, state, style);
         SQINFO("here is generated row %s penalty=%f", r.toString().c_str(), MelodyEvaluator::getPenalty(r, style));
     }
 
@@ -212,11 +290,12 @@ static void showBias() {
 #if 0
 void testFirst() {
     // runABit(50, 8);
-    // testMelodyEvaluator();
+    testMelodyEvaluator();
     // showBias();
     // testMelodyEvaluatorCentered4();
     // testMelodyEvaluatorPitchRange2();
-// testMelodyEvaluator();
-    testMelodyEvaluatorCenteredWeight();
+    // testMelodyEvaluator();
+    // testMelodyEvaluatorCenteredWeight();
+    //  testMelodyEvaluatorConsonantWeight();
 }
 #endif

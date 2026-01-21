@@ -12,12 +12,8 @@
 
 #define _LAB
 
-struct RoundBigBlackSnapKnob : RoundBigBlackKnob {
-    RoundBigBlackSnapKnob() {
-        snap = true;
-        smooth = false;
-    }
-};
+const float xCol2 = 80;
+const float xCol1 = 12;
 
 /**
  */
@@ -27,29 +23,31 @@ public:
         setModule(module);
         _module = module;
 
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/visualizer.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/mutator.svg")));
 
 #if 1  // def _LAB
-        addLabel(Vec(40, 6), "Mutator", 20);
-
-        // 35 x was too far left
-        addLabel(Vec(38, 356), "Squinktronix", 17);
+        addLabel(Vec(40 + 22, 6), "Mutator", 20);
+        addLabel(Vec(38 + 22, 356), "Squinktronix", 17);
 #endif
         const float yJax = 320;
-        const float dx = 30;
+        const float dx = 32;
         const float d0 = 10;
-        addInputL(Vec(d0, yJax), Comp::MUTATE_INPUT, "Mut", 1);
-        addInputL(Vec(d0 + dx, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr", 2);
-        addOutputL(Vec(d0 + 2 * dx, yJax), Comp::NOTES_OUTPUT, "Notes", 2);
+        addInputL(Vec(d0, yJax), Comp::MUTATE_INPUT, "Mut");
+        addInputL(Vec(d0 + 1 * dx, yJax), Comp::REINIT_INPUT, "RST", 0);
+        addInputL(Vec(d0 + 2 * dx, yJax), Comp::CENTER_VOLTAGE_INPUT, "Ctr", 2);
         addInputL(Vec(d0 + 3 * dx, yJax), Comp::INITIAL_VOLTAGE_INPUT, "Init", 6);
+        addOutputL(Vec(d0 + 4 * dx + 10, yJax), Comp::NOTES_OUTPUT, "Notes", 2);
 
         addKeysig(module);
 
-        addParamL<RoundBigBlackSnapKnob>(Vec(40, 50), module, Comp::ROW_LENGTH_PARAM, "Steps", 14);
+        const float yLen = 40;
+        const auto p = createParam<RoundBlackSnapKnob>(Vec(120, yLen), module, Comp::ROW_LENGTH_PARAM);
+        addParam(p);
+        Vec vlabel(60, yLen);
+        addLabel(vlabel, "Num notes:");
 
         addStyle(module);
         addStyle2(module);
-        addDebug(module);
     }
 
 private:
@@ -82,21 +80,38 @@ private:
         return parent;
     }
 
-    void addStyle(Module* module) {
-        const float styleRow1 = 160;
-        const float styleRow2 = 210;
-        const float x0 = 10;
-        const float x1 = 50;
-        const float x2 = 90;
-
-        addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, "center", 8);
-        addParamL<RoundBlackKnob>(Vec(x1, styleRow1), module, Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, "prng w", 8);
-        addParamL<RoundBlackKnob>(Vec(x1, styleRow2), module, Comp::PITCH_RANGE_STYLE_PARAM, "p rng", 8);
-        addParamL<RoundBlackKnob>(Vec(x2, styleRow1), module, Comp::LEAPS_WEIGHT_STYLE_PARAM, "leaps", 8);
-        addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::UNISON_WEIGHT_STYLE_PARAM, "unsn", 6);
+    void addWeightKnob(Module* module, float x, float y, int paramNum, int lightNum,
+                       const std::string& text, float label_dx = 0) {
+        addParamL<RoundBlackKnob>(Vec(x, y), module, paramNum,
+                                  text, label_dx);
+        addChild(createLight<SmallLight<RedLight>>(
+            Vec(x + 26, y),
+            module,
+            lightNum));
     }
 
-    //  void addParam(ParamWidget* param);
+    void addStyle(Module* module) {
+        const float styleRow1 = 210;
+        const float styleRow2 = styleRow1 + 50;
+
+        const float dx = 40;
+        const float x0 = 10;
+        const float x1 = x0 + dx + 10;
+        const float x2 = x1 + dx;
+        const float x3 = x2 + dx;
+
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow1), module, Comp::DESIRED_CENTER_PARAM, "center", 8);
+
+        addWeightKnob(module, x1, styleRow1, Comp::NON_CENTERED_WEIGHT_STYLE_PARAM, Comp::NON_CENTERED_WEIGHT_STYLE_LIGHT, "ctr w", 8);
+        addWeightKnob(module, x2, styleRow1, Comp::LEAPS_WEIGHT_STYLE_PARAM, Comp::LEAPS_WEIGHT_STYLE_LIGHT, "leaps", 8);
+        addWeightKnob(module, x3, styleRow1, Comp::CONSONANT_WEIGHT_PARAM, Comp::CONSONANT_WEIGHT_LIGHT, "cnsnnt", 8);
+
+        addParamL<RoundBlackKnob>(Vec(x0, styleRow2), module, Comp::PITCH_RANGE_STYLE_PARAM, "range", 8);
+
+        addWeightKnob(module, x1, styleRow2, Comp::PITCH_RANGE_WEIGHT_STYLE_PARAM, Comp::PITCH_RANGE_WEIGHT_STYLE_LIGHT, "rng w", 8);
+        addWeightKnob(module, x2, styleRow2, Comp::UNISON_WEIGHT_STYLE_PARAM, Comp::UNISON_WEIGHT_STYLE_LIGHT, "unsn", 6);
+    }
+
     template <typename T>
     ParamWidget* addParamL(const Vec& vec, Module* module, int paramNum, const std::string& text, float label_dx = 0) {
 #ifdef _LAB
@@ -139,17 +154,12 @@ private:
 #endif
     }
 
-    const float x0 = 11;
-    const float x1 = 54.5;  // 50 too far left
-    const float x2 = 100;
-    const float xPes = x2;
-
     void addKeysig(MutatorModule* xmodule) {
-        const float yScale = 270;
+        const float yScale = 80;
         const float yMode = yScale;
 
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(8, yScale),
+            Vec(xCol1, yScale),
             module,
             Comp::KEY_PARAM);
         p->setLabels(Scale::getRootLabels(false));
@@ -157,14 +167,11 @@ private:
         p->box.size.y = 22;
         p->text = "C";
         addParam(p);
-        //     _keyRootWidget = p;  // remember this so we can poll it.
 
         p = createParam<PopupMenuParamWidget>(
-            Vec(60, yMode),
+            Vec(xCol2, yMode),
             module,
             Comp::MODE_PARAM);
-        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
-        // Let user select whatever whey want
         p->setShortLabels(Scale::getShortScaleLabels(false));
         p->setLabels(Scale::getScaleLabels(false));
         p->box.size.x = 70;  // width
@@ -174,9 +181,9 @@ private:
     }
 
     void addStyle2(Module* module) {
-        const float y = 100;
+        const float y = 140;
         PopupMenuParamWidget* p = createParam<PopupMenuParamWidget>(
-            Vec(8, y),
+            Vec(xCol1, y),
             module,
             Comp::SLOTS_TO_CHANGE_PARAM);
         p->setLabels({"all", "1", "2", "3", "4"});
@@ -185,48 +192,32 @@ private:
         p->text = "1";
         addParam(p);
 
-        //  addParam(createParam<CKSSThree>(Vec(80, y), module, Comp::ADJACENCY_STYLE_PARAM));
-        /*
-        enum SlotSelectionMethod {
-      ROUND_ROBIN_ADJACENT,
-      ROUND_ROBIN_DISTRIBUTED,
-      RANDOM_ADJACENT,
-      RANDOM_DISTRIBUTED,
-      RANDOM_RANDOM,            // selection of all slots is random.
-  };
-  */
+        const float labelDY = -23;
+        Vec vlabel(xCol1 + 4, y + labelDY);
+        addLabel(vlabel, "# mutate");
+
+        Vec vlabel2(xCol2 + 14, y + labelDY);
+        addLabel(vlabel2, "Selection mode");
+
         p = createParam<PopupMenuParamWidget>(
-            Vec(60, y),
+            Vec(xCol2, y),
             module,
             Comp::ADJACENCY_STYLE_PARAM);
-        //   const bool diatonicOnly = xmodule ? xmodule->getComp()->diatonicOnly() : false;
-        // Let user select whatever whey want
-        p->setShortLabels({
-            "rr, adj",
-            "rr, dst",
-            "rnd, adj",
-            "rnd, dst",
-            "rnd, rnd"
-        });
-     
-        p->setLabels({
-            "round robin, adjacent",
-            "round robin, distributed",
-            "random, adjacent",
-            "random, distributed",
-            "random, random"
-        });
-        p->box.size.x = 70;  // width
+        p->setShortLabels({"rr, adj",
+                           "rr, dst",
+                           "rnd, adj",
+                           "rnd, dst",
+                           "rnd, rnd"});
+
+        p->setLabels({"round robin, adjacent",
+                      "round robin, distributed",
+                      "random, adjacent",
+                      "random, distributed",
+                      "random, random"});
+        p->box.size.x = 70;
         p->box.size.y = 22;
         p->text = "Maj";
         addParam(p);
-    }
-
-    void addDebug(Module* module) {
-        const float y = 360;  // 350 too high
-        //  void addInputL(const Vec& vec, int outputNumber, const std::string& text, float label_dx = 0) {
-        addInputL(Vec(0, y), Comp::REINIT_INPUT, "re ini", 9);
-        addInputL(Vec(110, y), Comp::DEBUG_EVAL_INPUT, "eval", 3);
     }
 };
 
